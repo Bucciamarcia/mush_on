@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "337862523976",
+    "project_id": "mush-on",
+    "storage_bucket": "mush-on.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:337862523976:android:879d6deefe9a6172d4ec7d",
+        "android_client_info": {
+          "package_name": "com.stefanominiconsulting.mush_on"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCT4eTNzos2L1sC4aDJdJpQpBtk4eeWMeo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
