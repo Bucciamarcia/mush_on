@@ -97,21 +97,24 @@ class PairRetriever extends StatelessWidget {
                   TextEditingController controller,
                   FocusNode focusNode,
                   VoidCallback onFieldSubmitted) {
-                return TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  onSubmitted: (String value) {
-                    onFieldSubmitted();
-                  },
-                  decoration: InputDecoration(
-                    labelText: "no moi!",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                return SizedBox(
+                  height: 50,
+                  child: TextField(
+                    style: TextStyle(fontSize: 14),
+                    controller: controller,
+                    focusNode: focusNode,
+                    onSubmitted: (String value) {
+                      onFieldSubmitted();
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Select a dog",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      filled: true,
+                      fillColor: Colors.blue,
                     ),
-                    filled: true,
-                    fillColor: Colors.blue,
                   ),
-                  style: TextStyle(fontSize: 10),
                 );
               },
               initialValue: TextEditingValue(text: currentValue ?? ""),
@@ -135,11 +138,16 @@ class PairRetriever extends StatelessWidget {
             ),
           ),
           currentValue == ""
-              ? SizedBox.shrink() // Use SizedBox.shrink() instead of Text("")
-              : IconButton(
-                  onPressed: () =>
-                      {cancelDogPosition(positionNumber, context, teams)},
-                  icon: Icon(Icons.delete),
+              ? SizedBox.shrink()
+              : Center(
+                  child: IconButton(
+                    onPressed: () => {
+                      cancelDogPosition(positionNumber, context, teams),
+                    },
+                    icon: Icon(Icons.delete),
+                    constraints: BoxConstraints(),
+                    padding: EdgeInsets.zero,
+                  ),
                 ),
         ],
       ),
