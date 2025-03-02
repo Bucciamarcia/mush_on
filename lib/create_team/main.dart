@@ -77,12 +77,19 @@ class PairRetriever extends StatelessWidget {
   Widget dropDownButtonConstructor(
       var teams, int positionNumber, BuildContext context) {
     final DogProvider dogProvider = context.watch<DogProvider>();
+    final CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
+    List<String> duplicateDogs = teamProvider.duplicateDogs;
     String? currentValue =
         (teams[teamNumber]["dogs"] as List)[rowNumber][positionNumber];
+    bool isDuplicate;
+    if (duplicateDogs.contains(currentValue)) {
+      isDuplicate = true;
+    } else {
+      isDuplicate = false;
+    }
     final List<Dog> dogs = dogProvider.dogs;
     final List<String> dogsList = getDogNames(dogs);
 
-    // Using a key that depends on current value to force rebuild when the value changes
     final autoCompleteKey =
         ValueKey('${teamNumber}_${rowNumber}_${positionNumber}_$currentValue');
 
@@ -90,76 +97,110 @@ class PairRetriever extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            // Add this Expanded widget to constrain the Autocomplete
-            child: Autocomplete<String>(
-              key: autoCompleteKey,
-              fieldViewBuilder: (BuildContext context,
-                  TextEditingController controller,
-                  FocusNode focusNode,
-                  VoidCallback onFieldSubmitted) {
-                return SizedBox(
-                  height: 50,
-                  child: TextField(
-                    style: TextStyle(fontSize: 14),
-                    controller: controller,
-                    focusNode: focusNode,
-                    onSubmitted: (String value) {
-                      onFieldSubmitted();
-                    },
-                    decoration: InputDecoration(
-                      labelText: "Select a dog",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+            child: Column(
+              children: [
+                Autocomplete<String>(
+                  key: autoCompleteKey,
+                  fieldViewBuilder: (BuildContext context,
+                      TextEditingController controller,
+                      FocusNode focusNode,
+                      VoidCallback onFieldSubmitted) {
+                    return SizedBox(
+                      height: 50,
+                      child: TextField(
+                        style: TextStyle(fontSize: 14),
+                        controller: controller,
+                        focusNode: focusNode,
+                        onSubmitted: (String value) {
+                          onFieldSubmitted();
+                        },
+                        decoration: InputDecoration(
+                          labelText: "Select a dog",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          filled: true,
+                          fillColor: isDuplicate ? Colors.red : Colors.blue,
+                        ),
                       ),
-                      filled: true,
-                      fillColor: Colors.blue,
-                    ),
-                  ),
-                );
-              },
-              initialValue: TextEditingValue(text: currentValue ?? ""),
-              optionsBuilder: (textEditingValue) {
-                if (textEditingValue.text == "") {
-                  return const Iterable<String>.empty();
-                } else {
-                  return dogsList.where((option) => option
-                      .toLowerCase()
-                      .contains(textEditingValue.text.toLowerCase()));
-                }
-              },
-              onSelected: (option) => {
-                Provider.of<CreateTeamProvider>(context, listen: false)
-                    .changeDog(
-                        newName: option,
-                        teamNumber: teamNumber,
-                        rowNumber: rowNumber,
-                        dogPosition: positionNumber),
-              },
+                    );
+                  },
+                  initialValue: TextEditingValue(text: currentValue ?? ""),
+                  optionsBuilder: (textEditingValue) {
+                    if (textEditingValue.text == "") {
+                      return const Iterable<String>.empty();
+                    } else {
+                      return dogsList.where((option) => option
+                          .toLowerCase()
+                          .contains(textEditingValue.text.toLowerCase()));
+                    }
+                  },
+                  onSelected: (option) => {
+                    Provider.of<CreateTeamProvider>(context, listen: false)
+                        .changeDog(
+                            newName: option,
+                            teamNumber: teamNumber,
+                            rowNumber: rowNumber,
+                            dogPosition: positionNumber),
+                  },
+                ),
+                isDuplicate
+                    ? Text(
+                        "this dog is duplicate!",
+                        style: TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.bold),
+                      )
+                    : SizedBox.shrink()
+              ],
             ),
           ),
           currentValue == ""
               ? SizedBox.shrink()
               : Center(
-                  child: IconButton(
-                    onPressed: () => {
-                      cancelDogPosition(positionNumber, context, teams),
-                    },
-                    icon: Icon(Icons.delete),
-                    constraints: BoxConstraints(),
-                    padding: EdgeInsets.zero,
+                  child: IconDeleteDog(
+                    teamNumber: teamNumber,
+                    rowNumber: rowNumber,
+                    positionNumber: positionNumber,
                   ),
                 ),
         ],
       ),
     );
   }
+}
 
-  void cancelDogPosition(int positionNumber, BuildContext context,
-      List<Map<String, Object>> teams) {
-    Provider.of<CreateTeamProvider>(context, listen: false).changeDog(
-        newName: "",
-        teamNumber: teamNumber,
-        rowNumber: rowNumber,
-        dogPosition: positionNumber);
+class IconDeleteDog extends StatelessWidget {
+  const IconDeleteDog(
+      {super.key,
+      required this.teamNumber,
+      required this.rowNumber,
+      required this.positionNumber});
+
+  final int teamNumber;
+  final int rowNumber;
+  final int positionNumber;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 25,
+      height: 25,
+      child: IconButton(
+        onPressed: () => {
+          Provider.of<CreateTeamProvider>(context, listen: false).changeDog(
+              newName: "",
+              teamNumber: teamNumber,
+              rowNumber: rowNumber,
+              dogPosition: positionNumber),
+        },
+        icon: Icon(
+          Icons.delete,
+          size: 25,
+          color: Colors.red,
+        ),
+        constraints: BoxConstraints(),
+        padding: EdgeInsets.zero,
+      ),
+    );
   }
 }

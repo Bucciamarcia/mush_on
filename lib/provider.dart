@@ -15,7 +15,8 @@ class DogProvider extends ChangeNotifier {
         .collection("data/kennel/dogs")
         .snapshots()
         .listen((snapshot) {
-      _dogs = snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList();
+      _dogs = snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList()
+        ..sort((a, b) => a.name.compareTo(b.name));
       notifyListeners(); // Notify UI to rebuild
     });
   }

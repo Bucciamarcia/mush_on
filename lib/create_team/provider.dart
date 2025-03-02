@@ -15,6 +15,8 @@ class CreateTeamProvider extends ChangeNotifier {
     }
   ];
 
+  List<String> duplicateDogs = [];
+
   changeGlobalName(String newName) {
     name = newName;
     notifyListeners();
@@ -61,6 +63,35 @@ class CreateTeamProvider extends ChangeNotifier {
       required int rowNumber,
       required int dogPosition}) {
     (teams[teamNumber]["dogs"] as List)[rowNumber][dogPosition] = newName;
+    updateDuplicateDogs();
+    notifyListeners();
+  }
+
+  updateDuplicateDogs() {
+    duplicateDogs = [];
+    Map<String, int> dogCounts = {};
+
+    // Count occurrences of each dog
+    for (Map team in teams) {
+      List<List<String>> rows = team["dogs"] as List<List<String>>;
+      for (List<String> row in rows) {
+        for (String dog in row) {
+          // Skip empty strings
+          if (dog.isEmpty) continue;
+
+          // Increment dog count
+          dogCounts[dog] = (dogCounts[dog] ?? 0) + 1;
+        }
+      }
+    }
+
+    // Add to duplicateDogs if count > 1
+    dogCounts.forEach((dog, count) {
+      if (count > 1) {
+        duplicateDogs.add(dog);
+      }
+    });
+
     notifyListeners();
   }
 }
