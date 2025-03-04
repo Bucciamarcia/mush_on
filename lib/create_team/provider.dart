@@ -35,6 +35,11 @@ class CreateTeamProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  removeTeam({required int teamNumber}) {
+    teams.removeAt(teamNumber);
+    notifyListeners();
+  }
+
   changeDate(DateTime newDate) {
     date = newDate;
     notifyListeners();

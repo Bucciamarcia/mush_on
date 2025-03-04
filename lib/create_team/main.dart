@@ -41,7 +41,6 @@ class _TeamRetrieverState extends State<TeamRetriever> {
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is disposed
     textController.dispose();
     super.dispose();
   }
@@ -51,7 +50,6 @@ class _TeamRetrieverState extends State<TeamRetriever> {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
     List<Map<String, Object>> teams = teamProvider.teams;
 
-    // Ensure teamNumber is within range
     if (widget.teamNumber >= teams.length) {
       return const Text("Invalid team number");
     }
@@ -90,7 +88,12 @@ class _TeamRetrieverState extends State<TeamRetriever> {
               (entry) => PairRetriever(
                   teamNumber: widget.teamNumber, rowNumber: entry.key),
             ),
-        Text("moi")
+        Row(
+          children: [
+            AddTeamWidget(teamNumber: widget.teamNumber),
+            RemoveTeamWidget(teamNumber: widget.teamNumber),
+          ],
+        ),
       ],
     );
   }
@@ -243,5 +246,38 @@ class IconDeleteDog extends StatelessWidget {
         padding: EdgeInsets.zero,
       ),
     );
+  }
+}
+
+class AddTeamWidget extends StatelessWidget {
+  final int teamNumber;
+  const AddTeamWidget({super.key, required this.teamNumber});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () => Provider.of<CreateTeamProvider>(context, listen: false)
+          .addTeam(teamNumber: teamNumber + 1),
+      child: Text("Add team"),
+    );
+  }
+}
+
+class RemoveTeamWidget extends StatelessWidget {
+  final int teamNumber;
+  const RemoveTeamWidget({super.key, required this.teamNumber});
+
+  @override
+  Widget build(BuildContext context) {
+    CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
+    int teamsNumber = teamProvider.teams.length;
+    return ElevatedButton(
+        onPressed: () {
+          if (teamsNumber > 1) {
+            Provider.of<CreateTeamProvider>(context, listen: false)
+                .removeTeam(teamNumber: teamNumber);
+          }
+        },
+        child: Text("Remove team"));
   }
 }
