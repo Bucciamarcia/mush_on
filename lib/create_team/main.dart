@@ -20,9 +20,31 @@ class CreateTeamMain extends StatelessWidget {
   }
 }
 
-class TeamRetriever extends StatelessWidget {
+class TeamRetriever extends StatefulWidget {
   final int teamNumber;
   const TeamRetriever({super.key, required this.teamNumber});
+
+  @override
+  State<TeamRetriever> createState() => _TeamRetrieverState();
+}
+
+class _TeamRetrieverState extends State<TeamRetriever> {
+  late TextEditingController textController;
+  @override
+  void initState() {
+    super.initState();
+    CreateTeamProvider teamProvider =
+        Provider.of<CreateTeamProvider>(context, listen: false);
+    textController = TextEditingController(
+        text: teamProvider.teams[widget.teamNumber]["name"] as String);
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed
+    textController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,26 +52,45 @@ class TeamRetriever extends StatelessWidget {
     List<Map<String, Object>> teams = teamProvider.teams;
 
     // Ensure teamNumber is within range
-    if (teamNumber >= teams.length) {
+    if (widget.teamNumber >= teams.length) {
       return const Text("Invalid team number");
     }
 
-    return getTeam(teams[teamNumber]);
+    return Column(
+      children: [
+        getTeam(teams[widget.teamNumber], teams, context),
+        // Debug: fetch team object from provider
+        Text(teams[widget.teamNumber].toString())
+      ],
+    );
   }
 
-  Widget getTeam(Map<String, Object> team) {
-    String teamName = team["name"] as String;
+  Widget getTeam(Map<String, Object> team, List<Map<String, Object>> teams,
+      BuildContext context) {
+    CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
+    if (textController.text != teamProvider.teams[widget.teamNumber]["name"] &&
+        !textController.selection.isValid) {
+      textController.text =
+          teamProvider.teams[widget.teamNumber]["name"] as String;
+    }
     List<List<String>> dogPairs = List<List<String>>.from(team["dogs"] as List);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(teamName,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        TextField(
+            controller: textController,
+            decoration: InputDecoration(labelText: "Team name"),
+            onChanged: (String text) {
+              Provider.of<CreateTeamProvider>(context, listen: false)
+                  .changeTeamName(widget.teamNumber, text);
+            }),
+        SizedBox(height: 10),
         ...dogPairs.asMap().entries.map(
-              (entry) =>
-                  PairRetriever(teamNumber: teamNumber, rowNumber: entry.key),
+              (entry) => PairRetriever(
+                  teamNumber: widget.teamNumber, rowNumber: entry.key),
             ),
+        Text("moi")
       ],
     );
   }
@@ -120,7 +161,7 @@ class PairRetriever extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           filled: true,
-                          fillColor: isDuplicate ? Colors.red : Colors.blue,
+                          fillColor: isDuplicate ? Colors.red : null,
                         ),
                       ),
                     );
