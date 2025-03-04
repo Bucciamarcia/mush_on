@@ -4,19 +4,51 @@ import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:provider/provider.dart';
 
-class CreateTeamMain extends StatelessWidget {
+class CreateTeamMain extends StatefulWidget {
   const CreateTeamMain({super.key});
+
+  @override
+  State<CreateTeamMain> createState() => _CreateTeamMainState();
+}
+
+class _CreateTeamMainState extends State<CreateTeamMain> {
+  late TextEditingController globalNamecontroller;
+  @override
+  void initState() {
+    super.initState();
+    CreateTeamProvider teamProvider =
+        Provider.of<CreateTeamProvider>(context, listen: false);
+    globalNamecontroller = TextEditingController(text: teamProvider.name);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    globalNamecontroller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
     List<Map<String, Object>> teams = teamProvider.teams;
 
-    return ListView(
-      children: teams.asMap().entries.map((entry) {
-        return TeamRetriever(teamNumber: entry.key);
-      }).toList(),
-    );
+    return ListView(children: [
+      TextField(
+        controller: globalNamecontroller,
+        decoration: InputDecoration(labelText: "Group name"),
+        onChanged: (String text) {
+          Provider.of<CreateTeamProvider>(context, listen: false)
+              .changeGlobalName(text);
+        },
+      ),
+      Text(teamProvider.name),
+      ...teams.asMap().entries.map(
+        (entry) {
+          return TeamRetriever(teamNumber: entry.key);
+        },
+      ),
+    ]);
   }
 }
 
