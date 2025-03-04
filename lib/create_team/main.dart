@@ -120,6 +120,17 @@ class _TeamRetrieverState extends State<TeamRetriever> {
               (entry) => PairRetriever(
                   teamNumber: widget.teamNumber, rowNumber: entry.key),
             ),
+        SizedBox(
+          height: 10,
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Provider.of<CreateTeamProvider>(context, listen: false).addRow(
+              teamNumber: widget.teamNumber,
+            );
+          },
+          child: Text("no moi"),
+        ),
         Row(
           children: [
             AddTeamWidget(teamNumber: widget.teamNumber),
@@ -145,7 +156,24 @@ class PairRetriever extends StatelessWidget {
       children: [
         dropDownButtonConstructor(teams, 0, context),
         Text(" - "),
-        dropDownButtonConstructor(teams, 1, context)
+        dropDownButtonConstructor(teams, 1, context),
+        IconButton(
+          onPressed: () {
+            Provider.of<CreateTeamProvider>(context, listen: false)
+                .removeRow(teamNumber: teamNumber, rowNumber: rowNumber);
+            print("Row deleted: $rowNumber, teamNumber: $teamNumber");
+          },
+          icon: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(2),
+              color: Colors.redAccent,
+            ),
+            child: Icon(
+              Icons.remove,
+              color: Colors.white,
+            ),
+          ),
+        ),
       ],
     );
   }

@@ -50,7 +50,7 @@ class CreateTeamProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  addRow({required int teamNumber, required int positionNumber}) {
+  addRow({required int teamNumber}) {
     List<List<String>> dogList = List<List<String>>.from(
       teams[teamNumber]["dogs"] as List<dynamic>,
     );
@@ -59,6 +59,15 @@ class CreateTeamProvider extends ChangeNotifier {
 
     teams[teamNumber] = {"name": teams[teamNumber]["name"]!, "dogs": dogList};
 
+    notifyListeners();
+  }
+
+  removeRow({required int teamNumber, required int rowNumber}) {
+    List<List<String>> dogList = List<List<String>>.from(
+      teams[teamNumber]["dogs"] as List<dynamic>,
+    );
+    dogList.removeAt(rowNumber);
+    teams[teamNumber] = {"name": teams[teamNumber]["name"]!, "dogs": dogList};
     notifyListeners();
   }
 
