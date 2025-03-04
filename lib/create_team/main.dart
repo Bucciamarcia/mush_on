@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/models.dart';
@@ -33,22 +34,33 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
     List<Map<String, Object>> teams = teamProvider.teams;
 
-    return ListView(children: [
-      TextField(
-        controller: globalNamecontroller,
-        decoration: InputDecoration(labelText: "Group name"),
-        onChanged: (String text) {
-          Provider.of<CreateTeamProvider>(context, listen: false)
-              .changeGlobalName(text);
-        },
-      ),
-      Text(teamProvider.name),
-      ...teams.asMap().entries.map(
-        (entry) {
-          return TeamRetriever(teamNumber: entry.key);
-        },
-      ),
-    ]);
+    return ListView(
+      children: [
+        TextField(
+          controller: globalNamecontroller,
+          decoration: InputDecoration(labelText: "Group name"),
+          onChanged: (String text) {
+            Provider.of<CreateTeamProvider>(context, listen: false)
+                .changeGlobalName(text);
+          },
+        ),
+        ...teams.asMap().entries.map(
+          (entry) {
+            return TeamRetriever(teamNumber: entry.key);
+          },
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () async {
+            String teamString =
+                Provider.of<CreateTeamProvider>(context, listen: false)
+                    .createTeamsString();
+            Clipboard.setData(ClipboardData(text: teamString));
+          },
+          child: Text("Copy teams"),
+        )
+      ],
+    );
   }
 }
 
@@ -89,8 +101,6 @@ class _TeamRetrieverState extends State<TeamRetriever> {
     return Column(
       children: [
         getTeam(teams[widget.teamNumber], teams, context),
-        // Debug: fetch team object from provider
-        Text(teams[widget.teamNumber].toString())
       ],
     );
   }
@@ -129,7 +139,7 @@ class _TeamRetrieverState extends State<TeamRetriever> {
               teamNumber: widget.teamNumber,
             );
           },
-          child: Text("no moi"),
+          child: Text("Add new row"),
         ),
         Row(
           children: [
@@ -161,7 +171,6 @@ class PairRetriever extends StatelessWidget {
           onPressed: () {
             Provider.of<CreateTeamProvider>(context, listen: false)
                 .removeRow(teamNumber: teamNumber, rowNumber: rowNumber);
-            print("Row deleted: $rowNumber, teamNumber: $teamNumber");
           },
           icon: Container(
             decoration: BoxDecoration(
@@ -218,6 +227,24 @@ class PairRetriever extends StatelessWidget {
                         onSubmitted: (String value) {
                           onFieldSubmitted();
                         },
+                        onTap: () {
+                          // This will trigger options to show when the field is tapped
+                          // by opening the options menu with the current text
+                          if (controller.text.isEmpty) {
+                            controller.value = TextEditingValue(
+                              text:
+                                  ' ', // Set a space temporarily to show all options
+                              selection: TextSelection.collapsed(offset: 1),
+                            );
+                            // Restore to empty after options are displayed
+                            Future.delayed(Duration(milliseconds: 100), () {
+                              controller.value = TextEditingValue(
+                                text: '',
+                                selection: TextSelection.collapsed(offset: 0),
+                              );
+                            });
+                          }
+                        },
                         decoration: InputDecoration(
                           labelText: "Select a dog",
                           border: OutlineInputBorder(
@@ -231,21 +258,23 @@ class PairRetriever extends StatelessWidget {
                   },
                   initialValue: TextEditingValue(text: currentValue ?? ""),
                   optionsBuilder: (textEditingValue) {
-                    if (textEditingValue.text == "") {
-                      return const Iterable<String>.empty();
+                    // Show all options if empty or has just a space (from onTap)
+                    if (textEditingValue.text.isEmpty ||
+                        textEditingValue.text == " ") {
+                      return dogsList;
                     } else {
                       return dogsList.where((option) => option
                           .toLowerCase()
                           .contains(textEditingValue.text.toLowerCase()));
                     }
                   },
-                  onSelected: (option) => {
+                  onSelected: (option) {
                     Provider.of<CreateTeamProvider>(context, listen: false)
                         .changeDog(
                             newName: option,
                             teamNumber: teamNumber,
                             rowNumber: rowNumber,
-                            dogPosition: positionNumber),
+                            dogPosition: positionNumber);
                   },
                 ),
                 isDuplicate

@@ -12,6 +12,6 @@ class CreateTeamScreen extends StatelessWidget {
     return ChangeNotifierProvider(
         create: (context) => CreateTeamProvider(),
         child: const TemplateScreen(
-            title: "Edit Kennel", child: CreateTeamMain()));
+            title: "Create team", child: CreateTeamMain()));
   }
 }

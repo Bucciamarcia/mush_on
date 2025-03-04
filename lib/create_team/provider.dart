@@ -108,4 +108,29 @@ class CreateTeamProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  String createTeamsString() {
+    String stringTeams = "$name\n\n";
+    for (Map<String, Object> team in teams) {
+      stringTeams = stringTeams + stringifyTeam(team);
+      stringTeams = "$stringTeams\n";
+    }
+    // Remove last 2 "\n" before returning
+    stringTeams = stringTeams.substring(0, stringTeams.length - 2);
+    return stringTeams;
+  }
+
+  String stringifyTeam(Map<String, Object> team) {
+    String streamTeam = team["name"] as String;
+    String dogPairs = stringifyDogPairs(team["dogs"] as List<List<String>>);
+    return "$streamTeam$dogPairs\n";
+  }
+
+  String stringifyDogPairs(List<List<String>> teamDogs) {
+    String dogList = "";
+    for (List dogPair in teamDogs) {
+      dogList = "$dogList\n${dogPair[0]} - ${dogPair[1]}";
+    }
+    return dogList;
+  }
 }
