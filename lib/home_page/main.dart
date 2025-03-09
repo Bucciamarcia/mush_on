@@ -21,7 +21,13 @@ class HomePageScreenContent extends StatelessWidget {
             child: const Text(
               "Edit kennel",
             ),
-          )
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, "/teamshistory"),
+            child: const Text(
+              "Teams history",
+            ),
+          ),
         ],
       ),
     );
