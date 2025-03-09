@@ -95,28 +95,23 @@ class _DateTimePickerState extends State<DateTimePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       children: [
-        Row(
-          children: [
-            Flexible(
-              child: TextField(
-                controller: dateController,
-                decoration: InputDecoration(labelText: "Date"),
-                readOnly: true,
-                onTap: () => _selectDate(context),
-              ),
-            ),
-            Flexible(
-                child: TextField(
-              controller: timeController,
-              decoration: InputDecoration(labelText: "Time"),
-              readOnly: true,
-              onTap: () => _selectTime(context),
-            ))
-          ],
+        Flexible(
+          child: TextField(
+            controller: dateController,
+            decoration: InputDecoration(labelText: "Date"),
+            readOnly: true,
+            onTap: () => _selectDate(context),
+          ),
         ),
-        Text(teamProvider.date.toString())
+        Flexible(
+            child: TextField(
+          controller: timeController,
+          decoration: InputDecoration(labelText: "Time"),
+          readOnly: true,
+          onTap: () => _selectTime(context),
+        ))
       ],
     );
   }
