@@ -36,6 +36,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
 
     return ListView(
       children: [
+        DateTimePicker(),
         TextField(
           controller: globalNamecontroller,
           decoration: InputDecoration(labelText: "Group name"),
@@ -61,6 +62,94 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
         )
       ],
     );
+  }
+}
+
+class DateTimePicker extends StatefulWidget {
+  const DateTimePicker({
+    super.key,
+  });
+
+  @override
+  State<DateTimePicker> createState() => _DateTimePickerState();
+}
+
+class _DateTimePickerState extends State<DateTimePicker> {
+  late TextEditingController dateController;
+  late TextEditingController timeController;
+  late CreateTeamProvider teamProvider;
+  @override
+  void initState() {
+    teamProvider = Provider.of<CreateTeamProvider>(context, listen: false);
+    dateController = TextEditingController();
+    dateController.text = teamProvider.date.toString().split(" ")[0];
+    timeController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    dateController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Flexible(
+              child: TextField(
+                controller: dateController,
+                decoration: InputDecoration(labelText: "Date"),
+                readOnly: true,
+                onTap: () => _selectDate(context),
+              ),
+            ),
+            Flexible(
+                child: TextField(
+              controller: timeController,
+              decoration: InputDecoration(labelText: "Time"),
+              readOnly: true,
+              onTap: () => _selectTime(context),
+            ))
+          ],
+        ),
+        Text(teamProvider.date.toString())
+      ],
+    );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2100));
+
+    if (picked != null) {
+      setState(
+        () {
+          dateController.text = picked.toString().split(" ")[0];
+        },
+      );
+      teamProvider.changeDate(picked);
+    }
+  }
+
+  Future<void> _selectTime(BuildContext context) async {
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (pickedTime != null) {
+      setState(() {
+        timeController.text =
+            "${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}";
+      });
+      teamProvider.changeTime(pickedTime);
+    }
   }
 }
 

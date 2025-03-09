@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class CreateTeamProvider extends ChangeNotifier {
   DateTime date = DateTime.now().toUtc();
@@ -40,8 +41,16 @@ class CreateTeamProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Changes the date but leaves the time of day unchanged
   changeDate(DateTime newDate) {
-    date = newDate;
+    date = DateTime(
+        newDate.year, newDate.month, newDate.day, date.hour, date.minute);
+    notifyListeners();
+  }
+
+  /// Changes the time of day but leaves the date unchanged
+  changeTime(TimeOfDay time) {
+    date = DateTime(date.year, date.month, date.day, time.hour, time.minute);
     notifyListeners();
   }
 
