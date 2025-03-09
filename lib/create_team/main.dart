@@ -5,6 +5,9 @@ import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:provider/provider.dart';
 
+import 'save_teams_button.dart';
+import 'select_datetime.dart';
+
 class CreateTeamMain extends StatefulWidget {
   const CreateTeamMain({super.key});
 
@@ -59,92 +62,10 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
             Clipboard.setData(ClipboardData(text: teamString));
           },
           child: Text("Copy teams"),
-        )
-      ],
-    );
-  }
-}
-
-class DateTimePicker extends StatefulWidget {
-  const DateTimePicker({
-    super.key,
-  });
-
-  @override
-  State<DateTimePicker> createState() => _DateTimePickerState();
-}
-
-class _DateTimePickerState extends State<DateTimePicker> {
-  late TextEditingController dateController;
-  late TextEditingController timeController;
-  late CreateTeamProvider teamProvider;
-  @override
-  void initState() {
-    teamProvider = Provider.of<CreateTeamProvider>(context, listen: false);
-    dateController = TextEditingController();
-    dateController.text = teamProvider.date.toString().split(" ")[0];
-    timeController = TextEditingController();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    dateController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Flexible(
-          child: TextField(
-            controller: dateController,
-            decoration: InputDecoration(labelText: "Date"),
-            readOnly: true,
-            onTap: () => _selectDate(context),
-          ),
         ),
-        Flexible(
-            child: TextField(
-          controller: timeController,
-          decoration: InputDecoration(labelText: "Time"),
-          readOnly: true,
-          onTap: () => _selectTime(context),
-        ))
+        SaveTeamsButton()
       ],
     );
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2100));
-
-    if (picked != null) {
-      setState(
-        () {
-          dateController.text = picked.toString().split(" ")[0];
-        },
-      );
-      teamProvider.changeDate(picked);
-    }
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (pickedTime != null) {
-      setState(() {
-        timeController.text =
-            "${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}";
-      });
-      teamProvider.changeTime(pickedTime);
-    }
   }
 }
 
@@ -285,7 +206,7 @@ class PairRetriever extends StatelessWidget {
       isDuplicate = false;
     }
     final List<Dog> dogs = dogProvider.dogs;
-    final List<String> dogsList = getDogNames(dogs);
+    final List<String> dogsList = Dog().getDogNames(dogs);
 
     final autoCompleteKey =
         ValueKey('${teamNumber}_${rowNumber}_${positionNumber}_$currentValue');
@@ -312,8 +233,6 @@ class PairRetriever extends StatelessWidget {
                           onFieldSubmitted();
                         },
                         onTap: () {
-                          // This will trigger options to show when the field is tapped
-                          // by opening the options menu with the current text
                           if (controller.text.isEmpty) {
                             controller.value = TextEditingValue(
                               text:

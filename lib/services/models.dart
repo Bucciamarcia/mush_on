@@ -55,9 +55,9 @@ class Dog {
         .map((snapshot) =>
             snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList());
   }
-}
 
-/// Returns a list of dog names from a list of Dog objects
-List<String> getDogNames(List<Dog> dogObjects) {
-  return dogObjects.map((dog) => dog.name).toList();
+  /// Returns a list of dog names from a list of Dog objects
+  List<String> getDogNames(List<Dog> dogObjects) {
+    return dogObjects.map((dog) => dog.name).toList();
+  }
 }
