@@ -63,7 +63,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
           },
           child: Text("Copy teams"),
         ),
-        SaveTeamsButton()
+        SaveTeamsButton(teamProvider: teamProvider)
       ],
     );
   }
