@@ -71,32 +71,56 @@ class TeamViewer extends StatelessWidget {
     for (var team in originalTeams) {
       Map<String, dynamic> dogs = team['dogs'];
 
-      // Create dogs 2D array with 3 rows and 2 columns, initially empty
-      List<List<String>> dogsArray = [
-        ["", ""],
-        ["", ""],
-        ["", ""]
-      ];
+      // Find the maximum row number to determine array size
+      int maxRowIndex = -1;
+      List<String> sortedKeys = dogs.keys.toList();
+      for (var key in sortedKeys) {
+        if (key.startsWith('row_')) {
+          int rowIndex = int.parse(key.split('_')[1]);
+          if (rowIndex > maxRowIndex) {
+            maxRowIndex = rowIndex;
+          }
+        }
+      }
 
-      // Fill in the dogs array from the original structure
-      dogs.forEach((rowKey, rowValue) {
+      // Create dogs 2D array with the appropriate number of rows (maxRowIndex + 1) and 2 columns
+      List<List<String>> dogsArray =
+          List.generate(maxRowIndex + 1, (_) => ["", ""]);
+
+      // Sort the keys to ensure we process rows in order
+      sortedKeys.sort((a, b) {
+        int numA = int.parse(a.split('_')[1]);
+        int numB = int.parse(b.split('_')[1]);
+        return numA.compareTo(numB);
+      });
+
+      // Fill in the dogs array from the original structure in order
+      for (var rowKey in sortedKeys) {
         // Extract row index from key (e.g., "row_0" -> 0)
         int rowIndex = int.parse(rowKey.split('_')[1]);
+        Map<String, dynamic> rowValue = dogs[rowKey];
 
-        // Ensure we don't exceed array bounds
-        if (rowIndex < dogsArray.length) {
-          rowValue.forEach((posKey, dogName) {
-            // Extract position index from key (e.g., "position_1" -> 0)
-            // Subtract 1 because position seems to be 1-indexed but we want 0-indexed
-            int posIndex = int.parse(posKey.split('_')[1]) - 1;
+        // Sort the position keys to ensure we process positions in order
+        List<String> positionKeys = rowValue.keys.toList();
+        positionKeys.sort((a, b) {
+          int numA = int.parse(a.split('_')[1]);
+          int numB = int.parse(b.split('_')[1]);
+          return numA.compareTo(numB);
+        });
 
-            // Ensure we don't exceed array bounds
-            if (posIndex >= 0 && posIndex < dogsArray[rowIndex].length) {
-              dogsArray[rowIndex][posIndex] = dogName;
-            }
-          });
+        // Process each position in the row
+        for (var posKey in positionKeys) {
+          // Extract position index from key (e.g., "position_1" -> 0)
+          // Subtract 1 because position seems to be 1-indexed but we want 0-indexed
+          int posIndex = int.parse(posKey.split('_')[1]) - 1;
+
+          // Ensure we don't exceed array bounds
+          if (posIndex >= 0 && posIndex < 2) {
+            // Assuming always 2 columns
+            dogsArray[rowIndex][posIndex] = rowValue[posKey];
+          }
         }
-      });
+      }
 
       // Add the processed team to the new format
       newTeams.add({"name": team['name'], "dogs": dogsArray});
