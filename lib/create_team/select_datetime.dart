@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'provider.dart';
@@ -65,7 +66,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
     if (picked != null) {
       setState(
         () {
-          dateController.text = picked.toString().split(" ")[0];
+          dateController.text = DateFormat("dd-MM-yy || HH:mm").format(picked);
         },
       );
       teamProvider.changeDate(picked);

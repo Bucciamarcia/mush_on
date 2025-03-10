@@ -124,7 +124,6 @@ class CreateTeamProvider extends ChangeNotifier {
       stringTeams = stringTeams + stringifyTeam(team);
       stringTeams = "$stringTeams\n";
     }
-    // Remove last 2 "\n" before returning
     stringTeams = stringTeams.substring(0, stringTeams.length - 2);
     return stringTeams;
   }
