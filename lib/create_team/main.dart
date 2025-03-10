@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mush_on/create_team/provider.dart';
@@ -9,7 +10,8 @@ import 'save_teams_button.dart';
 import 'select_datetime.dart';
 
 class CreateTeamMain extends StatefulWidget {
-  const CreateTeamMain({super.key});
+  final Map<String, dynamic>? loadedTeam;
+  const CreateTeamMain({super.key, this.loadedTeam});
 
   @override
   State<CreateTeamMain> createState() => _CreateTeamMainState();
@@ -20,10 +22,40 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
   @override
   void initState() {
     super.initState();
-    CreateTeamProvider teamProvider =
+    globalNamecontroller = TextEditingController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initializeTeam();
+    });
+  }
+
+  void initializeTeam() {
+    final teamProvider =
         Provider.of<CreateTeamProvider>(context, listen: false);
-    globalNamecontroller = TextEditingController(text: teamProvider.name);
-    super.initState();
+
+    if (widget.loadedTeam != null) {
+      // Process date with error handling
+      DateTime date = (widget.loadedTeam!["date"] as Timestamp).toDate();
+      teamProvider.changeDate(date);
+
+      TimeOfDay time = TimeOfDay.fromDateTime(date);
+      teamProvider.changeTime(time);
+
+      // Process name with error handling
+      String groupName = widget.loadedTeam!["name"] as String;
+      teamProvider.changeGlobalName(groupName);
+
+      // Process teams with error handling
+      var teams = widget.loadedTeam!["teams"];
+
+      List<Map<String, Object>> processedTeams = teams;
+      teamProvider.changeAllTeams(processedTeams);
+
+      // Update the controller text after setting the provider value
+      globalNamecontroller.text = teamProvider.name;
+    } else {
+      globalNamecontroller.text = teamProvider.name;
+    }
   }
 
   @override

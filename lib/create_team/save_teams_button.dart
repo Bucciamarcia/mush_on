@@ -16,7 +16,9 @@ class SaveTeamsButton extends StatelessWidget {
         saveToDb(teamProvider);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            backgroundColor: Colors.green,
             content: Text("Teams saved"),
+            behavior: SnackBarBehavior.floating,
           ),
         );
       },

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CreateTeamProvider extends ChangeNotifier {
@@ -20,6 +19,11 @@ class CreateTeamProvider extends ChangeNotifier {
 
   changeGlobalName(String newName) {
     name = newName;
+    notifyListeners();
+  }
+
+  changeAllTeams(List<Map<String, Object>> newTeams) {
+    teams = newTeams;
     notifyListeners();
   }
 

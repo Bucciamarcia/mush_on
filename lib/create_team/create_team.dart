@@ -5,13 +5,16 @@ import 'package:mush_on/page_template.dart';
 import 'package:provider/provider.dart';
 
 class CreateTeamScreen extends StatelessWidget {
-  const CreateTeamScreen({super.key});
+  final Map<String, dynamic>? loadedTeam;
+
+  const CreateTeamScreen({super.key, this.loadedTeam});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
         create: (context) => CreateTeamProvider(),
-        child: const TemplateScreen(
-            title: "Create team", child: CreateTeamMain()));
+        child: TemplateScreen(
+            title: "Create team",
+            child: CreateTeamMain(loadedTeam: loadedTeam)));
   }
 }
