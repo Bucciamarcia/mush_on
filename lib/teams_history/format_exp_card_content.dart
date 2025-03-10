@@ -7,9 +7,14 @@ class FormatObject extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      child: Text(
-        formatMap(),
-        textAlign: TextAlign.left,
+      child: Column(
+        children: [
+          Text(item.toString()),
+          Text(
+            formatMap(),
+            textAlign: TextAlign.left,
+          ),
+        ],
       ),
     );
   }

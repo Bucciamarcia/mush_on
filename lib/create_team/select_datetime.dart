@@ -66,7 +66,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
     if (picked != null) {
       setState(
         () {
-          dateController.text = DateFormat("dd-MM-yy || HH:mm").format(picked);
+          dateController.text = DateFormat("dd-MM-yy").format(picked);
         },
       );
       teamProvider.changeDate(picked);

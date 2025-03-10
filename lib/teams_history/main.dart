@@ -32,13 +32,26 @@ class TeamViewer extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(left: 5, right: 3),
         child: ExpansionTile(
-          title: Text(DateFormat("dd-MM-yy || HH:mm")
-              .format((item["date"] as Timestamp).toDate())),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(DateFormat("dd-MM-yy || HH:mm")
+                  .format((item["date"] as Timestamp).toDate())),
+              Text(item["name"]),
+              ElevatedButton(
+                  onPressed: () => sendDataToTeamBuilder(item),
+                  child: Text("Load team"))
+            ],
+          ),
           tilePadding: const EdgeInsets.all(1),
           dense: true,
           children: [FormatObject(item)],
         ),
       ),
     );
+  }
+
+  void sendDataToTeamBuilder(Map<String, dynamic> item) {
+    print(item.toString());
   }
 }
