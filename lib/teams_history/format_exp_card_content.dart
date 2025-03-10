@@ -33,8 +33,8 @@ class FormatObject extends StatelessWidget {
     teamDogs.forEach((key, value) {
       Map<String, dynamic> dogInfo = value as Map<String, dynamic>;
 
-      var position0 = dogInfo["position_0"] ?? "";
-      var position1 = dogInfo["position_1"] ?? "";
+      var position0 = dogInfo["position_1"] ?? "";
+      var position1 = dogInfo["position_2"] ?? "";
 
       teamString = "$teamString\n$position0";
       teamString = "$teamString - $position1";
