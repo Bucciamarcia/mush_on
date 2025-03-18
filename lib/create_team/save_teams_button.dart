@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mush_on/create_team/provider.dart';
+import 'package:mush_on/services/models.dart';
 
 class SaveTeamsButton extends StatelessWidget {
   final CreateTeamProvider teamProvider;
@@ -34,11 +35,11 @@ class SaveTeamsButton extends StatelessWidget {
     QuerySnapshot<Object?> snapshot = await doesTeamExist();
     final FirebaseFirestore db = FirebaseFirestore.instance;
     List<Map<String, dynamic>> cleanTeams =
-        _modifyTeamsForDb(teamProvider.teams);
+        _modifyTeamsForDb(teamProvider.group.teams);
     var data = {
-      "date": teamProvider.date.toUtc(),
-      "name": teamProvider.name,
-      "notes": teamProvider.notes,
+      "date": teamProvider.group.date.toUtc(),
+      "name": teamProvider.group.name,
+      "notes": teamProvider.group.notes,
       "teams": cleanTeams
     };
 
@@ -56,25 +57,26 @@ class SaveTeamsButton extends StatelessWidget {
     }
   }
 
-  List<Map<String, dynamic>> _modifyTeamsForDb(
-      List<Map<String, Object>> teams) {
+  List<Map<String, dynamic>> _modifyTeamsForDb(List<Team> teams) {
     List<Map<String, dynamic>> cleanTeams = [];
 
     for (int i = 0; i < teams.length; i++) {
-      Map team = teams[i];
+      Team team = teams[i];
 
       // Create a new map for this team
       Map<String, dynamic> cleanTeam = {};
-      cleanTeam["name"] = team["name"];
+      cleanTeam["name"] = team.name;
       cleanTeam["dogs"] = {};
 
-      List dogs = team["dogs"] as List;
+      List<DogPair> dogs = team.dogPairs;
       for (int j = 0; j < dogs.length; j++) {
-        List<String> dogsRow = dogs[j].cast<String>();
+        var dogsRow = dogs[j];
 
         // Create the nested map structure
-        cleanTeam["dogs"]
-            ["row_$j"] = {"position_1": dogsRow[0], "position_2": dogsRow[1]};
+        cleanTeam["dogs"]["row_$j"] = {
+          "position_1": dogsRow.firstName,
+          "position_2": dogsRow.secondName
+        };
       }
 
       // Add the completed team to the cleanTeams list
@@ -89,7 +91,7 @@ class SaveTeamsButton extends StatelessWidget {
     var ref = db.collection("data").doc("teams").collection("history");
     var query = ref.where(
       "date",
-      isEqualTo: teamProvider.date.toUtc(),
+      isEqualTo: teamProvider.group.date.toUtc(),
     );
     QuerySnapshot snapshot = await query.get();
     return snapshot;

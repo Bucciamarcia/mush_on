@@ -10,7 +10,7 @@ import 'save_teams_button.dart';
 import 'select_datetime.dart';
 
 class CreateTeamMain extends StatefulWidget {
-  final Map<String, dynamic>? loadedTeam;
+  final TeamGroup? loadedTeam;
   const CreateTeamMain({super.key, this.loadedTeam});
 
   @override
@@ -35,26 +35,25 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
 
     if (widget.loadedTeam != null) {
       // Process date with error handling
-      DateTime date = (widget.loadedTeam!["date"] as Timestamp).toDate();
+      DateTime date = widget.loadedTeam!.date;
       teamProvider.changeDate(date);
 
       TimeOfDay time = TimeOfDay.fromDateTime(date);
       teamProvider.changeTime(time);
 
       // Process name with error handling
-      String groupName = widget.loadedTeam!["name"] as String;
+      String groupName = widget.loadedTeam!.name;
       teamProvider.changeGlobalName(groupName);
 
       // Process teams with error handling
-      var teams = widget.loadedTeam!["teams"];
+      var teams = widget.loadedTeam!.teams;
 
-      List<Map<String, Object>> processedTeams = teams;
-      teamProvider.changeAllTeams(processedTeams);
+      teamProvider.changeAllTeams(teams);
 
       // Update the controller text after setting the provider value
-      globalNamecontroller.text = teamProvider.name;
+      globalNamecontroller.text = teamProvider.group.name;
     } else {
-      globalNamecontroller.text = teamProvider.name;
+      globalNamecontroller.text = teamProvider.group.name;
     }
   }
 
@@ -67,7 +66,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
   @override
   Widget build(BuildContext context) {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    List<Map<String, Object>> teams = teamProvider.teams;
+    List<Team> teams = teamProvider.group.teams;
 
     return ListView(
       children: [
@@ -117,7 +116,7 @@ class _TeamRetrieverState extends State<TeamRetriever> {
     CreateTeamProvider teamProvider =
         Provider.of<CreateTeamProvider>(context, listen: false);
     textController = TextEditingController(
-        text: teamProvider.teams[widget.teamNumber]["name"] as String);
+        text: teamProvider.group.teams[widget.teamNumber].name);
   }
 
   @override
@@ -129,7 +128,7 @@ class _TeamRetrieverState extends State<TeamRetriever> {
   @override
   Widget build(BuildContext context) {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    List<Map<String, Object>> teams = teamProvider.teams;
+    List<Team> teams = teamProvider.group.teams;
 
     if (widget.teamNumber >= teams.length) {
       return const Text("Invalid team number");
@@ -142,15 +141,14 @@ class _TeamRetrieverState extends State<TeamRetriever> {
     );
   }
 
-  Widget getTeam(Map<String, Object> team, List<Map<String, Object>> teams,
-      BuildContext context) {
+  Widget getTeam(Team team, List<Team> teams, BuildContext context) {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    if (textController.text != teamProvider.teams[widget.teamNumber]["name"] &&
+    if (textController.text !=
+            teamProvider.group.teams[widget.teamNumber].name &&
         !textController.selection.isValid) {
-      textController.text =
-          teamProvider.teams[widget.teamNumber]["name"] as String;
+      textController.text = teamProvider.group.teams[widget.teamNumber].name;
     }
-    List<List<String>> dogPairs = List<List<String>>.from(team["dogs"] as List);
+    List<DogPair> dogPairs = team.dogPairs;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,7 +196,7 @@ class PairRetriever extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    List<Map<String, Object>> teams = teamProvider.teams;
+    List<Team> teams = teamProvider.group.teams;
     return Row(
       children: [
         dropDownButtonConstructor(teams, 0, context),
@@ -225,12 +223,16 @@ class PairRetriever extends StatelessWidget {
   }
 
   Widget dropDownButtonConstructor(
-      var teams, int positionNumber, BuildContext context) {
+      List<Team> teams, int positionNumber, BuildContext context) {
     final DogProvider dogProvider = context.watch<DogProvider>();
     final CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
     List<String> duplicateDogs = teamProvider.duplicateDogs;
-    String? currentValue =
-        (teams[teamNumber]["dogs"] as List)[rowNumber][positionNumber];
+    String? currentValue;
+    if (positionNumber == 0) {
+      currentValue = teams[teamNumber].dogPairs[rowNumber].firstName;
+    } else {
+      currentValue = teams[teamNumber].dogPairs[rowNumber].secondName;
+    }
     bool isDuplicate;
     if (duplicateDogs.contains(currentValue)) {
       isDuplicate = true;
@@ -394,7 +396,7 @@ class RemoveTeamWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    int teamsNumber = teamProvider.teams.length;
+    int teamsNumber = teamProvider.group.teams.length;
     return ElevatedButton(
         onPressed: () {
           if (teamsNumber > 1) {

@@ -6,22 +6,9 @@ part of 'models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Dog _$DogFromJson(Map<String, dynamic> json) => Dog(
-      name: json['name'] as String? ?? "",
-      positions: (json['positions'] as Map<String, dynamic>?)?.map(
-            (k, e) => MapEntry(k, e as bool),
-          ) ??
-          const {"lead": false, "swing": false, "team": false, "wheel": false},
-    );
-
-Map<String, dynamic> _$DogToJson(Dog instance) => <String, dynamic>{
-      'name': instance.name,
-      'positions': instance.positions,
-    };
-
 TeamGroup _$TeamGroupFromJson(Map<String, dynamic> json) => TeamGroup(
       name: json['name'] as String? ?? "",
-      date: DateTime.parse(json['date'] as String),
+      date: TeamGroup._dateFromTimestamp(json['date']),
       notes: json['notes'] as String? ?? "",
       teams: (json['teams'] as List<dynamic>?)
               ?.map((e) => Team.fromJson(e as Map<String, dynamic>))
@@ -31,7 +18,7 @@ TeamGroup _$TeamGroupFromJson(Map<String, dynamic> json) => TeamGroup(
 
 Map<String, dynamic> _$TeamGroupToJson(TeamGroup instance) => <String, dynamic>{
       'name': instance.name,
-      'date': instance.date.toIso8601String(),
+      'date': TeamGroup._dateToTimestamp(instance.date),
       'notes': instance.notes,
       'teams': instance.teams,
     };
@@ -61,4 +48,17 @@ DogPair _$DogPairFromJson(Map<String, dynamic> json) => DogPair(
 Map<String, dynamic> _$DogPairToJson(DogPair instance) => <String, dynamic>{
       'firstDog': instance.firstDog,
       'secondDog': instance.secondDog,
+    };
+
+Dog _$DogFromJson(Map<String, dynamic> json) => Dog(
+      name: json['name'] as String? ?? "",
+      positions: (json['positions'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(k, e as bool),
+          ) ??
+          const {"lead": false, "swing": false, "team": false, "wheel": false},
+    );
+
+Map<String, dynamic> _$DogToJson(Dog instance) => <String, dynamic>{
+      'name': instance.name,
+      'positions': instance.positions,
     };

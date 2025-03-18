@@ -21,7 +21,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
   void initState() {
     teamProvider = Provider.of<CreateTeamProvider>(context, listen: false);
     dateController = TextEditingController();
-    dateController.text = teamProvider.date.toString().split(" ")[0];
+    dateController.text = teamProvider.group.date.toString().split(" ")[0];
     timeController = TextEditingController();
     super.initState();
   }

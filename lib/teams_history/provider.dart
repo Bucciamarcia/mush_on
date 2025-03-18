@@ -1,27 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/models.dart';
 
 class TeamsHistoryProvider extends ChangeNotifier {
-  List _groups = [];
-  List get groups => _groups;
+  List<TeamGroup> _groupObjects = [];
+  List<TeamGroup> get groupObjects => _groupObjects;
 
   TeamsHistoryProvider() {
-    _fetchGroups();
+    _fetchGroupObjects();
   }
 
-  void _fetchGroups() {
+  void _fetchGroupObjects() {
     FirebaseFirestore.instance
         .collection("data/teams/history")
         .snapshots()
         .listen((snapshot) {
-      _groups = snapshot.docs.map((doc) => doc.data()).toList();
+      _groupObjects =
+          snapshot.docs.map((doc) => TeamGroup.fromJson(doc.data())).toList();
 
-      _groups.sort((a, b) {
-        int timestampA = a['date']?.seconds ?? 0;
-        int timestampB = b['date']?.seconds ?? 0;
-
-        return timestampB.compareTo(timestampA);
-      });
+      _groupObjects.sort((a, b) => b.date.compareTo(a.date));
 
       notifyListeners();
     });

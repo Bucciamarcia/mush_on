@@ -1,86 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/models.dart';
 
 class CreateTeamProvider extends ChangeNotifier {
-  DateTime date = DateTime.now().toUtc();
-  String name = "9.30";
-  String notes = "";
-  List<Map<String, Object>> teams = [
-    {
-      "name": "1. Tytti",
-      "dogs": [
-        ["", ""],
-        ["", ""],
-        ["", ""],
-      ]
-    }
-  ];
+  TeamGroup group = TeamGroup(teams: [
+    Team(
+      dogPairs: [
+        DogPair(),
+        DogPair(),
+      ],
+    ),
+  ], date: DateTime.now().toUtc());
 
   List<String> duplicateDogs = [];
 
   changeGlobalName(String newName) {
-    name = newName;
+    group.name = newName;
     notifyListeners();
   }
 
-  changeAllTeams(List<Map<String, Object>> newTeams) {
-    teams = newTeams;
+  changeAllTeams(List<Team> newTeams) {
+    group.teams = newTeams;
     notifyListeners();
   }
 
   addTeam({required int teamNumber}) {
-    Map<String, Object> insElement = {
-      "name": "${teamNumber + 1}.",
-      "dogs": [
-        ["", ""],
-        ["", ""],
-        ["", ""],
-      ]
-    };
-    teams.insert(teamNumber, insElement);
+    group.teams.insert(
+      teamNumber,
+      Team(
+        dogPairs: [
+          DogPair(),
+          DogPair(),
+          DogPair(),
+        ],
+      ),
+    );
     notifyListeners();
   }
 
   removeTeam({required int teamNumber}) {
-    teams.removeAt(teamNumber);
+    group.teams.removeAt(teamNumber);
     notifyListeners();
   }
 
   /// Changes the date but leaves the time of day unchanged
   changeDate(DateTime newDate) {
-    date = DateTime(
-        newDate.year, newDate.month, newDate.day, date.hour, date.minute);
+    group.date = DateTime(newDate.year, newDate.month, newDate.day,
+        group.date.hour, group.date.minute);
     notifyListeners();
   }
 
   /// Changes the time of day but leaves the date unchanged
   changeTime(TimeOfDay time) {
-    date = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+    group.date = DateTime(group.date.year, group.date.month, group.date.day,
+        time.hour, time.minute);
     notifyListeners();
   }
 
   changeTeamName(int teamNumber, String newName) {
-    teams[teamNumber]["name"] = newName;
+    group.teams[teamNumber].name = newName;
     notifyListeners();
   }
 
   addRow({required int teamNumber}) {
-    List<List<String>> dogList = List<List<String>>.from(
-      teams[teamNumber]["dogs"] as List<dynamic>,
-    );
-
-    dogList.add(["", ""]);
-
-    teams[teamNumber] = {"name": teams[teamNumber]["name"]!, "dogs": dogList};
+    group.teams[teamNumber].dogPairs.add(DogPair());
 
     notifyListeners();
   }
 
   removeRow({required int teamNumber, required int rowNumber}) {
-    List<List<String>> dogList = List<List<String>>.from(
-      teams[teamNumber]["dogs"] as List<dynamic>,
-    );
-    dogList.removeAt(rowNumber);
-    teams[teamNumber] = {"name": teams[teamNumber]["name"]!, "dogs": dogList};
+    group.teams[teamNumber].dogPairs.removeAt(rowNumber);
     notifyListeners();
   }
 
@@ -89,7 +77,12 @@ class CreateTeamProvider extends ChangeNotifier {
       required int teamNumber,
       required int rowNumber,
       required int dogPosition}) {
-    (teams[teamNumber]["dogs"] as List)[rowNumber][dogPosition] = newName;
+    if (dogPosition == 0) {
+      group.teams[teamNumber].dogPairs[rowNumber].firstDog = Dog(name: newName);
+    } else if (dogPosition == 1) {
+      group.teams[teamNumber].dogPairs[rowNumber].secondDog =
+          Dog(name: newName);
+    }
     updateDuplicateDogs();
     notifyListeners();
   }
@@ -99,15 +92,18 @@ class CreateTeamProvider extends ChangeNotifier {
     Map<String, int> dogCounts = {};
 
     // Count occurrences of each dog
-    for (Map team in teams) {
-      List<List<String>> rows = team["dogs"] as List<List<String>>;
-      for (List<String> row in rows) {
-        for (String dog in row) {
-          // Skip empty strings
-          if (dog.isEmpty) continue;
+    for (Team team in group.teams) {
+      List<DogPair> rows = team.dogPairs;
+      for (DogPair row in rows) {
+        String? firstDog = row.firstDog?.name;
+        String? secondDog = row.secondDog?.name;
 
-          // Increment dog count
-          dogCounts[dog] = (dogCounts[dog] ?? 0) + 1;
+        if (firstDog != null && firstDog.isNotEmpty) {
+          dogCounts[firstDog] = (dogCounts[firstDog] ?? 0) + 1;
+        }
+
+        if (secondDog != null && secondDog.isNotEmpty) {
+          dogCounts[secondDog] = (dogCounts[secondDog] ?? 0) + 1;
         }
       }
     }
@@ -123,8 +119,8 @@ class CreateTeamProvider extends ChangeNotifier {
   }
 
   String createTeamsString() {
-    String stringTeams = "$name\n\n";
-    for (Map<String, Object> team in teams) {
+    String stringTeams = "${group.name}\n\n";
+    for (Team team in group.teams) {
       stringTeams = stringTeams + stringifyTeam(team);
       stringTeams = "$stringTeams\n";
     }
@@ -132,16 +128,16 @@ class CreateTeamProvider extends ChangeNotifier {
     return stringTeams;
   }
 
-  String stringifyTeam(Map<String, Object> team) {
-    String streamTeam = team["name"] as String;
-    String dogPairs = stringifyDogPairs(team["dogs"] as List<List<String>>);
+  String stringifyTeam(Team team) {
+    String streamTeam = team.name;
+    String dogPairs = stringifyDogPairs(team.dogPairs);
     return "$streamTeam$dogPairs\n";
   }
 
-  String stringifyDogPairs(List<List<String>> teamDogs) {
+  String stringifyDogPairs(List<DogPair> teamDogs) {
     String dogList = "";
-    for (List dogPair in teamDogs) {
-      dogList = "$dogList\n${dogPair[0]} - ${dogPair[1]}";
+    for (DogPair dogPair in teamDogs) {
+      dogList = "$dogList\n${dogPair.firstName} - ${dogPair.secondName}";
     }
     return dogList;
   }
