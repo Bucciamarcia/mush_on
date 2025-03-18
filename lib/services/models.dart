@@ -29,23 +29,19 @@ class Dog {
   }
 
   Future<void> deleteDog() async {
-    try {
-      // Reference to the 'dogs' collection
-      CollectionReference dogsRef =
-          FirebaseFirestore.instance.collection('data/kennel/dogs');
+    // Reference to the 'dogs' collection
+    CollectionReference dogsRef =
+        FirebaseFirestore.instance.collection('data/kennel/dogs');
 
-      // Query to find the document with the matching 'name' field
-      QuerySnapshot querySnapshot =
-          await dogsRef.where('name', isEqualTo: name).get();
+    // Query to find the document with the matching 'name' field
+    QuerySnapshot querySnapshot =
+        await dogsRef.where('name', isEqualTo: name).get();
 
-      // Check if the document exists
-      if (querySnapshot.docs.isNotEmpty) {
-        // Assuming 'name' is unique, delete the first matching document
-        await querySnapshot.docs.first.reference.delete();
-      } else {}
-    } catch (e) {
-      print('Error deleting dog: $e');
-    }
+    // Check if the document exists
+    if (querySnapshot.docs.isNotEmpty) {
+      // Assuming 'name' is unique, delete the first matching document
+      await querySnapshot.docs.first.reference.delete();
+    } else {}
   }
 
   Stream<List<Dog>> streamDogs() {
@@ -60,4 +56,118 @@ class Dog {
   List<String> getDogNames(List<Dog> dogObjects) {
     return dogObjects.map((dog) => dog.name).toList();
   }
+}
+
+@JsonSerializable()
+class TeamGroup {
+  String name;
+  DateTime date;
+  String notes;
+  List<Team> teams;
+
+  TeamGroup({
+    this.name = "",
+    required this.date,
+    this.notes = "",
+    this.teams = const [],
+  });
+
+  /// Add a new team
+  void addTeam(int position) {
+    teams.insert(position, Team(name: "${position + 1}."));
+  }
+
+  void removeTeam(int index) {
+    if (index >= 0 && index < teams.length) {
+      teams.removeAt(index);
+    }
+  }
+
+  /// Find duplicate dogs
+  List<String> getDuplicateDogs() {
+    final dogCounts = <String, int>{};
+
+    for (final team in teams) {
+      for (final pair in team.dogPairs) {
+        if (pair.firstName != null && pair.firstName!.isNotEmpty) {
+          dogCounts[pair.firstName!] = (dogCounts[pair.firstName!] ?? 0) + 1;
+        }
+        if (pair.secondName != null && pair.secondName!.isNotEmpty) {
+          dogCounts[pair.secondName!] = (dogCounts[pair.secondName!] ?? 0) + 1;
+        }
+      }
+    }
+
+    return dogCounts.entries
+        .where((entry) => entry.value > 1)
+        .map((entry) => entry.key)
+        .toList();
+  }
+
+  factory TeamGroup.fromJson(Map<String, dynamic> json) =>
+      _$TeamGroupFromJson(json);
+  Map<String, dynamic> toJson() => _$TeamGroupToJson(this);
+}
+
+@JsonSerializable()
+class Team {
+  String name;
+  List<DogPair> dogPairs;
+
+  Team({
+    this.name = "",
+    this.dogPairs = const [],
+  });
+
+  /// Add a new empty dog pair
+  void addDogPair() {
+    dogPairs.add(DogPair());
+  }
+
+  /// Remove a dog pair
+  void removeDogPair(int index) {
+    if (index >= 0 && index < dogPairs.length) {
+      dogPairs.removeAt(index);
+    }
+  }
+
+  /// Update a dog
+  void updateDog(int pairIndex, bool isFirst, Dog? dog) {
+    if (pairIndex >= 0 && pairIndex < dogPairs.length) {
+      if (isFirst) {
+        dogPairs[pairIndex].firstDog = dog;
+      } else {
+        dogPairs[pairIndex].secondDog = dog;
+      }
+    }
+  }
+
+  factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
+  Map<String, dynamic> toJson() => _$TeamToJson(this);
+}
+
+@JsonSerializable()
+class DogPair {
+  Dog? firstDog;
+  Dog? secondDog;
+
+  DogPair({
+    this.firstDog,
+    this.secondDog,
+  });
+
+  /// Get dog names for display
+  String? get firstName => firstDog?.name;
+  String? get secondName => secondDog?.name;
+
+  /// Check if both dogs are null (empty)
+  bool get isEmpty => firstDog == null && secondDog == null;
+
+  /// For display
+  @override
+  String toString() => "${firstName ?? ''} - ${secondName ?? ''}";
+
+  factory DogPair.fromJson(Map<String, dynamic> json) =>
+      _$DogPairFromJson(json);
+  Map<String, dynamic> toJson() => _$DogPairToJson(this);
 }
