@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/auth.dart';
 
 class HomePageScreenContent extends StatelessWidget {
   const HomePageScreenContent({super.key});
@@ -28,6 +29,14 @@ class HomePageScreenContent extends StatelessWidget {
               "Teams history",
             ),
           ),
+          ElevatedButton(
+            onPressed: () async {
+              await AuthService().signOut();
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil('/', (route) => false);
+            },
+            child: Text("Log out"),
+          )
         ],
       ),
     );
