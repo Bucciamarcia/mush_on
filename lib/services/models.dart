@@ -5,13 +5,39 @@ import "firestore.dart";
 part "models.g.dart";
 
 @JsonSerializable()
+
+/// A class representing a group of teams with associated metadata.
+/// It is equivalent to a "start", meaning all the teams of a convoy of sleds.
+///
+/// [TeamGroup] stores information about a collection of related [Team] objects,
+/// including when the group was created or modified, and any additional notes.
+/// This class is serializable to/from JSON using the json_serializable package.
+///
+/// Example:
+/// ```dart
+/// final teamGroup = TeamGroup(
+///   name: "Division A",
+///   date: DateTime.now(),
+///   notes: "Competitive teams from the eastern region",
+///   teams: [team1, team2, team3],
+/// );
+/// ```
 class TeamGroup {
+  /// The name of the entire group.
   String name;
 
   @JsonKey(fromJson: _dateFromTimestamp, toJson: _dateToTimestamp)
+
+  /// The date and time of the start.
+  /// Note that there can be only one [TeamGroup] for a specific time and date.
+  /// If more than one [TeamGroup] starts at the same time (e.g. parallel starts),
+  /// they need to be separated by 1 minute.
   DateTime date;
 
   String notes;
+
+  /// The list of teams in the group.
+  /// Each team is represented by a [Team] object.
   List<Team> teams;
 
   TeamGroup({
@@ -32,11 +58,12 @@ class TeamGroup {
     return Timestamp.fromDate(date);
   }
 
-  /// Add a new team
+  /// Add a new team at the given position
   void addTeam(int position) {
     teams.insert(position, Team(name: "${position + 1}."));
   }
 
+  /// Remove a team at the given index
   void removeTeam(int index) {
     if (index >= 0 && index < teams.length) {
       teams.removeAt(index);
@@ -86,8 +113,31 @@ class TeamGroup {
 }
 
 @JsonSerializable()
+
+/// A class representing a team of sled dogs.
+/// A [Team] consists of a name and a list of [DogPair] objects.
+/// Each [DogPair] object represents a pair of dogs in the team.
+/// This class is serializable to/from JSON using the json_serializable package.
+///
+/// Example:
+/// ```dart
+/// final team = Team(
+///  name: "Team 1",
+///  dogPairs: [
+///  DogPair(firstDog: Dog(name: "Buddy"), secondDog: Dog(name: "Rex")),
+///  DogPair(firstDog: Dog(name: "Max"), secondDog: Dog(name: "Duke")),
+///  ],
+///  );
+///  ```
 class Team {
+  /// The name of the team.
+  /// This is normally a number and/or a descriptive name.
+  /// E.G. "1. Musher" or "2. 2 adults 1 kid".
   String name;
+
+  /// The list of dog pairs in the team.
+  /// Each [DogPair] object represents a pair of dogs in the team.
+  /// E.G. [DogPair(firstDog: Dog(name: "Buddy"), secondDog: Dog(name: "Rex"))]
   List<DogPair> dogPairs;
 
   Team({
@@ -126,19 +176,24 @@ class Team {
     return toReturn;
   }
 
-  /// Add a new empty dog pair
+  /// Add a new empty dog pair.
+  /// Mostly used show the pair in the front end to be filled.
   void addDogPair() {
     dogPairs.add(DogPair());
   }
 
-  /// Remove a dog pair
+  /// Remove a dog pair at the given index.
   void removeDogPair(int index) {
     if (index >= 0 && index < dogPairs.length) {
       dogPairs.removeAt(index);
     }
   }
 
-  /// Update a dog
+  /// Update a dog in the team.
+  /// The [pairIndex] is the index of the dog pair in the team.
+  /// The [isFirst] flag indicates whether the first or second dog should be updated.
+  /// The [dog] parameter is the new dog object to be set.
+  /// If the [pairIndex] is out of bounds, this method does nothing.
   void updateDog(int pairIndex, bool isFirst, Dog? dog) {
     if (pairIndex >= 0 && pairIndex < dogPairs.length) {
       if (isFirst) {
@@ -154,8 +209,22 @@ class Team {
 }
 
 @JsonSerializable()
+
+/// A class representing a pair of dogs in a team.
+/// A [DogPair] consists of two [Dog] objects.
+/// This class is serializable to/from JSON using the json_serializable package.
+/// Example:
+/// ```dart
+/// final pair = DogPair(
+/// firstDog: Dog(name: "Buddy"),
+/// secondDog: Dog(name: "Rex"),
+/// );
+/// ```
 class DogPair {
+  /// The first dog of the pair. Appears on the left.
   Dog? firstDog;
+
+  /// The second dog of the pair. Appears on the right.
   Dog? secondDog;
 
   DogPair({
@@ -180,8 +249,14 @@ class DogPair {
 }
 
 @JsonSerializable()
+
+/// This class represents a dog and all the info the database has about it.
 class Dog {
+  /// The name of  the dog.
   String name;
+
+  /// The positions in which the dog can run in.
+  /// NOTE: To be converted to a class in future.
   Map<String, bool> positions;
 
   Dog({
@@ -234,6 +309,8 @@ class Dog {
 }
 
 @JsonSerializable()
+
+/// This class represents a user in the database.
 class UserName {
   @JsonKey(name: 'last_login', fromJson: _timestampToDateTime)
   final DateTime lastLogin;
