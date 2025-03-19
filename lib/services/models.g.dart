@@ -62,3 +62,13 @@ Map<String, dynamic> _$DogToJson(Dog instance) => <String, dynamic>{
       'name': instance.name,
       'positions': instance.positions,
     };
+
+UserName _$UserNameFromJson(Map<String, dynamic> json) => UserName(
+      lastLogin: UserName._timestampToDateTime(json['last_login']),
+      account: json['account'] as String?,
+    );
+
+Map<String, dynamic> _$UserNameToJson(UserName instance) => <String, dynamic>{
+      'last_login': instance.lastLogin.toIso8601String(),
+      'account': instance.account,
+    };

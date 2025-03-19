@@ -1,0 +1,2 @@
+/media/stefano/ssd25/progetti/mush_on/android/app/.cxx/Debug/4z1t4250/armeabi-v7a/CMakeFiles/edit_cache.dir
+/media/stefano/ssd25/progetti/mush_on/android/app/.cxx/Debug/4z1t4250/armeabi-v7a/CMakeFiles/rebuild_cache.dir

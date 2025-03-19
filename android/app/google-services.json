@@ -12,7 +12,20 @@
           "package_name": "com.stefanominiconsulting.mush_on"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "337862523976-s96c5uk320sucmme7inli853b8ut8ds6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.stefanominiconsulting.mush_on",
+            "certificate_hash": "c9f860feda37433f920cf3f7f39425e78c8cefed"
+          }
+        },
+        {
+          "client_id": "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCT4eTNzos2L1sC4aDJdJpQpBtk4eeWMeo"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "337862523976-7aikcdo5gppph2fbgeuteivis13flkml.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.stefanominiconsulting.mushOn"
+              }
+            }
+          ]
         }
       }
     }

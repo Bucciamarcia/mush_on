@@ -232,3 +232,25 @@ class Dog {
     return dogObjects.map((dog) => dog.name).toList();
   }
 }
+
+@JsonSerializable()
+class UserName {
+  @JsonKey(name: 'last_login', fromJson: _timestampToDateTime)
+  final DateTime lastLogin;
+
+  final String? account;
+
+  UserName({required this.lastLogin, this.account});
+
+  // Converter for Timestamp to DateTime
+  static DateTime _timestampToDateTime(dynamic timestamp) {
+    if (timestamp is Timestamp) {
+      return timestamp.toDate();
+    }
+    throw ArgumentError('Expected Timestamp');
+  }
+
+  factory UserName.fromJson(Map<String, dynamic> json) =>
+      _$UserNameFromJson(json);
+  Map<String, dynamic> toJson() => _$UserNameToJson(this);
+}
