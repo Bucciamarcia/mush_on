@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 
 class TeamsHistoryProvider extends ChangeNotifier {
@@ -10,11 +11,10 @@ class TeamsHistoryProvider extends ChangeNotifier {
     _fetchGroupObjects();
   }
 
-  void _fetchGroupObjects() {
-    FirebaseFirestore.instance
-        .collection("data/teams/history")
-        .snapshots()
-        .listen((snapshot) {
+  Future<void> _fetchGroupObjects() async {
+    String account = await FirestoreService().getUserAccount() ?? "";
+    String path = "accounts/$account/data/teams/history";
+    FirebaseFirestore.instance.collection(path).snapshots().listen((snapshot) {
       _groupObjects =
           snapshot.docs.map((doc) => TeamGroup.fromJson(doc.data())).toList();
 

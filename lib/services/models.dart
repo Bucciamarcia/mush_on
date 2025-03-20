@@ -280,8 +280,9 @@ class Dog {
 
   Future<void> deleteDog() async {
     // Reference to the 'dogs' collection
-    CollectionReference dogsRef =
-        FirebaseFirestore.instance.collection('data/kennel/dogs');
+    var account = await FirestoreService().getUserAccount() ?? "";
+    String path = "accounts/$account/data/kennel/dogs";
+    var dogsRef = FirebaseFirestore.instance.collection(path);
 
     // Query to find the document with the matching 'name' field
     QuerySnapshot querySnapshot =
@@ -294,11 +295,11 @@ class Dog {
     } else {}
   }
 
-  Stream<List<Dog>> streamDogs() {
-    return FirebaseFirestore.instance
-        .collection("data/kennel/dogs")
-        .snapshots()
-        .map((snapshot) =>
+  Future<Stream<List<Dog>>> streamDogs() async {
+    var account = await FirestoreService().getUserAccount() ?? "";
+    String path = "accounts/$account/data/kennel/dogs";
+    return FirebaseFirestore.instance.collection(path).snapshots().map(
+        (snapshot) =>
             snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList());
   }
 

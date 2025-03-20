@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mush_on/create_team/provider.dart';
+import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 
 class SaveTeamsButton extends StatelessWidget {
@@ -42,17 +43,15 @@ class SaveTeamsButton extends StatelessWidget {
       "notes": teamProvider.group.notes,
       "teams": cleanTeams
     };
+    String account = await FirestoreService().getUserAccount() ?? "";
+    String path = "accounts/$account/data/teams/history";
 
     if (snapshot.docs.isEmpty) {
-      var ref = db.collection("data").doc("teams").collection("history");
+      var ref = db.collection(path);
 
       ref.add(data);
     } else {
-      var ref = db
-          .collection("data")
-          .doc("teams")
-          .collection("history")
-          .doc(snapshot.docs[0].id);
+      var ref = db.collection(path).doc(snapshot.docs[0].id);
       ref.set(data);
     }
   }
@@ -88,7 +87,9 @@ class SaveTeamsButton extends StatelessWidget {
 
   Future<QuerySnapshot<Object?>> doesTeamExist() async {
     var db = FirebaseFirestore.instance;
-    var ref = db.collection("data").doc("teams").collection("history");
+    String account = await FirestoreService().getUserAccount() ?? "";
+    String path = "accounts/$account/data/teams/history";
+    var ref = db.collection(path);
     var query = ref.where(
       "date",
       isEqualTo: teamProvider.group.date.toUtc(),

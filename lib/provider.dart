@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/firestore.dart';
 import 'services/models.dart';
 
 class DogProvider extends ChangeNotifier {
@@ -10,9 +11,10 @@ class DogProvider extends ChangeNotifier {
     _fetchDogs();
   }
 
-  void _fetchDogs() {
+  void _fetchDogs() async {
+    String account = await FirestoreService().getUserAccount() ?? "";
     FirebaseFirestore.instance
-        .collection("data/kennel/dogs")
+        .collection("accounts/$account/data/kennel/dogs")
         .snapshots()
         .listen((snapshot) {
       _dogs = snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList()

@@ -25,28 +25,6 @@ class EditKennelMain extends StatelessWidget {
   }
 }
 
-class ReturnedContent extends StatelessWidget {
-  final AsyncSnapshot<List<Dog>> snapshot;
-  const ReturnedContent({super.key, required this.snapshot});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        ElevatedButton.icon(
-          onPressed: () => Navigator.pushNamed(context, "/adddog"),
-          label: Text("Add a dog"),
-          icon: Icon(Icons.add),
-        ),
-        ...snapshot.data!.map(
-          // The DogCard widget is used to display each dog
-          (dog) => DogCard(dog: dog),
-        ),
-      ],
-    );
-  }
-}
-
 class DogCard extends StatelessWidget {
   final Dog dog;
   const DogCard({super.key, required this.dog});
