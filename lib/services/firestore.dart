@@ -21,11 +21,24 @@ class FirestoreService {
     return ref.set(data, SetOptions(merge: true));
   }
 
-  Future<String> getUserAccount() async {
+  /// Get the user's account name if it exists.
+  /// If it doesn't, return null.
+  Future<String?> getUserAccount() async {
     User user = AuthService().user!;
     var ref = db.doc("users/${user.uid}");
     var snapshot = await ref.get();
-    UserName userName = UserName.fromJson(snapshot.data() ?? {});
-    return userName.account ?? "";
+
+    // Check if document exists first
+    if (!snapshot.exists) {
+      return null;
+    }
+
+    var data = snapshot.data();
+    if (data == null || data.isEmpty) {
+      return null;
+    }
+
+    UserName userName = UserName.fromJson(data);
+    return userName.account;
   }
 }

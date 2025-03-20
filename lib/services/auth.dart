@@ -27,7 +27,7 @@ class AuthService {
 
       await FirebaseAuth.instance.signInWithCredential(authCredential);
     } on FirebaseAuthException catch (e) {
-      // handle error
+      rethrow;
     }
   }
 
@@ -35,7 +35,12 @@ class AuthService {
     try {
       await FirebaseAuth.instance.signOut();
     } on FirebaseAuthException catch (e) {
-      print(e.toString());
+      rethrow;
     }
+  }
+
+  /// Get the current user.
+  String getUser() {
+    return FirebaseAuth.instance.currentUser.toString();
   }
 }

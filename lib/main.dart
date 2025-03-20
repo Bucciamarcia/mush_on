@@ -59,11 +59,22 @@ class HomeScreen extends StatelessWidget {
           );
         } else if (snapshot.hasData) {
           FirestoreService().userLoginActions();
-          return FutureBuilder<String>(
+          return FutureBuilder<String?>(
               future: FirestoreService().getUserAccount(),
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  if (snapshot.data == "") {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator.adaptive(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text("Error: ${snapshot.error.toString()}"),
+                  );
+                } else {
+                  // Data loaded - could be null or a value
+                  final accountData = snapshot.data;
+
+                  if (accountData == null) {
                     return Scaffold(
                       body: Container(
                         padding: EdgeInsets.all(10),
@@ -76,14 +87,6 @@ class HomeScreen extends StatelessWidget {
                   } else {
                     return HomePageScreen();
                   }
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text("Error: ${snapshot.error.toString()}"),
-                  );
-                } else {
-                  return Center(
-                    child: CircularProgressIndicator.adaptive(),
-                  );
                 }
               });
         } else {
