@@ -80,7 +80,7 @@ class HomeScreen extends StatelessWidget {
       stream: AuthService().userStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator.adaptive(),
           );
         } else if (snapshot.hasError) {
@@ -90,39 +90,57 @@ class HomeScreen extends StatelessWidget {
             ),
           );
         } else if (snapshot.hasData) {
-          FirestoreService().userLoginActions();
-          return FutureBuilder<String?>(
-              future: FirestoreService().getUserAccount(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator.adaptive(),
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text("Error: ${snapshot.error.toString()}"),
-                  );
-                } else {
-                  // Data loaded - could be null or a value
-                  final accountData = snapshot.data;
+          return FutureBuilder<void>(
+            future: FirestoreService().userLoginActions(),
+            builder: (context, loginSnapshot) {
+              if (loginSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator.adaptive(),
+                );
+              } else if (loginSnapshot.hasError) {
+                return Center(
+                  child: Text("Login action error: ${loginSnapshot.error}"),
+                );
+              } else {
+                // Login actions completed, now check account status
+                return FutureBuilder<String?>(
+                  future: FirestoreService().getUserAccount(),
+                  builder: (context, accountSnapshot) {
+                    if (accountSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator.adaptive(),
+                      );
+                    } else if (accountSnapshot.hasError) {
+                      return Center(
+                        child: Text("Error: ${accountSnapshot.error}"),
+                      );
+                    } else {
+                      // Account data loaded
+                      final accountData = accountSnapshot.data;
 
-                  if (accountData == null) {
-                    return Scaffold(
-                      body: Container(
-                        padding: EdgeInsets.all(10),
-                        child: SafeArea(
-                          child: Text(
-                              "Access not authorized. This is normal for new accounts. The admin will authorize your account as needed."),
-                        ),
-                      ),
-                    );
-                  } else {
-                    return HomePageScreen();
-                  }
-                }
-              });
+                      if (accountData == null) {
+                        return Scaffold(
+                          body: Container(
+                            padding: const EdgeInsets.all(10),
+                            child: const SafeArea(
+                              child: Text(
+                                  "Access not authorized. This is normal for new accounts. The admin will authorize your account as needed."),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return const HomePageScreen();
+                      }
+                    }
+                  },
+                );
+              }
+            },
+          );
         } else {
-          return LoginScreen();
+          // User is not logged in
+          return const LoginScreen();
         }
       },
     );
