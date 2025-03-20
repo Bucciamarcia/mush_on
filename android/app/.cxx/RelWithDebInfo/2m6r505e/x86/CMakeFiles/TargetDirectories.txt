@@ -1,0 +1,2 @@
+/media/stefano/ssd25/progetti/mush_on/android/app/.cxx/RelWithDebInfo/2m6r505e/x86/CMakeFiles/edit_cache.dir
+/media/stefano/ssd25/progetti/mush_on/android/app/.cxx/RelWithDebInfo/2m6r505e/x86/CMakeFiles/rebuild_cache.dir
