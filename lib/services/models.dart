@@ -103,6 +103,7 @@ class TeamGroup {
       name: json['name'] as String? ?? '',
       date: _dateFromTimestamp(json['date']),
       notes: json['notes'] as String? ?? '',
+      distance: (json['distance'] as num?)?.toDouble() ?? 0.0,
     );
 
     // Now handle the tricky teams part
