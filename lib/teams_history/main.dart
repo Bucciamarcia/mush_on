@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/teams_history/provider.dart';
 import 'package:provider/provider.dart';
@@ -40,7 +42,11 @@ class TeamViewer extends StatelessWidget {
               ElevatedButton(
                   onPressed: () => Navigator.pushNamed(context, "/createteam",
                       arguments: item),
-                  child: Text("Load team"))
+                  child: Text("Load")),
+              IconButton(
+                onPressed: () => deleteGroup(),
+                icon: Icon(Icons.cake),
+              )
             ],
           ),
           tilePadding: const EdgeInsets.all(1),
@@ -49,5 +55,23 @@ class TeamViewer extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> deleteGroup() async {
+    var db = FirebaseFirestore.instance;
+    String? account = await FirestoreService().getUserAccount();
+    if (account != null) {
+      String path = "accounts/$account/data/teams/history";
+      var ref = db.collection(path);
+      var query = ref.where("date", isEqualTo: item.date);
+      query.get().then(
+        (snapshot) async {
+          for (var i in snapshot.docs) {
+            String docPath = "accounts/$account/data/teams/history/${i.id}";
+            await db.doc(docPath).delete();
+          }
+        },
+      );
+    }
   }
 }
