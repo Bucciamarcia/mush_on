@@ -58,7 +58,10 @@ class TeamViewer extends StatelessWidget {
                     ));
                   }
                 },
-                icon: Icon(Icons.cake),
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
               )
             ],
           ),
