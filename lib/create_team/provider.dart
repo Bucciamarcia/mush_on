@@ -150,7 +150,8 @@ class CreateTeamProvider extends ChangeNotifier {
   String stringifyDogPairs(List<DogPair> teamDogs) {
     String dogList = "";
     for (DogPair dogPair in teamDogs) {
-      dogList = "$dogList\n${dogPair.firstName} - ${dogPair.secondName}";
+      dogList =
+          "$dogList\n${dogPair.firstName ?? ""} - ${dogPair.secondName ?? ""}";
     }
     return dogList;
   }

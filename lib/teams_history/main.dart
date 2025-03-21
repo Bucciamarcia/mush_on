@@ -45,18 +45,13 @@ class TeamViewer extends StatelessWidget {
                   child: Text("Load")),
               IconButton(
                 onPressed: () async {
-                  bool r = await deleteGroup();
-                  if (r == true) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text("Team deleted"),
-                      backgroundColor: Colors.green,
-                    ));
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text("Error deleting team"),
-                      backgroundColor: Colors.red,
-                    ));
-                  }
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return buildAlertDialog(context);
+                    },
+                  );
                 },
                 icon: Icon(
                   Icons.delete,
@@ -70,6 +65,52 @@ class TeamViewer extends StatelessWidget {
           children: [FormatObject(item)],
         ),
       ),
+    );
+  }
+
+  AlertDialog buildAlertDialog(BuildContext context) {
+    return AlertDialog.adaptive(
+      title: Text("Are you sure?"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("This action is irreversible."),
+          Text("You will lose all the data related to this group.")
+        ],
+      ),
+      actions: <Widget>[
+        ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("Go back")),
+        ElevatedButton(
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.all(Colors.red),
+          ),
+          onPressed: () async {
+            bool r = await deleteGroup();
+            if (r == true) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Team deleted"),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Error deleting team"),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+            Navigator.of(context).pop();
+          },
+          child: Text(
+            "Delete group",
+            style: TextStyle(color: Colors.white),
+          ),
+        )
+      ],
     );
   }
 
