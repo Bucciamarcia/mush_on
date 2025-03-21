@@ -26,6 +26,10 @@ class CreateTeamProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  changeNotes(String newNotes) {
+    group.notes = newNotes;
+  }
+
   changeAllTeams(List<Team> newTeams) {
     group.teams = newTeams;
     notifyListeners();
@@ -128,6 +132,7 @@ class CreateTeamProvider extends ChangeNotifier {
 
   String createTeamsString() {
     String stringTeams = "${group.name}\n\n";
+    stringTeams = "$stringTeams${group.notes}\n\n";
     for (Team team in group.teams) {
       stringTeams = stringTeams + stringifyTeam(team);
       stringTeams = "$stringTeams\n";

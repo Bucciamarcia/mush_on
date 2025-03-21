@@ -18,10 +18,12 @@ class CreateTeamMain extends StatefulWidget {
 
 class _CreateTeamMainState extends State<CreateTeamMain> {
   late TextEditingController globalNamecontroller;
+  late TextEditingController notesController;
   @override
   void initState() {
     super.initState();
     globalNamecontroller = TextEditingController();
+    notesController = TextEditingController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initializeTeam();
@@ -46,6 +48,10 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
       // Process name with error handling
       String groupName = widget.loadedTeam!.name;
       teamProvider.changeGlobalName(groupName);
+
+      String groupNotes = widget.loadedTeam!.notes;
+      teamProvider.changeNotes(groupNotes);
+      notesController.text = teamProvider.group.notes;
 
       // Process teams with error handling
       var teams = widget.loadedTeam!.teams;
@@ -79,6 +85,14 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
           onChanged: (String text) {
             Provider.of<CreateTeamProvider>(context, listen: false)
                 .changeGlobalName(text);
+          },
+        ),
+        TextField(
+          controller: notesController,
+          decoration: InputDecoration(labelText: "Group notes"),
+          onChanged: (String text) {
+            Provider.of<CreateTeamProvider>(context, listen: false)
+                .changeNotes(text);
           },
         ),
         ...teams.asMap().entries.map(
