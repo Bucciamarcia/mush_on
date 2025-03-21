@@ -16,6 +16,7 @@ class DateTimePicker extends StatefulWidget {
 class _DateTimePickerState extends State<DateTimePicker> {
   late TextEditingController dateController;
   late TextEditingController timeController;
+  late TextEditingController distanceController;
   late CreateTeamProvider teamProvider;
   @override
   void initState() {
@@ -23,12 +24,16 @@ class _DateTimePickerState extends State<DateTimePicker> {
     dateController = TextEditingController();
     dateController.text = teamProvider.group.date.toString().split(" ")[0];
     timeController = TextEditingController();
+    distanceController = TextEditingController();
+    distanceController.text = teamProvider.group.distance.toString();
     super.initState();
   }
 
   @override
   void dispose() {
     dateController.dispose();
+    timeController.dispose();
+    distanceController.dispose();
     super.dispose();
   }
 
@@ -51,6 +56,14 @@ class _DateTimePickerState extends State<DateTimePicker> {
           decoration: InputDecoration(labelText: "Time"),
           readOnly: true,
           onTap: () => _selectTime(context),
+        )),
+        Flexible(
+            child: TextField(
+          controller: distanceController,
+          decoration: InputDecoration(labelText: "Distance"),
+          keyboardType: TextInputType.number,
+          onChanged: (value) =>
+              teamProvider.changeDistance(double.parse(value)),
         ))
       ],
     );

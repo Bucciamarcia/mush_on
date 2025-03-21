@@ -18,6 +18,7 @@ part "models.g.dart";
 /// final teamGroup = TeamGroup(
 ///   name: "Division A",
 ///   date: DateTime.now(),
+///   distance: 10,
 ///   notes: "Competitive teams from the eastern region",
 ///   teams: [team1, team2, team3],
 /// );
@@ -34,6 +35,10 @@ class TeamGroup {
   /// they need to be separated by 1 minute.
   DateTime date;
 
+  /// The distance ran in km.
+  /// Used for stats.
+  double distance;
+
   String notes;
 
   /// The list of teams in the group.
@@ -43,6 +48,7 @@ class TeamGroup {
   TeamGroup({
     this.name = "",
     required this.date,
+    this.distance = 0,
     this.notes = "",
     this.teams = const [],
   });

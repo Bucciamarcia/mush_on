@@ -9,6 +9,7 @@ part of 'models.dart';
 TeamGroup _$TeamGroupFromJson(Map<String, dynamic> json) => TeamGroup(
       name: json['name'] as String? ?? "",
       date: TeamGroup._dateFromTimestamp(json['date']),
+      distance: (json['distance'] as num?)?.toDouble() ?? 0,
       notes: json['notes'] as String? ?? "",
       teams: (json['teams'] as List<dynamic>?)
               ?.map((e) => Team.fromJson(e as Map<String, dynamic>))
@@ -19,6 +20,7 @@ TeamGroup _$TeamGroupFromJson(Map<String, dynamic> json) => TeamGroup(
 Map<String, dynamic> _$TeamGroupToJson(TeamGroup instance) => <String, dynamic>{
       'name': instance.name,
       'date': TeamGroup._dateToTimestamp(instance.date),
+      'distance': instance.distance,
       'notes': instance.notes,
       'teams': instance.teams,
     };

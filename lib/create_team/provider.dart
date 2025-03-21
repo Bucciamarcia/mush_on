@@ -2,19 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:mush_on/services/models.dart';
 
 class CreateTeamProvider extends ChangeNotifier {
-  TeamGroup group = TeamGroup(teams: [
-    Team(
-      dogPairs: [
-        DogPair(),
-        DogPair(),
-      ],
-    ),
-  ], date: DateTime.now().toUtc());
+  TeamGroup group = TeamGroup(
+    teams: [
+      Team(
+        dogPairs: [
+          DogPair(),
+          DogPair(),
+        ],
+      ),
+    ],
+    date: DateTime.now().toUtc(),
+  );
 
   List<String> duplicateDogs = [];
 
   changeGlobalName(String newName) {
     group.name = newName;
+    notifyListeners();
+  }
+
+  changeDistance(double newDistance) {
+    group.distance = newDistance;
     notifyListeners();
   }
 

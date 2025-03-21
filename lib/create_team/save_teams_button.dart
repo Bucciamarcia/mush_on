@@ -41,7 +41,8 @@ class SaveTeamsButton extends StatelessWidget {
       "date": teamProvider.group.date.toUtc(),
       "name": teamProvider.group.name,
       "notes": teamProvider.group.notes,
-      "teams": cleanTeams
+      "teams": cleanTeams,
+      "distance": teamProvider.group.distance
     };
     String account = await FirestoreService().getUserAccount() ?? "";
     String path = "accounts/$account/data/teams/history";

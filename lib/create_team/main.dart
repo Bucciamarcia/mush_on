@@ -40,6 +40,9 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
       TimeOfDay time = TimeOfDay.fromDateTime(date);
       teamProvider.changeTime(time);
 
+      double distance = widget.loadedTeam!.distance;
+      teamProvider.changeDistance(distance);
+
       // Process name with error handling
       String groupName = widget.loadedTeam!.name;
       teamProvider.changeGlobalName(groupName);
