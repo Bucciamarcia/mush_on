@@ -44,7 +44,20 @@ class TeamViewer extends StatelessWidget {
                       arguments: item),
                   child: Text("Load")),
               IconButton(
-                onPressed: () => deleteGroup(),
+                onPressed: () async {
+                  bool r = await deleteGroup();
+                  if (r == true) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Team deleted"),
+                      backgroundColor: Colors.green,
+                    ));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text("Error deleting team"),
+                      backgroundColor: Colors.red,
+                    ));
+                  }
+                },
                 icon: Icon(Icons.cake),
               )
             ],
@@ -57,21 +70,28 @@ class TeamViewer extends StatelessWidget {
     );
   }
 
-  Future<void> deleteGroup() async {
-    var db = FirebaseFirestore.instance;
-    String? account = await FirestoreService().getUserAccount();
-    if (account != null) {
+  Future<bool> deleteGroup() async {
+    try {
+      var db = FirebaseFirestore.instance;
+      String? account = await FirestoreService().getUserAccount();
+
+      if (account == null) {
+        return false;
+      }
+
       String path = "accounts/$account/data/teams/history";
       var ref = db.collection(path);
-      var query = ref.where("date", isEqualTo: item.date);
-      query.get().then(
-        (snapshot) async {
-          for (var i in snapshot.docs) {
-            String docPath = "accounts/$account/data/teams/history/${i.id}";
-            await db.doc(docPath).delete();
-          }
-        },
-      );
+      var snapshot = await ref.where("date", isEqualTo: item.date).get();
+
+      for (var doc in snapshot.docs) {
+        String docPath = "accounts/$account/data/teams/history/${doc.id}";
+        await db.doc(docPath).delete();
+      }
+
+      return true;
+    } catch (e) {
+      print("Error deleting group: $e");
+      return false;
     }
   }
 }
