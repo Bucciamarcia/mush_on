@@ -37,27 +37,49 @@ class TeamViewer extends StatelessWidget {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(DateFormat("dd-MM-yy || HH:mm").format((item.date))),
-              Text(item.name),
-              ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, "/createteam",
-                      arguments: item),
-                  child: Text("Load")),
-              IconButton(
-                onPressed: () async {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return buildAlertDialog(context);
-                    },
-                  );
-                },
-                icon: Icon(
-                  Icons.delete,
-                  color: Colors.red,
+              SizedBox(
+                child: Text(
+                  DateFormat("dd-MM-yy || HH:mm").format((item.date)),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              )
+              ),
+              // Name with flexible width that can shrink
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    item.name,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ),
+              // Load button and delete icon with fixed space
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, "/createteam",
+                        arguments: item),
+                    child: Text("Load"),
+                  ),
+                  IconButton(
+                    onPressed: () async {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return buildAlertDialog(context);
+                        },
+                      );
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    ),
+                  )
+                ],
+              ),
             ],
           ),
           tilePadding: const EdgeInsets.all(1),
