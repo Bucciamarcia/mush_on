@@ -1,11 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'provider.dart';
 
-class StatsMain extends StatelessWidget {
+class StatsMain extends StatefulWidget {
   const StatsMain({super.key});
+  
+  @override
+  State<StatsMain> createState() => _StatsMainState();
+}
 
+class _StatsMainState extends State<StatsMain> {
+  late StatsDataSource _statsDataSource;
+  
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with empty data
+    _statsDataSource = StatsDataSource(teams: []);
+  }
+  
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    final statsProvider = Provider.of<StatsProvider>(context);
+
+    // Show loading state if no data
+    if (statsProvider.teams.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    
+    // Once data is available, create a new data source
+    // This follows the pattern shown in the documentation
+    if (_statsDataSource.dataGridRows.isEmpty) {
+      _statsDataSource = StatsDataSource(teams: statsProvider.teams);
+    }
+    
+    return SfDataGrid(
+      source: _statsDataSource,
+      columns: [
+        GridColumn(
+          columnName: 'teamName',
+          label: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            alignment: Alignment.center,
+            child: const Text(
+              'Team Name',
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+        GridColumn(
+          columnName: 'teamDate',
+          label: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            alignment: Alignment.center,
+            child: const Text(
+              'Team Date',
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class StatsDataSource extends DataGridSource {
+  List<DataGridRow> dataGridRows = [];
+  
+  // Constructor directly transforms data to rows
+  StatsDataSource({required List<dynamic> teams}) {
+    dataGridRows = teams
+        .map<DataGridRow>((team) => DataGridRow(cells: [
+              DataGridCell<String>(columnName: 'teamName', value: team.name),
+              DataGridCell<String>(
+                  columnName: 'teamDate', value: team.date.toString()),
+            ]))
+        .toList();
+  }
+  
+  @override
+  List<DataGridRow> get rows => dataGridRows;
+  
+  @override
+  DataGridRowAdapter? buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        return Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            dataGridCell.value.toString(),
+            overflow: TextOverflow.ellipsis,
+          ),
+        );
+      }).toList(),
+    );
   }
 }
