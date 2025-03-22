@@ -30,13 +30,19 @@ class HomePageScreenContent extends StatelessWidget {
             ),
           ),
           ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, "/stats"),
+            child: const Text(
+              "Stats",
+            ),
+          ),
+          ElevatedButton(
             onPressed: () async {
               await AuthService().signOut();
               Navigator.of(context)
                   .pushNamedAndRemoveUntil('/', (route) => false);
             },
             child: Text("Log out"),
-          )
+          ),
         ],
       ),
     );

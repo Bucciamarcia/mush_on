@@ -5,6 +5,7 @@ import 'package:mush_on/edit_kennel/edit_kennel.dart';
 import 'package:mush_on/main.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
+import 'package:mush_on/stats/stats.dart';
 
 var appRoutes = {
   "/": (context) => const HomeScreen(),
@@ -19,4 +20,5 @@ var appRoutes = {
     return CreateTeamScreen(loadedTeam: teamGroup);
   },
   "/teamshistory": (context) => const TeamsHistoryScreen(),
+  "/stats": (context) => const StatsScreen(),
 };
