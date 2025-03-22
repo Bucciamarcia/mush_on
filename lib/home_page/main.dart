@@ -38,8 +38,10 @@ class HomePageScreenContent extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               await AuthService().signOut();
-              Navigator.of(context)
-                  .pushNamedAndRemoveUntil('/', (route) => false);
+              if (context.mounted) {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/', (route) => false);
+              }
             },
             child: Text("Log out"),
           ),

@@ -11,10 +11,9 @@ TeamGroup _$TeamGroupFromJson(Map<String, dynamic> json) => TeamGroup(
       date: TeamGroup._dateFromTimestamp(json['date']),
       distance: (json['distance'] as num?)?.toDouble() ?? 0,
       notes: json['notes'] as String? ?? "",
-      teams: (json['teams'] as List<dynamic>?)
-              ?.map((e) => Team.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      teams: json['teams'] == null
+          ? const []
+          : TeamGroup._teamsFromJson(json['teams'] as List?),
     );
 
 Map<String, dynamic> _$TeamGroupToJson(TeamGroup instance) => <String, dynamic>{
@@ -22,7 +21,7 @@ Map<String, dynamic> _$TeamGroupToJson(TeamGroup instance) => <String, dynamic>{
       'date': TeamGroup._dateToTimestamp(instance.date),
       'distance': instance.distance,
       'notes': instance.notes,
-      'teams': instance.teams,
+      'teams': TeamGroup._teamsToJson(instance.teams),
     };
 
 Team _$TeamFromJson(Map<String, dynamic> json) => Team(

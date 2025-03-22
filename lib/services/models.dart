@@ -41,6 +41,8 @@ class TeamGroup {
 
   String notes;
 
+  @JsonKey(fromJson: _teamsFromJson, toJson: _teamsToJson)
+
   /// The list of teams in the group.
   /// Each team is represented by a [Team] object.
   List<Team> teams;
@@ -52,6 +54,19 @@ class TeamGroup {
     this.notes = "",
     this.teams = const [],
   });
+
+  static List<Team> _teamsFromJson(List<dynamic>? teamJsonList) {
+    if (teamJsonList == null) return [];
+    return teamJsonList
+        .map((teamJson) => Team.fromFirestoreFormat(teamJson))
+        .toList();
+  }
+
+  static List<dynamic> _teamsToJson(List<Team> teams) {
+    // Implement your custom serialization for teams here
+    // This would depend on your Firestore structure
+    return teams.map((team) => team.toJson()).toList();
+  }
 
   static DateTime _dateFromTimestamp(dynamic timestamp) {
     if (timestamp is Timestamp) {
@@ -97,26 +112,9 @@ class TeamGroup {
         .toList();
   }
 
-  factory TeamGroup.fromJson(Map<String, dynamic> json) {
-    // Start by creating a TeamGroup with basic properties
-    final teamGroup = TeamGroup(
-      name: json['name'] as String? ?? '',
-      date: _dateFromTimestamp(json['date']),
-      notes: json['notes'] as String? ?? '',
-      distance: (json['distance'] as num?)?.toDouble() ?? 0.0,
-    );
-
-    // Now handle the tricky teams part
-    if (json['teams'] != null) {
-      final teams = <Team>[];
-      for (var teamJson in (json['teams'] as List)) {
-        teams.add(Team.fromFirestoreFormat(teamJson));
-      }
-      teamGroup.teams = teams;
-    }
-
-    return teamGroup;
-  }
+  factory TeamGroup.fromJson(Map<String, dynamic> json) =>
+      _$TeamGroupFromJson(json);
+  Map<String, dynamic> toJson() => _$TeamGroupToJson(this);
 }
 
 @JsonSerializable()
