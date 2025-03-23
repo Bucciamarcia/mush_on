@@ -1,36 +1,26 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
-import 'package:mush_on/stats/services.dart';
 
-class StatsProvider extends ChangeNotifier {
+class StatsProvider with ChangeNotifier {
   List<TeamGroup> _teams = [];
   List<TeamGroup> get teams => _teams;
-  
-  bool _isLoading = true;
-  bool get isLoading => _isLoading;
-  
+
   StatsProvider() {
-    _fetchTeams();
+    fetchTeams();
   }
 
-  Future<void> _fetchTeams() async {
-    _isLoading = true;
-    notifyListeners();
-    
-    try {
-      _teams = await StatsDb().getTeamsAfterDate();
-      print("STATS PROVIDER DATA LOADED: ${_teams.length} teams");
-    } catch (e) {
-      print("Error fetching teams: $e");
-      // Handle error appropriately
-    } finally {
-      _isLoading = false;
+  void fetchTeams() async {
+    // Replace with your actual data source
+    String account = await FirestoreService().getUserAccount() ?? "";
+    FirebaseFirestore.instance
+        .collection("accounts/$account/data/teams/history")
+        .snapshots()
+        .listen((snapshot) {
+      _teams =
+          snapshot.docs.map((doc) => TeamGroup.fromJson(doc.data())).toList();
       notifyListeners();
-    }
-  }
-  
-  // Add a method to refresh data when needed
-  Future<void> refreshData() async {
-    await _fetchTeams();
+    });
   }
 }

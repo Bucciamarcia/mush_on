@@ -23,15 +23,7 @@ class _StatsMainState extends State<StatsMain> {
 
   @override
   Widget build(BuildContext context) {
-    final statsProvider = Provider.of<StatsProvider>(context);
-
-    // Show loading state if no data
-    if (statsProvider.teams.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
+    final statsProvider = context.watch<StatsProvider>();
     _statsDataSource = StatsDataSource(teams: statsProvider.teams);
 
     return SfDataGrid(
