@@ -24,6 +24,7 @@ class _StatsMainState extends State<StatsMain> {
   @override
   Widget build(BuildContext context) {
     final statsProvider = context.watch<StatsProvider>();
+    Provider.of<StatsProvider>(context, listen: false).getTeams();
     _statsDataSource = StatsDataSource(teams: statsProvider.teams);
 
     return SfDataGrid(

@@ -4,23 +4,31 @@ import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 
 class StatsProvider with ChangeNotifier {
-  List<TeamGroup> _teams = [];
-  List<TeamGroup> get teams => _teams;
+  List<TeamGroup> teams = [];
 
-  StatsProvider() {
-    fetchTeams();
-  }
-
-  void fetchTeams() async {
-    // Replace with your actual data source
-    String account = await FirestoreService().getUserAccount() ?? "";
-    FirebaseFirestore.instance
-        .collection("accounts/$account/data/teams/history")
-        .snapshots()
-        .listen((snapshot) {
-      _teams =
-          snapshot.docs.map((doc) => TeamGroup.fromJson(doc.data())).toList();
+  Future<void> getTeams({DateTime? cutOff}) async {
+    if (cutOff == null) {
+      FirebaseFirestore db = FirebaseFirestore.instance;
+      String account = await FirestoreService().getUserAccount() ?? "";
+      var ref = db.collection("accounts/$account/data/teams/history");
+      var snapshot = await ref.get();
+      var data = snapshot.docs.map((s) => s.data());
+      var newTeams = data.map((d) => TeamGroup.fromJson(d)).toList();
+      newTeams.sort((a, b) => b.date.compareTo(a.date));
+      teams = newTeams;
       notifyListeners();
-    });
+    } else {
+      FirebaseFirestore db = FirebaseFirestore.instance;
+      String account = await FirestoreService().getUserAccount() ?? "";
+      var ref = db
+          .collection("accounts/$account/data/teams/history")
+          .where("date", isGreaterThan: cutOff);
+      var snapshot = await ref.get();
+      var data = snapshot.docs.map((s) => s.data());
+      var newTeams = data.map((d) => TeamGroup.fromJson(d)).toList();
+      newTeams.sort((a, b) => b.date.compareTo(a.date));
+      teams = newTeams;
+      notifyListeners();
+    }
   }
 }
