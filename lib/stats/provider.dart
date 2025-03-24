@@ -5,6 +5,11 @@ import 'package:mush_on/services/models.dart';
 
 class StatsProvider with ChangeNotifier {
   List<TeamGroup> teams = [];
+  List<Dog> dogs = [];
+
+  StatsProvider() {
+    getTeams();
+  }
 
   /// Fetches the teams from Firestore
   /// If [cutOff] is provided, only fetches teams after that date

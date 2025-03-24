@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/provider.dart';
 import 'package:mush_on/stats/provider.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -15,35 +16,23 @@ class SfDataGridClass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     StatsProvider statsProvider =
-        Provider.of<StatsProvider>(context, listen: false);
+        Provider.of<StatsProvider>(context, listen: true);
     List<TeamGroup> teams = statsProvider.teams;
+    List<Dog> dogs = Provider.of<DogProvider>(context, listen: true).dogs;
     return SfDataGrid(
-      source: _statsDataSource,
-      columns: [
-        GridColumn(
-          columnName: 'teamName',
-          label: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            alignment: Alignment.center,
-            child: const Text(
-              'Team Name',
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ),
-        GridColumn(
-          columnName: 'teamDate',
-          label: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            alignment: Alignment.center,
-            child: const Text(
-              'Team Date',
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ),
-      ],
-    );
+        source: _statsDataSource,
+        columns: dogs.map<GridColumn>((Dog dog) {
+          return GridColumn(
+              columnName: dog.name,
+              label: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                alignment: Alignment.center,
+                child: Text(
+                  dog.name,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ));
+        }).toList());
   }
 }
 
@@ -51,14 +40,12 @@ class StatsDataSource extends DataGridSource {
   List<DataGridRow> dataGridRows = [];
 
   // Constructor directly transforms data to rows
-  StatsDataSource({required List<TeamGroup> teams}) {
-    dataGridRows = teams
-        .map<DataGridRow>((TeamGroup team) => DataGridRow(cells: [
-              DataGridCell<String>(columnName: 'teamName', value: team.name),
-              DataGridCell<String>(
-                  columnName: 'teamDate', value: team.date.toString()),
-            ]))
-        .toList();
+  StatsDataSource({required List<TeamGroup> teams, required List<Dog> dogs}) {
+    List<DataGridCell> dataGridCells = [];
+    for (Dog dog in dogs) {
+      dataGridCells.add(DataGridCell(value: dog.name, columnName: dog.name));
+    }
+    dataGridRows = [DataGridRow(cells: dataGridCells)];
   }
 
   @override
