@@ -48,12 +48,11 @@ class SfDataGridClass extends StatelessWidget {
 }
 
 class StatsDataSource extends DataGridSource {
-  @override
-  List<DataGridRow> rows = [];
+  List<DataGridRow> dataGridRows = [];
 
   // Constructor directly transforms data to rows
   StatsDataSource({required List<TeamGroup> teams}) {
-    rows = teams
+    dataGridRows = teams
         .map<DataGridRow>((TeamGroup team) => DataGridRow(cells: [
               DataGridCell<String>(columnName: 'teamName', value: team.name),
               DataGridCell<String>(
@@ -61,6 +60,9 @@ class StatsDataSource extends DataGridSource {
             ]))
         .toList();
   }
+
+  @override
+  List<DataGridRow> get rows => dataGridRows;
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
