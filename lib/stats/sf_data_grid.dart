@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/stats/provider.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
 
@@ -12,6 +14,9 @@ class SfDataGridClass extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    StatsProvider statsProvider =
+        Provider.of<StatsProvider>(context, listen: false);
+    List<TeamGroup> teams = statsProvider.teams;
     return SfDataGrid(
       source: _statsDataSource,
       columns: [
@@ -43,11 +48,12 @@ class SfDataGridClass extends StatelessWidget {
 }
 
 class StatsDataSource extends DataGridSource {
-  List<DataGridRow> dataGridRows = [];
+  @override
+  List<DataGridRow> rows = [];
 
   // Constructor directly transforms data to rows
   StatsDataSource({required List<TeamGroup> teams}) {
-    dataGridRows = teams
+    rows = teams
         .map<DataGridRow>((TeamGroup team) => DataGridRow(cells: [
               DataGridCell<String>(columnName: 'teamName', value: team.name),
               DataGridCell<String>(
@@ -55,9 +61,6 @@ class StatsDataSource extends DataGridSource {
             ]))
         .toList();
   }
-
-  @override
-  List<DataGridRow> get rows => dataGridRows;
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
