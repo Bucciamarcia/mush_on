@@ -60,4 +60,9 @@ class StatsDataSource extends DataGridSource {
           .toList(),
     );
   }
+
+  @override
+  bool shouldRecalculateColumnWidths() {
+    return true;
+  }
 }
