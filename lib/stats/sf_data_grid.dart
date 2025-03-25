@@ -8,6 +8,7 @@ class SfDataGridClass extends StatelessWidget {
   const SfDataGridClass({
     super.key,
     required StatsDataSource statsDataSource,
+    required List<Dog> dogs,
   }) : _statsDataSource = statsDataSource;
 
   final StatsDataSource _statsDataSource;

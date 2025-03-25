@@ -27,6 +27,6 @@ class _StatsMainState extends State<StatsMain> {
 
     _statsDataSource = StatsDataSource(teams: statsProvider.teams, dogs: dogs);
 
-    return SfDataGridClass(statsDataSource: _statsDataSource);
+    return SfDataGridClass(statsDataSource: _statsDataSource, dogs: dogs);
   }
 }
