@@ -46,12 +46,12 @@ class SfDataGridClass extends StatelessWidget {
       tableSummaryRows: [
         GridTableSummaryRow(
             showSummaryInRow: false,
-            columns: [
-              GridSummaryColumn(
-                  name: "Adek",
-                  columnName: "Adek",
-                  summaryType: GridSummaryType.sum),
-            ],
+            columns: dogs.map((dog) {
+              return GridSummaryColumn(
+                  name: dog.name,
+                  columnName: dog.name,
+                  summaryType: GridSummaryType.sum);
+            }).toList(),
             position: GridTableSummaryRowPosition.top)
       ],
     );
