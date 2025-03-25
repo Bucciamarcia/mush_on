@@ -16,30 +16,45 @@ class SfDataGridClass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Dog> dogs = Provider.of<DogProvider>(context, listen: true).dogs;
-    return SfDataGrid(source: _statsDataSource, columns: [
-      GridColumn(
-          columnName: "Date",
-          label: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            alignment: Alignment.center,
-            child: Text(
-              "Date",
-              overflow: TextOverflow.ellipsis,
-            ),
-          )),
-      ...dogs.map<GridColumn>((Dog dog) {
-        return GridColumn(
-            columnName: dog.name,
+    return SfDataGrid(
+      source: _statsDataSource,
+      columns: [
+        GridColumn(
+            columnName: "Date",
             label: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               alignment: Alignment.center,
               child: Text(
-                dog.name,
+                "Date",
                 overflow: TextOverflow.ellipsis,
               ),
-            ));
-      })
-    ]);
+            )),
+        ...dogs.map<GridColumn>((Dog dog) {
+          return GridColumn(
+              columnName: dog.name,
+              label: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                alignment: Alignment.center,
+                child: Text(
+                  dog.name,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ));
+        })
+      ],
+      frozenColumnsCount: 1,
+      tableSummaryRows: [
+        GridTableSummaryRow(
+            showSummaryInRow: false,
+            columns: [
+              GridSummaryColumn(
+                  name: "Adek",
+                  columnName: "Adek",
+                  summaryType: GridSummaryType.sum),
+            ],
+            position: GridTableSummaryRowPosition.top)
+      ],
+    );
   }
 }
 
@@ -172,6 +187,23 @@ class StatsDataSource extends DataGridSource {
             ),
           )
           .toList(),
+    );
+  }
+
+  @override
+  Widget? buildTableSummaryCellWidget(
+      GridTableSummaryRow summaryRow,
+      GridSummaryColumn? summaryColumn,
+      RowColumnIndex rowColumnIndex,
+      String summaryValue) {
+    return Center(
+      child: Container(
+        padding: EdgeInsets.all(15.0),
+        child: Text(
+          summaryValue,
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
     );
   }
 
