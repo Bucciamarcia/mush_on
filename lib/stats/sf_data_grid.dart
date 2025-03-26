@@ -60,23 +60,8 @@ class SfDataGridClass extends StatelessWidget {
 
 class StatsDataSource extends DataGridSource {
   late List<DataGridRow> dataGridRows;
-  StatsDataSource({required List<TeamGroup> teams, required List<Dog> dogs}) {
-    SfDataManipulation dataManipulator =
-        SfDataManipulation(teams: teams, dogs: dogs);
-    DateTime oldestDate = dataManipulator.findOldestDate();
-
-    final today = DateTime.now();
-    final todayWithoutTime = DateTime(today.year, today.month, today.day);
-    Map<String, List<TeamGroup>> teamsByDay = dataManipulator.getTeamsByDay();
-
-    List<DateTime> allDates = [];
-    DateTime currentDate = oldestDate;
-
-    currentDate =
-        dataManipulator.addCurrentDate(currentDate, todayWithoutTime, allDates);
-
-    allDates.sort((a, b) => b.compareTo(a));
-    dataGridRows = dataManipulator.createDataGridRows(allDates, teamsByDay);
+  StatsDataSource({required List<DataGridRow> gridData}) {
+    dataGridRows = gridData;
   }
 
   @override
@@ -132,10 +117,28 @@ class StatsDataSource extends DataGridSource {
 }
 
 /// Operations that StatsDataSource constructor must perform.
-class SfDataManipulation {
+class GridRowProcessor {
   List<TeamGroup> teams;
   List<Dog> dogs;
-  SfDataManipulation({required this.teams, required this.dogs});
+  GridRowProcessor({required this.teams, required this.dogs});
+
+  List<DataGridRow> run() {
+    List<DataGridRow> dataGridRows = [];
+    DateTime oldestDate = findOldestDate();
+
+    final today = DateTime.now();
+    final todayWithoutTime = DateTime(today.year, today.month, today.day);
+    Map<String, List<TeamGroup>> teamsByDay = getTeamsByDay();
+
+    List<DateTime> allDates = [];
+    DateTime currentDate = oldestDate;
+
+    currentDate = addCurrentDate(currentDate, todayWithoutTime, allDates);
+
+    allDates.sort((a, b) => b.compareTo(a));
+    dataGridRows = createDataGridRows(allDates, teamsByDay);
+    return dataGridRows;
+  }
 
   /// Finds the oldest date for the list of teamgroups.
   /// If no teams exist, defaults to 30 days.
