@@ -59,118 +59,24 @@ class SfDataGridClass extends StatelessWidget {
 }
 
 class StatsDataSource extends DataGridSource {
-  List<DataGridRow> dataGridRows = [];
-
+  late List<DataGridRow> dataGridRows;
   StatsDataSource({required List<TeamGroup> teams, required List<Dog> dogs}) {
-    // Step 1: Find the oldest date in the data
-    DateTime? oldestDate;
-    for (TeamGroup team in teams) {
-      if (oldestDate == null || team.date.isBefore(oldestDate)) {
-        // Strip time information, keep just the date
-        final dateWithoutTime =
-            DateTime(team.date.year, team.date.month, team.date.day);
-        if (oldestDate == null || dateWithoutTime.isBefore(oldestDate)) {
-          oldestDate = dateWithoutTime;
-        }
-      }
-    }
+    SfDataManipulation dataManipulator =
+        SfDataManipulation(teams: teams, dogs: dogs);
+    DateTime oldestDate = dataManipulator.findOldestDate();
 
-    // Default to 30 days ago if no teams exist
-    oldestDate ??= DateTime.now().subtract(Duration(days: 30));
-
-    // Step 2: Create a map to group TeamGroups by day
-    Map<String, List<TeamGroup>> teamsByDay = {};
-
-    for (TeamGroup team in teams) {
-      String dateKey = _formatDateKey(team.date);
-      teamsByDay.putIfAbsent(dateKey, () => []).add(team);
-    }
-
-    // Step 3: Generate list of all dates from oldest to today
     final today = DateTime.now();
     final todayWithoutTime = DateTime(today.year, today.month, today.day);
+    Map<String, List<TeamGroup>> teamsByDay = dataManipulator.getTeamsByDay();
 
-    // Create a list of all days between oldest date and today
     List<DateTime> allDates = [];
     DateTime currentDate = oldestDate;
 
-    while (!currentDate.isAfter(todayWithoutTime)) {
-      allDates.add(currentDate);
-      currentDate = currentDate.add(Duration(days: 1));
-    }
+    currentDate =
+        dataManipulator.addCurrentDate(currentDate, todayWithoutTime, allDates);
 
     allDates.sort((a, b) => b.compareTo(a));
-
-    // Step 4: Process each day, whether we have data or not
-    for (DateTime day in allDates) {
-      String dateKey = _formatDateKey(day);
-
-      // Create a row for this day
-      DataGridRow row;
-
-      // Check if we have data for this day
-      if (teamsByDay.containsKey(dateKey)) {
-        // Process teams for this day
-        List<TeamGroup> dayTeams = teamsByDay[dateKey]!;
-        Map<String, double> dogDistances = {};
-
-        for (TeamGroup dayTeam in dayTeams) {
-          for (Team team in dayTeam.teams) {
-            for (DogPair dogPair in team.dogPairs) {
-              if (dogPair.firstDog != null) {
-                String dogName = dogPair.firstDog!.name;
-                dogDistances[dogName] =
-                    (dogDistances[dogName] ?? 0) + dayTeam.distance;
-              }
-              if (dogPair.secondDog != null) {
-                String dogName = dogPair.secondDog!.name;
-                dogDistances[dogName] =
-                    (dogDistances[dogName] ?? 0) + dayTeam.distance;
-              }
-            }
-          }
-        }
-
-        // Create row with actual data
-        row = DataGridRow(
-          cells: <DataGridCell>[
-            DataGridCell(columnName: "Date", value: _formatDateForDisplay(day)),
-            ...dogs.map(
-              (dog) => DataGridCell(
-                columnName: dog.name,
-                value: dogDistances[dog.name] ?? 0,
-              ),
-            )
-          ],
-        );
-      } else {
-        // Create an empty row for this day
-        row = DataGridRow(
-          cells: <DataGridCell>[
-            DataGridCell(columnName: "Date", value: _formatDateForDisplay(day)),
-            ...dogs.map(
-              (dog) => DataGridCell(
-                columnName: dog.name,
-                value: 0.0,
-              ),
-            )
-          ],
-        );
-      }
-
-      dataGridRows.add(row);
-    }
-  }
-
-  // Helper method to create a consistent date key
-  String _formatDateKey(DateTime date) {
-    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-  }
-
-  // Helper method to format date for display
-  String _formatDateForDisplay(DateTime date) {
-    // You can customize this format based on your preferences
-    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+    dataGridRows = dataManipulator.createDataGridRows(allDates, teamsByDay);
   }
 
   @override
@@ -188,27 +94,6 @@ class StatsDataSource extends DataGridSource {
           )
           .toList(),
     );
-  }
-
-  /// Calculate the total distance for each dog
-  /// Returns a map of dog name to total distance
-  Map<String, double> getTotalKm(List<TeamGroup> teamGroups) {
-    /// Holds a map of dog name to total distance
-    Map<String, double> totalKms = {};
-
-    // Calculate the total distance for each dog
-    for (TeamGroup teamGroup in teamGroups) {
-      double distance = teamGroup.distance;
-      for (Team team in teamGroup.teams) {
-        for (DogPair dogPair in team.dogPairs) {
-          for (String dog in dogPair.toList()) {
-            totalKms.update(dog, (existing) => existing + distance,
-                ifAbsent: () => distance);
-          }
-        }
-      }
-    }
-    return totalKms;
   }
 
   @override
@@ -243,5 +128,134 @@ class StatsDataSource extends DataGridSource {
     } else {
       return value.toString();
     }
+  }
+}
+
+/// Operations that StatsDataSource constructor must perform.
+class SfDataManipulation {
+  List<TeamGroup> teams;
+  List<Dog> dogs;
+  SfDataManipulation({required this.teams, required this.dogs});
+
+  /// Finds the oldest date for the list of teamgroups.
+  /// If no teams exist, defaults to 30 days.
+  DateTime findOldestDate() {
+    DateTime? oldestDate;
+    for (TeamGroup team in teams) {
+      if (oldestDate == null || team.date.isBefore(oldestDate)) {
+        // Strip time information, keep just the date
+        final dateWithoutTime =
+            DateTime(team.date.year, team.date.month, team.date.day);
+        if (oldestDate == null || dateWithoutTime.isBefore(oldestDate)) {
+          oldestDate = dateWithoutTime;
+        }
+      }
+    }
+
+    // Default to 30 days ago if no teams exist
+    oldestDate ??= DateTime.now().subtract(Duration(days: 30));
+    return oldestDate;
+  }
+
+  Map<String, List<TeamGroup>> getTeamsByDay() {
+    Map<String, List<TeamGroup>> teamsByDay = {};
+
+    for (TeamGroup team in teams) {
+      String dateKey = _formatDateKey(team.date);
+      teamsByDay.putIfAbsent(dateKey, () => []).add(team);
+    }
+    return teamsByDay;
+  }
+
+  /// Helper method to create a consistent date key
+  String _formatDateKey(DateTime date) {
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
+  DateTime addCurrentDate(DateTime currentDate, DateTime todayWithoutTime,
+      List<DateTime> allDates) {
+    while (!currentDate.isAfter(todayWithoutTime)) {
+      allDates.add(currentDate);
+      currentDate = currentDate.add(Duration(days: 1));
+    }
+    return currentDate;
+  }
+
+  DataGridRow constructFilledRow(
+      Map<String, List<TeamGroup>> teamsByDay, String dateKey, DateTime day) {
+    List<TeamGroup> dayTeams = teamsByDay[dateKey]!;
+    Map<String, double> dogDistances = {};
+
+    for (TeamGroup dayTeam in dayTeams) {
+      for (Team team in dayTeam.teams) {
+        for (DogPair dogPair in team.dogPairs) {
+          if (dogPair.firstDog != null) {
+            String dogName = dogPair.firstDog!.name;
+            dogDistances[dogName] =
+                (dogDistances[dogName] ?? 0) + dayTeam.distance;
+          }
+          if (dogPair.secondDog != null) {
+            String dogName = dogPair.secondDog!.name;
+            dogDistances[dogName] =
+                (dogDistances[dogName] ?? 0) + dayTeam.distance;
+          }
+        }
+      }
+    }
+
+    DataGridRow row = DataGridRow(
+      cells: <DataGridCell>[
+        DataGridCell(columnName: "Date", value: _formatDateForDisplay(day)),
+        ...dogs.map(
+          (dog) => DataGridCell(
+            columnName: dog.name,
+            value: dogDistances[dog.name] ?? 0,
+          ),
+        )
+      ],
+    );
+    return row;
+  }
+
+  DataGridRow constructEmptyRow(DateTime day) {
+    DataGridRow row = DataGridRow(
+      cells: <DataGridCell>[
+        DataGridCell(columnName: "Date", value: _formatDateForDisplay(day)),
+        ...dogs.map(
+          (dog) => DataGridCell(
+            columnName: dog.name,
+            value: 0.0,
+          ),
+        )
+      ],
+    );
+    return row;
+  }
+
+  /// Helper method to format date for display
+  String _formatDateForDisplay(DateTime date) {
+    // You can customize this format based on your preferences
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+  }
+
+  List<DataGridRow> createDataGridRows(
+      List<DateTime> allDates, Map<String, List<TeamGroup>> teamsByDay) {
+    List<DataGridRow> dataGridRows = [];
+    for (DateTime day in allDates) {
+      String dateKey = _formatDateKey(day);
+
+      DataGridRow row;
+
+      // If there are teams for this day, fill in the row
+      // Else, create an empty row
+      if (teamsByDay.containsKey(dateKey)) {
+        row = constructFilledRow(teamsByDay, dateKey, day);
+      } else {
+        row = constructEmptyRow(day);
+      }
+
+      dataGridRows.add(row);
+    }
+    return dataGridRows;
   }
 }
