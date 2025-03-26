@@ -4,6 +4,7 @@ import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 
 class StatsProvider with ChangeNotifier {
+  ///Ordered by date descending.
   List<TeamGroup> teams = [];
   List<Dog> dogs = [];
 
@@ -14,7 +15,6 @@ class StatsProvider with ChangeNotifier {
   /// Fetches the teams from Firestore
   /// If [cutOff] is provided, only fetches teams after that date
   /// Ordered by date descending
-
   Future<void> getTeams({DateTime? cutOff}) async {
     if (cutOff == null) {
       FirebaseFirestore db = FirebaseFirestore.instance;

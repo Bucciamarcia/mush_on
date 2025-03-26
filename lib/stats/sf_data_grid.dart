@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/provider.dart';
-import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
 
 class SfDataGridClass extends StatelessWidget {
+  final List<Dog> _dogs;
   const SfDataGridClass({
     super.key,
     required StatsDataSource statsDataSource,
     required List<Dog> dogs,
-  }) : _statsDataSource = statsDataSource;
+  })  : _statsDataSource = statsDataSource,
+        _dogs = dogs;
 
   final StatsDataSource _statsDataSource;
 
   @override
   Widget build(BuildContext context) {
-    List<Dog> dogs = Provider.of<DogProvider>(context, listen: true).dogs;
     return SfDataGrid(
       source: _statsDataSource,
       columns: [
@@ -29,7 +28,7 @@ class SfDataGridClass extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             )),
-        ...dogs.map<GridColumn>((Dog dog) {
+        ..._dogs.map<GridColumn>((Dog dog) {
           return GridColumn(
               columnName: dog.name,
               label: Container(
@@ -46,7 +45,7 @@ class SfDataGridClass extends StatelessWidget {
       tableSummaryRows: [
         GridTableSummaryRow(
             showSummaryInRow: false,
-            columns: dogs.map((dog) {
+            columns: _dogs.map((dog) {
               return GridSummaryColumn(
                   name: dog.name,
                   columnName: dog.name,
@@ -188,6 +187,27 @@ class StatsDataSource extends DataGridSource {
           )
           .toList(),
     );
+  }
+
+  /// Calculate the total distance for each dog
+  /// Returns a map of dog name to total distance
+  Map<String, double> getTotalKm(List<TeamGroup> teamGroups) {
+    /// Holds a map of dog name to total distance
+    Map<String, double> totalKms = {};
+
+    // Calculate the total distance for each dog
+    for (TeamGroup teamGroup in teamGroups) {
+      double distance = teamGroup.distance;
+      for (Team team in teamGroup.teams) {
+        for (DogPair dogPair in team.dogPairs) {
+          for (String dog in dogPair.toList()) {
+            totalKms.update(dog, (existing) => existing + distance,
+                ifAbsent: () => distance);
+          }
+        }
+      }
+    }
+    return totalKms;
   }
 
   @override

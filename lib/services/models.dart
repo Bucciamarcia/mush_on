@@ -241,6 +241,14 @@ class DogPair {
   String? get firstName => firstDog?.name;
   String? get secondName => secondDog?.name;
 
+  /// Get a list of dog names
+  List<String> toList() {
+    List<String> toReturn = [];
+    if (firstName != null) toReturn.add(firstName!);
+    if (secondName != null) toReturn.add(secondName!);
+    return toReturn;
+  }
+
   /// Check if both dogs are null (empty)
   bool get isEmpty => firstDog == null && secondDog == null;
 
