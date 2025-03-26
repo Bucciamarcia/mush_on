@@ -16,6 +16,7 @@ class SfDataGridClass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SfDataGrid(
+      isScrollbarAlwaysShown: true,
       source: _statsDataSource,
       columns: [
         GridColumn(
