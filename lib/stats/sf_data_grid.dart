@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mush_on/stats/daily_dog_stats.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
 
 const String dateColumnName = "Date";
+const String monthYearName = "Month and Year";
 
 class SfDataGridClass extends StatelessWidget {
   final List<Dog> _dogs;
@@ -18,20 +20,33 @@ class SfDataGridClass extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _statsDataSource
+        .addColumnGroup(ColumnGroup(name: monthYearName, sortGroupRows: true));
     return SfDataGrid(
       isScrollbarAlwaysShown: true,
       source: _statsDataSource,
       columns: [
         GridColumn(
-            columnName: dateColumnName,
-            label: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          columnName: dateColumnName,
+          label: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            alignment: Alignment.center,
+            child: Text(
+              dateColumnName,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+        GridColumn(
+          columnName: monthYearName,
+          label: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               alignment: Alignment.center,
               child: Text(
-                dateColumnName,
+                monthYearName,
                 overflow: TextOverflow.ellipsis,
-              ),
-            )),
+              )),
+        ),
         ..._dogs.map<GridColumn>((Dog dog) {
           return GridColumn(
               columnName: dog.name,
@@ -198,7 +213,10 @@ class GridRowProcessor {
               columnName: dateColumnName,
               value: _formatDateForDisplay(dailyStat.date),
             ),
-
+            DataGridCell(
+              columnName: monthYearName,
+              value: DateFormat("MMMM yyyy").format(dailyStat.date),
+            ),
             // 2. Dog Cells (Generate by mapping over the 'dogs' list)
             ...dogs.map((dog) {
               // Iterate over the main 'dogs' list to ensure order
