@@ -3,6 +3,8 @@ import 'package:mush_on/stats/daily_dog_stats.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
 
+const String dateColumnName = "Date";
+
 class SfDataGridClass extends StatelessWidget {
   final List<Dog> _dogs;
   const SfDataGridClass({
@@ -21,12 +23,12 @@ class SfDataGridClass extends StatelessWidget {
       source: _statsDataSource,
       columns: [
         GridColumn(
-            columnName: "Date",
+            columnName: dateColumnName,
             label: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               alignment: Alignment.center,
               child: Text(
-                "Date",
+                dateColumnName,
                 overflow: TextOverflow.ellipsis,
               ),
             )),
@@ -193,7 +195,7 @@ class GridRowProcessor {
             // Create the list of cells directly
             // 1. Date Cell (Correct)
             DataGridCell(
-              columnName: "Date",
+              columnName: dateColumnName,
               value: _formatDateForDisplay(dailyStat.date),
             ),
 
@@ -280,7 +282,8 @@ class GridRowProcessor {
 
     DataGridRow row = DataGridRow(
       cells: <DataGridCell>[
-        DataGridCell(columnName: "Date", value: _formatDateForDisplay(day)),
+        DataGridCell(
+            columnName: dateColumnName, value: _formatDateForDisplay(day)),
         ...dogs.map(
           (dog) => DataGridCell(
             columnName: dog.name,
@@ -295,7 +298,8 @@ class GridRowProcessor {
   DataGridRow constructEmptyRow(DateTime day) {
     DataGridRow row = DataGridRow(
       cells: <DataGridCell>[
-        DataGridCell(columnName: "Date", value: _formatDateForDisplay(day)),
+        DataGridCell(
+            columnName: dateColumnName, value: _formatDateForDisplay(day)),
         ...dogs.map(
           (dog) => DataGridCell(
             columnName: dog.name,
