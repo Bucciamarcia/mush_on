@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/stats/daily_dog_stats.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
 
@@ -123,12 +124,17 @@ class GridRowProcessor {
   GridRowProcessor({required this.teams, required this.dogs});
 
   List<DataGridRow> run() {
-    List<DataGridRow> dataGridRows = [];
-    DateTime oldestDate = findOldestDate();
+    List<DailyDogStats> aggregatedStats = _aggregateData();
+    List<DataGridRow> dataGridRows = _buildGridRows(aggregatedStats);
+    return dataGridRows;
+  }
 
+  List<DailyDogStats> _aggregateData() {
+    List<DailyDogStats> toReturn = [];
     final today = DateTime.now();
     final todayWithoutTime = DateTime(today.year, today.month, today.day);
     Map<String, List<TeamGroup>> teamsByDay = getTeamsByDay();
+    DateTime oldestDate = findOldestDate();
 
     List<DateTime> allDates = [];
     DateTime currentDate = oldestDate;
@@ -138,15 +144,72 @@ class GridRowProcessor {
     allDates.sort((a, b) => b.compareTo(a));
     for (DateTime day in allDates) {
       String dateKey = _formatDateKey(day);
-      DataGridRow row;
       if (teamsByDay.containsKey(dateKey)) {
-        row = constructFilledRow(teamsByDay, dateKey, day);
+        List<TeamGroup>? dayTeams = teamsByDay[dateKey];
+        Map<String, double> dogDistances = {};
+        for (TeamGroup dayTeam in dayTeams!) {
+          for (Team team in dayTeam.teams) {
+            for (DogPair dogPair in team.dogPairs) {
+              if (dogPair.firstDog != null) {
+                String dogName = dogPair.firstDog!.name;
+                dogDistances[dogName] =
+                    (dogDistances[dogName] ?? 0) + dayTeam.distance;
+              }
+              if (dogPair.secondDog != null) {
+                String dogName = dogPair.secondDog!.name;
+                dogDistances[dogName] =
+                    (dogDistances[dogName] ?? 0) + dayTeam.distance;
+              }
+            }
+          }
+        }
+        toReturn.add(DailyDogStats(date: day, distances: dogDistances));
       } else {
-        row = constructEmptyRow(day);
+        toReturn
+            .add(DailyDogStats(date: day, distances: _getEmptyDistanceRow()));
       }
-      dataGridRows.add(row);
     }
-    return dataGridRows;
+    return toReturn;
+  }
+
+  Map<String, double> _getEmptyDistanceRow() {
+    Map<String, double> toReturn = {};
+    for (Dog dog in dogs) {
+      toReturn.putIfAbsent(dog.name, () => 0);
+    }
+    return toReturn;
+  }
+
+  List<DataGridRow> _buildGridRows(List<DailyDogStats> dailyDogStats) {
+    List<DataGridRow> toReturn = [];
+
+    // Sort by date descending HERE for explicit display order control
+    dailyDogStats.sort((a, b) => b.date.compareTo(a.date));
+
+    for (DailyDogStats dailyStat in dailyDogStats) {
+      toReturn.add(
+        DataGridRow(
+          cells: [
+            // Create the list of cells directly
+            // 1. Date Cell (Correct)
+            DataGridCell(
+              columnName: "Date",
+              value: _formatDateForDisplay(dailyStat.date),
+            ),
+
+            // 2. Dog Cells (Generate by mapping over the 'dogs' list)
+            ...dogs.map((dog) {
+              // Iterate over the main 'dogs' list to ensure order
+              // Look up this dog's distance in the current day's stats.
+              // Use ?? 0.0 as a fallback.
+              double distance = dailyStat.distances[dog.name] ?? 0.0;
+              return DataGridCell(columnName: dog.name, value: distance);
+            })
+          ], // end cell list
+        ), // end DataGridRow
+      ); // end add
+    } // end loop
+    return toReturn;
   }
 
   /// Finds the oldest date for the list of teamgroups.
