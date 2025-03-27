@@ -24,40 +24,23 @@ class SfDataGridClass extends StatelessWidget {
         .addColumnGroup(ColumnGroup(name: monthYearName, sortGroupRows: true));
     return SfDataGrid(
       isScrollbarAlwaysShown: true,
+      allowExpandCollapseGroup: true,
       source: _statsDataSource,
       columns: [
         GridColumn(
           columnName: dateColumnName,
-          label: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            alignment: Alignment.center,
-            child: Text(
-              dateColumnName,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+          label: DataGridCellFormatter(text: dateColumnName),
         ),
         GridColumn(
           columnName: monthYearName,
-          label: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              alignment: Alignment.center,
-              child: Text(
-                monthYearName,
-                overflow: TextOverflow.ellipsis,
-              )),
+          label: DataGridCellFormatter(text: monthYearName),
+          visible: false,
         ),
         ..._dogs.map<GridColumn>((Dog dog) {
           return GridColumn(
-              columnName: dog.name,
-              label: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                alignment: Alignment.center,
-                child: Text(
-                  dog.name,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ));
+            columnName: dog.name,
+            label: DataGridCellFormatter(text: dog.name),
+          );
         })
       ],
       frozenColumnsCount: 1,
@@ -76,6 +59,26 @@ class SfDataGridClass extends StatelessWidget {
   }
 }
 
+class DataGridCellFormatter extends StatelessWidget {
+  final String text;
+  const DataGridCellFormatter({
+    super.key,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      alignment: Alignment.center,
+      child: Text(
+        text,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+}
+
 class StatsDataSource extends DataGridSource {
   late List<DataGridRow> dataGridRows;
   StatsDataSource({required List<DataGridRow> gridData}) {
@@ -84,6 +87,26 @@ class StatsDataSource extends DataGridSource {
 
   @override
   List<DataGridRow> get rows => dataGridRows;
+
+  @override
+  Widget? buildGroupCaptionCellWidget(
+      RowColumnIndex rowColumnIndex, String summaryValue) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 15),
+      // Put in a row because I want it to start at column 2.
+      child: Row(
+        children: [
+          SizedBox(width: 100),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Text(summaryValue),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
@@ -200,7 +223,6 @@ class GridRowProcessor {
   List<DataGridRow> _buildGridRows(List<DailyDogStats> dailyDogStats) {
     List<DataGridRow> toReturn = [];
 
-    // Sort by date descending HERE for explicit display order control
     dailyDogStats.sort((a, b) => b.date.compareTo(a.date));
 
     for (DailyDogStats dailyStat in dailyDogStats) {
@@ -208,7 +230,7 @@ class GridRowProcessor {
         DataGridRow(
           cells: [
             // Create the list of cells directly
-            // 1. Date Cell (Correct)
+            // 1. Date Cell
             DataGridCell(
               columnName: dateColumnName,
               value: _formatDateForDisplay(dailyStat.date),
@@ -225,10 +247,10 @@ class GridRowProcessor {
               double distance = dailyStat.distances[dog.name] ?? 0.0;
               return DataGridCell(columnName: dog.name, value: distance);
             })
-          ], // end cell list
-        ), // end DataGridRow
-      ); // end add
-    } // end loop
+          ],
+        ),
+      );
+    }
     return toReturn;
   }
 
