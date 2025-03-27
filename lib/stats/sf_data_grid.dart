@@ -136,7 +136,16 @@ class GridRowProcessor {
     currentDate = addCurrentDate(currentDate, todayWithoutTime, allDates);
 
     allDates.sort((a, b) => b.compareTo(a));
-    dataGridRows = createDataGridRows(allDates, teamsByDay);
+    for (DateTime day in allDates) {
+      String dateKey = _formatDateKey(day);
+      DataGridRow row;
+      if (teamsByDay.containsKey(dateKey)) {
+        row = constructFilledRow(teamsByDay, dateKey, day);
+      } else {
+        row = constructEmptyRow(day);
+      }
+      dataGridRows.add(row);
+    }
     return dataGridRows;
   }
 
@@ -239,26 +248,5 @@ class GridRowProcessor {
   String _formatDateForDisplay(DateTime date) {
     // You can customize this format based on your preferences
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-  }
-
-  List<DataGridRow> createDataGridRows(
-      List<DateTime> allDates, Map<String, List<TeamGroup>> teamsByDay) {
-    List<DataGridRow> dataGridRows = [];
-    for (DateTime day in allDates) {
-      String dateKey = _formatDateKey(day);
-
-      DataGridRow row;
-
-      // If there are teams for this day, fill in the row
-      // Else, create an empty row
-      if (teamsByDay.containsKey(dateKey)) {
-        row = constructFilledRow(teamsByDay, dateKey, day);
-      } else {
-        row = constructEmptyRow(day);
-      }
-
-      dataGridRows.add(row);
-    }
-    return dataGridRows;
   }
 }
