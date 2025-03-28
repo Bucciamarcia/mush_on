@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:mush_on/stats/group_summary.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../services/models.dart';
@@ -57,6 +58,34 @@ class GridRowProcessor {
       }
     }
     return toReturn;
+  }
+
+  List<GroupSummary> getGroupSummaries(List<DailyDogStats> dailyDogStats) {
+    Map<DateTime, List<DailyDogStats>> groupedByMonth =
+        _groupByMonth(dailyDogStats);
+    return _generateGroupSummaries(groupedByMonth);
+  }
+
+  /// Helper method to group the daily dog stats by month.
+  ///
+  /// EXAMPLE OUTPUT:
+  /// {
+  /// DateTime(2021, 1): [DailyDogStats(date: DateTime(2021, 1, 1), distances: {"Fido": 100.0, "Rex": 200.0})],
+  ///  }
+  Map<DateTime, List<DailyDogStats>> _groupByMonth(
+      List<DailyDogStats> dailyDogStats) {
+    Map<DateTime, List<DailyDogStats>> groupedByMonth = {};
+    for (DailyDogStats dayStats in dailyDogStats) {
+      DateTime monthYear = DateTime(dayStats.date.year, dayStats.date.month);
+      groupedByMonth.update(monthYear, (statsList) => [...statsList, dayStats],
+          ifAbsent: () => [dayStats]);
+    }
+    return groupedByMonth;
+  }
+
+  List<GroupSummary> _generateGroupSummaries(
+      Map<DateTime, List<DailyDogStats>> groupedByMonth) {
+    return [];
   }
 
   Map<String, double> _getEmptyDistanceRow() {
