@@ -75,7 +75,7 @@ class GridRowProcessor {
     return dogTotals;
   }
 
-  List<GroupSummary> calculateMonthlySummariesDirectly(
+  List<MonthSummary> calculateMonthlySummaries(
       List<DailyDogStats> dailyDogStats) {
     // Outer key: DateTime representing the month (e.g., 2025-03-01)
     // Inner key: Dog name (String)
@@ -100,10 +100,10 @@ class GridRowProcessor {
       });
     }
 
-    // Convert the results map into the List<GroupSummary>
-    List<GroupSummary> summaries = [];
+    // Convert the results map into the List<MonthSummary>
+    List<MonthSummary> summaries = [];
     monthlyTotals.forEach((month, totals) {
-      summaries.add(GroupSummary(month: month, distances: totals));
+      summaries.add(MonthSummary(month: month, distances: totals));
     });
 
     // Optional: Sort summaries if needed
@@ -126,6 +126,8 @@ class GridRowProcessor {
 
   List<DataGridRow> _buildGridRows(List<DailyDogStats> dailyDogStats) {
     List<DataGridRow> toReturn = [];
+    List<MonthSummary> groupSummaries =
+        calculateMonthlySummaries(dailyDogStats);
 
     dailyDogStats.sort((a, b) => b.date.compareTo(a.date));
 
@@ -156,6 +158,17 @@ class GridRowProcessor {
       );
     }
     return toReturn;
+  }
+
+  bool _isLastDayOfMonth(DateTime date) {
+    // Create a new DateTime for the first day of the next month
+    DateTime nextMonth = DateTime(date.year, date.month + 1, 1);
+
+    // Subtract one day to get the last day of the current month
+    DateTime lastDay = nextMonth.subtract(Duration(days: 1));
+
+    // Check if the day of the given date matches the last day of the month
+    return date.day == lastDay.day;
   }
 
   /// Finds the oldest date for the list of teamgroups.
