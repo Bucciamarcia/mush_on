@@ -1,3 +1,5 @@
+/// The class used to generate monthly summaries.
+/// The summary includes the month and the total distance for each dog in the group.
 class GroupSummary {
   /// The DateTime month for this summary.
   DateTime month;
