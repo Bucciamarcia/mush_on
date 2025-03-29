@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/stats/grid_row_processor.dart';
-import 'package:mush_on/stats/group_summary.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
 import 'constants.dart';
