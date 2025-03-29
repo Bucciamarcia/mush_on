@@ -19,7 +19,7 @@ class SfDataGridClass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _statsDataSource
-        .addColumnGroup(ColumnGroup(name: monthYearName, sortGroupRows: true));
+        .addColumnGroup(ColumnGroup(name: monthYearName, sortGroupRows: false));
     return SfDataGrid(
       isScrollbarAlwaysShown: true,
       allowExpandCollapseGroup: true,
