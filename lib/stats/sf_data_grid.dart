@@ -79,10 +79,10 @@ class DataGridCellFormatter extends StatelessWidget {
 
 class StatsDataSource extends DataGridSource {
   late List<DataGridRow> dataGridRows;
-  late List<GroupSummary> groupSummaries;
+  late Map<String, double> dogTotals;
   StatsDataSource({required GridRowProcessorResult gridData}) {
     dataGridRows = gridData.dataGridRows;
-    groupSummaries = gridData.groupSummaries;
+    dogTotals = gridData.dogTotals;
   }
 
   @override
