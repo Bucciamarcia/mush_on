@@ -16,7 +16,7 @@ class StatsMain extends StatelessWidget {
 
     GridRowProcessor dataManipulator =
         GridRowProcessor(teams: statsProvider.teams, dogs: dogs);
-    List<DataGridRow> gridData = dataManipulator.run();
+    GridRowProcessorResult gridData = dataManipulator.run();
 
     StatsDataSource statsDataSource = StatsDataSource(gridData: gridData);
 

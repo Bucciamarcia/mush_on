@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/stats/grid_row_processor.dart';
+import 'package:mush_on/stats/group_summary.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
 import 'constants.dart';
@@ -77,8 +79,10 @@ class DataGridCellFormatter extends StatelessWidget {
 
 class StatsDataSource extends DataGridSource {
   late List<DataGridRow> dataGridRows;
-  StatsDataSource({required List<DataGridRow> gridData}) {
-    dataGridRows = gridData;
+  late List<GroupSummary> groupSummaries;
+  StatsDataSource({required GridRowProcessorResult gridData}) {
+    dataGridRows = gridData.dataGridRows;
+    groupSummaries = gridData.groupSummaries;
   }
 
   @override

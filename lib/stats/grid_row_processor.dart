@@ -11,10 +11,13 @@ class GridRowProcessor {
   List<Dog> dogs;
   GridRowProcessor({required this.teams, required this.dogs});
 
-  List<DataGridRow> run() {
+  GridRowProcessorResult run() {
     List<DailyDogStats> aggregatedStats = _aggregateData();
     List<DataGridRow> dataGridRows = _buildGridRows(aggregatedStats);
-    return dataGridRows;
+    List<GroupSummary> groupSummaries =
+        calculateMonthlySummariesDirectly(aggregatedStats);
+    return GridRowProcessorResult(
+        dataGridRows: dataGridRows, groupSummaries: groupSummaries);
   }
 
   List<DailyDogStats> _aggregateData() {
@@ -100,6 +103,7 @@ class GridRowProcessor {
     return summaries;
   }
 
+  /// WARNING: Probably obsolete. Remove as soon as you make sure the grid works!
   List<GroupSummary> getGroupSummaries(List<DailyDogStats> dailyDogStats) {
     Map<DateTime, List<DailyDogStats>> groupedByMonth =
         _groupByMonth(dailyDogStats);
@@ -287,4 +291,12 @@ class GridRowProcessor {
     // You can customize this format based on your preferences
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
+}
+
+class GridRowProcessorResult {
+  final List<DataGridRow> dataGridRows;
+  final List<GroupSummary> groupSummaries;
+
+  GridRowProcessorResult(
+      {required this.dataGridRows, required this.groupSummaries});
 }
