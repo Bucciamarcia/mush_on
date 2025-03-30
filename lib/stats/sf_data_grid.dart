@@ -81,7 +81,7 @@ class StatsDataSource extends DataGridSource {
   late Map<String, double> dogTotals;
   StatsDataSource({required GridRowProcessorResult gridData}) {
     dataGridRows = gridData.dataGridRows;
-    dogTotals = gridData.dogTotals;
+    dogTotals = gridData.dogGrandTotals;
   }
 
   @override
@@ -155,5 +155,3 @@ class StatsDataSource extends DataGridSource {
     }
   }
 }
-
-/// Operations that StatsDataSource constructor must perform.

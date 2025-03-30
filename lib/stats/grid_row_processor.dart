@@ -32,11 +32,11 @@ class GridRowProcessor {
         _buildFinalRows(ddsByMonth, monthlySummariesMap);
 
     // Calculate grand totals
-    Map<String, double> dogTotals = _buildDogTotals(aggregatedStats);
+    Map<String, double> dogGrandTotals = _buildDogTotals(aggregatedStats);
 
     // Return final results
     return GridRowProcessorResult(
-        dataGridRows: allRowsCombined, dogTotals: dogTotals);
+        dataGridRows: allRowsCombined, dogGrandTotals: dogGrandTotals);
   }
 
   List<DailyDogStats> _aggregateData() {
@@ -350,7 +350,8 @@ class GridRowProcessorResult {
   final List<DataGridRow> dataGridRows;
 
   /// The grand total kms ran by each dog;
-  final Map<String, double> dogTotals;
+  final Map<String, double> dogGrandTotals;
 
-  GridRowProcessorResult({required this.dataGridRows, required this.dogTotals});
+  GridRowProcessorResult(
+      {required this.dataGridRows, required this.dogGrandTotals});
 }
