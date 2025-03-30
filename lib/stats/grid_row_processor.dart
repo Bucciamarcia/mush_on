@@ -10,13 +10,33 @@ class GridRowProcessor {
   List<TeamGroup> teams;
   List<Dog> dogs;
   GridRowProcessor({required this.teams, required this.dogs});
-
   GridRowProcessorResult run() {
+    // Get daily aggregated data
     List<DailyDogStats> aggregatedStats = _aggregateData();
-    List<DataGridRow> dataGridRows = _buildGridRows(aggregatedStats);
+
+    // Calculate monthly summary data
+    List<MonthSummary> monthlySummariesList =
+        calculateMonthlySummaries(aggregatedStats); // Renamed for clarity
+
+    // Convert monthly summaries List to Map for efficient lookup
+    Map<DateTime, MonthSummary> monthlySummariesMap = {
+      for (var summary in monthlySummariesList) (summary).month: summary
+    };
+
+    // Group daily stats by month
+    Map<DateTime, List<DailyDogStats>> ddsByMonth =
+        getDdsByMonth(aggregatedStats);
+
+    // Build the final list including injected rows (using the maps)
+    List<DataGridRow> allRowsCombined =
+        _buildFinalRows(ddsByMonth, monthlySummariesMap);
+
+    // Calculate grand totals
     Map<String, double> dogTotals = _buildDogTotals(aggregatedStats);
+
+    // Return final results
     return GridRowProcessorResult(
-        dataGridRows: dataGridRows, dogTotals: dogTotals);
+        dataGridRows: allRowsCombined, dogTotals: dogTotals);
   }
 
   List<DailyDogStats> _aggregateData() {
@@ -124,40 +144,90 @@ class GridRowProcessor {
     return toReturn;
   }
 
-  List<DataGridRow> _buildGridRows(List<DailyDogStats> dailyDogStats) {
-    List<DataGridRow> toReturn = [];
-    List<MonthSummary> groupSummaries =
-        calculateMonthlySummaries(dailyDogStats);
+  List<DataGridRow> _buildFinalRows(
+      Map<DateTime, List<DailyDogStats>> ddsByMonth,
+      Map<DateTime, MonthSummary>
+          groupSummariesMap // Receive Map for easy lookup
+      ) {
+    List<DataGridRow> finalRows = [];
 
-    dailyDogStats.sort((a, b) => b.date.compareTo(a.date));
+    // 1. Get the months and sort them (e.g., newest first)
+    List<DateTime> sortedMonths = ddsByMonth.keys.toList();
+    sortedMonths.sort((a, b) => b.compareTo(a)); // Sort descending
 
-    for (DailyDogStats dailyStat in dailyDogStats) {
-      toReturn.add(
-        DataGridRow(
-          cells: [
-            // Create the list of cells directly
-            // 1. Date Cell
-            DataGridCell(
-              columnName: dateColumnName,
-              value: _formatDateForDisplay(dailyStat.date),
-            ),
-            DataGridCell(
-              columnName: monthYearName,
-              value: DateFormat("MMMM yyyy").format(dailyStat.date),
-            ),
-            // 2. Dog Cells (Generate by mapping over the 'dogs' list)
-            ...dogs.map((dog) {
-              // Iterate over the main 'dogs' list to ensure order
-              // Look up this dog's distance in the current day's stats.
-              // Use ?? 0.0 as a fallback.
-              double distance = dailyStat.distances[dog.name] ?? 0.0;
-              return DataGridCell(columnName: dog.name, value: distance);
-            })
-          ],
+    // 2. Iterate through sorted months
+    for (DateTime monthKey in sortedMonths) {
+      // 3. Get the summary for this month
+      MonthSummary? monthSummary = groupSummariesMap[monthKey];
+      if (monthSummary == null) {
+        print("Warning: Missing summary for month $monthKey");
+        continue; // Skip if summary data is missing
+      }
+
+      // 4. Create and add the "Total" Row for this month
+      finalRows.add(DataGridRow(cells: [
+        DataGridCell<String>(
+          // Use String type for marker
+          columnName: dateColumnName,
+          // Marker value to identify total rows
+          value: "Summary for ${DateFormat("MMMM yyyy").format(monthKey)}",
         ),
-      );
+        DataGridCell<String>(
+          // Value needed for grouping
+          columnName: monthYearName,
+          value: DateFormat("MMMM yyyy").format(monthKey),
+        ),
+        // Add dog total cells (using CORRECT order)
+        ...dogs.map((dog) {
+          double total = monthSummary.distances[dog.name] ?? 0.0;
+          return DataGridCell<double>(columnName: dog.name, value: total);
+        }),
+      ]));
+
+      // 5. Get the daily stats for this month
+      List<DailyDogStats> daysInMonth = ddsByMonth[monthKey] ?? [];
+      // Optional: Sort daily rows within the month if needed
+      daysInMonth.sort((a, b) => b.date.compareTo(a.date)); // Descending date
+
+      // 6. Create and add the "Daily" Rows for this month
+      for (DailyDogStats dayStat in daysInMonth) {
+        finalRows.add(DataGridRow(cells: [
+          DataGridCell<String>(
+            // Use String type
+            columnName: dateColumnName,
+            value: _formatDateForDisplay(dayStat.date), // Normal date display
+          ),
+          DataGridCell<String>(
+            // Value needed for grouping
+            columnName: monthYearName,
+            value: DateFormat("MMMM yyyy").format(dayStat.date),
+          ),
+          // Add daily dog cells (using CORRECT order)
+          ...dogs.map((dog) {
+            double distance = dayStat.distances[dog.name] ?? 0.0;
+            return DataGridCell<double>(columnName: dog.name, value: distance);
+          }),
+        ]));
+      }
+    } // End loop through months
+
+    return finalRows;
+  }
+
+  /// Takes the list of daily dog stats, and splits them in a map where the key is the DateTime
+  /// month and year for those daily stats.
+  Map<DateTime, List<DailyDogStats>> getDdsByMonth(
+      List<DailyDogStats> dailyDogStats) {
+    Map<DateTime, List<DailyDogStats>> groupedByMonth = {};
+    for (DailyDogStats dayStats in dailyDogStats) {
+      // Use the DateTime representing the first day of the month as the key
+      DateTime monthKey = DateTime(dayStats.date.year, dayStats.date.month);
+      groupedByMonth
+          .putIfAbsent(
+              monthKey, () => <DailyDogStats>[]) // Use the efficient way
+          .add(dayStats);
     }
-    return toReturn;
+    return groupedByMonth;
   }
 
   bool _isLastDayOfMonth(DateTime date) {
