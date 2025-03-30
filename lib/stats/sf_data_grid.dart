@@ -138,6 +138,17 @@ class StatsDataSource extends DataGridSource {
     );
   }
 
+  @override
+  String calculateSummaryValue(GridTableSummaryRow summaryRow,
+      GridSummaryColumn? summaryColumn, RowColumnIndex rowColumnIndex) {
+    if (summaryColumn == null) {
+      return "";
+    }
+    String dogName = summaryColumn.columnName;
+    double dogDistance = dogTotals[dogName] ?? 0.0;
+    return formatDouble(dogDistance);
+  }
+
   String _formatCellValue(dynamic value) {
     if (value is double) {
       if (value == 0) return "";
