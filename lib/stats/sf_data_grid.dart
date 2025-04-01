@@ -26,11 +26,11 @@ class SfDataGridClass extends StatelessWidget {
       columns: [
         GridColumn(
           columnName: dateColumnName,
-          label: DataGridCellFormatter(text: dateColumnName),
+          label: const DataGridCellFormatter(text: dateColumnName),
         ),
         GridColumn(
           columnName: monthYearName,
-          label: DataGridCellFormatter(text: monthYearName),
+          label: const DataGridCellFormatter(text: monthYearName),
           visible: false,
         ),
         ..._dogs.map<GridColumn>((Dog dog) {
