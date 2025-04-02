@@ -16,28 +16,26 @@ class StatsProvider with ChangeNotifier {
   /// If [cutOff] is provided, only fetches teams after that date
   /// Ordered by date descending
   Future<void> getTeams({DateTime? cutOff}) async {
-    if (cutOff == null) {
-      FirebaseFirestore db = FirebaseFirestore.instance;
-      String account = await FirestoreService().getUserAccount() ?? "";
-      var ref = db.collection("accounts/$account/data/teams/history");
-      var snapshot = await ref.get();
-      var data = snapshot.docs.map((s) => s.data());
-      var newTeams = data.map((d) => TeamGroup.fromJson(d)).toList();
-      newTeams.sort((a, b) => b.date.compareTo(a.date));
-      teams = newTeams;
-      notifyListeners();
-    } else {
-      FirebaseFirestore db = FirebaseFirestore.instance;
-      String account = await FirestoreService().getUserAccount() ?? "";
-      var ref = db
-          .collection("accounts/$account/data/teams/history")
-          .where("date", isGreaterThan: cutOff);
-      var snapshot = await ref.get();
-      var data = snapshot.docs.map((s) => s.data());
-      var newTeams = data.map((d) => TeamGroup.fromJson(d)).toList();
-      newTeams.sort((a, b) => b.date.compareTo(a.date));
-      teams = newTeams;
-      notifyListeners();
+    String account = await FirestoreService().getUserAccount() ?? "";
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    Query<Map<String, dynamic>> ref =
+        db.collection("accounts/$account/data/teams/history");
+
+    if (cutOff != null) {
+      ref = ref.where("date", isGreaterThan: cutOff);
     }
+
+    ref.snapshots().listen((snapshot) {
+      final newTeams =
+          snapshot.docs.map((doc) => TeamGroup.fromJson(doc.data())).toList();
+
+      // Sort the teams by date inside the callback
+      newTeams.sort((a, b) => b.date.compareTo(a.date));
+
+      // Update the teams list and notify listeners inside the callback
+      teams = newTeams;
+      notifyListeners();
+    });
   }
 }
