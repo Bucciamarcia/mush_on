@@ -49,32 +49,49 @@ class GridRowProcessor {
     List<DateTime> allDates = [];
     DateTime currentDate = oldestDate;
 
-    currentDate = addCurrentDate(currentDate, todayWithoutTime, allDates);
+    addCurrentDate(currentDate, todayWithoutTime, allDates);
 
-    allDates.sort((a, b) => b.compareTo(a));
+    allDates.sort((a, b) =>
+        b.compareTo(a)); // Should now correctly have Apr 2 00:00 first
+
     for (DateTime day in allDates) {
       String dateKey = _formatDateKey(day);
-      if (teamsByDay.containsKey(dateKey)) {
+      bool hasData = teamsByDay.containsKey(dateKey); // Check containsKey
+
+      if (hasData) {
         List<TeamGroup>? dayTeams = teamsByDay[dateKey];
+        // Add a null check just to be absolutely sure
+        if (dayTeams == null) {
+          continue; // Skip this day if something went very wrong
+        }
+
         Map<String, double> dogDistances = {};
-        for (TeamGroup dayTeam in dayTeams!) {
-          for (Team team in dayTeam.teams) {
-            for (DogPair dogPair in team.dogPairs) {
-              if (dogPair.firstDog != null) {
-                String dogName = dogPair.firstDog!.name;
-                dogDistances[dogName] =
-                    (dogDistances[dogName] ?? 0) + dayTeam.distance;
-              }
-              if (dogPair.secondDog != null) {
-                String dogName = dogPair.secondDog!.name;
-                dogDistances[dogName] =
-                    (dogDistances[dogName] ?? 0) + dayTeam.distance;
+        try {
+          // Add try-catch to catch potential errors in inner loops
+          for (TeamGroup dayTeam in dayTeams) {
+            for (Team team in dayTeam.teams) {
+              for (DogPair dogPair in team.dogPairs) {
+                if (dogPair.firstDog != null) {
+                  String dogName = dogPair.firstDog!.name;
+                  dogDistances[dogName] =
+                      (dogDistances[dogName] ?? 0) + dayTeam.distance;
+                }
+                if (dogPair.secondDog != null) {
+                  String dogName = dogPair.secondDog!.name;
+                  dogDistances[dogName] =
+                      (dogDistances[dogName] ?? 0) + dayTeam.distance;
+                }
               }
             }
           }
+          // If calculation succeeded, print before adding
+          toReturn.add(DailyDogStats(date: day, distances: dogDistances));
+        } catch (e) {
+          print("!!!! EXCEPTION during processing for $dateKey !!!!");
+          print(e);
         }
-        toReturn.add(DailyDogStats(date: day, distances: dogDistances));
       } else {
+        // Print entry into the 'else' block for the first iteration
         toReturn
             .add(DailyDogStats(date: day, distances: _getEmptyDistanceRow()));
       }
@@ -230,35 +247,23 @@ class GridRowProcessor {
     return groupedByMonth;
   }
 
-  bool _isLastDayOfMonth(DateTime date) {
-    // Create a new DateTime for the first day of the next month
-    DateTime nextMonth = DateTime(date.year, date.month + 1, 1);
-
-    // Subtract one day to get the last day of the current month
-    DateTime lastDay = nextMonth.subtract(Duration(days: 1));
-
-    // Check if the day of the given date matches the last day of the month
-    return date.day == lastDay.day;
-  }
-
   /// Finds the oldest date for the list of teamgroups.
   /// If no teams exist, defaults to 30 days.
   DateTime findOldestDate() {
     DateTime? oldestDate;
     for (TeamGroup team in teams) {
-      if (oldestDate == null || team.date.isBefore(oldestDate)) {
-        // Strip time information, keep just the date
-        final dateWithoutTime =
-            DateTime(team.date.year, team.date.month, team.date.day);
-        if (oldestDate == null || dateWithoutTime.isBefore(oldestDate)) {
-          oldestDate = dateWithoutTime;
-        }
+      // Strip time information, keep just the date
+      final dateWithoutTime = DateTime(
+          team.date.year, team.date.month, team.date.day); // This is correct
+      if (oldestDate == null || dateWithoutTime.isBefore(oldestDate)) {
+        oldestDate = dateWithoutTime;
       }
     }
 
     // Default to 30 days ago if no teams exist
     oldestDate ??= DateTime.now().subtract(Duration(days: 30));
-    return oldestDate;
+    // *** Add normalization here for the default case ***
+    return DateTime(oldestDate.year, oldestDate.month, oldestDate.day);
   }
 
   Map<String, List<TeamGroup>> getTeamsByDay() {
@@ -278,9 +283,15 @@ class GridRowProcessor {
 
   DateTime addCurrentDate(DateTime currentDate, DateTime todayWithoutTime,
       List<DateTime> allDates) {
+    currentDate =
+        DateTime(currentDate.year, currentDate.month, currentDate.day);
     while (!currentDate.isAfter(todayWithoutTime)) {
-      allDates.add(currentDate);
-      currentDate = currentDate.add(Duration(days: 1));
+      allDates.add(currentDate); // Add the normalized date (e.g., 00:00:00)
+
+      // Increment first, THEN normalize to avoid DST time shifts messing up the day
+      DateTime nextDayIncrement = currentDate.add(Duration(days: 1));
+      currentDate = DateTime(nextDayIncrement.year, nextDayIncrement.month,
+          nextDayIncrement.day); // Re-normalize to midnight
     }
     return currentDate;
   }
