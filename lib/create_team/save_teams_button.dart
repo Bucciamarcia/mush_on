@@ -34,11 +34,14 @@ class SaveTeamsButton extends StatelessWidget {
 
   Future<void> saveToDb(CreateTeamProvider teamProvider) async {
     QuerySnapshot<Object?> snapshot = await doesTeamExist();
+    DateTime utcDate = teamProvider.group.date.toUtc();
+    DateTime dateTimeNoSeconds = DateTime(
+        utcDate.year, utcDate.month, utcDate.day, utcDate.hour, utcDate.minute);
     final FirebaseFirestore db = FirebaseFirestore.instance;
     List<Map<String, dynamic>> cleanTeams =
         _modifyTeamsForDb(teamProvider.group.teams);
     var data = {
-      "date": teamProvider.group.date.toUtc(),
+      "date": dateTimeNoSeconds,
       "name": teamProvider.group.name,
       "notes": teamProvider.group.notes,
       "teams": cleanTeams,
