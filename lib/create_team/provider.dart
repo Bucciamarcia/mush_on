@@ -15,6 +15,7 @@ class CreateTeamProvider extends ChangeNotifier {
   );
 
   List<String> duplicateDogs = [];
+  bool unsavedData = false;
 
   changeGlobalName(String newName) {
     group.name = newName;
@@ -154,5 +155,10 @@ class CreateTeamProvider extends ChangeNotifier {
           "$dogList\n${dogPair.firstName ?? ""} - ${dogPair.secondName ?? ""}";
     }
     return dogList;
+  }
+
+  void changeUnsavedData(bool newCUD) {
+    unsavedData = newCUD;
+    notifyListeners();
   }
 }

@@ -23,6 +23,7 @@ class SaveTeamsButton extends StatelessWidget {
             behavior: SnackBarBehavior.floating,
           ),
         );
+        teamProvider.changeUnsavedData(false);
       },
       style: ElevatedButton.styleFrom(backgroundColor: Colors.lightGreen),
       child: Text(
