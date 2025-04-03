@@ -71,47 +71,94 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
     super.dispose();
   }
 
+  Future<bool?> _showBackDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text(
+              'Are you sure you want to leave this page? All unsaved changes will be lost'),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge),
+              child: const Text('Nevermind'),
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge),
+              child: const Text('Leave'),
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
     List<Team> teams = teamProvider.group.teams;
 
-    return ListView(
-      children: [
-        DateTimePicker(),
-        TextField(
-          controller: globalNamecontroller,
-          decoration: InputDecoration(labelText: "Group name"),
-          onChanged: (String text) {
-            Provider.of<CreateTeamProvider>(context, listen: false)
-                .changeGlobalName(text);
-          },
-        ),
-        TextField(
-          controller: notesController,
-          decoration: InputDecoration(labelText: "Group notes"),
-          onChanged: (String text) {
-            Provider.of<CreateTeamProvider>(context, listen: false)
-                .changeNotes(text);
-          },
-        ),
-        ...teams.asMap().entries.map(
-          (entry) {
-            return TeamRetriever(teamNumber: entry.key);
-          },
-        ),
-        SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () async {
-            String teamString =
-                Provider.of<CreateTeamProvider>(context, listen: false)
-                    .createTeamsString();
-            Clipboard.setData(ClipboardData(text: teamString));
-          },
-          child: Text("Copy teams"),
-        ),
-        SaveTeamsButton(teamProvider: teamProvider)
-      ],
+    return PopScope(
+      canPop: !teamProvider.unsavedData,
+      onPopInvokedWithResult: (bool didPop, Object? result) async {
+        if (didPop) {
+          return;
+        }
+        final bool shouldPop = await _showBackDialog() ?? false;
+        if (shouldPop) {
+          if (context.mounted) Navigator.of(context).pop(false);
+        }
+      },
+      child: ListView(
+        children: [
+          DateTimePicker(),
+          TextField(
+            controller: globalNamecontroller,
+            decoration: InputDecoration(labelText: "Group name"),
+            onChanged: (String text) {
+              Provider.of<CreateTeamProvider>(context, listen: false)
+                  .changeUnsavedData(true);
+              Provider.of<CreateTeamProvider>(context, listen: false)
+                  .changeGlobalName(text);
+            },
+          ),
+          TextField(
+            controller: notesController,
+            decoration: InputDecoration(labelText: "Group notes"),
+            onChanged: (String text) {
+              Provider.of<CreateTeamProvider>(context, listen: false)
+                  .changeUnsavedData(true);
+              Provider.of<CreateTeamProvider>(context, listen: false)
+                  .changeNotes(text);
+            },
+          ),
+          ...teams.asMap().entries.map(
+            (entry) {
+              return TeamRetriever(teamNumber: entry.key);
+            },
+          ),
+          SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () async {
+              String teamString =
+                  Provider.of<CreateTeamProvider>(context, listen: false)
+                      .createTeamsString();
+              Clipboard.setData(ClipboardData(text: teamString));
+            },
+            child: Text("Copy teams"),
+          ),
+          SaveTeamsButton(teamProvider: teamProvider)
+        ],
+      ),
     );
   }
 }
@@ -173,6 +220,8 @@ class _TeamRetrieverState extends State<TeamRetriever> {
             controller: textController,
             decoration: InputDecoration(labelText: "Team name"),
             onChanged: (String text) {
+              Provider.of<CreateTeamProvider>(context, listen: false)
+                  .changeUnsavedData(true);
               Provider.of<CreateTeamProvider>(context, listen: false)
                   .changeTeamName(widget.teamNumber, text);
             }),
@@ -279,6 +328,10 @@ class PairRetriever extends StatelessWidget {
                         style: TextStyle(fontSize: 14),
                         controller: controller,
                         focusNode: focusNode,
+                        onChanged: (String _) =>
+                            Provider.of<CreateTeamProvider>(context,
+                                    listen: false)
+                                .changeUnsavedData(true),
                         onSubmitted: (String value) {
                           onFieldSubmitted();
                         },
@@ -328,6 +381,8 @@ class PairRetriever extends StatelessWidget {
                             teamNumber: teamNumber,
                             rowNumber: rowNumber,
                             dogPosition: positionNumber);
+                    Provider.of<CreateTeamProvider>(context, listen: false)
+                        .changeUnsavedData(true);
                   },
                 ),
                 isDuplicate
