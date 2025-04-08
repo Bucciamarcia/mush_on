@@ -34,10 +34,10 @@ class SaveTeamsButton extends StatelessWidget {
   }
 
   Future<void> saveToDb(CreateTeamProvider teamProvider) async {
-    QuerySnapshot<Object?> snapshot = await doesTeamExist();
     DateTime utcDate = teamProvider.group.date.toUtc();
     DateTime dateTimeNoSeconds = DateTime(
         utcDate.year, utcDate.month, utcDate.day, utcDate.hour, utcDate.minute);
+    QuerySnapshot<Object?> snapshot = await doesTeamExist(dateTimeNoSeconds);
     final FirebaseFirestore db = FirebaseFirestore.instance;
     List<Map<String, dynamic>> cleanTeams =
         _modifyTeamsForDb(teamProvider.group.teams);
@@ -90,14 +90,14 @@ class SaveTeamsButton extends StatelessWidget {
     return cleanTeams;
   }
 
-  Future<QuerySnapshot<Object?>> doesTeamExist() async {
+  Future<QuerySnapshot<Object?>> doesTeamExist(DateTime newDate) async {
     var db = FirebaseFirestore.instance;
     String account = await FirestoreService().getUserAccount() ?? "";
     String path = "accounts/$account/data/teams/history";
     var ref = db.collection(path);
     var query = ref.where(
       "date",
-      isEqualTo: teamProvider.group.date.toUtc(),
+      isEqualTo: newDate,
     );
     QuerySnapshot snapshot = await query.get();
     return snapshot;
