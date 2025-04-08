@@ -140,7 +140,6 @@ class TeamViewer extends StatelessWidget {
     );
   }
 
-  // TODO: This sucks. It needs to find the ID instead of searching by date!
   Future<bool> deleteGroup() async {
     try {
       var db = FirebaseFirestore.instance;
