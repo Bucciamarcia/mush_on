@@ -11,7 +11,7 @@ class CreateTeamProvider extends ChangeNotifier {
         ],
       ),
     ],
-    date: DateTime.now().toUtc(),
+    date: DateTime.now(),
   );
 
   List<String> duplicateDogs = [];
