@@ -111,21 +111,25 @@ class TeamViewer extends StatelessWidget {
           onPressed: () async {
             bool r = await deleteGroup();
             if (r == true) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Team deleted"),
-                  backgroundColor: Colors.green,
-                ),
-              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Team deleted"),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Error deleting team"),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Error deleting team"),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             }
-            Navigator.of(context).pop();
+            if (context.mounted) Navigator.of(context).pop();
           },
           child: Text(
             "Delete group",
@@ -136,6 +140,7 @@ class TeamViewer extends StatelessWidget {
     );
   }
 
+  // TODO: This sucks. It needs to find the ID instead of searching by date!
   Future<bool> deleteGroup() async {
     try {
       var db = FirebaseFirestore.instance;
@@ -149,6 +154,9 @@ class TeamViewer extends StatelessWidget {
       var ref = db.collection(path);
       var snapshot = await ref.where("date", isEqualTo: item.date).get();
 
+      if (snapshot.docs.length != 1) {
+        return false;
+      }
       for (var doc in snapshot.docs) {
         String docPath = "accounts/$account/data/teams/history/${doc.id}";
         await db.doc(docPath).delete();
@@ -156,7 +164,6 @@ class TeamViewer extends StatelessWidget {
 
       return true;
     } catch (e) {
-      print("Error deleting group: $e");
       return false;
     }
   }
