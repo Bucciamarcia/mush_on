@@ -226,35 +226,20 @@ class Team {
 /// );
 /// ```
 class DogPair {
-  /// The first dog of the pair. Appears on the left.
-  Dog? firstDog;
-
-  /// The second dog of the pair. Appears on the right.
-  Dog? secondDog;
+  String? firstDogId;
+  String? secondDogId;
 
   DogPair({
-    this.firstDog,
-    this.secondDog,
+    this.firstDogId,
+    this.secondDogId,
   });
 
-  /// Get dog names for display
-  String? get firstName => firstDog?.name;
-  String? get secondName => secondDog?.name;
+  bool get isEmpty => firstDogId == null && secondDogId == null;
 
-  /// Get a list of dog names
-  List<String> toList() {
-    List<String> toReturn = [];
-    if (firstName != null) toReturn.add(firstName!);
-    if (secondName != null) toReturn.add(secondName!);
-    return toReturn;
-  }
-
-  /// Check if both dogs are null (empty)
-  bool get isEmpty => firstDog == null && secondDog == null;
-
-  /// For display
+  // toString should only use available synchronous data (IDs)
   @override
-  String toString() => "${firstName ?? ''} - ${secondName ?? ''}";
+  String toString() =>
+      'DogPair(first: ${firstDogId ?? "N/A"}, second: ${secondDogId ?? "N/A"})';
 
   factory DogPair.fromJson(Map<String, dynamic> json) =>
       _$DogPairFromJson(json);

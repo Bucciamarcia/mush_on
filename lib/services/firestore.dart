@@ -58,3 +58,20 @@ class FirestoreService {
     return userName.account;
   }
 }
+
+class DogsDbOperations {
+  final FirebaseFirestore db = FirebaseFirestore.instance;
+  Future<Dog> getDog(String dogId) async {
+    String account = await FirestoreService().getUserAccount() ?? "";
+    if (account.isEmpty) throw Exception("User account not found");
+    String path = "accounts/$account/data/kennel/dogs/$dogId";
+    var doc = await db.doc(path).get();
+
+    if (doc.exists && doc.data() != null) {
+      return Dog.fromJson(doc.data()!);
+    } else {
+      // Dog not found or data is unexpectedly null
+      throw Exception("Dog with Id $dogId not found or data is missing.");
+    }
+  }
+}
