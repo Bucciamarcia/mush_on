@@ -29,26 +29,15 @@ class DogCard extends StatelessWidget {
   final Dog dog;
   const DogCard({super.key, required this.dog});
 
-  static const positionOrder = ["lead", "swing", "team", "wheel"];
-
   @override
   Widget build(BuildContext context) {
-    final activePositions = positionOrder
-        .where((position) => dog.positions[position] == true)
-        .join(', ');
-
     return Card(
       child: Row(
         children: [
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(top: 10, bottom: 10),
-              child: Column(
-                children: [
-                  Text(dog.name),
-                  Text(activePositions),
-                ],
-              ),
+              child: Text(dog.name),
             ),
           ),
           Padding(

@@ -272,19 +272,10 @@ class Dog {
   String id;
 
   /// The positions in which the dog can run in.
-  /// NOTE: To be converted to a class in future.
-  Map<String, bool> positions;
+  DogPositions positions;
 
-  Dog({
-    this.name = "",
-    this.id = "",
-    this.positions = const {
-      "lead": false,
-      "swing": false,
-      "team": false,
-      "wheel": false,
-    },
-  });
+  Dog({this.name = "", this.id = "", DogPositions? positions})
+      : positions = positions ?? DogPositions();
 
   factory Dog.fromJson(Map<String, dynamic> json) => _$DogFromJson(json);
   Map<String, dynamic> toJson() => _$DogToJson(this);
@@ -324,6 +315,26 @@ class Dog {
   List<String> getDogNames(List<Dog> dogObjects) {
     return dogObjects.map((dog) => dog.name).toList();
   }
+}
+
+@JsonSerializable()
+
+/// Represents the positions in which a dog can run
+class DogPositions {
+  final bool lead;
+  final bool swing;
+  final bool team;
+  final bool wheel;
+
+  DogPositions(
+      {this.lead = false,
+      this.swing = false,
+      this.team = false,
+      this.wheel = false});
+
+  factory DogPositions.fromJson(Map<String, dynamic> json) =>
+      _$DogPositionsFromJson(json);
+  Map<String, dynamic> toJson() => _$DogPositionsToJson(this);
 }
 
 @JsonSerializable()
