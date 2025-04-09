@@ -15,7 +15,7 @@ class FirestoreService {
     return data;
   }
 
-  Future<void> addDogToDb(String name, Map<String, bool> positions) async {
+  Future<void> addDogToDb(String name) async {
     var uuid = Uuid();
     String uuidRef = uuid.v4();
     final FirebaseFirestore db = FirebaseFirestore.instance;
@@ -23,7 +23,7 @@ class FirestoreService {
     String path = "accounts/$account/data/kennel/dogs/$uuidRef";
     var ref = db.doc(path);
 
-    var data = {"name": name, "positions": positions, "id": uuidRef};
+    var data = {"name": name, "id": uuidRef};
 
     await ref.set(
       data,

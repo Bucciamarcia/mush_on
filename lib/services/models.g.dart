@@ -53,15 +53,31 @@ Map<String, dynamic> _$DogPairToJson(DogPair instance) => <String, dynamic>{
 
 Dog _$DogFromJson(Map<String, dynamic> json) => Dog(
       name: json['name'] as String? ?? "",
-      positions: (json['positions'] as Map<String, dynamic>?)?.map(
-            (k, e) => MapEntry(k, e as bool),
-          ) ??
-          const {"lead": false, "swing": false, "team": false, "wheel": false},
+      id: json['id'] as String? ?? "",
+      positions: json['positions'] == null
+          ? null
+          : DogPositions.fromJson(json['positions'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$DogToJson(Dog instance) => <String, dynamic>{
       'name': instance.name,
+      'id': instance.id,
       'positions': instance.positions,
+    };
+
+DogPositions _$DogPositionsFromJson(Map<String, dynamic> json) => DogPositions(
+      lead: json['lead'] as bool? ?? false,
+      swing: json['swing'] as bool? ?? false,
+      team: json['team'] as bool? ?? false,
+      wheel: json['wheel'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$DogPositionsToJson(DogPositions instance) =>
+    <String, dynamic>{
+      'lead': instance.lead,
+      'swing': instance.swing,
+      'team': instance.team,
+      'wheel': instance.wheel,
     };
 
 UserName _$UserNameFromJson(Map<String, dynamic> json) => UserName(
