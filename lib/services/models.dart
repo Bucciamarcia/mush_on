@@ -268,12 +268,16 @@ class Dog {
   /// The name of  the dog.
   String name;
 
+  /// The ID of the document for database reference.
+  String id;
+
   /// The positions in which the dog can run in.
   /// NOTE: To be converted to a class in future.
   Map<String, bool> positions;
 
   Dog({
     this.name = "",
+    this.id = "",
     this.positions = const {
       "lead": false,
       "swing": false,
