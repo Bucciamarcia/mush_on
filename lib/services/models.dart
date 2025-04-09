@@ -97,11 +97,12 @@ class TeamGroup {
 
     for (final team in teams) {
       for (final pair in team.dogPairs) {
-        if (pair.firstName != null && pair.firstName!.isNotEmpty) {
-          dogCounts[pair.firstName!] = (dogCounts[pair.firstName!] ?? 0) + 1;
+        if (pair.firstDogId != null && pair.firstDogId!.isNotEmpty) {
+          dogCounts[pair.firstDogId!] = (dogCounts[pair.firstDogId!] ?? 0) + 1;
         }
-        if (pair.secondName != null && pair.secondName!.isNotEmpty) {
-          dogCounts[pair.secondName!] = (dogCounts[pair.secondName!] ?? 0) + 1;
+        if (pair.secondDogId != null && pair.secondDogId!.isNotEmpty) {
+          dogCounts[pair.secondDogId!] =
+              (dogCounts[pair.secondDogId!] ?? 0) + 1;
         }
       }
     }
@@ -172,8 +173,9 @@ class Team {
 
       // Create a new DogPair and add it to the list
       DogPair pair = DogPair(
-          firstDog: Dog(name: rowData["position_1"] as String? ?? ""),
-          secondDog: Dog(name: rowData["position_2"] as String? ?? ""));
+        firstDogId: rowData["position_1"] ?? "",
+        secondDogId: rowData["position_2"] ?? "",
+      );
 
       toReturn.dogPairs.add(pair);
     }
@@ -199,12 +201,12 @@ class Team {
   /// The [isFirst] flag indicates whether the first or second dog should be updated.
   /// The [dog] parameter is the new dog object to be set.
   /// If the [pairIndex] is out of bounds, this method does nothing.
-  void updateDog(int pairIndex, bool isFirst, Dog? dog) {
+  void updateDog(int pairIndex, bool isFirst, String? dog) {
     if (pairIndex >= 0 && pairIndex < dogPairs.length) {
       if (isFirst) {
-        dogPairs[pairIndex].firstDog = dog;
+        dogPairs[pairIndex].firstDogId = dog;
       } else {
-        dogPairs[pairIndex].secondDog = dog;
+        dogPairs[pairIndex].secondDogId = dog;
       }
     }
   }
@@ -235,11 +237,6 @@ class DogPair {
   });
 
   bool get isEmpty => firstDogId == null && secondDogId == null;
-
-  // toString should only use available synchronous data (IDs)
-  @override
-  String toString() =>
-      'DogPair(first: ${firstDogId ?? "N/A"}, second: ${secondDogId ?? "N/A"})';
 
   factory DogPair.fromJson(Map<String, dynamic> json) =>
       _$DogPairFromJson(json);

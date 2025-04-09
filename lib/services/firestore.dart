@@ -39,31 +39,31 @@ class FirestoreService {
 
   /// Get the user's account name if it exists.
   /// If it doesn't, return null.
-  Future<String?> getUserAccount() async {
+  Future<String> getUserAccount() async {
     User user = AuthService().user!;
     var ref = db.doc("users/${user.uid}");
     var snapshot = await ref.get();
 
     // Check if document exists first
     if (!snapshot.exists) {
-      return null;
+      throw Exception("Snapshot doesn't exist");
     }
 
     var data = snapshot.data();
     if (data == null || data.isEmpty) {
-      return null;
+      throw Exception("Snapshot doesn't exist");
     }
 
     UserName userName = UserName.fromJson(data);
-    return userName.account;
+    return userName.account!;
   }
 }
 
 class DogsDbOperations {
   final FirebaseFirestore db = FirebaseFirestore.instance;
+
   Future<Dog> getDog(String dogId) async {
-    String account = await FirestoreService().getUserAccount() ?? "";
-    if (account.isEmpty) throw Exception("User account not found");
+    String account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/kennel/dogs/$dogId";
     var doc = await db.doc(path).get();
 
@@ -73,5 +73,55 @@ class DogsDbOperations {
       // Dog not found or data is unexpectedly null
       throw Exception("Dog with Id $dogId not found or data is missing.");
     }
+  }
+
+  Future<String?> getDogNameFromId(String dogId) async {
+    try {
+      Dog dog = await getDog(dogId);
+      return dog.name;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Gets a list of all dog names in alphabetical order.
+  Future<List<String>> getAllDogNames() async {
+    String account = await FirestoreService().getUserAccount();
+    String path = "accounts/$account/data/kennel/dogs";
+    List<String> toReturn = [];
+    var ref = db.collection(path);
+    ref.get().then((querySnapshot) {
+      for (var doc in querySnapshot.docs) {
+        toReturn.add(doc.get("name"));
+      }
+    });
+    toReturn.sort((a, b) => a.compareTo(b));
+    return toReturn;
+  }
+
+  /// Gets a Map with a list of dog ID -> Dog object starting from
+  /// just a list of Dog Ids.
+  Future<Map<String, Dog>> getDogsByIds(List<String> dogIds) async {
+    String account = await FirestoreService().getUserAccount();
+    String path = "accounts/$account/data/kennel/dogs";
+    List<List<String>> batches = [];
+    for (var i = 0; i < dogIds.length; i += 30) {
+      batches.add(
+          dogIds.sublist(i, i + 30 > dogIds.length ? dogIds.length : i + 30));
+    }
+    Map<String, Dog> toReturn = {};
+
+    for (var batch in batches) {
+      var ref = db.collection(path);
+      var query = ref.where(FieldPath.documentId, whereIn: batch);
+      await query.get().then(
+        (querySnapshot) {
+          for (var docSnapshot in querySnapshot.docs) {
+            toReturn[docSnapshot.id] = Dog.fromJson(docSnapshot.data());
+          }
+        },
+      );
+    }
+    return toReturn;
   }
 }

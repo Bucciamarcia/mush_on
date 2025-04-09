@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:mush_on/stats/group_summary.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-
 import '../services/models.dart';
 import 'constants.dart';
 import 'daily_dog_stats.dart';
@@ -11,8 +10,9 @@ class GridRowProcessor {
   List<Dog> dogs;
   GridRowProcessor({required this.teams, required this.dogs});
   GridRowProcessorResult run() {
+    Map<String, Dog> dogsMap = _generateDogsMap();
     // Get daily aggregated data
-    List<DailyDogStats> aggregatedStats = _aggregateData();
+    List<DailyDogStats> aggregatedStats = _aggregateData(dogsMap);
 
     // Calculate monthly summary data
     List<MonthSummary> monthlySummariesList =
@@ -39,7 +39,15 @@ class GridRowProcessor {
         dataGridRows: allRowsCombined, dogGrandTotals: dogGrandTotals);
   }
 
-  List<DailyDogStats> _aggregateData() {
+  Map<String, Dog> _generateDogsMap() {
+    Map<String, Dog> toReturn = {};
+    for (Dog dog in dogs) {
+      toReturn.addAll({dog.id: dog});
+    }
+    return toReturn;
+  }
+
+  List<DailyDogStats> _aggregateData(Map<String, Dog> dogsMap) {
     List<DailyDogStats> toReturn = [];
     final today = DateTime.now();
     final todayWithoutTime = DateTime(today.year, today.month, today.day);
@@ -71,15 +79,15 @@ class GridRowProcessor {
           for (TeamGroup dayTeam in dayTeams) {
             for (Team team in dayTeam.teams) {
               for (DogPair dogPair in team.dogPairs) {
-                if (dogPair.firstDog != null) {
-                  String dogName = dogPair.firstDog!.name;
-                  dogDistances[dogName] =
-                      (dogDistances[dogName] ?? 0) + dayTeam.distance;
+                if (dogPair.firstDogId != null) {
+                  dogDistances[dogPair.firstDogId!] =
+                      (dogDistances[dogPair.firstDogId!] ?? 0) +
+                          dayTeam.distance;
                 }
-                if (dogPair.secondDog != null) {
-                  String dogName = dogPair.secondDog!.name;
-                  dogDistances[dogName] =
-                      (dogDistances[dogName] ?? 0) + dayTeam.distance;
+                if (dogPair.secondDogId != null) {
+                  dogDistances[dogPair.secondDogId!] =
+                      (dogDistances[dogPair.secondDogId!] ?? 0) +
+                          dayTeam.distance;
                 }
               }
             }
