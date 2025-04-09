@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:uuid/uuid.dart';
 
 class FirestoreService {
   final FirebaseFirestore db = FirebaseFirestore.instance;
@@ -12,6 +13,21 @@ class FirestoreService {
     var snapshot = await ref.get();
     var data = snapshot.docs.map((s) => s.data());
     return data;
+  }
+
+  Future<void> addDogToDb(String name, Map<String, bool> positions) async {
+    var uuid = Uuid();
+    String uuidRef = uuid.v4();
+    final FirebaseFirestore db = FirebaseFirestore.instance;
+    String account = await FirestoreService().getUserAccount() ?? "";
+    String path = "accounts/$account/data/kennel/dogs/$uuidRef";
+    var ref = db.doc(path);
+
+    var data = {"name": name, "positions": positions, "id": uuidRef};
+
+    await ref.set(
+      data,
+    );
   }
 
   Future<void> userLoginActions() async {

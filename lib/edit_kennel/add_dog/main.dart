@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/edit_kennel/add_dog/provider.dart';
 import 'package:mush_on/general/loading_overlay.dart';
+import 'package:mush_on/services/firestore.dart';
 import 'package:provider/provider.dart';
-
-import 'add_dog_button_action.dart';
 
 class AddDogMain extends StatelessWidget {
   const AddDogMain({super.key});
@@ -79,7 +78,7 @@ class AddDogMain extends StatelessWidget {
         ElevatedButton.icon(
           onPressed: () async {
             LoadingOverlay.show(context);
-            await AddDogButtonAction()
+            await FirestoreService()
                 .addDogToDb(dogProvider.name, dogProvider.runPositions);
             LoadingOverlay.hide();
             ScaffoldMessenger.of(context).showSnackBar(
