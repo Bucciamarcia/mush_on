@@ -8,8 +8,8 @@ class MonthSummary {
   ///
   /// Example:
   /// {
-  ///  "Fido": 100.0,
-  ///  "Rex": 200.0,
+  ///  "[uuid]": 100.0,
+  ///  "[uuid]": 200.0,
   ///  }
   Map<String, double> distances;
 

@@ -28,6 +28,8 @@ class TeamViewer extends StatelessWidget {
   const TeamViewer({super.key, required this.item});
   @override
   Widget build(BuildContext context) {
+    TeamsHistoryProvider historyProvider =
+        context.watch<TeamsHistoryProvider>();
     return Card(
       color: Theme.of(context).primaryColorLight,
       margin: const EdgeInsets.all(2),
@@ -84,7 +86,20 @@ class TeamViewer extends StatelessWidget {
           ),
           tilePadding: const EdgeInsets.all(1),
           dense: true,
-          children: [FormatObject(item)],
+          children: [
+            // Conditionally build the child here
+            historyProvider.isLoading() // Check if *anything* is loading
+                ? const Center(
+                    // Show spinner inside the expansion area
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 16.0), // Add padding
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
+                  )
+                : FormatObject(
+                    item, historyProvider.dogIdMaps), // Show content if loaded
+          ],
         ),
       ),
     );

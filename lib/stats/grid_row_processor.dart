@@ -111,9 +111,9 @@ class GridRowProcessor {
   Map<String, double> _buildDogTotals(List<DailyDogStats> aggregatedStats) {
     Map<String, double> dogTotals = _createEmptyDogTotalsMap();
     for (DailyDogStats dayStats in aggregatedStats) {
-      dayStats.distances.forEach((dogName, distance) {
-        if (dogTotals.containsKey(dogName)) {
-          dogTotals[dogName] = dogTotals[dogName]! + distance;
+      dayStats.distances.forEach((dogId, distance) {
+        if (dogTotals.containsKey(dogId)) {
+          dogTotals[dogId] = dogTotals[dogId]! + distance;
         }
       });
     }
@@ -123,7 +123,7 @@ class GridRowProcessor {
   List<MonthSummary> calculateMonthlySummaries(
       List<DailyDogStats> dailyDogStats) {
     // Outer key: DateTime representing the month (e.g., 2025-03-01)
-    // Inner key: Dog name (String)
+    // Inner key: Dog ID (String)
     // Inner value: Accumulated distance (double)
     Map<DateTime, Map<String, double>> monthlyTotals = {};
 
@@ -137,9 +137,9 @@ class GridRowProcessor {
           monthlyTotals.putIfAbsent(monthYear, _createEmptyDogTotalsMap);
 
       // Add current day's distances to the monthly totals
-      dayStats.distances.forEach((dogName, distance) {
-        if (currentMonthTotals.containsKey(dogName)) {
-          currentMonthTotals[dogName] = currentMonthTotals[dogName]! + distance;
+      dayStats.distances.forEach((dogId, distance) {
+        if (currentMonthTotals.containsKey(dogId)) {
+          currentMonthTotals[dogId] = currentMonthTotals[dogId]! + distance;
         }
         // Optional: handle dogs in dayStats not in main 'dogs' list if necessary
       });
@@ -158,13 +158,13 @@ class GridRowProcessor {
   }
 
   Map<String, double> _createEmptyDogTotalsMap() {
-    return {for (var dog in dogs) dog.name: 0.0};
+    return {for (var dog in dogs) dog.id: 0.0};
   }
 
   Map<String, double> _getEmptyDistanceRow() {
     Map<String, double> toReturn = {};
     for (Dog dog in dogs) {
-      toReturn.putIfAbsent(dog.name, () => 0);
+      toReturn.putIfAbsent(dog.id, () => 0);
     }
     return toReturn;
   }
@@ -204,8 +204,8 @@ class GridRowProcessor {
         ),
         // Add dog total cells (using CORRECT order)
         ...dogs.map((dog) {
-          double total = monthSummary.distances[dog.name] ?? 0.0;
-          return DataGridCell<double>(columnName: dog.name, value: total);
+          double total = monthSummary.distances[dog.id] ?? 0.0;
+          return DataGridCell<double>(columnName: dog.id, value: total);
         }),
       ]));
 
@@ -229,8 +229,8 @@ class GridRowProcessor {
           ),
           // Add daily dog cells (using CORRECT order)
           ...dogs.map((dog) {
-            double distance = dayStat.distances[dog.name] ?? 0.0;
-            return DataGridCell<double>(columnName: dog.name, value: distance);
+            double distance = dayStat.distances[dog.id] ?? 0.0;
+            return DataGridCell<double>(columnName: dog.id, value: distance);
           }),
         ]));
       }
@@ -312,15 +312,13 @@ class GridRowProcessor {
     for (TeamGroup dayTeam in dayTeams) {
       for (Team team in dayTeam.teams) {
         for (DogPair dogPair in team.dogPairs) {
-          if (dogPair.firstDog != null) {
-            String dogName = dogPair.firstDog!.name;
-            dogDistances[dogName] =
-                (dogDistances[dogName] ?? 0) + dayTeam.distance;
+          if (dogPair.firstDogId != null) {
+            String dogId = dogPair.firstDogId!;
+            dogDistances[dogId] = (dogDistances[dogId] ?? 0) + dayTeam.distance;
           }
-          if (dogPair.secondDog != null) {
-            String dogName = dogPair.secondDog!.name;
-            dogDistances[dogName] =
-                (dogDistances[dogName] ?? 0) + dayTeam.distance;
+          if (dogPair.secondDogId != null) {
+            String dogId = dogPair.secondDogId!;
+            dogDistances[dogId] = (dogDistances[dogId] ?? 0) + dayTeam.distance;
           }
         }
       }
@@ -332,8 +330,8 @@ class GridRowProcessor {
             columnName: dateColumnName, value: _formatDateForDisplay(day)),
         ...dogs.map(
           (dog) => DataGridCell(
-            columnName: dog.name,
-            value: dogDistances[dog.name] ?? 0,
+            columnName: dog.id,
+            value: dogDistances[dog.id] ?? 0,
           ),
         )
       ],
@@ -348,7 +346,7 @@ class GridRowProcessor {
             columnName: dateColumnName, value: _formatDateForDisplay(day)),
         ...dogs.map(
           (dog) => DataGridCell(
-            columnName: dog.name,
+            columnName: dog.id,
             value: 0.0,
           ),
         )
