@@ -1,5 +1,6 @@
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:json_annotation/json_annotation.dart";
+import "package:mush_on/services/error_handling.dart";
 
 import "firestore.dart";
 part "models.g.dart";
@@ -276,8 +277,8 @@ class Dog {
     var doc = dogsRef.doc(id);
     try {
       await doc.delete();
-    } catch (e) {
-      print("ERROR: Couldn't delete dog: $e");
+    } catch (e, s) {
+      BasicLogger().error("Can't delete dog", error: e, stackTrace: s);
       rethrow;
     }
   }

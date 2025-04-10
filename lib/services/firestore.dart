@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mush_on/services/auth.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:uuid/uuid.dart';
 
 class FirestoreService {
+  final BasicLogger logger = BasicLogger();
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
   Future<Iterable<Map<String, dynamic>>> getCollection(
@@ -18,16 +20,21 @@ class FirestoreService {
   Future<void> addDogToDb(String name) async {
     var uuid = Uuid();
     String uuidRef = uuid.v4();
-    final FirebaseFirestore db = FirebaseFirestore.instance;
-    String account = await FirestoreService().getUserAccount();
-    String path = "accounts/$account/data/kennel/dogs/$uuidRef";
-    var ref = db.doc(path);
+    try {
+      final FirebaseFirestore db = FirebaseFirestore.instance;
+      String account = await FirestoreService().getUserAccount();
+      String path = "accounts/$account/data/kennel/dogs/$uuidRef";
+      var ref = db.doc(path);
 
-    var data = {"name": name, "id": uuidRef};
+      var data = {"name": name, "id": uuidRef};
 
-    await ref.set(
-      data,
-    );
+      await ref.set(
+        data,
+      );
+    } catch (e, s) {
+      logger.error("Couldn't add dog to db", error: e, stackTrace: s);
+      rethrow;
+    }
   }
 
   Future<void> userLoginActions() async {
