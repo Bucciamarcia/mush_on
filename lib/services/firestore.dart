@@ -67,6 +67,7 @@ class FirestoreService {
 }
 
 class DogsDbOperations {
+  BasicLogger logger = BasicLogger();
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
   Future<Dog> getDog(String dogId) async {
@@ -143,12 +144,13 @@ class DogsDbOperations {
         try {
           Dog dogObj = Dog.fromJson(docSnapshot.data() as Map<String, dynamic>);
           toReturn[docSnapshot.id] = dogObj;
-        } catch (e) {
-          print("Error parsing Dog with ID ${docSnapshot.id}: $e");
+        } catch (e, s) {
+          logger.error("Error parsing Dog with ID ${docSnapshot.id}",
+              error: e, stackTrace: s);
         }
       }
-    } catch (e) {
-      print("Error fetching dogs from $path: $e");
+    } catch (e, s) {
+      logger.error("Error fetching dogs from $path", error: e, stackTrace: s);
       rethrow;
     }
     return toReturn;

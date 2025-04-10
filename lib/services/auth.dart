@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mush_on/services/error_handling.dart';
 
 class AuthService {
+  BasicLogger logger = BasicLogger();
   final userStream = FirebaseAuth.instance.authStateChanges();
   final user = FirebaseAuth.instance.currentUser;
 
@@ -19,7 +21,8 @@ class AuthService {
       );
 
       await FirebaseAuth.instance.signInWithCredential(authCredential);
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, s) {
+      logger.fatal("Error in googleLogin", error: e, stackTrace: s);
       rethrow;
     }
   }
@@ -27,7 +30,8 @@ class AuthService {
   Future<void> signOut() async {
     try {
       await FirebaseAuth.instance.signOut();
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, s) {
+      logger.fatal("FirebaseAuthException", error: e, stackTrace: s);
       rethrow;
     }
   }
@@ -42,63 +46,74 @@ class EmailAuth extends AuthService {
   Future<void> emailSignup(
       BuildContext context, String emailAddress, String password) async {
     try {
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailAddress,
         password: password,
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Account created!"),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("The password provided is too weak."),
-            backgroundColor: Colors.red,
+            content: Text("Account created!"),
+            backgroundColor: Colors.green,
           ),
         );
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("The password provided is too weak."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       } else if (e.code == 'email-already-in-use') {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("The account already exists for that email."),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("The account already exists for that email."),
+            content: Text(e.toString()),
             backgroundColor: Colors.red,
           ),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 
   Future<void> emailLogin(
       BuildContext context, String emailAddress, String password) async {
     try {
-      final credential = await FirebaseAuth.instance
+      await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("User not found"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("User not found"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Wrong password"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Wrong password"),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
