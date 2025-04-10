@@ -86,15 +86,14 @@ class CreateTeamProvider extends ChangeNotifier {
   }
 
   changeDog(
-      {required String newName,
+      {required String newId,
       required int teamNumber,
       required int rowNumber,
       required int dogPosition}) {
     if (dogPosition == 0) {
-      group.teams[teamNumber].dogPairs[rowNumber].firstDog = Dog(name: newName);
+      group.teams[teamNumber].dogPairs[rowNumber].firstDogId = newId;
     } else if (dogPosition == 1) {
-      group.teams[teamNumber].dogPairs[rowNumber].secondDog =
-          Dog(name: newName);
+      group.teams[teamNumber].dogPairs[rowNumber].secondDogId = newId;
     }
     updateDuplicateDogs();
     notifyListeners();
@@ -108,8 +107,8 @@ class CreateTeamProvider extends ChangeNotifier {
     for (Team team in group.teams) {
       List<DogPair> rows = team.dogPairs;
       for (DogPair row in rows) {
-        String? firstDog = row.firstDog?.name;
-        String? secondDog = row.secondDog?.name;
+        String? firstDog = row.firstDogId;
+        String? secondDog = row.secondDogId;
 
         if (firstDog != null && firstDog.isNotEmpty) {
           dogCounts[firstDog] = (dogCounts[firstDog] ?? 0) + 1;
@@ -122,9 +121,9 @@ class CreateTeamProvider extends ChangeNotifier {
     }
 
     // Add to duplicateDogs if count > 1
-    dogCounts.forEach((dog, count) {
+    dogCounts.forEach((dogId, count) {
       if (count > 1) {
-        duplicateDogs.add(dog);
+        duplicateDogs.add(dogId);
       }
     });
 
@@ -152,7 +151,7 @@ class CreateTeamProvider extends ChangeNotifier {
     String dogList = "";
     for (DogPair dogPair in teamDogs) {
       dogList =
-          "$dogList\n${dogPair.firstName ?? ""} - ${dogPair.secondName ?? ""}";
+          "$dogList\n${dogPair.firstDogId ?? ""} - ${dogPair.secondDogId ?? ""}";
     }
     return dogList;
   }

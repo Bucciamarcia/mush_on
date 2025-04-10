@@ -17,3 +17,7 @@ A cool and open source CRM for sled dog kennels.
 - Fixed bug in the conversion between local time and UTC time.
 - Fixed a bug that sometimes allows the creation of multiple teams at the same time.
 - Now the system will never delete more than 1 team group at a time, and return an error if there is more than one match.
+
+### 0.0.5
+
+- BREAKING: Switched to using IDs instead of names to handle dogs. Non-updated apps will break.

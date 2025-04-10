@@ -270,23 +270,20 @@ class Dog {
 
   Future<void> deleteDog() async {
     // Reference to the 'dogs' collection
-    var account = await FirestoreService().getUserAccount() ?? "";
+    var account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/kennel/dogs";
     var dogsRef = FirebaseFirestore.instance.collection(path);
-
-    // Query to find the document with the matching 'name' field
-    QuerySnapshot querySnapshot =
-        await dogsRef.where('name', isEqualTo: name).get();
-
-    // Check if the document exists
-    if (querySnapshot.docs.isNotEmpty) {
-      // Assuming 'name' is unique, delete the first matching document
-      await querySnapshot.docs.first.reference.delete();
-    } else {}
+    var doc = dogsRef.doc(id);
+    try {
+      await doc.delete();
+    } catch (e) {
+      print("ERROR: Couldn't delete dog: $e");
+      rethrow;
+    }
   }
 
   Future<Stream<List<Dog>>> streamDogs() async {
-    var account = await FirestoreService().getUserAccount() ?? "";
+    var account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/kennel/dogs";
     return FirebaseFirestore.instance.collection(path).snapshots().map(
         (snapshot) =>
@@ -296,6 +293,10 @@ class Dog {
   /// Returns a list of dog names from a list of Dog objects
   List<String> getDogNames(List<Dog> dogObjects) {
     return dogObjects.map((dog) => dog.name).toList();
+  }
+
+  List<String> getDogIds(List<Dog> dogObjects) {
+    return dogObjects.map((dog) => dog.id).toList();
   }
 }
 
