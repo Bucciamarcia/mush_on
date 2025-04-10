@@ -35,7 +35,7 @@ class SfDataGridClass extends StatelessWidget {
         ),
         ..._dogs.map<GridColumn>((Dog dog) {
           return GridColumn(
-            columnName: dog.name,
+            columnName: dog.id,
             label: DataGridCellFormatter(text: dog.name),
           );
         })

@@ -38,17 +38,13 @@ Map<String, dynamic> _$TeamToJson(Team instance) => <String, dynamic>{
     };
 
 DogPair _$DogPairFromJson(Map<String, dynamic> json) => DogPair(
-      firstDog: json['firstDog'] == null
-          ? null
-          : Dog.fromJson(json['firstDog'] as Map<String, dynamic>),
-      secondDog: json['secondDog'] == null
-          ? null
-          : Dog.fromJson(json['secondDog'] as Map<String, dynamic>),
+      firstDogId: json['firstDogId'] as String?,
+      secondDogId: json['secondDogId'] as String?,
     );
 
 Map<String, dynamic> _$DogPairToJson(DogPair instance) => <String, dynamic>{
-      'firstDog': instance.firstDog,
-      'secondDog': instance.secondDog,
+      'firstDogId': instance.firstDogId,
+      'secondDogId': instance.secondDogId,
     };
 
 Dog _$DogFromJson(Map<String, dynamic> json) => Dog(

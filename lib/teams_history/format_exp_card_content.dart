@@ -3,7 +3,8 @@ import 'package:mush_on/services/models.dart';
 
 class FormatObject extends StatelessWidget {
   final TeamGroup item;
-  const FormatObject(this.item, {super.key});
+  final Map<String, Dog> dogIdMaps;
+  const FormatObject(this.item, this.dogIdMaps, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +33,14 @@ class FormatObject extends StatelessWidget {
     for (DogPair pair in teamDogs) {
       String position_1 = "";
       String position_2 = "";
-      if (pair.firstDog != null) {
-        position_1 = pair.firstDog!.name;
+      if (pair.firstDogId != null) {
+        position_1 = dogIdMaps[pair.firstDogId]?.name ??
+            "Uknown dog: ${pair.firstDogId}";
       }
 
-      if (pair.secondDog != null) {
-        position_2 = pair.secondDog!.name;
+      if (pair.secondDogId != null) {
+        position_2 = dogIdMaps[pair.secondDogId]?.name ??
+            "Unknown dog: ${pair.secondDogId}";
       }
       teamString = "$teamString\n$position_1 - $position_2";
     }
