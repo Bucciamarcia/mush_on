@@ -19,7 +19,7 @@ class FirestoreService {
     var uuid = Uuid();
     String uuidRef = uuid.v4();
     final FirebaseFirestore db = FirebaseFirestore.instance;
-    String account = await FirestoreService().getUserAccount() ?? "";
+    String account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/kennel/dogs/$uuidRef";
     var ref = db.doc(path);
 

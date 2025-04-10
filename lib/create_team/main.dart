@@ -294,9 +294,9 @@ class PairRetriever extends StatelessWidget {
     List<String> duplicateDogs = teamProvider.duplicateDogs;
     String? currentValue;
     if (positionNumber == 0) {
-      currentValue = teams[teamNumber].dogPairs[rowNumber].firstName;
+      currentValue = teams[teamNumber].dogPairs[rowNumber].firstDogId;
     } else {
-      currentValue = teams[teamNumber].dogPairs[rowNumber].secondName;
+      currentValue = teams[teamNumber].dogPairs[rowNumber].secondDogId;
     }
     bool isDuplicate;
     if (duplicateDogs.contains(currentValue)) {
@@ -305,7 +305,8 @@ class PairRetriever extends StatelessWidget {
       isDuplicate = false;
     }
     final List<Dog> dogs = dogProvider.dogs;
-    final List<String> dogsList = Dog().getDogNames(dogs);
+    final Map<String, Dog> dogsById = dogProvider.dogsById;
+    final List<String> dogIdsList = Dog().getDogIds(dogs);
 
     final autoCompleteKey =
         ValueKey('${teamNumber}_${rowNumber}_${positionNumber}_$currentValue');
@@ -316,7 +317,8 @@ class PairRetriever extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                Autocomplete<String>(
+                Autocomplete<Dog>(
+                  displayStringForOption: (Dog dog) => dog.name,
                   key: autoCompleteKey,
                   fieldViewBuilder: (BuildContext context,
                       TextEditingController controller,
@@ -362,22 +364,23 @@ class PairRetriever extends StatelessWidget {
                       ),
                     );
                   },
-                  initialValue: TextEditingValue(text: currentValue ?? ""),
+                  initialValue: TextEditingValue(
+                      text: dogsById[currentValue]?.name ?? ""),
                   optionsBuilder: (textEditingValue) {
                     // Show all options if empty or has just a space (from onTap)
                     if (textEditingValue.text.isEmpty ||
                         textEditingValue.text == " ") {
-                      return dogsList;
+                      return dogs;
                     } else {
-                      return dogsList.where((option) => option
+                      return dogs.where((option) => option.name
                           .toLowerCase()
                           .contains(textEditingValue.text.toLowerCase()));
                     }
                   },
-                  onSelected: (option) {
+                  onSelected: (Dog selectedDog) {
                     Provider.of<CreateTeamProvider>(context, listen: false)
                         .changeDog(
-                            newName: option,
+                            newId: selectedDog.id,
                             teamNumber: teamNumber,
                             rowNumber: rowNumber,
                             dogPosition: positionNumber);
@@ -395,15 +398,15 @@ class PairRetriever extends StatelessWidget {
               ],
             ),
           ),
-          currentValue == ""
-              ? SizedBox.shrink()
-              : Center(
+          (currentValue != null && currentValue.isNotEmpty)
+              ? Center(
                   child: IconDeleteDog(
                     teamNumber: teamNumber,
                     rowNumber: rowNumber,
                     positionNumber: positionNumber,
                   ),
-                ),
+                )
+              : SizedBox.shrink(),
         ],
       ),
     );
@@ -429,7 +432,7 @@ class IconDeleteDog extends StatelessWidget {
       child: IconButton(
         onPressed: () => {
           Provider.of<CreateTeamProvider>(context, listen: false).changeDog(
-              newName: "",
+              newId: "",
               teamNumber: teamNumber,
               rowNumber: rowNumber,
               dogPosition: positionNumber),

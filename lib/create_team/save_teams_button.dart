@@ -48,7 +48,7 @@ class SaveTeamsButton extends StatelessWidget {
       "teams": cleanTeams,
       "distance": teamProvider.group.distance
     };
-    String account = await FirestoreService().getUserAccount() ?? "";
+    String account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/teams/history";
 
     if (snapshot.docs.isEmpty) {
@@ -78,8 +78,8 @@ class SaveTeamsButton extends StatelessWidget {
 
         // Create the nested map structure
         cleanTeam["dogs"]["row_$j"] = {
-          "position_1": dogsRow.firstName,
-          "position_2": dogsRow.secondName
+          "position_1": dogsRow.firstDogId,
+          "position_2": dogsRow.secondDogId
         };
       }
 
