@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/provider.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:provider/provider.dart';
 
@@ -45,8 +46,15 @@ class DogCard extends StatelessWidget {
             child: IconButton(
               icon: Icon(Icons.delete),
               color: Colors.red,
-              onPressed: () {
-                dog.deleteDog();
+              onPressed: () async {
+                try {
+                  await dog.deleteDog();
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(ErrorSnackbar("Can't delete dog"));
+                  }
+                }
               },
             ),
           )

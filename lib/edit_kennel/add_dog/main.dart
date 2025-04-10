@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/edit_kennel/add_dog/provider.dart';
 import 'package:mush_on/general/loading_overlay.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:provider/provider.dart';
 
@@ -23,7 +24,14 @@ class AddDogMain extends StatelessWidget {
         ElevatedButton.icon(
           onPressed: () async {
             LoadingOverlay.show(context);
-            await FirestoreService().addDogToDb(dogProvider.name);
+            try {
+              await FirestoreService().addDogToDb(dogProvider.name);
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(ErrorSnackbar("Couldnt add dog to db"));
+              }
+            }
             LoadingOverlay.hide();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
