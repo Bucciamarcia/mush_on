@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/provider.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:provider/provider.dart';
 import 'save_teams_button.dart';
@@ -252,6 +253,7 @@ class _TeamRetrieverState extends State<TeamRetriever> {
 }
 
 class PairRetriever extends StatelessWidget {
+  static final BasicLogger logger = BasicLogger();
   final int teamNumber;
   final int rowNumber;
   const PairRetriever(
@@ -322,42 +324,47 @@ class PairRetriever extends StatelessWidget {
                       TextEditingController controller,
                       FocusNode focusNode,
                       VoidCallback onFieldSubmitted) {
-                    return SizedBox(
-                      height: 50,
-                      child: TextField(
-                        style: TextStyle(fontSize: 14),
-                        controller: controller,
-                        focusNode: focusNode,
-                        onChanged: (String _) =>
-                            Provider.of<CreateTeamProvider>(context,
-                                    listen: false)
-                                .changeUnsavedData(true),
-                        onSubmitted: (String value) {
-                          onFieldSubmitted();
-                        },
-                        onTap: () {
-                          if (controller.text.isEmpty) {
-                            controller.value = TextEditingValue(
-                              text:
-                                  ' ', // Set a space temporarily to show all options
-                              selection: TextSelection.collapsed(offset: 1),
-                            );
-                            // Restore to empty after options are displayed
-                            Future.delayed(Duration(milliseconds: 100), () {
+                    return Focus(
+                      onFocusChange: (bool isInFocus) =>
+                          logger.info("OPTION: $isInFocus"),
+                      child: SizedBox(
+                        height: 50,
+                        child: TextField(
+                          style: TextStyle(fontSize: 14),
+                          controller: controller,
+                          focusNode: focusNode,
+                          onChanged: (String _) =>
+                              Provider.of<CreateTeamProvider>(context,
+                                      listen: false)
+                                  .changeUnsavedData(true),
+                          onSubmitted: (String value) {
+                            logger.info("Text submitted: $value");
+                            onFieldSubmitted();
+                          },
+                          onTap: () {
+                            if (controller.text.isEmpty) {
                               controller.value = TextEditingValue(
-                                text: '',
-                                selection: TextSelection.collapsed(offset: 0),
+                                text:
+                                    ' ', // Set a space temporarily to show all options
+                                selection: TextSelection.collapsed(offset: 1),
                               );
-                            });
-                          }
-                        },
-                        decoration: InputDecoration(
-                          labelText: "Select a dog",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                              // Restore to empty after options are displayed
+                              Future.delayed(Duration(milliseconds: 100), () {
+                                controller.value = TextEditingValue(
+                                  text: '',
+                                  selection: TextSelection.collapsed(offset: 0),
+                                );
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: "Select a dog",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            filled: true,
+                            fillColor: isDuplicate ? Colors.red : null,
                           ),
-                          filled: true,
-                          fillColor: isDuplicate ? Colors.red : null,
                         ),
                       ),
                     );
@@ -376,6 +383,7 @@ class PairRetriever extends StatelessWidget {
                     }
                   },
                   onSelected: (Dog selectedDog) {
+                    logger.info("Selection completed: ${selectedDog.name}");
                     Provider.of<CreateTeamProvider>(context, listen: false)
                         .changeDog(
                             newId: selectedDog.id,
