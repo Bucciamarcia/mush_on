@@ -34,13 +34,11 @@ class FormatObject extends StatelessWidget {
       String position_1 = "";
       String position_2 = "";
       if (pair.firstDogId != null) {
-        position_1 = dogIdMaps[pair.firstDogId]?.name ??
-            "Uknown dog: ${pair.firstDogId}";
+        position_1 = dogIdMaps[pair.firstDogId]?.name ?? "";
       }
 
       if (pair.secondDogId != null) {
-        position_2 = dogIdMaps[pair.secondDogId]?.name ??
-            "Unknown dog: ${pair.secondDogId}";
+        position_2 = dogIdMaps[pair.secondDogId]?.name ?? "";
       }
       teamString = "$teamString\n$position_1 - $position_2";
     }
