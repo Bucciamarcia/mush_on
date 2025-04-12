@@ -4,7 +4,6 @@ import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:provider/provider.dart';
-
 import 'save_teams_button.dart';
 import 'select_datetime.dart';
 
@@ -71,7 +70,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
     super.dispose();
   }
 
-  Future<bool?> _showBackDialog() {
+  Future<bool?> showBackDialog() {
     return showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -113,7 +112,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
         if (didPop) {
           return;
         }
-        final bool shouldPop = await _showBackDialog() ?? false;
+        final bool shouldPop = await showBackDialog() ?? false;
         if (shouldPop) {
           if (context.mounted) Navigator.of(context).pop(false);
         }
@@ -306,7 +305,6 @@ class PairRetriever extends StatelessWidget {
     }
     final List<Dog> dogs = dogProvider.dogs;
     final Map<String, Dog> dogsById = dogProvider.dogsById;
-    final List<String> dogIdsList = Dog().getDogIds(dogs);
 
     final autoCompleteKey =
         ValueKey('${teamNumber}_${rowNumber}_${positionNumber}_$currentValue');

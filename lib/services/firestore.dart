@@ -38,31 +38,55 @@ class FirestoreService {
   }
 
   Future<void> userLoginActions() async {
-    User user = AuthService().user!;
-    var ref = db.collection("users").doc(user.uid);
-    var data = {"last_login": DateTime.now().toUtc()};
-    return ref.set(data, SetOptions(merge: true));
+    late final User user;
+    try {
+      user = AuthService().user!;
+    } catch (e, s) {
+      logger.error("Couldn't fetch user", error: e, stackTrace: s);
+      rethrow;
+    }
+    try {
+      var ref = db.collection("users").doc(user.uid);
+      var data = {"last_login": DateTime.now().toUtc()};
+      return ref.set(data, SetOptions(merge: true));
+    } catch (e, s) {
+      logger.error("Couldn't log in", error: e, stackTrace: s);
+      rethrow;
+    }
   }
 
   /// Get the user's account name if it exists.
   /// If it doesn't, return null.
   Future<String> getUserAccount() async {
-    User user = AuthService().user!;
-    var ref = db.doc("users/${user.uid}");
-    var snapshot = await ref.get();
+    try {
+      late final User user;
+      try {
+        user = AuthService().user!;
+      } catch (e, s) {
+        logger.error("Couldn't fetch user", error: e, stackTrace: s);
+        rethrow;
+      }
+      var ref = db.doc("users/${user.uid}");
+      var snapshot = await ref.get();
 
-    // Check if document exists first
-    if (!snapshot.exists) {
-      throw Exception("Snapshot doesn't exist");
+      // Check if document exists first
+      if (!snapshot.exists) {
+        logger.error("Snapshot doesn't exist");
+        throw Exception("Snapshot doesn't exist");
+      }
+
+      var data = snapshot.data();
+      if (data == null || data.isEmpty) {
+        logger.error("Snapshot is empty");
+        throw Exception("Snapshot is empty");
+      }
+
+      UserName userName = UserName.fromJson(data);
+      return userName.account!;
+    } catch (e, s) {
+      logger.error("Couldn't get user account", error: e, stackTrace: s);
+      rethrow;
     }
-
-    var data = snapshot.data();
-    if (data == null || data.isEmpty) {
-      throw Exception("Snapshot doesn't exist");
-    }
-
-    UserName userName = UserName.fromJson(data);
-    return userName.account!;
   }
 }
 
@@ -71,15 +95,21 @@ class DogsDbOperations {
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
   Future<Dog> getDog(String dogId) async {
-    String account = await FirestoreService().getUserAccount();
-    String path = "accounts/$account/data/kennel/dogs/$dogId";
-    var doc = await db.doc(path).get();
+    try {
+      String account = await FirestoreService().getUserAccount();
+      String path = "accounts/$account/data/kennel/dogs/$dogId";
+      var doc = await db.doc(path).get();
 
-    if (doc.exists && doc.data() != null) {
-      return Dog.fromJson(doc.data()!);
-    } else {
-      // Dog not found or data is unexpectedly null
-      throw Exception("Dog with Id $dogId not found or data is missing.");
+      if (doc.exists && doc.data() != null) {
+        return Dog.fromJson(doc.data()!);
+      } else {
+        // Dog not found or data is unexpectedly null
+        logger.error("Dog with Id $dogId not found or data is missing.");
+        throw Exception("Dog with Id $dogId not found or data is missing.");
+      }
+    } catch (e, s) {
+      logger.error("Couldn't get dog", error: e, stackTrace: s);
+      rethrow;
     }
   }
 
@@ -88,47 +118,65 @@ class DogsDbOperations {
       Dog dog = await getDog(dogId);
       return dog.name;
     } catch (e) {
+      logger.warning("Couldn't get dog name from id");
       return null;
     }
   }
 
   /// Gets a list of all dog names in alphabetical order.
   Future<List<String>> getAllDogNames() async {
-    String account = await FirestoreService().getUserAccount();
-    String path = "accounts/$account/data/kennel/dogs";
-    List<String> toReturn = [];
-    var ref = db.collection(path);
-    ref.get().then((querySnapshot) {
-      for (var doc in querySnapshot.docs) {
-        toReturn.add(doc.get("name"));
-      }
-    });
-    toReturn.sort((a, b) => a.compareTo(b));
-    return toReturn;
+    try {
+      String account = await FirestoreService().getUserAccount();
+      String path = "accounts/$account/data/kennel/dogs";
+      List<String> toReturn = [];
+      var ref = db.collection(path);
+      ref.get().then((querySnapshot) {
+        for (var doc in querySnapshot.docs) {
+          toReturn.add(doc.get("name"));
+        }
+      });
+      toReturn.sort((a, b) => a.compareTo(b));
+      return toReturn;
+    } catch (e, s) {
+      logger.error("Couldn't get all dog names", error: e, stackTrace: s);
+      rethrow;
+    }
   }
 
   /// Gets a Map with a list of dog ID -> Dog object starting from
   /// just a list of Dog Ids.
   Future<Map<String, Dog>> getDogsByIds(List<String> dogIds) async {
-    String account = await FirestoreService().getUserAccount();
-    String path = "accounts/$account/data/kennel/dogs";
-    List<List<String>> batches = [];
-    for (var i = 0; i < dogIds.length; i += 30) {
-      batches.add(
-          dogIds.sublist(i, i + 30 > dogIds.length ? dogIds.length : i + 30));
-    }
-    Map<String, Dog> toReturn = {};
+    try {
+      String account = await FirestoreService().getUserAccount();
+      String path = "accounts/$account/data/kennel/dogs";
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> allDocSnapshots = [];
+      List<List<String>> batches = [];
+      for (var i = 0; i < dogIds.length; i += 30) {
+        batches.add(
+          dogIds.sublist(i, i + 30 > dogIds.length ? dogIds.length : i + 30),
+        );
+      }
 
-    for (var batch in batches) {
-      var ref = db.collection(path);
-      var query = ref.where(FieldPath.documentId, whereIn: batch);
-      await query.get().then(
-        (querySnapshot) {
-          for (var docSnapshot in querySnapshot.docs) {
-            toReturn[docSnapshot.id] = Dog.fromJson(docSnapshot.data());
-          }
-        },
-      );
+      for (var batch in batches) {
+        var ref = db.collection(path);
+        var query = ref.where(FieldPath.documentId, whereIn: batch);
+        var toAdd = await query.get();
+        allDocSnapshots
+            .addAll(toAdd.docs); // Directly add to the flattened list
+      }
+
+      return _processGetDogsByIds(allDocSnapshots);
+    } catch (e, s) {
+      logger.error("Couldn't get dog by ids", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Map<String, Dog> _processGetDogsByIds(
+      List<QueryDocumentSnapshot<Map<String, dynamic>>> docSnapshots) {
+    Map<String, Dog> toReturn = {};
+    for (var doc in docSnapshots) {
+      toReturn[doc.id] = Dog.fromJson(doc.data());
     }
     return toReturn;
   }

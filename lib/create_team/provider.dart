@@ -1,7 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 
+import '../services/firestore.dart';
+
 class CreateTeamProvider extends ChangeNotifier {
+  BasicLogger logger = BasicLogger();
   TeamGroup group = TeamGroup(
     teams: [
       Team(
@@ -13,6 +18,34 @@ class CreateTeamProvider extends ChangeNotifier {
     ],
     date: DateTime.now(),
   );
+  final Map<String, Dog> _dogsById = {};
+  Map<String, Dog> get dogsById => _dogsById;
+
+  CreateTeamProvider() {
+    _fetchDogs();
+  }
+
+  void _fetchDogs() async {
+    String account = await FirestoreService().getUserAccount();
+    FirebaseFirestore.instance
+        .collection("accounts/$account/data/kennel/dogs")
+        .snapshots()
+        .listen((snapshot) {
+      List<Dog> dogs = snapshot.docs
+          .map((doc) => Dog.fromJson(doc.data()))
+          .toList()
+        ..sort((a, b) => a.name.compareTo(b.name));
+      _fetchDogsById(dogs);
+      notifyListeners(); // Notify UI to rebuild
+    });
+  }
+
+  void _fetchDogsById(List<Dog> fetchedDogs) {
+    _dogsById.clear();
+    for (Dog dog in fetchedDogs) {
+      _dogsById.addAll({dog.id: dog});
+    }
+  }
 
   List<String> duplicateDogs = [];
   bool unsavedData = false;
@@ -37,16 +70,21 @@ class CreateTeamProvider extends ChangeNotifier {
   }
 
   addTeam({required int teamNumber}) {
-    group.teams.insert(
-      teamNumber,
-      Team(
-        dogPairs: [
-          DogPair(),
-          DogPair(),
-          DogPair(),
-        ],
-      ),
-    );
+    try {
+      group.teams.insert(
+        teamNumber,
+        Team(
+          dogPairs: [
+            DogPair(),
+            DogPair(),
+            DogPair(),
+          ],
+        ),
+      );
+    } catch (e, s) {
+      logger.error("Couldn't add team", error: e, stackTrace: s);
+      rethrow;
+    }
     notifyListeners();
   }
 
@@ -90,42 +128,58 @@ class CreateTeamProvider extends ChangeNotifier {
       required int teamNumber,
       required int rowNumber,
       required int dogPosition}) {
-    if (dogPosition == 0) {
-      group.teams[teamNumber].dogPairs[rowNumber].firstDogId = newId;
-    } else if (dogPosition == 1) {
-      group.teams[teamNumber].dogPairs[rowNumber].secondDogId = newId;
+    try {
+      if (dogPosition == 0) {
+        group.teams[teamNumber].dogPairs[rowNumber].firstDogId = newId;
+      } else if (dogPosition == 1) {
+        group.teams[teamNumber].dogPairs[rowNumber].secondDogId = newId;
+      }
+      updateDuplicateDogs();
+      notifyListeners();
+    } catch (e, s) {
+      logger.error("Couldn't change dog", error: e, stackTrace: s);
+      rethrow;
     }
-    updateDuplicateDogs();
-    notifyListeners();
   }
 
   updateDuplicateDogs() {
     duplicateDogs = [];
     Map<String, int> dogCounts = {};
 
-    // Count occurrences of each dog
-    for (Team team in group.teams) {
-      List<DogPair> rows = team.dogPairs;
-      for (DogPair row in rows) {
-        String? firstDog = row.firstDogId;
-        String? secondDog = row.secondDogId;
+    try {
+      // Count occurrences of each dog
+      for (Team team in group.teams) {
+        List<DogPair> rows = team.dogPairs;
+        for (DogPair row in rows) {
+          String? firstDog = row.firstDogId;
+          String? secondDog = row.secondDogId;
 
-        if (firstDog != null && firstDog.isNotEmpty) {
-          dogCounts[firstDog] = (dogCounts[firstDog] ?? 0) + 1;
-        }
+          if (firstDog != null && firstDog.isNotEmpty) {
+            dogCounts[firstDog] = (dogCounts[firstDog] ?? 0) + 1;
+          }
 
-        if (secondDog != null && secondDog.isNotEmpty) {
-          dogCounts[secondDog] = (dogCounts[secondDog] ?? 0) + 1;
+          if (secondDog != null && secondDog.isNotEmpty) {
+            dogCounts[secondDog] = (dogCounts[secondDog] ?? 0) + 1;
+          }
         }
       }
+    } catch (e, s) {
+      logger.error("Couldn't loop for updateDuplicateDogs",
+          error: e, stackTrace: s);
+      rethrow;
     }
 
     // Add to duplicateDogs if count > 1
-    dogCounts.forEach((dogId, count) {
-      if (count > 1) {
-        duplicateDogs.add(dogId);
-      }
-    });
+    try {
+      dogCounts.forEach((dogId, count) {
+        if (count > 1) {
+          duplicateDogs.add(dogId);
+        }
+      });
+    } catch (e, s) {
+      logger.error("Couldn't add to duplicate dogs", error: e, stackTrace: s);
+      rethrow;
+    }
 
     notifyListeners();
   }
@@ -151,11 +205,12 @@ class CreateTeamProvider extends ChangeNotifier {
     String dogList = "";
     for (DogPair dogPair in teamDogs) {
       dogList =
-          "$dogList\n${dogPair.firstDogId ?? ""} - ${dogPair.secondDogId ?? ""}";
+          "$dogList\n${dogsById[dogPair.firstDogId]?.name ?? ""} - ${dogsById[dogPair.secondDogId]?.name ?? ""}";
     }
     return dogList;
   }
 
+  /// Defines whether the create team has unsaved data.
   void changeUnsavedData(bool newCUD) {
     unsavedData = newCUD;
     notifyListeners();
