@@ -364,6 +364,7 @@ class PairRetriever extends StatelessWidget {
               onDogRemoved(teamNumber, rowNumber, 1),
         ),
         IconButton(
+          key: Key("Row remover: $teamNumber - $rowNumber"),
           onPressed: () {
             onRowRemoved(teamNumber, rowNumber);
           },
@@ -566,6 +567,7 @@ class AddTeamWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
+      key: Key("Add team  - $teamNumber"),
       onPressed: () => onAddTeam(teamNumber + 1),
       child: Text("Add team"),
     );
@@ -585,6 +587,7 @@ class RemoveTeamWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
+        key: Key("Remove team - $teamNumber"),
         onPressed: () {
           if (totalTeams > 1) onRemoveTeam(teamNumber);
         },
