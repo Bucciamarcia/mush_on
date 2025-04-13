@@ -47,7 +47,7 @@ class SfDataGridClass extends StatelessWidget {
             columns: _dogs.map((dog) {
               return GridSummaryColumn(
                   name: dog.name,
-                  columnName: dog.name,
+                  columnName: dog.id,
                   summaryType: GridSummaryType.sum);
             }).toList(),
             position: GridTableSummaryRowPosition.top)
