@@ -299,6 +299,15 @@ class Dog {
   List<String> getDogIds(List<Dog> dogObjects) {
     return dogObjects.map((dog) => dog.id).toList();
   }
+
+  static Map<String, Dog> dogsById(List<Dog> dogs) {
+    Map<String, Dog> toReturn = {};
+
+    for (Dog dog in dogs) {
+      toReturn.addAll({dog.id: dog});
+    }
+    return toReturn;
+  }
 }
 
 @JsonSerializable()
