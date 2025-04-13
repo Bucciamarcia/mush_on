@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -143,7 +144,44 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
           ),
           ...teams.asMap().entries.map(
             (entry) {
-              return TeamRetriever(teamNumber: entry.key);
+              return TeamRetriever(
+                teamNumber: entry.key,
+                duplicateDogs: teamProvider.duplicateDogs,
+                dogs: context.watch<DogProvider>().dogs,
+                teams: context.watch<CreateTeamProvider>().group.teams,
+                onDogSelected: (DogSelection newDog) {
+                  Provider.of<CreateTeamProvider>(context, listen: false)
+                      .changeDog(
+                          newId: newDog.dog.id,
+                          teamNumber: newDog.teamNumber,
+                          rowNumber: newDog.rowNumber,
+                          dogPosition: newDog.dogPosition);
+                },
+                onTeamNameChanged: (int teamNumber, String newName) =>
+                    Provider.of<CreateTeamProvider>(context, listen: false)
+                        .changeTeamName(teamNumber, newName),
+                onRowRemoved: (int teamNumber, int rowNumber) =>
+                    Provider.of<CreateTeamProvider>(context, listen: false)
+                        .removeRow(
+                            teamNumber: teamNumber, rowNumber: rowNumber),
+                onAddRow: (int teamNumber) =>
+                    Provider.of<CreateTeamProvider>(context, listen: false)
+                        .addRow(teamNumber: teamNumber),
+                onDogRemoved:
+                    (int teamNumber, int rowNumber, int dogPosition) =>
+                        Provider.of<CreateTeamProvider>(context, listen: false)
+                            .changeDog(
+                                newId: "",
+                                teamNumber: teamNumber,
+                                rowNumber: rowNumber,
+                                dogPosition: dogPosition),
+                onAddTeam: (teamNumber) =>
+                    Provider.of<CreateTeamProvider>(context, listen: false)
+                        .addTeam(teamNumber: teamNumber),
+                onRemoveTeam: (teamNumber) =>
+                    Provider.of<CreateTeamProvider>(context, listen: false)
+                        .removeTeam(teamNumber: teamNumber),
+              );
             },
           ),
           SizedBox(height: 10),
@@ -165,7 +203,29 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
 
 class TeamRetriever extends StatefulWidget {
   final int teamNumber;
-  const TeamRetriever({super.key, required this.teamNumber});
+  final List<Dog> dogs;
+  final List<String> duplicateDogs;
+  final List<Team> teams;
+  final Function(DogSelection) onDogSelected;
+  final Function(int, String) onTeamNameChanged;
+  final Function(int, int) onRowRemoved;
+  final Function(int) onAddRow;
+  final Function(int, int, int) onDogRemoved;
+  final Function(int) onAddTeam;
+  final Function(int) onRemoveTeam;
+  const TeamRetriever(
+      {super.key,
+      required this.teamNumber,
+      required this.dogs,
+      required this.duplicateDogs,
+      required this.teams,
+      required this.onDogSelected,
+      required this.onTeamNameChanged,
+      required this.onRowRemoved,
+      required this.onAddRow,
+      required this.onDogRemoved,
+      required this.onAddTeam,
+      required this.onRemoveTeam});
 
   @override
   State<TeamRetriever> createState() => _TeamRetrieverState();
@@ -176,10 +236,8 @@ class _TeamRetrieverState extends State<TeamRetriever> {
   @override
   void initState() {
     super.initState();
-    CreateTeamProvider teamProvider =
-        Provider.of<CreateTeamProvider>(context, listen: false);
-    textController = TextEditingController(
-        text: teamProvider.group.teams[widget.teamNumber].name);
+    textController =
+        TextEditingController(text: widget.teams[widget.teamNumber].name);
   }
 
   @override
@@ -190,28 +248,9 @@ class _TeamRetrieverState extends State<TeamRetriever> {
 
   @override
   Widget build(BuildContext context) {
-    CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    List<Team> teams = teamProvider.group.teams;
-
-    if (widget.teamNumber >= teams.length) {
+    if (widget.teamNumber >= widget.teams.length) {
       return const Text("Invalid team number");
     }
-
-    return Column(
-      children: [
-        getTeam(teams[widget.teamNumber], teams, context),
-      ],
-    );
-  }
-
-  Widget getTeam(Team team, List<Team> teams, BuildContext context) {
-    CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    if (textController.text !=
-            teamProvider.group.teams[widget.teamNumber].name &&
-        !textController.selection.isValid) {
-      textController.text = teamProvider.group.teams[widget.teamNumber].name;
-    }
-    List<DogPair> dogPairs = team.dogPairs;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,31 +259,43 @@ class _TeamRetrieverState extends State<TeamRetriever> {
             controller: textController,
             decoration: InputDecoration(labelText: "Team name"),
             onChanged: (String text) {
-              Provider.of<CreateTeamProvider>(context, listen: false)
-                  .changeUnsavedData(true);
-              Provider.of<CreateTeamProvider>(context, listen: false)
-                  .changeTeamName(widget.teamNumber, text);
+              widget.onTeamNameChanged(widget.teamNumber, text);
             }),
         SizedBox(height: 10),
-        ...dogPairs.asMap().entries.map(
+        ...widget.teams[widget.teamNumber].dogPairs.asMap().entries.map(
               (entry) => PairRetriever(
-                  teamNumber: widget.teamNumber, rowNumber: entry.key),
+                teamNumber: widget.teamNumber,
+                rowNumber: entry.key,
+                teams: widget.teams,
+                duplicateDogs: widget.duplicateDogs,
+                onDogSelected: (newDog) => widget.onDogSelected(newDog),
+                dogs: widget.dogs,
+                onRowRemoved: (teamNumber, rowNumber) =>
+                    widget.onRowRemoved(teamNumber, rowNumber),
+                onDogRemoved: (teamNumber, rowNumber, positionNumber) =>
+                    widget.onDogRemoved(teamNumber, rowNumber, positionNumber),
+              ),
             ),
         SizedBox(
           height: 10,
         ),
         ElevatedButton(
           onPressed: () {
-            Provider.of<CreateTeamProvider>(context, listen: false).addRow(
-              teamNumber: widget.teamNumber,
-            );
+            widget.onAddRow(widget.teamNumber);
           },
           child: Text("Add new row"),
         ),
         Row(
           children: [
-            AddTeamWidget(teamNumber: widget.teamNumber),
-            RemoveTeamWidget(teamNumber: widget.teamNumber),
+            AddTeamWidget(
+              teamNumber: widget.teamNumber,
+              onAddTeam: (newTeamNumber) => widget.onAddTeam(newTeamNumber),
+            ),
+            RemoveTeamWidget(
+              teamNumber: widget.teamNumber,
+              onRemoveTeam: (teamNumber) => widget.onRemoveTeam(teamNumber),
+              totalTeams: widget.teams.length,
+            ),
           ],
         ),
       ],
@@ -256,22 +307,64 @@ class PairRetriever extends StatelessWidget {
   static final BasicLogger logger = BasicLogger();
   final int teamNumber;
   final int rowNumber;
+  final List<Team> teams;
+  final List<Dog> dogs;
+  final List<String> duplicateDogs;
+  final Function(DogSelection) onDogSelected;
+  final Function(int, int) onRowRemoved;
+  final Function(int, int, int) onDogRemoved;
   const PairRetriever(
-      {super.key, required this.teamNumber, required this.rowNumber});
+      {super.key,
+      required this.teamNumber,
+      required this.rowNumber,
+      required this.teams,
+      required this.dogs,
+      required this.duplicateDogs,
+      required this.onDogSelected,
+      required this.onRowRemoved,
+      required this.onDogRemoved});
 
   @override
   Widget build(BuildContext context) {
-    final CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    List<Team> teams = teamProvider.group.teams;
     return Row(
       children: [
-        dropDownButtonConstructor(teams, 0, context),
+        dropDownButtonConstructor(
+            teams: teams,
+            positionNumber: 0,
+            duplicateDogs: duplicateDogs,
+            onDogSelected: (Dog newDog) {
+              logger.info("CALLBACK NEWDOG: ${newDog.name}");
+              onDogSelected(
+                DogSelection(
+                    dog: newDog,
+                    rowNumber: rowNumber,
+                    teamNumber: teamNumber,
+                    dogPosition: 0),
+              );
+            },
+            onDogRemoved: (teamNumber, rowNumber, positionNumber) =>
+                onDogRemoved(teamNumber, rowNumber, 0),
+            dogs: dogs),
         Text(" - "),
-        dropDownButtonConstructor(teams, 1, context),
+        dropDownButtonConstructor(
+            teams: teams,
+            positionNumber: 1,
+            duplicateDogs: duplicateDogs,
+            onDogSelected: (Dog newDog) {
+              onDogSelected(
+                DogSelection(
+                    dog: newDog,
+                    rowNumber: rowNumber,
+                    teamNumber: teamNumber,
+                    dogPosition: 1),
+              );
+            },
+            onDogRemoved: (teamNumber, rowNumber, positionNumber) =>
+                onDogRemoved(teamNumber, rowNumber, 1),
+            dogs: dogs),
         IconButton(
           onPressed: () {
-            Provider.of<CreateTeamProvider>(context, listen: false)
-                .removeRow(teamNumber: teamNumber, rowNumber: rowNumber);
+            onRowRemoved(teamNumber, rowNumber);
           },
           icon: Container(
             decoration: BoxDecoration(
@@ -289,10 +382,13 @@ class PairRetriever extends StatelessWidget {
   }
 
   Widget dropDownButtonConstructor(
-      List<Team> teams, int positionNumber, BuildContext context) {
-    final DogProvider dogProvider = context.watch<DogProvider>();
-    final CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    List<String> duplicateDogs = teamProvider.duplicateDogs;
+      {required List<Team> teams,
+      required int positionNumber,
+      required List<String> duplicateDogs,
+      required List<Dog> dogs,
+      required Function(Dog newDog) onDogSelected,
+      required Function(int, int, int) onDogRemoved}) {
+    Map<String, Dog> dogsById = Dog.dogsById(dogs);
     String? currentValue;
     if (positionNumber == 0) {
       currentValue = teams[teamNumber].dogPairs[rowNumber].firstDogId;
@@ -305,9 +401,6 @@ class PairRetriever extends StatelessWidget {
     } else {
       isDuplicate = false;
     }
-    final List<Dog> dogs = dogProvider.dogs;
-    final Map<String, Dog> dogsById = dogProvider.dogsById;
-
     final autoCompleteKey =
         ValueKey('${teamNumber}_${rowNumber}_${positionNumber}_$currentValue');
 
@@ -333,10 +426,6 @@ class PairRetriever extends StatelessWidget {
                           style: TextStyle(fontSize: 14),
                           controller: controller,
                           focusNode: focusNode,
-                          onChanged: (String _) =>
-                              Provider.of<CreateTeamProvider>(context,
-                                      listen: false)
-                                  .changeUnsavedData(true),
                           onSubmitted: (String value) {
                             logger.info("Text submitted: $value");
                             onFieldSubmitted();
@@ -384,14 +473,7 @@ class PairRetriever extends StatelessWidget {
                   },
                   onSelected: (Dog selectedDog) {
                     logger.info("Selection completed: ${selectedDog.name}");
-                    Provider.of<CreateTeamProvider>(context, listen: false)
-                        .changeDog(
-                            newId: selectedDog.id,
-                            teamNumber: teamNumber,
-                            rowNumber: rowNumber,
-                            dogPosition: positionNumber);
-                    Provider.of<CreateTeamProvider>(context, listen: false)
-                        .changeUnsavedData(true);
+                    onDogSelected(selectedDog);
                   },
                 ),
                 isDuplicate
@@ -410,6 +492,8 @@ class PairRetriever extends StatelessWidget {
                     teamNumber: teamNumber,
                     rowNumber: rowNumber,
                     positionNumber: positionNumber,
+                    onDogRemoved: (teamNumber, rowNumber, positionNumber) =>
+                        onDogRemoved(teamNumber, rowNumber, positionNumber),
                   ),
                 )
               : SizedBox.shrink(),
@@ -420,15 +504,17 @@ class PairRetriever extends StatelessWidget {
 }
 
 class IconDeleteDog extends StatelessWidget {
+  final int teamNumber;
+  final int rowNumber;
+  final int positionNumber;
+  final Function(int, int, int) onDogRemoved;
+
   const IconDeleteDog(
       {super.key,
       required this.teamNumber,
       required this.rowNumber,
-      required this.positionNumber});
-
-  final int teamNumber;
-  final int rowNumber;
-  final int positionNumber;
+      required this.positionNumber,
+      required this.onDogRemoved});
 
   @override
   Widget build(BuildContext context) {
@@ -436,13 +522,7 @@ class IconDeleteDog extends StatelessWidget {
       width: 25,
       height: 25,
       child: IconButton(
-        onPressed: () => {
-          Provider.of<CreateTeamProvider>(context, listen: false).changeDog(
-              newId: "",
-              teamNumber: teamNumber,
-              rowNumber: rowNumber,
-              dogPosition: positionNumber),
-        },
+        onPressed: () => onDogRemoved(teamNumber, rowNumber, positionNumber),
         icon: Icon(
           Icons.delete,
           size: 25,
@@ -457,13 +537,14 @@ class IconDeleteDog extends StatelessWidget {
 
 class AddTeamWidget extends StatelessWidget {
   final int teamNumber;
-  const AddTeamWidget({super.key, required this.teamNumber});
+  final Function(int) onAddTeam;
+  const AddTeamWidget(
+      {super.key, required this.teamNumber, required this.onAddTeam});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () => Provider.of<CreateTeamProvider>(context, listen: false)
-          .addTeam(teamNumber: teamNumber + 1),
+      onPressed: () => onAddTeam(teamNumber + 1),
       child: Text("Add team"),
     );
   }
@@ -471,18 +552,19 @@ class AddTeamWidget extends StatelessWidget {
 
 class RemoveTeamWidget extends StatelessWidget {
   final int teamNumber;
-  const RemoveTeamWidget({super.key, required this.teamNumber});
+  final Function(int) onRemoveTeam;
+  final int totalTeams;
+  const RemoveTeamWidget(
+      {super.key,
+      required this.teamNumber,
+      required this.onRemoveTeam,
+      required this.totalTeams});
 
   @override
   Widget build(BuildContext context) {
-    CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    int teamsNumber = teamProvider.group.teams.length;
     return ElevatedButton(
         onPressed: () {
-          if (teamsNumber > 1) {
-            Provider.of<CreateTeamProvider>(context, listen: false)
-                .removeTeam(teamNumber: teamNumber);
-          }
+          if (totalTeams > 1) onRemoveTeam(teamNumber);
         },
         child: Text("Remove team"));
   }

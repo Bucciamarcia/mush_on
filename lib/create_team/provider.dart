@@ -52,20 +52,25 @@ class CreateTeamProvider extends ChangeNotifier {
 
   changeGlobalName(String newName) {
     group.name = newName;
+    changeUnsavedData(true);
     notifyListeners();
   }
 
   changeDistance(double newDistance) {
     group.distance = newDistance;
+    changeUnsavedData(true);
     notifyListeners();
   }
 
   changeNotes(String newNotes) {
     group.notes = newNotes;
+    changeUnsavedData(true);
+    notifyListeners();
   }
 
   changeAllTeams(List<Team> newTeams) {
     group.teams = newTeams;
+    changeUnsavedData(true);
     notifyListeners();
   }
 
@@ -85,11 +90,13 @@ class CreateTeamProvider extends ChangeNotifier {
       logger.error("Couldn't add team", error: e, stackTrace: s);
       rethrow;
     }
+    changeUnsavedData(true);
     notifyListeners();
   }
 
   removeTeam({required int teamNumber}) {
     group.teams.removeAt(teamNumber);
+    changeUnsavedData(true);
     notifyListeners();
   }
 
@@ -97,6 +104,7 @@ class CreateTeamProvider extends ChangeNotifier {
   changeDate(DateTime newDate) {
     group.date = DateTime(newDate.year, newDate.month, newDate.day,
         group.date.hour, group.date.minute);
+    changeUnsavedData(true);
     notifyListeners();
   }
 
@@ -104,22 +112,25 @@ class CreateTeamProvider extends ChangeNotifier {
   changeTime(TimeOfDay time) {
     group.date = DateTime(group.date.year, group.date.month, group.date.day,
         time.hour, time.minute);
+    changeUnsavedData(true);
     notifyListeners();
   }
 
   changeTeamName(int teamNumber, String newName) {
     group.teams[teamNumber].name = newName;
+    changeUnsavedData(true);
     notifyListeners();
   }
 
   addRow({required int teamNumber}) {
     group.teams[teamNumber].dogPairs.add(DogPair());
-
+    changeUnsavedData(true);
     notifyListeners();
   }
 
   removeRow({required int teamNumber, required int rowNumber}) {
     group.teams[teamNumber].dogPairs.removeAt(rowNumber);
+
     notifyListeners();
   }
 
@@ -140,6 +151,7 @@ class CreateTeamProvider extends ChangeNotifier {
       logger.error("Couldn't change dog", error: e, stackTrace: s);
       rethrow;
     }
+    changeUnsavedData(true);
   }
 
   updateDuplicateDogs() {
@@ -171,8 +183,8 @@ class CreateTeamProvider extends ChangeNotifier {
 
     // Add to duplicateDogs if count > 1
     try {
-      dogCounts.forEach((dogId, count) {
-        if (count > 1) {
+      dogCounts.forEach((dogId, dogCount) {
+        if (dogCount > 1) {
           duplicateDogs.add(dogId);
         }
       });
