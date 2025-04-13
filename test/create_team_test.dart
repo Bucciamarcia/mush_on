@@ -40,23 +40,30 @@ void main() {
       expect(find.text("Copy teams"), findsOneWidget);
       expect(find.text("Save Teams"), findsOneWidget);
 
+      Finder deleteDogFinder = find.widgetWithIcon(IconButton, Icons.delete);
       // Tap the first field to show the selection.
       final textFieldFinder = find.byKey(Key("Select Dog - 0 - 0 - 0"));
       TextField textFieldWidget = tester.widget<TextField>(textFieldFinder);
       expect(textFieldWidget.controller?.text, isEmpty);
       expect(find.text("Fido"), findsNothing);
+      expect(deleteDogFinder, findsNothing);
       await tester.tap(textFieldFinder);
       await tester.pumpAndSettle();
       final fidoOptionFinder = find.text('Fido').last;
       expect(fidoOptionFinder, findsOneWidget);
 
-// Tap the option to select it
+      // Tap the option to select it
       await tester.tap(fidoOptionFinder);
       await tester.pumpAndSettle();
-// Verify the TextField now displays "Fido"
-      textFieldWidget =
-          tester.widget<TextField>(textFieldFinder); // Re-find the widget state
+      // Verify the TextField now displays "Fido"
+      final updatedTextFieldWidget = tester.widget<TextField>(textFieldFinder);
       expect(textFieldWidget.controller?.text, equals('Fido'));
+
+      // Removes Fido
+      expect(deleteDogFinder, findsOneWidget);
+      await tester.tap(deleteDogFinder);
+      await tester.pumpAndSettle();
+      expect(deleteDogFinder, findsNothing);
     },
   );
 }
