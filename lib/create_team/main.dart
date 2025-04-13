@@ -443,6 +443,8 @@ class DogSelector extends StatelessWidget {
                       child: SizedBox(
                         height: 50,
                         child: TextField(
+                          key: Key(
+                              "Select Dog - $teamNumber - $rowNumber - $positionNumber"),
                           style: TextStyle(fontSize: 14),
                           controller: controller,
                           focusNode: focusNode,

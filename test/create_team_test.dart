@@ -31,6 +31,32 @@ void main() {
       expect(find.text("Date"), findsOneWidget);
       expect(find.text("Time"), findsOneWidget);
       expect(find.text("Distance"), findsOneWidget);
+      expect(find.widgetWithText(TextField, "Group name"), findsOneWidget);
+      expect(find.widgetWithText(TextField, "Group notes"), findsOneWidget);
+      expect(find.widgetWithText(TextField, "Team name"), findsOneWidget);
+      expect(find.text("Add new row"), findsOneWidget);
+      expect(find.text("Add team"), findsOneWidget);
+      expect(find.text("Remove team"), findsOneWidget);
+      expect(find.text("Copy teams"), findsOneWidget);
+      expect(find.text("Save Teams"), findsOneWidget);
+
+      // Tap the first field to show the selection.
+      final textFieldFinder = find.byKey(Key("Select Dog - 0 - 0 - 0"));
+      TextField textFieldWidget = tester.widget<TextField>(textFieldFinder);
+      expect(textFieldWidget.controller?.text, isEmpty);
+      expect(find.text("Fido"), findsNothing);
+      await tester.tap(textFieldFinder);
+      await tester.pumpAndSettle();
+      final fidoOptionFinder = find.text('Fido').last;
+      expect(fidoOptionFinder, findsOneWidget);
+
+// Tap the option to select it
+      await tester.tap(fidoOptionFinder);
+      await tester.pumpAndSettle();
+// Verify the TextField now displays "Fido"
+      textFieldWidget =
+          tester.widget<TextField>(textFieldFinder); // Re-find the widget state
+      expect(textFieldWidget.controller?.text, equals('Fido'));
     },
   );
 }
