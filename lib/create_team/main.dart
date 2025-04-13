@@ -328,40 +328,41 @@ class PairRetriever extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        dropDownButtonConstructor(
-            teams: teams,
-            positionNumber: 0,
-            duplicateDogs: duplicateDogs,
-            onDogSelected: (Dog newDog) {
-              logger.info("CALLBACK NEWDOG: ${newDog.name}");
-              onDogSelected(
-                DogSelection(
-                    dog: newDog,
-                    rowNumber: rowNumber,
-                    teamNumber: teamNumber,
-                    dogPosition: 0),
-              );
-            },
-            onDogRemoved: (teamNumber, rowNumber, positionNumber) =>
-                onDogRemoved(teamNumber, rowNumber, 0),
-            dogs: dogs),
+        DogSelector(
+          teamNumber: teamNumber,
+          rowNumber: rowNumber,
+          teams: teams,
+          positionNumber: 0,
+          duplicateDogs: duplicateDogs,
+          dogs: dogs,
+          onDogSelected: (Dog newDog) => onDogSelected(
+            DogSelection(
+                dog: newDog,
+                rowNumber: rowNumber,
+                teamNumber: teamNumber,
+                dogPosition: 0),
+          ),
+          onDogRemoved: (teamNumber, rowNumber) =>
+              onDogRemoved(teamNumber, rowNumber, 0),
+        ),
         Text(" - "),
-        dropDownButtonConstructor(
-            teams: teams,
-            positionNumber: 1,
-            duplicateDogs: duplicateDogs,
-            onDogSelected: (Dog newDog) {
-              onDogSelected(
-                DogSelection(
-                    dog: newDog,
-                    rowNumber: rowNumber,
-                    teamNumber: teamNumber,
-                    dogPosition: 1),
-              );
-            },
-            onDogRemoved: (teamNumber, rowNumber, positionNumber) =>
-                onDogRemoved(teamNumber, rowNumber, 1),
-            dogs: dogs),
+        DogSelector(
+          teamNumber: teamNumber,
+          rowNumber: rowNumber,
+          teams: teams,
+          positionNumber: 1,
+          duplicateDogs: duplicateDogs,
+          dogs: dogs,
+          onDogSelected: (Dog newDog) => onDogSelected(
+            DogSelection(
+                dog: newDog,
+                rowNumber: rowNumber,
+                teamNumber: teamNumber,
+                dogPosition: 1),
+          ),
+          onDogRemoved: (teamNumber, rowNumber) =>
+              onDogRemoved(teamNumber, rowNumber, 1),
+        ),
         IconButton(
           onPressed: () {
             onRowRemoved(teamNumber, rowNumber);
@@ -380,14 +381,33 @@ class PairRetriever extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget dropDownButtonConstructor(
-      {required List<Team> teams,
-      required int positionNumber,
-      required List<String> duplicateDogs,
-      required List<Dog> dogs,
-      required Function(Dog newDog) onDogSelected,
-      required Function(int, int, int) onDogRemoved}) {
+class DogSelector extends StatelessWidget {
+  const DogSelector({
+    super.key,
+    required this.teamNumber,
+    required this.rowNumber,
+    required this.teams,
+    required this.positionNumber,
+    required this.duplicateDogs,
+    required this.dogs,
+    required this.onDogSelected,
+    required this.onDogRemoved,
+  });
+
+  static final BasicLogger logger = BasicLogger();
+  final int teamNumber;
+  final int rowNumber;
+  final List<Team> teams;
+  final int positionNumber;
+  final List<String> duplicateDogs;
+  final List<Dog> dogs;
+  final Function(Dog newDog) onDogSelected;
+  final Function(int p1, int p2) onDogRemoved;
+
+  @override
+  Widget build(BuildContext context) {
     Map<String, Dog> dogsById = Dog.dogsById(dogs);
     String? currentValue;
     if (positionNumber == 0) {
@@ -492,8 +512,8 @@ class PairRetriever extends StatelessWidget {
                     teamNumber: teamNumber,
                     rowNumber: rowNumber,
                     positionNumber: positionNumber,
-                    onDogRemoved: (teamNumber, rowNumber, positionNumber) =>
-                        onDogRemoved(teamNumber, rowNumber, positionNumber),
+                    onDogRemoved: (teamNumber, rowNumber) =>
+                        onDogRemoved(teamNumber, rowNumber),
                   ),
                 )
               : SizedBox.shrink(),
@@ -507,7 +527,7 @@ class IconDeleteDog extends StatelessWidget {
   final int teamNumber;
   final int rowNumber;
   final int positionNumber;
-  final Function(int, int, int) onDogRemoved;
+  final Function(int, int) onDogRemoved;
 
   const IconDeleteDog(
       {super.key,
@@ -522,7 +542,7 @@ class IconDeleteDog extends StatelessWidget {
       width: 25,
       height: 25,
       child: IconButton(
-        onPressed: () => onDogRemoved(teamNumber, rowNumber, positionNumber),
+        onPressed: () => onDogRemoved(teamNumber, rowNumber),
         icon: Icon(
           Icons.delete,
           size: 25,
