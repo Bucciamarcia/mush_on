@@ -403,7 +403,7 @@ class PairRetriever extends StatelessWidget {
   }
 }
 
-class DogSelector extends StatelessWidget {
+class DogSelector extends StatefulWidget {
   const DogSelector({
     super.key,
     required this.teamNumber,
@@ -427,22 +427,56 @@ class DogSelector extends StatelessWidget {
   final Function(int p1, int p2) onDogRemoved;
 
   @override
+  State<DogSelector> createState() => _DogSelectorState();
+}
+
+class _DogSelectorState extends State<DogSelector> {
+  // Helper to get current value based on widget props
+  String? _getCurrentValue() {
+    // Ensure indices are valid before accessing
+    if (widget.teamNumber < 0 ||
+        widget.teamNumber >= widget.teams.length ||
+        widget.rowNumber < 0 ||
+        widget.rowNumber >= widget.teams[widget.teamNumber].dogPairs.length) {
+      // Handle invalid index case, perhaps return null or log an error
+      DogSelector.logger.warning(
+          "Invalid indices in _getCurrentValue: T${widget.teamNumber}, R${widget.rowNumber}");
+      return null;
+    }
+    if (widget.positionNumber == 0) {
+      return widget
+          .teams[widget.teamNumber].dogPairs[widget.rowNumber].firstDogId;
+    } else {
+      return widget
+          .teams[widget.teamNumber].dogPairs[widget.rowNumber].secondDogId;
+    }
+  }
+
+  // Keep dogsById logic if needed, update in didUpdateWidget if widget.dogs changes
+  late Map<String, Dog> _dogsById;
+
+  @override
+  void initState() {
+    super.initState();
+    _dogsById = Dog.dogsById(widget.dogs);
+  }
+
+  @override
+  void didUpdateWidget(covariant DogSelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update local map if the input list changes
+    if (widget.dogs != oldWidget.dogs) {
+      _dogsById = Dog.dogsById(widget.dogs);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Map<String, Dog> dogsById = Dog.dogsById(dogs);
-    String? currentValue;
-    if (positionNumber == 0) {
-      currentValue = teams[teamNumber].dogPairs[rowNumber].firstDogId;
-    } else {
-      currentValue = teams[teamNumber].dogPairs[rowNumber].secondDogId;
-    }
-    bool isDuplicate;
-    if (duplicateDogs.contains(currentValue)) {
-      isDuplicate = true;
-    } else {
-      isDuplicate = false;
-    }
-    final autoCompleteKey =
-        ValueKey('${teamNumber}_${rowNumber}_${positionNumber}_$currentValue');
+    String? currentValue = _getCurrentValue();
+    bool isDuplicate = widget.duplicateDogs.contains(currentValue);
+
+    final autoCompleteKey = ValueKey(
+        '${widget.teamNumber}_${widget.rowNumber}_${widget.positionNumber}_$currentValue');
 
     return Expanded(
       child: Row(
@@ -451,43 +485,39 @@ class DogSelector extends StatelessWidget {
             child: Column(
               children: [
                 Autocomplete<Dog>(
-                  displayStringForOption: (Dog dog) => dog.name,
                   key: autoCompleteKey,
+                  displayStringForOption: (Dog dog) => dog.name,
+                  // Set initial value based on current ID
+                  initialValue: TextEditingValue(
+                    text: (currentValue != null
+                            ? _dogsById[currentValue]?.name
+                            : null) ??
+                        "",
+                  ),
                   fieldViewBuilder: (BuildContext context,
-                      TextEditingController controller,
+                      TextEditingController
+                          fieldController, // Use THIS controller
                       FocusNode focusNode,
                       VoidCallback onFieldSubmitted) {
+                    // Return the TextField wired with fieldController
                     return Focus(
                       onFocusChange: (bool isInFocus) =>
-                          logger.debug("OPTION: $isInFocus"),
+                          DogSelector.logger.debug("OPTION: $isInFocus"),
                       child: SizedBox(
                         height: 50,
                         child: TextField(
                           key: Key(
-                              "Select Dog - $teamNumber - $rowNumber - $positionNumber"),
+                              "Select Dog - ${widget.teamNumber} - ${widget.rowNumber} - ${widget.positionNumber}"),
                           style: TextStyle(fontSize: 14),
-                          controller: controller,
+                          controller:
+                              fieldController, // Use the one from the builder!
                           focusNode: focusNode,
                           onSubmitted: (String value) {
-                            logger.debug("Text submitted: $value");
+                            DogSelector.logger.debug("Text submitted: $value");
                             onFieldSubmitted();
                           },
-                          onTap: () {
-                            if (controller.text.isEmpty) {
-                              controller.value = TextEditingValue(
-                                text:
-                                    ' ', // Set a space temporarily to show all options
-                                selection: TextSelection.collapsed(offset: 1),
-                              );
-                              // Restore to empty after options are displayed
-                              Future.delayed(Duration(milliseconds: 100), () {
-                                controller.value = TextEditingValue(
-                                  text: '',
-                                  selection: TextSelection.collapsed(offset: 0),
-                                );
-                              });
-                            }
-                          },
+                          // Remove complex onTap - Autocomplete should handle showing options
+                          // onTap: () { ... }
                           decoration: InputDecoration(
                             labelText: "Select a dog",
                             border: OutlineInputBorder(
@@ -500,24 +530,24 @@ class DogSelector extends StatelessWidget {
                       ),
                     );
                   },
-                  initialValue: TextEditingValue(
-                      text: dogsById[currentValue]?.name ?? ""),
                   optionsBuilder: (textEditingValue) {
-                    // Show all options if empty or has just a space (from onTap)
-                    if (textEditingValue.text.isEmpty ||
-                        textEditingValue.text == " ") {
-                      return dogs;
+                    // Simpler options logic - show all if empty
+                    if (textEditingValue.text.isEmpty) {
+                      return widget.dogs;
                     } else {
-                      return dogs.where((option) => option.name
+                      return widget.dogs.where((option) => option.name
                           .toLowerCase()
                           .contains(textEditingValue.text.toLowerCase()));
                     }
                   },
                   onSelected: (Dog selectedDog) {
-                    logger.info("Selection completed: ${selectedDog.name}");
-                    onDogSelected(selectedDog);
+                    // Autocomplete updates the controller, just call the callback
+                    DogSelector.logger
+                        .info("Selection completed: ${selectedDog.name}");
+                    widget.onDogSelected(selectedDog);
                   },
                 ),
+                // ... rest of the widget (duplicate text, delete icon) ...
                 isDuplicate
                     ? Text(
                         "this dog is duplicate!",
@@ -531,11 +561,12 @@ class DogSelector extends StatelessWidget {
           (currentValue != null && currentValue.isNotEmpty)
               ? Center(
                   child: IconDeleteDog(
-                    teamNumber: teamNumber,
-                    rowNumber: rowNumber,
-                    positionNumber: positionNumber,
-                    onDogRemoved: (teamNumber, rowNumber) =>
-                        onDogRemoved(teamNumber, rowNumber),
+                    teamNumber: widget.teamNumber,
+                    rowNumber: widget.rowNumber,
+                    positionNumber: widget.positionNumber,
+                    // Ensure this callback signature matches IconDeleteDog
+                    onDogRemoved: widget
+                        .onDogRemoved, // Pass the function directly if signature matches
                   ),
                 )
               : SizedBox.shrink(),
@@ -566,6 +597,8 @@ class IconDeleteDog extends StatelessWidget {
       child: IconButton(
         onPressed: () => onDogRemoved(teamNumber, rowNumber),
         icon: Icon(
+          key: Key(
+              "Icon delete dog: $teamNumber - $rowNumber - $positionNumber"),
           Icons.delete,
           size: 25,
           color: Colors.red,
