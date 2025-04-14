@@ -177,6 +177,31 @@ void main() {
           fakeCreateTeamProvider.group.teams[0].name;
       expect(providerTeamName, equals("Test team name"));
       expect(teamNameWidget.controller!.text, equals("Test team name"));
+      final textFieldFinder = find.byKey(Key("Select Dog - 0 - 0 - 0"));
+      TextField textFieldWidget = tester.widget<TextField>(textFieldFinder);
+      expect(textFieldWidget.controller?.text, equals("Fido"));
+      final textFieldFinderTwo = find.byKey(Key("Select Dog - 0 - 0 - 1"));
+      TextField textFieldWidgetTwo =
+          tester.widget<TextField>(textFieldFinderTwo);
+      expect(textFieldWidgetTwo.controller?.text, equals("Wheeler"));
+
+      expect(fakeCreateTeamProvider.group.teams[0].dogPairs[0].firstDogId,
+          equals("id_Fido"));
+      expect(fakeCreateTeamProvider.group.teams[0].dogPairs[0].secondDogId,
+          equals("id_Wheeler"));
+
+      // Now remove wheeler
+      Finder deleteDogFinderFido =
+          find.byKey(Key("Icon delete dog: 0 - 0 - 0"));
+      expect(deleteDogFinderFido, findsOneWidget);
+      await tester.tap(deleteDogFinderFido);
+      await tester.pumpAndSettle();
+      expect(fakeCreateTeamProvider.group.teams[0].dogPairs[0].firstDogId,
+          equals(""));
+      final dogDeletedFinder = find.byKey(Key("Select Dog - 0 - 0 - 0"));
+      TextField dogDeletedFinderField =
+          tester.widget<TextField>(dogDeletedFinder);
+      expect(dogDeletedFinderField.controller!.text, equals(""));
     });
   });
 }
@@ -473,5 +498,5 @@ TeamGroup loadedTeam = TeamGroup(
     teams: [
       Team(
           name: "Test team name",
-          dogPairs: [DogPair(firstDogId: "Id_Fido", secondDogId: "Id_Wheeler")])
+          dogPairs: [DogPair(firstDogId: "id_Fido", secondDogId: "id_Wheeler")])
     ]);
