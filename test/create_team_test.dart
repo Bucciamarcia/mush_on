@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/main.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/provider.dart';
@@ -120,6 +121,62 @@ void main() {
       await tester.tap(removeLastTeamFinder);
       await tester.pumpAndSettle();
       expect(find.widgetWithText(TextField, "Select a dog"), findsExactly(4));
+    });
+  });
+
+  group('CreateTeamMain loads correctly when loadedTeam is passed', () {
+    late FakeDogProvider fakeDogProvider;
+    late FakeCreateTeamProvider fakeCreateTeamProvider;
+
+    Future<void> initialBuild(WidgetTester tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MultiProvider(
+            providers: [
+              ChangeNotifierProvider<DogProvider>.value(value: fakeDogProvider),
+              ChangeNotifierProvider<CreateTeamProvider>.value(
+                  value: fakeCreateTeamProvider),
+            ],
+            child: Scaffold(
+              body: CreateTeamMain(
+                loadedTeam: loadedTeam,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    setUp(() {
+      fakeDogProvider = FakeDogProvider();
+      fakeCreateTeamProvider = FakeCreateTeamProvider();
+    });
+    testWidgets("Verify initial setup", (tester) async {
+      await initialBuild(tester);
+      Finder dateFinder = find.byKey(Key("Date text field"));
+      expect(dateFinder, findsOneWidget);
+      final TextField dateWidget = tester.widget(dateFinder);
+      expect(dateWidget.controller!.text,
+          equals(DateFormat("dd-MM-yy").format(DateTime.now())));
+      Finder distanceFinder = find.widgetWithText(TextField, "Distance");
+      expect(distanceFinder, findsOneWidget);
+      final TextField distanceWidget = tester.widget(distanceFinder);
+      expect(distanceWidget.controller!.text, equals("10.0"));
+      expect(find.widgetWithText(TextField, "Group name"), findsOneWidget);
+      final TextField groupNameWidget =
+          tester.widget(find.widgetWithText(TextField, "Group name"));
+      expect(groupNameWidget.controller!.text, equals("Test name"));
+      final TextField groupNotesWidget =
+          tester.widget(find.widgetWithText(TextField, "Group notes"));
+      expect(groupNotesWidget.controller!.text, equals("Test notes"));
+      final TextField teamNameWidget =
+          tester.widget(find.widgetWithText(TextField, "Team name"));
+      expect(find.widgetWithText(TextField, "Team name"), findsOneWidget);
+      final String providerTeamName =
+          fakeCreateTeamProvider.group.teams[0].name;
+      expect(providerTeamName, equals("Test team name"));
+      expect(teamNameWidget.controller!.text, equals("Test team name"));
     });
   });
 }
@@ -407,3 +464,14 @@ class FakeCreateTeamProvider extends ChangeNotifier
     notifyListeners();
   }
 }
+
+TeamGroup loadedTeam = TeamGroup(
+    date: DateTime.now(),
+    name: "Test name",
+    notes: "Test notes",
+    distance: 10,
+    teams: [
+      Team(
+          name: "Test team name",
+          dogPairs: [DogPair(firstDogId: "Id_Fido", secondDogId: "Id_Wheeler")])
+    ]);
