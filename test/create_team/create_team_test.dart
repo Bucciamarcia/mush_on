@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/main.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/provider.dart';
-import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:provider/provider.dart';
 
@@ -55,6 +54,36 @@ void main() {
         expect(find.text("Save Teams"), findsOneWidget);
       },
     );
+    testWidgets("Adds duplicate dog", (tester) async {
+      await initialBuild(tester);
+      expect(find.text("this dog is duplicate!"), findsNothing);
+      final textFieldFinder = find.byKey(Key("Select Dog - 0 - 0 - 0"));
+      TextField textFieldWidget = tester.widget<TextField>(textFieldFinder);
+      expect(textFieldWidget.controller?.text, isEmpty);
+      expect(find.text("Fido"), findsNothing);
+      await tester.tap(textFieldFinder);
+      await tester.pumpAndSettle();
+      final fidoOptionFinder = find.text('Fido').last;
+      expect(fidoOptionFinder, findsOneWidget);
+
+      // Tap the option to select it
+      await tester.tap(fidoOptionFinder);
+      await tester.pumpAndSettle();
+      // Verify the TextField now displays "Fido"
+      expect(textFieldWidget.controller?.text, equals('Fido'));
+
+      // Do the same for the second field
+      final secondTextFieldFinder = find.byKey(Key("Select Dog - 0 - 0 - 1"));
+      TextField secondTextFieldWidget =
+          tester.widget<TextField>(secondTextFieldFinder);
+      expect(secondTextFieldWidget.controller?.text, isEmpty);
+      await tester.tap(secondTextFieldFinder);
+      await tester.pumpAndSettle();
+      final secondFidoOptionFinder = find.text("Fido").last;
+      await tester.tap(secondFidoOptionFinder);
+      await tester.pumpAndSettle();
+      expect(find.text("this dog is duplicate!"), findsExactly(2));
+    });
     testWidgets("Adds and removes a dog", (tester) async {
       await initialBuild(tester);
       // Tap the first field to show the selection.
