@@ -21,3 +21,7 @@ A cool and open source CRM for sled dog kennels.
 ### 0.0.5
 
 - BREAKING: Switched to using IDs instead of names to handle dogs. Non-updated apps will break.
+
+### 0.0.6
+
+- Fixed a bug where team names would not be displayed in team creator once loaded.

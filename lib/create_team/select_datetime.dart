@@ -87,6 +87,7 @@ class _DateTimePickerState extends State<DateTimePicker> {
       children: [
         Flexible(
           child: TextField(
+            key: Key("Date text field"),
             controller: dateController,
             decoration: InputDecoration(labelText: "Date"),
             readOnly: true,

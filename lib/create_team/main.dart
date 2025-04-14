@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/provider.dart';
+import 'package:mush_on/firestore_dogs_to_id.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
@@ -58,6 +59,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
       var teams = widget.loadedTeam!.teams;
 
       teamProvider.changeAllTeams(teams);
+      logger.debug("All teams: ${teams[0].toJson().toString()}");
 
       // Update the controller text after setting the provider value
       globalNamecontroller.text = teamProvider.group.name;
@@ -232,12 +234,29 @@ class TeamRetriever extends StatefulWidget {
 }
 
 class _TeamRetrieverState extends State<TeamRetriever> {
+  late BasicLogger logger;
   late TextEditingController textController;
   @override
   void initState() {
     super.initState();
+    logger = BasicLogger();
     textController =
         TextEditingController(text: widget.teams[widget.teamNumber].name);
+  }
+
+  @override
+  void didUpdateWidget(covariant TeamRetriever oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.teams[widget.teamNumber].name !=
+        oldWidget.teams[widget.teamNumber].name) {
+      logger.debug("Calling didUpdateWidget in TeamRetriever");
+      logger.trace(
+          " Old widget name: ${oldWidget.teams[widget.teamNumber].name}");
+      logger.trace(" New widget name: ${widget.teams[widget.teamNumber].name}");
+      textController.text = widget.teams[widget.teamNumber].name;
+    } else {
+      logger.debug("Not calling didUpdateWidget in TeamRetriever");
+    }
   }
 
   @override
@@ -440,7 +459,7 @@ class DogSelector extends StatelessWidget {
                       VoidCallback onFieldSubmitted) {
                     return Focus(
                       onFocusChange: (bool isInFocus) =>
-                          logger.info("OPTION: $isInFocus"),
+                          logger.debug("OPTION: $isInFocus"),
                       child: SizedBox(
                         height: 50,
                         child: TextField(
@@ -450,7 +469,7 @@ class DogSelector extends StatelessWidget {
                           controller: controller,
                           focusNode: focusNode,
                           onSubmitted: (String value) {
-                            logger.info("Text submitted: $value");
+                            logger.debug("Text submitted: $value");
                             onFieldSubmitted();
                           },
                           onTap: () {
