@@ -155,6 +155,7 @@ class CreateTeamProvider extends ChangeNotifier {
   }
 
   updateDuplicateDogs() {
+    logger.info("Calling duplicate dogs");
     duplicateDogs = [];
     Map<String, int> dogCounts = {};
 
@@ -192,6 +193,7 @@ class CreateTeamProvider extends ChangeNotifier {
       logger.error("Couldn't add to duplicate dogs", error: e, stackTrace: s);
       rethrow;
     }
+    logger.info("Duplicate dogs: $duplicateDogs");
 
     notifyListeners();
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/create_team/main.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 
@@ -31,7 +30,7 @@ class DogSelector extends StatefulWidget {
 
 class _DogSelectorState extends State<DogSelector> {
   static final BasicLogger logger = BasicLogger();
-  late String? _dogIdValue;
+
   String? _getCurrentValue() {
     // Ensure indices are valid before accessing
     if (widget.teamNumber < 0 ||
@@ -59,13 +58,6 @@ class _DogSelectorState extends State<DogSelector> {
   void initState() {
     super.initState();
     _dogsById = Dog.dogsById(widget.dogs);
-    var dogPairReference =
-        widget.teams[widget.teamNumber].dogPairs[widget.rowNumber];
-    if (widget.positionNumber == 0) {
-      _dogIdValue = dogPairReference.firstDogId;
-    } else {
-      _dogIdValue = dogPairReference.secondDogId;
-    }
   }
 
   @override
@@ -78,12 +70,6 @@ class _DogSelectorState extends State<DogSelector> {
   }
 
   @override
-  void setState(VoidCallback fn) {
-    super.setState(fn);
-    logger.info("Dogsidvalue: $_dogIdValue");
-  }
-
-  @override
   Widget build(BuildContext context) {
     String? currentValue = _getCurrentValue();
     bool isDuplicate = widget.duplicateDogs.contains(currentValue);
@@ -92,105 +78,205 @@ class _DogSelectorState extends State<DogSelector> {
         '${widget.teamNumber}_${widget.rowNumber}_${widget.positionNumber}_$currentValue');
 
     return Expanded(
+      // This Expanded affects the Row's height/width within its parent
       child: Row(
         children: [
-          Expanded(
-            child: Column(
-              children: [
-                Autocomplete<Dog>(
-                  key: autoCompleteKey,
-                  displayStringForOption: (Dog dog) => dog.name,
-                  // Set initial value based on current ID
-                  initialValue: TextEditingValue(
-                    text: (currentValue != null
-                            ? _dogsById[currentValue]?.name
-                            : null) ??
-                        "",
+          (currentValue != null && currentValue.isNotEmpty)
+              ? Expanded(
+                  child: DogSelectedChip(
+                    currentValue: currentValue,
+                    dogsById: _dogsById,
+                    isDuplicate: isDuplicate,
                   ),
-                  fieldViewBuilder: (BuildContext context,
-                      TextEditingController fieldController,
-                      FocusNode focusNode,
-                      VoidCallback onFieldSubmitted) {
-                    // Return the TextField wired with fieldController
-                    return Focus(
-                      onFocusChange: (bool isInFocus) {
-                        logger.info("Setting dogidvalue on focuschange");
-                        setState(() {
-                          _dogIdValue = fieldController.text;
-                        });
-                      },
-                      child: SizedBox(
-                        height: 50,
-                        child: TextField(
-                          key: Key(
-                              "Select Dog - ${widget.teamNumber} - ${widget.rowNumber} - ${widget.positionNumber}"),
-                          style: TextStyle(fontSize: 14),
-                          controller:
-                              fieldController, // Use the one from the builder!
-                          focusNode: focusNode,
-                          onSubmitted: (String value) {
-                            setState(() {
-                              logger.info("Setting dogidvalue on onsubmitted");
-                              _dogIdValue = fieldController.text;
-                            });
-                            onFieldSubmitted();
-                          },
-                          // Remove complex onTap - Autocomplete should handle showing options
-                          // onTap: () { ... }
-                          decoration: InputDecoration(
-                            labelText: "Select a dog",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            filled: true,
-                            fillColor: isDuplicate ? Colors.red : null,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  optionsBuilder: (textEditingValue) {
-                    // Simpler options logic - show all if empty
-                    if (textEditingValue.text.isEmpty) {
-                      return widget.dogs;
-                    } else {
-                      return widget.dogs.where((option) => option.name
-                          .toLowerCase()
-                          .contains(textEditingValue.text.toLowerCase()));
-                    }
-                  },
-                  onSelected: (Dog selectedDog) {
-                    // Autocomplete updates the controller, just call the callback
-                    logger.info(
-                        "Setting dogidvalue on onselected selecteddog: ${selectedDog.name}");
-                    setState(() => _dogIdValue = selectedDog.name);
-                    widget.onDogSelected(selectedDog);
-                  },
-                ),
-                // ... rest of the widget (duplicate text, delete icon) ...
-                isDuplicate
-                    ? Text(
-                        "this dog is duplicate!",
-                        style: TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.bold),
-                      )
-                    : SizedBox.shrink()
-              ],
-            ),
-          ),
+                )
+              : AutocompleteDogs(
+                  autoCompleteKey: autoCompleteKey,
+                  currentValue: currentValue,
+                  dogsById: _dogsById,
+                  teamNumber: widget.teamNumber,
+                  rowNumber: widget.rowNumber,
+                  positionNumber: widget.positionNumber,
+                  isDuplicate: isDuplicate,
+                  onDogSelected: widget.onDogSelected,
+                  dogs: widget.dogs),
           (currentValue != null && currentValue.isNotEmpty)
               ? Center(
+                  // Keep the icon size fixed
                   child: IconDeleteDog(
                     teamNumber: widget.teamNumber,
                     rowNumber: widget.rowNumber,
                     positionNumber: widget.positionNumber,
-                    // Ensure this callback signature matches IconDeleteDog
-                    onDogRemoved: widget
-                        .onDogRemoved, // Pass the function directly if signature matches
+                    onDogRemoved: widget.onDogRemoved,
                   ),
                 )
               : SizedBox.shrink(),
         ],
+      ),
+    );
+  }
+}
+
+class DogSelectedChip extends StatelessWidget {
+  final String currentValue;
+  final Map<String, Dog> dogsById;
+  final bool isDuplicate;
+
+  const DogSelectedChip(
+      {super.key,
+      required this.currentValue,
+      required this.dogsById,
+      required this.isDuplicate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          dogsById[currentValue]?.name ?? "Dog not found in db",
+        ),
+        (isDuplicate == true) ? DogDuplicateWarning() : SizedBox.shrink(),
+      ],
+    );
+  }
+}
+
+class AutocompleteDogs extends StatelessWidget {
+  const AutocompleteDogs({
+    super.key,
+    required this.autoCompleteKey,
+    required this.currentValue,
+    required Map<String, Dog> dogsById,
+    required this.teamNumber,
+    required this.rowNumber,
+    required this.positionNumber,
+    required this.isDuplicate,
+    required this.dogs,
+    required this.onDogSelected,
+  }) : _dogsById = dogsById;
+
+  final ValueKey<String> autoCompleteKey;
+  final String? currentValue;
+  final Map<String, Dog> _dogsById;
+  final int teamNumber;
+  final int rowNumber;
+  final int positionNumber;
+  final bool isDuplicate;
+  final List<Dog> dogs;
+  final Function(Dog) onDogSelected;
+  static final BasicLogger logger = BasicLogger();
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        children: [
+          Autocomplete<Dog>(
+            key: autoCompleteKey,
+            displayStringForOption: (Dog dog) => dog.name,
+            initialValue: TextEditingValue(
+              text: (currentValue != null
+                      ? _dogsById[currentValue]?.name
+                      : null) ??
+                  "",
+            ),
+            fieldViewBuilder: (BuildContext context,
+                TextEditingController fieldController,
+                FocusNode focusNode,
+                VoidCallback onFieldSubmitted) {
+              return Focus(
+                onFocusChange: (bool isInFocus) {
+                  logger.info("Setting dogidvalue on focuschange");
+                },
+                child: SizedBox(
+                  height: 50,
+                  child: TextField(
+                    key: Key(
+                        "Select Dog - $teamNumber - $rowNumber - $positionNumber"),
+                    style: TextStyle(fontSize: 14),
+                    controller: fieldController,
+                    focusNode: focusNode,
+                    onSubmitted: (String value) {
+                      onFieldSubmitted();
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Select a dog",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      filled: true,
+                      fillColor: isDuplicate ? Colors.red : null,
+                    ),
+                  ),
+                ),
+              );
+            },
+            optionsBuilder: (textEditingValue) {
+              if (textEditingValue.text.isEmpty) {
+                return dogs;
+              } else {
+                return dogs.where((option) => option.name
+                    .toLowerCase()
+                    .contains(textEditingValue.text.toLowerCase()));
+              }
+            },
+            onSelected: (Dog selectedDog) {
+              logger.info(
+                  "Setting dogidvalue on onselected selecteddog: ${selectedDog.name}");
+              onDogSelected(selectedDog);
+            },
+          ),
+          isDuplicate ? DogDuplicateWarning() : SizedBox.shrink()
+        ],
+      ),
+    );
+  }
+}
+
+class DogDuplicateWarning extends StatelessWidget {
+  const DogDuplicateWarning({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      "this dog is duplicate!",
+      overflow: TextOverflow.visible,
+      softWrap: true,
+      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+    );
+  }
+}
+
+class IconDeleteDog extends StatelessWidget {
+  final int teamNumber;
+  final int rowNumber;
+  final int positionNumber;
+  final Function(int, int) onDogRemoved;
+
+  const IconDeleteDog(
+      {super.key,
+      required this.teamNumber,
+      required this.rowNumber,
+      required this.positionNumber,
+      required this.onDogRemoved});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 25,
+      height: 25,
+      child: IconButton(
+        onPressed: () => onDogRemoved(teamNumber, rowNumber),
+        icon: Icon(
+          key: Key(
+              "Icon delete dog: $teamNumber - $rowNumber - $positionNumber"),
+          Icons.delete,
+          size: 25,
+          color: Colors.red,
+        ),
+        constraints: BoxConstraints(),
+        padding: EdgeInsets.zero,
       ),
     );
   }

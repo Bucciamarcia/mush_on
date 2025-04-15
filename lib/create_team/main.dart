@@ -398,40 +398,6 @@ class PairRetriever extends StatelessWidget {
   }
 }
 
-class IconDeleteDog extends StatelessWidget {
-  final int teamNumber;
-  final int rowNumber;
-  final int positionNumber;
-  final Function(int, int) onDogRemoved;
-
-  const IconDeleteDog(
-      {super.key,
-      required this.teamNumber,
-      required this.rowNumber,
-      required this.positionNumber,
-      required this.onDogRemoved});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 25,
-      height: 25,
-      child: IconButton(
-        onPressed: () => onDogRemoved(teamNumber, rowNumber),
-        icon: Icon(
-          key: Key(
-              "Icon delete dog: $teamNumber - $rowNumber - $positionNumber"),
-          Icons.delete,
-          size: 25,
-          color: Colors.red,
-        ),
-        constraints: BoxConstraints(),
-        padding: EdgeInsets.zero,
-      ),
-    );
-  }
-}
-
 class AddTeamWidget extends StatelessWidget {
   final int teamNumber;
   final Function(int) onAddTeam;
