@@ -29,66 +29,63 @@ class AutocompleteDogs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          Autocomplete<Dog>(
-            key: autoCompleteKey,
-            displayStringForOption: (Dog dog) => dog.name,
-            initialValue: TextEditingValue(
-              text: (currentValue != null
-                      ? _dogsById[currentValue]?.name
-                      : null) ??
-                  "",
-            ),
-            fieldViewBuilder: (BuildContext context,
-                TextEditingController fieldController,
-                FocusNode focusNode,
-                VoidCallback onFieldSubmitted) {
-              return Focus(
-                onFocusChange: (bool isInFocus) {
-                  logger.info("Setting dogidvalue on focuschange");
-                },
-                child: SizedBox(
-                  height: 50,
-                  child: TextField(
-                    key: Key(
-                        "Select Dog - $teamNumber - $rowNumber - $positionNumber"),
-                    style: TextStyle(fontSize: 14),
-                    controller: fieldController,
-                    focusNode: focusNode,
-                    onSubmitted: (String value) {
-                      onFieldSubmitted();
-                    },
-                    decoration: InputDecoration(
-                      labelText: "Select a dog",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      filled: true,
-                      fillColor: isDuplicate ? Colors.red : null,
+    return Column(
+      children: [
+        Autocomplete<Dog>(
+          key: autoCompleteKey,
+          displayStringForOption: (Dog dog) => dog.name,
+          initialValue: TextEditingValue(
+            text:
+                (currentValue != null ? _dogsById[currentValue]?.name : null) ??
+                    "",
+          ),
+          fieldViewBuilder: (BuildContext context,
+              TextEditingController fieldController,
+              FocusNode focusNode,
+              VoidCallback onFieldSubmitted) {
+            return Focus(
+              onFocusChange: (bool isInFocus) {
+                logger.info("Setting dogidvalue on focuschange");
+              },
+              child: SizedBox(
+                height: 50,
+                child: TextField(
+                  key: Key(
+                      "Select Dog - $teamNumber - $rowNumber - $positionNumber"),
+                  style: TextStyle(fontSize: 14),
+                  controller: fieldController,
+                  focusNode: focusNode,
+                  onSubmitted: (String value) {
+                    onFieldSubmitted();
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Select a dog",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
+                    filled: true,
+                    fillColor: isDuplicate ? Colors.red : null,
                   ),
                 ),
-              );
-            },
-            optionsBuilder: (textEditingValue) {
-              if (textEditingValue.text.isEmpty) {
-                return dogs;
-              } else {
-                return dogs.where((option) => option.name
-                    .toLowerCase()
-                    .contains(textEditingValue.text.toLowerCase()));
-              }
-            },
-            onSelected: (Dog selectedDog) {
-              logger.info(
-                  "Setting dogidvalue on onselected selecteddog: ${selectedDog.name}");
-              onDogSelected(selectedDog);
-            },
-          ),
-        ],
-      ),
+              ),
+            );
+          },
+          optionsBuilder: (textEditingValue) {
+            if (textEditingValue.text.isEmpty) {
+              return dogs;
+            } else {
+              return dogs.where((option) => option.name
+                  .toLowerCase()
+                  .contains(textEditingValue.text.toLowerCase()));
+            }
+          },
+          onSelected: (Dog selectedDog) {
+            logger.info(
+                "Setting dogidvalue on onselected selecteddog: ${selectedDog.name}");
+            onDogSelected(selectedDog);
+          },
+        ),
+      ],
     );
   }
 }
