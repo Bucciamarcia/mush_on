@@ -91,8 +91,6 @@ void main() {
       TextField textFieldWidget = tester.widget<TextField>(textFieldFinder);
       expect(textFieldWidget.controller?.text, isEmpty);
       expect(find.text("Fido"), findsNothing);
-      Finder deleteDogFinder = find.widgetWithIcon(IconButton, Icons.delete);
-      expect(deleteDogFinder, findsNothing);
       await tester.tap(textFieldFinder);
       await tester.pumpAndSettle();
       final fidoOptionFinder = find.text('Fido').last;
@@ -105,12 +103,15 @@ void main() {
       expect(textFieldWidget.controller?.text, equals('Fido'));
 
       // Removes Fido
-      expect(deleteDogFinder, findsOneWidget);
       expect(fakeCreateTeamProvider.group.teams[0].dogPairs[0].firstDogId,
           equals("id_Fido"));
-      await tester.tap(deleteDogFinder);
+      Finder chipFinder = find.byKey(Key("DogSelectedChip - id_Fido"));
+      Finder deleteIconFinder = find.descendant(
+        of: chipFinder,
+        matching: find.byIcon(Icons.clear),
+      );
+      await tester.tap(deleteIconFinder);
       await tester.pumpAndSettle();
-      expect(deleteDogFinder, findsNothing);
       expect(fakeCreateTeamProvider.group.teams[0].dogPairs[0].firstDogId,
           equals(""));
     });
@@ -217,10 +218,14 @@ void main() {
           equals("id_Wheeler"));
 
       // Now remove wheeler
-      Finder deleteDogFinderFido =
-          find.byKey(Key("Icon delete dog: 0 - 0 - 0"));
-      expect(deleteDogFinderFido, findsOneWidget);
-      await tester.tap(deleteDogFinderFido);
+      expect(fakeCreateTeamProvider.group.teams[0].dogPairs[0].firstDogId,
+          equals("id_Fido"));
+      Finder chipFinder = find.byKey(Key("DogSelectedChip - id_Fido"));
+      Finder deleteIconFinder = find.descendant(
+        of: chipFinder,
+        matching: find.byIcon(Icons.clear),
+      );
+      await tester.tap(deleteIconFinder);
       await tester.pumpAndSettle();
       expect(fakeCreateTeamProvider.group.teams[0].dogPairs[0].firstDogId,
           equals(""));

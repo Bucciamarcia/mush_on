@@ -74,46 +74,37 @@ class _DogSelectorState extends State<DogSelector> {
   @override
   Widget build(BuildContext context) {
     String? currentValue = _getCurrentValue();
+
+    if (currentValue != null && currentValue.isNotEmpty) {
+      if (_dogsById[currentValue] == null) {
+        logger.error("The dog is not in the _dogsById");
+        ScaffoldMessenger.of(context).showSnackBar(
+            ErrorSnackbar("Error in fetching the dog! Exit and try again."));
+        return Text("Can't fetch dog");
+      }
+    }
     bool isDuplicate = widget.duplicateDogs.contains(currentValue);
 
     final autoCompleteKey = ValueKey(
         '${widget.teamNumber}_${widget.rowNumber}_${widget.positionNumber}_$currentValue');
-
     return Expanded(
-      // This Expanded affects the Row's height/width within its parent
-      child: Row(
-        children: [
-          (currentValue != null && currentValue.isNotEmpty)
-              ? Expanded(
-                  child: DogSelectedInterface(
-                    currentValue: currentValue,
-                    dogsById: _dogsById,
-                    isDuplicate: isDuplicate,
-                  ),
-                )
-              : AutocompleteDogs(
-                  autoCompleteKey: autoCompleteKey,
-                  currentValue: currentValue,
-                  dogsById: _dogsById,
-                  teamNumber: widget.teamNumber,
-                  rowNumber: widget.rowNumber,
-                  positionNumber: widget.positionNumber,
-                  isDuplicate: isDuplicate,
-                  onDogSelected: widget.onDogSelected,
-                  dogs: widget.dogs),
-          (currentValue != null && currentValue.isNotEmpty)
-              ? Center(
-                  // Keep the icon size fixed
-                  child: IconDeleteDog(
-                    teamNumber: widget.teamNumber,
-                    rowNumber: widget.rowNumber,
-                    positionNumber: widget.positionNumber,
-                    onDogRemoved: widget.onDogRemoved,
-                  ),
-                )
-              : SizedBox.shrink(),
-        ],
-      ),
+      child: (currentValue != null && currentValue.isNotEmpty)
+          ? DogSelectedInterface(
+              dog: _dogsById[currentValue]!,
+              isDuplicate: isDuplicate,
+              onDogRemoved: () =>
+                  widget.onDogRemoved(widget.teamNumber, widget.rowNumber),
+            )
+          : AutocompleteDogs(
+              autoCompleteKey: autoCompleteKey,
+              currentValue: currentValue,
+              dogsById: _dogsById,
+              teamNumber: widget.teamNumber,
+              rowNumber: widget.rowNumber,
+              positionNumber: widget.positionNumber,
+              isDuplicate: isDuplicate,
+              onDogSelected: widget.onDogSelected,
+              dogs: widget.dogs),
     );
   }
 }
