@@ -160,10 +160,6 @@ class TeamViewer extends StatelessWidget {
       var db = FirebaseFirestore.instance;
       String? account = await FirestoreService().getUserAccount();
 
-      if (account == null) {
-        return false;
-      }
-
       String path = "accounts/$account/data/teams/history";
       var ref = db.collection(path);
       var snapshot = await ref.where("date", isEqualTo: item.date).get();
