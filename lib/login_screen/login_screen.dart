@@ -1,67 +1,50 @@
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
+import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:mush_on/services/auth.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Image.asset("assets/images/logo.png", height: 200, width: 200),
-            LoginButton(
-                color: Colors.blue,
-                icon: FontAwesomeIcons.google,
-                text: "Login with Google",
-                textColor: Colors.white,
-                loginMethod: AuthService().googleLogin),
-          ],
-        ),
-      ),
-    );
-  }
-}
+    // Define providers
+    final providers = [
+      GoogleProvider(
+          clientId:
+              "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com")
+    ];
 
-class LoginButton extends StatelessWidget {
-  final Color color;
-  final IconData icon;
-  final String text;
-  final Function loginMethod;
-  final Color textColor;
-  const LoginButton(
-      {super.key,
-      required this.color,
-      required this.icon,
-      required this.text,
-      required this.loginMethod,
-      required this.textColor});
+    void onSignedIn() {
+      Navigator.pushReplacementNamed(context, '/');
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: ElevatedButton.icon(
-        label: Text(
-          text,
-          style: TextStyle(color: textColor),
-        ),
-        icon: Icon(
-          icon,
-          color: Colors.white,
-          size: 20,
-        ),
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.all(24),
-          backgroundColor: color,
-        ),
-        onPressed: () => loginMethod(),
-      ),
+    return SignInScreen(
+      providers: providers,
+      headerBuilder: (context, constraints, shrinkOffset) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: Image.asset("assets/images/logo.png"),
+          ),
+        );
+      },
+      subtitleBuilder: (context, action) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: action == AuthAction.signIn
+              ? const Text('Welcome to Mush On, please sign in!')
+              : const Text('Welcome to Mush On, please sign up!'),
+        );
+      },
+      actions: [
+        AuthStateChangeAction<SignedIn>((context, state) {
+          onSignedIn();
+        }),
+        AuthStateChangeAction<UserCreated>((context, state) {
+          onSignedIn();
+        }),
+      ],
     );
   }
 }

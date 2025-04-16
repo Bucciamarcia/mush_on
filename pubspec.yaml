@@ -41,7 +41,7 @@ dependencies:
   json_annotation: ^4.9.0
   build_runner: ^2.4.14
   provider: ^6.1.2
-  intl: ^0.20.2
+  intl: ^0.19.0
   firebase_auth: ^5.5.1
   google_sign_in: ^6.3.0
   firebase_app_check: ^0.3.2+4
@@ -53,6 +53,8 @@ dependencies:
   syncfusion_flutter_datagrid: ^28.2.12
   uuid: ^4.5.1
   logger: ^2.5.0
+  firebase_ui_auth: ^1.16.1
+  firebase_ui_oauth_google: ^1.4.1
 
 icons_launcher:
   image_path: "assets/icon/icon.png"
