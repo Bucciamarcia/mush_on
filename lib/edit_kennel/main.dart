@@ -48,7 +48,7 @@ class DogCard extends StatelessWidget {
               color: Colors.red,
               onPressed: () async {
                 try {
-                  await dog.deleteDog();
+                  await DogRepository().deleteDog(dog.id);
                 } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context)
