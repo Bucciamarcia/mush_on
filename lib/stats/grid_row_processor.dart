@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/stats/group_summary.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
@@ -6,6 +7,7 @@ import 'constants.dart';
 import 'daily_dog_stats.dart';
 
 class GridRowProcessor {
+  static final BasicLogger logger = BasicLogger();
   List<TeamGroup> teams;
   List<Dog> dogs;
   GridRowProcessor({required this.teams, required this.dogs});
@@ -94,9 +96,9 @@ class GridRowProcessor {
           }
           // If calculation succeeded, print before adding
           toReturn.add(DailyDogStats(date: day, distances: dogDistances));
-        } catch (e) {
-          print("!!!! EXCEPTION during processing for $dateKey !!!!");
-          print(e);
+        } catch (e, s) {
+          logger.error("!!!! EXCEPTION during processing for $dateKey !!!!",
+              error: e, stackTrace: s);
         }
       } else {
         // Print entry into the 'else' block for the first iteration
@@ -185,7 +187,7 @@ class GridRowProcessor {
       // 3. Get the summary for this month
       MonthSummary? monthSummary = groupSummariesMap[monthKey];
       if (monthSummary == null) {
-        print("Warning: Missing summary for month $monthKey");
+        logger.warning("Missing summary for month $monthKey");
         continue; // Skip if summary data is missing
       }
 
