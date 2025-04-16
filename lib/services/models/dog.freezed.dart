@@ -103,7 +103,8 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _Dog implements Dog {
   const _Dog(
       {this.name = "", this.id = "", this.positions = const DogPositions()});

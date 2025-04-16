@@ -17,7 +17,7 @@ _Dog _$DogFromJson(Map<String, dynamic> json) => _Dog(
 Map<String, dynamic> _$DogToJson(_Dog instance) => <String, dynamic>{
       'name': instance.name,
       'id': instance.id,
-      'positions': instance.positions,
+      'positions': instance.positions.toJson(),
     };
 
 _DogPositions _$DogPositionsFromJson(Map<String, dynamic> json) =>
