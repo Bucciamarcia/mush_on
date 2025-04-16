@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 
 class TeamsHistoryProvider extends ChangeNotifier {
+  static BasicLogger _logger = BasicLogger();
   List<TeamGroup> _groupObjects = [];
   List<TeamGroup> get groupObjects => _groupObjects;
 
@@ -50,8 +52,7 @@ class TeamsHistoryProvider extends ChangeNotifier {
       notifyListeners(); // Update UI with new data and potentially new loading state
     }, onError: (error) {
       // --- Stream encountered an error ---
-      print("Error fetching team history: $error");
-      // Also mark initial loading as complete (with error) if it was ongoing
+      _logger.error("Error fetching history", error: error);
       if (_isLoading[0]) {
         _isLoading[0] = false;
       }

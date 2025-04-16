@@ -7,7 +7,7 @@ class StatsDb extends FirestoreService {
   /// If no date is specified, returns all TeamGroups.
   /// Items are ordered from newest to oldest.
   Future<List<TeamGroup>> getTeamsAfterDate({DateTime? cutoffDate}) async {
-    String account = await FirestoreService().getUserAccount() ?? "";
+    String account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/teams/history";
     QuerySnapshot<Map<String, dynamic>> ref;
     if (cutoffDate == null) {

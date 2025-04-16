@@ -290,7 +290,6 @@ class DbIdChanger extends StatelessWidget {
           "An error occurred during the Firestore operation or main processing loop:",
           error: e,
           stackTrace: s);
-      // Rethrow to be caught by the caller's catchError if necessary
       rethrow;
     }
   }
