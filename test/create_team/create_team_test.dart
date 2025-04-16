@@ -7,7 +7,7 @@ import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:provider/provider.dart';
 
-import 'fake_providers.dart';
+import '../fake_providers.dart';
 
 void main() {
   group('CreateTeamMain loads correctly when loadedTem is null', () {
