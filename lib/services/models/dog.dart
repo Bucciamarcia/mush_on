@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 
@@ -10,6 +11,7 @@ part "dog.freezed.dart";
 
 /// This class represents a dog and all the info the database has about it.
 abstract class Dog with _$Dog {
+  @JsonSerializable(explicitToJson: true)
   const factory Dog({
     @Default("") String name,
     @Default("") String id,
