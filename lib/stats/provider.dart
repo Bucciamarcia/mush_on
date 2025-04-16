@@ -16,7 +16,7 @@ class StatsProvider with ChangeNotifier {
   /// If [cutOff] is provided, only fetches teams after that date
   /// Ordered by date descending
   Future<void> getTeams({DateTime? cutOff}) async {
-    String account = await FirestoreService().getUserAccount() ?? "";
+    String account = await FirestoreService().getUserAccount();
     FirebaseFirestore db = FirebaseFirestore.instance;
 
     Query<Map<String, dynamic>> ref =

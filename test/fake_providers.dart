@@ -135,7 +135,6 @@ class FakeCreateTeamProvider extends ChangeNotifier
       );
     } catch (e, s) {
       logger.error("Couldn't add team", error: e, stackTrace: s);
-      rethrow;
     }
     changeUnsavedData(true);
     notifyListeners();
@@ -203,7 +202,6 @@ class FakeCreateTeamProvider extends ChangeNotifier
       notifyListeners();
     } catch (e, s) {
       logger.error("Couldn't change dog", error: e, stackTrace: s);
-      rethrow;
     }
     changeUnsavedData(true);
   }
@@ -237,7 +235,6 @@ class FakeCreateTeamProvider extends ChangeNotifier
     } catch (e, s) {
       logger.error("Couldn't loop for updateDuplicateDogs",
           error: e, stackTrace: s);
-      rethrow;
     }
 
     // Add to duplicateDogs if count > 1
@@ -249,7 +246,6 @@ class FakeCreateTeamProvider extends ChangeNotifier
       });
     } catch (e, s) {
       logger.error("Couldn't add to duplicate dogs", error: e, stackTrace: s);
-      rethrow;
     }
 
     notifyListeners();

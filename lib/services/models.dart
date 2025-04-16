@@ -279,7 +279,7 @@ class Dog {
       await doc.delete();
     } catch (e, s) {
       BasicLogger().error("Can't delete dog", error: e, stackTrace: s);
-      rethrow;
+      throw Exception("Can't delete dog in deleteDog()");
     }
   }
 
