@@ -18,6 +18,8 @@ mixin _$Dog {
   String get name;
   String get id;
   DogPositions get positions;
+  String get pictureUrl;
+  List<Tag> get tags;
 
   /// Create a copy of Dog
   /// with the given fields replaced by the non-null parameter values.
@@ -37,16 +39,20 @@ mixin _$Dog {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.positions, positions) ||
-                other.positions == positions));
+                other.positions == positions) &&
+            (identical(other.pictureUrl, pictureUrl) ||
+                other.pictureUrl == pictureUrl) &&
+            const DeepCollectionEquality().equals(other.tags, tags));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, id, positions);
+  int get hashCode => Object.hash(runtimeType, name, id, positions, pictureUrl,
+      const DeepCollectionEquality().hash(tags));
 
   @override
   String toString() {
-    return 'Dog(name: $name, id: $id, positions: $positions)';
+    return 'Dog(name: $name, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags)';
   }
 }
 
@@ -54,7 +60,12 @@ mixin _$Dog {
 abstract mixin class $DogCopyWith<$Res> {
   factory $DogCopyWith(Dog value, $Res Function(Dog) _then) = _$DogCopyWithImpl;
   @useResult
-  $Res call({String name, String id, DogPositions positions});
+  $Res call(
+      {String name,
+      String id,
+      DogPositions positions,
+      String pictureUrl,
+      List<Tag> tags});
 
   $DogPositionsCopyWith<$Res> get positions;
 }
@@ -74,6 +85,8 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
     Object? name = null,
     Object? id = null,
     Object? positions = null,
+    Object? pictureUrl = null,
+    Object? tags = null,
   }) {
     return _then(_self.copyWith(
       name: null == name
@@ -88,6 +101,14 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
           ? _self.positions
           : positions // ignore: cast_nullable_to_non_nullable
               as DogPositions,
+      pictureUrl: null == pictureUrl
+          ? _self.pictureUrl
+          : pictureUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      tags: null == tags
+          ? _self.tags
+          : tags // ignore: cast_nullable_to_non_nullable
+              as List<Tag>,
     ));
   }
 
@@ -107,7 +128,12 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
 @JsonSerializable(explicitToJson: true)
 class _Dog implements Dog {
   const _Dog(
-      {this.name = "", this.id = "", this.positions = const DogPositions()});
+      {this.name = "",
+      this.id = "",
+      this.positions = const DogPositions(),
+      this.pictureUrl = "",
+      final List<Tag> tags = const []})
+      : _tags = tags;
   factory _Dog.fromJson(Map<String, dynamic> json) => _$DogFromJson(json);
 
   @override
@@ -119,6 +145,17 @@ class _Dog implements Dog {
   @override
   @JsonKey()
   final DogPositions positions;
+  @override
+  @JsonKey()
+  final String pictureUrl;
+  final List<Tag> _tags;
+  @override
+  @JsonKey()
+  List<Tag> get tags {
+    if (_tags is EqualUnmodifiableListView) return _tags;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_tags);
+  }
 
   /// Create a copy of Dog
   /// with the given fields replaced by the non-null parameter values.
@@ -143,16 +180,20 @@ class _Dog implements Dog {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.positions, positions) ||
-                other.positions == positions));
+                other.positions == positions) &&
+            (identical(other.pictureUrl, pictureUrl) ||
+                other.pictureUrl == pictureUrl) &&
+            const DeepCollectionEquality().equals(other._tags, _tags));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, id, positions);
+  int get hashCode => Object.hash(runtimeType, name, id, positions, pictureUrl,
+      const DeepCollectionEquality().hash(_tags));
 
   @override
   String toString() {
-    return 'Dog(name: $name, id: $id, positions: $positions)';
+    return 'Dog(name: $name, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags)';
   }
 }
 
@@ -162,7 +203,12 @@ abstract mixin class _$DogCopyWith<$Res> implements $DogCopyWith<$Res> {
       __$DogCopyWithImpl;
   @override
   @useResult
-  $Res call({String name, String id, DogPositions positions});
+  $Res call(
+      {String name,
+      String id,
+      DogPositions positions,
+      String pictureUrl,
+      List<Tag> tags});
 
   @override
   $DogPositionsCopyWith<$Res> get positions;
@@ -183,6 +229,8 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
     Object? name = null,
     Object? id = null,
     Object? positions = null,
+    Object? pictureUrl = null,
+    Object? tags = null,
   }) {
     return _then(_Dog(
       name: null == name
@@ -197,6 +245,14 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
           ? _self.positions
           : positions // ignore: cast_nullable_to_non_nullable
               as DogPositions,
+      pictureUrl: null == pictureUrl
+          ? _self.pictureUrl
+          : pictureUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      tags: null == tags
+          ? _self._tags
+          : tags // ignore: cast_nullable_to_non_nullable
+              as List<Tag>,
     ));
   }
 
@@ -403,6 +459,224 @@ class __$DogPositionsCopyWithImpl<$Res>
           ? _self.wheel
           : wheel // ignore: cast_nullable_to_non_nullable
               as bool,
+    ));
+  }
+}
+
+/// @nodoc
+mixin _$Tag {
+  String get id;
+  String get name;
+  DateTime get created;
+  @ColorConverter()
+  Color get color;
+  DateTime? get expired;
+
+  /// Create a copy of Tag
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $TagCopyWith<Tag> get copyWith =>
+      _$TagCopyWithImpl<Tag>(this as Tag, _$identity);
+
+  /// Serializes this Tag to a JSON map.
+  Map<String, dynamic> toJson();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is Tag &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.created, created) || other.created == created) &&
+            (identical(other.color, color) || other.color == color) &&
+            (identical(other.expired, expired) || other.expired == expired));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, id, name, created, color, expired);
+
+  @override
+  String toString() {
+    return 'Tag(id: $id, name: $name, created: $created, color: $color, expired: $expired)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $TagCopyWith<$Res> {
+  factory $TagCopyWith(Tag value, $Res Function(Tag) _then) = _$TagCopyWithImpl;
+  @useResult
+  $Res call(
+      {String id,
+      String name,
+      DateTime created,
+      @ColorConverter() Color color,
+      DateTime? expired});
+}
+
+/// @nodoc
+class _$TagCopyWithImpl<$Res> implements $TagCopyWith<$Res> {
+  _$TagCopyWithImpl(this._self, this._then);
+
+  final Tag _self;
+  final $Res Function(Tag) _then;
+
+  /// Create a copy of Tag
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? created = null,
+    Object? color = null,
+    Object? expired = freezed,
+  }) {
+    return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      created: null == created
+          ? _self.created
+          : created // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      color: null == color
+          ? _self.color
+          : color // ignore: cast_nullable_to_non_nullable
+              as Color,
+      expired: freezed == expired
+          ? _self.expired
+          : expired // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _Tag implements Tag {
+  const _Tag(
+      {this.id = "",
+      this.name = "",
+      required this.created,
+      @ColorConverter() this.color = Colors.green,
+      this.expired});
+  factory _Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);
+
+  @override
+  @JsonKey()
+  final String id;
+  @override
+  @JsonKey()
+  final String name;
+  @override
+  final DateTime created;
+  @override
+  @JsonKey()
+  @ColorConverter()
+  final Color color;
+  @override
+  final DateTime? expired;
+
+  /// Create a copy of Tag
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$TagCopyWith<_Tag> get copyWith =>
+      __$TagCopyWithImpl<_Tag>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$TagToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _Tag &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.created, created) || other.created == created) &&
+            (identical(other.color, color) || other.color == color) &&
+            (identical(other.expired, expired) || other.expired == expired));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, id, name, created, color, expired);
+
+  @override
+  String toString() {
+    return 'Tag(id: $id, name: $name, created: $created, color: $color, expired: $expired)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$TagCopyWith<$Res> implements $TagCopyWith<$Res> {
+  factory _$TagCopyWith(_Tag value, $Res Function(_Tag) _then) =
+      __$TagCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {String id,
+      String name,
+      DateTime created,
+      @ColorConverter() Color color,
+      DateTime? expired});
+}
+
+/// @nodoc
+class __$TagCopyWithImpl<$Res> implements _$TagCopyWith<$Res> {
+  __$TagCopyWithImpl(this._self, this._then);
+
+  final _Tag _self;
+  final $Res Function(_Tag) _then;
+
+  /// Create a copy of Tag
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? id = null,
+    Object? name = null,
+    Object? created = null,
+    Object? color = null,
+    Object? expired = freezed,
+  }) {
+    return _then(_Tag(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      created: null == created
+          ? _self.created
+          : created // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      color: null == color
+          ? _self.color
+          : color // ignore: cast_nullable_to_non_nullable
+              as Color,
+      expired: freezed == expired
+          ? _self.expired
+          : expired // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }

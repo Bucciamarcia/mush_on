@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 
@@ -15,9 +15,10 @@ abstract class Dog with _$Dog {
   const factory Dog({
     @Default("") String name,
     @Default("") String id,
-    @Default(DogPositions())
-    DogPositions positions, // Assuming DogPositions() is a valid default
-  }) = _Dog; // This maps to the concrete class _Dog
+    @Default(DogPositions()) DogPositions positions,
+    @Default("") String pictureUrl,
+    @Default([]) List<Tag> tags,
+  }) = _Dog;
 
   factory Dog.fromJson(Map<String, dynamic> json) => _$DogFromJson(json);
 
@@ -83,4 +84,31 @@ abstract class DogPositions with _$DogPositions {
 
   factory DogPositions.fromJson(Map<String, dynamic> json) =>
       _$DogPositionsFromJson(json);
+}
+
+@freezed
+abstract class Tag with _$Tag {
+  const factory Tag({
+    @Default("") String id,
+    @Default("") String name,
+    required DateTime created,
+    @ColorConverter() @Default(Colors.green) Color color,
+    DateTime? expired,
+  }) = _Tag;
+
+  factory Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);
+}
+
+class ColorConverter implements JsonConverter<Color, int> {
+  const ColorConverter();
+
+  @override
+  Color fromJson(int json) {
+    return Color(json);
+  }
+
+  @override
+  int toJson(Color object) {
+    return object.value;
+  }
 }
