@@ -22,7 +22,7 @@ class DogProvider extends ChangeNotifier {
       _dogs = snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList()
         ..sort((a, b) => a.name.compareTo(b.name));
       _fetchDogsById(_dogs);
-      notifyListeners(); // Notify UI to rebuild
+      notifyListeners();
     });
   }
 
