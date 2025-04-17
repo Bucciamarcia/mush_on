@@ -17,7 +17,7 @@ class DogScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => SingleDogProvider(),
       child: TemplateScreen(
-        title: "Create team",
+        title: dog.name,
         child: DogMain(dog: dog),
       ),
     );

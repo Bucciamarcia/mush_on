@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Dog {
   String get name;
+  DogSex get sex;
   String get id;
   DogPositions get positions;
   String get pictureUrl;
@@ -37,6 +38,7 @@ mixin _$Dog {
         (other.runtimeType == runtimeType &&
             other is Dog &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.sex, sex) || other.sex == sex) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.positions, positions) ||
                 other.positions == positions) &&
@@ -47,12 +49,12 @@ mixin _$Dog {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, id, positions, pictureUrl,
-      const DeepCollectionEquality().hash(tags));
+  int get hashCode => Object.hash(runtimeType, name, sex, id, positions,
+      pictureUrl, const DeepCollectionEquality().hash(tags));
 
   @override
   String toString() {
-    return 'Dog(name: $name, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags)';
   }
 }
 
@@ -62,6 +64,7 @@ abstract mixin class $DogCopyWith<$Res> {
   @useResult
   $Res call(
       {String name,
+      DogSex sex,
       String id,
       DogPositions positions,
       String pictureUrl,
@@ -83,6 +86,7 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
   @override
   $Res call({
     Object? name = null,
+    Object? sex = null,
     Object? id = null,
     Object? positions = null,
     Object? pictureUrl = null,
@@ -93,6 +97,10 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      sex: null == sex
+          ? _self.sex
+          : sex // ignore: cast_nullable_to_non_nullable
+              as DogSex,
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -129,6 +137,7 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
 class _Dog implements Dog {
   const _Dog(
       {this.name = "",
+      this.sex = DogSex.none,
       this.id = "",
       this.positions = const DogPositions(),
       this.pictureUrl = "",
@@ -139,6 +148,9 @@ class _Dog implements Dog {
   @override
   @JsonKey()
   final String name;
+  @override
+  @JsonKey()
+  final DogSex sex;
   @override
   @JsonKey()
   final String id;
@@ -178,6 +190,7 @@ class _Dog implements Dog {
         (other.runtimeType == runtimeType &&
             other is _Dog &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.sex, sex) || other.sex == sex) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.positions, positions) ||
                 other.positions == positions) &&
@@ -188,12 +201,12 @@ class _Dog implements Dog {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, id, positions, pictureUrl,
-      const DeepCollectionEquality().hash(_tags));
+  int get hashCode => Object.hash(runtimeType, name, sex, id, positions,
+      pictureUrl, const DeepCollectionEquality().hash(_tags));
 
   @override
   String toString() {
-    return 'Dog(name: $name, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags)';
   }
 }
 
@@ -205,6 +218,7 @@ abstract mixin class _$DogCopyWith<$Res> implements $DogCopyWith<$Res> {
   @useResult
   $Res call(
       {String name,
+      DogSex sex,
       String id,
       DogPositions positions,
       String pictureUrl,
@@ -227,6 +241,7 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   $Res call({
     Object? name = null,
+    Object? sex = null,
     Object? id = null,
     Object? positions = null,
     Object? pictureUrl = null,
@@ -237,6 +252,10 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      sex: null == sex
+          ? _self.sex
+          : sex // ignore: cast_nullable_to_non_nullable
+              as DogSex,
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -355,12 +374,13 @@ class _$DogPositionsCopyWithImpl<$Res> implements $DogPositionsCopyWith<$Res> {
 
 /// @nodoc
 @JsonSerializable()
-class _DogPositions implements DogPositions {
+class _DogPositions extends DogPositions {
   const _DogPositions(
       {this.lead = false,
       this.swing = false,
       this.team = false,
-      this.wheel = false});
+      this.wheel = false})
+      : super._();
   factory _DogPositions.fromJson(Map<String, dynamic> json) =>
       _$DogPositionsFromJson(json);
 

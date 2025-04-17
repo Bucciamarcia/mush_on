@@ -8,6 +8,7 @@ part of 'dog.dart';
 
 _Dog _$DogFromJson(Map<String, dynamic> json) => _Dog(
       name: json['name'] as String? ?? "",
+      sex: $enumDecodeNullable(_$DogSexEnumMap, json['sex']) ?? DogSex.none,
       id: json['id'] as String? ?? "",
       positions: json['positions'] == null
           ? const DogPositions()
@@ -21,11 +22,18 @@ _Dog _$DogFromJson(Map<String, dynamic> json) => _Dog(
 
 Map<String, dynamic> _$DogToJson(_Dog instance) => <String, dynamic>{
       'name': instance.name,
+      'sex': _$DogSexEnumMap[instance.sex]!,
       'id': instance.id,
       'positions': instance.positions.toJson(),
       'pictureUrl': instance.pictureUrl,
       'tags': instance.tags.map((e) => e.toJson()).toList(),
     };
+
+const _$DogSexEnumMap = {
+  DogSex.male: 'male',
+  DogSex.female: 'female',
+  DogSex.none: 'none',
+};
 
 _DogPositions _$DogPositionsFromJson(Map<String, dynamic> json) =>
     _DogPositions(
