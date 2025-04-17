@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/provider.dart';
-import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:provider/provider.dart';
 
@@ -32,34 +31,8 @@ class DogCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(top: 10, bottom: 10),
-              child: Text(dog.name),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(10),
-            child: IconButton(
-              icon: Icon(Icons.delete),
-              color: Colors.red,
-              onPressed: () async {
-                try {
-                  await DogRepository().deleteDog(dog.id);
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(ErrorSnackbar("Can't delete dog"));
-                  }
-                }
-              },
-            ),
-          )
-        ],
-      ),
-    );
+    return ElevatedButton(
+        onPressed: () => Navigator.pushNamed(context, "/dog", arguments: dog),
+        child: Text(dog.name));
   }
 }
