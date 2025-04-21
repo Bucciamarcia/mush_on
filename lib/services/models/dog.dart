@@ -93,6 +93,35 @@ class DogRepository {
         (snapshot) =>
             snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList());
   }
+
+  static Future<List<DogTotal>> getRunningDailyTotals(
+      {DateTime? cutoff, required String id}) async {
+    return [
+      DogTotal(date: DateTime.now().toUtc(), distance: 10),
+      DogTotal(
+          date: DateTime.now().toUtc().subtract(Duration(days: 1)),
+          distance: 20)
+    ];
+  }
+}
+
+class DogTotal {
+  final DateTime date;
+  final double distance;
+  late final int _fromToday;
+
+  int get fromtoday => _fromToday;
+
+  DogTotal({
+    required this.date,
+    required this.distance,
+  }) : _fromToday = _calculateFromToday(date);
+
+  static int _calculateFromToday(DateTime date) {
+    DateTime now = DateTime(DateTime.now().toUtc().year,
+        DateTime.now().toUtc().month, DateTime.now().toUtc().day);
+    return now.difference(date).inHours;
+  }
 }
 
 @freezed
