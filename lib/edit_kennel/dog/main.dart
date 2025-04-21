@@ -4,6 +4,7 @@ import 'package:mush_on/edit_kennel/dog/tags.dart';
 import 'package:mush_on/services/error_handling.dart';
 
 import '../../services/models/dog.dart';
+import 'dog_run_data_chart.dart';
 
 class DogMain extends StatelessWidget {
   final Dog dog;
@@ -17,6 +18,7 @@ class DogMain extends StatelessWidget {
         PositionsWidget(dog.positions),
         TagsWidget(dog.tags),
         DogInfoWidget(dog),
+        DogRunDataWidget(dog.id),
       ],
     );
   }
@@ -153,9 +155,20 @@ class DogInfoWidget extends StatelessWidget {
       spacing: 5,
       children: [
         TextTitle("${dog.name}'s info"),
-        DogInfoRow(
-          "Birthday",
-          formatBirth(),
+        Row(
+          spacing: 5,
+          children: [
+            IconButton.outlined(
+              onPressed: () {},
+              icon: Icon(Icons.edit),
+            ),
+            Expanded(
+              child: DogInfoRow(
+                "Birthday",
+                formatBirth(),
+              ),
+            ),
+          ],
         ),
         Divider(),
         DogInfoRow("Sex", getDogSex()),
@@ -191,6 +204,42 @@ class DogInfoRow extends StatelessWidget {
       children: [
         Text(title, style: TextStyle(fontSize: 18)),
         Text(content, style: TextStyle(fontSize: 18)),
+      ],
+    );
+  }
+}
+
+class DogRunDataWidget extends StatelessWidget {
+  final String id;
+  const DogRunDataWidget(this.id, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      spacing: 5,
+      children: [
+        TextTitle("Past runs"),
+        FutureBuilder(
+          future: DogRepository.getRunningDailyTotals(id: id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            }
+            if (snapshot.hasError) {
+              return Text(
+                "ERROR: couldn't fetch data: ${snapshot.error.toString()}",
+                style: TextStyle(color: Colors.red),
+              );
+            }
+            if (snapshot.data == null) {
+              return Text(
+                "Couldn't fetch data",
+                style: TextStyle(color: Colors.red),
+              );
+            }
+            return DogRunDataChart(snapshot.data!);
+          },
+        ),
       ],
     );
   }
