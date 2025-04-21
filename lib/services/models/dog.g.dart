@@ -18,6 +18,9 @@ _Dog _$DogFromJson(Map<String, dynamic> json) => _Dog(
               ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      birth: json['birth'] == null
+          ? null
+          : DateTime.parse(json['birth'] as String),
     );
 
 Map<String, dynamic> _$DogToJson(_Dog instance) => <String, dynamic>{
@@ -27,6 +30,7 @@ Map<String, dynamic> _$DogToJson(_Dog instance) => <String, dynamic>{
       'positions': instance.positions.toJson(),
       'pictureUrl': instance.pictureUrl,
       'tags': instance.tags.map((e) => e.toJson()).toList(),
+      'birth': instance.birth?.toIso8601String(),
     };
 
 const _$DogSexEnumMap = {

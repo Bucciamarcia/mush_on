@@ -21,7 +21,10 @@ abstract class Dog with _$Dog {
     @Default(DogPositions()) DogPositions positions,
     @Default("") String pictureUrl,
     @Default([]) List<Tag> tags,
+    DateTime? birth,
   }) = _Dog;
+
+  const Dog._();
 
   factory Dog.fromJson(Map<String, dynamic> json) => _$DogFromJson(json);
 
@@ -36,6 +39,24 @@ abstract class Dog with _$Dog {
       toReturn.addAll({dog.id: dog});
     }
     return toReturn;
+  }
+
+  String? get age {
+    if (birth == null) return null;
+    DateTime now = DateTime.now().toUtc();
+    if (now.isBefore(birth!)) {
+      BasicLogger().error("Dog birth is in the future");
+      throw Exception("Dog birth is in the future");
+    }
+    final difference = now.difference(birth!);
+    final years = difference.inDays ~/ 365;
+    final months = (difference.inDays % 365) ~/ 30;
+
+    if (years > 0) {
+      return "$years year${years > 1 ? 's' : ''}${months > 0 ? ' $months month${months > 1 ? 's' : ''}' : ''}";
+    } else {
+      return "$months month${months > 1 ? 's' : ''}";
+    }
   }
 
   /// Returns a list of dog names from a list of Dog objects
