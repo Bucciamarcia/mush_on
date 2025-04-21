@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mush_on/services/auth.dart';
@@ -202,5 +204,16 @@ class DogsDbOperations {
       rethrow;
     }
     return toReturn;
+  }
+
+  Future<List<TeamGroup>> getTeamgroups(DateTime? cutoff) async {
+    cutoff ??= DateTime.now().toUtc().subtract(Duration(days: 30));
+    String account = await FirestoreService().getUserAccount();
+    String path = "accounts/$account/data/teams/history";
+    var ref = db.collection(path);
+    var snapshot =
+        await ref.where("date", isGreaterThanOrEqualTo: cutoff).get();
+    var docs = snapshot.docs;
+    return docs.map((var doc) => TeamGroup.fromJson(doc.data())).toList();
   }
 }
