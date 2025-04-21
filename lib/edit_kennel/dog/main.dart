@@ -219,26 +219,33 @@ class DogRunDataWidget extends StatelessWidget {
       spacing: 5,
       children: [
         TextTitle("Past runs"),
-        FutureBuilder(
-          future: DogRepository.getRunningDailyTotals(id: id),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            }
-            if (snapshot.hasError) {
-              return Text(
-                "ERROR: couldn't fetch data: ${snapshot.error.toString()}",
-                style: TextStyle(color: Colors.red),
-              );
-            }
-            if (snapshot.data == null) {
-              return Text(
-                "Couldn't fetch data",
-                style: TextStyle(color: Colors.red),
-              );
-            }
-            return DogRunDataChart(snapshot.data!);
-          },
+        Card(
+          child: ExpansionTile(
+            title: Text("View chart"),
+            children: [
+              FutureBuilder(
+                future: DogTotal.getDogTotals(id: id),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text(
+                      "ERROR: couldn't fetch data: ${snapshot.error.toString()}",
+                      style: TextStyle(color: Colors.red),
+                    );
+                  }
+                  if (snapshot.data == null) {
+                    return Text(
+                      "Couldn't fetch data",
+                      style: TextStyle(color: Colors.red),
+                    );
+                  }
+                  return DogRunDataChart(snapshot.data!);
+                },
+              )
+            ],
+          ),
         ),
       ],
     );

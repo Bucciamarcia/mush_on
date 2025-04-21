@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
+import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/team.dart';
+import 'package:mush_on/services/models/teamgroup.dart';
 
 part "dog.g.dart";
 part "dog.freezed.dart";
@@ -93,16 +96,6 @@ class DogRepository {
         (snapshot) =>
             snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList());
   }
-
-  static Future<List<DogTotal>> getRunningDailyTotals(
-      {DateTime? cutoff, required String id}) async {
-    return [
-      DogTotal(date: DateTime.now().toUtc(), distance: 10),
-      DogTotal(
-          date: DateTime.now().toUtc().subtract(Duration(days: 1)),
-          distance: 20)
-    ];
-  }
 }
 
 class DogTotal {
@@ -121,6 +114,130 @@ class DogTotal {
     DateTime now = DateTime(DateTime.now().toUtc().year,
         DateTime.now().toUtc().month, DateTime.now().toUtc().day);
     return now.difference(date).inHours;
+  }
+
+  /// Retrieves from the db the kms run by a dog after a cutoff date.
+  /// If cutoff is not set, it defaults to 30 days.
+  static Future<List<DogTotal>> getDogTotals(
+      {required String id, DateTime? cutoff}) async {
+    // --- Effective Cutoff Date ---
+    // Determine the real start date, applying default if needed, and ensure UTC midnight
+    final DateTime nowUtc = DateTime.now().toUtc();
+    // Default to 30 days ago if cutoff is null
+    final DateTime effectiveCutoffInput =
+        cutoff ?? nowUtc.subtract(const Duration(days: 30));
+    // Normalize to UTC midnight to ensure consistent date comparisons
+    final DateTime effectiveCutoffDate = DateTime.utc(effectiveCutoffInput.year,
+        effectiveCutoffInput.month, effectiveCutoffInput.day);
+
+    // --- Today's Date ---
+    // Normalize today's date to UTC midnight
+    final DateTime todayDate =
+        DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day);
+
+    // --- Initialize Map with All Dates in Range ---
+    Map<DateTime, double> ranByDay = {};
+    DateTime loopDate = effectiveCutoffDate; // Start from the cutoff date
+
+    // Loop from cutoff date up to (and including) today's date
+    int safetyCounter = 0;
+    // Set a reasonable max loop count to prevent infinite loops if dates are weird
+    const int maxDaysToInitialize = 365 * 5; // e.g., 5 years
+
+    // Use isBefore or isAtSameMomentAs for clarity
+    while (
+        loopDate.isBefore(todayDate) || loopDate.isAtSameMomentAs(todayDate)) {
+      // Initialize this date with 0 distance
+      ranByDay[loopDate] = 0.0;
+
+      // Move to the next day (Correctly reassign the immutable result)
+      loopDate = loopDate.add(const Duration(days: 1));
+
+      // Safety break
+      safetyCounter++;
+      if (safetyCounter > maxDaysToInitialize) {
+        BasicLogger().error(
+          "Date initialization loop exceeded limit ($maxDaysToInitialize). Check cutoff/logic.", /* add error context if available */
+        );
+        // Depending on requirements, you might throw, return partial data, or just break.
+        break;
+      }
+    }
+
+    // --- Fetch Actual Run Data ---
+    late List<TeamGroup> teamGroups;
+    try {
+      // Fetch team groups using the *original* effective cutoff (or null if DB handles default)
+      // IMPORTANT: Decide if getTeamgroups needs the precise time or just the date boundary.
+      // Assuming it needs the original timestamp boundary:
+      teamGroups = await DogsDbOperations().getTeamgroups(effectiveCutoffInput);
+      // Or if it just needs the date:
+      // teamGroups = await DogsDbOperations().getTeamgroups(effectiveCutoffDate);
+    } catch (e, s) {
+      BasicLogger().error("Couldn't get teamGroups in getdogTotals",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+
+    // --- Process Run Data ---
+    // This part remains largely the same, it will UPDATE the map entries
+    for (TeamGroup teamGroup in teamGroups) {
+      // Ensure teamGroup.date is also treated as UTC for comparison
+      DateTime dateNoTime = DateTime.utc(
+          teamGroup.date.year, teamGroup.date.month, teamGroup.date.day);
+
+      // Check if this date is within our initialized range (optional but good practice)
+      if (ranByDay.containsKey(dateNoTime)) {
+        Map<DateTime, double> processedTg = _processTeamgroup(id, teamGroup);
+        // Use the distance from processedTg (which might be 0 if dog not in it)
+        double distanceInGroup = processedTg[dateNoTime] ?? 0.0;
+
+        // Update the existing entry by adding the distance for this group
+        ranByDay.update(
+            dateNoTime, (existingValue) => existingValue + distanceInGroup,
+            // ifAbsent is technically not needed now, but doesn't hurt
+            ifAbsent: () => distanceInGroup);
+      } else {
+        // This teamGroup's date is outside the desired range (e.g., before cutoff after init)
+        // Log potentially? Or just ignore.
+        // BasicLogger().info("Skipping TeamGroup outside initialized date range: $dateNoTime");
+      }
+    }
+
+    // --- Convert to List ---
+    List<DogTotal> toReturn = [];
+    ranByDay.forEach((DateTime date, double kmRan) {
+      toReturn.add(
+        DogTotal(date: date, distance: kmRan), // Use kmRan (corrected variable)
+      );
+    });
+
+    // Optional: Sort the list by date if needed
+    toReturn.sort((a, b) => a.date.compareTo(b.date));
+
+    return toReturn;
+  }
+
+  // _processTeamgroup remains the same as before (assuming dog ID unique per group)
+  static Map<DateTime, double> _processTeamgroup(
+      String id, TeamGroup teamGroup) {
+    // Ensure date extraction uses UTC here too for consistency
+    DateTime day = DateTime.utc(
+        teamGroup.date.year, teamGroup.date.month, teamGroup.date.day);
+    double distance = 0;
+    // Assuming dog ID is unique per TeamGroup, original logic is fine:
+    for (Team team in teamGroup.teams) {
+      for (DogPair dogPair in team.dogPairs) {
+        if (dogPair.firstDogId == id || dogPair.secondDogId == id) {
+          // Since dog is unique in TeamGroup, finding it means it ran the full distance
+          distance = teamGroup.distance;
+          // Can break loops early for minor efficiency gain once found
+          return {day: distance}; // Return as soon as found
+        }
+      }
+    }
+    // If loops complete without finding the dog
+    return {day: distance}; // Returns {day: 0.0}
   }
 }
 

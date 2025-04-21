@@ -7,7 +7,7 @@ import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 
 class TeamsHistoryProvider extends ChangeNotifier {
-  static BasicLogger _logger = BasicLogger();
+  static final BasicLogger _logger = BasicLogger();
   List<TeamGroup> _groupObjects = [];
   List<TeamGroup> get groupObjects => _groupObjects;
 
