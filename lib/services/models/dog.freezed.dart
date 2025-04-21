@@ -21,6 +21,7 @@ mixin _$Dog {
   DogPositions get positions;
   String get pictureUrl;
   List<Tag> get tags;
+  DateTime? get birth;
 
   /// Create a copy of Dog
   /// with the given fields replaced by the non-null parameter values.
@@ -44,17 +45,18 @@ mixin _$Dog {
                 other.positions == positions) &&
             (identical(other.pictureUrl, pictureUrl) ||
                 other.pictureUrl == pictureUrl) &&
-            const DeepCollectionEquality().equals(other.tags, tags));
+            const DeepCollectionEquality().equals(other.tags, tags) &&
+            (identical(other.birth, birth) || other.birth == birth));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, name, sex, id, positions,
-      pictureUrl, const DeepCollectionEquality().hash(tags));
+      pictureUrl, const DeepCollectionEquality().hash(tags), birth);
 
   @override
   String toString() {
-    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags, birth: $birth)';
   }
 }
 
@@ -68,7 +70,8 @@ abstract mixin class $DogCopyWith<$Res> {
       String id,
       DogPositions positions,
       String pictureUrl,
-      List<Tag> tags});
+      List<Tag> tags,
+      DateTime? birth});
 
   $DogPositionsCopyWith<$Res> get positions;
 }
@@ -91,6 +94,7 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
     Object? positions = null,
     Object? pictureUrl = null,
     Object? tags = null,
+    Object? birth = freezed,
   }) {
     return _then(_self.copyWith(
       name: null == name
@@ -117,6 +121,10 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
           ? _self.tags
           : tags // ignore: cast_nullable_to_non_nullable
               as List<Tag>,
+      birth: freezed == birth
+          ? _self.birth
+          : birth // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 
@@ -134,15 +142,17 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
 /// @nodoc
 
 @JsonSerializable(explicitToJson: true)
-class _Dog implements Dog {
+class _Dog extends Dog {
   const _Dog(
       {this.name = "",
       this.sex = DogSex.none,
       this.id = "",
       this.positions = const DogPositions(),
       this.pictureUrl = "",
-      final List<Tag> tags = const []})
-      : _tags = tags;
+      final List<Tag> tags = const [],
+      this.birth})
+      : _tags = tags,
+        super._();
   factory _Dog.fromJson(Map<String, dynamic> json) => _$DogFromJson(json);
 
   @override
@@ -168,6 +178,9 @@ class _Dog implements Dog {
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_tags);
   }
+
+  @override
+  final DateTime? birth;
 
   /// Create a copy of Dog
   /// with the given fields replaced by the non-null parameter values.
@@ -196,17 +209,18 @@ class _Dog implements Dog {
                 other.positions == positions) &&
             (identical(other.pictureUrl, pictureUrl) ||
                 other.pictureUrl == pictureUrl) &&
-            const DeepCollectionEquality().equals(other._tags, _tags));
+            const DeepCollectionEquality().equals(other._tags, _tags) &&
+            (identical(other.birth, birth) || other.birth == birth));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, name, sex, id, positions,
-      pictureUrl, const DeepCollectionEquality().hash(_tags));
+      pictureUrl, const DeepCollectionEquality().hash(_tags), birth);
 
   @override
   String toString() {
-    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags, birth: $birth)';
   }
 }
 
@@ -222,7 +236,8 @@ abstract mixin class _$DogCopyWith<$Res> implements $DogCopyWith<$Res> {
       String id,
       DogPositions positions,
       String pictureUrl,
-      List<Tag> tags});
+      List<Tag> tags,
+      DateTime? birth});
 
   @override
   $DogPositionsCopyWith<$Res> get positions;
@@ -246,6 +261,7 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
     Object? positions = null,
     Object? pictureUrl = null,
     Object? tags = null,
+    Object? birth = freezed,
   }) {
     return _then(_Dog(
       name: null == name
@@ -272,6 +288,10 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
           ? _self._tags
           : tags // ignore: cast_nullable_to_non_nullable
               as List<Tag>,
+      birth: freezed == birth
+          ? _self.birth
+          : birth // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 
