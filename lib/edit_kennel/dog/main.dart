@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/edit_kennel/dog/dog_run_table.dart';
 import 'package:mush_on/edit_kennel/dog/tags.dart';
 import 'package:mush_on/services/error_handling.dart';
 
@@ -12,14 +13,35 @@ class DogMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        DogPhotoCard(dog),
-        PositionsWidget(dog.positions),
-        TagsWidget(dog.tags),
-        DogInfoWidget(dog),
-        DogRunDataWidget(dog.id),
-      ],
+    return FutureBuilder(
+      future: DogTotal.getDogTotals(id: dog.id),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return Text(
+            "ERROR: couldn't fetch data: ${snapshot.error.toString()}",
+            style: TextStyle(color: Colors.red),
+          );
+        }
+        if (snapshot.data == null) {
+          return Text(
+            "Couldn't fetch data",
+            style: TextStyle(color: Colors.red),
+          );
+        }
+        return ListView(
+          children: [
+            DogPhotoCard(dog),
+            PositionsWidget(dog.positions),
+            TagsWidget(dog.tags),
+            DogInfoWidget(dog),
+            DogRunDataWidget(snapshot.data!),
+            DogrunTableWidget(snapshot.data!),
+          ],
+        );
+      },
     );
   }
 }
@@ -210,8 +232,8 @@ class DogInfoRow extends StatelessWidget {
 }
 
 class DogRunDataWidget extends StatelessWidget {
-  final String id;
-  const DogRunDataWidget(this.id, {super.key});
+  final List<DogTotal> dogTotals;
+  const DogRunDataWidget(this.dogTotals, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -223,27 +245,7 @@ class DogRunDataWidget extends StatelessWidget {
           child: ExpansionTile(
             title: Text("View chart"),
             children: [
-              FutureBuilder(
-                future: DogTotal.getDogTotals(id: id),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-                  if (snapshot.hasError) {
-                    return Text(
-                      "ERROR: couldn't fetch data: ${snapshot.error.toString()}",
-                      style: TextStyle(color: Colors.red),
-                    );
-                  }
-                  if (snapshot.data == null) {
-                    return Text(
-                      "Couldn't fetch data",
-                      style: TextStyle(color: Colors.red),
-                    );
-                  }
-                  return DogRunDataChart(snapshot.data!);
-                },
-              )
+              DogRunDataChart(dogTotals),
             ],
           ),
         ),

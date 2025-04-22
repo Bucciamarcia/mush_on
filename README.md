@@ -27,3 +27,5 @@ A cool and open source CRM for sled dog kennels.
 - Fixed a bug where team names would not be displayed in team creator once loaded.
 - Fixed bug where total distances in stats page would not be displayed.
 - Replaced login screen and changed its design to allow for multiple sign-in methods (to be yet implemented).
+- Create team now displays a visual feedback when a dog is selected.
+- Created dog page.
