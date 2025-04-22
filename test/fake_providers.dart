@@ -11,9 +11,17 @@ class FakeDogProvider extends ChangeNotifier implements DogProvider {
   final Map<String, Dog> _dogsById = {};
   @override
   Map<String, Dog> get dogsById => _dogsById;
+  String _account = "";
+  @override
+  String get account => _account;
 
   FakeDogProvider() {
     _fetchDogs();
+    _fetchAccount();
+  }
+  void _fetchAccount() async {
+    _account = "maglelin-experience";
+    notifyListeners();
   }
 
   void _fetchDogs() async {
