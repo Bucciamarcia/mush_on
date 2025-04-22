@@ -8,9 +8,17 @@ class DogProvider extends ChangeNotifier {
   List<Dog> get dogs => _dogs;
   final Map<String, Dog> _dogsById = {};
   Map<String, Dog> get dogsById => _dogsById;
+  String _account = "";
+  String get account => _account;
 
   DogProvider() {
     _fetchDogs();
+    _fetchAccount();
+  }
+
+  void _fetchAccount() async {
+    _account = await FirestoreService().getUserAccount();
+    notifyListeners();
   }
 
   void _fetchDogs() async {

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/edit_kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/edit_kennel/dog/dog_run_table.dart';
 import 'package:mush_on/edit_kennel/dog/tags.dart';
+import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
-
+import 'package:provider/provider.dart';
 import '../../services/models/dog.dart';
 import 'dog_run_data_chart.dart';
 
@@ -33,7 +35,8 @@ class DogMain extends StatelessWidget {
         }
         return ListView(
           children: [
-            DogPhotoCard(dog),
+            DogPhotoCard(dog.id,
+                Provider.of<DogProvider>(context, listen: true).account),
             PositionsWidget(dog.positions),
             TagsWidget(dog.tags),
             DogInfoWidget(dog),
@@ -42,33 +45,6 @@ class DogMain extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class DogPhotoCard extends StatelessWidget {
-  final Dog dog;
-  const DogPhotoCard(this.dog, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 10),
-      child: Column(
-        children: [
-          Placeholder(fallbackHeight: 200),
-          SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(onPressed: () {}, child: Text("Change picture")),
-              ElevatedButton(onPressed: () {}, child: Text("Remove picture")),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
