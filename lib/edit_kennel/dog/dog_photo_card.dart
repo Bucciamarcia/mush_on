@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
@@ -22,7 +23,7 @@ class DogPhotoCard extends StatelessWidget {
           SizedBox(
             height: 150,
             width: 150,
-            child: Placeholder(),
+            child: DogPhotoWidget(id: id, account: account),
           ),
           Column(
             children: [
@@ -63,6 +64,61 @@ class DogPhotoCard extends StatelessWidget {
     } catch (e, s) {
       logger.error("Couldn't upload the dog image to storage",
           error: e, stackTrace: s);
+    }
+  }
+}
+
+class DogPhotoWidget extends StatelessWidget {
+  final String account;
+  final String id;
+  const DogPhotoWidget({super.key, required this.account, required this.id});
+
+  @override
+  Widget build(BuildContext context) {
+    BasicLogger logger = BasicLogger();
+    return FutureBuilder(
+      future: getImage(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+        if (snapshot.hasError) {
+          logger.error("Error in fetching getImage()",
+              error: snapshot.error, stackTrace: snapshot.stackTrace);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(ErrorSnackbar("Error: couldn't get the image"));
+        }
+        Uint8List? data = snapshot.data;
+        if (data == null) return Placeholder();
+        return Image.memory(data, fit: BoxFit.cover);
+      },
+    );
+  }
+
+  Future<Uint8List?> getImage() async {
+    final BasicLogger logger = BasicLogger();
+    late final List<String> filesInFolder;
+    try {
+      filesInFolder = await StorageService()
+          .listFilesInFolder("accounts/$account/dogs/$id");
+    } catch (e, s) {
+      logger.error("Error while getting image file name",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+    late final String? imagePath;
+    try {
+      imagePath =
+          filesInFolder.firstWhere((element) => element.contains("image"));
+    } catch (e) {
+      logger.info("Couldn't find any image with the image path", error: e);
+      imagePath = null;
+    }
+    if (imagePath != null) {
+      return await StorageService()
+          .getFile("accounts/$account/dogs/$id/$imagePath");
+    } else {
+      return null;
     }
   }
 }
