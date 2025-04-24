@@ -35,6 +35,17 @@ class StorageService {
     }
   }
 
+  /// Deletes a file at the location. Include full path, eg. "images/file.png".
+  Future<void> deleteFile(String path) async {
+    var ref = instance.ref(path);
+    try {
+      await ref.delete();
+    } catch (e, s) {
+      logger.error("Couldn't delete file", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   /// Returns a list of filenames, including extension, of all the files in a folder.
   /// eg. `["file1.png", "file2.png"]`
   Future<List<String>> listFilesInFolder(String path) async {
