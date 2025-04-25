@@ -22,7 +22,6 @@ abstract class Dog with _$Dog {
     @Default(DogSex.none) DogSex sex,
     @Default("") String id,
     @Default(DogPositions()) DogPositions positions,
-    @Default("") String pictureUrl,
     @Default([]) List<Tag> tags,
     DateTime? birth,
   }) = _Dog;
