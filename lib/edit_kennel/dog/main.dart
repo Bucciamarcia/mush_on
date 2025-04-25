@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/edit_kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/edit_kennel/dog/dog_run_table.dart';
+import 'package:mush_on/edit_kennel/dog/provider.dart';
 import 'package:mush_on/edit_kennel/dog/tags.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -11,40 +13,48 @@ import 'dog_run_data_chart.dart';
 
 class DogMain extends StatelessWidget {
   final Dog dog;
+  static BasicLogger logger = BasicLogger();
   const DogMain({super.key, required this.dog});
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: DogTotal.getDogTotals(id: dog.id),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Text(
-            "ERROR: couldn't fetch data: ${snapshot.error.toString()}",
-            style: TextStyle(color: Colors.red),
-          );
-        }
-        if (snapshot.data == null) {
-          return Text(
-            "Couldn't fetch data",
-            style: TextStyle(color: Colors.red),
-          );
-        }
-        return ListView(
-          children: [
-            DogPhotoCard(dog.id,
-                Provider.of<DogProvider>(context, listen: true).account),
-            PositionsWidget(dog.positions),
-            TagsWidget(dog.tags),
-            DogInfoWidget(dog),
-            DogRunDataWidget(snapshot.data!),
-            DogrunTableWidget(snapshot.data!),
-          ],
-        );
-      },
+    SingleDogProvider singleDogProvider = context.watch<SingleDogProvider>();
+    DogProvider provider = context.watch<DogProvider>();
+
+    return ListView(
+      children: [
+        DogPhotoCard(
+          image: singleDogProvider.image,
+          isLoading: singleDogProvider.isLoadingImage,
+          onImageEdited: (File file) => singleDogProvider
+              .editImage(file, provider.account)
+              .catchError((e, s) {
+            logger.error("Couldn't edit image", error: e, stackTrace: s);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(ErrorSnackbar("Couldn't edit image"));
+            }
+          }),
+          onImageDeleted: () => singleDogProvider
+              .deleteImage(provider.account)
+              .catchError((e, s) {
+            logger.error("Couldn't remove image", error: e, stackTrace: s);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(ErrorSnackbar("Couldn't edit image"));
+            }
+          }),
+        ),
+        PositionsWidget(dog.positions),
+        TagsWidget(dog.tags),
+        DogInfoWidget(dog),
+        singleDogProvider.isLoadingTotals
+            ? CircularProgressIndicator()
+            : DogRunDataWidget(singleDogProvider.runTotals),
+        singleDogProvider.isLoadingTotals
+            ? CircularProgressIndicator()
+            : DogrunTableWidget(singleDogProvider.runTotals),
+      ],
     );
   }
 }

@@ -1,39 +1,21 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:mush_on/services/storage.dart';
 
-class DogPhotoCard extends StatefulWidget {
-  final String id;
-  final String account;
-  const DogPhotoCard(this.id, this.account, {super.key});
-
-  @override
-  State<DogPhotoCard> createState() => _DogPhotoCardState();
-}
-
-class _DogPhotoCardState extends State<DogPhotoCard> {
-  Uint8List? image;
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _getImage();
-  }
-
-  Future<void> _getImage() async {
-    Uint8List? newImage =
-        await DogPhotoCardUtils(account: widget.account, id: widget.id)
-            .getImage();
-    setState(() {
-      image = newImage;
-      isLoading = false;
-    });
-  }
+class DogPhotoCard extends StatelessWidget {
+  final Uint8List? image;
+  final bool isLoading;
+  final Function(File) onImageEdited;
+  final Function onImageDeleted;
+  const DogPhotoCard(
+      {super.key,
+      required this.image,
+      required this.isLoading,
+      required this.onImageEdited,
+      required this.onImageDeleted});
 
   @override
   Widget build(BuildContext context) {
@@ -58,12 +40,18 @@ class _DogPhotoCardState extends State<DogPhotoCard> {
               IconButton.outlined(
                   onPressed: () async {
                     try {
-                      await _onEditPressed();
+                      onImageEdited(await _onEditPressed());
                     } on FileSizeException catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             ErrorSnackbar("Max file size is 10mb"));
                         logger.info("File uploaded is too large", error: e);
+                      }
+                    } on NoFileSelectedException catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(ErrorSnackbar("No file selected"));
+                        logger.info("No file selected", error: e);
                       }
                     } catch (e) {
                       if (context.mounted) {
@@ -74,26 +62,7 @@ class _DogPhotoCardState extends State<DogPhotoCard> {
                   },
                   icon: Icon(Icons.edit)),
               IconButton.outlined(
-                  onPressed: () async {
-                    DogPhotoCardUtils utils = DogPhotoCardUtils(
-                        account: widget.account, id: widget.id);
-                    setState(() {
-                      isLoading = true;
-                    });
-                    try {
-                      await utils.deleteCurrentImage();
-                      setState(() {
-                        image = null;
-                      });
-                    } catch (e, s) {
-                      logger.error("Couldn't delete dog picture",
-                          error: e, stackTrace: s);
-                    }
-                    setState(() {
-                      isLoading = false;
-                    });
-                  },
-                  icon: Icon(Icons.delete))
+                  onPressed: () => onImageDeleted(), icon: Icon(Icons.delete))
             ],
           ),
         ],
@@ -101,7 +70,7 @@ class _DogPhotoCardState extends State<DogPhotoCard> {
     );
   }
 
-  Future<void> _onEditPressed() async {
+  Future<File> _onEditPressed() async {
     final BasicLogger logger = BasicLogger();
     logger.info("Starting the image upload process");
     late FilePickerResult? result;
@@ -110,66 +79,17 @@ class _DogPhotoCardState extends State<DogPhotoCard> {
           .pickFiles(allowMultiple: false, type: FileType.image);
     } catch (e, s) {
       logger.error("Couldn't pick file", error: e, stackTrace: s);
-      setState(() {
-        isLoading = false;
-      });
       rethrow;
     }
     logger.debug("File picked (or not)");
-    if (result == null) return;
+    if (result == null) throw NoFileSelectedException("No file selected");
     if (result.files.first.size > 10485760) {
       logger.debug("File uploaded is above 10mb");
-      setState(() {
-        isLoading = false;
-      });
       logger.warning("File uploaded is too large");
       throw FileSizeException("File too large");
     }
 
-    File file = File(result.files.single.path!);
-    String extension = path.extension(file.path);
-    logger.debug("File path: ${file.path}");
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      await DogPhotoCardUtils(account: widget.account, id: widget.id)
-          .deleteCurrentImage();
-    } catch (e, s) {
-      logger.error("Couldn't delete old image", error: e, stackTrace: s);
-      setState(() {
-        isLoading = false;
-      });
-    }
-    try {
-      await StorageService().uploadFromFile(
-          file: file,
-          path: "accounts/${widget.account}/dogs/${widget.id}/image$extension");
-      logger.info("Dog pic uploaded to storage");
-    } catch (e, s) {
-      logger.error("Couldn't upload the dog image to storage",
-          error: e, stackTrace: s);
-      setState(() {
-        isLoading = false;
-      });
-      rethrow;
-    }
-    Uint8List? newImage;
-    try {
-      newImage = await DogPhotoCardUtils(account: widget.account, id: widget.id)
-          .getImage();
-    } catch (e, s) {
-      logger.error("can't edit image", error: e, stackTrace: s);
-      setState(() {
-        isLoading = false;
-      });
-      rethrow;
-    } finally {
-      setState(() {
-        image = newImage;
-        isLoading = false;
-      });
-    }
+    return File(result.files.single.path!);
   }
 }
 
@@ -182,7 +102,7 @@ class DogPhotoCardUtils {
 
   /// Deletes the dog image
   Future<void> deleteCurrentImage() async {
-    String? filename = await findImageFilename();
+    String? filename = await _findImageFilename();
     if (filename == null) return;
     String path = "accounts/$account/dogs/$id/$filename";
     try {
@@ -196,7 +116,7 @@ class DogPhotoCardUtils {
 
   /// Finds the image filename. Mostly to find its extension. Eg. "image.png".
   /// If the image isn't found, returns null.
-  Future<String?> findImageFilename() async {
+  Future<String?> _findImageFilename() async {
     late final List<String> filesInFolder;
     try {
       filesInFolder = await StorageService()
@@ -219,7 +139,7 @@ class DogPhotoCardUtils {
 
   /// Finds and returns the image of the dog, or null if there is none.
   Future<Uint8List?> getImage() async {
-    final String? imagePath = await findImageFilename();
+    final String? imagePath = await _findImageFilename();
     if (imagePath != null) {
       Uint8List? fileToGet;
       try {
@@ -242,4 +162,12 @@ class FileSizeException implements Exception {
 
   @override
   String toString() => 'FileSizeException: $message';
+}
+
+class NoFileSelectedException implements Exception {
+  final String message;
+  NoFileSelectedException(this.message);
+
+  @override
+  String toString() => 'NoFileSelectedException: $message';
 }
