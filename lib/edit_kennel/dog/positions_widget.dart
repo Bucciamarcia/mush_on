@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/edit_kennel/dog/main.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 
 class PositionsWidget extends StatelessWidget {
   final DogPositions positions;
-  const PositionsWidget(this.positions, {super.key});
+  final Function(DogPositions) onPositionsChanged;
+  const PositionsWidget(
+      {super.key, required this.positions, required this.onPositionsChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +23,17 @@ class PositionsWidget extends StatelessWidget {
           spacing: 5,
           children: [
             TextTitle("Positions"),
-            IconButton.outlined(onPressed: () {}, icon: Icon(Icons.edit)),
+            IconButton.outlined(
+                onPressed: () {
+                  showAdaptiveDialog(
+                      context: context,
+                      builder: (BuildContext context) => EditPositionsWidget(
+                            positions: positions,
+                            onPositionsChanged: (newPositions) =>
+                                onPositionsChanged(newPositions),
+                          ));
+                },
+                icon: Icon(Icons.edit)),
           ],
         ),
         Wrap(
@@ -28,6 +41,159 @@ class PositionsWidget extends StatelessWidget {
           children: positionCards,
         ),
       ],
+    );
+  }
+}
+
+class EditPositionsWidget extends StatelessWidget {
+  final DogPositions positions;
+  final Function(DogPositions) onPositionsChanged;
+  const EditPositionsWidget(
+      {super.key, required this.positions, required this.onPositionsChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    DogPositions newPositions = positions;
+    return AlertDialog.adaptive(
+      title: Text("Edit positions"),
+      content: PositionToggleWidget(
+        positions: positions,
+        onPositionToggled: (DogPositions toggledPositions) {
+          newPositions = toggledPositions;
+        },
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("Cancel")),
+        TextButton(
+          onPressed: () {
+            onPositionsChanged(newPositions);
+            Navigator.of(context).pop();
+          },
+          child: Text("OK"),
+        )
+      ],
+    );
+  }
+}
+
+class PositionToggleWidget extends StatefulWidget {
+  final DogPositions positions;
+  final Function(DogPositions) onPositionToggled;
+  const PositionToggleWidget(
+      {super.key, required this.positions, required this.onPositionToggled});
+
+  @override
+  State<PositionToggleWidget> createState() => _PositionToggleWidgetState();
+}
+
+class _PositionToggleWidgetState extends State<PositionToggleWidget> {
+  static final BasicLogger logger = BasicLogger();
+  bool isLead = false;
+  bool isSwing = false;
+  bool isTeam = false;
+  bool isWheel = false;
+  @override
+  void initState() {
+    super.initState();
+    isLead = widget.positions.lead;
+    isSwing = widget.positions.swing;
+    isTeam = widget.positions.team;
+    isWheel = widget.positions.wheel;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Column(
+        spacing: 10,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Lead"),
+              Switch(
+                value: isLead,
+                onChanged: (newValue) {
+                  setState(() {
+                    isLead = newValue;
+                  });
+                  logger.debug("New position for lead: $isLead");
+                  widget.onPositionToggled(DogPositions(
+                      lead: isLead,
+                      swing: isSwing,
+                      team: isTeam,
+                      wheel: isWheel));
+                },
+              )
+            ],
+          ),
+          Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Swing"),
+              Switch(
+                value: isSwing,
+                onChanged: (newValue) {
+                  setState(() {
+                    isSwing = newValue;
+                  });
+                  logger.debug("New position for swing: $isSwing");
+                  widget.onPositionToggled(DogPositions(
+                      lead: isLead,
+                      swing: isSwing,
+                      team: isTeam,
+                      wheel: isWheel));
+                },
+              )
+            ],
+          ),
+          Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Team"),
+              Switch(
+                value: isTeam,
+                onChanged: (newValue) {
+                  setState(() {
+                    isTeam = newValue;
+                  });
+                  logger.debug("New position for team: $isTeam");
+                  widget.onPositionToggled(DogPositions(
+                      lead: isLead,
+                      swing: isSwing,
+                      team: isTeam,
+                      wheel: isWheel));
+                },
+              )
+            ],
+          ),
+          Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Wheel"),
+              Switch(
+                value: isWheel,
+                onChanged: (newValue) {
+                  setState(() {
+                    isWheel = newValue;
+                  });
+                  logger.debug("New position for wheel: $isWheel");
+                  widget.onPositionToggled(DogPositions(
+                      lead: isLead,
+                      swing: isSwing,
+                      team: isTeam,
+                      wheel: isWheel));
+                },
+              )
+            ],
+          )
+        ],
+      ),
     );
   }
 }

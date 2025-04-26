@@ -108,4 +108,19 @@ class SingleDogProvider extends ChangeNotifier {
     isLoadingImage = false;
     notifyListeners();
   }
+
+  Future<void> updatePositions(
+      DogPositions newPositions, String account) async {
+    try {
+      logger.debug("New positions in provider: ${newPositions.toString()}");
+      await DogsDbOperations().updateDogPositions(
+          newPositions: newPositions, id: id, account: account);
+    } catch (e, s) {
+      logger.error("Provider couldn't update positions",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+    positions = newPositions;
+    notifyListeners();
+  }
 }

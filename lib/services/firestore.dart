@@ -216,4 +216,31 @@ class DogsDbOperations {
     var docs = snapshot.docs;
     return docs.map((var doc) => TeamGroup.fromJson(doc.data())).toList();
   }
+
+  Future<void> updateDogPositions(
+      {required DogPositions newPositions,
+      required String id,
+      String? account}) async {
+    try {
+      account ??= await FirestoreService().getUserAccount();
+    } catch (e, s) {
+      logger.error("Couldn't fetch account in updateDogPositions",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+    String path = "accounts/$account/data/kennel/dogs/$id";
+    var doc = db.doc(path);
+    Map<String, dynamic> positionsMap = newPositions.toJson();
+    try {
+      Map<String, dynamic> updates = {};
+      positionsMap.forEach((key, value) {
+        updates['positions.$key'] = value;
+      });
+      await doc.update(updates);
+      logger.info("Successfully updated dog positions for $id");
+    } catch (e, s) {
+      logger.error("Couldn't update dog positions", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }

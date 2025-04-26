@@ -46,7 +46,22 @@ class DogMain extends StatelessWidget {
             }
           }),
         ),
-        PositionsWidget(dog.positions),
+        PositionsWidget(
+          positions: singleDogProvider.positions,
+          onPositionsChanged: (DogPositions newPositions) {
+            logger.debug("New positions: ${newPositions.toString()}");
+            singleDogProvider
+                .updatePositions(newPositions, provider.account)
+                .catchError((e, s) {
+              logger.error("Couldn't update dog positions",
+                  error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    ErrorSnackbar("Error: couldn't update positions"));
+              }
+            });
+          },
+        ),
         TagsWidget(dog.tags),
         DogInfoWidget(dog),
         singleDogProvider.isLoadingTotals
