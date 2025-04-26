@@ -11,6 +11,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:provider/provider.dart';
 import '../../services/models/dog.dart';
 import 'dog_run_data_chart.dart';
+import 'name_widget.dart';
 
 class DogMain extends StatelessWidget {
   final Dog dog;
@@ -24,6 +25,19 @@ class DogMain extends StatelessWidget {
 
     return ListView(
       children: [
+        NameWidget(
+          name: singleDogProvider.name,
+          onNameChanged: (String newName) =>
+              singleDogProvider.changeName(newName).catchError((e, s) {
+            logger.error("Couldn't change the name of the dog",
+                error: e, stackTrace: s);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(ErrorSnackbar("Couldn't change dog name"));
+            }
+          }),
+        ),
+        Divider(),
         DogPhotoCard(
           image: singleDogProvider.image,
           isLoading: singleDogProvider.isLoadingImage,

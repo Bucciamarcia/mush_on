@@ -22,7 +22,7 @@ class DogScreen extends StatelessWidget {
         return provider;
       },
       child: TemplateScreen(
-        title: dog.name,
+        title: "Dog page",
         child: DogMain(dog: dog),
       ),
     );

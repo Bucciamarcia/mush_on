@@ -243,4 +243,23 @@ class DogsDbOperations {
       rethrow;
     }
   }
+
+  Future<void> changeDogName(
+      {required String newName, required String id, String? account}) async {
+    try {
+      account ??= await FirestoreService().getUserAccount();
+    } catch (e, s) {
+      logger.error("Couldn't fetch account in changeDogName",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+    String path = "accounts/$account/data/kennel/dogs/$id";
+    var doc = db.doc(path);
+    try {
+      await doc.update({"name": newName});
+    } catch (e, s) {
+      logger.error("Couldn't update dog name in db", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }

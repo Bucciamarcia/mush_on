@@ -23,7 +23,18 @@ class SingleDogProvider extends ChangeNotifier {
 
   SingleDogProvider();
 
-  // Add these new methods:
+  Future<void> changeName(String newName) async {
+    try {
+      await DogsDbOperations().changeDogName(newName: newName, id: id);
+    } catch (e, s) {
+      logger.error("Couldn't change dog name in provider",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+    name = newName;
+    notifyListeners();
+  }
+
   Future<void> editImage(File file, String account) async {
     isLoadingImage = true;
     notifyListeners();
