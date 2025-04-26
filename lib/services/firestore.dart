@@ -262,4 +262,59 @@ class DogsDbOperations {
       rethrow;
     }
   }
+
+  Future<void> changeDogTags(
+      {required List<Tag> tags, required String id, String? account}) async {
+    try {
+      account ??= await FirestoreService().getUserAccount();
+    } catch (e, s) {
+      logger.error("Couldn't fetch account in changeDogName",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+    String path = "accounts/$account/data/kennel/dogs/$id";
+    var doc = db.doc(path);
+    try {
+      await doc.update({"tags": tags.map((Tag tag) => tag.toJson()).toList()});
+    } catch (e, s) {
+      logger.error("Couldn't update tags in db", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> addTag(
+      {required Tag tag, required String id, String? account}) async {
+    try {
+      account ??= await FirestoreService().getUserAccount();
+    } catch (e, s) {
+      logger.error("Couldn't fetch account in addTag", error: e, stackTrace: s);
+      rethrow;
+    }
+
+    String path = "accounts/$account/data/kennel/dogs/$id";
+    var doc = db.doc(path);
+
+    try {
+      var currentDog = await doc.get();
+      if (!currentDog.exists) {
+        throw Exception("Dog with ID $id not found");
+      }
+
+      var dogData = currentDog.data();
+      Dog dog = Dog.fromJson(dogData!);
+      List<Tag> dogTags = [];
+      for (Tag etag in dog.tags) {
+        dogTags.add(etag);
+      }
+      dogTags.add(tag);
+
+      List<Map<String, dynamic>> tagsList =
+          dogTags.map((t) => t.toJson()).toList();
+
+      await doc.update({"tags": tagsList});
+    } catch (e, s) {
+      logger.error("Error updating tags for dog $id", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }
