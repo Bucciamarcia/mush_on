@@ -134,4 +134,24 @@ class SingleDogProvider extends ChangeNotifier {
     positions = newPositions;
     notifyListeners();
   }
+
+  Future<void> updateTags(List<Tag> newTags) async {
+    try {
+      await DogsDbOperations().changeDogTags(tags: newTags, id: id);
+    } catch (e, s) {
+      logger.error("Couldn't update tags in provider", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> addTag(Tag tag) async {
+    try {
+      await DogsDbOperations().addTag(tag: tag, id: id);
+    } catch (e, s) {
+      logger.error("Couldn't update tags in provider", error: e, stackTrace: s);
+      rethrow;
+    }
+    tags = List<Tag>.from(tags)..add(tag);
+    notifyListeners();
+  }
 }

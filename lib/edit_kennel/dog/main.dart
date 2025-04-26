@@ -5,7 +5,7 @@ import 'package:mush_on/edit_kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/edit_kennel/dog/dog_run_table.dart';
 import 'package:mush_on/edit_kennel/dog/positions_widget.dart';
 import 'package:mush_on/edit_kennel/dog/provider.dart';
-import 'package:mush_on/edit_kennel/dog/tags.dart';
+import 'package:mush_on/edit_kennel/dog/tags_widget.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:provider/provider.dart';
@@ -76,7 +76,29 @@ class DogMain extends StatelessWidget {
             });
           },
         ),
-        TagsWidget(dog.tags),
+        TagsWidget(
+          tags: singleDogProvider.tags,
+          onTagsChanged: (List<Tag> newTags) {
+            logger.debug("Initiating change of tags: ${newTags.toString()}");
+            singleDogProvider.updateTags(newTags).catchError((e, s) {
+              logger.error("Couldn't update tags", error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(ErrorSnackbar("Error: couldn't update tags"));
+              }
+            });
+          },
+          onTagAdded: (Tag tag) {
+            logger.debug("Initiating adding a tag: ${tag.name}");
+            singleDogProvider.addTag(tag).catchError((e, s) {
+              logger.error("Couldn't add tag", error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(ErrorSnackbar("Error: couldn't add tag"));
+              }
+            });
+          },
+        ),
         DogInfoWidget(dog),
         singleDogProvider.isLoadingTotals
             ? CircularProgressIndicator()
@@ -85,44 +107,6 @@ class DogMain extends StatelessWidget {
             ? CircularProgressIndicator()
             : DogrunTableWidget(singleDogProvider.runTotals),
       ],
-    );
-  }
-}
-
-class TagsWidget extends StatelessWidget {
-  final List<Tag> tags;
-  const TagsWidget(this.tags, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 15, bottom: 10),
-      child: Column(
-        spacing: 8,
-        children: [
-          Row(
-            spacing: 5,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextTitle("Tags"),
-              IconButton.outlined(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) => EditTagsDialog());
-                  },
-                  icon: Icon(Icons.edit)),
-              IconButton.outlined(
-                  onPressed: () {
-                    showDialog(
-                        context: context, builder: (context) => AddTagDialog());
-                  },
-                  icon: Icon(Icons.add)),
-            ],
-          ),
-          Placeholder(),
-        ],
-      ),
     );
   }
 }
