@@ -154,4 +154,15 @@ class SingleDogProvider extends ChangeNotifier {
     tags = List<Tag>.from(tags)..add(tag);
     notifyListeners();
   }
+
+  Future<void> deleteTag(Tag tag) async {
+    try {
+      await DogsDbOperations().deleteTag(tag: tag, id: id);
+    } catch (e, s) {
+      logger.error("Couldn't delete tag ${tag.id}", error: e, stackTrace: s);
+      rethrow;
+    }
+    tags = List<Tag>.from(tags)..remove(tag);
+    notifyListeners();
+  }
 }
