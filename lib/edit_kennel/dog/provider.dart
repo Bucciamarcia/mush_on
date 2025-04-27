@@ -165,4 +165,22 @@ class SingleDogProvider extends ChangeNotifier {
     tags = List<Tag>.from(tags)..remove(tag);
     notifyListeners();
   }
+
+  /// Will find a tag with the same ID, and replace all values.
+  Future<void> editTag(Tag newTag) async {
+    try {
+      await DogsDbOperations().editTag(tag: newTag, id: id);
+    } catch (e, s) {
+      logger.error("Couldn't update tag ${newTag.id}", error: e, stackTrace: s);
+      rethrow;
+    }
+    List<Tag> newTags = [newTag];
+    for (Tag oldTag in tags) {
+      if (oldTag.id != newTag.id) {
+        newTags.add(oldTag);
+      }
+    }
+    tags = newTags;
+    notifyListeners();
+  }
 }

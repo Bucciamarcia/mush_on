@@ -50,6 +50,7 @@ class BasicLogger {
     }
   }
 
+  /// Logs an error message
   void error(dynamic message,
       {DateTime? time, Object? error, StackTrace? stackTrace}) {
     if (kDebugMode) {
