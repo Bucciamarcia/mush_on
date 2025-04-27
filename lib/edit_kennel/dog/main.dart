@@ -78,16 +78,6 @@ class DogMain extends StatelessWidget {
         ),
         TagsWidget(
           tags: singleDogProvider.tags,
-          onTagsChanged: (List<Tag> newTags) {
-            logger.debug("Initiating change of tags: ${newTags.toString()}");
-            singleDogProvider.updateTags(newTags).catchError((e, s) {
-              logger.error("Couldn't update tags", error: e, stackTrace: s);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(ErrorSnackbar("Error: couldn't update tags"));
-              }
-            });
-          },
           onTagAdded: (Tag tag) {
             logger.debug("Initiating adding a tag: ${tag.name}");
             singleDogProvider.addTag(tag).catchError((e, s) {
@@ -95,6 +85,18 @@ class DogMain extends StatelessWidget {
               if (context.mounted) {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(ErrorSnackbar("Error: couldn't add tag"));
+              }
+            });
+          },
+          onTagChanged: (Tag tag) {
+            logger.debug(
+                "Initiating change tag. Color: ${tag.color.toString()} - Name: ${tag.name}");
+            singleDogProvider.editTag(tag).catchError((e, s) {
+              logger.error("Couldn't edit tag ${tag.name}",
+                  error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(ErrorSnackbar("Error: couldn't udpate tag"));
               }
             });
           },
