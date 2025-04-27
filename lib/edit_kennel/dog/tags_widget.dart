@@ -20,8 +20,23 @@ class TagsWidget extends StatelessWidget {
       required this.onTagDeleted,
       required this.onTagChanged});
 
+  static List<Tag> _getValidTags(List<Tag> tags) {
+    List<Tag> toReturn = [];
+    for (Tag tag in tags) {
+      if (tag.expired == null) {
+        toReturn.add(tag);
+      } else {
+        if (tag.expired!.toUtc().isAfter(DateTime.now().toUtc())) {
+          toReturn.add(tag);
+        }
+      }
+    }
+    return toReturn;
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Tag> validTags = _getValidTags(tags);
     return Padding(
       padding: const EdgeInsets.only(top: 15, bottom: 10),
       child: Column(
@@ -45,7 +60,7 @@ class TagsWidget extends StatelessWidget {
           ),
           Wrap(
             spacing: 8,
-            children: tags
+            children: validTags
                 .map((Tag tag) => SingleTagDisplay(
                       tag: tag,
                       onTagDeleted: () => onTagDeleted(tag),
