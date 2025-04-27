@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/edit_kennel/dog/main.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:uuid/uuid.dart';
 
 class TagsWidget extends StatelessWidget {
+  static BasicLogger logger = BasicLogger();
   final List<Tag> tags;
   final Function(List<Tag>) onTagsChanged;
   final Function(Tag) onTagAdded;
+  final Function(Tag) onTagDeleted;
   const TagsWidget(
       {super.key,
       required this.tags,
       required this.onTagsChanged,
-      required this.onTagAdded});
+      required this.onTagAdded,
+      required this.onTagDeleted});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +47,15 @@ class TagsWidget extends StatelessWidget {
                   icon: Icon(Icons.add)),
             ],
           ),
-          ...tags.map((Tag tag) => Text(tag.name)),
+          Wrap(
+            spacing: 8,
+            children: tags
+                .map((Tag tag) => SingleTagDisplay(
+                      tag: tag,
+                      onTagDeleted: () => onTagDeleted(tag),
+                    ))
+                .toList(),
+          ),
         ],
       ),
     );
@@ -99,6 +111,21 @@ class _AddTagDialogState extends State<AddTagDialog> {
             },
             child: Text("OK")),
       ],
+    );
+  }
+}
+
+class SingleTagDisplay extends StatelessWidget {
+  final Tag tag;
+  final Function() onTagDeleted;
+  const SingleTagDisplay(
+      {super.key, required this.tag, required this.onTagDeleted});
+
+  @override
+  Widget build(BuildContext context) {
+    return InputChip(
+      label: Text(tag.name),
+      onDeleted: () => onTagDeleted(),
     );
   }
 }

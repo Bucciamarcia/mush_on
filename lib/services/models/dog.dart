@@ -67,6 +67,7 @@ abstract class Dog with _$Dog {
   }
 }
 
+/// All the operations related to the Dog class
 class DogRepository {
   Future<List<Dog>> getDogs() async {
     var data = await FirestoreService().getCollection("data/kennel/dogs");
@@ -94,6 +95,20 @@ class DogRepository {
     return FirebaseFirestore.instance.collection(path).snapshots().map(
         (snapshot) =>
             snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList());
+  }
+
+  /// Gets all the tags for a list of dogs
+  static List<Tag> getAllTags(List<Dog> dogs) {
+    List<Tag> toReturn = [];
+    for (Dog dog in dogs) {
+      List<Tag> dogTags = dog.tags;
+      for (Tag dogTag in dogTags) {
+        if (!toReturn.contains(dogTag)) {
+          toReturn.add(dogTag);
+        }
+      }
+    }
+    return toReturn;
   }
 }
 

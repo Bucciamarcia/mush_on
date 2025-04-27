@@ -317,4 +317,40 @@ class DogsDbOperations {
       rethrow;
     }
   }
+
+  Future<void> deleteTag(
+      {required Tag tag, required String id, String? account}) async {
+    try {
+      account ??= await FirestoreService().getUserAccount();
+    } catch (e, s) {
+      logger.error("Couldn't fetch account in addTag", error: e, stackTrace: s);
+      rethrow;
+    }
+
+    String path = "accounts/$account/data/kennel/dogs/$id";
+    var doc = db.doc(path);
+    try {
+      var currentDog = await doc.get();
+      if (!currentDog.exists) {
+        throw Exception("Dog with ID $id not found");
+      }
+
+      var dogData = currentDog.data();
+      Dog dog = Dog.fromJson(dogData!);
+      List<Tag> dogTags = [];
+      for (Tag etag in dog.tags) {
+        dogTags.add(etag);
+      }
+      dogTags.remove(tag);
+
+      List<Map<String, dynamic>> tagsList =
+          dogTags.map((t) => t.toJson()).toList();
+
+      await doc.update({"tags": tagsList});
+      logger.debug("Tag ${tag.name} removed successfully");
+    } catch (e, s) {
+      logger.error("Error updating tags for dog $id", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }

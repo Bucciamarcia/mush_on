@@ -98,6 +98,15 @@ class DogMain extends StatelessWidget {
               }
             });
           },
+          onTagDeleted: (Tag tag) =>
+              singleDogProvider.deleteTag(tag).catchError((e, s) {
+            logger.error("Couldn't delete tag: ${tag.id}",
+                error: e, stackTrace: s);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(ErrorSnackbar("Error: couldn't delete tag"));
+            }
+          }),
         ),
         DogInfoWidget(dog),
         singleDogProvider.isLoadingTotals
