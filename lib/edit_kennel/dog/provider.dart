@@ -80,6 +80,8 @@ class SingleDogProvider extends ChangeNotifier {
     sex = newDog.sex;
     positions = newDog.positions;
     tags = newDog.tags;
+    logger.info("Tags: ${newDog.tags.toString()}");
+    logger.info("Birth: ${newDog.birth.toString()}");
     birth = newDog.birth;
 
     updateImage();
@@ -181,6 +183,18 @@ class SingleDogProvider extends ChangeNotifier {
       }
     }
     tags = newTags;
+    notifyListeners();
+  }
+
+  Future<void> changeBirthday(DateTime birthday) async {
+    try {
+      await DogsDbOperations().changeBirthday(birthday: birthday, id: id);
+    } catch (e, s) {
+      logger.error("Couldn't change dog birthday", error: e, stackTrace: s);
+      rethrow;
+    }
+    birth = birthday;
+    logger.info("changed birthday");
     notifyListeners();
   }
 }

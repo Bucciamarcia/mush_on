@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mush_on/edit_kennel/dog/dog_info_widget.dart';
 import 'package:mush_on/edit_kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/edit_kennel/dog/dog_run_table.dart';
@@ -112,7 +111,23 @@ class DogMain extends StatelessWidget {
             }
           }),
         ),
-        DogInfoWidget(dog),
+        DogInfoWidget(
+          name: singleDogProvider.name,
+          birthday: (singleDogProvider.birth == null)
+              ? null
+              : singleDogProvider.birth!.toUtc(),
+          sex: singleDogProvider.sex,
+          onBirthdayChanged: (DateTime newBirthday) {
+            singleDogProvider.changeBirthday(newBirthday).catchError((e, s) {
+              logger.error("Couldn't change birthday for ${dog.name}",
+                  error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    ErrorSnackbar("Error: couldn't change dog birthday"));
+              }
+            });
+          },
+        ),
         singleDogProvider.isLoadingTotals
             ? CircularProgressIndicator()
             : DogRunDataWidget(singleDogProvider.runTotals),

@@ -388,4 +388,24 @@ class DogsDbOperations {
       rethrow;
     }
   }
+
+  Future<void> changeBirthday(
+      {required DateTime birthday, required String id, String? account}) async {
+    try {
+      account ??= await FirestoreService().getUserAccount();
+    } catch (e, s) {
+      logger.error("Couldn't fetch account in addTag", error: e, stackTrace: s);
+      rethrow;
+    }
+
+    String path = "accounts/$account/data/kennel/dogs/$id";
+    var doc = db.doc(path);
+
+    try {
+      await doc.update({"birth": birthday.toUtc().toIso8601String()});
+    } catch (e, s) {
+      logger.error("Couldn't change dog birthday", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }
