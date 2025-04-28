@@ -299,3 +299,22 @@ class ColorConverter implements JsonConverter<Color, int> {
     return object.value;
   }
 }
+
+/// Contains all the operations related to the tags
+class TagRepository {
+  /// Returns of a list of all the unique tags
+  static List<Tag> getAllTagsFromDogs(List<Dog> dogs) {
+    List<Tag> toReturn = [];
+    List<String> uniqueTagNames = [];
+
+    for (Dog dog in dogs) {
+      for (Tag tag in dog.tags) {
+        if (!uniqueTagNames.contains(tag.name)) {
+          toReturn.add(tag);
+          uniqueTagNames.add(tag.name);
+        }
+      }
+    }
+    return toReturn;
+  }
+}

@@ -61,6 +61,7 @@ dependencies:
   firebase_storage: ^12.4.5
   path: ^1.9.1
   flutter_colorpicker: ^1.1.0
+  searchfield: ^1.2.7
 
 icons_launcher:
   image_path: "assets/icon/icon.png"

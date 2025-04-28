@@ -78,6 +78,7 @@ class DogMain extends StatelessWidget {
         ),
         TagsWidget(
           tags: singleDogProvider.tags,
+          allTags: TagRepository.getAllTagsFromDogs(provider.dogs),
           onTagAdded: (Tag tag) {
             logger.debug("Initiating adding a tag: ${tag.name}");
             singleDogProvider.addTag(tag).catchError((e, s) {
