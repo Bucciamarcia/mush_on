@@ -6,20 +6,46 @@ import 'package:mush_on/services/models/dog.dart';
 
 class DogInfoWidget extends StatelessWidget {
   static final BasicLogger logger = BasicLogger();
-  final Dog dog;
-  const DogInfoWidget(this.dog, {super.key});
+  final String name;
+  final DateTime? birthday;
+  final DogSex sex;
+  final Function(DateTime) onBirthdayChanged;
+  const DogInfoWidget(
+      {super.key,
+      required this.name,
+      required this.sex,
+      required this.birthday,
+      required this.onBirthdayChanged});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       spacing: 5,
       children: [
-        TextTitle("${dog.name}'s info"),
+        TextTitle("$name's info"),
         Row(
           spacing: 5,
           children: [
             IconButton.outlined(
-              onPressed: () {},
+              onPressed: () async {
+                DateTime? datePicked = await showDatePicker(
+                  context: context,
+                  firstDate: DateTime.utc(1980, 1, 1),
+                  lastDate: DateTime.now().toUtc(),
+                  initialDate: (birthday == null)
+                      ? DateTime.now().toUtc()
+                      : DateTime.utc(
+                          birthday!.year, birthday!.month, birthday!.day),
+                );
+                if (datePicked != null) {
+                  final selectedUtcDate = DateTime.utc(
+                    datePicked.year,
+                    datePicked.month,
+                    datePicked.day,
+                  );
+                  onBirthdayChanged(selectedUtcDate);
+                }
+              },
               icon: Icon(Icons.edit),
             ),
             Expanded(
@@ -49,23 +75,41 @@ class DogInfoWidget extends StatelessWidget {
               onPressed: () {},
               icon: Icon(Icons.edit),
             ),
-            Expanded(
-                child: DogInfoRow("Age", dog.age != null ? dog.age! : "?")),
+            Expanded(child: DogInfoRow("Age", age != null ? age! : "?")),
           ],
         ),
       ],
     );
   }
 
+  String? get age {
+    if (birthday == null) return null;
+    DateTime now = DateTime.now().toUtc();
+    if (now.isBefore(birthday!)) {
+      BasicLogger().error("Dog birth is in the future");
+      throw Exception("Dog birth is in the future");
+    }
+    final difference = now.difference(birthday!);
+    final years = difference.inDays ~/ 365;
+    final months = (difference.inDays % 365) ~/ 30;
+
+    if (years > 0) {
+      return "$years year${years > 1 ? 's' : ''}${months > 0 ? ' $months month${months > 1 ? 's' : ''}' : ''}";
+    } else {
+      return "$months month${months > 1 ? 's' : ''}";
+    }
+  }
+
   String formatBirth() {
-    if (dog.birth == null) return "?";
-    return DateFormat("yyyy-MM-dd").format(dog.birth!);
+    if (birthday == null) return "?";
+    var u = birthday!.toUtc();
+    return DateFormat("yyyy-MM-dd").format(u);
   }
 
   String getDogSex() {
-    if (dog.sex == DogSex.male) return "Male";
-    if (dog.sex == DogSex.female) return "Female";
-    if (dog.sex == DogSex.none) return "?";
+    if (sex == DogSex.male) return "Male";
+    if (sex == DogSex.female) return "Female";
+    if (sex == DogSex.none) return "?";
     BasicLogger().error("Dog sex not found");
     throw Exception("Dog sex not Found. This shouldn't happen!");
   }
