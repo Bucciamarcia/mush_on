@@ -296,7 +296,7 @@ class ColorConverter implements JsonConverter<Color, int> {
 
   @override
   int toJson(Color object) {
-    return object.value;
+    return object.toARGB32();
   }
 }
 
@@ -304,14 +304,13 @@ class ColorConverter implements JsonConverter<Color, int> {
 class TagRepository {
   /// Returns of a list of all the unique tags
   static List<Tag> getAllTagsFromDogs(List<Dog> dogs) {
+    Set<String> uniqueTagNames = {};
     List<Tag> toReturn = [];
-    List<String> uniqueTagNames = [];
 
     for (Dog dog in dogs) {
       for (Tag tag in dog.tags) {
-        if (!uniqueTagNames.contains(tag.name)) {
+        if (uniqueTagNames.add(tag.name)) {
           toReturn.add(tag);
-          uniqueTagNames.add(tag.name);
         }
       }
     }
