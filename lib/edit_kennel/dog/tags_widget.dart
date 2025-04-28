@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/edit_kennel/dog/main.dart';
-import 'package:mush_on/firestore_dogs_to_id.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
+import 'package:searchfield/searchfield.dart';
 import 'package:uuid/uuid.dart';
 
 class TagsWidget extends StatelessWidget {
   static BasicLogger logger = BasicLogger();
   final List<Tag> tags;
+  final List<Tag> allTags;
   final Function(Tag) onTagAdded;
   final Function(Tag) onTagDeleted;
   final Function(Tag) onTagChanged;
@@ -18,6 +19,7 @@ class TagsWidget extends StatelessWidget {
       required this.tags,
       required this.onTagAdded,
       required this.onTagDeleted,
+      required this.allTags,
       required this.onTagChanged});
 
   static List<Tag> _getValidTags(List<Tag> tags) {
@@ -53,6 +55,7 @@ class TagsWidget extends StatelessWidget {
                         context: context,
                         builder: (context) => TagEditor(
                               onTagSaved: (newTag) => onTagAdded(newTag),
+                              allTags: allTags,
                             ));
                   },
                   icon: Icon(Icons.add)),
@@ -63,6 +66,7 @@ class TagsWidget extends StatelessWidget {
             children: validTags
                 .map((Tag tag) => SingleTagDisplay(
                       tag: tag,
+                      allTags: allTags,
                       onTagDeleted: () => onTagDeleted(tag),
                       onTagChanged: (Tag newTag) => onTagChanged(newTag),
                     ))
@@ -76,8 +80,13 @@ class TagsWidget extends StatelessWidget {
 
 class TagEditor extends StatefulWidget {
   final Tag? tagToEdit;
+  final List<Tag> allTags;
   final Function(Tag) onTagSaved;
-  const TagEditor({super.key, required this.onTagSaved, this.tagToEdit});
+  const TagEditor(
+      {super.key,
+      required this.onTagSaved,
+      required this.allTags,
+      this.tagToEdit});
 
   @override
   State<TagEditor> createState() => _TagEditorState();
@@ -85,6 +94,7 @@ class TagEditor extends StatefulWidget {
 
 class _TagEditorState extends State<TagEditor> {
   late TextEditingController _controller;
+  SearchFieldListItem<Tag>? selectedValue;
   late Color color;
   DateTime? expiration;
   @override
@@ -105,10 +115,20 @@ class _TagEditorState extends State<TagEditor> {
           mainAxisSize: MainAxisSize.min,
           spacing: 8,
           children: [
-            TextField(
+            SearchField<Tag>(
               controller: _controller,
-              autofocus: true,
-              decoration: InputDecoration(labelText: "Tag name"),
+              hint: "Tag name",
+              suggestions: widget.allTags
+                  .map(
+                    (e) => SearchFieldListItem<Tag>(e.name, item: e),
+                  )
+                  .toList(),
+              selectedValue: selectedValue,
+              onSuggestionTap: (x) {
+                setState(() {
+                  selectedValue = x;
+                });
+              },
             ),
             ExpansionTile(
               title: Row(
@@ -200,12 +220,14 @@ class _TagEditorState extends State<TagEditor> {
 
 class SingleTagDisplay extends StatelessWidget {
   final Tag tag;
+  final List<Tag> allTags;
   final Function() onTagDeleted;
   final Function(Tag) onTagChanged;
   const SingleTagDisplay(
       {super.key,
       required this.tag,
       required this.onTagDeleted,
+      required this.allTags,
       required this.onTagChanged});
 
   @override
@@ -225,10 +247,10 @@ class SingleTagDisplay extends StatelessWidget {
               ? Colors.black
               : Colors.white),
       onPressed: () {
-        logger.info("no moi");
         showDialog(
             context: context,
             builder: (context) => TagEditor(
+                allTags: allTags,
                 tagToEdit: tag,
                 onTagSaved: (Tag editedTag) => onTagChanged(editedTag)));
       },
