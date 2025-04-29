@@ -29,3 +29,7 @@ A cool and open source CRM for sled dog kennels.
 - Replaced login screen and changed its design to allow for multiple sign-in methods (to be yet implemented).
 - Create team now displays a visual feedback when a dog is selected.
 - Created dog page.
+- Added birthday, sex and age to dog.
+- Can now uplaod dog picture.
+- Can now edit dog name.
+- Can now tag dog.
