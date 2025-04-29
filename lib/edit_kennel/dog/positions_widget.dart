@@ -114,6 +114,7 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
             children: [
               Text("Lead"),
               Switch(
+                key: Key("Lead toggle"),
                 value: isLead,
                 onChanged: (newValue) {
                   setState(() {
@@ -135,6 +136,7 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
             children: [
               Text("Swing"),
               Switch(
+                key: Key("Swing toggle"),
                 value: isSwing,
                 onChanged: (newValue) {
                   setState(() {
@@ -156,6 +158,7 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
             children: [
               Text("Team"),
               Switch(
+                key: Key("Team toggle"),
                 value: isTeam,
                 onChanged: (newValue) {
                   setState(() {
@@ -177,6 +180,7 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
             children: [
               Text("Wheel"),
               Switch(
+                key: Key("Wheel toggle"),
                 value: isWheel,
                 onChanged: (newValue) {
                   setState(() {
