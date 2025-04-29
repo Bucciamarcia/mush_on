@@ -4,9 +4,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
-import 'package:mush_on/services/models/team.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
-
 part "dog.g.dart";
 part "dog.freezed.dart";
 

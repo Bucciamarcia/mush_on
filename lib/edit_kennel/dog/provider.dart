@@ -197,4 +197,16 @@ class SingleDogProvider extends ChangeNotifier {
     logger.info("changed birthday");
     notifyListeners();
   }
+
+  Future<void> changeSex(DogSex newSex) async {
+    try {
+      await DogsDbOperations().changeSex(sex: newSex, id: id);
+    } catch (e, s) {
+      logger.error("Couldn't change dog sex", error: e, stackTrace: s);
+      rethrow;
+    }
+    sex = newSex;
+    logger.info("changed sex");
+    notifyListeners();
+  }
 }
