@@ -127,6 +127,16 @@ class DogMain extends StatelessWidget {
               }
             });
           },
+          onSexChanged: (DogSex newSex) {
+            singleDogProvider.changeSex(newSex).catchError((e, s) {
+              logger.error("Couldn't change sex for ${dog.name}",
+                  error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    ErrorSnackbar("Error: couldn't change dog sex"));
+              }
+            });
+          },
         ),
         singleDogProvider.isLoadingTotals
             ? CircularProgressIndicator()

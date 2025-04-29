@@ -19,7 +19,6 @@ mixin _$Dog {
   DogSex get sex;
   String get id;
   DogPositions get positions;
-  String get pictureUrl;
   List<Tag> get tags;
   DateTime? get birth;
 
@@ -43,8 +42,6 @@ mixin _$Dog {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.positions, positions) ||
                 other.positions == positions) &&
-            (identical(other.pictureUrl, pictureUrl) ||
-                other.pictureUrl == pictureUrl) &&
             const DeepCollectionEquality().equals(other.tags, tags) &&
             (identical(other.birth, birth) || other.birth == birth));
   }
@@ -52,11 +49,11 @@ mixin _$Dog {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, name, sex, id, positions,
-      pictureUrl, const DeepCollectionEquality().hash(tags), birth);
+      const DeepCollectionEquality().hash(tags), birth);
 
   @override
   String toString() {
-    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags, birth: $birth)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, birth: $birth)';
   }
 }
 
@@ -69,7 +66,6 @@ abstract mixin class $DogCopyWith<$Res> {
       DogSex sex,
       String id,
       DogPositions positions,
-      String pictureUrl,
       List<Tag> tags,
       DateTime? birth});
 
@@ -92,7 +88,6 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
     Object? sex = null,
     Object? id = null,
     Object? positions = null,
-    Object? pictureUrl = null,
     Object? tags = null,
     Object? birth = freezed,
   }) {
@@ -113,10 +108,6 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
           ? _self.positions
           : positions // ignore: cast_nullable_to_non_nullable
               as DogPositions,
-      pictureUrl: null == pictureUrl
-          ? _self.pictureUrl
-          : pictureUrl // ignore: cast_nullable_to_non_nullable
-              as String,
       tags: null == tags
           ? _self.tags
           : tags // ignore: cast_nullable_to_non_nullable
@@ -148,7 +139,6 @@ class _Dog extends Dog {
       this.sex = DogSex.none,
       this.id = "",
       this.positions = const DogPositions(),
-      this.pictureUrl = "",
       final List<Tag> tags = const [],
       this.birth})
       : _tags = tags,
@@ -167,9 +157,6 @@ class _Dog extends Dog {
   @override
   @JsonKey()
   final DogPositions positions;
-  @override
-  @JsonKey()
-  final String pictureUrl;
   final List<Tag> _tags;
   @override
   @JsonKey()
@@ -207,8 +194,6 @@ class _Dog extends Dog {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.positions, positions) ||
                 other.positions == positions) &&
-            (identical(other.pictureUrl, pictureUrl) ||
-                other.pictureUrl == pictureUrl) &&
             const DeepCollectionEquality().equals(other._tags, _tags) &&
             (identical(other.birth, birth) || other.birth == birth));
   }
@@ -216,11 +201,11 @@ class _Dog extends Dog {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, name, sex, id, positions,
-      pictureUrl, const DeepCollectionEquality().hash(_tags), birth);
+      const DeepCollectionEquality().hash(_tags), birth);
 
   @override
   String toString() {
-    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, pictureUrl: $pictureUrl, tags: $tags, birth: $birth)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, birth: $birth)';
   }
 }
 
@@ -235,7 +220,6 @@ abstract mixin class _$DogCopyWith<$Res> implements $DogCopyWith<$Res> {
       DogSex sex,
       String id,
       DogPositions positions,
-      String pictureUrl,
       List<Tag> tags,
       DateTime? birth});
 
@@ -259,7 +243,6 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
     Object? sex = null,
     Object? id = null,
     Object? positions = null,
-    Object? pictureUrl = null,
     Object? tags = null,
     Object? birth = freezed,
   }) {
@@ -280,10 +263,6 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
           ? _self.positions
           : positions // ignore: cast_nullable_to_non_nullable
               as DogPositions,
-      pictureUrl: null == pictureUrl
-          ? _self.pictureUrl
-          : pictureUrl // ignore: cast_nullable_to_non_nullable
-              as String,
       tags: null == tags
           ? _self._tags
           : tags // ignore: cast_nullable_to_non_nullable
@@ -530,14 +509,14 @@ mixin _$Tag {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.created, created) || other.created == created) &&
-            (identical(other.color, color) || other.color == color) &&
+            const DeepCollectionEquality().equals(other.color, color) &&
             (identical(other.expired, expired) || other.expired == expired));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, created, color, expired);
+  int get hashCode => Object.hash(runtimeType, id, name, created,
+      const DeepCollectionEquality().hash(color), expired);
 
   @override
   String toString() {
@@ -572,7 +551,7 @@ class _$TagCopyWithImpl<$Res> implements $TagCopyWith<$Res> {
     Object? id = null,
     Object? name = null,
     Object? created = null,
-    Object? color = null,
+    Object? color = freezed,
     Object? expired = freezed,
   }) {
     return _then(_self.copyWith(
@@ -588,7 +567,7 @@ class _$TagCopyWithImpl<$Res> implements $TagCopyWith<$Res> {
           ? _self.created
           : created // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      color: null == color
+      color: freezed == color
           ? _self.color
           : color // ignore: cast_nullable_to_non_nullable
               as Color,
@@ -649,14 +628,14 @@ class _Tag implements Tag {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.created, created) || other.created == created) &&
-            (identical(other.color, color) || other.color == color) &&
+            const DeepCollectionEquality().equals(other.color, color) &&
             (identical(other.expired, expired) || other.expired == expired));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, created, color, expired);
+  int get hashCode => Object.hash(runtimeType, id, name, created,
+      const DeepCollectionEquality().hash(color), expired);
 
   @override
   String toString() {
@@ -693,7 +672,7 @@ class __$TagCopyWithImpl<$Res> implements _$TagCopyWith<$Res> {
     Object? id = null,
     Object? name = null,
     Object? created = null,
-    Object? color = null,
+    Object? color = freezed,
     Object? expired = freezed,
   }) {
     return _then(_Tag(
@@ -709,7 +688,7 @@ class __$TagCopyWithImpl<$Res> implements _$TagCopyWith<$Res> {
           ? _self.created
           : created // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      color: null == color
+      color: freezed == color
           ? _self.color
           : color // ignore: cast_nullable_to_non_nullable
               as Color,

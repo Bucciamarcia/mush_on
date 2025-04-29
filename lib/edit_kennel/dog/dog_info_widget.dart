@@ -10,12 +10,14 @@ class DogInfoWidget extends StatelessWidget {
   final DateTime? birthday;
   final DogSex sex;
   final Function(DateTime) onBirthdayChanged;
+  final Function(DogSex) onSexChanged;
   const DogInfoWidget(
       {super.key,
       required this.name,
       required this.sex,
       required this.birthday,
-      required this.onBirthdayChanged});
+      required this.onBirthdayChanged,
+      required this.onSexChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,12 @@ class DogInfoWidget extends StatelessWidget {
           spacing: 5,
           children: [
             IconButton.outlined(
-              onPressed: () {},
+              onPressed: () => showAdaptiveDialog(
+                  context: context,
+                  builder: (BuildContext context) => SexChangeWidget(
+                        onSexChanged: (DogSex newSex) => onSexChanged(newSex),
+                        currentSex: sex,
+                      )),
               icon: Icon(Icons.edit),
             ),
             Expanded(child: DogInfoRow("Sex", getDogSex())),
@@ -127,6 +134,77 @@ class DogInfoRow extends StatelessWidget {
       children: [
         Text(title, style: TextStyle(fontSize: 18)),
         Text(content, style: TextStyle(fontSize: 18)),
+      ],
+    );
+  }
+}
+
+class SexChangeWidget extends StatefulWidget {
+  final DogSex currentSex;
+  final Function(DogSex) onSexChanged;
+  const SexChangeWidget(
+      {super.key, required this.currentSex, required this.onSexChanged});
+
+  @override
+  State<SexChangeWidget> createState() => _SexChangeWidgetState();
+}
+
+class _SexChangeWidgetState extends State<SexChangeWidget> {
+  late DogSex? _newSex;
+
+  @override
+  void initState() {
+    super.initState();
+    _newSex = widget.currentSex;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog.adaptive(
+      title: Text("Change sex"),
+      content: Column(
+        children: [
+          RadioListTile.adaptive(
+              title: Text("Male"),
+              value: DogSex.male,
+              groupValue: _newSex,
+              onChanged: (n) {
+                setState(() {
+                  _newSex = n;
+                });
+              }),
+          RadioListTile.adaptive(
+              title: Text("Female"),
+              value: DogSex.female,
+              groupValue: _newSex,
+              onChanged: (n) {
+                setState(() {
+                  _newSex = n;
+                });
+              }),
+          RadioListTile.adaptive(
+              title: Text("None"),
+              value: DogSex.none,
+              groupValue: _newSex,
+              onChanged: (n) {
+                setState(() {
+                  _newSex = n;
+                });
+              })
+        ],
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("Cancel")),
+        TextButton(
+            onPressed: () {
+              if (_newSex != null) {
+                widget.onSexChanged(_newSex!);
+              }
+              Navigator.of(context).pop();
+            },
+            child: Text("OK")),
       ],
     );
   }
