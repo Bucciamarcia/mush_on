@@ -19,9 +19,40 @@ class SingleDogProvider extends ChangeNotifier {
   bool isLoadingTotals = false;
   Uint8List? image;
   bool isLoadingImage = false;
+  String account = "";
   static BasicLogger logger = BasicLogger();
 
   SingleDogProvider();
+
+  void initDog(Dog newDog) async {
+    id = newDog.id;
+    name = newDog.name;
+    sex = newDog.sex;
+    positions = newDog.positions;
+    tags = newDog.tags;
+    logger.info("Tags: ${newDog.tags.toString()}");
+    logger.info("Birth: ${newDog.birth.toString()}");
+    birth = newDog.birth;
+    account = await FirestoreService().getUserAccount();
+
+    updateImage();
+
+    // Start loading totals
+    isLoadingTotals = true;
+    notifyListeners();
+
+    // Fetch totals asynchronously
+    await DogTotal.getDogTotals(id: newDog.id).then((totals) {
+      runTotals = totals;
+      isLoadingTotals = false;
+      notifyListeners();
+    }).catchError((e, s) {
+      logger.error("Couldn't get distances for provider",
+          error: e, stackTrace: s);
+      isLoadingTotals = false;
+      notifyListeners();
+    });
+  }
 
   Future<void> changeName(String newName) async {
     try {
@@ -35,7 +66,7 @@ class SingleDogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> editImage(File file, String account) async {
+  Future<void> editImage(File file) async {
     isLoadingImage = true;
     notifyListeners();
 
@@ -58,7 +89,7 @@ class SingleDogProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteImage(String account) async {
+  Future<void> deleteImage() async {
     isLoadingImage = true;
     notifyListeners();
 
@@ -74,35 +105,6 @@ class SingleDogProvider extends ChangeNotifier {
     }
   }
 
-  void initDog(Dog newDog) async {
-    id = newDog.id;
-    name = newDog.name;
-    sex = newDog.sex;
-    positions = newDog.positions;
-    tags = newDog.tags;
-    logger.info("Tags: ${newDog.tags.toString()}");
-    logger.info("Birth: ${newDog.birth.toString()}");
-    birth = newDog.birth;
-
-    updateImage();
-
-    // Start loading totals
-    isLoadingTotals = true;
-    notifyListeners();
-
-    // Fetch totals asynchronously
-    await DogTotal.getDogTotals(id: newDog.id).then((totals) {
-      runTotals = totals;
-      isLoadingTotals = false;
-      notifyListeners();
-    }).catchError((e, s) {
-      logger.error("Couldn't get distances for provider",
-          error: e, stackTrace: s);
-      isLoadingTotals = false;
-      notifyListeners();
-    });
-  }
-
   void updateDog(Dog newDog) {
     id = newDog.id;
     name = newDog.name;
@@ -116,14 +118,12 @@ class SingleDogProvider extends ChangeNotifier {
   Future<void> updateImage() async {
     isLoadingImage = true;
     notifyListeners();
-    String account = await FirestoreService().getUserAccount();
     image = await DogPhotoCardUtils(id: id, account: account).getImage();
     isLoadingImage = false;
     notifyListeners();
   }
 
-  Future<void> updatePositions(
-      DogPositions newPositions, String account) async {
+  Future<void> updatePositions(DogPositions newPositions) async {
     try {
       logger.debug("New positions in provider: ${newPositions.toString()}");
       await DogsDbOperations().updateDogPositions(

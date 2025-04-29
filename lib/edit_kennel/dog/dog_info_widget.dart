@@ -75,16 +75,7 @@ class DogInfoWidget extends StatelessWidget {
           ],
         ),
         Divider(),
-        Row(
-          spacing: 5,
-          children: [
-            IconButton.outlined(
-              onPressed: () {},
-              icon: Icon(Icons.edit),
-            ),
-            Expanded(child: DogInfoRow("Age", age != null ? age! : "?")),
-          ],
-        ),
+        DogInfoRow("Age", age != null ? age! : "?"),
       ],
     );
   }

@@ -15,9 +15,7 @@ class DogScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) {
-        // Create and initialize the provider before returning it
         final provider = SingleDogProvider();
-        // Use a non-notify initialization or schedule the update
         provider.initDog(dog);
         return provider;
       },

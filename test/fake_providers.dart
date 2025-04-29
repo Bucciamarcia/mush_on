@@ -77,10 +77,12 @@ class FakeCreateTeamProvider extends ChangeNotifier
       Dog(name: "Fido", id: "id_Fido", positions: DogPositions(lead: true)),
       Dog(
           name: "Fluffy",
+          sex: DogSex.none,
           id: "id_Fluffy",
           positions: DogPositions(swing: true)),
       Dog(
           name: "Wheeler",
+          sex: DogSex.none,
           id: "id_Wheeler",
           positions: DogPositions(wheel: true)),
     ];
