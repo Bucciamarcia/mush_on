@@ -42,7 +42,9 @@ class DogMain extends StatelessWidget {
           image: singleDogProvider.image,
           isLoading: singleDogProvider.isLoadingImage,
           onImageEdited: (File file) => singleDogProvider
-              .editImage(file, provider.account)
+              .editImage(
+            file,
+          )
               .catchError((e, s) {
             logger.error("Couldn't edit image", error: e, stackTrace: s);
             if (context.mounted) {
@@ -50,9 +52,8 @@ class DogMain extends StatelessWidget {
                   .showSnackBar(ErrorSnackbar("Couldn't edit image"));
             }
           }),
-          onImageDeleted: () => singleDogProvider
-              .deleteImage(provider.account)
-              .catchError((e, s) {
+          onImageDeleted: () =>
+              singleDogProvider.deleteImage().catchError((e, s) {
             logger.error("Couldn't remove image", error: e, stackTrace: s);
             if (context.mounted) {
               ScaffoldMessenger.of(context)
@@ -64,9 +65,7 @@ class DogMain extends StatelessWidget {
           positions: singleDogProvider.positions,
           onPositionsChanged: (DogPositions newPositions) {
             logger.debug("New positions: ${newPositions.toString()}");
-            singleDogProvider
-                .updatePositions(newPositions, provider.account)
-                .catchError((e, s) {
+            singleDogProvider.updatePositions(newPositions).catchError((e, s) {
               logger.error("Couldn't update dog positions",
                   error: e, stackTrace: s);
               if (context.mounted) {

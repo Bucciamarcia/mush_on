@@ -48,11 +48,14 @@ void main() {
     final testDogObject = Dog(
       name: "Buddy",
       id: "dog123",
+      sex: DogSex.none,
       positions:
           DogPositions(lead: true, swing: false, team: true, wheel: false),
     );
     final testDogJson = <String, dynamic>{
       'name': "Buddy",
+      "birth": null,
+      "sex": "none",
       'id': "dog123",
       'positions': <String, dynamic>{
         'lead': true,
@@ -60,7 +63,6 @@ void main() {
         'team': true,
         'wheel': false,
       },
-      'pictureUrl': "",
       'tags': [],
     };
     final testDogObjectDefaultPos = Dog(
@@ -70,6 +72,8 @@ void main() {
     );
     final testDogJsonDefaultPos = <String, dynamic>{
       'name': "Rookie",
+      "birth": null,
+      "sex": "none",
       'id': "dog456",
       'positions': <String, dynamic>{
         'lead': false,
@@ -77,7 +81,6 @@ void main() {
         'team': false,
         'wheel': false,
       },
-      'pictureUrl': "",
       'tags': [],
     };
 
