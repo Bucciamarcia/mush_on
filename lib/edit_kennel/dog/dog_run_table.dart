@@ -59,9 +59,15 @@ class DogTotalDataSource extends DataGridSource {
           alignment: Alignment.center,
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
-            dataGridCell.value.toString(),
+            formatCell(dataGridCell.value.toString()),
             overflow: TextOverflow.ellipsis,
           ));
     }).toList());
+  }
+
+  String formatCell(String n) {
+    if (n == "0.0") return "0";
+    if (n.endsWith(".0")) return n.substring(0, n.length - 2);
+    return n;
   }
 }
