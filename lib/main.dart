@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:mush_on/routes.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/firestore.dart';
+import 'package:mush_on/shared/dog_filter/provider.dart';
 import 'package:provider/provider.dart';
 import 'home_page/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -23,28 +24,14 @@ Future<void> main() async {
     FlutterError.onError = (errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
-    // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
       return true;
     };
     await FirebaseAppCheck.instance.activate(
-      // You can also use a `ReCaptchaEnterpriseProvider` provider instance as an
-      // argument for `webProvider`
       webProvider:
           ReCaptchaV3Provider('6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G'),
-      // Default provider for Android is the Play Integrity provider. You can use the "AndroidProvider" enum to choose
-      // your preferred provider. Choose from:
-      // 1. Debug provider
-      // 2. Safety Net provider
-      // 3. Play Integrity provider
       androidProvider: AndroidProvider.playIntegrity,
-      // Default provider for iOS/macOS is the Device Check provider. You can use the "AppleProvider" enum to choose
-      // your preferred provider. Choose from:
-      // 1. Debug provider
-      // 2. Device Check provider
-      // 3. App Attest provider
-      // 4. App Attest provider with fallback to Device Check provider (App Attest provider is only available on iOS 14.0+, macOS 14.0+)
       appleProvider: AppleProvider.deviceCheck,
     );
   }
@@ -58,8 +45,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (context) => DogProvider(),
+        ChangeNotifierProvider(create: (context) => DogProvider()),
+        ChangeNotifierProxyProvider<DogProvider, DogFilterProvider>(
+          create: (context) => DogFilterProvider(),
+          update: (context, dogProvider, dogFilterProvider) {
+            dogFilterProvider!.setDogs(dogProvider.dogs);
+            return dogFilterProvider;
+          },
         ),
       ],
       child: MaterialApp(

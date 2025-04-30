@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:provider/provider.dart';
 
 class EditKennelMain extends StatelessWidget {
@@ -16,6 +17,18 @@ class EditKennelMain extends StatelessWidget {
           onPressed: () => Navigator.pushNamed(context, "/adddog"),
           label: Text("Add a dog"),
           icon: Icon(Icons.add),
+        ),
+        Container(
+          margin: EdgeInsets.all(10),
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.all(
+              Radius.circular(5),
+            ),
+            border: Border.all(color: Colors.grey),
+          ),
+          child: DogFilterWidget(),
         ),
         ...dogProvider.dogs.map(
           (dog) => DogCard(dog: dog),
