@@ -40,6 +40,14 @@ abstract class Dog with _$Dog {
     return toReturn;
   }
 
+  /// The number of years of this dog
+  int? get years {
+    if (birth == null) return null;
+    DateTime now = DateTime.now().toUtc();
+    Duration duration = now.difference(birth!);
+    return (duration.inDays / 365).floor();
+  }
+
   String? get age {
     if (birth == null) return null;
     DateTime now = DateTime.now().toUtc();
