@@ -17,6 +17,7 @@ class DogFilterWidget extends StatelessWidget {
     return Column(
       children: [
         ConditionGroup(
+          allTags: TagRepository.getAllTagsFromDogs(provider.dogs),
           conditionSelected: (provider.conditions.isEmpty)
               ? null
               : provider.conditions.firstOrNull?.conditionSelection,
@@ -47,18 +48,21 @@ class ConditionGroup extends StatelessWidget {
   final Function(dynamic) onFilterChanged;
   final ConditionSelection? conditionSelected;
   final OperationSelection? operationSelected;
+  final List<Tag> allTags;
   const ConditionGroup(
       {super.key,
       required this.onConditionSelected,
       required this.onOperatorSelected,
       required this.onFilterChanged,
       required this.conditionSelected,
-      required this.operationSelected});
+      required this.operationSelected,
+      required this.allTags});
 
   @override
   Widget build(BuildContext context) {
     return Card(
         child: ConditionRow(
+      allTags: allTags,
       conditionSelected: conditionSelected,
       operationSelected: operationSelected,
       onConditionSelected: (v) => onConditionSelected(v),
@@ -74,13 +78,15 @@ class ConditionRow extends StatelessWidget {
   final Function(dynamic) onFilterChanged;
   final ConditionSelection? conditionSelected;
   final OperationSelection? operationSelected;
+  final List<Tag> allTags;
   const ConditionRow(
       {super.key,
       required this.onConditionSelected,
       required this.onOperatorSelected,
       required this.onFilterChanged,
       required this.conditionSelected,
-      required this.operationSelected});
+      required this.operationSelected,
+      required this.allTags});
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +101,7 @@ class ConditionRow extends StatelessWidget {
           conditionSelected: conditionSelected,
         ),
         FilterField(
+          allTags: allTags,
           onFilterFieldChanged: (v) => onFilterChanged(v),
           conditionSelected: conditionSelected,
         ),
@@ -145,27 +152,28 @@ class OperatorSelector extends StatelessWidget {
   }
 }
 
-class FilterField extends StatefulWidget {
+class FilterField extends StatelessWidget {
   final Function(dynamic) onFilterFieldChanged;
   final ConditionSelection? conditionSelected;
+  final List<Tag> allTags;
   const FilterField(
       {super.key,
       required this.onFilterFieldChanged,
-      required this.conditionSelected});
+      required this.conditionSelected,
+      required this.allTags});
 
-  @override
-  State<FilterField> createState() => _FilterFieldState();
-}
-
-class _FilterFieldState extends State<FilterField> {
   @override
   Widget build(BuildContext context) {
-    if (widget.conditionSelected == null) return textWidgetField();
-    switch (widget.conditionSelected!.type) {
+    if (conditionSelected == null) return textWidgetField();
+    switch (conditionSelected!.type) {
       case const (String):
         return textWidgetField();
       case const (int):
         return intWidgetField();
+      case const (Tag):
+        return tagWidgetField();
+      case const (DogSex):
+        return sexWidgetField();
     }
     throw Exception("Couldn't find the appropriate widget");
   }
@@ -174,7 +182,7 @@ class _FilterFieldState extends State<FilterField> {
     return Flexible(
       child: TextField(
         decoration: InputDecoration(labelText: "Filter"),
-        onChanged: (v) => widget.onFilterFieldChanged(v),
+        onChanged: (v) => onFilterFieldChanged(v),
       ),
     );
   }
@@ -187,7 +195,31 @@ class _FilterFieldState extends State<FilterField> {
           FilteringTextInputFormatter.digitsOnly,
         ],
         decoration: InputDecoration(labelText: "Filter"),
-        onChanged: (v) => widget.onFilterFieldChanged(int.parse(v)),
+        onChanged: (v) => onFilterFieldChanged(int.parse(v)),
+      ),
+    );
+  }
+
+  Flexible tagWidgetField() {
+    return Flexible(
+      child: Autocomplete<Tag>(
+        displayStringForOption: (Tag tag) => tag.name,
+        optionsBuilder: (TextEditingValue textEditingValue) {
+          return allTags
+              .where((Tag tag) => tag.name.contains(textEditingValue.text));
+        },
+        onSelected: (v) => onFilterFieldChanged(v),
+      ),
+    );
+  }
+
+  Flexible sexWidgetField() {
+    return Flexible(
+      child: DropdownMenu<DogSex>(
+        dropdownMenuEntries: DogSex.values
+            .map((DogSex sex) => DropdownMenuEntry(value: sex, label: sex.name))
+            .toList(),
+        onSelected: (v) => onFilterFieldChanged(v),
       ),
     );
   }

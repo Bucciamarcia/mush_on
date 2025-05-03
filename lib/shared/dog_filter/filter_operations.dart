@@ -1,4 +1,3 @@
-import 'package:icons_launcher/cli_commands.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/shared/dog_filter/enums.dart';

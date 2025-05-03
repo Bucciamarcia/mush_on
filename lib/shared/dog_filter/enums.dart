@@ -12,7 +12,7 @@ enum ConditionSelection {
     OperationSelection.equalsNot,
     OperationSelection.lessThan
   ]),
-  tag(type: String, allowedOperations: [
+  tag(type: Tag, allowedOperations: [
     OperationSelection.equals,
     OperationSelection.equalsNot
   ]),
