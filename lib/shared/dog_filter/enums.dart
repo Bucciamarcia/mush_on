@@ -2,9 +2,7 @@ import 'package:mush_on/services/models/dog.dart';
 
 enum ConditionSelection {
   name(type: String, allowedOperations: [
-    OperationSelection.equals,
     OperationSelection.contains,
-    OperationSelection.equalsNot
   ]),
   age(type: int, allowedOperations: [
     OperationSelection.equals,

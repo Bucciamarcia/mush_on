@@ -9,7 +9,11 @@ import 'package:provider/provider.dart';
 
 class DogFilterWidget extends StatelessWidget {
   final Function(List<Dog>) onResult;
-  const DogFilterWidget({super.key, required this.onResult});
+
+  /// List of dogs to use for flitering
+  final List<Dog> dogs;
+  const DogFilterWidget(
+      {super.key, required this.dogs, required this.onResult});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +21,7 @@ class DogFilterWidget extends StatelessWidget {
     return Column(
       children: [
         ConditionGroup(
-          allTags: TagRepository.getAllTagsFromDogs(provider.dogs),
+          allDogs: dogs,
           conditionSelected: (provider.conditions.isEmpty)
               ? null
               : provider.conditions.firstOrNull?.conditionSelection,
@@ -32,7 +36,7 @@ class DogFilterWidget extends StatelessWidget {
               provider.setCondition(position: 0, filterSelection: v),
         ),
         SubmitButton(
-          dogs: provider.dogs,
+          dogs: dogs,
           conditions: provider.conditions,
           conditionType: provider.conditionType,
           onResult: (result) => onResult(result),
@@ -48,7 +52,7 @@ class ConditionGroup extends StatelessWidget {
   final Function(dynamic) onFilterChanged;
   final ConditionSelection? conditionSelected;
   final OperationSelection? operationSelected;
-  final List<Tag> allTags;
+  final List<Dog> allDogs;
   const ConditionGroup(
       {super.key,
       required this.onConditionSelected,
@@ -56,13 +60,13 @@ class ConditionGroup extends StatelessWidget {
       required this.onFilterChanged,
       required this.conditionSelected,
       required this.operationSelected,
-      required this.allTags});
+      required this.allDogs});
 
   @override
   Widget build(BuildContext context) {
     return Card(
         child: ConditionRow(
-      allTags: allTags,
+      allDogs: allDogs,
       conditionSelected: conditionSelected,
       operationSelected: operationSelected,
       onConditionSelected: (v) => onConditionSelected(v),
@@ -78,7 +82,7 @@ class ConditionRow extends StatelessWidget {
   final Function(dynamic) onFilterChanged;
   final ConditionSelection? conditionSelected;
   final OperationSelection? operationSelected;
-  final List<Tag> allTags;
+  final List<Dog> allDogs;
   const ConditionRow(
       {super.key,
       required this.onConditionSelected,
@@ -86,7 +90,7 @@ class ConditionRow extends StatelessWidget {
       required this.onFilterChanged,
       required this.conditionSelected,
       required this.operationSelected,
-      required this.allTags});
+      required this.allDogs});
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +105,7 @@ class ConditionRow extends StatelessWidget {
           conditionSelected: conditionSelected,
         ),
         FilterField(
-          allTags: allTags,
+          allDogs: allDogs,
           onFilterFieldChanged: (v) => onFilterChanged(v),
           conditionSelected: conditionSelected,
         ),
@@ -155,12 +159,14 @@ class OperatorSelector extends StatelessWidget {
 class FilterField extends StatelessWidget {
   final Function(dynamic) onFilterFieldChanged;
   final ConditionSelection? conditionSelected;
-  final List<Tag> allTags;
+  final OperationSelection? operationSelected;
+  final List<Dog> allDogs;
   const FilterField(
       {super.key,
       required this.onFilterFieldChanged,
       required this.conditionSelected,
-      required this.allTags});
+      required this.allDogs,
+      this.operationSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +207,7 @@ class FilterField extends StatelessWidget {
   }
 
   Flexible tagWidgetField() {
+    List<Tag> allTags = TagRepository.getAllTagsFromDogs(allDogs);
     return Flexible(
       child: Autocomplete<Tag>(
         displayStringForOption: (Tag tag) => tag.name,
