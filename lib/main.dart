@@ -46,13 +46,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => DogProvider()),
-        ChangeNotifierProxyProvider<DogProvider, DogFilterProvider>(
-          create: (context) => DogFilterProvider(),
-          update: (context, dogProvider, dogFilterProvider) {
-            dogFilterProvider!.setDogs(dogProvider.dogs);
-            return dogFilterProvider;
-          },
-        ),
+        ChangeNotifierProvider(create: (context) => DogFilterProvider())
       ],
       child: MaterialApp(
           title: 'Mush On!',

@@ -14,6 +14,7 @@ class EditKennelMain extends StatefulWidget {
 
 class _EditKennelMainState extends State<EditKennelMain> {
   late List<Dog> dogList;
+  late List<Dog> initialDogList;
   late BasicLogger logger;
   @override
   void initState() {
@@ -25,6 +26,9 @@ class _EditKennelMainState extends State<EditKennelMain> {
   @override
   Widget build(BuildContext context) {
     var dogProvider = context.watch<DogProvider>();
+    setState(() {
+      initialDogList = List.from(dogProvider.dogs);
+    });
     if (dogList.isEmpty) {
       setState(() {
         dogList = List.from(dogProvider.dogs);
@@ -48,8 +52,13 @@ class _EditKennelMainState extends State<EditKennelMain> {
             border: Border.all(color: Colors.grey),
           ),
           child: DogFilterWidget(
+            dogs: initialDogList,
             onResult: (v) {
               logger.debug("Len of list: ${v.length}");
+              if (v.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    ErrorSnackbar("Search came up empty. Showing all dogs"));
+              }
               setState(() {
                 dogList = v;
               });

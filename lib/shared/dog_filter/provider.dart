@@ -1,21 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/shared/dog_filter/enums.dart';
 
 class DogFilterProvider extends ChangeNotifier {
   BasicLogger logger = BasicLogger();
-  List<Dog> _dogs = [];
-  List<Dog> get dogs => _dogs;
   List<ConditionSelectionElement> conditions = [];
   ConditionType conditionType = ConditionType.and;
 
   DogFilterProvider();
-
-  void setDogs(List<Dog> newDogs) {
-    _dogs = newDogs;
-    notifyListeners();
-  }
 
   /// Creates or update a certain condition in the list
   void setCondition(
