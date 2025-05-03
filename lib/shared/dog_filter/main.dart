@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/dog_filter/filter_operations.dart';
@@ -43,7 +44,7 @@ class DogFilterWidget extends StatelessWidget {
 class ConditionGroup extends StatelessWidget {
   final Function(ConditionSelection?) onConditionSelected;
   final Function(OperationSelection?) onOperatorSelected;
-  final Function(String?) onFilterChanged;
+  final Function(dynamic) onFilterChanged;
   final ConditionSelection? conditionSelected;
   final OperationSelection? operationSelected;
   const ConditionGroup(
@@ -70,7 +71,7 @@ class ConditionGroup extends StatelessWidget {
 class ConditionRow extends StatelessWidget {
   final Function(ConditionSelection?) onConditionSelected;
   final Function(OperationSelection?) onOperatorSelected;
-  final Function(String?) onFilterChanged;
+  final Function(dynamic) onFilterChanged;
   final ConditionSelection? conditionSelected;
   final OperationSelection? operationSelected;
   const ConditionRow(
@@ -93,7 +94,10 @@ class ConditionRow extends StatelessWidget {
           onOperatorSelected: (v) => onOperatorSelected(v),
           conditionSelected: conditionSelected,
         ),
-        FilterField(onFilterFieldChanged: (v) => onFilterChanged(v)),
+        FilterField(
+          onFilterFieldChanged: (v) => onFilterChanged(v),
+          conditionSelected: conditionSelected,
+        ),
       ],
     );
   }
@@ -142,8 +146,12 @@ class OperatorSelector extends StatelessWidget {
 }
 
 class FilterField extends StatefulWidget {
-  final Function(String) onFilterFieldChanged;
-  const FilterField({super.key, required this.onFilterFieldChanged});
+  final Function(dynamic) onFilterFieldChanged;
+  final ConditionSelection? conditionSelected;
+  const FilterField(
+      {super.key,
+      required this.onFilterFieldChanged,
+      required this.conditionSelected});
 
   @override
   State<FilterField> createState() => _FilterFieldState();
@@ -152,10 +160,34 @@ class FilterField extends StatefulWidget {
 class _FilterFieldState extends State<FilterField> {
   @override
   Widget build(BuildContext context) {
+    if (widget.conditionSelected == null) return textWidgetField();
+    switch (widget.conditionSelected!.type) {
+      case const (String):
+        return textWidgetField();
+      case const (int):
+        return intWidgetField();
+    }
+    throw Exception("Couldn't find the appropriate widget");
+  }
+
+  Flexible textWidgetField() {
     return Flexible(
       child: TextField(
         decoration: InputDecoration(labelText: "Filter"),
         onChanged: (v) => widget.onFilterFieldChanged(v),
+      ),
+    );
+  }
+
+  Flexible intWidgetField() {
+    return Flexible(
+      child: TextField(
+        keyboardType: TextInputType.numberWithOptions(),
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+        ],
+        decoration: InputDecoration(labelText: "Filter"),
+        onChanged: (v) => widget.onFilterFieldChanged(int.parse(v)),
       ),
     );
   }

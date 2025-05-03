@@ -22,7 +22,7 @@ class DogFilterProvider extends ChangeNotifier {
       {required int position,
       ConditionSelection? conditionSelection,
       OperationSelection? operationSelection,
-      String? filterSelection}) {
+      dynamic filterSelection}) {
     ConditionSelectionElement toSet = conditions.firstWhere(
         (condition) => condition.position == position,
         orElse: () => ConditionSelectionElement(position: position));
@@ -52,7 +52,7 @@ class ConditionSelectionElement {
   final int position;
   ConditionSelection? conditionSelection;
   OperationSelection? operationSelection;
-  String? filterSelection;
+  dynamic filterSelection;
 
   ConditionSelectionElement(
       {required this.position,
