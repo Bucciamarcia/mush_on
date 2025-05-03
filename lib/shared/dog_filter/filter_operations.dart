@@ -1,3 +1,4 @@
+import 'package:icons_launcher/cli_commands.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/shared/dog_filter/enums.dart';
@@ -29,11 +30,17 @@ class FilterOperations {
   }
 
   List<Dog> _processName(String filter) {
+    filter = filter.trimRight();
     switch (operationSelection) {
       case OperationSelection.equals:
-        return dogs.where((dog) => dog.name == filter).toList();
+        return dogs
+            .where((dog) => dog.name.toLowerCase() == filter.toLowerCase())
+            .toList();
       case OperationSelection.contains:
-        return dogs.where((dog) => dog.name.contains(filter)).toList();
+        return dogs
+            .where(
+                (dog) => dog.name.toLowerCase().contains(filter.toLowerCase()))
+            .toList();
       case OperationSelection.moreThan:
         logger.error("Illegal operation in processname");
         throw IllegalOperationException(
@@ -43,7 +50,10 @@ class FilterOperations {
         throw IllegalOperationException(
             message: "Selected illegal operation: lessthan");
       case OperationSelection.equalsNot:
-        return dogs.where((dog) => !dog.name.contains(filter)).toList();
+        return dogs
+            .where(
+                (dog) => !dog.name.toLowerCase().contains(filter.toLowerCase()))
+            .toList();
     }
   }
 
