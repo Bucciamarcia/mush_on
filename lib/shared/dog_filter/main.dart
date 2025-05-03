@@ -19,6 +19,7 @@ class DogFilterWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     DogFilterProvider provider = context.watch<DogFilterProvider>();
     return Column(
+      spacing: 10,
       children: [
         ConditionGroup(
           allDogs: dogs,
@@ -35,11 +36,23 @@ class DogFilterWidget extends StatelessWidget {
           onFilterChanged: (v) =>
               provider.setCondition(position: 0, filterSelection: v),
         ),
-        SubmitButton(
-          dogs: dogs,
-          conditions: provider.conditions,
-          conditionType: provider.conditionType,
-          onResult: (result) => onResult(result),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 10,
+          children: [
+            SubmitButton(
+              dogs: dogs,
+              conditions: provider.conditions,
+              conditionType: provider.conditionType,
+              onResult: (result) => onResult(result),
+            ),
+            ElevatedButton(
+                child: Text("Reset"),
+                onPressed: () {
+                  provider.resetConditions();
+                  onResult(dogs);
+                }),
+          ],
         ),
       ],
     );
@@ -65,13 +78,16 @@ class ConditionGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-        child: ConditionRow(
-      allDogs: allDogs,
-      conditionSelected: conditionSelected,
-      operationSelected: operationSelected,
-      onConditionSelected: (v) => onConditionSelected(v),
-      onOperatorSelected: (v) => onOperatorSelected(v),
-      onFilterChanged: (v) => onFilterChanged(v),
+        child: Padding(
+      padding: const EdgeInsets.all(10),
+      child: ConditionRow(
+        allDogs: allDogs,
+        conditionSelected: conditionSelected,
+        operationSelected: operationSelected,
+        onConditionSelected: (v) => onConditionSelected(v),
+        onOperatorSelected: (v) => onOperatorSelected(v),
+        onFilterChanged: (v) => onFilterChanged(v),
+      ),
     ));
   }
 }
@@ -95,6 +111,7 @@ class ConditionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      spacing: 10,
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

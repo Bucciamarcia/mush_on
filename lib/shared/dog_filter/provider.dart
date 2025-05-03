@@ -37,7 +37,10 @@ class DogFilterProvider extends ChangeNotifier {
   }
 
   /// Resets the conditions for when the page is reloaded
-  void resetConditions() => conditions = [];
+  void resetConditions() {
+    conditions = [];
+    notifyListeners();
+  }
 }
 
 class ConditionSelectionElement {
