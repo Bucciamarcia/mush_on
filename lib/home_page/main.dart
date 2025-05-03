@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/services/auth.dart';
-import 'package:mush_on/shared/dog_filter/main.dart';
 
 class HomePageScreenContent extends StatelessWidget {
   const HomePageScreenContent({super.key});
@@ -46,12 +45,6 @@ class HomePageScreenContent extends StatelessWidget {
             },
             child: Text("Log out"),
           ),
-          ElevatedButton(
-              onPressed: () async {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => DogFilterWidget()));
-              },
-              child: Text("Moi")),
         ],
       ),
     );
