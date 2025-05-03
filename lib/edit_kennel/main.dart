@@ -5,14 +5,31 @@ import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:provider/provider.dart';
 
-class EditKennelMain extends StatelessWidget {
-  static final BasicLogger logger = BasicLogger();
+class EditKennelMain extends StatefulWidget {
   const EditKennelMain({super.key});
+
+  @override
+  State<EditKennelMain> createState() => _EditKennelMainState();
+}
+
+class _EditKennelMainState extends State<EditKennelMain> {
+  late List<Dog> dogList;
+  late BasicLogger logger;
+  @override
+  void initState() {
+    super.initState();
+    logger = BasicLogger();
+    dogList = [];
+  }
 
   @override
   Widget build(BuildContext context) {
     var dogProvider = context.watch<DogProvider>();
-
+    if (dogList.isEmpty) {
+      setState(() {
+        dogList = List.from(dogProvider.dogs);
+      });
+    }
     return ListView(
       children: [
         ElevatedButton.icon(
@@ -32,16 +49,14 @@ class EditKennelMain extends StatelessWidget {
           ),
           child: DogFilterWidget(
             onResult: (v) {
-              if (v.isEmpty) logger.debug("Empty list");
-              String toPrint = "";
-              for (Dog d in v) {
-                toPrint = "$toPrint, ${d.name}";
-              }
-              logger.debug("RESULT of filter: $toPrint");
+              logger.debug("Len of list: ${v.length}");
+              setState(() {
+                dogList = v;
+              });
             },
           ),
         ),
-        ...dogProvider.dogs.map(
+        ...dogList.map(
           (dog) => DogCard(dog: dog),
         ),
       ],
