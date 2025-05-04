@@ -38,3 +38,5 @@ A cool and open source CRM for sled dog kennels.
 
 - Added filtering for dogs in kennel.
 - Added delete dog button in dog page.
+- Fixed a bug where new or deleted dogs wouldn't appear in edit kennel.
+- Fixed a bug where lowercase dogs would always appear last.
