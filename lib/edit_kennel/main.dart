@@ -36,34 +36,30 @@ class _EditKennelMainState extends State<EditKennelMain> {
     }
     return ListView(
       children: [
+        Card(
+          child: ExpansionTile(
+            title: Text("Filter dogs"),
+            children: [
+              DogFilterWidget(
+                dogs: initialDogList,
+                onResult: (v) {
+                  logger.debug("Len of list: ${v.length}");
+                  if (v.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(ErrorSnackbar(
+                        "Search came up empty. Showing all dogs"));
+                  }
+                  setState(() {
+                    dogList = v;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
         ElevatedButton.icon(
           onPressed: () => Navigator.pushNamed(context, "/adddog"),
           label: Text("Add a dog"),
           icon: Icon(Icons.add),
-        ),
-        Container(
-          margin: EdgeInsets.all(10),
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.all(
-              Radius.circular(5),
-            ),
-            border: Border.all(color: Colors.grey),
-          ),
-          child: DogFilterWidget(
-            dogs: initialDogList,
-            onResult: (v) {
-              logger.debug("Len of list: ${v.length}");
-              if (v.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    ErrorSnackbar("Search came up empty. Showing all dogs"));
-              }
-              setState(() {
-                dogList = v;
-              });
-            },
-          ),
         ),
         ...dogList.map(
           (dog) => DogCard(dog: dog),
