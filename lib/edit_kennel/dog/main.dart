@@ -143,7 +143,52 @@ class DogMain extends StatelessWidget {
         singleDogProvider.isLoadingTotals
             ? CircularProgressIndicator()
             : DogrunTableWidget(singleDogProvider.runTotals),
+        DeleteDogButton(
+            dog: dog,
+            onDogDeleted: () {
+              singleDogProvider
+                  .deleteDog()
+                  .then((_) => {
+                        if (context.mounted)
+                          {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("Dog deleted"),
+                              backgroundColor: Colors.green,
+                            )),
+                            Navigator.of(context).pop(),
+                          }
+                      })
+                  // ignore: body_might_complete_normally_catch_error
+                  .catchError((e, s) {
+                logger.error("Couldn't delete dog ${dog.name}",
+                    error: e, stackTrace: s);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      ErrorSnackbar("Error: couldn't delete dog"));
+                }
+              });
+            }),
       ],
+    );
+  }
+}
+
+class DeleteDogButton extends StatelessWidget {
+  final Dog dog;
+  final Function() onDogDeleted;
+  const DeleteDogButton(
+      {super.key, required this.dog, required this.onDogDeleted});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      style: ButtonStyle(
+        foregroundColor: WidgetStateProperty.all(Colors.black),
+        backgroundColor: WidgetStateProperty.all(Colors.red),
+      ),
+      onPressed: () => onDogDeleted(),
+      label: Text("Delete dog"),
+      icon: Icon(Icons.delete),
     );
   }
 }

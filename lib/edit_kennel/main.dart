@@ -1,39 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/edit_kennel/provider.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:provider/provider.dart';
 
-class EditKennelMain extends StatefulWidget {
+class EditKennelMain extends StatelessWidget {
+  static BasicLogger logger = BasicLogger();
   const EditKennelMain({super.key});
 
   @override
-  State<EditKennelMain> createState() => _EditKennelMainState();
-}
-
-class _EditKennelMainState extends State<EditKennelMain> {
-  late List<Dog> dogList;
-  late List<Dog> initialDogList;
-  late BasicLogger logger;
-  @override
-  void initState() {
-    super.initState();
-    logger = BasicLogger();
-    dogList = [];
-  }
-
-  @override
   Widget build(BuildContext context) {
-    var dogProvider = context.watch<DogProvider>();
-    setState(() {
-      initialDogList = List.from(dogProvider.dogs);
-    });
-    if (dogList.isEmpty) {
-      setState(() {
-        dogList = List.from(dogProvider.dogs);
-      });
-    }
+    var provider = context.watch<DogProvider>();
+    var kennelProvider = context.watch<KennelProvider>();
+    // INFO: This plugin doesn't differentiate between inactive filter and filter returning no results.
+    // INFO: Ideally it should differentiate with a nullable List<Dog>?, but since I want to dispaly all dogs anyways,
+    // INFO: It treats no filter and empty filter the same way.
+    // INFO: Keep in mind if want different behaviour in future.
+    List<Dog> dogList = (kennelProvider.displayDogList.isEmpty)
+        ? provider.dogs
+        : kennelProvider.displayDogList;
     return ListView(
       children: [
         Card(
@@ -41,16 +28,14 @@ class _EditKennelMainState extends State<EditKennelMain> {
             title: Text("Filter dogs"),
             children: [
               DogFilterWidget(
-                dogs: initialDogList,
+                dogs: provider.dogs,
                 onResult: (v) {
                   logger.debug("Len of list: ${v.length}");
+                  kennelProvider.setDisplayDogList(v);
                   if (v.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(ErrorSnackbar(
                         "Search came up empty. Showing all dogs"));
                   }
-                  setState(() {
-                    dogList = v;
-                  });
                 },
               ),
             ],

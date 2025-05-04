@@ -209,4 +209,13 @@ class SingleDogProvider extends ChangeNotifier {
     logger.info("changed sex");
     notifyListeners();
   }
+
+  Future<void> deleteDog() async {
+    try {
+      await DogsDbOperations().deleteDog(id);
+    } catch (e, s) {
+      logger.error("Couldn't delete dog with id $id", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }

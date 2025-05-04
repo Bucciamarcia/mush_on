@@ -37,3 +37,4 @@ A cool and open source CRM for sled dog kennels.
 ### 0.0.7
 
 - Added filtering for dogs in kennel.
+- Added delete dog button in dog page.
