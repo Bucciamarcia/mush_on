@@ -20,7 +20,7 @@ class HomePageScreenContent extends StatelessWidget {
           ElevatedButton(
             onPressed: () => Navigator.pushNamed(context, "/editkennel"),
             child: const Text(
-              "Edit kennel",
+              "Kennel",
             ),
           ),
           ElevatedButton(
