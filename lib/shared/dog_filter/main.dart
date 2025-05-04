@@ -203,6 +203,7 @@ class FilterField extends StatelessWidget {
 
   Flexible textWidgetField() {
     return Flexible(
+      key: Key("Filter key - $conditionSelected"),
       child: TextField(
         decoration: InputDecoration(labelText: "Filter"),
         onChanged: (v) => onFilterFieldChanged(v),

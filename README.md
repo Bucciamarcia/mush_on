@@ -33,3 +33,7 @@ A cool and open source CRM for sled dog kennels.
 - Can now uplaod dog picture.
 - Can now edit dog name.
 - Can now tag dog.
+
+### 0.0.7
+
+- Added filtering for dogs in kennel.
