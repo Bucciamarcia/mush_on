@@ -80,20 +80,6 @@ class DogRepository {
     return topics.toList();
   }
 
-  Future<void> deleteDog(String dogId) async {
-    // Reference to the 'dogs' collection
-    var account = await FirestoreService().getUserAccount();
-    String path = "accounts/$account/data/kennel/dogs";
-    var dogsRef = FirebaseFirestore.instance.collection(path);
-    var doc = dogsRef.doc(dogId);
-    try {
-      await doc.delete();
-    } catch (e, s) {
-      BasicLogger().error("Can't delete dog", error: e, stackTrace: s);
-      throw Exception("Can't delete dog in deleteDog()");
-    }
-  }
-
   Future<Stream<List<Dog>>> streamDogs() async {
     var account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/kennel/dogs";
