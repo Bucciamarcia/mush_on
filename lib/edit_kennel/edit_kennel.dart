@@ -11,6 +11,6 @@ class EditKennelScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
         create: (context) => KennelProvider(),
-        child: TemplateScreen(title: "Edit Kennel", child: EditKennelMain()));
+        child: TemplateScreen(title: "Kennel", child: EditKennelMain()));
   }
 }
