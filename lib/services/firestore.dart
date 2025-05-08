@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mush_on/edit_kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
-import 'package:uuid/uuid.dart';
+import 'package:mush_on/services/storage.dart';
+import 'package:path/path.dart' as path;
 
 class FirestoreService {
   final BasicLogger logger = BasicLogger();
@@ -19,16 +22,25 @@ class FirestoreService {
     return data;
   }
 
-  Future<void> addDogToDb(String name) async {
-    var uuid = Uuid();
-    String uuidRef = uuid.v4();
+  Future<void> addDogToDb(Dog dog, File? imageFile) async {
+    String account = await FirestoreService().getUserAccount();
     try {
       final FirebaseFirestore db = FirebaseFirestore.instance;
-      String account = await FirestoreService().getUserAccount();
-      String path = "accounts/$account/data/kennel/dogs/$uuidRef";
-      var ref = db.doc(path);
+      if (imageFile != null) {
+        DogPhotoCardUtils utils =
+            DogPhotoCardUtils(id: dog.id, account: account);
+        String extension = path.extension(imageFile.path);
 
-      var data = {"name": name, "id": uuidRef};
+        await utils.deleteCurrentImage();
+        await StorageService().uploadFromFile(
+            file: imageFile,
+            path: "accounts/$account/dogs/${dog.id}/image$extension");
+      }
+      String dogpath = "accounts/$account/data/kennel/dogs/${dog.id}";
+      logger.debug("path: $dogpath");
+      var ref = db.doc(dogpath);
+
+      var data = dog.toJson();
 
       await ref.set(
         data,
