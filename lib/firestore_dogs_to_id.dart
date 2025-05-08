@@ -60,17 +60,22 @@ class DbIdChanger extends StatelessWidget {
                     logger.info("Starting script execution...");
                     _processTeamHistory(dogsMapFromProvider).then((_) {
                       logger.info("Script execution finished.");
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Processing complete. Check logs.')),
-                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Processing complete. Check logs.')),
+                        );
+                      }
                     }).catchError((e, s) {
                       logger.error('Unhandled error during processing',
                           error: e, stackTrace: s);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        ErrorSnackbar(
-                            'An critical error occurred: $e. Check logs.'),
-                      );
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          ErrorSnackbar(
+                              'An critical error occurred: $e. Check logs.'),
+                        );
+                      }
                     });
                   },
                 ),
@@ -314,4 +319,4 @@ class DbIdChanger extends StatelessWidget {
     // logger.info("Found ID '$id' for name '$cleanedName'.");
     return id;
   }
-} // End of DbIdChanger class
+}

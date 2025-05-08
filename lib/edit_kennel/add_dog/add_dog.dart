@@ -10,7 +10,11 @@ class AddDogScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-        create: (context) => AddDogProvider(),
+        create: (context) {
+          final provider = AddDogProvider();
+          provider.init();
+          return provider;
+        },
         child: TemplateScreen(title: "Add a Dog", child: AddDogMain()));
   }
 }
