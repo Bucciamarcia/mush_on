@@ -18,8 +18,10 @@ class EditKennelMain extends StatelessWidget {
     // INFO: Ideally it should differentiate with a nullable List<Dog>?, but since I want to dispaly all dogs anyways,
     // INFO: It treats no filter and empty filter the same way.
     // INFO: Keep in mind if want different behaviour in future.
+    var dd = provider.dogs;
+    dd.sort((a, b) => a.name.compareTo(b.name));
     List<Dog> dogList = (kennelProvider.displayDogList.isEmpty)
-        ? provider.dogs
+        ? dd
         : kennelProvider.displayDogList;
     return ListView(
       children: [
