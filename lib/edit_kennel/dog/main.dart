@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:mush_on/edit_kennel/dog/delete_dog_button.dart';
 import 'package:mush_on/edit_kennel/dog/dog_info_widget.dart';
 import 'package:mush_on/edit_kennel/dog/dog_photo_card.dart';
+import 'package:mush_on/edit_kennel/dog/dog_run_data_widget.dart';
 import 'package:mush_on/edit_kennel/dog/dog_run_table.dart';
 import 'package:mush_on/edit_kennel/dog/positions_widget.dart';
 import 'package:mush_on/edit_kennel/dog/provider.dart';
@@ -169,63 +171,6 @@ class DogMain extends StatelessWidget {
               });
             }),
       ],
-    );
-  }
-}
-
-class DeleteDogButton extends StatelessWidget {
-  final Dog dog;
-  final Function() onDogDeleted;
-  const DeleteDogButton(
-      {super.key, required this.dog, required this.onDogDeleted});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      style: ButtonStyle(
-        foregroundColor: WidgetStateProperty.all(Colors.black),
-        backgroundColor: WidgetStateProperty.all(Colors.red),
-      ),
-      onPressed: () => onDogDeleted(),
-      label: Text("Delete dog"),
-      icon: Icon(Icons.delete),
-    );
-  }
-}
-
-class DogRunDataWidget extends StatelessWidget {
-  final List<DogTotal> dogTotals;
-  const DogRunDataWidget(this.dogTotals, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      spacing: 5,
-      children: [
-        TextTitle("Past runs"),
-        Card(
-          child: ExpansionTile(
-            title: Text("View chart"),
-            children: [
-              DogRunDataChart(dogTotals),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class TextTitle extends StatelessWidget {
-  final String text;
-  const TextTitle(this.text, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(text,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
     );
   }
 }
