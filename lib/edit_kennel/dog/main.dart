@@ -12,7 +12,6 @@ import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:provider/provider.dart';
 import '../../services/models/dog.dart';
-import 'dog_run_data_chart.dart';
 import 'name_widget.dart';
 
 class DogMain extends StatelessWidget {

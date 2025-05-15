@@ -17,7 +17,7 @@ void main() {
       // Now you can add assertions to verify your elements
       // For example:
       expect(find.text("Create Team"), findsOneWidget);
-      expect(find.text("Edit kennel"), findsOneWidget);
+      expect(find.text("Kennel"), findsOneWidget);
       expect(find.text("Teams history"), findsOneWidget);
       expect(find.text("Stats"), findsOneWidget);
       expect(find.text("Log out"), findsOneWidget);
