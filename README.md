@@ -45,7 +45,7 @@ A cool and open source CRM for sled dog kennels.
 ## Improvements
 
 Break Down Large Widgets/Classes: This is likely the highest impact change for maintainability.
-Target: DogMain, TeamRetriever, PairRetriever, _CreateTeamMainState build method, GridRowProcessor.
+Target: PairRetriever, _CreateTeamMainState build method, GridRowProcessor.
 Action: Extract logical UI sections into smaller, dedicated StatelessWidgets or StatefulWidgets. For GridRowProcessor, break the run method into smaller private helper methods (e.g., _aggregateDailyStats, _calculateMonthlySummaries, _buildGridRows).
 Why: Improves readability, makes widgets easier to reason about, reuse, and potentially test later. Reduces nesting depth.
 Introduce Basic Testing: Even minimal testing provides huge value.
