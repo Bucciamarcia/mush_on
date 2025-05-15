@@ -45,9 +45,6 @@ A cool and open source CRM for sled dog kennels.
 ## Improvements
 
 Break Down Large Widgets/Classes: This is likely the highest impact change for maintainability.
-Target: PairRetriever, _CreateTeamMainState build method, GridRowProcessor.
-Action: Extract logical UI sections into smaller, dedicated StatelessWidgets or StatefulWidgets. For GridRowProcessor, break the run method into smaller private helper methods (e.g., _aggregateDailyStats, _calculateMonthlySummaries, _buildGridRows).
-Why: Improves readability, makes widgets easier to reason about, reuse, and potentially test later. Reduces nesting depth.
 Introduce Basic Testing: Even minimal testing provides huge value.
 Target: Start simple. Unit test pure logic functions (e.g., Dog.age calculation, helper methods extracted from GridRowProcessor, maybe some provider logic that doesn't depend heavily on external services). Consider simple widget tests for reusable UI components like DogSelectedChip or PositionCard.
 Action: Create a test directory. Add the flutter_test dependency. Write a few simple unit tests using test() and expect(). Write a basic widget test using testWidgets() and tester.pumpWidget().
