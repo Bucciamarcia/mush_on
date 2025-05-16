@@ -138,7 +138,8 @@ class ConditionSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownMenu<ConditionSelection>(
-      label: Text("Selec"),
+      key: Key("Select condition"),
+      label: Text("Select condition"),
       onSelected: (v) => onConditionSelected(v),
       dropdownMenuEntries: ConditionSelection.values
           .map((v) => DropdownMenuEntry(value: v, label: v.name))
