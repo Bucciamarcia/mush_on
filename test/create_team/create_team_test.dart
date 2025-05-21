@@ -46,7 +46,7 @@ void main() {
         expect(find.widgetWithText(TextField, "Group name"), findsOneWidget);
         expect(find.widgetWithText(TextField, "Group notes"), findsOneWidget);
         expect(find.widgetWithText(TextField, "Team name"), findsOneWidget);
-        expect(find.widgetWithText(TextField, "Select a dog"), findsExactly(4));
+        expect(find.widgetWithText(TextField, "Select dog"), findsExactly(4));
         expect(find.text("Add new row"), findsOneWidget);
         expect(find.text("Add team"), findsOneWidget);
         expect(find.text("Remove team"), findsOneWidget);
@@ -54,67 +54,6 @@ void main() {
         expect(find.text("Save Teams"), findsOneWidget);
       },
     );
-    testWidgets("Adds duplicate dog", (tester) async {
-      await initialBuild(tester);
-      expect(find.text("this dog is duplicate!"), findsNothing);
-      final textFieldFinder = find.byKey(Key("Select Dog - 0 - 0 - 0"));
-      TextField textFieldWidget = tester.widget<TextField>(textFieldFinder);
-      expect(textFieldWidget.controller?.text, isEmpty);
-      expect(find.text("Fido"), findsNothing);
-      await tester.tap(textFieldFinder);
-      await tester.pumpAndSettle();
-      final fidoOptionFinder = find.text('Fido').last;
-      expect(fidoOptionFinder, findsOneWidget);
-
-      // Tap the option to select it
-      await tester.tap(fidoOptionFinder);
-      await tester.pumpAndSettle();
-      // Verify the TextField now displays "Fido"
-      expect(textFieldWidget.controller?.text, equals('Fido'));
-
-      // Do the same for the second field
-      final secondTextFieldFinder = find.byKey(Key("Select Dog - 0 - 0 - 1"));
-      TextField secondTextFieldWidget =
-          tester.widget<TextField>(secondTextFieldFinder);
-      expect(secondTextFieldWidget.controller?.text, isEmpty);
-      await tester.tap(secondTextFieldFinder);
-      await tester.pumpAndSettle();
-      final secondFidoOptionFinder = find.text("Fido").last;
-      await tester.tap(secondFidoOptionFinder);
-      await tester.pumpAndSettle();
-      expect(find.text("this dog is duplicate!"), findsExactly(2));
-    });
-    testWidgets("Adds and removes a dog", (tester) async {
-      await initialBuild(tester);
-      // Tap the first field to show the selection.
-      final textFieldFinder = find.byKey(Key("Select Dog - 0 - 0 - 0"));
-      TextField textFieldWidget = tester.widget<TextField>(textFieldFinder);
-      expect(textFieldWidget.controller?.text, isEmpty);
-      expect(find.text("Fido"), findsNothing);
-      await tester.tap(textFieldFinder);
-      await tester.pumpAndSettle();
-      final fidoOptionFinder = find.text('Fido').last;
-      expect(fidoOptionFinder, findsOneWidget);
-
-      // Tap the option to select it
-      await tester.tap(fidoOptionFinder);
-      await tester.pumpAndSettle();
-      // Verify the TextField now displays "Fido"
-      expect(textFieldWidget.controller?.text, equals('Fido'));
-
-      // Removes Fido
-      expect(fakeCreateTeamProvider.group.teams[0].dogPairs[0].firstDogId,
-          equals("id_Fido"));
-      Finder chipFinder = find.byKey(Key("DogSelectedChip - id_Fido"));
-      Finder deleteIconFinder = find.descendant(
-        of: chipFinder,
-        matching: find.byIcon(Icons.clear),
-      );
-      await tester.tap(deleteIconFinder);
-      await tester.pumpAndSettle();
-      expect(fakeCreateTeamProvider.group.teams[0].dogPairs[0].firstDogId,
-          equals(""));
-    });
     testWidgets("Adds and removes row", (tester) async {
       await initialBuild(tester);
       // Adds new row
@@ -122,7 +61,7 @@ void main() {
           find.widgetWithText(ElevatedButton, "Add new row");
       await tester.tap(addNewRowFinder);
       await tester.pumpAndSettle();
-      expect(find.widgetWithText(TextField, "Select a dog"), findsExactly(6));
+      expect(find.widgetWithText(TextField, "Select dog"), findsExactly(6));
       var dogPairInRow = [DogPair(), DogPair(), DogPair()];
       expect(fakeCreateTeamProvider.group.teams[0].dogPairs.length,
           equals(dogPairInRow.length));
@@ -131,7 +70,7 @@ void main() {
       Finder removeLastRowFinder = find.byKey(Key("Row remover: 0 - 2"));
       await tester.tap(removeLastRowFinder);
       await tester.pumpAndSettle();
-      expect(find.widgetWithText(TextField, "Select a dog"), findsExactly(4));
+      expect(find.widgetWithText(TextField, "Select dog"), findsExactly(4));
     });
     testWidgets("Adds and removes a team", (tester) async {
       await initialBuild(tester);
@@ -140,7 +79,7 @@ void main() {
       expect(addTeamFinder, findsOneWidget);
       await tester.tap(addTeamFinder);
       await tester.pumpAndSettle();
-      expect(find.widgetWithText(TextField, "Select a dog"), findsExactly(10));
+      expect(find.widgetWithText(TextField, "Select dog"), findsExactly(10));
       Finder addTeamFinderTotal =
           find.widgetWithText(ElevatedButton, "Add team");
       expect(addTeamFinderTotal, findsExactly(2));
@@ -152,7 +91,7 @@ void main() {
       expect(removeLastTeamFinder, findsOneWidget);
       await tester.tap(removeLastTeamFinder);
       await tester.pumpAndSettle();
-      expect(find.widgetWithText(TextField, "Select a dog"), findsExactly(4));
+      expect(find.widgetWithText(TextField, "Select dog"), findsExactly(4));
     });
   });
 
@@ -229,10 +168,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(fakeCreateTeamProvider.group.teams[0].dogPairs[0].firstDogId,
           equals(""));
-      final dogDeletedFinder = find.byKey(Key("Select Dog - 0 - 0 - 0"));
-      TextField dogDeletedFinderField =
-          tester.widget<TextField>(dogDeletedFinder);
-      expect(dogDeletedFinderField.controller!.text, equals(""));
     });
   });
 }

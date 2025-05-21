@@ -3,7 +3,9 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:searchfield/searchfield.dart';
 
-class AutocompleteDogs extends StatefulWidget {
+import 'model.dart';
+
+class AutocompleteDogs extends StatelessWidget {
   const AutocompleteDogs({
     super.key,
     required this.autoCompleteKey,
@@ -15,11 +17,10 @@ class AutocompleteDogs extends StatefulWidget {
     required this.isDuplicate,
     required this.dogs,
     required this.onDogSelected,
-  }) : _dogsById = dogsById;
+  });
 
   final ValueKey<String> autoCompleteKey;
   final String? currentValue;
-  final Map<String, Dog> _dogsById;
   final int teamNumber;
   final int rowNumber;
   final int positionNumber;
@@ -29,77 +30,18 @@ class AutocompleteDogs extends StatefulWidget {
   static final BasicLogger logger = BasicLogger();
 
   @override
-  State<AutocompleteDogs> createState() => _AutocompleteDogsState();
-}
-
-class _AutocompleteDogsState extends State<AutocompleteDogs> {
-  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SearchField<Dog>(
-          key: widget.autoCompleteKey,
-          hint: "Select dog 2",
-          suggestions: widget.dogs
-              .map((dog) => SearchFieldListItem<Dog>(dog.name, item: dog))
+        SearchField<CreateDog>(
+          key: autoCompleteKey,
+          hint: "Select dog",
+          suggestions: dogs
+              .map((dog) => SearchFieldListItem<CreateDog>(dog.name,
+                  item: CreateDog(dog: dog, errors: [])))
               .toList(),
           onSuggestionTap: (x) {
-            if (x.item != null) widget.onDogSelected(x.item!);
-          },
-        ),
-        Autocomplete<Dog>(
-          displayStringForOption: (Dog dog) => dog.name,
-          initialValue: TextEditingValue(
-            text: (widget.currentValue != null
-                    ? widget._dogsById[widget.currentValue]?.name
-                    : null) ??
-                "",
-          ),
-          fieldViewBuilder: (BuildContext context,
-              TextEditingController fieldController,
-              FocusNode focusNode,
-              VoidCallback onFieldSubmitted) {
-            return Focus(
-              onFocusChange: (bool isInFocus) {
-                AutocompleteDogs.logger
-                    .info("Setting dogidvalue on focuschange");
-              },
-              child: SizedBox(
-                height: 50,
-                child: TextField(
-                  key: Key(
-                      "Select Dog - ${widget.teamNumber} - ${widget.rowNumber} - ${widget.positionNumber}"),
-                  style: TextStyle(fontSize: 14),
-                  controller: fieldController,
-                  focusNode: focusNode,
-                  onSubmitted: (String value) {
-                    onFieldSubmitted();
-                  },
-                  decoration: InputDecoration(
-                    labelText: "Select a dog",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    filled: true,
-                    fillColor: widget.isDuplicate ? Colors.red : null,
-                  ),
-                ),
-              ),
-            );
-          },
-          optionsBuilder: (textEditingValue) {
-            if (textEditingValue.text.isEmpty) {
-              return widget.dogs;
-            } else {
-              return widget.dogs.where((option) => option.name
-                  .toLowerCase()
-                  .contains(textEditingValue.text.toLowerCase()));
-            }
-          },
-          onSelected: (Dog selectedDog) {
-            AutocompleteDogs.logger.info(
-                "Setting dogidvalue on onselected selecteddog: ${selectedDog.name}");
-            widget.onDogSelected(selectedDog);
+            if (x.item != null) onDogSelected(x.item!.dog);
           },
         ),
       ],
