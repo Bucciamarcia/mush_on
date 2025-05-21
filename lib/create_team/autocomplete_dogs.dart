@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:searchfield/searchfield.dart';
 
-class AutocompleteDogs extends StatelessWidget {
+class AutocompleteDogs extends StatefulWidget {
   const AutocompleteDogs({
     super.key,
     required this.autoCompleteKey,
@@ -28,16 +29,31 @@ class AutocompleteDogs extends StatelessWidget {
   static final BasicLogger logger = BasicLogger();
 
   @override
+  State<AutocompleteDogs> createState() => _AutocompleteDogsState();
+}
+
+class _AutocompleteDogsState extends State<AutocompleteDogs> {
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        SearchField<Dog>(
+          key: widget.autoCompleteKey,
+          hint: "Select dog 2",
+          suggestions: widget.dogs
+              .map((dog) => SearchFieldListItem<Dog>(dog.name, item: dog))
+              .toList(),
+          onSuggestionTap: (x) {
+            if (x.item != null) widget.onDogSelected(x.item!);
+          },
+        ),
         Autocomplete<Dog>(
-          key: autoCompleteKey,
           displayStringForOption: (Dog dog) => dog.name,
           initialValue: TextEditingValue(
-            text:
-                (currentValue != null ? _dogsById[currentValue]?.name : null) ??
-                    "",
+            text: (widget.currentValue != null
+                    ? widget._dogsById[widget.currentValue]?.name
+                    : null) ??
+                "",
           ),
           fieldViewBuilder: (BuildContext context,
               TextEditingController fieldController,
@@ -45,13 +61,14 @@ class AutocompleteDogs extends StatelessWidget {
               VoidCallback onFieldSubmitted) {
             return Focus(
               onFocusChange: (bool isInFocus) {
-                logger.info("Setting dogidvalue on focuschange");
+                AutocompleteDogs.logger
+                    .info("Setting dogidvalue on focuschange");
               },
               child: SizedBox(
                 height: 50,
                 child: TextField(
                   key: Key(
-                      "Select Dog - $teamNumber - $rowNumber - $positionNumber"),
+                      "Select Dog - ${widget.teamNumber} - ${widget.rowNumber} - ${widget.positionNumber}"),
                   style: TextStyle(fontSize: 14),
                   controller: fieldController,
                   focusNode: focusNode,
@@ -64,7 +81,7 @@ class AutocompleteDogs extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     filled: true,
-                    fillColor: isDuplicate ? Colors.red : null,
+                    fillColor: widget.isDuplicate ? Colors.red : null,
                   ),
                 ),
               ),
@@ -72,17 +89,17 @@ class AutocompleteDogs extends StatelessWidget {
           },
           optionsBuilder: (textEditingValue) {
             if (textEditingValue.text.isEmpty) {
-              return dogs;
+              return widget.dogs;
             } else {
-              return dogs.where((option) => option.name
+              return widget.dogs.where((option) => option.name
                   .toLowerCase()
                   .contains(textEditingValue.text.toLowerCase()));
             }
           },
           onSelected: (Dog selectedDog) {
-            logger.info(
+            AutocompleteDogs.logger.info(
                 "Setting dogidvalue on onselected selecteddog: ${selectedDog.name}");
-            onDogSelected(selectedDog);
+            widget.onDogSelected(selectedDog);
           },
         ),
       ],
