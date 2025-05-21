@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mush_on/create_team/dog_selector.dart';
+import 'package:mush_on/create_team/model.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/firestore_dogs_to_id.dart';
@@ -152,6 +153,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
                 duplicateDogs: teamProvider.duplicateDogs,
                 dogs: context.watch<DogProvider>().dogs,
                 teams: context.watch<CreateTeamProvider>().group.teams,
+                errors: context.watch<CreateTeamProvider>().dogErrors,
                 onDogSelected: (DogSelection newDog) {
                   Provider.of<CreateTeamProvider>(context, listen: false)
                       .changeDog(
@@ -209,6 +211,7 @@ class TeamRetriever extends StatefulWidget {
   final List<Dog> dogs;
   final List<String> duplicateDogs;
   final List<Team> teams;
+  final List<DogError> errors;
   final Function(DogSelection) onDogSelected;
   final Function(int, String) onTeamNameChanged;
   final Function(int, int) onRowRemoved;
@@ -220,6 +223,7 @@ class TeamRetriever extends StatefulWidget {
       {super.key,
       required this.teamNumber,
       required this.dogs,
+      required this.errors,
       required this.duplicateDogs,
       required this.teams,
       required this.onDogSelected,
@@ -241,6 +245,7 @@ class PairRetriever extends StatelessWidget {
   final List<Team> teams;
   final List<Dog> dogs;
   final List<String> duplicateDogs;
+  final List<DogError> errors;
   final Function(DogSelection) onDogSelected;
   final Function(int, int) onRowRemoved;
   final Function(int, int, int) onDogRemoved;
@@ -248,6 +253,7 @@ class PairRetriever extends StatelessWidget {
       {super.key,
       required this.teamNumber,
       required this.rowNumber,
+      required this.errors,
       required this.teams,
       required this.dogs,
       required this.duplicateDogs,

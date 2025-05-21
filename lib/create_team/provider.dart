@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mush_on/create_team/model.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 
@@ -7,6 +8,7 @@ import '../services/firestore.dart';
 
 class CreateTeamProvider extends ChangeNotifier {
   BasicLogger logger = BasicLogger();
+  List<DogError> dogErrors = [];
   TeamGroup group = TeamGroup(
     teams: [
       Team(
