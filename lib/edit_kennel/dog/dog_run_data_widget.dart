@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/edit_kennel/dog/dog_run_data_chart.dart';
-import 'package:mush_on/edit_kennel/dog/main.dart';
 import 'package:mush_on/edit_kennel/dog/text_title.dart';
 import 'package:mush_on/services/models/dog.dart';
 
