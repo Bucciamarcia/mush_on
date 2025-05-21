@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/create_team/model.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -52,6 +53,8 @@ class FakeCreateTeamProvider extends ChangeNotifier
     implements CreateTeamProvider {
   @override
   BasicLogger logger = BasicLogger();
+  @override
+  List<DogError> dogErrors = [];
   @override
   TeamGroup group = TeamGroup(
     teams: [
