@@ -3,8 +3,6 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:searchfield/searchfield.dart';
 
-import 'model.dart';
-
 class AutocompleteDogs extends StatelessWidget {
   const AutocompleteDogs({
     super.key,
@@ -33,15 +31,14 @@ class AutocompleteDogs extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SearchField<CreateDog>(
+        SearchField<Dog>(
           key: autoCompleteKey,
           hint: "Select dog",
           suggestions: dogs
-              .map((dog) => SearchFieldListItem<CreateDog>(dog.name,
-                  item: CreateDog(dog: dog, errors: [])))
+              .map((dog) => SearchFieldListItem<Dog>(dog.name, item: dog))
               .toList(),
           onSuggestionTap: (x) {
-            if (x.item != null) onDogSelected(x.item!.dog);
+            if (x.item != null) onDogSelected(x.item!);
           },
         ),
       ],
