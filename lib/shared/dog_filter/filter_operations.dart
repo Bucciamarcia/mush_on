@@ -16,15 +16,61 @@ class FilterOperations {
       required this.filter});
 
   List<Dog> run() {
+    List<Dog> toReturn;
     switch (conditionSelection) {
       case ConditionSelection.name:
-        return _processName(filter);
+        toReturn = _processName(filter);
       case ConditionSelection.age:
-        return _processAge(filter);
+        toReturn = _processAge(filter);
       case ConditionSelection.tag:
-        return _processTag(filter);
+        toReturn = _processTag(filter);
       case ConditionSelection.sex:
-        return _processSex(filter);
+        toReturn = _processSex(filter);
+      case ConditionSelection.position:
+        toReturn = _processPosition(filter);
+    }
+    toReturn.sort((a, b) => a.name.compareTo(b.name));
+    return toReturn;
+  }
+
+  List<Dog> _processPosition(String filter) {
+    switch (operationSelection) {
+      case OperationSelection.moreThan:
+        logger.error("Illegal operation");
+        throw IllegalOperationException(
+            message: "Selected illegal operation: moreThan");
+      case OperationSelection.lessThan:
+        logger.error("Illegal operation");
+        throw IllegalOperationException(
+            message: "Selected illegal operation: lessthan");
+      case OperationSelection.equals:
+        try {
+          return dogs.where((dog) {
+            List<String> canRunPositions = dog.positions.getTrue();
+            if (canRunPositions.contains(filter)) return true;
+            return false;
+          }).toList();
+        } catch (e, s) {
+          logger.error("Error in process position equals operation",
+              error: e, stackTrace: s);
+          rethrow;
+        }
+      case OperationSelection.contains:
+        logger.error("Illegal operation");
+        throw IllegalOperationException(
+            message: "Selected illegal operation: contains");
+      case OperationSelection.equalsNot:
+        try {
+          return dogs.where((dog) {
+            List<String> canRunPositions = dog.positions.getTrue();
+            if (canRunPositions.contains(filter)) return false;
+            return true;
+          }).toList();
+        } catch (e, s) {
+          logger.error("Error in process position equals operation",
+              error: e, stackTrace: s);
+          rethrow;
+        }
     }
   }
 

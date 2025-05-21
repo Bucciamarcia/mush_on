@@ -261,7 +261,15 @@ abstract class DogPositions with _$DogPositions {
   factory DogPositions.fromJson(Map<String, dynamic> json) =>
       _$DogPositionsFromJson(json);
 
-  List<String> get toList => ["Lead", "Swing", "Team", "Wheel"];
+  static List<String> get toList => ["Lead", "Swing", "Team", "Wheel"];
+  List<String> getTrue() {
+    List<String> toReturn = [];
+    if (lead == true) toReturn.add("Lead");
+    if (swing == true) toReturn.add("Swing");
+    if (team == true) toReturn.add("Team");
+    if (wheel == true) toReturn.add("Wheel");
+    return toReturn;
+  }
 }
 
 @freezed

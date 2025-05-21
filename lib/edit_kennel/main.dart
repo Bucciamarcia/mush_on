@@ -33,6 +33,8 @@ class EditKennelMain extends StatelessWidget {
                 dogs: provider.dogs,
                 onResult: (v) {
                   logger.debug("Len of list: ${v.length}");
+                  // TODO: This now only orders by alpabetical order.
+                  // TODO: Ordering should be done by dog fiter.
                   kennelProvider.setDisplayDogList(v);
                   if (v.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(ErrorSnackbar(

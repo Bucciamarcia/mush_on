@@ -5,7 +5,7 @@ class KennelProvider extends ChangeNotifier {
   List<Dog> displayDogList = [];
 
   void setDisplayDogList(List<Dog> d) {
-    d.sort((a, b) => b.name.compareTo(a.name));
+    d.sort((a, b) => a.name.compareTo(b.name));
     displayDogList = d;
     notifyListeners();
   }
