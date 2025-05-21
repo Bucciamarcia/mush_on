@@ -10,6 +10,10 @@ enum ConditionSelection {
     OperationSelection.equalsNot,
     OperationSelection.lessThan
   ]),
+  position(type: DogPositions, allowedOperations: [
+    OperationSelection.equals,
+    OperationSelection.equalsNot
+  ]),
   tag(type: Tag, allowedOperations: [
     OperationSelection.equals,
     OperationSelection.equalsNot

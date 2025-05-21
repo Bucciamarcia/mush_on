@@ -198,8 +198,23 @@ class FilterField extends StatelessWidget {
         return tagWidgetField();
       case const (DogSex):
         return sexWidgetField();
+      case const (DogPositions):
+        return dogPositionField();
     }
     throw Exception("Couldn't find the appropriate widget");
+  }
+
+  Flexible dogPositionField() {
+    return Flexible(
+      child: DropdownMenu<String>(
+        dropdownMenuEntries: DogPositions.toList
+            .map(
+              (p) => DropdownMenuEntry(value: p, label: p),
+            )
+            .toList(),
+        onSelected: (v) => onFilterFieldChanged(v),
+      ),
+    );
   }
 
   Flexible textWidgetField() {
