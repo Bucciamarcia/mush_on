@@ -368,6 +368,7 @@ class _TeamRetrieverState extends State<TeamRetriever> {
                 teamNumber: widget.teamNumber,
                 rowNumber: entry.key,
                 teams: widget.teams,
+                errors: [],
                 duplicateDogs: widget.duplicateDogs,
                 onDogSelected: (newDog) => widget.onDogSelected(newDog),
                 dogs: widget.dogs,
