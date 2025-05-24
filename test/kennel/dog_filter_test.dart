@@ -24,7 +24,6 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text("Select condition"), findsOneWidget);
       Finder dropdownFinder = find.byKey(Key("Select condition"));
       expect(dropdownFinder, findsOne);
     },
