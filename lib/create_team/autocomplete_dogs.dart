@@ -30,13 +30,19 @@ class AutocompleteDogs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<Dog> sortedDogs = sortDogs();
     return Column(
       children: [
         SearchField<Dog>(
           key: autoCompleteKey,
           hint: "Select dog",
-          suggestions: dogs
-              .map((dog) => SearchFieldListItem<Dog>(dog.name, item: dog))
+          suggestions: sortedDogs
+              .map((dog) => SearchFieldListItem<Dog>(dog.name,
+                  child: Text(
+                    formatText(dog),
+                    style: TextStyle(color: pickColor(dog)),
+                  ),
+                  item: dog))
               .toList(),
           onSuggestionTap: (x) {
             if (x.item != null) onDogSelected(x.item!);
@@ -44,5 +50,46 @@ class AutocompleteDogs extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  /// Takes all the unavailable dogs (with errors) and puts them at the bottom,
+  /// preserving the original sort.
+  List<Dog> sortDogs() {
+    final Set<String> dogsWithErrorSet = errors.map((e) => e.dogId).toSet();
+
+    final List<Dog> unavailableDogs = [];
+    final List<Dog> availableDogs = [];
+
+    for (final dog in dogs) {
+      if (dogsWithErrorSet.contains(dog.id)) {
+        unavailableDogs.add(dog);
+      } else {
+        availableDogs.add(dog);
+      }
+    }
+
+    return [...availableDogs, ...unavailableDogs];
+  }
+
+  /// Formats the text with unavailable
+  String formatText(Dog dog) {
+    DogError? error = DogErrorRepository.findById(errors, dog.id);
+    if (error == null) return dog.name;
+    if (DogErrorRepository.worstErrorType(error.dogErrorMessages) ==
+        ErrorType.fatal) {
+      return "${dog.name} - Unavailable";
+    }
+    return dog.name;
+  }
+
+  /// Picks grey if has fatal errors or is duplicate
+  Color pickColor(Dog dog) {
+    DogError? error = DogErrorRepository.findById(errors, dog.id);
+    if (error == null) return Colors.black;
+    if (DogErrorRepository.worstErrorType(error.dogErrorMessages) ==
+        ErrorType.fatal) {
+      return Colors.grey;
+    }
+    return Colors.black;
   }
 }
