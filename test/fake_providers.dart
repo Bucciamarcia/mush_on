@@ -107,8 +107,6 @@ class FakeCreateTeamProvider extends ChangeNotifier
   }
 
   @override
-  List<String> duplicateDogs = [];
-  @override
   bool unsavedData = false;
 
   @override
@@ -122,6 +120,52 @@ class FakeCreateTeamProvider extends ChangeNotifier
   changeDistance(double newDistance) {
     group.distance = newDistance;
     changeUnsavedData(true);
+    notifyListeners();
+  }
+
+  @override
+  updateDuplicateDogs() {
+    logger.info("Calling duplicate dogs");
+    Map<String, int> dogCounts = {};
+
+    try {
+      // Count occurrences of each dog
+      for (Team team in group.teams) {
+        List<DogPair> rows = team.dogPairs;
+        for (DogPair row in rows) {
+          String? firstDog = row.firstDogId;
+          String? secondDog = row.secondDogId;
+
+          if (firstDog != null && firstDog.isNotEmpty) {
+            dogCounts[firstDog] = (dogCounts[firstDog] ?? 0) + 1;
+          }
+
+          if (secondDog != null && secondDog.isNotEmpty) {
+            dogCounts[secondDog] = (dogCounts[secondDog] ?? 0) + 1;
+          }
+        }
+      }
+    } catch (e, s) {
+      logger.error("Couldn't loop for updateDuplicateDogs",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+
+    // Add to duplicateDogs if count > 1
+    try {
+      dogCounts.forEach((dogId, dogCount) {
+        if (dogCount > 1) {
+          DogErrorRepository.addError(
+              errors: dogErrors,
+              dogId: dogId,
+              newError: DogErrorMessage.duplicate);
+        }
+      });
+    } catch (e, s) {
+      logger.error("Couldn't add to duplicate dogs", error: e, stackTrace: s);
+      rethrow;
+    }
+
     notifyListeners();
   }
 
@@ -223,51 +267,6 @@ class FakeCreateTeamProvider extends ChangeNotifier
       logger.error("Couldn't change dog", error: e, stackTrace: s);
     }
     changeUnsavedData(true);
-  }
-
-  @override
-  updateDuplicateDogs() {
-    duplicateDogs = [];
-    Map<String, int> dogCounts = {};
-
-    try {
-      // Count occurrences of each dog
-      for (Team team in group.teams) {
-        List<DogPair> rows = team.dogPairs;
-        for (DogPair row in rows) {
-          String? firstDog = row.firstDogId;
-          String? secondDog = row.secondDogId;
-
-          if (firstDog != null) {
-            if (firstDog.isNotEmpty) {
-              dogCounts[firstDog] = (dogCounts[firstDog] ?? 0) + 1;
-            }
-          }
-
-          if (secondDog != null) {
-            if (secondDog.isNotEmpty) {
-              dogCounts[secondDog] = (dogCounts[secondDog] ?? 0) + 1;
-            }
-          }
-        }
-      }
-    } catch (e, s) {
-      logger.error("Couldn't loop for updateDuplicateDogs",
-          error: e, stackTrace: s);
-    }
-
-    // Add to duplicateDogs if count > 1
-    try {
-      dogCounts.forEach((dogId, dogCount) {
-        if (dogCount > 1) {
-          duplicateDogs.add(dogId);
-        }
-      });
-    } catch (e, s) {
-      logger.error("Couldn't add to duplicate dogs", error: e, stackTrace: s);
-    }
-
-    notifyListeners();
   }
 
   @override
