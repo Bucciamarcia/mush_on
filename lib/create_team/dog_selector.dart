@@ -14,6 +14,7 @@ class DogSelector extends StatefulWidget {
     required this.teams,
     required this.positionNumber,
     required this.dogs,
+    required this.runningDogs,
     required this.onDogSelected,
     required this.onDogRemoved,
   });
@@ -24,6 +25,7 @@ class DogSelector extends StatefulWidget {
   final List<Team> teams;
   final int positionNumber;
   final List<Dog> dogs;
+  final List<String> runningDogs;
   final Function(Dog newDog) onDogSelected;
   final Function(int p1, int p2) onDogRemoved;
 
@@ -100,13 +102,13 @@ class _DogSelectorState extends State<DogSelector> {
           : AutocompleteDogs(
               autoCompleteKey: autoCompleteKey,
               currentValue: currentValue,
-              dogsById: _dogsById,
               errors: widget.errors,
               teamNumber: widget.teamNumber,
               rowNumber: widget.rowNumber,
               positionNumber: widget.positionNumber,
               onDogSelected: widget.onDogSelected,
-              dogs: widget.dogs),
+              dogs: widget.dogs,
+              runningDogs: widget.runningDogs),
     );
   }
 }
