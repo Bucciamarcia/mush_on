@@ -56,6 +56,8 @@ Map<String, dynamic> _$DogPositionsToJson(_DogPositions instance) =>
 _Tag _$TagFromJson(Map<String, dynamic> json) => _Tag(
       id: json['id'] as String? ?? "",
       name: json['name'] as String? ?? "",
+      preventFromRun: json['preventFromRun'] as bool? ?? false,
+      showInTeamBuilder: json['showInTeamBuilder'] as bool? ?? false,
       created: DateTime.parse(json['created'] as String),
       color: json['color'] == null
           ? Colors.green
@@ -68,6 +70,8 @@ _Tag _$TagFromJson(Map<String, dynamic> json) => _Tag(
 Map<String, dynamic> _$TagToJson(_Tag instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'preventFromRun': instance.preventFromRun,
+      'showInTeamBuilder': instance.showInTeamBuilder,
       'created': instance.created.toIso8601String(),
       'color': const ColorConverter().toJson(instance.color),
       'expired': instance.expired?.toIso8601String(),

@@ -486,6 +486,8 @@ class __$DogPositionsCopyWithImpl<$Res>
 mixin _$Tag {
   String get id;
   String get name;
+  bool get preventFromRun;
+  bool get showInTeamBuilder;
   DateTime get created;
   @ColorConverter()
   Color get color;
@@ -508,6 +510,10 @@ mixin _$Tag {
             other is Tag &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.preventFromRun, preventFromRun) ||
+                other.preventFromRun == preventFromRun) &&
+            (identical(other.showInTeamBuilder, showInTeamBuilder) ||
+                other.showInTeamBuilder == showInTeamBuilder) &&
             (identical(other.created, created) || other.created == created) &&
             (identical(other.color, color) || other.color == color) &&
             (identical(other.expired, expired) || other.expired == expired));
@@ -515,12 +521,12 @@ mixin _$Tag {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, created, color, expired);
+  int get hashCode => Object.hash(runtimeType, id, name, preventFromRun,
+      showInTeamBuilder, created, color, expired);
 
   @override
   String toString() {
-    return 'Tag(id: $id, name: $name, created: $created, color: $color, expired: $expired)';
+    return 'Tag(id: $id, name: $name, preventFromRun: $preventFromRun, showInTeamBuilder: $showInTeamBuilder, created: $created, color: $color, expired: $expired)';
   }
 }
 
@@ -531,6 +537,8 @@ abstract mixin class $TagCopyWith<$Res> {
   $Res call(
       {String id,
       String name,
+      bool preventFromRun,
+      bool showInTeamBuilder,
       DateTime created,
       @ColorConverter() Color color,
       DateTime? expired});
@@ -550,6 +558,8 @@ class _$TagCopyWithImpl<$Res> implements $TagCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? preventFromRun = null,
+    Object? showInTeamBuilder = null,
     Object? created = null,
     Object? color = null,
     Object? expired = freezed,
@@ -563,6 +573,14 @@ class _$TagCopyWithImpl<$Res> implements $TagCopyWith<$Res> {
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      preventFromRun: null == preventFromRun
+          ? _self.preventFromRun
+          : preventFromRun // ignore: cast_nullable_to_non_nullable
+              as bool,
+      showInTeamBuilder: null == showInTeamBuilder
+          ? _self.showInTeamBuilder
+          : showInTeamBuilder // ignore: cast_nullable_to_non_nullable
+              as bool,
       created: null == created
           ? _self.created
           : created // ignore: cast_nullable_to_non_nullable
@@ -585,6 +603,8 @@ class _Tag implements Tag {
   const _Tag(
       {this.id = "",
       this.name = "",
+      this.preventFromRun = false,
+      this.showInTeamBuilder = false,
       required this.created,
       @ColorConverter() this.color = Colors.green,
       this.expired});
@@ -596,6 +616,12 @@ class _Tag implements Tag {
   @override
   @JsonKey()
   final String name;
+  @override
+  @JsonKey()
+  final bool preventFromRun;
+  @override
+  @JsonKey()
+  final bool showInTeamBuilder;
   @override
   final DateTime created;
   @override
@@ -627,6 +653,10 @@ class _Tag implements Tag {
             other is _Tag &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.preventFromRun, preventFromRun) ||
+                other.preventFromRun == preventFromRun) &&
+            (identical(other.showInTeamBuilder, showInTeamBuilder) ||
+                other.showInTeamBuilder == showInTeamBuilder) &&
             (identical(other.created, created) || other.created == created) &&
             (identical(other.color, color) || other.color == color) &&
             (identical(other.expired, expired) || other.expired == expired));
@@ -634,12 +664,12 @@ class _Tag implements Tag {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, created, color, expired);
+  int get hashCode => Object.hash(runtimeType, id, name, preventFromRun,
+      showInTeamBuilder, created, color, expired);
 
   @override
   String toString() {
-    return 'Tag(id: $id, name: $name, created: $created, color: $color, expired: $expired)';
+    return 'Tag(id: $id, name: $name, preventFromRun: $preventFromRun, showInTeamBuilder: $showInTeamBuilder, created: $created, color: $color, expired: $expired)';
   }
 }
 
@@ -652,6 +682,8 @@ abstract mixin class _$TagCopyWith<$Res> implements $TagCopyWith<$Res> {
   $Res call(
       {String id,
       String name,
+      bool preventFromRun,
+      bool showInTeamBuilder,
       DateTime created,
       @ColorConverter() Color color,
       DateTime? expired});
@@ -671,6 +703,8 @@ class __$TagCopyWithImpl<$Res> implements _$TagCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? preventFromRun = null,
+    Object? showInTeamBuilder = null,
     Object? created = null,
     Object? color = null,
     Object? expired = freezed,
@@ -684,6 +718,14 @@ class __$TagCopyWithImpl<$Res> implements _$TagCopyWith<$Res> {
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      preventFromRun: null == preventFromRun
+          ? _self.preventFromRun
+          : preventFromRun // ignore: cast_nullable_to_non_nullable
+              as bool,
+      showInTeamBuilder: null == showInTeamBuilder
+          ? _self.showInTeamBuilder
+          : showInTeamBuilder // ignore: cast_nullable_to_non_nullable
+              as bool,
       created: null == created
           ? _self.created
           : created // ignore: cast_nullable_to_non_nullable

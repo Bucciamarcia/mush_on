@@ -41,3 +41,8 @@ A cool and open source CRM for sled dog kennels.
 - Fixed a bug where new or deleted dogs wouldn't appear in edit kennel.
 - Fixed a bug where lowercase dogs would always appear last.
 - "Edit kennel" renamed to "Kennel" for clarity.
+
+### 0.0.8
+
+- In create team, dogs already selected are at the bottom and unavailable to avoid duplicates.
+- Added flags "Prevents for running" and "Show in team builder" for tags.
