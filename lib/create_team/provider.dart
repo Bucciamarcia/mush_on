@@ -161,7 +161,6 @@ class CreateTeamProvider extends ChangeNotifier {
   }
 
   updateDuplicateDogs() {
-    logger.info("Calling duplicate dogs");
     Map<String, int> dogCounts = {};
 
     try {
