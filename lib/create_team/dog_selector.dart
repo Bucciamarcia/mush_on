@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/create_team/autocomplete_dogs.dart';
 import 'package:mush_on/create_team/dog_chip_interface.dart';
+import 'package:mush_on/create_team/model.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 
@@ -8,20 +9,20 @@ class DogSelector extends StatefulWidget {
   const DogSelector({
     super.key,
     required this.teamNumber,
+    required this.errors,
     required this.rowNumber,
     required this.teams,
     required this.positionNumber,
-    required this.duplicateDogs,
     required this.dogs,
     required this.onDogSelected,
     required this.onDogRemoved,
   });
 
   final int teamNumber;
+  final List<DogError> errors;
   final int rowNumber;
   final List<Team> teams;
   final int positionNumber;
-  final List<String> duplicateDogs;
   final List<Dog> dogs;
   final Function(Dog newDog) onDogSelected;
   final Function(int p1, int p2) onDogRemoved;
@@ -83,26 +84,27 @@ class _DogSelectorState extends State<DogSelector> {
         return Text("Can't fetch dog");
       }
     }
-    bool isDuplicate = widget.duplicateDogs.contains(currentValue);
 
     final autoCompleteKey = ValueKey(
         '${widget.teamNumber}_${widget.rowNumber}_${widget.positionNumber}_$currentValue');
     return Expanded(
       child: (currentValue != null && currentValue.isNotEmpty)
+          // If a Dog is selected, show the interface with chip and errors.
           ? DogSelectedInterface(
               dog: _dogsById[currentValue]!,
-              isDuplicate: isDuplicate,
+              errors: widget.errors,
               onDogRemoved: () =>
                   widget.onDogRemoved(widget.teamNumber, widget.rowNumber),
             )
+          // If no dog is selcted for this position, show the autocomplete with textfield.
           : AutocompleteDogs(
               autoCompleteKey: autoCompleteKey,
               currentValue: currentValue,
               dogsById: _dogsById,
+              errors: widget.errors,
               teamNumber: widget.teamNumber,
               rowNumber: widget.rowNumber,
               positionNumber: widget.positionNumber,
-              isDuplicate: isDuplicate,
               onDogSelected: widget.onDogSelected,
               dogs: widget.dogs),
     );

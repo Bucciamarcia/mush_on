@@ -75,6 +75,12 @@ class FakeCreateTeamProvider extends ChangeNotifier
     _fetchDogs();
   }
 
+  @override
+  void addDogError(DogError newError) {
+    dogErrors.add(newError);
+    notifyListeners();
+  }
+
   void _fetchDogs() async {
     List<Dog> dogs = [
       Dog(name: "Fido", id: "id_Fido", positions: DogPositions(lead: true)),

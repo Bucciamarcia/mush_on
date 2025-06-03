@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/create_team/model.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:searchfield/searchfield.dart';
@@ -9,10 +10,10 @@ class AutocompleteDogs extends StatelessWidget {
     required this.autoCompleteKey,
     required this.currentValue,
     required Map<String, Dog> dogsById,
+    required this.errors,
     required this.teamNumber,
     required this.rowNumber,
     required this.positionNumber,
-    required this.isDuplicate,
     required this.dogs,
     required this.onDogSelected,
   });
@@ -22,8 +23,8 @@ class AutocompleteDogs extends StatelessWidget {
   final int teamNumber;
   final int rowNumber;
   final int positionNumber;
-  final bool isDuplicate;
   final List<Dog> dogs;
+  final List<DogError> errors;
   final Function(Dog) onDogSelected;
   static final BasicLogger logger = BasicLogger();
 

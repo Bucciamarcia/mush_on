@@ -27,6 +27,11 @@ class CreateTeamProvider extends ChangeNotifier {
     _fetchDogs();
   }
 
+  void addDogError(DogError newError) {
+    dogErrors.add(newError);
+    notifyListeners();
+  }
+
   void _fetchDogs() async {
     String account = await FirestoreService().getUserAccount();
     FirebaseFirestore.instance
@@ -38,7 +43,7 @@ class CreateTeamProvider extends ChangeNotifier {
           .toList()
         ..sort((a, b) => a.name.compareTo(b.name));
       _fetchDogsById(dogs);
-      notifyListeners(); // Notify UI to rebuild
+      notifyListeners();
     });
   }
 
@@ -49,7 +54,6 @@ class CreateTeamProvider extends ChangeNotifier {
     }
   }
 
-  List<String> duplicateDogs = [];
   bool unsavedData = false;
 
   changeGlobalName(String newName) {
@@ -158,7 +162,6 @@ class CreateTeamProvider extends ChangeNotifier {
 
   updateDuplicateDogs() {
     logger.info("Calling duplicate dogs");
-    duplicateDogs = [];
     Map<String, int> dogCounts = {};
 
     try {
@@ -188,14 +191,16 @@ class CreateTeamProvider extends ChangeNotifier {
     try {
       dogCounts.forEach((dogId, dogCount) {
         if (dogCount > 1) {
-          duplicateDogs.add(dogId);
+          DogErrorRepository.addError(
+              errors: dogErrors,
+              dogId: dogId,
+              newError: DogErrorMessage.duplicate);
         }
       });
     } catch (e, s) {
       logger.error("Couldn't add to duplicate dogs", error: e, stackTrace: s);
       rethrow;
     }
-    logger.info("Duplicate dogs: $duplicateDogs");
 
     notifyListeners();
   }

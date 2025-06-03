@@ -130,71 +130,56 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
             controller: globalNamecontroller,
             decoration: InputDecoration(labelText: "Group name"),
             onChanged: (String text) {
-              Provider.of<CreateTeamProvider>(context, listen: false)
-                  .changeUnsavedData(true);
-              Provider.of<CreateTeamProvider>(context, listen: false)
-                  .changeGlobalName(text);
+              teamProvider.changeUnsavedData(true);
+              teamProvider.changeGlobalName(text);
             },
           ),
           TextField(
             controller: notesController,
             decoration: InputDecoration(labelText: "Group notes"),
             onChanged: (String text) {
-              Provider.of<CreateTeamProvider>(context, listen: false)
-                  .changeUnsavedData(true);
-              Provider.of<CreateTeamProvider>(context, listen: false)
-                  .changeNotes(text);
+              teamProvider.changeUnsavedData(true);
+              teamProvider.changeNotes(text);
             },
           ),
           ...teams.asMap().entries.map(
             (entry) {
               return TeamRetriever(
                 teamNumber: entry.key,
-                duplicateDogs: teamProvider.duplicateDogs,
                 dogs: context.watch<DogProvider>().dogs,
-                teams: context.watch<CreateTeamProvider>().group.teams,
-                errors: context.watch<CreateTeamProvider>().dogErrors,
+                teams: teamProvider.group.teams,
+                errors: teamProvider.dogErrors,
                 onDogSelected: (DogSelection newDog) {
-                  Provider.of<CreateTeamProvider>(context, listen: false)
-                      .changeDog(
-                          newId: newDog.dog.id,
-                          teamNumber: newDog.teamNumber,
-                          rowNumber: newDog.rowNumber,
-                          dogPosition: newDog.dogPosition);
+                  teamProvider.changeDog(
+                      newId: newDog.dog.id,
+                      teamNumber: newDog.teamNumber,
+                      rowNumber: newDog.rowNumber,
+                      dogPosition: newDog.dogPosition);
                 },
                 onTeamNameChanged: (int teamNumber, String newName) =>
-                    Provider.of<CreateTeamProvider>(context, listen: false)
-                        .changeTeamName(teamNumber, newName),
-                onRowRemoved: (int teamNumber, int rowNumber) =>
-                    Provider.of<CreateTeamProvider>(context, listen: false)
-                        .removeRow(
-                            teamNumber: teamNumber, rowNumber: rowNumber),
+                    teamProvider.changeTeamName(teamNumber, newName),
+                onRowRemoved: (int teamNumber, int rowNumber) => teamProvider
+                    .removeRow(teamNumber: teamNumber, rowNumber: rowNumber),
                 onAddRow: (int teamNumber) =>
-                    Provider.of<CreateTeamProvider>(context, listen: false)
-                        .addRow(teamNumber: teamNumber),
+                    teamProvider.addRow(teamNumber: teamNumber),
                 onDogRemoved:
                     (int teamNumber, int rowNumber, int dogPosition) =>
-                        Provider.of<CreateTeamProvider>(context, listen: false)
-                            .changeDog(
-                                newId: "",
-                                teamNumber: teamNumber,
-                                rowNumber: rowNumber,
-                                dogPosition: dogPosition),
+                        teamProvider.changeDog(
+                            newId: "",
+                            teamNumber: teamNumber,
+                            rowNumber: rowNumber,
+                            dogPosition: dogPosition),
                 onAddTeam: (teamNumber) =>
-                    Provider.of<CreateTeamProvider>(context, listen: false)
-                        .addTeam(teamNumber: teamNumber),
+                    teamProvider.addTeam(teamNumber: teamNumber),
                 onRemoveTeam: (teamNumber) =>
-                    Provider.of<CreateTeamProvider>(context, listen: false)
-                        .removeTeam(teamNumber: teamNumber),
+                    teamProvider.removeTeam(teamNumber: teamNumber),
               );
             },
           ),
           SizedBox(height: 10),
           ElevatedButton(
             onPressed: () async {
-              String teamString =
-                  Provider.of<CreateTeamProvider>(context, listen: false)
-                      .createTeamsString();
+              String teamString = teamProvider.createTeamsString();
               Clipboard.setData(ClipboardData(text: teamString));
             },
             child: Text("Copy teams"),
@@ -209,7 +194,6 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
 class TeamRetriever extends StatefulWidget {
   final int teamNumber;
   final List<Dog> dogs;
-  final List<String> duplicateDogs;
   final List<Team> teams;
   final List<DogError> errors;
   final Function(DogSelection) onDogSelected;
@@ -224,7 +208,6 @@ class TeamRetriever extends StatefulWidget {
       required this.teamNumber,
       required this.dogs,
       required this.errors,
-      required this.duplicateDogs,
       required this.teams,
       required this.onDogSelected,
       required this.onTeamNameChanged,
@@ -244,7 +227,6 @@ class PairRetriever extends StatelessWidget {
   final int rowNumber;
   final List<Team> teams;
   final List<Dog> dogs;
-  final List<String> duplicateDogs;
   final List<DogError> errors;
   final Function(DogSelection) onDogSelected;
   final Function(int, int) onRowRemoved;
@@ -256,7 +238,6 @@ class PairRetriever extends StatelessWidget {
       required this.errors,
       required this.teams,
       required this.dogs,
-      required this.duplicateDogs,
       required this.onDogSelected,
       required this.onRowRemoved,
       required this.onDogRemoved});
@@ -270,8 +251,8 @@ class PairRetriever extends StatelessWidget {
           rowNumber: rowNumber,
           teams: teams,
           positionNumber: 0,
-          duplicateDogs: duplicateDogs,
           dogs: dogs,
+          errors: errors,
           onDogSelected: (Dog newDog) => onDogSelected(
             DogSelection(
                 dog: newDog,
@@ -287,8 +268,8 @@ class PairRetriever extends StatelessWidget {
           teamNumber: teamNumber,
           rowNumber: rowNumber,
           teams: teams,
+          errors: errors,
           positionNumber: 1,
-          duplicateDogs: duplicateDogs,
           dogs: dogs,
           onDogSelected: (Dog newDog) => onDogSelected(
             DogSelection(
@@ -368,8 +349,7 @@ class _TeamRetrieverState extends State<TeamRetriever> {
                 teamNumber: widget.teamNumber,
                 rowNumber: entry.key,
                 teams: widget.teams,
-                errors: [],
-                duplicateDogs: widget.duplicateDogs,
+                errors: widget.errors,
                 onDogSelected: (newDog) => widget.onDogSelected(newDog),
                 dogs: widget.dogs,
                 onRowRemoved: (teamNumber, rowNumber) =>
