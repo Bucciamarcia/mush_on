@@ -277,6 +277,8 @@ abstract class Tag with _$Tag {
   const factory Tag({
     @Default("") String id,
     @Default("") String name,
+    @Default(false) bool preventFromRun,
+    @Default(false) bool showInTeamBuilder,
     required DateTime created,
     @ColorConverter() @Default(Colors.green) Color color,
     DateTime? expired,

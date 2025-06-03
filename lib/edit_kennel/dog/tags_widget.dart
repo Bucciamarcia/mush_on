@@ -97,6 +97,8 @@ class _TagEditorState extends State<TagEditor> {
   SearchFieldListItem<Tag>? selectedValue;
   late Color color;
   DateTime? expiration;
+  late bool preventsRunning;
+  late bool showInTeamBuilder;
   @override
   void initState() {
     super.initState();
@@ -104,6 +106,11 @@ class _TagEditorState extends State<TagEditor> {
         text: (widget.tagToEdit == null) ? null : widget.tagToEdit!.name);
     color = (widget.tagToEdit == null) ? Colors.green : widget.tagToEdit!.color;
     expiration = (widget.tagToEdit == null) ? null : widget.tagToEdit!.expired;
+    preventsRunning =
+        (widget.tagToEdit == null) ? false : widget.tagToEdit!.preventFromRun;
+    showInTeamBuilder = (widget.tagToEdit == null)
+        ? false
+        : widget.tagToEdit!.showInTeamBuilder;
   }
 
   @override
@@ -175,6 +182,27 @@ class _TagEditorState extends State<TagEditor> {
                 )
               ],
             ),
+            CheckboxListTile.adaptive(
+              title: Text("Prevents running"),
+              value: preventsRunning,
+              onChanged: (v) => {
+                setState(() {
+                  if (v != null) {
+                    preventsRunning = v;
+                  }
+                })
+              },
+            ),
+            CheckboxListTile.adaptive(
+                title: Text("Show in builder"),
+                value: showInTeamBuilder,
+                onChanged: (v) {
+                  setState(() {
+                    if (v != null) {
+                      showInTeamBuilder = v;
+                    }
+                  });
+                })
           ],
         ),
       ),
@@ -195,6 +223,8 @@ class _TagEditorState extends State<TagEditor> {
                   id: (widget.tagToEdit == null)
                       ? Uuid().v4()
                       : widget.tagToEdit!.id,
+                  preventFromRun: preventsRunning,
+                  showInTeamBuilder: showInTeamBuilder,
                 ),
               );
               Navigator.of(context).pop();
