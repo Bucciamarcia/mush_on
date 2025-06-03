@@ -304,6 +304,29 @@ class FakeCreateTeamProvider extends ChangeNotifier
     unsavedData = newCUD;
     notifyListeners();
   }
+
+  /// Get a list of all the IDs of all the running dogs.
+  /// A dog is considered "running" if its ID appears in any DogPair within any Team.
+  @override
+  List<String> getRunningDogs() {
+    Set<String> runningDogIds = {};
+
+    for (Team team in group.teams) {
+      for (DogPair pair in team.dogPairs) {
+        // Add firstDogId if it's not null or empty
+        if (pair.firstDogId != null && pair.firstDogId!.isNotEmpty) {
+          runningDogIds.add(pair.firstDogId!);
+        }
+
+        // Add secondDogId if it's not null or empty
+        if (pair.secondDogId != null && pair.secondDogId!.isNotEmpty) {
+          runningDogIds.add(pair.secondDogId!);
+        }
+      }
+    }
+
+    return runningDogIds.toList();
+  }
 }
 
 TeamGroup loadedTeam = TeamGroup(

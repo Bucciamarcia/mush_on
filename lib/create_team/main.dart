@@ -111,6 +111,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
   Widget build(BuildContext context) {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
     List<Team> teams = teamProvider.group.teams;
+    List<String> runningDogs = teamProvider.getRunningDogs();
 
     return PopScope(
       canPop: !teamProvider.unsavedData,
@@ -147,6 +148,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
               return TeamRetriever(
                 teamNumber: entry.key,
                 dogs: context.watch<DogProvider>().dogs,
+                runningDogs: runningDogs,
                 teams: teamProvider.group.teams,
                 errors: teamProvider.dogErrors,
                 onDogSelected: (DogSelection newDog) {
@@ -194,6 +196,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
 class TeamRetriever extends StatefulWidget {
   final int teamNumber;
   final List<Dog> dogs;
+  final List<String> runningDogs;
   final List<Team> teams;
   final List<DogError> errors;
   final Function(DogSelection) onDogSelected;
@@ -207,6 +210,7 @@ class TeamRetriever extends StatefulWidget {
       {super.key,
       required this.teamNumber,
       required this.dogs,
+      required this.runningDogs,
       required this.errors,
       required this.teams,
       required this.onDogSelected,
@@ -227,6 +231,7 @@ class PairRetriever extends StatelessWidget {
   final int rowNumber;
   final List<Team> teams;
   final List<Dog> dogs;
+  final List<String> runningDogs;
   final List<DogError> errors;
   final Function(DogSelection) onDogSelected;
   final Function(int, int) onRowRemoved;
@@ -238,6 +243,7 @@ class PairRetriever extends StatelessWidget {
       required this.errors,
       required this.teams,
       required this.dogs,
+      required this.runningDogs,
       required this.onDogSelected,
       required this.onRowRemoved,
       required this.onDogRemoved});
@@ -252,6 +258,7 @@ class PairRetriever extends StatelessWidget {
           teams: teams,
           positionNumber: 0,
           dogs: dogs,
+          runningDogs: runningDogs,
           errors: errors,
           onDogSelected: (Dog newDog) => onDogSelected(
             DogSelection(
@@ -271,6 +278,7 @@ class PairRetriever extends StatelessWidget {
           errors: errors,
           positionNumber: 1,
           dogs: dogs,
+          runningDogs: runningDogs,
           onDogSelected: (Dog newDog) => onDogSelected(
             DogSelection(
                 dog: newDog,
@@ -352,6 +360,7 @@ class _TeamRetrieverState extends State<TeamRetriever> {
                 errors: widget.errors,
                 onDogSelected: (newDog) => widget.onDogSelected(newDog),
                 dogs: widget.dogs,
+                runningDogs: widget.runningDogs,
                 onRowRemoved: (teamNumber, rowNumber) =>
                     widget.onRowRemoved(teamNumber, rowNumber),
                 onDogRemoved: (teamNumber, rowNumber, positionNumber) =>

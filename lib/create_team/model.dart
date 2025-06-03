@@ -22,15 +22,9 @@ enum DogErrorMessage {
 }
 
 enum ErrorType {
-  fatal(
-      color: Color.fromARGB(
-          255, 255, 170, 170)), // A slightly darker, but still light, red
-  warning(
-      color: Color.fromARGB(
-          255, 255, 220, 100)), // A clearer, brighter yellow/gold
-  none(
-      color: Color.fromARGB(
-          255, 204, 255, 204)); // Light Green/Mint (this one can stay)
+  fatal(color: Color.fromARGB(255, 255, 170, 170)),
+  warning(color: Color.fromARGB(255, 255, 220, 100)),
+  none(color: Color.fromARGB(255, 204, 255, 204));
 
   final Color color;
 

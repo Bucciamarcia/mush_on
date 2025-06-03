@@ -9,12 +9,12 @@ class AutocompleteDogs extends StatelessWidget {
     super.key,
     required this.autoCompleteKey,
     required this.currentValue,
-    required Map<String, Dog> dogsById,
     required this.errors,
     required this.teamNumber,
     required this.rowNumber,
     required this.positionNumber,
     required this.dogs,
+    required this.runningDogs,
     required this.onDogSelected,
   });
 
@@ -24,6 +24,7 @@ class AutocompleteDogs extends StatelessWidget {
   final int rowNumber;
   final int positionNumber;
   final List<Dog> dogs;
+  final List<String> runningDogs;
   final List<DogError> errors;
   final Function(Dog) onDogSelected;
   static final BasicLogger logger = BasicLogger();
@@ -61,7 +62,7 @@ class AutocompleteDogs extends StatelessWidget {
     final List<Dog> availableDogs = [];
 
     for (final dog in dogs) {
-      if (dogsWithErrorSet.contains(dog.id)) {
+      if (dogsWithErrorSet.contains(dog.id) || runningDogs.contains(dog.id)) {
         unavailableDogs.add(dog);
       } else {
         availableDogs.add(dog);
@@ -74,9 +75,11 @@ class AutocompleteDogs extends StatelessWidget {
   /// Formats the text with unavailable
   String formatText(Dog dog) {
     DogError? error = DogErrorRepository.findById(errors, dog.id);
-    if (error == null) return dog.name;
-    if (DogErrorRepository.worstErrorType(error.dogErrorMessages) ==
-        ErrorType.fatal) {
+    bool isFatalError = error != null &&
+        DogErrorRepository.worstErrorType(error.dogErrorMessages) ==
+            ErrorType.fatal;
+
+    if (runningDogs.contains(dog.id) || isFatalError) {
       return "${dog.name} - Unavailable";
     }
     return dog.name;
@@ -85,9 +88,11 @@ class AutocompleteDogs extends StatelessWidget {
   /// Picks grey if has fatal errors or is duplicate
   Color pickColor(Dog dog) {
     DogError? error = DogErrorRepository.findById(errors, dog.id);
-    if (error == null) return Colors.black;
-    if (DogErrorRepository.worstErrorType(error.dogErrorMessages) ==
-        ErrorType.fatal) {
+    bool isFatalError = error != null &&
+        DogErrorRepository.worstErrorType(error.dogErrorMessages) ==
+            ErrorType.fatal;
+
+    if (runningDogs.contains(dog.id) || isFatalError) {
       return Colors.grey;
     }
     return Colors.black;
