@@ -36,7 +36,7 @@ class DogErrorRepository {
   /// Adds an error message to a list.
   ///
   /// If the dogId exists, it will add the error to the list.
-  /// If it doesn't, it will create a new DogErrr entry.
+  /// If it doesn't, it will create a new DogError entry.
   static List<DogError> addError(
       {required List<DogError> errors,
       required String dogId,
@@ -50,6 +50,12 @@ class DogErrorRepository {
       errorToEdit.dogErrorMessages.add(newError);
       return errors;
     }
+  }
+
+  /// Removes errors of a certain type from a DogError.
+  static DogError removeErrorType(DogError dogError, DogErrorMessage type) {
+    dogError.dogErrorMessages.removeWhere((e) => e == type);
+    return dogError;
   }
 
   /// Finds the DogError with that dog id.

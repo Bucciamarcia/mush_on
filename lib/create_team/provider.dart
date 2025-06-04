@@ -9,6 +9,7 @@ import '../services/firestore.dart';
 class CreateTeamProvider extends ChangeNotifier {
   BasicLogger logger = BasicLogger();
   List<DogError> dogErrors = [];
+  List<String> runningDogIds = [];
   TeamGroup group = TeamGroup(
     teams: [
       Team(
@@ -77,6 +78,7 @@ class CreateTeamProvider extends ChangeNotifier {
   changeAllTeams(List<Team> newTeams) {
     group.teams = newTeams;
     changeUnsavedData(true);
+    updateRunningDogs();
     notifyListeners();
   }
 
@@ -97,12 +99,14 @@ class CreateTeamProvider extends ChangeNotifier {
       rethrow;
     }
     changeUnsavedData(true);
+    updateRunningDogs();
     notifyListeners();
   }
 
   removeTeam({required int teamNumber}) {
     group.teams.removeAt(teamNumber);
     changeUnsavedData(true);
+    updateRunningDogs();
     notifyListeners();
   }
 
@@ -137,6 +141,7 @@ class CreateTeamProvider extends ChangeNotifier {
   removeRow({required int teamNumber, required int rowNumber}) {
     group.teams[teamNumber].dogPairs.removeAt(rowNumber);
 
+    updateRunningDogs();
     notifyListeners();
   }
 
@@ -151,7 +156,7 @@ class CreateTeamProvider extends ChangeNotifier {
       } else if (dogPosition == 1) {
         group.teams[teamNumber].dogPairs[rowNumber].secondDogId = newId;
       }
-      updateDuplicateDogs();
+      updateRunningDogs();
       notifyListeners();
     } catch (e, s) {
       logger.error("Couldn't change dog", error: e, stackTrace: s);
@@ -161,6 +166,7 @@ class CreateTeamProvider extends ChangeNotifier {
   }
 
   updateDuplicateDogs() {
+    _clearduplicateDogsErrors();
     Map<String, int> dogCounts = {};
 
     try {
@@ -236,25 +242,37 @@ class CreateTeamProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Get a list of all the IDs of all the running dogs.
   /// A dog is considered "running" if its ID appears in any DogPair within any Team.
-  List<String> getRunningDogs() {
-    Set<String> runningDogIds = {};
+  void updateRunningDogs() {
+    Set<String> runningDogs = {};
 
     for (Team team in group.teams) {
       for (DogPair pair in team.dogPairs) {
         // Add firstDogId if it's not null or empty
         if (pair.firstDogId != null && pair.firstDogId!.isNotEmpty) {
-          runningDogIds.add(pair.firstDogId!);
+          runningDogs.add(pair.firstDogId!);
         }
 
         // Add secondDogId if it's not null or empty
         if (pair.secondDogId != null && pair.secondDogId!.isNotEmpty) {
-          runningDogIds.add(pair.secondDogId!);
+          runningDogs.add(pair.secondDogId!);
         }
       }
     }
 
-    return runningDogIds.toList();
+    runningDogIds = runningDogs.toList();
+    updateDuplicateDogs();
+    notifyListeners();
+  }
+
+  void _clearduplicateDogsErrors() {
+    List<DogError> newList = [];
+    for (var e in dogErrors) {
+      DogErrorRepository.removeErrorType(e, DogErrorMessage.duplicate);
+      if (e.dogErrorMessages.isNotEmpty) {
+        newList.add(e);
+      }
+    }
+    dogErrors = newList;
   }
 }
