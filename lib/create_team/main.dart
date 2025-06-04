@@ -111,7 +111,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
   Widget build(BuildContext context) {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
     List<Team> teams = teamProvider.group.teams;
-    List<String> runningDogs = teamProvider.getRunningDogs();
+    List<String> runningDogs = teamProvider.runningDogIds;
 
     return PopScope(
       canPop: !teamProvider.unsavedData,
