@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mush_on/create_team/dog_selector.dart';
-import 'package:mush_on/create_team/model.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/firestore_dogs_to_id.dart';
