@@ -1,13 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mush_on/create_team/model.dart';
+import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 
 import '../services/firestore.dart';
 
 class CreateTeamProvider extends ChangeNotifier {
+  bool unsavedData = false;
   BasicLogger logger = BasicLogger();
+  List<Dog> dogs = [];
   List<DogError> dogErrors = [];
   List<String> runningDogIds = [];
   TeamGroup group = TeamGroup(
@@ -39,11 +41,10 @@ class CreateTeamProvider extends ChangeNotifier {
         .collection("accounts/$account/data/kennel/dogs")
         .snapshots()
         .listen((snapshot) {
-      List<Dog> dogs = snapshot.docs
-          .map((doc) => Dog.fromJson(doc.data()))
-          .toList()
+      dogs = snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList()
         ..sort((a, b) => a.name.compareTo(b.name));
       _fetchDogsById(dogs);
+      _buildErrors();
       notifyListeners();
     });
   }
@@ -55,7 +56,24 @@ class CreateTeamProvider extends ChangeNotifier {
     }
   }
 
-  bool unsavedData = false;
+  void _buildErrors() {
+    _buildTagErrors();
+  }
+
+  void _buildTagErrors() {
+    for (Dog dog in dogs) {
+      for (Tag tag in dog.tags) {
+        if (tag.preventFromRun) {
+          dogErrors = DogErrorRepository.addError(
+            errors: dogErrors,
+            dogId: dog.id,
+            newError: DogErrorMessage(
+                type: DogErrorType.tagPreventing, details: tag.name),
+          );
+        }
+      }
+    }
+  }
 
   changeGlobalName(String newName) {
     group.name = newName;
@@ -199,7 +217,7 @@ class CreateTeamProvider extends ChangeNotifier {
           DogErrorRepository.addError(
               errors: dogErrors,
               dogId: dogId,
-              newError: DogErrorMessage.duplicate);
+              newError: DogErrorMessage(type: DogErrorType.duplicate));
         }
       });
     } catch (e, s) {
@@ -268,7 +286,7 @@ class CreateTeamProvider extends ChangeNotifier {
   void _clearduplicateDogsErrors() {
     List<DogError> newList = [];
     for (var e in dogErrors) {
-      DogErrorRepository.removeErrorType(e, DogErrorMessage.duplicate);
+      DogErrorRepository.removeErrorType(e, DogErrorType.duplicate);
       if (e.dogErrorMessages.isNotEmpty) {
         newList.add(e);
       }

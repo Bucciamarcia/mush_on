@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/create_team/model.dart';
+import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:searchfield/searchfield.dart';
@@ -62,7 +62,6 @@ class AutocompleteDogs extends StatelessWidget {
     for (Dog dog in dogs) {
       tp.add(dog.name);
     }
-    BasicLogger().info("dogs: $tp");
 
     final Set<String> dogsWithErrorSet = errors.map((e) => e.dogId).toSet();
 

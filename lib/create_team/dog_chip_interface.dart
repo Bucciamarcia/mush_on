@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/create_team/model.dart';
+import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 
@@ -73,7 +73,7 @@ class ErrorsList extends StatelessWidget {
       children: errors.dogErrorMessages
           .map((e) => Text(
                 e.message,
-                style: TextStyle(color: e.color),
+                style: TextStyle(color: e.type.color),
               ))
           .toList(),
     );
