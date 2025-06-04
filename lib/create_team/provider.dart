@@ -61,14 +61,22 @@ class CreateTeamProvider extends ChangeNotifier {
   }
 
   void _buildTagErrors() {
+    final now = DateTime.now();
+
     for (Dog dog in dogs) {
       for (Tag tag in dog.tags) {
-        if (tag.preventFromRun) {
+        // Determine if the tag is currently active (not expired)
+        bool isTagActive = (tag.expired == null || tag.expired!.isAfter(now));
+
+        // If the tag is active AND it's flagged to prevent from running, it's an error
+        if (isTagActive && tag.preventFromRun) {
           dogErrors = DogErrorRepository.addError(
             errors: dogErrors,
             dogId: dog.id,
             newError: DogErrorMessage(
-                type: DogErrorType.tagPreventing, details: tag.name),
+              type: DogErrorType.tagPreventing,
+              details: tag.name,
+            ),
           );
         }
       }
