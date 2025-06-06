@@ -8,27 +8,27 @@ import 'package:mush_on/services/models.dart';
 /// It will display when a dog in a certain position has been selected
 class DogSelectedInterface extends StatelessWidget {
   final Dog dog;
-  final List<DogError> errors;
+  final List<DogNote> notes;
   final Function() onDogRemoved;
 
   const DogSelectedInterface(
       {super.key,
       required this.dog,
-      required this.errors,
+      required this.notes,
       required this.onDogRemoved});
 
   @override
   Widget build(BuildContext context) {
-    DogError? dogError = DogErrorRepository.findById(errors, dog.id);
+    DogNote? dogNote = DogErrorRepository.findById(notes, dog.id);
     return Column(
       children: [
         DogSelectedChip(
           dog: dog,
           errorType: DogErrorRepository.worstErrorType(
-              dogError == null ? [] : dogError.dogErrorMessages),
+              dogNote == null ? [] : dogNote.dogNoteMessage),
           onDogRemoved: () => onDogRemoved(),
         ),
-        dogError != null ? ErrorsList(errors: dogError) : SizedBox.shrink(),
+        dogNote != null ? NotesList(notes: dogNote) : SizedBox.shrink(),
       ],
     );
   }
@@ -63,14 +63,14 @@ class DogSelectedChip extends StatelessWidget {
   }
 }
 
-class ErrorsList extends StatelessWidget {
-  final DogError errors;
-  const ErrorsList({super.key, required this.errors});
+class NotesList extends StatelessWidget {
+  final DogNote notes;
+  const NotesList({super.key, required this.notes});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: errors.dogErrorMessages
+      children: notes.dogNoteMessage
           .map((e) => Text(
                 e.message,
                 style: TextStyle(color: e.type.color),
