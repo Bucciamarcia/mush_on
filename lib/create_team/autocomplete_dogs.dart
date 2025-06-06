@@ -9,7 +9,7 @@ class AutocompleteDogs extends StatelessWidget {
     super.key,
     required this.autoCompleteKey,
     required this.currentValue,
-    required this.errors,
+    required this.notes,
     required this.teamNumber,
     required this.rowNumber,
     required this.positionNumber,
@@ -25,7 +25,7 @@ class AutocompleteDogs extends StatelessWidget {
   final int positionNumber;
   final List<Dog> dogs;
   final List<String> runningDogs;
-  final List<DogError> errors;
+  final List<DogNote> notes;
   final Function(Dog) onDogSelected;
   static final BasicLogger logger = BasicLogger();
 
@@ -55,7 +55,7 @@ class AutocompleteDogs extends StatelessWidget {
     );
   }
 
-  /// Takes all the unavailable dogs (with errors) and puts them at the bottom,
+  /// Takes all the unavailable dogs (with notes) and puts them at the bottom,
   /// preserving the original sort.
   List<Dog> sortDogs() {
     var tp = [];
@@ -63,7 +63,7 @@ class AutocompleteDogs extends StatelessWidget {
       tp.add(dog.name);
     }
 
-    final Set<String> dogsWithErrorSet = errors.map((e) => e.dogId).toSet();
+    final Set<String> dogsWithErrorSet = notes.map((e) => e.dogId).toSet();
 
     final List<Dog> unavailableDogs = [];
     final List<Dog> availableDogs = [];
@@ -80,9 +80,9 @@ class AutocompleteDogs extends StatelessWidget {
 
   /// Formats the text with unavailable
   String formatText(Dog dog) {
-    DogError? error = DogErrorRepository.findById(errors, dog.id);
+    DogNote? error = DogErrorRepository.findById(notes, dog.id);
     bool isFatalError = error != null &&
-        DogErrorRepository.worstErrorType(error.dogErrorMessages) ==
+        DogErrorRepository.worstErrorType(error.dogNoteMessage) ==
             ErrorType.fatal;
 
     if (runningDogs.contains(dog.id) || isFatalError) {
@@ -91,11 +91,11 @@ class AutocompleteDogs extends StatelessWidget {
     return dog.name;
   }
 
-  /// Picks grey if has fatal errors or is duplicate
+  /// Picks grey if has fatal notes or is duplicate
   Color pickColor(Dog dog) {
-    DogError? error = DogErrorRepository.findById(errors, dog.id);
+    DogNote? error = DogErrorRepository.findById(notes, dog.id);
     bool isFatalError = error != null &&
-        DogErrorRepository.worstErrorType(error.dogErrorMessages) ==
+        DogErrorRepository.worstErrorType(error.dogNoteMessage) ==
             ErrorType.fatal;
 
     if (runningDogs.contains(dog.id) || isFatalError) {

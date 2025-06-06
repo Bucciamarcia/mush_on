@@ -10,7 +10,7 @@ class CreateTeamProvider extends ChangeNotifier {
   bool unsavedData = false;
   BasicLogger logger = BasicLogger();
   List<Dog> dogs = [];
-  List<DogError> dogErrors = [];
+  List<DogNote> dogNotes = [];
   List<String> runningDogIds = [];
   TeamGroup group = TeamGroup(
     teams: [
@@ -30,8 +30,8 @@ class CreateTeamProvider extends ChangeNotifier {
     _fetchDogs();
   }
 
-  void addDogError(DogError newError) {
-    dogErrors.add(newError);
+  void addDogError(DogNote newError) {
+    dogNotes.add(newError);
     notifyListeners();
   }
 
@@ -70,11 +70,11 @@ class CreateTeamProvider extends ChangeNotifier {
 
         // If the tag is active AND it's flagged to prevent from running, it's an error
         if (isTagActive && tag.preventFromRun) {
-          dogErrors = DogErrorRepository.addError(
-            errors: dogErrors,
+          dogNotes = DogErrorRepository.addError(
+            errors: dogNotes,
             dogId: dog.id,
-            newError: DogErrorMessage(
-              type: DogErrorType.tagPreventing,
+            newError: DogNoteMessage(
+              type: DogNoteType.tagPreventing,
               details: tag.name,
             ),
           );
@@ -223,9 +223,9 @@ class CreateTeamProvider extends ChangeNotifier {
       dogCounts.forEach((dogId, dogCount) {
         if (dogCount > 1) {
           DogErrorRepository.addError(
-              errors: dogErrors,
+              errors: dogNotes,
               dogId: dogId,
-              newError: DogErrorMessage(type: DogErrorType.duplicate));
+              newError: DogNoteMessage(type: DogNoteType.duplicate));
         }
       });
     } catch (e, s) {
@@ -292,13 +292,13 @@ class CreateTeamProvider extends ChangeNotifier {
   }
 
   void _clearduplicateDogsErrors() {
-    List<DogError> newList = [];
-    for (var e in dogErrors) {
-      DogErrorRepository.removeErrorType(e, DogErrorType.duplicate);
-      if (e.dogErrorMessages.isNotEmpty) {
-        newList.add(e);
+    List<DogNote> newList = [];
+    for (var n in dogNotes) {
+      DogErrorRepository.removeErrorType(n, DogNoteType.duplicate);
+      if (n.dogNoteMessage.isNotEmpty) {
+        newList.add(n);
       }
     }
-    dogErrors = newList;
+    dogNotes = newList;
   }
 }

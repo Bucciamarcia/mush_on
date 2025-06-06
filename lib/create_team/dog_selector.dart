@@ -9,7 +9,7 @@ class DogSelector extends StatefulWidget {
   const DogSelector({
     super.key,
     required this.teamNumber,
-    required this.errors,
+    required this.notes,
     required this.rowNumber,
     required this.teams,
     required this.positionNumber,
@@ -20,7 +20,7 @@ class DogSelector extends StatefulWidget {
   });
 
   final int teamNumber;
-  final List<DogError> errors;
+  final List<DogNote> notes;
   final int rowNumber;
   final List<Team> teams;
   final int positionNumber;
@@ -91,10 +91,10 @@ class _DogSelectorState extends State<DogSelector> {
         '${widget.teamNumber}_${widget.rowNumber}_${widget.positionNumber}_$currentValue');
     return Expanded(
       child: (currentValue != null && currentValue.isNotEmpty)
-          // If a Dog is selected, show the interface with chip and errors.
+          // If a Dog is selected, show the interface with chip and notes.
           ? DogSelectedInterface(
               dog: _dogsById[currentValue]!,
-              errors: widget.errors,
+              notes: widget.notes,
               onDogRemoved: () =>
                   widget.onDogRemoved(widget.teamNumber, widget.rowNumber),
             )
@@ -102,7 +102,7 @@ class _DogSelectorState extends State<DogSelector> {
           : AutocompleteDogs(
               autoCompleteKey: autoCompleteKey,
               currentValue: currentValue,
-              errors: widget.errors,
+              notes: widget.notes,
               teamNumber: widget.teamNumber,
               rowNumber: widget.rowNumber,
               positionNumber: widget.positionNumber,
