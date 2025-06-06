@@ -47,7 +47,12 @@ enum DogNoteType {
   tagPreventing(
       color: Color.fromARGB(255, 255, 0, 0),
       noteType: NoteType.fatal,
-      message: "Has tag: ");
+      message: "Has tag: "),
+  showTagInBuilder(
+    color: Color.fromARGB(255, 100, 149, 237),
+    noteType: NoteType.info,
+    message: "Tag: ",
+  );
 
   final Color color;
   final String message;
@@ -59,7 +64,8 @@ enum DogNoteType {
 enum NoteType {
   fatal(color: Color.fromARGB(255, 255, 170, 170)),
   warning(color: Color.fromARGB(255, 255, 220, 100)),
-  info(color: Color.fromARGB(255, 204, 255, 204));
+  info(color: Color.fromARGB(255, 100, 149, 237)),
+  none(color: Color.fromARGB(255, 144, 238, 144));
 
   final Color color;
 
@@ -108,7 +114,7 @@ class DogNoteRepository {
   /// Ths assume only warning and fatal exist.
   static NoteType worstNoteType(List<DogNoteMessage> noteMessages) {
     if (noteMessages.isEmpty) {
-      return NoteType.info;
+      return NoteType.none;
     } else {
       for (DogNoteMessage e in noteMessages) {
         if (e.type.noteType == NoteType.fatal) {

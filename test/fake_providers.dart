@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/create_team/model.dart';
+import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -54,7 +54,11 @@ class FakeCreateTeamProvider extends ChangeNotifier
   @override
   BasicLogger logger = BasicLogger();
   @override
-  List<DogError> dogErrors = [];
+  List<DogNote> dogNotes = []; // Changed from dogErrors to dogNotes
+  @override
+  List<Dog> dogs = []; // Added dogs list
+  @override
+  List<String> runningDogIds = []; // Added runningDogIds
   @override
   TeamGroup group = TeamGroup(
     teams: [
@@ -76,13 +80,15 @@ class FakeCreateTeamProvider extends ChangeNotifier
   }
 
   @override
-  void addDogError(DogError newError) {
-    dogErrors.add(newError);
+  void addDogNote(DogNote newNote) {
+    // Changed from addDogError to addDogNote
+    dogNotes.add(newNote);
     notifyListeners();
   }
 
-  void _fetchDogs() async {
-    List<Dog> dogs = [
+  void _fetchDogs() {
+    // Simulating the dogs fetched from Firestore
+    dogs = [
       Dog(name: "Fido", id: "id_Fido", positions: DogPositions(lead: true)),
       Dog(
           name: "Fluffy",
@@ -96,6 +102,7 @@ class FakeCreateTeamProvider extends ChangeNotifier
           positions: DogPositions(wheel: true)),
     ];
     _fetchDogsById(dogs);
+    _buildNotes(); // Call _buildNotes after fetching dogs
     notifyListeners();
   }
 
@@ -104,6 +111,26 @@ class FakeCreateTeamProvider extends ChangeNotifier
     for (Dog dog in fetchedDogs) {
       _dogsById.addAll({dog.id: dog});
     }
+  }
+
+  @override
+  void _buildNotes() {
+    // Simplified for testing purposes
+    _buildTagNotes();
+  }
+
+  @override
+  void _buildTagNotes() {
+    // Simulate some tag notes if needed for testing
+    // For example:
+    // dogNotes = DogNoteRepository.addNote(
+    //   notes: dogNotes,
+    //   dogId: "id_Fido",
+    //   newNote: DogNoteMessage(
+    //     type: DogNoteType.tagPreventing,
+    //     details: "Has a cough",
+    //   ),
+    // );
   }
 
   @override
@@ -125,11 +152,10 @@ class FakeCreateTeamProvider extends ChangeNotifier
 
   @override
   updateDuplicateDogs() {
-    logger.info("Calling duplicate dogs");
+    _clearduplicateDogsNotes(); // Clear existing duplicate notes
     Map<String, int> dogCounts = {};
 
     try {
-      // Count occurrences of each dog
       for (Team team in group.teams) {
         List<DogPair> rows = team.dogPairs;
         for (DogPair row in rows) {
@@ -151,14 +177,13 @@ class FakeCreateTeamProvider extends ChangeNotifier
       rethrow;
     }
 
-    // Add to duplicateDogs if count > 1
     try {
       dogCounts.forEach((dogId, dogCount) {
         if (dogCount > 1) {
-          DogErrorRepository.addError(
-              errors: dogErrors,
+          DogNoteRepository.addNote(
+              notes: dogNotes,
               dogId: dogId,
-              newError: DogErrorMessage.duplicate);
+              newNote: DogNoteMessage(type: DogNoteType.duplicate));
         }
       });
     } catch (e, s) {
@@ -180,6 +205,7 @@ class FakeCreateTeamProvider extends ChangeNotifier
   changeAllTeams(List<Team> newTeams) {
     group.teams = newTeams;
     changeUnsavedData(true);
+    updateRunningDogs(); // Call updateRunningDogs
     notifyListeners();
   }
 
@@ -198,8 +224,10 @@ class FakeCreateTeamProvider extends ChangeNotifier
       );
     } catch (e, s) {
       logger.error("Couldn't add team", error: e, stackTrace: s);
+      rethrow;
     }
     changeUnsavedData(true);
+    updateRunningDogs(); // Call updateRunningDogs
     notifyListeners();
   }
 
@@ -207,6 +235,7 @@ class FakeCreateTeamProvider extends ChangeNotifier
   removeTeam({required int teamNumber}) {
     group.teams.removeAt(teamNumber);
     changeUnsavedData(true);
+    updateRunningDogs(); // Call updateRunningDogs
     notifyListeners();
   }
 
@@ -245,7 +274,7 @@ class FakeCreateTeamProvider extends ChangeNotifier
   @override
   removeRow({required int teamNumber, required int rowNumber}) {
     group.teams[teamNumber].dogPairs.removeAt(rowNumber);
-
+    updateRunningDogs(); // Call updateRunningDogs
     notifyListeners();
   }
 
@@ -261,10 +290,11 @@ class FakeCreateTeamProvider extends ChangeNotifier
       } else if (dogPosition == 1) {
         group.teams[teamNumber].dogPairs[rowNumber].secondDogId = newId;
       }
-      updateDuplicateDogs();
+      updateRunningDogs(); // Call updateRunningDogs
       notifyListeners();
     } catch (e, s) {
       logger.error("Couldn't change dog", error: e, stackTrace: s);
+      rethrow;
     }
     changeUnsavedData(true);
   }
@@ -305,27 +335,41 @@ class FakeCreateTeamProvider extends ChangeNotifier
     notifyListeners();
   }
 
-  /// Get a list of all the IDs of all the running dogs.
   /// A dog is considered "running" if its ID appears in any DogPair within any Team.
   @override
-  List<String> getRunningDogs() {
-    Set<String> runningDogIds = {};
+  void updateRunningDogs() {
+    Set<String> runningDogs = {};
 
     for (Team team in group.teams) {
       for (DogPair pair in team.dogPairs) {
         // Add firstDogId if it's not null or empty
         if (pair.firstDogId != null && pair.firstDogId!.isNotEmpty) {
-          runningDogIds.add(pair.firstDogId!);
+          runningDogs.add(pair.firstDogId!);
         }
 
         // Add secondDogId if it's not null or empty
         if (pair.secondDogId != null && pair.secondDogId!.isNotEmpty) {
-          runningDogIds.add(pair.secondDogId!);
+          runningDogs.add(pair.secondDogId!);
         }
       }
     }
 
-    return runningDogIds.toList();
+    runningDogIds = runningDogs.toList();
+    updateDuplicateDogs(); // Ensure duplicate dogs are updated when running dogs change
+    notifyListeners();
+  }
+
+  @override
+  void _clearduplicateDogsNotes() {
+    List<DogNote> newList = [];
+    for (var n in dogNotes) {
+      final updatedNote =
+          DogNoteRepository.removeNoteType(n, DogNoteType.duplicate);
+      if (updatedNote.dogNoteMessage.isNotEmpty) {
+        newList.add(updatedNote);
+      }
+    }
+    dogNotes = newList;
   }
 }
 

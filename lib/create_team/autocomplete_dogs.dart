@@ -40,7 +40,7 @@ class AutocompleteDogs extends StatelessWidget {
               SearchInputDecoration(hint: Text("Select dog")),
           suggestions: sortedDogs
               .map((dog) => SearchFieldListItem<Dog>(dog.name,
-                  key: ValueKey(dog.id), // Add a unique key here
+                  key: ValueKey(dog.id),
                   child: Text(
                     formatText(dog),
                     style: TextStyle(color: pickColor(dog)),
@@ -58,18 +58,19 @@ class AutocompleteDogs extends StatelessWidget {
   /// Takes all the unavailable dogs (with notes) and puts them at the bottom,
   /// preserving the original sort.
   List<Dog> sortDogs() {
-    var tp = [];
-    for (Dog dog in dogs) {
-      tp.add(dog.name);
-    }
-
-    final Set<String> dogsWithErrorSet = notes.map((e) => e.dogId).toSet();
+    final Set<String?> dogsWithNoteSet = notes.map((e) {
+      for (var m in e.dogNoteMessage) {
+        if (m.type.noteType == NoteType.fatal) {
+          return e.dogId;
+        }
+      }
+    }).toSet();
 
     final List<Dog> unavailableDogs = [];
     final List<Dog> availableDogs = [];
 
     for (final dog in dogs) {
-      if (dogsWithErrorSet.contains(dog.id) || runningDogs.contains(dog.id)) {
+      if (dogsWithNoteSet.contains(dog.id) || runningDogs.contains(dog.id)) {
         unavailableDogs.add(dog);
       } else {
         availableDogs.add(dog);

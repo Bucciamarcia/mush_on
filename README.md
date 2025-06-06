@@ -46,3 +46,5 @@ A cool and open source CRM for sled dog kennels.
 
 - In create team, dogs already selected are at the bottom and unavailable to avoid duplicates.
 - Added flags "Prevents for running" and "Show in team builder" for tags.
+- Tags preventing from running cause error in team builder.
+- Show in team builder tags now are shown in team builder.
