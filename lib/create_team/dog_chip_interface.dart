@@ -24,7 +24,7 @@ class DogSelectedInterface extends StatelessWidget {
       children: [
         DogSelectedChip(
           dog: dog,
-          errorType: DogNoteRepository.worstNoteType(
+          noteType: DogNoteRepository.worstNoteType(
               dogNote == null ? [] : dogNote.dogNoteMessage),
           onDogRemoved: () => onDogRemoved(),
         ),
@@ -37,20 +37,20 @@ class DogSelectedInterface extends StatelessWidget {
 /// The chip itself, displaying the dog name and info.
 class DogSelectedChip extends StatelessWidget {
   final Dog dog;
-  final NoteType errorType;
+  final NoteType noteType;
   final Function() onDogRemoved;
   static final BasicLogger logger = BasicLogger();
   const DogSelectedChip(
       {super.key,
       required this.dog,
       required this.onDogRemoved,
-      required this.errorType});
+      required this.noteType});
 
   @override
   Widget build(BuildContext context) {
     return InputChip(
       padding: EdgeInsets.all(10),
-      backgroundColor: errorType.color,
+      backgroundColor: noteType.color,
       key: Key("DogSelectedChip - ${dog.id}"),
       label: Text(
         dog.name,

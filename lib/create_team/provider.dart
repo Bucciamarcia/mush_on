@@ -78,6 +78,15 @@ class CreateTeamProvider extends ChangeNotifier {
               details: tag.name,
             ),
           );
+        } else if (isTagActive && tag.showInTeamBuilder) {
+          dogNotes = DogNoteRepository.addNote(
+            notes: dogNotes,
+            dogId: dog.id,
+            newNote: DogNoteMessage(
+              type: DogNoteType.showTagInBuilder,
+              details: tag.name,
+            ),
+          );
         }
       }
     }
