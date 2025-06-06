@@ -80,10 +80,9 @@ class AutocompleteDogs extends StatelessWidget {
 
   /// Formats the text with unavailable
   String formatText(Dog dog) {
-    DogNote? error = DogErrorRepository.findById(notes, dog.id);
+    DogNote? error = DogNoteRepository.findById(notes, dog.id);
     bool isFatalError = error != null &&
-        DogErrorRepository.worstErrorType(error.dogNoteMessage) ==
-            ErrorType.fatal;
+        DogNoteRepository.worstNoteType(error.dogNoteMessage) == NoteType.fatal;
 
     if (runningDogs.contains(dog.id) || isFatalError) {
       return "${dog.name} - Unavailable";
@@ -93,10 +92,9 @@ class AutocompleteDogs extends StatelessWidget {
 
   /// Picks grey if has fatal notes or is duplicate
   Color pickColor(Dog dog) {
-    DogNote? error = DogErrorRepository.findById(notes, dog.id);
+    DogNote? error = DogNoteRepository.findById(notes, dog.id);
     bool isFatalError = error != null &&
-        DogErrorRepository.worstErrorType(error.dogNoteMessage) ==
-            ErrorType.fatal;
+        DogNoteRepository.worstNoteType(error.dogNoteMessage) == NoteType.fatal;
 
     if (runningDogs.contains(dog.id) || isFatalError) {
       return Colors.grey;

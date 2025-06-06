@@ -30,8 +30,8 @@ class CreateTeamProvider extends ChangeNotifier {
     _fetchDogs();
   }
 
-  void addDogError(DogNote newError) {
-    dogNotes.add(newError);
+  void addDogNote(DogNote newNote) {
+    dogNotes.add(newNote);
     notifyListeners();
   }
 
@@ -44,7 +44,7 @@ class CreateTeamProvider extends ChangeNotifier {
       dogs = snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList()
         ..sort((a, b) => a.name.compareTo(b.name));
       _fetchDogsById(dogs);
-      _buildErrors();
+      _buildNotes();
       notifyListeners();
     });
   }
@@ -56,11 +56,11 @@ class CreateTeamProvider extends ChangeNotifier {
     }
   }
 
-  void _buildErrors() {
-    _buildTagErrors();
+  void _buildNotes() {
+    _buildTagNotes();
   }
 
-  void _buildTagErrors() {
+  void _buildTagNotes() {
     final now = DateTime.now();
 
     for (Dog dog in dogs) {
@@ -68,12 +68,12 @@ class CreateTeamProvider extends ChangeNotifier {
         // Determine if the tag is currently active (not expired)
         bool isTagActive = (tag.expired == null || tag.expired!.isAfter(now));
 
-        // If the tag is active AND it's flagged to prevent from running, it's an error
+        // If the tag is active AND it's flagged to prevent from running, it's a note
         if (isTagActive && tag.preventFromRun) {
-          dogNotes = DogErrorRepository.addError(
-            errors: dogNotes,
+          dogNotes = DogNoteRepository.addNote(
+            notes: dogNotes,
             dogId: dog.id,
-            newError: DogNoteMessage(
+            newNote: DogNoteMessage(
               type: DogNoteType.tagPreventing,
               details: tag.name,
             ),
@@ -192,7 +192,7 @@ class CreateTeamProvider extends ChangeNotifier {
   }
 
   updateDuplicateDogs() {
-    _clearduplicateDogsErrors();
+    _clearduplicateDogsNotes();
     Map<String, int> dogCounts = {};
 
     try {
@@ -222,10 +222,10 @@ class CreateTeamProvider extends ChangeNotifier {
     try {
       dogCounts.forEach((dogId, dogCount) {
         if (dogCount > 1) {
-          DogErrorRepository.addError(
-              errors: dogNotes,
+          DogNoteRepository.addNote(
+              notes: dogNotes,
               dogId: dogId,
-              newError: DogNoteMessage(type: DogNoteType.duplicate));
+              newNote: DogNoteMessage(type: DogNoteType.duplicate));
         }
       });
     } catch (e, s) {
@@ -291,10 +291,10 @@ class CreateTeamProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _clearduplicateDogsErrors() {
+  void _clearduplicateDogsNotes() {
     List<DogNote> newList = [];
     for (var n in dogNotes) {
-      DogErrorRepository.removeErrorType(n, DogNoteType.duplicate);
+      DogNoteRepository.removeNoteType(n, DogNoteType.duplicate);
       if (n.dogNoteMessage.isNotEmpty) {
         newList.add(n);
       }
