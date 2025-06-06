@@ -38,84 +38,89 @@ class DogNoteMessage {
   }
 }
 
-/// All the errors that a CreateDog can have.
+/// All the notes that a CreateDog can have.
 enum DogNoteType {
   duplicate(
       color: Color.fromARGB(255, 255, 0, 0),
-      isFatal: true,
+      noteType: NoteType.fatal,
       message: "Duplicate dog!"),
   tagPreventing(
       color: Color.fromARGB(255, 255, 0, 0),
-      isFatal: true,
+      noteType: NoteType.fatal,
       message: "Has tag: ");
 
   final Color color;
   final String message;
-  final bool isFatal;
+  final NoteType noteType;
   const DogNoteType(
-      {required this.color, required this.message, required this.isFatal});
+      {required this.color, required this.message, required this.noteType});
 }
 
-enum ErrorType {
+enum NoteType {
   fatal(color: Color.fromARGB(255, 255, 170, 170)),
   warning(color: Color.fromARGB(255, 255, 220, 100)),
-  none(color: Color.fromARGB(255, 204, 255, 204));
+  info(color: Color.fromARGB(255, 204, 255, 204));
 
   final Color color;
 
-  const ErrorType({required this.color});
+  const NoteType({required this.color});
 }
 
 /// Operations on the DogNote class
-class DogErrorRepository {
-  /// Adds an error message to a list and returns it.
+class DogNoteRepository {
+  /// Adds a note message to a list and returns it.
   ///
-  /// If the dogId exists, it will add the error to the list.
+  /// If the dogId exists, it will add the note to the list.
   /// If it doesn't, it will create a new DogNote entry.
-  static List<DogNote> addError(
-      {required List<DogNote> errors,
+  static List<DogNote> addNote(
+      {required List<DogNote> notes,
       required String dogId,
-      required DogNoteMessage newError}) {
-    DogNote? errorToEdit = findById(errors, dogId);
-    if (errorToEdit == null) {
-      errors.add(DogNote(dogId: dogId, dogNoteMessage: [newError]));
-      return errors;
+      required DogNoteMessage newNote}) {
+    DogNote? noteToEdit = findById(notes, dogId);
+    if (noteToEdit == null) {
+      notes.add(DogNote(dogId: dogId, dogNoteMessage: [newNote]));
+      return notes;
     } else {
-      // Adds the error to the dog id.
-      errorToEdit.dogNoteMessage.add(newError);
-      return errors;
+      // Adds the note to the dog id.
+      noteToEdit.dogNoteMessage.add(newNote);
+      return notes;
     }
   }
 
-  /// Removes errors of a certain type from a DogNote.
-  static DogNote removeErrorType(DogNote dogNote, DogNoteType type) {
+  /// Removes notes of a certain type from a DogNote.
+  static DogNote removeNoteType(DogNote dogNote, DogNoteType type) {
     dogNote.dogNoteMessage.removeWhere((e) => e.type == type);
     return dogNote;
   }
 
   /// Finds the DogNote with that dog id.
-  /// If that dog doesn't have an error, returns null.
-  static DogNote? findById(List<DogNote> errors, String id) {
-    for (DogNote error in errors) {
-      if (error.dogId == id) {
-        return error;
+  /// If that dog doesn't have a note, returns null.
+  static DogNote? findById(List<DogNote> notes, String id) {
+    for (DogNote note in notes) {
+      if (note.dogId == id) {
+        return note;
       }
     }
     return null;
   }
 
-  /// Returns the worst type of error for this list of error messages.
+  /// Returns the worst type of note for this list of note messages.
   /// Ths assume only warning and fatal exist.
-  static ErrorType worstErrorType(List<DogNoteMessage> errorMessages) {
-    if (errorMessages.isEmpty) {
-      return ErrorType.none;
+  static NoteType worstNoteType(List<DogNoteMessage> noteMessages) {
+    if (noteMessages.isEmpty) {
+      return NoteType.info;
     } else {
-      for (DogNoteMessage e in errorMessages) {
-        if (e.type.isFatal) {
-          return ErrorType.fatal;
+      for (DogNoteMessage e in noteMessages) {
+        if (e.type.noteType == NoteType.fatal) {
+          return NoteType.fatal;
         }
       }
-      return ErrorType.warning;
+      for (DogNoteMessage e in noteMessages) {
+        if (e.type.noteType == NoteType.warning) {
+          return NoteType.warning;
+        }
+      }
+      return NoteType.info;
     }
   }
 }
