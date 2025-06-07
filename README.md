@@ -48,3 +48,7 @@ A cool and open source CRM for sled dog kennels.
 - Added flags "Prevents for running" and "Show in team builder" for tags.
 - Tags preventing from running cause error in team builder.
 - Show in team builder tags now are shown in team builder.
+
+### 0.0.9
+
+- Fixes a bug where the filter would include expired tags.
