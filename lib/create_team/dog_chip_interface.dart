@@ -74,6 +74,8 @@ class NotesList extends StatelessWidget {
     if (_isOnlyFilteredOut(notes)) {
       return SizedBox.shrink();
     } else {
+      DogNoteRepository.removeNoteType(notes, DogNoteType.filteredOut);
+      if (notes.dogNoteMessage.isEmpty) return SizedBox.shrink();
       return Column(
         children: notes.dogNoteMessage
             .map((e) => Text(
