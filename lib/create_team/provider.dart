@@ -310,4 +310,29 @@ class CreateTeamProvider extends ChangeNotifier {
     }
     dogNotes = newList;
   }
+
+  /// Takes a list of available (filtered dogs), and add errors to all the other dogs
+  /// to make them not show up in the builder.
+  void addErrorToUnavailableDogs(List<Dog> availableDogs) {
+    // First, clear all filteredOut error types.
+    List<DogNote> newDogNotes = [];
+    for (DogNote dogNote in dogNotes) {
+      newDogNotes.add(
+          DogNoteRepository.removeNoteType(dogNote, DogNoteType.filteredOut));
+    }
+
+    // Now get a list of all the unavailable dogs from all dogs.
+    List<Dog> unavailableDogs =
+        dogs.where((dog) => !availableDogs.contains(dog)).toList();
+
+    // Add an error to the unavailable dogs.
+    for (Dog dog in unavailableDogs) {
+      newDogNotes = DogNoteRepository.addNote(
+          notes: newDogNotes,
+          dogId: dog.id,
+          newNote: DogNoteMessage(type: DogNoteType.filteredOut));
+    }
+    dogNotes = newDogNotes;
+    notifyListeners();
+  }
 }

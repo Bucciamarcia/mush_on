@@ -7,6 +7,7 @@ import 'package:mush_on/firestore_dogs_to_id.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:provider/provider.dart';
 import 'save_teams_button.dart';
 import 'select_datetime.dart';
@@ -125,6 +126,10 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
       },
       child: ListView(
         children: [
+          DogFilterWidget(
+            dogs: teamProvider.dogs,
+            onResult: (dogs) => teamProvider.addErrorToUnavailableDogs(dogs),
+          ),
           DateTimePicker(),
           TextField(
             controller: globalNamecontroller,
