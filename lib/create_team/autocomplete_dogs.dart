@@ -59,8 +59,9 @@ class AutocompleteDogs extends StatelessWidget {
   /// preserving the original sort.
   List<Dog> sortDogs() {
     final Set<String?> dogsWithNoteSet = notes.map((e) {
-      for (var m in e.dogNoteMessage) {
-        if (m.type.noteType == NoteType.fatal) {
+      for (DogNoteMessage m in e.dogNoteMessage) {
+        if (m.type.noteType == NoteType.fatal ||
+            m.type == DogNoteType.filteredOut) {
           return e.dogId;
         }
       }
@@ -85,7 +86,7 @@ class AutocompleteDogs extends StatelessWidget {
     bool isFatalError = error != null &&
         DogNoteRepository.worstNoteType(error.dogNoteMessage) == NoteType.fatal;
 
-    if (runningDogs.contains(dog.id) || isFatalError) {
+    if (runningDogs.contains(dog.id) || isFatalError || _isFilteredOut(dog)) {
       return "${dog.name} - Unavailable";
     }
     return dog.name;
@@ -97,9 +98,29 @@ class AutocompleteDogs extends StatelessWidget {
     bool isFatalError = error != null &&
         DogNoteRepository.worstNoteType(error.dogNoteMessage) == NoteType.fatal;
 
-    if (runningDogs.contains(dog.id) || isFatalError) {
+    if (runningDogs.contains(dog.id) || isFatalError || _isFilteredOut(dog)) {
       return Colors.grey;
     }
     return Colors.black;
+  }
+
+  bool _isFilteredOut(Dog dog) {
+    DogNote? dogNote;
+    try {
+      dogNote = notes.firstWhere((note) => note.dogId == dog.id);
+    } catch (e) {
+      dogNote = null;
+    }
+    bool isFilteredOut = false;
+    if (dogNote != null) {
+      List<DogNoteMessage> messages = dogNote.dogNoteMessage;
+      for (DogNoteMessage message in messages) {
+        if (message.type == DogNoteType.filteredOut) {
+          isFilteredOut = true;
+          break;
+        }
+      }
+    }
+    return isFilteredOut;
   }
 }

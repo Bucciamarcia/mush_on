@@ -56,7 +56,7 @@ enum DogNoteType {
 
   filteredOut(
     color: Color.fromARGB(255, 45, 45, 45),
-    noteType: NoteType.fatal,
+    noteType: NoteType.info,
     message: "Filtered out",
   );
 

@@ -24,8 +24,7 @@ class DogSelectedInterface extends StatelessWidget {
       children: [
         DogSelectedChip(
           dog: dog,
-          noteType: DogNoteRepository.worstNoteType(
-              dogNote == null ? [] : dogNote.dogNoteMessage),
+          dogNote: dogNote,
           onDogRemoved: () => onDogRemoved(),
         ),
         dogNote != null ? NotesList(notes: dogNote) : SizedBox.shrink(),
@@ -37,20 +36,23 @@ class DogSelectedInterface extends StatelessWidget {
 /// The chip itself, displaying the dog name and info.
 class DogSelectedChip extends StatelessWidget {
   final Dog dog;
-  final NoteType noteType;
+  final DogNote? dogNote;
   final Function() onDogRemoved;
   static final BasicLogger logger = BasicLogger();
   const DogSelectedChip(
       {super.key,
       required this.dog,
       required this.onDogRemoved,
-      required this.noteType});
+      required this.dogNote});
 
   @override
   Widget build(BuildContext context) {
+    NoteType noteType = DogNoteRepository.worstNoteType(
+        dogNote == null ? [] : dogNote!.dogNoteMessage);
     return InputChip(
       padding: EdgeInsets.all(10),
-      backgroundColor: noteType.color,
+      backgroundColor:
+          _isOnlyFilteredOut(dogNote) ? NoteType.none.color : noteType.color,
       key: Key("DogSelectedChip - ${dog.id}"),
       label: Text(
         dog.name,
@@ -69,13 +71,30 @@ class NotesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: notes.dogNoteMessage
-          .map((e) => Text(
-                e.message,
-                style: TextStyle(color: e.type.color),
-              ))
-          .toList(),
-    );
+    if (_isOnlyFilteredOut(notes)) {
+      return SizedBox.shrink();
+    } else {
+      return Column(
+        children: notes.dogNoteMessage
+            .map((e) => Text(
+                  e.message,
+                  style: TextStyle(color: e.type.color),
+                ))
+            .toList(),
+      );
+    }
   }
+}
+
+// Returns true if the only note type is filtered out.
+bool _isOnlyFilteredOut(DogNote? note) {
+  if (note == null) return false;
+  List<DogNoteMessage> messages = note.dogNoteMessage;
+
+  // If there's more than 1 message, filtered out can't be the only one.
+  if (messages.length != 1) return false;
+
+  // Now check if the only message is a filtered out.
+  if (messages.first.type == DogNoteType.filteredOut) return true;
+  return false;
 }
