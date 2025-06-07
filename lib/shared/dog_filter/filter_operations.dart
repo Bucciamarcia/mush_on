@@ -127,7 +127,7 @@ class FilterOperations {
     switch (operationSelection) {
       case OperationSelection.equals:
         return dogs.where((dog) {
-          for (Tag tag in dog.tags) {
+          for (Tag tag in dog.tags.available) {
             if (tag.name == filter.name) return true;
           }
           return false;
@@ -146,7 +146,7 @@ class FilterOperations {
             message: "Selected illegal operation: lessthan");
       case OperationSelection.equalsNot:
         return dogs.where((dog) {
-          for (Tag tag in dog.tags) {
+          for (Tag tag in dog.tags.available) {
             if (tag.name == filter.name) return false;
           }
           return true;

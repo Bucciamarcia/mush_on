@@ -287,6 +287,15 @@ abstract class Tag with _$Tag {
   factory Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);
 }
 
+extension TagListExtension on List<Tag> {
+  /// Only returns the tags that are not expired.
+  List<Tag> get available {
+    final now = DateTime.now();
+    return where((tag) => tag.expired == null || tag.expired!.isAfter(now))
+        .toList();
+  }
+}
+
 class ColorConverter implements JsonConverter<Color, int> {
   const ColorConverter();
 
