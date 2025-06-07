@@ -126,9 +126,18 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
       },
       child: ListView(
         children: [
-          DogFilterWidget(
-            dogs: teamProvider.dogs,
-            onResult: (dogs) => teamProvider.addErrorToUnavailableDogs(dogs),
+          Card(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: ExpansionTile(
+              title: Center(child: Text("Filter")),
+              children: [
+                DogFilterWidget(
+                  dogs: teamProvider.dogs,
+                  onResult: (dogs) =>
+                      teamProvider.addErrorToUnavailableDogs(dogs),
+                ),
+              ],
+            ),
           ),
           DateTimePicker(),
           TextField(
