@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/custom_field.dart';
 part "dog.g.dart";
 part "dog.freezed.dart";
 
@@ -20,6 +21,7 @@ abstract class Dog with _$Dog {
     @Default("") String id,
     @Default(DogPositions()) DogPositions positions,
     @Default([]) List<Tag> tags,
+    @Default([]) List<CustomField> customFields,
     DateTime? birth,
   }) = _Dog;
 

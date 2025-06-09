@@ -117,6 +117,7 @@ class DogMain extends StatelessWidget {
               ? null
               : singleDogProvider.birth!.toUtc(),
           sex: singleDogProvider.sex,
+          customFields: singleDogProvider.customFields,
           onBirthdayChanged: (DateTime newBirthday) {
             singleDogProvider.changeBirthday(newBirthday).catchError((e, s) {
               logger.error("Couldn't change birthday for ${dog.name}",

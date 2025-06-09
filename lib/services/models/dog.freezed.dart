@@ -20,6 +20,7 @@ mixin _$Dog {
   String get id;
   DogPositions get positions;
   List<Tag> get tags;
+  List<CustomField> get customFields;
   DateTime? get birth;
 
   /// Create a copy of Dog
@@ -43,17 +44,26 @@ mixin _$Dog {
             (identical(other.positions, positions) ||
                 other.positions == positions) &&
             const DeepCollectionEquality().equals(other.tags, tags) &&
+            const DeepCollectionEquality()
+                .equals(other.customFields, customFields) &&
             (identical(other.birth, birth) || other.birth == birth));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, sex, id, positions,
-      const DeepCollectionEquality().hash(tags), birth);
+  int get hashCode => Object.hash(
+      runtimeType,
+      name,
+      sex,
+      id,
+      positions,
+      const DeepCollectionEquality().hash(tags),
+      const DeepCollectionEquality().hash(customFields),
+      birth);
 
   @override
   String toString() {
-    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, birth: $birth)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, birth: $birth)';
   }
 }
 
@@ -67,6 +77,7 @@ abstract mixin class $DogCopyWith<$Res> {
       String id,
       DogPositions positions,
       List<Tag> tags,
+      List<CustomField> customFields,
       DateTime? birth});
 
   $DogPositionsCopyWith<$Res> get positions;
@@ -89,6 +100,7 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
     Object? id = null,
     Object? positions = null,
     Object? tags = null,
+    Object? customFields = null,
     Object? birth = freezed,
   }) {
     return _then(_self.copyWith(
@@ -112,6 +124,10 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
           ? _self.tags
           : tags // ignore: cast_nullable_to_non_nullable
               as List<Tag>,
+      customFields: null == customFields
+          ? _self.customFields
+          : customFields // ignore: cast_nullable_to_non_nullable
+              as List<CustomField>,
       birth: freezed == birth
           ? _self.birth
           : birth // ignore: cast_nullable_to_non_nullable
@@ -140,8 +156,10 @@ class _Dog extends Dog {
       this.id = "",
       this.positions = const DogPositions(),
       final List<Tag> tags = const [],
+      final List<CustomField> customFields = const [],
       this.birth})
       : _tags = tags,
+        _customFields = customFields,
         super._();
   factory _Dog.fromJson(Map<String, dynamic> json) => _$DogFromJson(json);
 
@@ -164,6 +182,15 @@ class _Dog extends Dog {
     if (_tags is EqualUnmodifiableListView) return _tags;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_tags);
+  }
+
+  final List<CustomField> _customFields;
+  @override
+  @JsonKey()
+  List<CustomField> get customFields {
+    if (_customFields is EqualUnmodifiableListView) return _customFields;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_customFields);
   }
 
   @override
@@ -195,17 +222,26 @@ class _Dog extends Dog {
             (identical(other.positions, positions) ||
                 other.positions == positions) &&
             const DeepCollectionEquality().equals(other._tags, _tags) &&
+            const DeepCollectionEquality()
+                .equals(other._customFields, _customFields) &&
             (identical(other.birth, birth) || other.birth == birth));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, sex, id, positions,
-      const DeepCollectionEquality().hash(_tags), birth);
+  int get hashCode => Object.hash(
+      runtimeType,
+      name,
+      sex,
+      id,
+      positions,
+      const DeepCollectionEquality().hash(_tags),
+      const DeepCollectionEquality().hash(_customFields),
+      birth);
 
   @override
   String toString() {
-    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, birth: $birth)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, birth: $birth)';
   }
 }
 
@@ -221,6 +257,7 @@ abstract mixin class _$DogCopyWith<$Res> implements $DogCopyWith<$Res> {
       String id,
       DogPositions positions,
       List<Tag> tags,
+      List<CustomField> customFields,
       DateTime? birth});
 
   @override
@@ -244,6 +281,7 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
     Object? id = null,
     Object? positions = null,
     Object? tags = null,
+    Object? customFields = null,
     Object? birth = freezed,
   }) {
     return _then(_Dog(
@@ -267,6 +305,10 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
           ? _self._tags
           : tags // ignore: cast_nullable_to_non_nullable
               as List<Tag>,
+      customFields: null == customFields
+          ? _self._customFields
+          : customFields // ignore: cast_nullable_to_non_nullable
+              as List<CustomField>,
       birth: freezed == birth
           ? _self.birth
           : birth // ignore: cast_nullable_to_non_nullable
@@ -515,14 +557,21 @@ mixin _$Tag {
             (identical(other.showInTeamBuilder, showInTeamBuilder) ||
                 other.showInTeamBuilder == showInTeamBuilder) &&
             (identical(other.created, created) || other.created == created) &&
-            (identical(other.color, color) || other.color == color) &&
+            const DeepCollectionEquality().equals(other.color, color) &&
             (identical(other.expired, expired) || other.expired == expired));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, preventFromRun,
-      showInTeamBuilder, created, color, expired);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      preventFromRun,
+      showInTeamBuilder,
+      created,
+      const DeepCollectionEquality().hash(color),
+      expired);
 
   @override
   String toString() {
@@ -561,7 +610,7 @@ class _$TagCopyWithImpl<$Res> implements $TagCopyWith<$Res> {
     Object? preventFromRun = null,
     Object? showInTeamBuilder = null,
     Object? created = null,
-    Object? color = null,
+    Object? color = freezed,
     Object? expired = freezed,
   }) {
     return _then(_self.copyWith(
@@ -585,7 +634,7 @@ class _$TagCopyWithImpl<$Res> implements $TagCopyWith<$Res> {
           ? _self.created
           : created // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      color: null == color
+      color: freezed == color
           ? _self.color
           : color // ignore: cast_nullable_to_non_nullable
               as Color,
@@ -658,14 +707,21 @@ class _Tag implements Tag {
             (identical(other.showInTeamBuilder, showInTeamBuilder) ||
                 other.showInTeamBuilder == showInTeamBuilder) &&
             (identical(other.created, created) || other.created == created) &&
-            (identical(other.color, color) || other.color == color) &&
+            const DeepCollectionEquality().equals(other.color, color) &&
             (identical(other.expired, expired) || other.expired == expired));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, preventFromRun,
-      showInTeamBuilder, created, color, expired);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      preventFromRun,
+      showInTeamBuilder,
+      created,
+      const DeepCollectionEquality().hash(color),
+      expired);
 
   @override
   String toString() {
@@ -706,7 +762,7 @@ class __$TagCopyWithImpl<$Res> implements _$TagCopyWith<$Res> {
     Object? preventFromRun = null,
     Object? showInTeamBuilder = null,
     Object? created = null,
-    Object? color = null,
+    Object? color = freezed,
     Object? expired = freezed,
   }) {
     return _then(_Tag(
@@ -730,7 +786,7 @@ class __$TagCopyWithImpl<$Res> implements _$TagCopyWith<$Res> {
           ? _self.created
           : created // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      color: null == color
+      color: freezed == color
           ? _self.color
           : color // ignore: cast_nullable_to_non_nullable
               as Color,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/edit_kennel/dog/text_title.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models/custom_field.dart';
 import 'package:mush_on/services/models/dog.dart';
 
 class DogInfoWidget extends StatelessWidget {
@@ -9,6 +10,7 @@ class DogInfoWidget extends StatelessWidget {
   final String name;
   final DateTime? birthday;
   final DogSex sex;
+  final List<CustomField> customFields;
   final Function(DateTime) onBirthdayChanged;
   final Function(DogSex) onSexChanged;
   const DogInfoWidget(
@@ -17,6 +19,7 @@ class DogInfoWidget extends StatelessWidget {
       required this.sex,
       required this.birthday,
       required this.onBirthdayChanged,
+      required this.customFields,
       required this.onSexChanged});
 
   @override
