@@ -124,7 +124,8 @@ class _TagEditorState extends State<TagEditor> {
           children: [
             SearchField<Tag>(
               controller: _controller,
-              hint: "Tag name",
+              searchInputDecoration:
+                  SearchInputDecoration(hint: Text("Tag name")),
               suggestions: widget.allTags
                   .map(
                     (e) => SearchFieldListItem<Tag>(e.name, item: e),

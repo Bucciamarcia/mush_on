@@ -557,21 +557,14 @@ mixin _$Tag {
             (identical(other.showInTeamBuilder, showInTeamBuilder) ||
                 other.showInTeamBuilder == showInTeamBuilder) &&
             (identical(other.created, created) || other.created == created) &&
-            const DeepCollectionEquality().equals(other.color, color) &&
+            (identical(other.color, color) || other.color == color) &&
             (identical(other.expired, expired) || other.expired == expired));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      name,
-      preventFromRun,
-      showInTeamBuilder,
-      created,
-      const DeepCollectionEquality().hash(color),
-      expired);
+  int get hashCode => Object.hash(runtimeType, id, name, preventFromRun,
+      showInTeamBuilder, created, color, expired);
 
   @override
   String toString() {
@@ -610,7 +603,7 @@ class _$TagCopyWithImpl<$Res> implements $TagCopyWith<$Res> {
     Object? preventFromRun = null,
     Object? showInTeamBuilder = null,
     Object? created = null,
-    Object? color = freezed,
+    Object? color = null,
     Object? expired = freezed,
   }) {
     return _then(_self.copyWith(
@@ -634,7 +627,7 @@ class _$TagCopyWithImpl<$Res> implements $TagCopyWith<$Res> {
           ? _self.created
           : created // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      color: freezed == color
+      color: null == color
           ? _self.color
           : color // ignore: cast_nullable_to_non_nullable
               as Color,
@@ -707,21 +700,14 @@ class _Tag implements Tag {
             (identical(other.showInTeamBuilder, showInTeamBuilder) ||
                 other.showInTeamBuilder == showInTeamBuilder) &&
             (identical(other.created, created) || other.created == created) &&
-            const DeepCollectionEquality().equals(other.color, color) &&
+            (identical(other.color, color) || other.color == color) &&
             (identical(other.expired, expired) || other.expired == expired));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      name,
-      preventFromRun,
-      showInTeamBuilder,
-      created,
-      const DeepCollectionEquality().hash(color),
-      expired);
+  int get hashCode => Object.hash(runtimeType, id, name, preventFromRun,
+      showInTeamBuilder, created, color, expired);
 
   @override
   String toString() {
@@ -762,7 +748,7 @@ class __$TagCopyWithImpl<$Res> implements _$TagCopyWith<$Res> {
     Object? preventFromRun = null,
     Object? showInTeamBuilder = null,
     Object? created = null,
-    Object? color = freezed,
+    Object? color = null,
     Object? expired = freezed,
   }) {
     return _then(_Tag(
@@ -786,7 +772,7 @@ class __$TagCopyWithImpl<$Res> implements _$TagCopyWith<$Res> {
           ? _self.created
           : created // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      color: freezed == color
+      color: null == color
           ? _self.color
           : color // ignore: cast_nullable_to_non_nullable
               as Color,

@@ -9,10 +9,20 @@ abstract class CustomField with _$CustomField {
   const factory CustomField({
     required String id,
     required String name,
+    required CustomFieldValue value,
   }) = _CustomField;
 
   factory CustomField.fromJson(Map<String, Object?> json) =>
       _$CustomFieldFromJson(json);
+}
+
+@freezed
+sealed class CustomFieldValue with _$CustomFieldValue {
+  const factory CustomFieldValue.stringValue(String value) = _StringValue;
+  const factory CustomFieldValue.intValue(int value) = _IntValue;
+
+  factory CustomFieldValue.fromJson(Map<String, Object?> json) =>
+      _$CustomFieldValueFromJson(json);
 }
 
 @JsonEnum()
