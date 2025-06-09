@@ -265,20 +265,8 @@ class GridRowProcessor {
   /// Finds the oldest date for the list of teamgroups.
   /// If no teams exist, defaults to 30 days.
   DateTime findOldestDate(DateTime oldestDate) {
-    DateTime oldestTeamGroup = DateTime.now().toUtc();
+    DateTime oldestTeamGroup = calculateOldestTeamGroup(teams);
 
-    // Determines the oldest teamgroup date.
-    for (TeamGroup team in teams) {
-      // Strip time information, keep just the date
-      final dateWithoutTime =
-          DateTime(team.date.year, team.date.month, team.date.day);
-      if (dateWithoutTime.isBefore(oldestTeamGroup)) {
-        oldestTeamGroup = dateWithoutTime;
-      }
-    }
-
-    // Return the latter between oldestTeamGroup and oldestDate.
-    // AKA return the oldestDate unless it's a new account with short history.
     if (oldestTeamGroup.isAfter(oldestDate)) {
       return oldestTeamGroup;
     } else {
@@ -383,4 +371,17 @@ class GridRowProcessorResult {
 
   GridRowProcessorResult(
       {required this.dataGridRows, required this.dogGrandTotals});
+}
+
+DateTime calculateOldestTeamGroup(teams) {
+  DateTime oldestTeamGroup = DateTime.now().toUtc();
+  for (TeamGroup team in teams) {
+    // Strip time information, keep just the date
+    final dateWithoutTime =
+        DateTime(team.date.year, team.date.month, team.date.day);
+    if (dateWithoutTime.isBefore(oldestTeamGroup)) {
+      oldestTeamGroup = dateWithoutTime;
+    }
+  }
+  return oldestTeamGroup;
 }

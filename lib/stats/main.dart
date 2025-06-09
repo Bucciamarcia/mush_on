@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/shared/dog_filter/date_range_picker/main.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'grid_row_processor.dart';
@@ -27,16 +28,25 @@ class StatsMain extends StatelessWidget {
 
     return Column(
       children: [
-        SfDateRangePicker(
-          selectionMode: DateRangePickerSelectionMode.range,
-          onSelectionChanged: (r) => _onSelectionChanged(
-              r: r,
-              onNewEndDate: (date) => statsProvider.changeEndDate(date),
-              onNewStartDate: (date) => statsProvider.changeStartDate(date)),
-          monthViewSettings:
-              DateRangePickerMonthViewSettings(firstDayOfWeek: 1),
+        Card(
+          child: ExpansionTile(
+            title: Text("Filter date"),
+            children: [
+              DateRangePicker(
+                maxDate: DateTime.now().toUtc(),
+                minDate: calculateOldestTeamGroup(statsProvider.teams),
+                onSelectionChanged: (r) => _onSelectionChanged(
+                  r: r,
+                  onNewEndDate: (date) => statsProvider.changeEndDate(date),
+                  onNewStartDate: (date) => statsProvider.changeStartDate(date),
+                ),
+              )
+            ],
+          ),
         ),
-        SfDataGridClass(statsDataSource: statsDataSource, dogs: dogs),
+        Flexible(
+            child:
+                SfDataGridClass(statsDataSource: statsDataSource, dogs: dogs)),
       ],
     );
   }
