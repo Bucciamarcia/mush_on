@@ -79,6 +79,15 @@ class DogInfoWidget extends StatelessWidget {
         ),
         Divider(),
         DogInfoRow("Age", age != null ? age! : "?"),
+        Divider(),
+        CustomFieldViewer(
+          customFields: customFields,
+          onCustomFieldsChanged: (c) {
+            for (var f in c) {
+              logger.info("ID: ${f.id} || NAME: ${f.name}");
+            }
+          },
+        ),
       ],
     );
   }
@@ -201,5 +210,19 @@ class _SexChangeWidgetState extends State<SexChangeWidget> {
             child: Text("OK")),
       ],
     );
+  }
+}
+
+class CustomFieldViewer extends StatelessWidget {
+  final List<CustomField> customFields;
+  final Function(List<CustomField>) onCustomFieldsChanged;
+  const CustomFieldViewer(
+      {super.key,
+      required this.customFields,
+      required this.onCustomFieldsChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column();
   }
 }
