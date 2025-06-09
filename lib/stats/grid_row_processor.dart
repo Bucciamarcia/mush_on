@@ -10,11 +10,18 @@ class GridRowProcessor {
   static final BasicLogger logger = BasicLogger();
   List<TeamGroup> teams;
   List<Dog> dogs;
-  GridRowProcessor({required this.teams, required this.dogs});
+  DateTime startDate;
+  DateTime finishDate;
+  GridRowProcessor(
+      {required this.teams,
+      required this.dogs,
+      required this.startDate,
+      required this.finishDate});
   GridRowProcessorResult run() {
     Map<String, Dog> dogsMap = _generateDogsMap();
     // Get daily aggregated data
-    List<DailyDogStats> aggregatedStats = _aggregateData(dogsMap);
+    List<DailyDogStats> aggregatedStats =
+        _aggregateData(dogsMap, startDate, finishDate);
 
     // Calculate monthly summary data
     List<MonthSummary> monthlySummariesList =
@@ -49,17 +56,15 @@ class GridRowProcessor {
     return toReturn;
   }
 
-  List<DailyDogStats> _aggregateData(Map<String, Dog> dogsMap) {
+  List<DailyDogStats> _aggregateData(
+      Map<String, Dog> dogsMap, DateTime startDate, DateTime finishDate) {
     List<DailyDogStats> toReturn = [];
-    final today = DateTime.now();
-    final todayWithoutTime = DateTime(today.year, today.month, today.day);
     Map<String, List<TeamGroup>> teamsByDay = getTeamsByDay();
-    DateTime oldestDate = findOldestDate();
+    DateTime startDateOrBeginning = findOldestDate(startDate);
 
     List<DateTime> allDates = [];
-    DateTime currentDate = oldestDate;
 
-    addCurrentDate(currentDate, todayWithoutTime, allDates);
+    addCurrentDate(startDateOrBeginning, finishDate, allDates);
 
     allDates.sort((a, b) =>
         b.compareTo(a)); // Should now correctly have Apr 2 00:00 first
@@ -259,21 +264,26 @@ class GridRowProcessor {
 
   /// Finds the oldest date for the list of teamgroups.
   /// If no teams exist, defaults to 30 days.
-  DateTime findOldestDate() {
-    DateTime? oldestDate;
+  DateTime findOldestDate(DateTime oldestDate) {
+    DateTime oldestTeamGroup = DateTime.now().toUtc();
+
+    // Determines the oldest teamgroup date.
     for (TeamGroup team in teams) {
       // Strip time information, keep just the date
-      final dateWithoutTime = DateTime(
-          team.date.year, team.date.month, team.date.day); // This is correct
-      if (oldestDate == null || dateWithoutTime.isBefore(oldestDate)) {
-        oldestDate = dateWithoutTime;
+      final dateWithoutTime =
+          DateTime(team.date.year, team.date.month, team.date.day);
+      if (dateWithoutTime.isBefore(oldestTeamGroup)) {
+        oldestTeamGroup = dateWithoutTime;
       }
     }
 
-    // Default to 30 days ago if no teams exist
-    oldestDate ??= DateTime.now().subtract(Duration(days: 30));
-    // *** Add normalization here for the default case ***
-    return DateTime(oldestDate.year, oldestDate.month, oldestDate.day);
+    // Return the latter between oldestTeamGroup and oldestDate.
+    // AKA return the oldestDate unless it's a new account with short history.
+    if (oldestTeamGroup.isAfter(oldestDate)) {
+      return oldestTeamGroup;
+    } else {
+      return oldestDate;
+    }
   }
 
   Map<String, List<TeamGroup>> getTeamsByDay() {
