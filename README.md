@@ -52,3 +52,4 @@ A cool and open source CRM for sled dog kennels.
 ### 0.0.9
 
 - Fixes a bug where the filter would include expired tags.
+- Can now pick date range in the stats page.
