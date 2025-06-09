@@ -8,9 +8,11 @@ part of 'settings.dart';
 
 _SettingsModel _$SettingsModelFromJson(Map<String, dynamic> json) =>
     _SettingsModel(
-      customFieldTemplates: (json['customFieldTemplates'] as List<dynamic>)
-          .map((e) => CustomFieldTemplate.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      customFieldTemplates: (json['customFieldTemplates'] as List<dynamic>?)
+              ?.map((e) =>
+                  CustomFieldTemplate.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$SettingsModelToJson(_SettingsModel instance) =>

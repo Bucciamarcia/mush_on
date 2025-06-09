@@ -85,13 +85,14 @@ class _$SettingsModelCopyWithImpl<$Res>
 @JsonSerializable()
 class _SettingsModel implements SettingsModel {
   const _SettingsModel(
-      {required final List<CustomFieldTemplate> customFieldTemplates})
+      {final List<CustomFieldTemplate> customFieldTemplates = const []})
       : _customFieldTemplates = customFieldTemplates;
   factory _SettingsModel.fromJson(Map<String, dynamic> json) =>
       _$SettingsModelFromJson(json);
 
   final List<CustomFieldTemplate> _customFieldTemplates;
   @override
+  @JsonKey()
   List<CustomFieldTemplate> get customFieldTemplates {
     if (_customFieldTemplates is EqualUnmodifiableListView)
       return _customFieldTemplates;

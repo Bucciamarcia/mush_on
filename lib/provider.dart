@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mush_on/services/firestore.dart';
+import 'package:mush_on/services/models/settings/settings.dart';
 import 'services/models.dart';
 
 class DogProvider extends ChangeNotifier {
@@ -15,14 +16,34 @@ class DogProvider extends ChangeNotifier {
   /// The name of the account.
   String get account => _account;
 
+  SettingsModel _settings = SettingsModel();
+  SettingsModel get settings => _settings;
+
   DogProvider() {
     _fetchDogs();
     _fetchAccount();
+    _fetchSettings();
   }
 
   void _fetchAccount() async {
-    _account = await FirestoreService().getUserAccount();
+    if (_account.isEmpty) {
+      _account = await FirestoreService().getUserAccount();
+    }
     notifyListeners();
+  }
+
+  void _fetchSettings() async {
+    if (_account.isEmpty) {
+      _account = await FirestoreService().getUserAccount();
+    }
+    String path = "accounts/$account/data/settings";
+    var doc = FirebaseFirestore.instance.doc(path);
+    doc.snapshots().listen((s) {
+      if (s.exists && s.data() != null) {
+        _settings = SettingsModel.fromJson(s.data()!);
+        notifyListeners();
+      }
+    });
   }
 
   /// Returns a list of dogs ordere by alphabetical order
