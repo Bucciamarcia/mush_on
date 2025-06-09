@@ -7,6 +7,11 @@ class StatsProvider with ChangeNotifier {
   ///Ordered by date descending.
   List<TeamGroup> teams = [];
   List<Dog> dogs = [];
+  DateTime startDate = DateTime.utc(DateTime.now().toUtc().year,
+          DateTime.now().toUtc().month, DateTime.now().toUtc().day)
+      .subtract(Duration(days: 30));
+  DateTime endDate = DateTime.utc(DateTime.now().toUtc().year,
+      DateTime.now().toUtc().month, DateTime.now().toUtc().day);
 
   StatsProvider() {
     getTeams();
@@ -37,5 +42,15 @@ class StatsProvider with ChangeNotifier {
       teams = newTeams;
       notifyListeners();
     });
+  }
+
+  void changeStartDate(DateTime newDate) {
+    startDate = newDate;
+    notifyListeners();
+  }
+
+  void changeEndDate(DateTime newDate) {
+    endDate = newDate;
+    notifyListeners();
   }
 }
