@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
-import 'package:mush_on/edit_kennel/dog/text_title.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/shared/text_title.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:uuid/uuid.dart';
 

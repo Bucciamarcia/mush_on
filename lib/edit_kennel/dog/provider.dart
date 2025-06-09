@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:mush_on/edit_kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
-import 'package:mush_on/services/models/custom_field.dart';
 import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/services/storage.dart';
 import 'package:path/path.dart' as path;
 
