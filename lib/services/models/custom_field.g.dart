@@ -7,17 +7,35 @@ part of 'custom_field.dart';
 // **************************************************************************
 
 _CustomField _$CustomFieldFromJson(Map<String, dynamic> json) => _CustomField(
-      id: json['id'] as String,
-      name: json['name'] as String,
+      templateId: json['templateId'] as String,
       value: CustomFieldValue.fromJson(json['value'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$CustomFieldToJson(_CustomField instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
+      'templateId': instance.templateId,
       'value': instance.value,
     };
+
+_CustomFieldTemplate _$CustomFieldTemplateFromJson(Map<String, dynamic> json) =>
+    _CustomFieldTemplate(
+      type: $enumDecode(_$CustomFieldTypeEnumMap, json['type']),
+      name: json['name'] as String,
+      id: json['id'] as String,
+    );
+
+Map<String, dynamic> _$CustomFieldTemplateToJson(
+        _CustomFieldTemplate instance) =>
+    <String, dynamic>{
+      'type': _$CustomFieldTypeEnumMap[instance.type]!,
+      'name': instance.name,
+      'id': instance.id,
+    };
+
+const _$CustomFieldTypeEnumMap = {
+  CustomFieldType.typeString: 'string',
+  CustomFieldType.typeInt: 'int',
+};
 
 _StringValue _$StringValueFromJson(Map<String, dynamic> json) => _StringValue(
       json['value'] as String,

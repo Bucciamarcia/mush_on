@@ -36,6 +36,9 @@ class HomePageScreenContent extends StatelessWidget {
             ),
           ),
           ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, "/settings"),
+              child: const Text("Settings")),
+          ElevatedButton(
             onPressed: () async {
               await AuthService().signOut();
               if (context.mounted) {

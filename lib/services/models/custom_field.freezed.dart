@@ -15,8 +15,8 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$CustomField {
-  String get id;
-  String get name;
+  /// The ID of the template this custom field is assigned to.
+  String get templateId;
   CustomFieldValue get value;
 
   /// Create a copy of CustomField
@@ -34,18 +34,18 @@ mixin _$CustomField {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is CustomField &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name) &&
+            (identical(other.templateId, templateId) ||
+                other.templateId == templateId) &&
             (identical(other.value, value) || other.value == value));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, value);
+  int get hashCode => Object.hash(runtimeType, templateId, value);
 
   @override
   String toString() {
-    return 'CustomField(id: $id, name: $name, value: $value)';
+    return 'CustomField(templateId: $templateId, value: $value)';
   }
 }
 
@@ -55,7 +55,7 @@ abstract mixin class $CustomFieldCopyWith<$Res> {
           CustomField value, $Res Function(CustomField) _then) =
       _$CustomFieldCopyWithImpl;
   @useResult
-  $Res call({String id, String name, CustomFieldValue value});
+  $Res call({String templateId, CustomFieldValue value});
 
   $CustomFieldValueCopyWith<$Res> get value;
 }
@@ -72,18 +72,13 @@ class _$CustomFieldCopyWithImpl<$Res> implements $CustomFieldCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? name = null,
+    Object? templateId = null,
     Object? value = null,
   }) {
     return _then(_self.copyWith(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
+      templateId: null == templateId
+          ? _self.templateId
+          : templateId // ignore: cast_nullable_to_non_nullable
               as String,
       value: null == value
           ? _self.value
@@ -106,15 +101,13 @@ class _$CustomFieldCopyWithImpl<$Res> implements $CustomFieldCopyWith<$Res> {
 /// @nodoc
 @JsonSerializable()
 class _CustomField implements CustomField {
-  const _CustomField(
-      {required this.id, required this.name, required this.value});
+  const _CustomField({required this.templateId, required this.value});
   factory _CustomField.fromJson(Map<String, dynamic> json) =>
       _$CustomFieldFromJson(json);
 
+  /// The ID of the template this custom field is assigned to.
   @override
-  final String id;
-  @override
-  final String name;
+  final String templateId;
   @override
   final CustomFieldValue value;
 
@@ -138,18 +131,18 @@ class _CustomField implements CustomField {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _CustomField &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name) &&
+            (identical(other.templateId, templateId) ||
+                other.templateId == templateId) &&
             (identical(other.value, value) || other.value == value));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, value);
+  int get hashCode => Object.hash(runtimeType, templateId, value);
 
   @override
   String toString() {
-    return 'CustomField(id: $id, name: $name, value: $value)';
+    return 'CustomField(templateId: $templateId, value: $value)';
   }
 }
 
@@ -161,7 +154,7 @@ abstract mixin class _$CustomFieldCopyWith<$Res>
       __$CustomFieldCopyWithImpl;
   @override
   @useResult
-  $Res call({String id, String name, CustomFieldValue value});
+  $Res call({String templateId, CustomFieldValue value});
 
   @override
   $CustomFieldValueCopyWith<$Res> get value;
@@ -179,18 +172,13 @@ class __$CustomFieldCopyWithImpl<$Res> implements _$CustomFieldCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? id = null,
-    Object? name = null,
+    Object? templateId = null,
     Object? value = null,
   }) {
     return _then(_CustomField(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
+      templateId: null == templateId
+          ? _self.templateId
+          : templateId // ignore: cast_nullable_to_non_nullable
               as String,
       value: null == value
           ? _self.value
@@ -207,6 +195,182 @@ class __$CustomFieldCopyWithImpl<$Res> implements _$CustomFieldCopyWith<$Res> {
     return $CustomFieldValueCopyWith<$Res>(_self.value, (value) {
       return _then(_self.copyWith(value: value));
     });
+  }
+}
+
+/// @nodoc
+mixin _$CustomFieldTemplate {
+  CustomFieldType get type;
+  String get name;
+  String get id;
+
+  /// Create a copy of CustomFieldTemplate
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $CustomFieldTemplateCopyWith<CustomFieldTemplate> get copyWith =>
+      _$CustomFieldTemplateCopyWithImpl<CustomFieldTemplate>(
+          this as CustomFieldTemplate, _$identity);
+
+  /// Serializes this CustomFieldTemplate to a JSON map.
+  Map<String, dynamic> toJson();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is CustomFieldTemplate &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.id, id) || other.id == id));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, type, name, id);
+
+  @override
+  String toString() {
+    return 'CustomFieldTemplate(type: $type, name: $name, id: $id)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $CustomFieldTemplateCopyWith<$Res> {
+  factory $CustomFieldTemplateCopyWith(
+          CustomFieldTemplate value, $Res Function(CustomFieldTemplate) _then) =
+      _$CustomFieldTemplateCopyWithImpl;
+  @useResult
+  $Res call({CustomFieldType type, String name, String id});
+}
+
+/// @nodoc
+class _$CustomFieldTemplateCopyWithImpl<$Res>
+    implements $CustomFieldTemplateCopyWith<$Res> {
+  _$CustomFieldTemplateCopyWithImpl(this._self, this._then);
+
+  final CustomFieldTemplate _self;
+  final $Res Function(CustomFieldTemplate) _then;
+
+  /// Create a copy of CustomFieldTemplate
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? name = null,
+    Object? id = null,
+  }) {
+    return _then(_self.copyWith(
+      type: null == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as CustomFieldType,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _CustomFieldTemplate implements CustomFieldTemplate {
+  const _CustomFieldTemplate(
+      {required this.type, required this.name, required this.id});
+  factory _CustomFieldTemplate.fromJson(Map<String, dynamic> json) =>
+      _$CustomFieldTemplateFromJson(json);
+
+  @override
+  final CustomFieldType type;
+  @override
+  final String name;
+  @override
+  final String id;
+
+  /// Create a copy of CustomFieldTemplate
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$CustomFieldTemplateCopyWith<_CustomFieldTemplate> get copyWith =>
+      __$CustomFieldTemplateCopyWithImpl<_CustomFieldTemplate>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$CustomFieldTemplateToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _CustomFieldTemplate &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.id, id) || other.id == id));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, type, name, id);
+
+  @override
+  String toString() {
+    return 'CustomFieldTemplate(type: $type, name: $name, id: $id)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$CustomFieldTemplateCopyWith<$Res>
+    implements $CustomFieldTemplateCopyWith<$Res> {
+  factory _$CustomFieldTemplateCopyWith(_CustomFieldTemplate value,
+          $Res Function(_CustomFieldTemplate) _then) =
+      __$CustomFieldTemplateCopyWithImpl;
+  @override
+  @useResult
+  $Res call({CustomFieldType type, String name, String id});
+}
+
+/// @nodoc
+class __$CustomFieldTemplateCopyWithImpl<$Res>
+    implements _$CustomFieldTemplateCopyWith<$Res> {
+  __$CustomFieldTemplateCopyWithImpl(this._self, this._then);
+
+  final _CustomFieldTemplate _self;
+  final $Res Function(_CustomFieldTemplate) _then;
+
+  /// Create a copy of CustomFieldTemplate
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? type = null,
+    Object? name = null,
+    Object? id = null,
+  }) {
+    return _then(_CustomFieldTemplate(
+      type: null == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as CustomFieldType,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
   }
 }
 
