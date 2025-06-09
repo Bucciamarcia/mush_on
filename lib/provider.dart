@@ -11,6 +11,8 @@ class DogProvider extends ChangeNotifier {
   final Map<String, Dog> _dogsById = {};
   Map<String, Dog> get dogsById => _dogsById;
   String _account = "";
+
+  /// The name of the account.
   String get account => _account;
 
   DogProvider() {

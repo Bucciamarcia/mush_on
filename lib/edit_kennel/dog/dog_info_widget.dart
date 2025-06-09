@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mush_on/edit_kennel/dog/text_title.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/models/custom_field.dart';
 import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/services/models/settings/custom_field.dart';
+import 'package:mush_on/shared/text_title.dart';
 
 class DogInfoWidget extends StatelessWidget {
   static final BasicLogger logger = BasicLogger();
