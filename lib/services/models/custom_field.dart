@@ -4,16 +4,36 @@ part 'custom_field.g.dart';
 
 @freezed
 
-/// Class representing the data for a custom field.
+/// Class representing a single custom field value for a single dog.
+/// Must be assigned to a template ID.
+///
+/// Eg. "Favorite toy -> Stuffed fox"
 abstract class CustomField with _$CustomField {
   const factory CustomField({
-    required String id,
-    required String name,
+    /// The ID of the template this custom field is assigned to.
+    required String templateId,
     required CustomFieldValue value,
   }) = _CustomField;
 
   factory CustomField.fromJson(Map<String, Object?> json) =>
       _$CustomFieldFromJson(json);
+}
+
+@freezed
+
+/// Class with all the custom field types created by the user.
+///
+/// This is the TEMPLATE, the one set in the settings. A CustomField must have a template.
+/// Eg. "Favorite toy"
+abstract class CustomFieldTemplate with _$CustomFieldTemplate {
+  const factory CustomFieldTemplate({
+    required CustomFieldType type,
+    required String name,
+    required String id,
+  }) = _CustomFieldTemplate;
+
+  factory CustomFieldTemplate.fromJson(Map<String, Object?> json) =>
+      _$CustomFieldTemplateFromJson(json);
 }
 
 @freezed
