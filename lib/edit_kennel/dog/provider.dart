@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mush_on/edit_kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
+import 'package:mush_on/services/models/custom_field.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/storage.dart';
 import 'package:path/path.dart' as path;
@@ -20,6 +21,7 @@ class SingleDogProvider extends ChangeNotifier {
   Uint8List? image;
   bool isLoadingImage = false;
   String account = "";
+  List<CustomField> customFields = [];
   static BasicLogger logger = BasicLogger();
 
   SingleDogProvider();
@@ -30,10 +32,9 @@ class SingleDogProvider extends ChangeNotifier {
     sex = newDog.sex;
     positions = newDog.positions;
     tags = newDog.tags;
-    logger.info("Tags: ${newDog.tags.toString()}");
-    logger.info("Birth: ${newDog.birth.toString()}");
     birth = newDog.birth;
     account = await FirestoreService().getUserAccount();
+    customFields = newDog.customFields;
 
     updateImage();
 

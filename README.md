@@ -53,3 +53,4 @@ A cool and open source CRM for sled dog kennels.
 
 - Fixes a bug where the filter would include expired tags.
 - Can now pick date range in the stats page.
+- Applying a filter in team builder now shows a confirmation message.

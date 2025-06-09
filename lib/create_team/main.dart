@@ -132,10 +132,16 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
               title: Center(child: Text("Filter")),
               children: [
                 DogFilterWidget(
-                  dogs: teamProvider.dogs,
-                  onResult: (dogs) =>
-                      teamProvider.addErrorToUnavailableDogs(dogs),
-                ),
+                    dogs: teamProvider.dogs,
+                    onResult: (dogs) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Filter successful"),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      teamProvider.addErrorToUnavailableDogs(dogs);
+                    }),
               ],
             ),
           ),
