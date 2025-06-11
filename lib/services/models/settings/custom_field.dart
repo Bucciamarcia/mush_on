@@ -48,11 +48,14 @@ sealed class CustomFieldValue with _$CustomFieldValue {
 @JsonEnum()
 enum CustomFieldType {
   @JsonValue('string')
-  typeString(type: String),
+  typeString(type: String, showToUser: "Text"),
 
   @JsonValue('int')
-  typeInt(type: int);
+  typeInt(type: int, showToUser: "Number");
 
   final Type type;
-  const CustomFieldType({required this.type});
+
+  /// The name of this type to show to the user in the UI.
+  final String showToUser;
+  const CustomFieldType({required this.type, required this.showToUser});
 }

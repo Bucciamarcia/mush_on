@@ -20,7 +20,11 @@ class SettingsMain extends StatelessWidget {
           children: [
             TextTitle("Custom fields"),
             CustomFieldsOptions(
-                customFieldTemplates: settings.customFieldTemplates),
+              customFieldTemplates: settings.customFieldTemplates,
+              // TODO: Here add the logic to add to provider, which will add to db.
+              onCustomFieldAdded: (newCustomField) => print(
+                  "ADDED! || ${newCustomField.name} || ${newCustomField.type.showToUser}"),
+            ),
           ],
         ),
       ),
