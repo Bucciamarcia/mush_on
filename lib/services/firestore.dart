@@ -22,10 +22,22 @@ class FirestoreService {
     return data;
   }
 
+  /// Adds a doc to the db.
+  Future<void> addDocToDb(
+      {required Map<String, dynamic> payload,
+      required String path,
+      required bool merge}) async {
+    try {
+      await db.doc(path).set(payload, SetOptions(merge: merge));
+    } catch (e, s) {
+      logger.error("Couldn't add doc to db.", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   Future<void> addDogToDb(Dog dog, File? imageFile) async {
     String account = await FirestoreService().getUserAccount();
     try {
-      final FirebaseFirestore db = FirebaseFirestore.instance;
       if (imageFile != null) {
         DogPhotoCardUtils utils =
             DogPhotoCardUtils(id: dog.id, account: account);
