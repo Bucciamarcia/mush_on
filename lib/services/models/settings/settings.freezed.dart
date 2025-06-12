@@ -82,7 +82,8 @@ class _$SettingsModelCopyWithImpl<$Res>
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _SettingsModel implements SettingsModel {
   const _SettingsModel(
       {final List<CustomFieldTemplate> customFieldTemplates = const []})

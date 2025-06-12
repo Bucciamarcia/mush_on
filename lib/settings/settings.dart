@@ -12,8 +12,8 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) {
-        final provider = SettingsProvider();
-        return provider;
+        final settingsProvider = SettingsProvider();
+        return settingsProvider;
       },
       child: TemplateScreen(
         title: "Settings",

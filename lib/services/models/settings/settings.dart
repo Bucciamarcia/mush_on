@@ -5,6 +5,7 @@ part 'settings.freezed.dart';
 
 @freezed
 abstract class SettingsModel with _$SettingsModel {
+  @JsonSerializable(explicitToJson: true)
   const factory SettingsModel({
     @Default([]) List<CustomFieldTemplate> customFieldTemplates,
   }) = _SettingsModel;
