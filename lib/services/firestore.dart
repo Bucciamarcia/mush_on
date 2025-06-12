@@ -22,6 +22,17 @@ class FirestoreService {
     return data;
   }
 
+  Future<Map<String, dynamic>?> getDocument(String path) async {
+    try {
+      var ref = db.doc(path);
+      var snapshot = await ref.get();
+      return snapshot.data();
+    } catch (e, s) {
+      logger.error("Couldn't fetch document", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   /// Adds a doc to the db.
   Future<void> addDocToDb(
       {required Map<String, dynamic> payload,

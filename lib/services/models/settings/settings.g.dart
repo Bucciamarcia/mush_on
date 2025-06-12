@@ -17,5 +17,6 @@ _SettingsModel _$SettingsModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$SettingsModelToJson(_SettingsModel instance) =>
     <String, dynamic>{
-      'customFieldTemplates': instance.customFieldTemplates,
+      'customFieldTemplates':
+          instance.customFieldTemplates.map((e) => e.toJson()).toList(),
     };
