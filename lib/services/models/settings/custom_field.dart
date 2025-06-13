@@ -38,8 +38,8 @@ abstract class CustomFieldTemplate with _$CustomFieldTemplate {
 
 @freezed
 sealed class CustomFieldValue with _$CustomFieldValue {
-  const factory CustomFieldValue.stringValue(String value) = _StringValue;
-  const factory CustomFieldValue.intValue(int value) = _IntValue;
+  const factory CustomFieldValue.stringValue(String value) = StringValue;
+  const factory CustomFieldValue.intValue(int value) = IntValue;
 
   factory CustomFieldValue.fromJson(Map<String, Object?> json) =>
       _$CustomFieldValueFromJson(json);

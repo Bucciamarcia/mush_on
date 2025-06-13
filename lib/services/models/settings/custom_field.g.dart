@@ -37,23 +37,23 @@ const _$CustomFieldTypeEnumMap = {
   CustomFieldType.typeInt: 'int',
 };
 
-_StringValue _$StringValueFromJson(Map<String, dynamic> json) => _StringValue(
+StringValue _$StringValueFromJson(Map<String, dynamic> json) => StringValue(
       json['value'] as String,
       $type: json['runtimeType'] as String?,
     );
 
-Map<String, dynamic> _$StringValueToJson(_StringValue instance) =>
+Map<String, dynamic> _$StringValueToJson(StringValue instance) =>
     <String, dynamic>{
       'value': instance.value,
       'runtimeType': instance.$type,
     };
 
-_IntValue _$IntValueFromJson(Map<String, dynamic> json) => _IntValue(
+IntValue _$IntValueFromJson(Map<String, dynamic> json) => IntValue(
       (json['value'] as num).toInt(),
       $type: json['runtimeType'] as String?,
     );
 
-Map<String, dynamic> _$IntValueToJson(_IntValue instance) => <String, dynamic>{
+Map<String, dynamic> _$IntValueToJson(IntValue instance) => <String, dynamic>{
       'value': instance.value,
       'runtimeType': instance.$type,
     };

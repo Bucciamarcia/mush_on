@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:mush_on/kennel/dog/custom_field_area.dart';
 import 'package:mush_on/kennel/dog/delete_dog_button.dart';
 import 'package:mush_on/kennel/dog/dog_info_widget.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
@@ -139,6 +140,12 @@ class DogMain extends StatelessWidget {
             });
           },
         ),
+        Divider(),
+        CustomFieldArea(
+          customFieldTemplates: provider.settings.customFieldTemplates,
+          dogCustomFields: singleDogProvider.customFields,
+        ),
+        Divider(),
         singleDogProvider.isLoadingTotals
             ? CircularProgressIndicator()
             : DogRunDataWidget(singleDogProvider.runTotals),

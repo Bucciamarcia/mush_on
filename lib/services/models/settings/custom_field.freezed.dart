@@ -377,9 +377,9 @@ class __$CustomFieldTemplateCopyWithImpl<$Res>
 CustomFieldValue _$CustomFieldValueFromJson(Map<String, dynamic> json) {
   switch (json['runtimeType']) {
     case 'stringValue':
-      return _StringValue.fromJson(json);
+      return StringValue.fromJson(json);
     case 'intValue':
-      return _IntValue.fromJson(json);
+      return IntValue.fromJson(json);
 
     default:
       throw CheckedFromJsonException(json, 'runtimeType', 'CustomFieldValue',
@@ -421,10 +421,10 @@ class $CustomFieldValueCopyWith<$Res> {
 
 /// @nodoc
 @JsonSerializable()
-class _StringValue implements CustomFieldValue {
-  const _StringValue(this.value, {final String? $type})
+class StringValue implements CustomFieldValue {
+  const StringValue(this.value, {final String? $type})
       : $type = $type ?? 'stringValue';
-  factory _StringValue.fromJson(Map<String, dynamic> json) =>
+  factory StringValue.fromJson(Map<String, dynamic> json) =>
       _$StringValueFromJson(json);
 
   @override
@@ -437,8 +437,8 @@ class _StringValue implements CustomFieldValue {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$StringValueCopyWith<_StringValue> get copyWith =>
-      __$StringValueCopyWithImpl<_StringValue>(this, _$identity);
+  $StringValueCopyWith<StringValue> get copyWith =>
+      _$StringValueCopyWithImpl<StringValue>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -451,7 +451,7 @@ class _StringValue implements CustomFieldValue {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _StringValue &&
+            other is StringValue &&
             (identical(other.value, value) || other.value == value));
   }
 
@@ -466,21 +466,21 @@ class _StringValue implements CustomFieldValue {
 }
 
 /// @nodoc
-abstract mixin class _$StringValueCopyWith<$Res>
+abstract mixin class $StringValueCopyWith<$Res>
     implements $CustomFieldValueCopyWith<$Res> {
-  factory _$StringValueCopyWith(
-          _StringValue value, $Res Function(_StringValue) _then) =
-      __$StringValueCopyWithImpl;
+  factory $StringValueCopyWith(
+          StringValue value, $Res Function(StringValue) _then) =
+      _$StringValueCopyWithImpl;
   @useResult
   $Res call({String value});
 }
 
 /// @nodoc
-class __$StringValueCopyWithImpl<$Res> implements _$StringValueCopyWith<$Res> {
-  __$StringValueCopyWithImpl(this._self, this._then);
+class _$StringValueCopyWithImpl<$Res> implements $StringValueCopyWith<$Res> {
+  _$StringValueCopyWithImpl(this._self, this._then);
 
-  final _StringValue _self;
-  final $Res Function(_StringValue) _then;
+  final StringValue _self;
+  final $Res Function(StringValue) _then;
 
   /// Create a copy of CustomFieldValue
   /// with the given fields replaced by the non-null parameter values.
@@ -488,7 +488,7 @@ class __$StringValueCopyWithImpl<$Res> implements _$StringValueCopyWith<$Res> {
   $Res call({
     Object? value = null,
   }) {
-    return _then(_StringValue(
+    return _then(StringValue(
       null == value
           ? _self.value
           : value // ignore: cast_nullable_to_non_nullable
@@ -499,10 +499,10 @@ class __$StringValueCopyWithImpl<$Res> implements _$StringValueCopyWith<$Res> {
 
 /// @nodoc
 @JsonSerializable()
-class _IntValue implements CustomFieldValue {
-  const _IntValue(this.value, {final String? $type})
+class IntValue implements CustomFieldValue {
+  const IntValue(this.value, {final String? $type})
       : $type = $type ?? 'intValue';
-  factory _IntValue.fromJson(Map<String, dynamic> json) =>
+  factory IntValue.fromJson(Map<String, dynamic> json) =>
       _$IntValueFromJson(json);
 
   @override
@@ -515,8 +515,8 @@ class _IntValue implements CustomFieldValue {
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$IntValueCopyWith<_IntValue> get copyWith =>
-      __$IntValueCopyWithImpl<_IntValue>(this, _$identity);
+  $IntValueCopyWith<IntValue> get copyWith =>
+      _$IntValueCopyWithImpl<IntValue>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
@@ -529,7 +529,7 @@ class _IntValue implements CustomFieldValue {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _IntValue &&
+            other is IntValue &&
             (identical(other.value, value) || other.value == value));
   }
 
@@ -544,20 +544,20 @@ class _IntValue implements CustomFieldValue {
 }
 
 /// @nodoc
-abstract mixin class _$IntValueCopyWith<$Res>
+abstract mixin class $IntValueCopyWith<$Res>
     implements $CustomFieldValueCopyWith<$Res> {
-  factory _$IntValueCopyWith(_IntValue value, $Res Function(_IntValue) _then) =
-      __$IntValueCopyWithImpl;
+  factory $IntValueCopyWith(IntValue value, $Res Function(IntValue) _then) =
+      _$IntValueCopyWithImpl;
   @useResult
   $Res call({int value});
 }
 
 /// @nodoc
-class __$IntValueCopyWithImpl<$Res> implements _$IntValueCopyWith<$Res> {
-  __$IntValueCopyWithImpl(this._self, this._then);
+class _$IntValueCopyWithImpl<$Res> implements $IntValueCopyWith<$Res> {
+  _$IntValueCopyWithImpl(this._self, this._then);
 
-  final _IntValue _self;
-  final $Res Function(_IntValue) _then;
+  final IntValue _self;
+  final $Res Function(IntValue) _then;
 
   /// Create a copy of CustomFieldValue
   /// with the given fields replaced by the non-null parameter values.
@@ -565,7 +565,7 @@ class __$IntValueCopyWithImpl<$Res> implements _$IntValueCopyWith<$Res> {
   $Res call({
     Object? value = null,
   }) {
-    return _then(_IntValue(
+    return _then(IntValue(
       null == value
           ? _self.value
           : value // ignore: cast_nullable_to_non_nullable
