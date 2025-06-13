@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:mush_on/edit_kennel/add_dog/add_dog_button.dart';
-import 'package:mush_on/edit_kennel/add_dog/dog_name_widget.dart';
-import 'package:mush_on/edit_kennel/add_dog/provider.dart';
-import 'package:mush_on/edit_kennel/dog/dog_photo_card.dart';
-import 'package:mush_on/edit_kennel/dog/positions_widget.dart';
+import 'package:mush_on/kennel/add_dog/add_dog_button.dart';
+import 'package:mush_on/kennel/add_dog/dog_name_widget.dart';
+import 'package:mush_on/kennel/add_dog/provider.dart';
+import 'package:mush_on/kennel/dog/dog_photo_card.dart';
+import 'package:mush_on/kennel/dog/positions_widget.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:provider/provider.dart';

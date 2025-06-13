@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mush_on/edit_kennel/dog/dog_photo_card.dart';
+import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
