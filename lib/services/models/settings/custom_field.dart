@@ -8,7 +8,8 @@ part 'custom_field.g.dart';
 /// Must be assigned to a template ID.
 ///
 /// Eg. "Favorite toy -> Stuffed fox"
-abstract class CustomField with _$CustomField {
+sealed class CustomField with _$CustomField {
+  @JsonSerializable(explicitToJson: true)
   const factory CustomField({
     /// The ID of the template this custom field is assigned to.
     required String templateId,
@@ -40,6 +41,7 @@ abstract class CustomFieldTemplate with _$CustomFieldTemplate {
 sealed class CustomFieldValue with _$CustomFieldValue {
   const factory CustomFieldValue.stringValue(String value) = StringValue;
   const factory CustomFieldValue.intValue(int value) = IntValue;
+  const factory CustomFieldValue.doubleValue(double value) = DoubleValue;
 
   factory CustomFieldValue.fromJson(Map<String, Object?> json) =>
       _$CustomFieldValueFromJson(json);
@@ -51,7 +53,10 @@ enum CustomFieldType {
   typeString(type: String, showToUser: "Text"),
 
   @JsonValue('int')
-  typeInt(type: int, showToUser: "Number");
+  typeInt(type: int, showToUser: "Number"),
+
+  @JsonValue('double')
+  typeDouble(type: double, showToUser: "Number");
 
   final Type type;
 

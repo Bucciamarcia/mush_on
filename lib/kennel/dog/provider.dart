@@ -55,6 +55,24 @@ class SingleDogProvider extends ChangeNotifier {
     });
   }
 
+  Future<void> addCustomField(CustomField newCf) async {
+    List<CustomField> updatedCf = [];
+    for (CustomField cf in customFields) {
+      updatedCf.add(cf);
+    }
+    updatedCf.removeWhere((t) => t.templateId == newCf.templateId);
+    updatedCf.add(newCf);
+    try {
+      await DogsDbOperations()
+          .updateCustomFields(dogId: id, customFields: updatedCf);
+      customFields = updatedCf;
+      notifyListeners();
+    } catch (e, s) {
+      logger.error("Couldn't add custom field", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   Future<void> changeName(String newName) async {
     try {
       await DogsDbOperations().changeDogName(newName: newName, id: id);

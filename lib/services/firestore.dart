@@ -7,6 +7,7 @@ import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/services/storage.dart';
 import 'package:path/path.dart' as path;
 
@@ -476,6 +477,24 @@ class DogsDbOperations {
     } catch (e, s) {
       BasicLogger().error("Can't delete dog", error: e, stackTrace: s);
       throw Exception("Can't delete dog in deleteDog()");
+    }
+  }
+
+  Future<void> updateCustomFields(
+      {required String dogId, required List<CustomField> customFields}) async {
+    var account = await FirestoreService().getUserAccount();
+    String path = "accounts/$account/data/kennel/dogs";
+    var dogsRef = FirebaseFirestore.instance.collection(path);
+    var doc = dogsRef.doc(dogId);
+    List<Map<String, dynamic>> payload = [];
+    for (CustomField cf in customFields) {
+      payload.add(cf.toJson());
+    }
+    try {
+      await doc.update({"customFields": payload});
+    } catch (e, s) {
+      logger.error("Db error in update custom fields", error: e, stackTrace: s);
+      rethrow;
     }
   }
 }
