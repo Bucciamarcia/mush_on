@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mush_on/create_team/create_team.dart';
 import 'package:mush_on/kennel/add_dog/add_dog.dart';
 import 'package:mush_on/kennel/dog/dog.dart';
-import 'package:mush_on/kennel/edit_kennel.dart';
+import 'package:mush_on/kennel/kennel.dart';
 import 'package:mush_on/main.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
