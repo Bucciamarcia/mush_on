@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/shared/text_title.dart';
 
 class CustomFieldArea extends StatelessWidget {
   final List<CustomFieldTemplate> customFieldTemplates;
   final List<CustomField> dogCustomFields;
+  final Function(CustomField) onCustomFieldSaved;
   const CustomFieldArea(
       {super.key,
       required this.customFieldTemplates,
-      required this.dogCustomFields});
+      required this.dogCustomFields,
+      required this.onCustomFieldSaved});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +22,7 @@ class CustomFieldArea extends StatelessWidget {
         CustomFieldsWidget(
           customFieldTemplates: customFieldTemplates,
           dogCustomFields: dogCustomFields,
+          onCustomFieldSaved: (r) => onCustomFieldSaved(r),
         ),
       ],
     );
@@ -27,10 +32,12 @@ class CustomFieldArea extends StatelessWidget {
 class CustomFieldsWidget extends StatelessWidget {
   final List<CustomFieldTemplate> customFieldTemplates;
   final List<CustomField> dogCustomFields;
+  final Function(CustomField) onCustomFieldSaved;
   const CustomFieldsWidget(
       {super.key,
       required this.customFieldTemplates,
-      required this.dogCustomFields});
+      required this.dogCustomFields,
+      required this.onCustomFieldSaved});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +45,10 @@ class CustomFieldsWidget extends StatelessWidget {
       spacing: 10,
       children: customFieldTemplates
           .map((t) => DogCustomFieldCard(
-              customFieldTemplate: t, dogCustomFields: dogCustomFields))
+                customFieldTemplate: t,
+                dogCustomFields: dogCustomFields,
+                onCustomFieldSaved: (r) => onCustomFieldSaved(r),
+              ))
           .toList(),
     );
   }
@@ -47,10 +57,12 @@ class CustomFieldsWidget extends StatelessWidget {
 class DogCustomFieldCard extends StatefulWidget {
   final CustomFieldTemplate customFieldTemplate;
   final List<CustomField> dogCustomFields;
+  final Function(CustomField) onCustomFieldSaved;
   const DogCustomFieldCard(
       {super.key,
       required this.customFieldTemplate,
-      required this.dogCustomFields});
+      required this.dogCustomFields,
+      required this.onCustomFieldSaved});
 
   @override
   State<DogCustomFieldCard> createState() => _DogCustomFieldCardState();
@@ -59,17 +71,32 @@ class DogCustomFieldCard extends StatefulWidget {
 class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
   /// Text editing controller
   late TextEditingController _controller;
+  static BasicLogger logger = BasicLogger();
 
   /// Whether the value has changed, and needs to be saved
   late bool hasChanged;
   @override
   void initState() {
     super.initState();
+    logger.debug("TEMPLATES: ${widget.customFieldTemplate}");
     hasChanged = false;
     _controller = TextEditingController();
     _controller.text =
         _getCurrentValue(widget.customFieldTemplate, widget.dogCustomFields) ??
             "";
+    logger.debug("CONTROLLER CUSTOMFIELDS: ${_controller.text}");
+  }
+
+  @override
+  void didUpdateWidget(covariant DogCustomFieldCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.dogCustomFields != widget.dogCustomFields) {
+      _controller.text = _getCurrentValue(
+              widget.customFieldTemplate, widget.dogCustomFields) ??
+          "";
+      logger.debug(
+          "Updated controller with new custom fields: ${_controller.text}");
+    }
   }
 
   @override
@@ -91,6 +118,8 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                   Flexible(
                     child: TextField(
                       decoration: InputDecoration(isDense: true),
+                      inputFormatters: _inputFormatters(),
+                      keyboardType: _keyboardType(),
                       maxLines: 1,
                       style: TextStyle(fontSize: 14),
                       controller: _controller,
@@ -103,14 +132,46 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                   ),
                   SizedBox(width: 10),
                   IconButton(
-                    onPressed: hasChanged ? () => {} : null,
+                    onPressed: hasChanged
+                        ? () {
+                            setState(() {
+                              _controller.text = _getCurrentValue(
+                                      widget.customFieldTemplate,
+                                      widget.dogCustomFields) ??
+                                  "";
+                              hasChanged = false;
+                            });
+                          }
+                        : null,
+                    tooltip: "Cancel changes",
                     icon: Icon(Icons.remove),
                     color: Colors.red,
                     iconSize: 18,
                     visualDensity: VisualDensity.compact,
                   ),
                   IconButton(
-                    onPressed: hasChanged ? () => {} : null,
+                    onPressed: hasChanged
+                        ? () {
+                            try {
+                              widget.onCustomFieldSaved(_createCustomField());
+                              setState(() {
+                                hasChanged = false;
+                              });
+                            } catch (e, s) {
+                              logger.error("Couldn't change custom field",
+                                  error: e, stackTrace: s);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  ErrorSnackbar(
+                                      "Couldn't update the field. Reverting."));
+                              _controller.text = _getCurrentValue(
+                                      widget.customFieldTemplate,
+                                      widget.dogCustomFields) ??
+                                  "";
+                              hasChanged = false;
+                            }
+                          }
+                        : null,
+                    tooltip: "Save changes",
                     icon: Icon(Icons.save),
                     color: Colors.green,
                     iconSize: 18,
@@ -123,6 +184,51 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
         ),
       ),
     );
+  }
+
+  List<TextInputFormatter>? _inputFormatters() {
+    switch (widget.customFieldTemplate.type) {
+      case CustomFieldType.typeString:
+        return null;
+      case CustomFieldType.typeInt:
+        return <TextInputFormatter>[
+          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
+        ];
+      case CustomFieldType.typeDouble:
+        return <TextInputFormatter>[
+          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
+        ];
+    }
+  }
+
+  TextInputType? _keyboardType() {
+    switch (widget.customFieldTemplate.type) {
+      case CustomFieldType.typeString:
+        return null;
+      case CustomFieldType.typeInt:
+        return TextInputType.number;
+      case CustomFieldType.typeDouble:
+        return TextInputType.number;
+    }
+  }
+
+  CustomField _createCustomField() {
+    CustomFieldValue value;
+    try {
+      switch (widget.customFieldTemplate.type) {
+        case CustomFieldType.typeString:
+          value = CustomFieldValue.stringValue(_controller.text);
+        case CustomFieldType.typeInt:
+          value = CustomFieldValue.intValue(int.parse(_controller.text));
+        case CustomFieldType.typeDouble:
+          value = CustomFieldValue.doubleValue(double.parse(_controller.text));
+      }
+      return CustomField(
+          templateId: widget.customFieldTemplate.id, value: value);
+    } catch (e, s) {
+      logger.error("Couldn't create custom field.", error: e, stackTrace: s);
+      rethrow;
+    }
   }
 }
 
@@ -137,6 +243,7 @@ String? _getCurrentValue(
 
       // If the value is an _IntValue, extract its 'value' and convert to string.
       IntValue(value: final intVal) => intVal.toString(),
+      DoubleValue(value: final doubleVal) => doubleVal.toString(),
     };
   } else {
     return null;

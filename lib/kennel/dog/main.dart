@@ -144,6 +144,24 @@ class DogMain extends StatelessWidget {
         CustomFieldArea(
           customFieldTemplates: provider.settings.customFieldTemplates,
           dogCustomFields: singleDogProvider.customFields,
+          onCustomFieldSaved: (r) {
+            try {
+              singleDogProvider.addCustomField(r);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Custom field  added"),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            } catch (e, s) {
+              logger.error("Couldn't add the custom field",
+                  error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    ErrorSnackbar("Error: couldn't add custom field"));
+              }
+            }
+          },
         ),
         Divider(),
         singleDogProvider.isLoadingTotals

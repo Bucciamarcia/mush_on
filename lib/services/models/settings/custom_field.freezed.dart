@@ -99,7 +99,8 @@ class _$CustomFieldCopyWithImpl<$Res> implements $CustomFieldCopyWith<$Res> {
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _CustomField implements CustomField {
   const _CustomField({required this.templateId, required this.value});
   factory _CustomField.fromJson(Map<String, dynamic> json) =>
@@ -380,6 +381,8 @@ CustomFieldValue _$CustomFieldValueFromJson(Map<String, dynamic> json) {
       return StringValue.fromJson(json);
     case 'intValue':
       return IntValue.fromJson(json);
+    case 'doubleValue':
+      return DoubleValue.fromJson(json);
 
     default:
       throw CheckedFromJsonException(json, 'runtimeType', 'CustomFieldValue',
@@ -570,6 +573,84 @@ class _$IntValueCopyWithImpl<$Res> implements $IntValueCopyWith<$Res> {
           ? _self.value
           : value // ignore: cast_nullable_to_non_nullable
               as int,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class DoubleValue implements CustomFieldValue {
+  const DoubleValue(this.value, {final String? $type})
+      : $type = $type ?? 'doubleValue';
+  factory DoubleValue.fromJson(Map<String, dynamic> json) =>
+      _$DoubleValueFromJson(json);
+
+  @override
+  final double value;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
+
+  /// Create a copy of CustomFieldValue
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $DoubleValueCopyWith<DoubleValue> get copyWith =>
+      _$DoubleValueCopyWithImpl<DoubleValue>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$DoubleValueToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is DoubleValue &&
+            (identical(other.value, value) || other.value == value));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, value);
+
+  @override
+  String toString() {
+    return 'CustomFieldValue.doubleValue(value: $value)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $DoubleValueCopyWith<$Res>
+    implements $CustomFieldValueCopyWith<$Res> {
+  factory $DoubleValueCopyWith(
+          DoubleValue value, $Res Function(DoubleValue) _then) =
+      _$DoubleValueCopyWithImpl;
+  @useResult
+  $Res call({double value});
+}
+
+/// @nodoc
+class _$DoubleValueCopyWithImpl<$Res> implements $DoubleValueCopyWith<$Res> {
+  _$DoubleValueCopyWithImpl(this._self, this._then);
+
+  final DoubleValue _self;
+  final $Res Function(DoubleValue) _then;
+
+  /// Create a copy of CustomFieldValue
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? value = null,
+  }) {
+    return _then(DoubleValue(
+      null == value
+          ? _self.value
+          : value // ignore: cast_nullable_to_non_nullable
+              as double,
     ));
   }
 }
