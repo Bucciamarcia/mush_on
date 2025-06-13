@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/edit_kennel/add_dog/provider.dart';
 import 'package:mush_on/general/loading_overlay.dart';
+import 'package:mush_on/kennel/add_dog/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/edit_kennel/add_dog/provider.dart';
+import 'package:mush_on/kennel/add_dog/provider.dart';
 
 class DogNameWidget extends StatelessWidget {
   const DogNameWidget({

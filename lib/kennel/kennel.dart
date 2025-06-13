@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/edit_kennel/main.dart';
-import 'package:mush_on/edit_kennel/provider.dart';
+import 'package:mush_on/kennel/main.dart';
+import 'package:mush_on/kennel/provider.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:provider/provider.dart';
 

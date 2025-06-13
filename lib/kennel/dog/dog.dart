@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/edit_kennel/dog/provider.dart';
+import 'package:mush_on/kennel/dog/provider.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:provider/provider.dart';

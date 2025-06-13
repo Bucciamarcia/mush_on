@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/edit_kennel/provider.dart';
+import 'package:mush_on/kennel/provider.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
