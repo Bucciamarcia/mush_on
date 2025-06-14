@@ -8,11 +8,13 @@ class CustomFieldArea extends StatelessWidget {
   final List<CustomFieldTemplate> customFieldTemplates;
   final List<CustomField> dogCustomFields;
   final Function(CustomField) onCustomFieldSaved;
+  final Function(String) onCustomFieldDeleted;
   const CustomFieldArea(
       {super.key,
       required this.customFieldTemplates,
       required this.dogCustomFields,
-      required this.onCustomFieldSaved});
+      required this.onCustomFieldSaved,
+      required this.onCustomFieldDeleted});
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,8 @@ class CustomFieldArea extends StatelessWidget {
           customFieldTemplates: customFieldTemplates,
           dogCustomFields: dogCustomFields,
           onCustomFieldSaved: (r) => onCustomFieldSaved(r),
+          onCustomFieldDeleted: (templateId) =>
+              onCustomFieldDeleted(templateId),
         ),
       ],
     );
@@ -33,11 +37,13 @@ class CustomFieldsWidget extends StatelessWidget {
   final List<CustomFieldTemplate> customFieldTemplates;
   final List<CustomField> dogCustomFields;
   final Function(CustomField) onCustomFieldSaved;
+  final Function(String) onCustomFieldDeleted;
   const CustomFieldsWidget(
       {super.key,
       required this.customFieldTemplates,
       required this.dogCustomFields,
-      required this.onCustomFieldSaved});
+      required this.onCustomFieldSaved,
+      required this.onCustomFieldDeleted});
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +54,8 @@ class CustomFieldsWidget extends StatelessWidget {
                 customFieldTemplate: t,
                 dogCustomFields: dogCustomFields,
                 onCustomFieldSaved: (r) => onCustomFieldSaved(r),
+                onCustomFieldDeleted: (templateId) =>
+                    onCustomFieldDeleted(templateId),
               ))
           .toList(),
     );
@@ -58,11 +66,13 @@ class DogCustomFieldCard extends StatefulWidget {
   final CustomFieldTemplate customFieldTemplate;
   final List<CustomField> dogCustomFields;
   final Function(CustomField) onCustomFieldSaved;
+  final Function(String) onCustomFieldDeleted;
   const DogCustomFieldCard(
       {super.key,
       required this.customFieldTemplate,
       required this.dogCustomFields,
-      required this.onCustomFieldSaved});
+      required this.onCustomFieldSaved,
+      required this.onCustomFieldDeleted});
 
   @override
   State<DogCustomFieldCard> createState() => _DogCustomFieldCardState();
@@ -153,7 +163,12 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                     onPressed: hasChanged
                         ? () {
                             try {
-                              widget.onCustomFieldSaved(_createCustomField());
+                              if (_controller.text.isEmpty) {
+                                widget.onCustomFieldDeleted(
+                                    widget.customFieldTemplate.id);
+                              } else {
+                                widget.onCustomFieldSaved(_createCustomField());
+                              }
                               setState(() {
                                 hasChanged = false;
                               });

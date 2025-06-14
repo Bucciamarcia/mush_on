@@ -162,6 +162,24 @@ class DogMain extends StatelessWidget {
               }
             }
           },
+          onCustomFieldDeleted: (templateId) {
+            try {
+              singleDogProvider.deleteCustomField(templateId);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Custom field deleted"),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            } catch (e, s) {
+              logger.error("Couldn't delete the custom field",
+                  error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    ErrorSnackbar("Error: couldn't delete custom field"));
+              }
+            }
+          },
         ),
         Divider(),
         singleDogProvider.isLoadingTotals
