@@ -31,6 +31,7 @@ class EditKennelMain extends StatelessWidget {
             children: [
               DogFilterWidget(
                 dogs: provider.dogs,
+                templates: provider.settings.customFieldTemplates,
                 onResult: (v) {
                   logger.debug("Len of list: ${v.length}");
                   // TODO: This now only orders by alpabetical order.

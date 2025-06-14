@@ -1,4 +1,5 @@
 import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/services/models/settings/custom_field.dart';
 
 enum ConditionSelection {
   name(type: String, allowedOperations: [
@@ -21,6 +22,11 @@ enum ConditionSelection {
   sex(type: DogSex, allowedOperations: [
     OperationSelection.equals,
     OperationSelection.equalsNot
+  ]),
+  customField(type: CustomFieldTemplate, allowedOperations: [
+    OperationSelection.equals,
+    OperationSelection.equalsNot,
+    OperationSelection.contains
   ]);
 
   /// The type of the filter when this condition is used
@@ -30,6 +36,15 @@ enum ConditionSelection {
   final List<OperationSelection> allowedOperations;
   const ConditionSelection(
       {required this.type, required this.allowedOperations});
+}
+
+/// A helper class that joins together the value and template of
+/// the filtering by custom fields.
+class FilterCustomFieldResults {
+  final CustomFieldValue value;
+  final CustomFieldTemplate template;
+
+  FilterCustomFieldResults({required this.template, required this.value});
 }
 
 enum OperationSelection {

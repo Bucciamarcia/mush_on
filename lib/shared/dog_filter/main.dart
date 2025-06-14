@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/shared/dog_filter/filter_operations.dart';
 import "enums.dart";
 import 'package:mush_on/shared/dog_filter/provider.dart';
@@ -12,8 +13,12 @@ class DogFilterWidget extends StatelessWidget {
 
   /// List of dogs to use for flitering
   final List<Dog> dogs;
+  final List<CustomFieldTemplate> templates;
   const DogFilterWidget(
-      {super.key, required this.dogs, required this.onResult});
+      {super.key,
+      required this.dogs,
+      required this.onResult,
+      required this.templates});
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +28,7 @@ class DogFilterWidget extends StatelessWidget {
       children: [
         ConditionGroup(
           allDogs: dogs,
+          templates: templates,
           conditionSelected: (provider.conditions.isEmpty)
               ? null
               : provider.conditions.firstOrNull?.conditionSelection,
@@ -63,12 +69,14 @@ class ConditionGroup extends StatelessWidget {
   final Function(ConditionSelection?) onConditionSelected;
   final Function(OperationSelection?) onOperatorSelected;
   final Function(dynamic) onFilterChanged;
+  final List<CustomFieldTemplate> templates;
   final ConditionSelection? conditionSelected;
   final OperationSelection? operationSelected;
   final List<Dog> allDogs;
   const ConditionGroup(
       {super.key,
       required this.onConditionSelected,
+      required this.templates,
       required this.onOperatorSelected,
       required this.onFilterChanged,
       required this.conditionSelected,
@@ -84,6 +92,7 @@ class ConditionGroup extends StatelessWidget {
         allDogs: allDogs,
         conditionSelected: conditionSelected,
         operationSelected: operationSelected,
+        templates: templates,
         onConditionSelected: (v) => onConditionSelected(v),
         onOperatorSelected: (v) => onOperatorSelected(v),
         onFilterChanged: (v) => onFilterChanged(v),
@@ -99,6 +108,7 @@ class ConditionRow extends StatelessWidget {
   final ConditionSelection? conditionSelected;
   final OperationSelection? operationSelected;
   final List<Dog> allDogs;
+  final List<CustomFieldTemplate> templates;
   const ConditionRow(
       {super.key,
       required this.onConditionSelected,
@@ -106,7 +116,8 @@ class ConditionRow extends StatelessWidget {
       required this.onFilterChanged,
       required this.conditionSelected,
       required this.operationSelected,
-      required this.allDogs});
+      required this.allDogs,
+      required this.templates});
 
   @override
   Widget build(BuildContext context) {
@@ -125,6 +136,7 @@ class ConditionRow extends StatelessWidget {
           allDogs: allDogs,
           onFilterFieldChanged: (v) => onFilterChanged(v),
           conditionSelected: conditionSelected,
+          templates: templates,
         ),
       ],
     );
@@ -179,12 +191,14 @@ class FilterField extends StatelessWidget {
   final ConditionSelection? conditionSelected;
   final OperationSelection? operationSelected;
   final List<Dog> allDogs;
+  final List<CustomFieldTemplate> templates;
   const FilterField(
       {super.key,
       required this.onFilterFieldChanged,
       required this.conditionSelected,
       required this.allDogs,
-      this.operationSelected});
+      this.operationSelected,
+      required this.templates});
 
   @override
   Widget build(BuildContext context) {
@@ -200,6 +214,9 @@ class FilterField extends StatelessWidget {
         return sexWidgetField();
       case const (DogPositions):
         return dogPositionField();
+      case const (CustomFieldTemplate):
+        return FilterCustomFieldRowWidget(
+            templates: templates, onFilterFieldChanged: onFilterFieldChanged);
     }
     throw Exception("Couldn't find the appropriate widget");
   }
@@ -290,7 +307,8 @@ class SubmitButton extends StatelessWidget {
                 condition.operationSelection == null ||
                 condition.filterSelection == null ||
                 condition.filterSelection == "") {
-              throw NoOperatorSelectedError(message: "An operator is missing");
+              throw NoOperatorSelectedError(
+                  message: "An operator is missing: $condition");
             }
           }
           if (conditions.isEmpty) {
@@ -341,4 +359,113 @@ class EmptyConditionListError implements Exception {
   EmptyConditionListError({required this.message});
   @override
   String toString() => "EmptyConditionListError: $message";
+}
+
+class FilterCustomFieldRowWidget extends StatefulWidget {
+  final List<CustomFieldTemplate> templates;
+  final Function(dynamic) onFilterFieldChanged;
+
+  const FilterCustomFieldRowWidget(
+      {super.key, required this.templates, required this.onFilterFieldChanged});
+
+  @override
+  State<FilterCustomFieldRowWidget> createState() =>
+      _FilterCustomFieldRowWidgetState();
+}
+
+class _FilterCustomFieldRowWidgetState
+    extends State<FilterCustomFieldRowWidget> {
+  late CustomFieldTemplate selectedTemplate;
+  late TextEditingController _controller;
+  static final BasicLogger logger = BasicLogger();
+
+  @override
+  void initState() {
+    super.initState();
+    selectedTemplate = widget.templates[0];
+    _controller = TextEditingController();
+    logger.info(
+        "FilterCustomFieldRowWidget initialized with template: ${selectedTemplate.name}");
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: Row(
+        children: [
+          DropdownMenu(
+            dropdownMenuEntries: widget.templates
+                .map((t) => DropdownMenuEntry(value: t, label: t.name))
+                .toList(),
+            onSelected: (st) {
+              setState(() {
+                selectedTemplate = st ?? widget.templates[0];
+              });
+              logger.info("Template changed to: ${selectedTemplate.name}");
+
+              try {
+                final value = CustomFieldValue.formatCustomFieldValue(
+                    selectedTemplate, _controller.text);
+                logger.info("Sending filter update after template change:");
+                logger.info(
+                    "- Template: ${selectedTemplate.name} (ID: ${selectedTemplate.id})");
+                logger.info("- Value: $value");
+                logger.info("- Value type: ${value.runtimeType}");
+
+                widget.onFilterFieldChanged(
+                  FilterCustomFieldResults(
+                      template: selectedTemplate, value: value),
+                );
+              } catch (e) {
+                logger.warning("Failed to parse value on template change: $e");
+              }
+            },
+            initialSelection: selectedTemplate,
+          ),
+          Flexible(
+            child: TextField(
+              controller: _controller,
+              keyboardType: selectedTemplate.type == CustomFieldType.typeString
+                  ? null
+                  : TextInputType.number,
+              inputFormatters:
+                  selectedTemplate.type == CustomFieldType.typeString
+                      ? null
+                      : [FilteringTextInputFormatter.digitsOnly],
+              onChanged: (v) {
+                logger.info("TextField changed: '$v'");
+
+                try {
+                  final value = CustomFieldValue.formatCustomFieldValue(
+                      selectedTemplate, v);
+                  logger.info("Sending filter update:");
+                  logger.info(
+                      "- Template: ${selectedTemplate.name} (ID: ${selectedTemplate.id})");
+                  logger.info("- Value: $value");
+                  logger.info("- Value type: ${value.runtimeType}");
+
+                  widget.onFilterFieldChanged(FilterCustomFieldResults(
+                      template: selectedTemplate, value: value));
+                } catch (e) {
+                  logger.warning("Failed to parse value: $e");
+                  // For empty string on int/double fields
+                  if (v.isEmpty &&
+                      selectedTemplate.type != CustomFieldType.typeString) {
+                    logger.info(
+                        "Empty value for numeric field, not updating filter");
+                  }
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

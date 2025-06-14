@@ -110,6 +110,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
   @override
   Widget build(BuildContext context) {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
+    DogProvider provider = context.watch<DogProvider>();
     List<Team> teams = teamProvider.group.teams;
     List<String> runningDogs = teamProvider.runningDogIds;
 
@@ -133,6 +134,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
               children: [
                 DogFilterWidget(
                     dogs: teamProvider.dogs,
+                    templates: provider.settings.customFieldTemplates,
                     onResult: (dogs) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
