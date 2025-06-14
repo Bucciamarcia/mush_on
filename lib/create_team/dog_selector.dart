@@ -81,8 +81,8 @@ class _DogSelectorState extends State<DogSelector> {
     if (currentValue != null && currentValue.isNotEmpty) {
       if (_dogsById[currentValue] == null) {
         logger.error("The dog is not in the _dogsById");
-        ScaffoldMessenger.of(context).showSnackBar(
-            ErrorSnackbar("Error in fetching the dog! Exit and try again."));
+        ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
+            context, "Error in fetching the dog! Exit and try again."));
         return Text("Can't fetch dog");
       }
     }
@@ -138,7 +138,7 @@ class IconDeleteDog extends StatelessWidget {
               "Icon delete dog: $teamNumber - $rowNumber - $positionNumber"),
           Icons.delete,
           size: 25,
-          color: Colors.red,
+          color: Theme.of(context).colorScheme.error,
         ),
         constraints: BoxConstraints(),
         padding: EdgeInsets.zero,

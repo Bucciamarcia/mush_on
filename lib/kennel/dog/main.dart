@@ -34,8 +34,8 @@ class DogMain extends StatelessWidget {
             logger.error("Couldn't change the name of the dog",
                 error: e, stackTrace: s);
             if (context.mounted) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(ErrorSnackbar("Couldn't change dog name"));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Couldn't change dog name"));
             }
           }),
         ),
@@ -51,7 +51,7 @@ class DogMain extends StatelessWidget {
             logger.error("Couldn't edit image", error: e, stackTrace: s);
             if (context.mounted) {
               ScaffoldMessenger.of(context)
-                  .showSnackBar(ErrorSnackbar("Couldn't edit image"));
+                  .showSnackBar(errorSnackBar(context, "Couldn't edit image"));
             }
           }),
           onImageDeleted: () =>
@@ -59,7 +59,7 @@ class DogMain extends StatelessWidget {
             logger.error("Couldn't remove image", error: e, stackTrace: s);
             if (context.mounted) {
               ScaffoldMessenger.of(context)
-                  .showSnackBar(ErrorSnackbar("Couldn't edit image"));
+                  .showSnackBar(errorSnackBar(context, "Couldn't edit image"));
             }
           }),
         ),
@@ -72,7 +72,7 @@ class DogMain extends StatelessWidget {
                   error: e, stackTrace: s);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    ErrorSnackbar("Error: couldn't update positions"));
+                    errorSnackBar(context, "Error: couldn't update positions"));
               }
             });
           },
@@ -85,20 +85,18 @@ class DogMain extends StatelessWidget {
             singleDogProvider.addTag(tag).catchError((e, s) {
               logger.error("Couldn't add tag", error: e, stackTrace: s);
               if (context.mounted) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(ErrorSnackbar("Error: couldn't add tag"));
+                ScaffoldMessenger.of(context).showSnackBar(
+                    errorSnackBar(context, "Error: couldn't add tag"));
               }
             });
           },
           onTagChanged: (Tag tag) {
-            logger.debug(
-                "Initiating change tag. Color: ${tag.color.toString()} - Name: ${tag.name}");
             singleDogProvider.editTag(tag).catchError((e, s) {
               logger.error("Couldn't edit tag ${tag.name}",
                   error: e, stackTrace: s);
               if (context.mounted) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(ErrorSnackbar("Error: couldn't udpate tag"));
+                ScaffoldMessenger.of(context).showSnackBar(
+                    errorSnackBar(context, "Error: couldn't udpate tag"));
               }
             });
           },
@@ -107,8 +105,8 @@ class DogMain extends StatelessWidget {
             logger.error("Couldn't delete tag: ${tag.id}",
                 error: e, stackTrace: s);
             if (context.mounted) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(ErrorSnackbar("Error: couldn't delete tag"));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Error: couldn't delete tag"));
             }
           }),
         ),
@@ -124,8 +122,8 @@ class DogMain extends StatelessWidget {
               logger.error("Couldn't change birthday for ${dog.name}",
                   error: e, stackTrace: s);
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    ErrorSnackbar("Error: couldn't change dog birthday"));
+                ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
+                    context, "Error: couldn't change dog birthday"));
               }
             });
           },
@@ -135,7 +133,7 @@ class DogMain extends StatelessWidget {
                   error: e, stackTrace: s);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    ErrorSnackbar("Error: couldn't change dog sex"));
+                    errorSnackBar(context, "Error: couldn't change dog sex"));
               }
             });
           },
@@ -149,8 +147,12 @@ class DogMain extends StatelessWidget {
               singleDogProvider.addCustomField(r);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text("Custom field  added"),
-                  backgroundColor: Colors.green,
+                  content: Text(
+                    "Custom field  added",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary),
+                  ),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
               );
             } catch (e, s) {
@@ -158,7 +160,7 @@ class DogMain extends StatelessWidget {
                   error: e, stackTrace: s);
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    ErrorSnackbar("Error: couldn't add custom field"));
+                    errorSnackBar(context, "Error: couldn't add custom field"));
               }
             }
           },
@@ -167,16 +169,20 @@ class DogMain extends StatelessWidget {
               singleDogProvider.deleteCustomField(templateId);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text("Custom field deleted"),
-                  backgroundColor: Colors.green,
+                  content: Text(
+                    "Custom field deleted",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary),
+                  ),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                 ),
               );
             } catch (e, s) {
               logger.error("Couldn't delete the custom field",
                   error: e, stackTrace: s);
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    ErrorSnackbar("Error: couldn't delete custom field"));
+                ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
+                    context, "Error: couldn't delete custom field"));
               }
             }
           },
@@ -197,8 +203,15 @@ class DogMain extends StatelessWidget {
                         if (context.mounted)
                           {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text("Dog deleted"),
-                              backgroundColor: Colors.green,
+                              content: Text(
+                                "Dog deleted",
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary),
+                              ),
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
                             )),
                             Navigator.of(context).pop(),
                           }
@@ -209,7 +222,7 @@ class DogMain extends StatelessWidget {
                     error: e, stackTrace: s);
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                      ErrorSnackbar("Error: couldn't delete dog"));
+                      errorSnackBar(context, "Error: couldn't delete dog"));
                 }
               });
             }),

@@ -21,8 +21,12 @@ class SaveTeamsButton extends StatelessWidget {
           saveToDb(teamProvider);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              backgroundColor: Colors.green,
-              content: Text("Teams saved"),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              content: Text(
+                "Teams saved",
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              ),
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -30,15 +34,16 @@ class SaveTeamsButton extends StatelessWidget {
         } catch (e, s) {
           logger.error("Couldn't save team to db", error: e, stackTrace: s);
           ScaffoldMessenger.of(context).showSnackBar(
-            ErrorSnackbar("Couldn't save team to database"),
+            errorSnackBar(context, "Couldn't save team to database"),
           );
           teamProvider.changeUnsavedData(true);
         }
       },
-      style: ElevatedButton.styleFrom(backgroundColor: Colors.lightGreen),
+      style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primary),
       child: Text(
         "Save Teams",
-        style: TextStyle(color: Colors.black87),
+        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
       ),
     );
   }

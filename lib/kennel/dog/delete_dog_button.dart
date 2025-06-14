@@ -11,8 +11,10 @@ class DeleteDogButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       style: ButtonStyle(
-        foregroundColor: WidgetStateProperty.all(Colors.black),
-        backgroundColor: WidgetStateProperty.all(Colors.red),
+        foregroundColor:
+            WidgetStateProperty.all(Theme.of(context).colorScheme.onError),
+        backgroundColor:
+            WidgetStateProperty.all(Theme.of(context).colorScheme.error),
       ),
       onPressed: () => onDogDeleted(),
       label: Text("Delete dog"),

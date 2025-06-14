@@ -104,7 +104,9 @@ class _TagEditorState extends State<TagEditor> {
     super.initState();
     _controller = TextEditingController(
         text: (widget.tagToEdit == null) ? null : widget.tagToEdit!.name);
-    color = (widget.tagToEdit == null) ? Colors.green : widget.tagToEdit!.color;
+    color = (widget.tagToEdit == null)
+        ? Theme.of(context).colorScheme.primary
+        : widget.tagToEdit!.color;
     expiration = (widget.tagToEdit == null) ? null : widget.tagToEdit!.expired;
     preventsRunning =
         (widget.tagToEdit == null) ? false : widget.tagToEdit!.preventFromRun;
@@ -152,7 +154,7 @@ class _TagEditorState extends State<TagEditor> {
               ),
               children: [
                 MaterialPicker(
-                    pickerColor: Colors.green,
+                    pickerColor: Theme.of(context).colorScheme.primary,
                     onColorChanged: (Color newColor) {
                       setState(() {
                         color = newColor;

@@ -92,8 +92,13 @@ class _SettingsMainState extends State<SettingsMain> {
                               SnackBar(
                                 content: Text(
                                   "Settings saved successfully",
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
                                 ),
-                                backgroundColor: Colors.green,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
                               ),
                             );
                           }
@@ -103,7 +108,7 @@ class _SettingsMainState extends State<SettingsMain> {
                               error: e, stackTrace: s);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              ErrorSnackbar("Couldn't save settings"),
+                              errorSnackBar(context, "Couldn't save settings"),
                             );
                           }
                         }

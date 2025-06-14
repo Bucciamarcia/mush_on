@@ -136,8 +136,13 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
                     onResult: (dogs) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text("Filter successful"),
-                          backgroundColor: Colors.green,
+                          content: Text(
+                            "Filter successful",
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary),
+                          ),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
                         ),
                       );
                       teamProvider.addErrorToUnavailableDogs(dogs);
@@ -316,11 +321,11 @@ class PairRetriever extends StatelessWidget {
           icon: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(2),
-              color: Colors.redAccent,
+              color: Theme.of(context).colorScheme.error,
             ),
             child: Icon(
               Icons.remove,
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.onError,
             ),
           ),
         ),
@@ -394,6 +399,9 @@ class _TeamRetrieverState extends State<TeamRetriever> {
             widget.onAddRow(widget.teamNumber);
           },
           child: Text("Add new row"),
+        ),
+        SizedBox(
+          height: 10,
         ),
         Row(
           children: [
