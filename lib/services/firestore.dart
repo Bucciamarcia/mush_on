@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -76,6 +78,7 @@ class FirestoreService {
   }
 
   Future<void> userLoginActions() async {
+    await AppCheckInterceptor.ensureAppCheck();
     late final User user;
     try {
       user = AuthService().user!;
@@ -495,6 +498,22 @@ class DogsDbOperations {
     } catch (e, s) {
       logger.error("Db error in update custom fields", error: e, stackTrace: s);
       rethrow;
+    }
+  }
+}
+
+class AppCheckInterceptor {
+  static Future<void> ensureAppCheck() async {
+    if (!kDebugMode) {
+      try {
+        final token = await FirebaseAppCheck.instance.getToken(false);
+        if (token == null) {
+          // Force token generation if missing
+          await FirebaseAppCheck.instance.getToken(true);
+        }
+      } catch (e) {
+        print('App Check token error: $e');
+      }
     }
   }
 }
