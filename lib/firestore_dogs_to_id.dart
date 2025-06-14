@@ -29,7 +29,7 @@ class DbIdChanger extends StatelessWidget {
           logger.error(
               "DogProvider has no dog data. Cannot proceed with ID conversion.");
           ScaffoldMessenger.of(context).showSnackBar(
-            ErrorSnackbar('Error: DogProvider is empty!'),
+            errorSnackBar(context, 'Error: DogProvider is empty!'),
           );
           return; // Stop if there are no dogs to map from
         }
@@ -72,7 +72,7 @@ class DbIdChanger extends StatelessWidget {
                           error: e, stackTrace: s);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          ErrorSnackbar(
+                          errorSnackBar(context,
                               'An critical error occurred: $e. Check logs.'),
                         );
                       }

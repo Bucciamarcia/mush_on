@@ -53,8 +53,11 @@ class EmailAuth extends AuthService {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Account created!"),
-            backgroundColor: Colors.green,
+            content: Text(
+              "Account created!",
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
       }
@@ -63,8 +66,12 @@ class EmailAuth extends AuthService {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("The password provided is too weak."),
-              backgroundColor: Colors.red,
+              content: Text(
+                "The password provided is too weak.",
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              ),
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
@@ -72,8 +79,11 @@ class EmailAuth extends AuthService {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("The account already exists for that email."),
-              backgroundColor: Colors.red,
+              content: Text(
+                "The account already exists for that email.",
+                style: TextStyle(color: Theme.of(context).colorScheme.onError),
+              ),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -82,8 +92,11 @@ class EmailAuth extends AuthService {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString()),
-            backgroundColor: Colors.red,
+            content: Text(
+              e.toString(),
+              style: TextStyle(color: Theme.of(context).colorScheme.onError),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -100,8 +113,11 @@ class EmailAuth extends AuthService {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("User not found"),
-              backgroundColor: Colors.red,
+              content: Text(
+                "User not found",
+                style: TextStyle(color: Theme.of(context).colorScheme.onError),
+              ),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }
@@ -109,8 +125,11 @@ class EmailAuth extends AuthService {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Wrong password"),
-              backgroundColor: Colors.red,
+              content: Text(
+                "Wrong password",
+                style: TextStyle(color: Theme.of(context).colorScheme.onError),
+              ),
+              backgroundColor: Theme.of(context).colorScheme.error,
             ),
           );
         }

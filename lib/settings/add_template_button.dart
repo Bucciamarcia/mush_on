@@ -83,7 +83,10 @@ class _AddTemplateDialogState extends State<AddTemplateDialog> {
             child: Text("Cancel")),
         ElevatedButton(
           style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(Colors.lightGreen),
+            backgroundColor:
+                WidgetStateProperty.all(Theme.of(context).colorScheme.primary),
+            foregroundColor: WidgetStateProperty.all(
+                Theme.of(context).colorScheme.onPrimary),
           ),
           onPressed: () {
             widget.onCustomFieldAdded(
@@ -97,7 +100,7 @@ class _AddTemplateDialogState extends State<AddTemplateDialog> {
           },
           child: Text(
             "Add custom field",
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
           ),
         )
       ],

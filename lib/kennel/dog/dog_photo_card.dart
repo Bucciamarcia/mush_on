@@ -44,19 +44,20 @@ class DogPhotoCard extends StatelessWidget {
                     } on FileSizeException catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            ErrorSnackbar("Max file size is 10mb"));
+                            errorSnackBar(context, "Max file size is 10mb"));
                         logger.info("File uploaded is too large", error: e);
                       }
                     } on NoFileSelectedException catch (e) {
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(ErrorSnackbar("No file selected"));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(context, "No file selected"));
                         logger.info("No file selected", error: e);
                       }
                     } catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                            ErrorSnackbar("Error: couldn't upload file"));
+                            errorSnackBar(
+                                context, "Error: couldn't upload file"));
                       }
                     }
                   },

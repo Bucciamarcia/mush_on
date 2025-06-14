@@ -77,7 +77,7 @@ class TeamViewer extends StatelessWidget {
                     },
                     icon: Icon(
                       Icons.delete,
-                      color: Colors.red,
+                      color: Theme.of(context).colorScheme.error,
                     ),
                   )
                 ],
@@ -121,7 +121,10 @@ class TeamViewer extends StatelessWidget {
             child: Text("Go back")),
         ElevatedButton(
           style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(Colors.red),
+            backgroundColor:
+                WidgetStateProperty.all(Theme.of(context).colorScheme.error),
+            foregroundColor:
+                WidgetStateProperty.all(Theme.of(context).colorScheme.onError),
           ),
           onPressed: () async {
             bool r = await deleteGroup();
@@ -130,7 +133,7 @@ class TeamViewer extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text("Team deleted"),
-                    backgroundColor: Colors.green,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                 );
               }
@@ -139,7 +142,7 @@ class TeamViewer extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text("Error deleting team"),
-                    backgroundColor: Colors.red,
+                    backgroundColor: Theme.of(context).colorScheme.error,
                   ),
                 );
               }
@@ -148,7 +151,7 @@ class TeamViewer extends StatelessWidget {
           },
           child: Text(
             "Delete group",
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: Theme.of(context).colorScheme.onError),
           ),
         )
       ],

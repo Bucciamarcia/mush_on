@@ -91,12 +91,14 @@ class BasicLogger {
   }
 }
 
-class ErrorSnackbar extends SnackBar {
-  final String message;
-
-  ErrorSnackbar(this.message, {super.key})
-      : super(
-          backgroundColor: Colors.red,
-          content: Text(message),
-        );
+SnackBar errorSnackBar(BuildContext context, String message) {
+  return SnackBar(
+    backgroundColor: Theme.of(context).colorScheme.error,
+    content: Text(
+      message,
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.onError,
+      ),
+    ),
+  );
 }

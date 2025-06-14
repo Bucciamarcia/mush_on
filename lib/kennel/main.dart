@@ -37,8 +37,8 @@ class EditKennelMain extends StatelessWidget {
                   // TODO: Ordering should be done by dog fiter.
                   kennelProvider.setDisplayDogList(v);
                   if (v.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(ErrorSnackbar(
-                        "Search came up empty. Showing all dogs"));
+                    ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
+                        context, "Search came up empty. Showing all dogs"));
                   }
                 },
               ),

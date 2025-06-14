@@ -114,20 +114,39 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
     return SizedBox(
       width: 250,
       child: Card(
-        color: Colors.greenAccent,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        margin: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
               Text(
                 widget.customFieldTemplate.name,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
+              SizedBox(height: 8),
               Row(
                 children: [
                   Flexible(
                     child: TextField(
-                      decoration: InputDecoration(isDense: true),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.outline),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 2),
+                        ),
+                      ),
                       inputFormatters: _inputFormatters(),
                       keyboardType: _keyboardType(),
                       maxLines: 1,
@@ -155,7 +174,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                         : null,
                     tooltip: "Cancel changes",
                     icon: Icon(Icons.remove),
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                     iconSize: 18,
                     visualDensity: VisualDensity.compact,
                   ),
@@ -176,7 +195,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                               logger.error("Couldn't change custom field",
                                   error: e, stackTrace: s);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  ErrorSnackbar(
+                                  errorSnackBar(context,
                                       "Couldn't update the field. Reverting."));
                               _controller.text = _getCurrentValue(
                                       widget.customFieldTemplate,
@@ -188,7 +207,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                         : null,
                     tooltip: "Save changes",
                     icon: Icon(Icons.save),
-                    color: Colors.green,
+                    color: Theme.of(context).colorScheme.primary,
                     iconSize: 18,
                     visualDensity: VisualDensity.compact,
                   )

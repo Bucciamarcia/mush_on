@@ -30,8 +30,8 @@ class AddDogMain extends StatelessWidget {
                     .catchError((e, s) {
                   logger.error("Couldn't edit image", error: e, stackTrace: s);
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(ErrorSnackbar("Couldn't edit image"));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Couldn't edit image"));
                   }
                 }),
             isLoading: addDogProvider.isLoadingImage,

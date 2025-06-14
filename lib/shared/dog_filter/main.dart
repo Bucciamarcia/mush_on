@@ -306,21 +306,23 @@ class SubmitButton extends StatelessWidget {
         } on NoOperatorSelectedError catch (e, s) {
           logger.warning(e.toString(), error: e, stackTrace: s);
           ScaffoldMessenger.of(context).showSnackBar(
-              ErrorSnackbar("You need to fill all the filter data"));
+              errorSnackBar(context, "You need to fill all the filter data"));
         } on EmptyConditionListError catch (e, s) {
           logger.warning(e.toString(), error: e, stackTrace: s);
-          ScaffoldMessenger.of(context)
-              .showSnackBar(ErrorSnackbar("You need at least one condition"));
+          ScaffoldMessenger.of(context).showSnackBar(
+              errorSnackBar(context, "You need at least one condition"));
         } catch (e, s) {
           logger.error("Error in the submit filter button",
               error: e, stackTrace: s);
           ScaffoldMessenger.of(context)
-              .showSnackBar(ErrorSnackbar("An error occurred"));
+              .showSnackBar(errorSnackBar(context, "An error occurred"));
         }
       },
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(Colors.green[400]),
-        foregroundColor: WidgetStateProperty.all(Colors.black87),
+        backgroundColor:
+            WidgetStateProperty.all(Theme.of(context).colorScheme.primary),
+        foregroundColor:
+            WidgetStateProperty.all(Theme.of(context).colorScheme.onPrimary),
       ),
       child: Text("Search"),
     );

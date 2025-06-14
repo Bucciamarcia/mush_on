@@ -19,8 +19,8 @@ class AddDogButton extends StatelessWidget {
         LoadingOverlay.show(context);
         if (addDogProvider.name == "") {
           LoadingOverlay.hide();
-          ScaffoldMessenger.of(context)
-              .showSnackBar(ErrorSnackbar("You forgot to add the dog name"));
+          ScaffoldMessenger.of(context).showSnackBar(
+              errorSnackBar(context, "You forgot to add the dog name"));
           return;
         }
         try {
@@ -29,15 +29,19 @@ class AddDogButton extends StatelessWidget {
         } catch (e) {
           if (context.mounted) {
             ScaffoldMessenger.of(context)
-                .showSnackBar(ErrorSnackbar("Couldnt add dog to db"));
+                .showSnackBar(errorSnackBar(context, "Couldnt add dog to db"));
           }
         }
         LoadingOverlay.hide();
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Dog has been added"),
-              backgroundColor: Colors.green,
+              content: Text(
+                "Dog has been added",
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              ),
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
