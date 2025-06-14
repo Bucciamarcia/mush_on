@@ -63,6 +63,7 @@ dependencies:
   path: ^1.9.1
   flutter_colorpicker: ^1.1.0
   searchfield: ^1.2.7
+  collection: ^1.19.1
 
 icons_launcher:
   image_path: "assets/icon/icon.png"
