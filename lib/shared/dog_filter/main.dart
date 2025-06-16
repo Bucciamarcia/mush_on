@@ -329,6 +329,10 @@ class SubmitButton extends StatelessWidget {
           logger.warning(e.toString(), error: e, stackTrace: s);
           ScaffoldMessenger.of(context).showSnackBar(
               errorSnackBar(context, "You need at least one condition"));
+        } on IllegalFilterException catch (e, s) {
+          logger.warning(e.toString(), error: e, stackTrace: s);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(errorSnackBar(context, "Error: ${e.toString()}"));
         } catch (e, s) {
           logger.error("Error in the submit filter button",
               error: e, stackTrace: s);
