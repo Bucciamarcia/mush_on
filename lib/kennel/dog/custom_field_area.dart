@@ -228,10 +228,6 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
         return <TextInputFormatter>[
           FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
         ];
-      case CustomFieldType.typeDouble:
-        return <TextInputFormatter>[
-          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
-        ];
     }
   }
 
@@ -240,8 +236,6 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
       case CustomFieldType.typeString:
         return null;
       case CustomFieldType.typeInt:
-        return TextInputType.number;
-      case CustomFieldType.typeDouble:
         return TextInputType.number;
     }
   }
@@ -254,8 +248,6 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
           value = CustomFieldValue.stringValue(_controller.text);
         case CustomFieldType.typeInt:
           value = CustomFieldValue.intValue(int.parse(_controller.text));
-        case CustomFieldType.typeDouble:
-          value = CustomFieldValue.doubleValue(double.parse(_controller.text));
       }
       return CustomField(
           templateId: widget.customFieldTemplate.id, value: value);
@@ -277,7 +269,6 @@ String? _getCurrentValue(
 
       // If the value is an _IntValue, extract its 'value' and convert to string.
       IntValue(value: final intVal) => intVal.toString(),
-      DoubleValue(value: final doubleVal) => doubleVal.toString(),
     };
   } else {
     return null;

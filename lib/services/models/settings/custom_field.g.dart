@@ -35,7 +35,6 @@ Map<String, dynamic> _$CustomFieldTemplateToJson(
 const _$CustomFieldTypeEnumMap = {
   CustomFieldType.typeString: 'string',
   CustomFieldType.typeInt: 'int',
-  CustomFieldType.typeDouble: 'double',
 };
 
 StringValue _$StringValueFromJson(Map<String, dynamic> json) => StringValue(
@@ -55,17 +54,6 @@ IntValue _$IntValueFromJson(Map<String, dynamic> json) => IntValue(
     );
 
 Map<String, dynamic> _$IntValueToJson(IntValue instance) => <String, dynamic>{
-      'value': instance.value,
-      'runtimeType': instance.$type,
-    };
-
-DoubleValue _$DoubleValueFromJson(Map<String, dynamic> json) => DoubleValue(
-      (json['value'] as num).toDouble(),
-      $type: json['runtimeType'] as String?,
-    );
-
-Map<String, dynamic> _$DoubleValueToJson(DoubleValue instance) =>
-    <String, dynamic>{
       'value': instance.value,
       'runtimeType': instance.$type,
     };
