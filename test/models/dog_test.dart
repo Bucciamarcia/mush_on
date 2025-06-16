@@ -64,6 +64,7 @@ void main() {
         'wheel': false,
       },
       'tags': [],
+      'customFields': [],
     };
     final testDogObjectDefaultPos = Dog(
       name: "Rookie",
@@ -82,6 +83,7 @@ void main() {
         'wheel': false,
       },
       'tags': [],
+      'customFields': [],
     };
 
     test('fromJson creates correct Dog object with nested positions', () {

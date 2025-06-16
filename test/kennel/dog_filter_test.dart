@@ -17,6 +17,7 @@ void main() {
           home: ChangeNotifierProvider(
             create: (context) => DogFilterProvider(),
             child: DogFilterWidget(
+              templates: [],
               dogs: fakeDogs,
               onResult: (dogs) {},
             ),

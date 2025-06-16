@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mush_on/edit_kennel/dog/name_widget.dart';
-import 'package:mush_on/edit_kennel/dog/positions_widget.dart';
+import 'package:mush_on/kennel/dog/name_widget.dart';
+import 'package:mush_on/kennel/dog/positions_widget.dart';
 import 'package:mush_on/services/models.dart'; // Import your widget
 
 void main() {
