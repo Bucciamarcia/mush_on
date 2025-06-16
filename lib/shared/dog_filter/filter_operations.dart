@@ -42,7 +42,6 @@ class FilterOperations {
       return switch (cfv) {
         StringValue(:final value) => value,
         IntValue(:final value) => value.toString(),
-        DoubleValue(:final value) => value.toString(),
       };
     }
 

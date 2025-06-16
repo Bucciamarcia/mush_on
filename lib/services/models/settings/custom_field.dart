@@ -43,7 +43,6 @@ sealed class CustomFieldValue with _$CustomFieldValue {
   static BasicLogger logger = BasicLogger();
   const factory CustomFieldValue.stringValue(String value) = StringValue;
   const factory CustomFieldValue.intValue(int value) = IntValue;
-  const factory CustomFieldValue.doubleValue(double value) = DoubleValue;
 
   /// Will return CustomFieldValue of the appropriate type depending on the template.
   static CustomFieldValue formatCustomFieldValue(
@@ -56,14 +55,6 @@ sealed class CustomFieldValue with _$CustomFieldValue {
           return CustomFieldValue.intValue(int.parse(value));
         } catch (e, s) {
           logger.error("Couldn't parse int from string.",
-              error: e, stackTrace: s);
-          rethrow;
-        }
-      case CustomFieldType.typeDouble:
-        try {
-          return CustomFieldValue.doubleValue(double.parse(value));
-        } catch (e, s) {
-          logger.error("Couldn't parse double from string.",
               error: e, stackTrace: s);
           rethrow;
         }
@@ -80,10 +71,7 @@ enum CustomFieldType {
   typeString(type: String, showToUser: "Text"),
 
   @JsonValue('int')
-  typeInt(type: int, showToUser: "Integer"),
-
-  @JsonValue('double')
-  typeDouble(type: double, showToUser: "Number");
+  typeInt(type: int, showToUser: "Number");
 
   final Type type;
 
