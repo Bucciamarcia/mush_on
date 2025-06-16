@@ -26,6 +26,8 @@ enum ConditionSelection {
   customField(type: CustomFieldTemplate, allowedOperations: [
     OperationSelection.equals,
     OperationSelection.equalsNot,
+    OperationSelection.moreThan,
+    OperationSelection.lessThan,
     OperationSelection.contains
   ]);
 

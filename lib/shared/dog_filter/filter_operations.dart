@@ -38,66 +38,71 @@ class FilterOperations {
   }
 
   List<Dog> _processCustomField(FilterCustomFieldResults filter) {
-    String getRawValue(CustomFieldValue cfv) {
-      return switch (cfv) {
-        StringValue(:final value) => value,
-        IntValue(:final value) => value.toString(),
-      };
-    }
-
-    final String filterValue = getRawValue(filter.value).toLowerCase();
-
     switch (operationSelection) {
+      // --- STRING-BASED OPERATIONS ---
       case OperationSelection.equals:
-        try {
-          return dogs.where((dog) {
-            final selectedCustomField = dog.customFields
-                .firstWhereOrNull((cf) => cf.templateId == filter.template.id);
-            if (selectedCustomField == null) return false;
-            final dogValue =
-                getRawValue(selectedCustomField.value).toLowerCase();
-            return dogValue == filterValue;
-          }).toList();
-        } catch (e, s) {
-          logger.error("Couldn't process custom field equals.",
-              error: e, stackTrace: s);
-          rethrow;
-        }
       case OperationSelection.equalsNot:
-        try {
-          return dogs.where((dog) {
-            final selectedCustomField = dog.customFields
-                .firstWhereOrNull((cf) => cf.templateId == filter.template.id);
-            if (selectedCustomField == null) return true;
-            final dogValue =
-                getRawValue(selectedCustomField.value).toLowerCase();
-            return dogValue != filterValue;
-          }).toList();
-        } catch (e, s) {
-          logger.error("Couldn't process custom field equalsNot.",
-              error: e, stackTrace: s);
-          rethrow;
-        }
       case OperationSelection.contains:
-        try {
-          return dogs.where((dog) {
-            final selectedCustomField = dog.customFields
-                .firstWhereOrNull((cf) => cf.templateId == filter.template.id);
-            if (selectedCustomField == null) return false;
-            final dogValue =
-                getRawValue(selectedCustomField.value).toLowerCase();
-            return dogValue.contains(filterValue);
-          }).toList();
-        } catch (e, s) {
-          logger.error("Couldn't process custom field contains.",
-              error: e, stackTrace: s);
-          rethrow;
-        }
+        // Get the filter value as a string ONCE.
+        final filterValue = filter.value.getStringValue().toLowerCase();
+
+        return dogs.where((dog) {
+          final selectedCustomField = dog.customFields
+              .firstWhereOrNull((cf) => cf.templateId == filter.template.id);
+
+          // If a dog doesn't have the field, it can't match.
+          if (selectedCustomField == null) {
+            // For 'equalsNot', a non-existent field could be considered "not equal".
+            return operationSelection == OperationSelection.equalsNot;
+          }
+
+          final dogValue =
+              selectedCustomField.value.getStringValue().toLowerCase();
+
+          return switch (operationSelection) {
+            OperationSelection.equals => dogValue == filterValue,
+            OperationSelection.equalsNot => dogValue != filterValue,
+            OperationSelection.contains => dogValue.contains(filterValue),
+            // Default case to satisfy the switch expression
+            _ => false,
+          };
+        }).toList();
+
+      // --- NUMERIC-BASED OPERATIONS ---
       case OperationSelection.moreThan:
       case OperationSelection.lessThan:
-        logger.error("Illegal operation");
-        throw IllegalOperationException(
-            message: "Selected illegal operation: $operationSelection");
+        // 1. VALIDATE INPUTS FIRST
+        // Use pattern matching to safely get the numeric value from the filter.
+        final int filterValueNum = switch (filter.value) {
+          IntValue(:final value) => value,
+          _ => throw IllegalFilterException(
+              message:
+                  "A non-number value was provided for a numeric comparison."),
+        };
+
+        // 2. LOOP CLEANLY
+        return dogs.where((dog) {
+          final selectedCustomField = dog.customFields
+              .firstWhereOrNull((cf) => cf.templateId == filter.template.id);
+
+          if (selectedCustomField == null) return false;
+
+          // Safely get the numeric value from the dog's field.
+          final int? dogValueNum = switch (selectedCustomField.value) {
+            IntValue(:final value) => value,
+            // If the dog's field isn't a number, it can't be compared.
+            _ => null,
+          };
+
+          if (dogValueNum == null) return false;
+
+          // Perform the correct comparison
+          return switch (operationSelection) {
+            OperationSelection.moreThan => dogValueNum > filterValueNum,
+            OperationSelection.lessThan => dogValueNum < filterValueNum,
+            _ => false,
+          };
+        }).toList();
     }
   }
 
@@ -244,9 +249,18 @@ class FilterOperations {
   }
 }
 
+/// The user has selected an illegal operation
 class IllegalOperationException implements Exception {
   final String message;
   IllegalOperationException({required this.message});
   @override
   String toString() => 'IllegalOperationException: $message';
+}
+
+/// The filter the user selected contains an illegal value
+class IllegalFilterException implements Exception {
+  final String message;
+  IllegalFilterException({required this.message});
+  @override
+  String toString() => 'IllegalFilterException: $message';
 }

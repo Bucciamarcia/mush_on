@@ -40,6 +40,7 @@ abstract class CustomFieldTemplate with _$CustomFieldTemplate {
 
 @freezed
 sealed class CustomFieldValue with _$CustomFieldValue {
+  const CustomFieldValue._();
   static BasicLogger logger = BasicLogger();
   const factory CustomFieldValue.stringValue(String value) = StringValue;
   const factory CustomFieldValue.intValue(int value) = IntValue;
@@ -58,6 +59,24 @@ sealed class CustomFieldValue with _$CustomFieldValue {
               error: e, stackTrace: s);
           rethrow;
         }
+    }
+  }
+
+  /// Returns the string value of this object.
+  String getStringValue() {
+    return switch (this) {
+      StringValue(:final value) => value,
+      IntValue(:final value) => value.toString(),
+    };
+  }
+
+  /// Returns the int value of this object.
+  int getIntValue() {
+    switch (this) {
+      case StringValue():
+        throw Exception("The value is a string!");
+      case IntValue():
+        return value as int;
     }
   }
 

@@ -422,9 +422,10 @@ class $CustomFieldValueCopyWith<$Res> {
 
 /// @nodoc
 @JsonSerializable()
-class StringValue implements CustomFieldValue {
+class StringValue extends CustomFieldValue {
   const StringValue(this.value, {final String? $type})
-      : $type = $type ?? 'stringValue';
+      : $type = $type ?? 'stringValue',
+        super._();
   factory StringValue.fromJson(Map<String, dynamic> json) =>
       _$StringValueFromJson(json);
 
@@ -500,9 +501,10 @@ class _$StringValueCopyWithImpl<$Res> implements $StringValueCopyWith<$Res> {
 
 /// @nodoc
 @JsonSerializable()
-class IntValue implements CustomFieldValue {
+class IntValue extends CustomFieldValue {
   const IntValue(this.value, {final String? $type})
-      : $type = $type ?? 'intValue';
+      : $type = $type ?? 'intValue',
+        super._();
   factory IntValue.fromJson(Map<String, dynamic> json) =>
       _$IntValueFromJson(json);
 
