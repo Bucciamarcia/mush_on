@@ -6,7 +6,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 
-class FakeDogProvider extends ChangeNotifier implements DogProvider {
+class FakeMainProvider extends ChangeNotifier implements MainProvider {
   List<Dog> _dogs = [];
   @override
   List<Dog> get dogs => _dogs;
@@ -23,7 +23,7 @@ class FakeDogProvider extends ChangeNotifier implements DogProvider {
   @override
   SettingsModel get settings => _settings;
 
-  FakeDogProvider() {
+  FakeMainProvider() {
     _fetchDogs();
     _fetchAccount();
     _fetchSettings();

@@ -19,11 +19,11 @@ class DbIdChanger extends StatelessWidget {
       onPressed: () {
         // --- Get data from provider ONCE using READ ---
         // This safely reads the current state of the provider without listening
-        final dogProvider = context.read<DogProvider>();
+        final mainProvider = context.read<MainProvider>();
         // Create a defensive copy of the map to avoid potential issues if the
         // provider's map were to change unexpectedly during the script's run.
         final Map<String, Dog> dogsMapFromProvider =
-            Map.from(dogProvider.dogsById);
+            Map.from(mainProvider.dogsById);
 
         if (dogsMapFromProvider.isEmpty) {
           logger.error(
