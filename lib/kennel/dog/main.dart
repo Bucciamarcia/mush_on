@@ -24,7 +24,7 @@ class DogMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SingleDogProvider singleDogProvider = context.watch<SingleDogProvider>();
-    DogProvider provider = context.watch<DogProvider>();
+    MainProvider provider = context.watch<MainProvider>();
 
     return ListView(
       children: [

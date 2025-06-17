@@ -15,7 +15,7 @@ class StatsMain extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statsProvider = context.watch<StatsProvider>();
-    final dogs = Provider.of<DogProvider>(context, listen: true).dogs;
+    final dogs = Provider.of<MainProvider>(context, listen: true).dogs;
 
     GridRowProcessor dataManipulator = GridRowProcessor(
         teams: statsProvider.teams,

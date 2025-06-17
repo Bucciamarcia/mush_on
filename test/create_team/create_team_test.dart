@@ -11,7 +11,7 @@ import '../fake_providers.dart';
 
 void main() {
   group('CreateTeamMain loads correctly when loadedTem is null', () {
-    late FakeDogProvider fakeDogProvider;
+    late FakeMainProvider fakeMainProvider;
     late FakeCreateTeamProvider fakeCreateTeamProvider;
 
     Future<void> initialBuild(WidgetTester tester) async {
@@ -19,7 +19,8 @@ void main() {
         MaterialApp(
           home: MultiProvider(
             providers: [
-              ChangeNotifierProvider<DogProvider>.value(value: fakeDogProvider),
+              ChangeNotifierProvider<MainProvider>.value(
+                  value: fakeMainProvider),
               ChangeNotifierProvider<CreateTeamProvider>.value(
                   value: fakeCreateTeamProvider),
             ],
@@ -32,7 +33,7 @@ void main() {
     }
 
     setUp(() {
-      fakeDogProvider = FakeDogProvider();
+      fakeMainProvider = FakeMainProvider();
       fakeCreateTeamProvider = FakeCreateTeamProvider();
     });
     testWidgets(

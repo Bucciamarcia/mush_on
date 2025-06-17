@@ -110,7 +110,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
   @override
   Widget build(BuildContext context) {
     CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    DogProvider provider = context.watch<DogProvider>();
+    MainProvider provider = context.watch<MainProvider>();
     List<Team> teams = teamProvider.group.teams;
     List<String> runningDogs = teamProvider.runningDogIds;
 
@@ -173,7 +173,7 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
             (entry) {
               return TeamRetriever(
                 teamNumber: entry.key,
-                dogs: context.watch<DogProvider>().dogs,
+                dogs: context.watch<MainProvider>().dogs,
                 runningDogs: runningDogs,
                 teams: teamProvider.group.teams,
                 notes: teamProvider.dogNotes,

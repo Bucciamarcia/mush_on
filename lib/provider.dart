@@ -4,7 +4,7 @@ import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'services/models.dart';
 
-class DogProvider extends ChangeNotifier {
+class MainProvider extends ChangeNotifier {
   List<Dog> _dogs = [];
 
   /// A list of dogs in alphabetica order.
@@ -19,7 +19,7 @@ class DogProvider extends ChangeNotifier {
   SettingsModel _settings = SettingsModel();
   SettingsModel get settings => _settings;
 
-  DogProvider() {
+  MainProvider() {
     _fetchDogs();
     _fetchAccount();
     _fetchSettings();

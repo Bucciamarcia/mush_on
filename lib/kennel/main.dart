@@ -12,7 +12,7 @@ class EditKennelMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var provider = context.watch<DogProvider>();
+    var provider = context.watch<MainProvider>();
     var kennelProvider = context.watch<KennelProvider>();
     // INFO: This plugin doesn't differentiate between inactive filter and filter returning no results.
     // INFO: Ideally it should differentiate with a nullable List<Dog>?, but since I want to dispaly all dogs anyways,
