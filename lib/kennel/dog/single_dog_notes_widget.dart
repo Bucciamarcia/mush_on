@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mush_on/services/models/notes.dart';
 import 'package:uuid/uuid.dart';
 
@@ -26,16 +27,22 @@ class _SingleDogNotesWidgetState extends State<SingleDogNotesWidget> {
 
   @override
   Widget build(BuildContext context) {
+    List<SingleDogNote> orderedNotes = List.from(widget.dogNotes);
+    orderedNotes.sort((a, b) {
+      if (a.date == null) return 1;
+      if (b.date == null) return -1;
+      return a.date!.compareTo(b.date!);
+    });
     return Card(
       child: Column(
         spacing: 5,
         children: [
-          widget.dogNotes.isEmpty
+          orderedNotes.isEmpty
               ? Text("Dog has no notes. Add one below!")
               : Column(
                   spacing: 10,
                   children: [
-                    ...widget.dogNotes.map(
+                    ...orderedNotes.map(
                       (note) => SingleDogNoteWidget(
                         note: note,
                         onNoteChanged: (note) => widget.onNoteAdded(note),
@@ -99,26 +106,41 @@ class _SingleDogNoteWidgetState extends State<SingleDogNoteWidget> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Row(
       spacing: 5,
       children: [
         Flexible(
-          child: TextField(
-            controller: _controller,
-            minLines: 3,
-            maxLines: 3,
-            onChanged: (_) {
-              setState(() {
-                _hasChanged = true;
-              });
-            },
+          child: Column(
+            spacing: 5,
+            children: [
+              Text(_formatDate(widget.note.date)),
+              TextField(
+                controller: _controller,
+                minLines: 3,
+                maxLines: 3,
+                onChanged: (_) {
+                  setState(() {
+                    _hasChanged = true;
+                  });
+                },
+              ),
+            ],
           ),
         ),
         IconButton(
-          tooltip: "Save this note",
+          tooltip: _hasChanged ? "Save this note" : "Note is saved",
           onPressed: () => _hasChanged ? _saveNote(_controller.text) : null,
-          icon: Icon(Icons.save, color: Theme.of(context).colorScheme.primary),
+          icon: Icon(_hasChanged ? Icons.save : Icons.check,
+              color: _hasChanged
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.green),
         ),
         IconButton(
           tooltip: "Delete note",
@@ -130,21 +152,25 @@ class _SingleDogNoteWidgetState extends State<SingleDogNoteWidget> {
     );
   }
 
-  void _saveNote(String content) {
-    if (content.isNotEmpty) {
-      widget.onNoteChanged(
-        SingleDogNote(
-          id: widget.note.id,
-          date: DateTime.now().toUtc(),
-          content: content,
-        ),
-      );
-      setState(() {
-        _hasChanged = false;
-      });
+  String _formatDate(DateTime? date) {
+    if (date != null) {
+      return DateFormat("yyyy-MM-dd").format(date);
     } else {
-      throw Exception("no");
+      return "";
     }
+  }
+
+  void _saveNote(String content) {
+    widget.onNoteChanged(
+      SingleDogNote(
+        id: widget.note.id,
+        date: DateTime.now().toUtc(),
+        content: content,
+      ),
+    );
+    setState(() {
+      _hasChanged = false;
+    });
   }
 }
 
@@ -162,6 +188,12 @@ class _AddSingleNoteWidgetState extends State<AddSingleNoteWidget> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
   }
 
   @override
