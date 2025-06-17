@@ -8,6 +8,7 @@ import 'package:mush_on/kennel/dog/dog_run_data_widget.dart';
 import 'package:mush_on/kennel/dog/dog_run_table.dart';
 import 'package:mush_on/kennel/dog/positions_widget.dart';
 import 'package:mush_on/kennel/dog/provider.dart';
+import 'package:mush_on/kennel/dog/single_dog_notes_widget.dart';
 import 'package:mush_on/kennel/dog/tags_widget.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -194,6 +195,58 @@ class DogMain extends StatelessWidget {
         singleDogProvider.isLoadingTotals
             ? CircularProgressIndicator()
             : DogrunTableWidget(singleDogProvider.runTotals),
+        Divider(),
+        SingleDogNotesWidget(
+            dogNotes: singleDogProvider.notes,
+            onNoteAdded: (note) async {
+              try {
+                await singleDogProvider.addNote(note);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      content: Text(
+                        "Note saved correctly",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              } catch (e, s) {
+                logger.error("Couldn't save note", error: e, stackTrace: s);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      errorSnackBar(context, "Error: couldn't save note"));
+                }
+              }
+            },
+            onNoteDeleted: (id) async {
+              try {
+                await singleDogProvider.deleteNote(id);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      content: Text(
+                        "Note deleted correctly",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              } catch (e, s) {
+                logger.error("Couldn't delete note", error: e, stackTrace: s);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      errorSnackBar(context, "Error: couldn't delete note"));
+                }
+              }
+            }),
+        Divider(),
         DeleteDogButton(
             dog: dog,
             onDogDeleted: () {

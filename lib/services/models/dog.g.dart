@@ -21,6 +21,10 @@ _Dog _$DogFromJson(Map<String, dynamic> json) => _Dog(
               ?.map((e) => CustomField.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      notes: (json['notes'] as List<dynamic>?)
+              ?.map((e) => SingleDogNote.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
       birth: json['birth'] == null
           ? null
           : DateTime.parse(json['birth'] as String),
@@ -33,6 +37,7 @@ Map<String, dynamic> _$DogToJson(_Dog instance) => <String, dynamic>{
       'positions': instance.positions.toJson(),
       'tags': instance.tags.map((e) => e.toJson()).toList(),
       'customFields': instance.customFields.map((e) => e.toJson()).toList(),
+      'notes': instance.notes.map((e) => e.toJson()).toList(),
       'birth': instance.birth?.toIso8601String(),
     };
 

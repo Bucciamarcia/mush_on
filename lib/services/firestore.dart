@@ -9,6 +9,7 @@ import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/services/storage.dart';
 import 'package:path/path.dart' as path;
@@ -497,6 +498,24 @@ class DogsDbOperations {
       await doc.update({"customFields": payload});
     } catch (e, s) {
       logger.error("Db error in update custom fields", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> updateNotes(
+      {required String dogId, required List<SingleDogNote> notes}) async {
+    var account = await FirestoreService().getUserAccount();
+    String path = "accounts/$account/data/kennel/dogs";
+    var dogsRef = FirebaseFirestore.instance.collection(path);
+    var doc = dogsRef.doc(dogId);
+    List<Map<String, dynamic>> payload = [];
+    for (SingleDogNote note in notes) {
+      payload.add(note.toJson());
+    }
+    try {
+      await doc.update({"notes": payload});
+    } catch (e, s) {
+      logger.error("Db error in update notes", error: e, stackTrace: s);
       rethrow;
     }
   }
