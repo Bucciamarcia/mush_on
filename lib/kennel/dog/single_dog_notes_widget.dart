@@ -48,18 +48,65 @@ class _SingleDogNotesWidgetState extends State<SingleDogNotesWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Dog Notes",
-              style: Theme.of(context).textTheme.titleLarge,
+            // Improved header with icon and count
+            Row(
+              children: [
+                Icon(
+                  Icons.note_alt_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Dog Notes",
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const Spacer(),
+                // Note count badge
+                if (orderedNotes.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 2.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Text(
+                      "${orderedNotes.length}",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 16),
+            // Empty state with icon
             if (orderedNotes.isEmpty && !_isAddingNote)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24.0),
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 32.0),
                 child: Center(
-                  child: Text(
-                    "No notes for this dog yet.",
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.note_add_outlined,
+                        size: 48,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        "No notes for this dog yet",
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -68,12 +115,13 @@ class _SingleDogNotesWidgetState extends State<SingleDogNotesWidget> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: orderedNotes.length,
-                separatorBuilder: (_, __) => const Divider(),
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
                   final note = orderedNotes[index];
                   return SingleDogNoteWidget(
                     key: ValueKey(note.id),
                     note: note,
+                    isFirst: index == 0,
                     onNoteChanged: (updatedNote) =>
                         widget.onNoteAdded(updatedNote),
                     onNoteDeleted: () => widget.onNoteDeleted(note.id),
@@ -124,12 +172,14 @@ class SingleDogNoteWidget extends StatefulWidget {
   final SingleDogNote note;
   final Function() onNoteDeleted;
   final Function(SingleDogNote) onNoteChanged;
+  final bool isFirst;
 
   const SingleDogNoteWidget({
     super.key,
     required this.note,
     required this.onNoteDeleted,
     required this.onNoteChanged,
+    this.isFirst = false,
   });
 
   @override
@@ -139,12 +189,14 @@ class SingleDogNoteWidget extends StatefulWidget {
 class _SingleDogNoteWidgetState extends State<SingleDogNoteWidget> {
   late TextEditingController _controller;
   late bool _hasChanged;
+  late bool _isEditing;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.note.content);
     _hasChanged = false;
+    _isEditing = false;
   }
 
   @override
@@ -155,7 +207,19 @@ class _SingleDogNoteWidgetState extends State<SingleDogNoteWidget> {
 
   String _formatDate(DateTime? date) {
     if (date != null) {
-      return DateFormat.yMMMd().add_jm().format(date); // More readable format
+      final now = DateTime.now();
+      final difference = now.difference(date);
+
+      // Show relative time for recent notes
+      if (difference.inMinutes < 60) {
+        return "${difference.inMinutes} min ago";
+      } else if (difference.inHours < 24) {
+        return "${difference.inHours} hours ago";
+      } else if (difference.inDays < 7) {
+        return "${difference.inDays} days ago";
+      }
+
+      return DateFormat.yMMMd().format(date);
     } else {
       return "No date";
     }
@@ -170,74 +234,180 @@ class _SingleDogNoteWidgetState extends State<SingleDogNoteWidget> {
     widget.onNoteChanged(updatedNote);
     setState(() {
       _hasChanged = false;
+      _isEditing = false;
     });
-    FocusScope.of(context).unfocus(); // Dismiss keyboard
+    FocusScope.of(context).unfocus();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _formatDate(widget.note.date),
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Colors.grey[600],
+    return Container(
+      decoration: BoxDecoration(
+        color: widget.isFirst
+            ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.05)
+            : Colors.grey[50],
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(
+          color: widget.isFirst
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+              : Colors.grey[200]!,
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    if (widget.isFirst)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6.0,
+                          vertical: 2.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        child: const Text(
+                          "LATEST",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    if (widget.isFirst) const SizedBox(width: 8),
+                    Text(
+                      _formatDate(widget.note.date),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                          ),
                     ),
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    tooltip: _hasChanged ? "Save changes" : "Note is saved",
-                    onPressed:
-                        _hasChanged ? () => _saveNote(_controller.text) : null,
-                    icon: Icon(
-                      _hasChanged ? Icons.save : Icons.check_circle,
-                      color: _hasChanged
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.green,
+                  ],
+                ),
+                Row(
+                  children: [
+                    if (_isEditing)
+                      IconButton(
+                        tooltip: _hasChanged ? "Save changes" : "Note is saved",
+                        onPressed: _hasChanged
+                            ? () => _saveNote(_controller.text)
+                            : null,
+                        icon: Icon(
+                          _hasChanged ? Icons.save : Icons.check_circle,
+                          color: _hasChanged
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.green,
+                          size: 20,
+                        ),
+                      )
+                    else
+                      IconButton(
+                        tooltip: "Edit note",
+                        onPressed: () {
+                          setState(() {
+                            _isEditing = true;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.edit_outlined,
+                          color: Colors.grey[600],
+                          size: 20,
+                        ),
+                      ),
+                    IconButton(
+                      tooltip: "Delete note",
+                      onPressed: () {
+                        // Add confirmation dialog
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Delete Note"),
+                            content: const Text(
+                                "Are you sure you want to delete this note?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  widget.onNoteDeleted();
+                                },
+                                child: Text(
+                                  "Delete",
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: Theme.of(context).colorScheme.error,
+                        size: 20,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    tooltip: "Delete note",
-                    onPressed: widget.onNoteDeleted,
-                    icon: Icon(
-                      Icons.delete_outline,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _controller,
-            minLines: 2,
-            maxLines: 5,
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.grey[100],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.all(12.0),
+                  ],
+                ),
+              ],
             ),
-            onChanged: (_) {
-              if (!_hasChanged) {
-                setState(() {
-                  _hasChanged = true;
-                });
-              }
-            },
-          ),
-        ],
+            const SizedBox(height: 8),
+            if (_isEditing)
+              TextField(
+                controller: _controller,
+                minLines: 2,
+                maxLines: 5,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  contentPadding: const EdgeInsets.all(12.0),
+                ),
+                onChanged: (_) {
+                  if (!_hasChanged) {
+                    setState(() {
+                      _hasChanged = true;
+                    });
+                  }
+                },
+              )
+            else
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isEditing = true;
+                  });
+                },
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Text(
+                    widget.note.content,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -274,7 +444,12 @@ class _AddSingleNoteWidgetState extends State<AddSingleNoteWidget> {
 
   void _submitNote(String content) {
     if (content.trim().isEmpty) {
-      // Optional: show a snackbar or message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter a note"),
+          duration: Duration(seconds: 2),
+        ),
+      );
       return;
     }
     final newNote = SingleDogNote(
@@ -293,6 +468,9 @@ class _AddSingleNoteWidgetState extends State<AddSingleNoteWidget> {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+        ),
       ),
       child: Column(
         children: [
