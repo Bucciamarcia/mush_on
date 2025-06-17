@@ -200,6 +200,18 @@ class _SingleDogNoteWidgetState extends State<SingleDogNoteWidget> {
   }
 
   @override
+  void didUpdateWidget(SingleDogNoteWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the parent widget provides a new note object,
+    // update the controller's text to match the new content.
+    if (widget.note.content != oldWidget.note.content) {
+      _controller.text = widget.note.content;
+      // You might want to reset the change indicator as well
+      _hasChanged = false;
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
