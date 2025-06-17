@@ -58,3 +58,4 @@ A cool and open source CRM for sled dog kennels.
 - Added Settings page.
 - Added custom fields.
 - Added filtering by custom field.
+- Added notes in the single dog's page.
