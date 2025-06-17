@@ -21,6 +21,7 @@ mixin _$Dog {
   DogPositions get positions;
   List<Tag> get tags;
   List<CustomField> get customFields;
+  List<SingleDogNote> get notes;
   DateTime? get birth;
 
   /// Create a copy of Dog
@@ -46,6 +47,7 @@ mixin _$Dog {
             const DeepCollectionEquality().equals(other.tags, tags) &&
             const DeepCollectionEquality()
                 .equals(other.customFields, customFields) &&
+            const DeepCollectionEquality().equals(other.notes, notes) &&
             (identical(other.birth, birth) || other.birth == birth));
   }
 
@@ -59,11 +61,12 @@ mixin _$Dog {
       positions,
       const DeepCollectionEquality().hash(tags),
       const DeepCollectionEquality().hash(customFields),
+      const DeepCollectionEquality().hash(notes),
       birth);
 
   @override
   String toString() {
-    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, birth: $birth)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, notes: $notes, birth: $birth)';
   }
 }
 
@@ -78,6 +81,7 @@ abstract mixin class $DogCopyWith<$Res> {
       DogPositions positions,
       List<Tag> tags,
       List<CustomField> customFields,
+      List<SingleDogNote> notes,
       DateTime? birth});
 
   $DogPositionsCopyWith<$Res> get positions;
@@ -101,6 +105,7 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
     Object? positions = null,
     Object? tags = null,
     Object? customFields = null,
+    Object? notes = null,
     Object? birth = freezed,
   }) {
     return _then(_self.copyWith(
@@ -128,6 +133,10 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
           ? _self.customFields
           : customFields // ignore: cast_nullable_to_non_nullable
               as List<CustomField>,
+      notes: null == notes
+          ? _self.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as List<SingleDogNote>,
       birth: freezed == birth
           ? _self.birth
           : birth // ignore: cast_nullable_to_non_nullable
@@ -157,9 +166,11 @@ class _Dog extends Dog {
       this.positions = const DogPositions(),
       final List<Tag> tags = const [],
       final List<CustomField> customFields = const [],
+      final List<SingleDogNote> notes = const [],
       this.birth})
       : _tags = tags,
         _customFields = customFields,
+        _notes = notes,
         super._();
   factory _Dog.fromJson(Map<String, dynamic> json) => _$DogFromJson(json);
 
@@ -193,6 +204,15 @@ class _Dog extends Dog {
     return EqualUnmodifiableListView(_customFields);
   }
 
+  final List<SingleDogNote> _notes;
+  @override
+  @JsonKey()
+  List<SingleDogNote> get notes {
+    if (_notes is EqualUnmodifiableListView) return _notes;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_notes);
+  }
+
   @override
   final DateTime? birth;
 
@@ -224,6 +244,7 @@ class _Dog extends Dog {
             const DeepCollectionEquality().equals(other._tags, _tags) &&
             const DeepCollectionEquality()
                 .equals(other._customFields, _customFields) &&
+            const DeepCollectionEquality().equals(other._notes, _notes) &&
             (identical(other.birth, birth) || other.birth == birth));
   }
 
@@ -237,11 +258,12 @@ class _Dog extends Dog {
       positions,
       const DeepCollectionEquality().hash(_tags),
       const DeepCollectionEquality().hash(_customFields),
+      const DeepCollectionEquality().hash(_notes),
       birth);
 
   @override
   String toString() {
-    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, birth: $birth)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, notes: $notes, birth: $birth)';
   }
 }
 
@@ -258,6 +280,7 @@ abstract mixin class _$DogCopyWith<$Res> implements $DogCopyWith<$Res> {
       DogPositions positions,
       List<Tag> tags,
       List<CustomField> customFields,
+      List<SingleDogNote> notes,
       DateTime? birth});
 
   @override
@@ -282,6 +305,7 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
     Object? positions = null,
     Object? tags = null,
     Object? customFields = null,
+    Object? notes = null,
     Object? birth = freezed,
   }) {
     return _then(_Dog(
@@ -309,6 +333,10 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
           ? _self._customFields
           : customFields // ignore: cast_nullable_to_non_nullable
               as List<CustomField>,
+      notes: null == notes
+          ? _self._notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as List<SingleDogNote>,
       birth: freezed == birth
           ? _self.birth
           : birth // ignore: cast_nullable_to_non_nullable

@@ -5,6 +5,7 @@ import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/services/storage.dart';
 import 'package:path/path.dart' as path;
@@ -22,6 +23,7 @@ class SingleDogProvider extends ChangeNotifier {
   bool isLoadingImage = false;
   String account = "";
   List<CustomField> customFields = [];
+  List<SingleDogNote> notes = [];
   static BasicLogger logger = BasicLogger();
 
   SingleDogProvider();
@@ -33,8 +35,9 @@ class SingleDogProvider extends ChangeNotifier {
     positions = newDog.positions;
     tags = newDog.tags;
     birth = newDog.birth;
-    account = await FirestoreService().getUserAccount();
     customFields = newDog.customFields;
+    notes = newDog.notes;
+    account = await FirestoreService().getUserAccount();
 
     updateImage();
 
@@ -148,6 +151,7 @@ class SingleDogProvider extends ChangeNotifier {
     positions = newDog.positions;
     tags = newDog.tags;
     birth = newDog.birth;
+    notes = newDog.notes;
     notifyListeners();
   }
 
@@ -251,6 +255,41 @@ class SingleDogProvider extends ChangeNotifier {
       await DogsDbOperations().deleteDog(id);
     } catch (e, s) {
       logger.error("Couldn't delete dog with id $id", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  /// First, checks if the note ID exists. If it does, it replaces the note.
+  /// If it doesn't, it adds a new one.
+  Future<void> addNote(SingleDogNote newNote) async {
+    List<SingleDogNote> updatedNotes = [];
+    for (SingleDogNote note in notes) {
+      updatedNotes.add(note);
+    }
+    updatedNotes.removeWhere((note) => note.id == newNote.id);
+    updatedNotes.add(newNote);
+    try {
+      await DogsDbOperations().updateNotes(dogId: id, notes: updatedNotes);
+      notes = updatedNotes;
+      notifyListeners();
+    } catch (e, s) {
+      logger.error("Coudn't update notes", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> deleteNote(String noteId) async {
+    List<SingleDogNote> updatedNotes = [];
+    for (SingleDogNote note in notes) {
+      updatedNotes.add(note);
+    }
+    updatedNotes.removeWhere((note) => note.id == noteId);
+    try {
+      await DogsDbOperations().updateNotes(dogId: id, notes: updatedNotes);
+      notes = updatedNotes;
+      notifyListeners();
+    } catch (e, s) {
+      logger.error("Couldn't remove note", error: e, stackTrace: s);
       rethrow;
     }
   }
