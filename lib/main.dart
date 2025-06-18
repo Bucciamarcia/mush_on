@@ -23,17 +23,18 @@ Future<void> main() async {
   );
 
   // 2. Initialize App Check IMMEDIATELY after Firebase
-  if (!kDebugMode) {
-    await FirebaseAppCheck.instance.activate(
-      androidProvider: AndroidProvider.playIntegrity,
-      appleProvider: AppleProvider.deviceCheck,
-      webProvider:
-          ReCaptchaV3Provider('6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G'),
-    );
+  // Temporarily disabled for APK testing - re-enable for production
+  // if (!kDebugMode) {
+  //   await FirebaseAppCheck.instance.activate(
+  //     androidProvider: AndroidProvider.playIntegrity,
+  //     appleProvider: AppleProvider.deviceCheck,
+  //     webProvider:
+  //         ReCaptchaV3Provider('6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G'),
+  //   );
 
-    // Force token refresh to ensure it's ready
-    await FirebaseAppCheck.instance.getToken(true);
-  }
+  //   // Force token refresh to ensure it's ready
+  //   await FirebaseAppCheck.instance.getToken(true);
+  // }
 
   // 3. THEN configure other Firebase services
   FirebaseUIAuth.configureProviders([]);
