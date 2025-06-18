@@ -27,6 +27,9 @@ mixin _$Task {
   /// The expiration date of the task (if present).
   DateTime? get expiration;
 
+  /// Has the task been completed?
+  dynamic get isDone;
+
   /// The ID of the dog this task relates to.
   String? get dogId;
 
@@ -51,17 +54,18 @@ mixin _$Task {
                 other.description == description) &&
             (identical(other.expiration, expiration) ||
                 other.expiration == expiration) &&
+            const DeepCollectionEquality().equals(other.isDone, isDone) &&
             (identical(other.dogId, dogId) || other.dogId == dogId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, title, description, expiration, dogId);
+  int get hashCode => Object.hash(runtimeType, id, title, description,
+      expiration, const DeepCollectionEquality().hash(isDone), dogId);
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, dogId: $dogId)';
+    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, isDone: $isDone, dogId: $dogId)';
   }
 }
 
@@ -75,6 +79,7 @@ abstract mixin class $TaskCopyWith<$Res> {
       String title,
       String description,
       DateTime? expiration,
+      dynamic isDone,
       String? dogId});
 }
 
@@ -94,6 +99,7 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
     Object? title = null,
     Object? description = null,
     Object? expiration = freezed,
+    Object? isDone = freezed,
     Object? dogId = freezed,
   }) {
     return _then(_self.copyWith(
@@ -113,6 +119,10 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
           ? _self.expiration
           : expiration // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      isDone: freezed == isDone
+          ? _self.isDone
+          : isDone // ignore: cast_nullable_to_non_nullable
+              as dynamic,
       dogId: freezed == dogId
           ? _self.dogId
           : dogId // ignore: cast_nullable_to_non_nullable
@@ -129,6 +139,7 @@ class _Task implements Task {
       this.title = "",
       this.description = "",
       this.expiration,
+      this.isDone = false,
       this.dogId});
   factory _Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
 
@@ -150,6 +161,11 @@ class _Task implements Task {
   /// The expiration date of the task (if present).
   @override
   final DateTime? expiration;
+
+  /// Has the task been completed?
+  @override
+  @JsonKey()
+  final dynamic isDone;
 
   /// The ID of the dog this task relates to.
   @override
@@ -181,17 +197,18 @@ class _Task implements Task {
                 other.description == description) &&
             (identical(other.expiration, expiration) ||
                 other.expiration == expiration) &&
+            const DeepCollectionEquality().equals(other.isDone, isDone) &&
             (identical(other.dogId, dogId) || other.dogId == dogId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, title, description, expiration, dogId);
+  int get hashCode => Object.hash(runtimeType, id, title, description,
+      expiration, const DeepCollectionEquality().hash(isDone), dogId);
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, dogId: $dogId)';
+    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, isDone: $isDone, dogId: $dogId)';
   }
 }
 
@@ -206,6 +223,7 @@ abstract mixin class _$TaskCopyWith<$Res> implements $TaskCopyWith<$Res> {
       String title,
       String description,
       DateTime? expiration,
+      dynamic isDone,
       String? dogId});
 }
 
@@ -225,6 +243,7 @@ class __$TaskCopyWithImpl<$Res> implements _$TaskCopyWith<$Res> {
     Object? title = null,
     Object? description = null,
     Object? expiration = freezed,
+    Object? isDone = freezed,
     Object? dogId = freezed,
   }) {
     return _then(_Task(
@@ -244,6 +263,10 @@ class __$TaskCopyWithImpl<$Res> implements _$TaskCopyWith<$Res> {
           ? _self.expiration
           : expiration // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      isDone: freezed == isDone
+          ? _self.isDone
+          : isDone // ignore: cast_nullable_to_non_nullable
+              as dynamic,
       dogId: freezed == dogId
           ? _self.dogId
           : dogId // ignore: cast_nullable_to_non_nullable

@@ -102,3 +102,15 @@ SnackBar errorSnackBar(BuildContext context, String message) {
     ),
   );
 }
+
+SnackBar confirmationSnackbar(BuildContext context, String message) {
+  return SnackBar(
+    backgroundColor: Theme.of(context).colorScheme.primary,
+    content: Text(
+      message,
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.onPrimary,
+      ),
+    ),
+  );
+}

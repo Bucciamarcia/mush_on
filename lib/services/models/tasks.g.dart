@@ -13,6 +13,7 @@ _Task _$TaskFromJson(Map<String, dynamic> json) => _Task(
       expiration: json['expiration'] == null
           ? null
           : DateTime.parse(json['expiration'] as String),
+      isDone: json['isDone'] ?? false,
       dogId: json['dogId'] as String?,
     );
 
@@ -21,5 +22,6 @@ Map<String, dynamic> _$TaskToJson(_Task instance) => <String, dynamic>{
       'title': instance.title,
       'description': instance.description,
       'expiration': instance.expiration?.toIso8601String(),
+      'isDone': instance.isDone,
       'dogId': instance.dogId,
     };
