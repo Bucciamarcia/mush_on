@@ -15,6 +15,9 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$Task {
+  /// The uuid of the task.
+  String get id;
+
   /// The title of the task.
   String get title;
 
@@ -42,6 +45,7 @@ mixin _$Task {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Task &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
@@ -53,11 +57,11 @@ mixin _$Task {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, title, description, expiration, dogId);
+      Object.hash(runtimeType, id, title, description, expiration, dogId);
 
   @override
   String toString() {
-    return 'Task(title: $title, description: $description, expiration: $expiration, dogId: $dogId)';
+    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, dogId: $dogId)';
   }
 }
 
@@ -67,7 +71,11 @@ abstract mixin class $TaskCopyWith<$Res> {
       _$TaskCopyWithImpl;
   @useResult
   $Res call(
-      {String title, String description, DateTime? expiration, String? dogId});
+      {String id,
+      String title,
+      String description,
+      DateTime? expiration,
+      String? dogId});
 }
 
 /// @nodoc
@@ -82,12 +90,17 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? title = null,
     Object? description = null,
     Object? expiration = freezed,
     Object? dogId = freezed,
   }) {
     return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       title: null == title
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -112,8 +125,17 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
 @JsonSerializable()
 class _Task implements Task {
   const _Task(
-      {this.title = "", this.description = "", this.expiration, this.dogId});
+      {this.id = "",
+      this.title = "",
+      this.description = "",
+      this.expiration,
+      this.dogId});
   factory _Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
+
+  /// The uuid of the task.
+  @override
+  @JsonKey()
+  final String id;
 
   /// The title of the task.
   @override
@@ -153,6 +175,7 @@ class _Task implements Task {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _Task &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
@@ -164,11 +187,11 @@ class _Task implements Task {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, title, description, expiration, dogId);
+      Object.hash(runtimeType, id, title, description, expiration, dogId);
 
   @override
   String toString() {
-    return 'Task(title: $title, description: $description, expiration: $expiration, dogId: $dogId)';
+    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, dogId: $dogId)';
   }
 }
 
@@ -179,7 +202,11 @@ abstract mixin class _$TaskCopyWith<$Res> implements $TaskCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {String title, String description, DateTime? expiration, String? dogId});
+      {String id,
+      String title,
+      String description,
+      DateTime? expiration,
+      String? dogId});
 }
 
 /// @nodoc
@@ -194,12 +221,17 @@ class __$TaskCopyWithImpl<$Res> implements _$TaskCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
+    Object? id = null,
     Object? title = null,
     Object? description = null,
     Object? expiration = freezed,
     Object? dogId = freezed,
   }) {
     return _then(_Task(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       title: null == title
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable

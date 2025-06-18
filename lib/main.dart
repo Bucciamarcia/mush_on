@@ -25,12 +25,9 @@ Future<void> main() async {
   // 2. Initialize App Check
   // Use kDebugMode to determine which providers to use
   if (kDebugMode) {
-    print('App Check: Running in DEBUG mode.');
-
     // For web debug builds, activate the debug provider.
     // For mobile (Android/iOS) debug builds, we will skip initialization.
     if (kIsWeb) {
-      print('--> Web debug build: Activating App Check debug provider.');
       await FirebaseAppCheck.instance.activate(
         webProvider:
             ReCaptchaV3Provider('6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G'),
@@ -42,8 +39,6 @@ Future<void> main() async {
       print('--> Mobile debug build: SKIPPING App Check initialization.');
     }
   } else {
-    // In RELEASE mode, activate App Check for all platforms as normal.
-    print('App Check: Initializing for RELEASE mode.');
     await FirebaseAppCheck.instance.activate(
       webProvider:
           ReCaptchaV3Provider('6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G'),
@@ -52,15 +47,8 @@ Future<void> main() async {
     );
   }
 
-  // Optional: You can listen to token changes for debugging
-  FirebaseAppCheck.instance.onTokenChange.listen((token) {
-    print('New App Check token: $token');
-  });
-
-  // 3. THEN configure other Firebase services
   FirebaseUIAuth.configureProviders([]);
 
-  // 4. Setup crash reporting
   if (!kDebugMode) {
     FlutterError.onError = (errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);

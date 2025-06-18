@@ -7,6 +7,7 @@ import 'package:mush_on/main.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/settings/settings.dart';
+import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
 import 'package:mush_on/stats/stats.dart';
 
@@ -36,5 +37,6 @@ var appRoutes = {
   },
   "/teamshistory": (context) => const TeamsHistoryScreen(),
   "/stats": (context) => const StatsScreen(),
-  "/settings": (context) => const SettingsScreen()
+  "/settings": (context) => const SettingsScreen(),
+  "/tasks": (context) => const TasksScreen(),
 };

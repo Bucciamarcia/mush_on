@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
+import 'package:mush_on/services/models/tasks.dart';
 import 'services/models.dart';
 
 class MainProvider extends ChangeNotifier {
+  BasicLogger _logger = BasicLogger();
   List<Dog> _dogs = [];
 
   /// A list of dogs in alphabetica order.
@@ -17,12 +20,31 @@ class MainProvider extends ChangeNotifier {
   String get account => _account;
 
   SettingsModel _settings = SettingsModel();
+
+  /// The account settings.
   SettingsModel get settings => _settings;
+
+  List<Task> _tasks = [];
+
+  /// The list of tasks.
+  List<Task> get tasks => _tasks;
 
   MainProvider() {
     _fetchDogs();
     _fetchAccount();
     _fetchSettings();
+    _fetchTasks();
+  }
+
+  void addTask(Task newTask) async {
+    try {
+      await TaskRepository.addOrUpdate(newTask, _account);
+    } catch (e, s) {
+      _logger.error("Couldn't add task to db", error: e, stackTrace: s);
+      rethrow;
+    }
+    _tasks = [..._tasks, newTask];
+    notifyListeners();
   }
 
   void _fetchAccount() async {
@@ -58,6 +80,21 @@ class MainProvider extends ChangeNotifier {
       _fetchDogsById(_dogs);
       notifyListeners();
     });
+  }
+
+  void _fetchTasks() async {
+    if (_account.isEmpty) {
+      _account = await FirestoreService().getUserAccount();
+    }
+    String path = "accounts/$account/data/misc/tasks";
+    var collection = FirebaseFirestore.instance.collection(path);
+    var snapshot = await collection.get();
+    var docs = snapshot.docs;
+    for (var doc in docs) {
+      Map<String, dynamic> data = doc.data();
+      _tasks.add(Task.fromJson(data));
+    }
+    notifyListeners();
   }
 
   void _fetchDogsById(List<Dog> fetchedDogs) {
