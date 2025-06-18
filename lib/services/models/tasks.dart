@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
+import 'package:uuid/uuid.dart';
 
 part "tasks.g.dart";
 part "tasks.freezed.dart";
@@ -39,8 +40,12 @@ class TaskRepository {
     }
     String path = "accounts/$account/data/misc/tasks";
     var collection = db.collection(path);
-    var doc = collection.doc(task.id);
-    var payload = task.toJson();
+    Task taskToSave = task;
+    if (task.id.isEmpty) {
+      taskToSave = task.copyWith(id: Uuid().v4());
+    }
+    var doc = collection.doc(taskToSave.id);
+    var payload = taskToSave.toJson();
     try {
       await doc.set(payload);
     } catch (e, s) {

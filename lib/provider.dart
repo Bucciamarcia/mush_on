@@ -36,7 +36,7 @@ class MainProvider extends ChangeNotifier {
     _fetchTasks();
   }
 
-  void addTask(Task newTask) async {
+  Future<void> addTask(Task newTask) async {
     try {
       await TaskRepository.addOrUpdate(newTask, _account);
     } catch (e, s) {
