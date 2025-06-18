@@ -4,7 +4,6 @@ import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
-import 'package:mush_on/theme.dart';
 import 'package:provider/provider.dart';
 import 'package:searchfield/searchfield.dart';
 
@@ -85,75 +84,160 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
     return AlertDialog.adaptive(
-      title: Text("Add task"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 20,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      title: Row(
         children: [
-          _selectTitleTextField(),
-          _selectDescriptionTextField(),
-          _selectDateRow(colorScheme, context),
-          _selectDog(colorScheme),
+          Icon(Icons.add_task, color: colorScheme.primary),
+          const SizedBox(width: 12),
+          const Text("Add New Task"),
         ],
       ),
-      actions: [
-        _cancelTextButton(colorScheme, context),
-        _confirmTextButton(colorScheme, context),
-      ],
-    );
-  }
-
-  Row _selectDog(ColorScheme colorScheme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      spacing: 10,
-      children: [
-        _selectedDog == null
-            ? Expanded(
-                child: SearchField<Dog>(
-                  searchInputDecoration: SearchInputDecoration(
-                      hint: Text("Dog this task refers to")),
-                  suggestions: widget.dogs
-                      .map((dog) => SearchFieldListItem(dog.name, item: dog))
-                      .toList(),
-                  controller: _dogIdController,
-                  onSuggestionTap: (x) {
-                    if (x.item != null) {
-                      setState(() {
-                        _dogIdController.text = x.item!.name;
-                        _selectedDog = x.item!;
-                      });
-                    }
-                  },
-                ),
-              )
-            : Chip(
-                label: Text(
-                  _selectedDog!.name,
-                  style: TextStyle(color: colorScheme.onPrimary),
-                ),
-                backgroundColor: colorScheme.primary,
-              ),
-        IconButton.outlined(
-          onPressed: () {
-            setState(() {
-              _dogIdController.text = "";
-              _selectedDog = null;
-            });
-          },
-          icon: Icon(
-            Icons.remove,
-            color: colorScheme.primary,
-          ),
+      content: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 24,
+          children: [
+            _buildTitleTextField(),
+            _buildDescriptionTextField(),
+            _buildDateSection(colorScheme, context),
+            _buildDogSelector(colorScheme),
+          ],
         ),
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+      actions: [
+        _buildCancelButton(colorScheme, context),
+        _buildConfirmButton(colorScheme, context),
       ],
     );
   }
 
-  TextButton _confirmTextButton(ColorScheme colorScheme, BuildContext context) {
-    return TextButton(
-      style: CustomThemeOptions.responsiveButtonStylePrimary(context),
-      onPressed: _titleController.text.isNotEmpty
+  Widget _buildDogSelector(ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.pets, size: 20, color: colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                "Assign to Dog",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            spacing: 12,
+            children: [
+              if (_selectedDog == null)
+                Expanded(
+                  child: SearchField<Dog>(
+                    searchInputDecoration: SearchInputDecoration(
+                      hint: const Text("Search for a dog..."),
+                      prefixIcon:
+                          Icon(Icons.search, color: colorScheme.primary),
+                      filled: true,
+                      fillColor: colorScheme.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: colorScheme.outline.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: colorScheme.primary,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    suggestions: widget.dogs
+                        .map((dog) => SearchFieldListItem(dog.name, item: dog))
+                        .toList(),
+                    controller: _dogIdController,
+                    onSuggestionTap: (x) {
+                      if (x.item != null) {
+                        setState(() {
+                          _dogIdController.text = x.item!.name;
+                          _selectedDog = x.item!;
+                        });
+                      }
+                    },
+                  ),
+                )
+              else
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.pets,
+                            size: 20, color: colorScheme.onPrimaryContainer),
+                        const SizedBox(width: 8),
+                        Text(
+                          _selectedDog!.name,
+                          style: TextStyle(
+                            color: colorScheme.onPrimaryContainer,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              IconButton.filledTonal(
+                onPressed: () {
+                  setState(() {
+                    _dogIdController.text = "";
+                    _selectedDog = null;
+                  });
+                },
+                icon: const Icon(Icons.clear),
+                tooltip: "Clear selection",
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConfirmButton(ColorScheme colorScheme, BuildContext context) {
+    final isEnabled = _titleController.text.isNotEmpty;
+    return FilledButton.icon(
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      onPressed: isEnabled
           ? () {
               widget.onTaskAdded(
                 Task(
@@ -170,100 +254,157 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
               Navigator.of(context).pop();
             }
           : null,
-      child: Text(
-        "Add Task",
-        style: TextStyle(color: colorScheme.onPrimary),
-      ),
+      icon: const Icon(Icons.add),
+      label: const Text("Add Task"),
     );
   }
 
-  TextButton _cancelTextButton(ColorScheme colorScheme, BuildContext context) {
+  Widget _buildCancelButton(ColorScheme colorScheme, BuildContext context) {
     return TextButton(
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(colorScheme.error),
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
       onPressed: () => Navigator.of(context).pop(),
       child: Text(
         "Cancel",
-        style: TextStyle(color: colorScheme.onError),
+        style: TextStyle(color: colorScheme.error),
       ),
     );
   }
 
-  TextField _selectDescriptionTextField() {
+  Widget _buildDescriptionTextField() {
     return TextField(
       controller: _descriptionController,
+      maxLines: 3,
       decoration: InputDecoration(
-        label: Text("Description (optional)"),
+        labelText: "Description (optional)",
+        hintText: "Additional details",
+        prefixIcon: const Icon(Icons.description_outlined),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
       ),
     );
   }
 
-  TextField _selectTitleTextField() {
+  Widget _buildTitleTextField() {
     return TextField(
       onChanged: (_) {
         setState(() {});
       },
       controller: _titleController,
       decoration: InputDecoration(
-        label: Text("Title"),
+        labelText: "Task Title",
+        hintText: "Enter task title",
+        prefixIcon: const Icon(Icons.title),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        filled: true,
       ),
     );
   }
 
-  Column _selectDateRow(ColorScheme colorScheme, BuildContext context) {
-    return Column(
-      spacing: 10,
-      children: [
-        Text(_expiration != null
-            ? DateFormat("EEE, dd/MM/yyyy").format(_expiration!)
-            : "No date selected: the task never expires"),
-        Row(
-          spacing: 10,
-          children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _expiration = null;
-                });
-              },
-              label: Text(
-                "Remove expiration",
-                style: TextStyle(color: colorScheme.onError),
-              ),
-              icon: Icon(
-                Icons.remove,
-                color: colorScheme.onError,
-              ),
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(colorScheme.error),
-              ),
-            ),
-            ElevatedButton.icon(
-              onPressed: () async {
-                await _selectDate(
-                    context: context,
-                    onDatePicked: (newDate) {
-                      setState(() {
-                        _expiration = newDate;
-                      });
-                    });
-              },
-              icon: Icon(
-                Icons.add,
-                color: colorScheme.onPrimary,
-              ),
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(colorScheme.primary),
-              ),
-              label: Text(
-                "Pick date",
-                style: TextStyle(color: colorScheme.onPrimary),
-              ),
-            ),
-          ],
+  Widget _buildDateSection(ColorScheme colorScheme, BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
         ),
-      ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.calendar_today, size: 20, color: colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                "Due Date",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: _expiration != null
+                  ? colorScheme.primaryContainer.withValues(alpha: 0.5)
+                  : colorScheme.surface,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  _expiration != null ? Icons.event : Icons.event_busy,
+                  size: 18,
+                  color: _expiration != null
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _expiration != null
+                        ? DateFormat("EEEE, MMMM d, yyyy").format(_expiration!)
+                        : "No due date set",
+                    style: TextStyle(
+                      color: _expiration != null
+                          ? colorScheme.onSurface
+                          : colorScheme.onSurfaceVariant,
+                      fontWeight: _expiration != null
+                          ? FontWeight.w500
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            spacing: 12,
+            children: [
+              if (_expiration != null)
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _expiration = null;
+                    });
+                  },
+                  icon: const Icon(Icons.clear),
+                  label: const Text("Clear"),
+                  style: TextButton.styleFrom(
+                    foregroundColor: colorScheme.error,
+                  ),
+                ),
+              FilledButton.tonalIcon(
+                onPressed: () async {
+                  await _selectDate(
+                      context: context,
+                      onDatePicked: (newDate) {
+                        setState(() {
+                          _expiration = newDate;
+                        });
+                      });
+                },
+                icon: Icon(_expiration != null ? Icons.edit : Icons.add),
+                label: Text(_expiration != null ? "Change Date" : "Set Date"),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -273,7 +414,15 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     final DateTime? picked = await showDatePicker(
         context: context,
         firstDate: DateTime.now(),
-        lastDate: DateTime.now().add(Duration(days: 900)));
+        lastDate: DateTime.now().add(const Duration(days: 900)),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+            ),
+            child: child!,
+          );
+        });
     if (picked != null) {
       onDatePicked(picked);
     }
