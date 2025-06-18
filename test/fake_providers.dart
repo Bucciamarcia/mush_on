@@ -5,6 +5,7 @@ import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
+import 'package:mush_on/services/models/tasks.dart';
 
 class FakeMainProvider extends ChangeNotifier implements MainProvider {
   List<Dog> _dogs = [];
@@ -23,10 +24,21 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
   @override
   SettingsModel get settings => _settings;
 
+  List<Task> _tasks = [];
+  @override
+  List<Task> get tasks => _tasks;
+
   FakeMainProvider() {
     _fetchDogs();
     _fetchAccount();
     _fetchSettings();
+    _fetchTasks();
+  }
+
+  @override
+  Future<void> addTask(Task newTask) async {
+    _tasks = [..._tasks, newTask];
+    notifyListeners();
   }
 
   void _fetchAccount() async {
@@ -37,6 +49,12 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
   void _fetchSettings() async {
     // Simulate fetching settings with test data
     _settings = SettingsModel(); // You can customize this with test settings
+    notifyListeners();
+  }
+
+  void _fetchTasks() async {
+    // Simulate fetching tasks with test data
+    _tasks = [];
     notifyListeners();
   }
 
@@ -77,6 +95,11 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
 
   void setTestSettings(SettingsModel settings) {
     _settings = settings;
+    notifyListeners();
+  }
+
+  void setTestTasks(List<Task> tasks) {
+    _tasks = List.from(tasks);
     notifyListeners();
   }
 }
