@@ -24,6 +24,9 @@ abstract class Task with _$Task {
     /// The expiration date of the task (if present).
     DateTime? expiration,
 
+    /// Has the task been completed?
+    @Default(false) isDone,
+
     /// The ID of the dog this task relates to.
     String? dogId,
   }) = _Task;
