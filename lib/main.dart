@@ -17,24 +17,45 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 1. Initialize Firebase first
+  // 1. Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // 2. Initialize App Check IMMEDIATELY after Firebase
-  // Temporarily disabled for APK testing - re-enable for production
-  // if (!kDebugMode) {
-  //   await FirebaseAppCheck.instance.activate(
-  //     androidProvider: AndroidProvider.playIntegrity,
-  //     appleProvider: AppleProvider.deviceCheck,
-  //     webProvider:
-  //         ReCaptchaV3Provider('6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G'),
-  //   );
+  // 2. Initialize App Check
+  // Use kDebugMode to determine which providers to use
+  if (kDebugMode) {
+    print('App Check: Running in DEBUG mode.');
 
-  //   // Force token refresh to ensure it's ready
-  //   await FirebaseAppCheck.instance.getToken(true);
-  // }
+    // For web debug builds, activate the debug provider.
+    // For mobile (Android/iOS) debug builds, we will skip initialization.
+    if (kIsWeb) {
+      print('--> Web debug build: Activating App Check debug provider.');
+      await FirebaseAppCheck.instance.activate(
+        webProvider:
+            ReCaptchaV3Provider('6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G'),
+        // The appleProvider doesn't run on web, but is good to have here for completeness.
+        appleProvider: AppleProvider.debug,
+      );
+    } else {
+      // This will run for Android and iOS debug builds.
+      print('--> Mobile debug build: SKIPPING App Check initialization.');
+    }
+  } else {
+    // In RELEASE mode, activate App Check for all platforms as normal.
+    print('App Check: Initializing for RELEASE mode.');
+    await FirebaseAppCheck.instance.activate(
+      webProvider:
+          ReCaptchaV3Provider('6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G'),
+      androidProvider: AndroidProvider.playIntegrity,
+      appleProvider: AppleProvider.deviceCheck,
+    );
+  }
+
+  // Optional: You can listen to token changes for debugging
+  FirebaseAppCheck.instance.onTokenChange.listen((token) {
+    print('New App Check token: $token');
+  });
 
   // 3. THEN configure other Firebase services
   FirebaseUIAuth.configureProviders([]);
