@@ -11,6 +11,7 @@ part "tasks.freezed.dart";
 
 /// A task of the todo system
 abstract class Task with _$Task {
+  @JsonSerializable(explicitToJson: true)
   const factory Task({
     /// The uuid of the task.
     @Default("") String id,
@@ -25,12 +26,32 @@ abstract class Task with _$Task {
     DateTime? expiration,
 
     /// Has the task been completed?
-    @Default(false) isDone,
+    @Default(false) bool isDone,
+
+    /// Is this task urgent?
+    @Default(false) bool isUrgent,
+
+    /// If this is a recurring task, and how often it repeats.
+    @Default(RecurringType.none) RecurringType recurring,
 
     /// The ID of the dog this task relates to.
     String? dogId,
   }) = _Task;
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
+}
+
+@JsonEnum()
+enum RecurringType {
+  @JsonValue("daily")
+  daily,
+  @JsonValue("weekly")
+  weekly,
+  @JsonValue("monthly")
+  monthly,
+  @JsonValue("yearly")
+  yearly,
+  @JsonValue("none")
+  none;
 }
 
 /// All the operations on the Task class.
