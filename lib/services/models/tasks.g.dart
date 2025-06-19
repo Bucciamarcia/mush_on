@@ -13,7 +13,11 @@ _Task _$TaskFromJson(Map<String, dynamic> json) => _Task(
       expiration: json['expiration'] == null
           ? null
           : DateTime.parse(json['expiration'] as String),
-      isDone: json['isDone'] ?? false,
+      isDone: json['isDone'] as bool? ?? false,
+      isUrgent: json['isUrgent'] as bool? ?? false,
+      recurring:
+          $enumDecodeNullable(_$RecurringTypeEnumMap, json['recurring']) ??
+              RecurringType.none,
       dogId: json['dogId'] as String?,
     );
 
@@ -23,5 +27,15 @@ Map<String, dynamic> _$TaskToJson(_Task instance) => <String, dynamic>{
       'description': instance.description,
       'expiration': instance.expiration?.toIso8601String(),
       'isDone': instance.isDone,
+      'isUrgent': instance.isUrgent,
+      'recurring': _$RecurringTypeEnumMap[instance.recurring]!,
       'dogId': instance.dogId,
     };
+
+const _$RecurringTypeEnumMap = {
+  RecurringType.daily: 'daily',
+  RecurringType.weekly: 'weekly',
+  RecurringType.monthly: 'monthly',
+  RecurringType.yearly: 'yearly',
+  RecurringType.none: 'none',
+};

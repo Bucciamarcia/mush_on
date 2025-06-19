@@ -28,7 +28,13 @@ mixin _$Task {
   DateTime? get expiration;
 
   /// Has the task been completed?
-  dynamic get isDone;
+  bool get isDone;
+
+  /// Is this task urgent?
+  bool get isUrgent;
+
+  /// If this is a recurring task, and how often it repeats.
+  RecurringType get recurring;
 
   /// The ID of the dog this task relates to.
   String? get dogId;
@@ -54,18 +60,22 @@ mixin _$Task {
                 other.description == description) &&
             (identical(other.expiration, expiration) ||
                 other.expiration == expiration) &&
-            const DeepCollectionEquality().equals(other.isDone, isDone) &&
+            (identical(other.isDone, isDone) || other.isDone == isDone) &&
+            (identical(other.isUrgent, isUrgent) ||
+                other.isUrgent == isUrgent) &&
+            (identical(other.recurring, recurring) ||
+                other.recurring == recurring) &&
             (identical(other.dogId, dogId) || other.dogId == dogId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, title, description,
-      expiration, const DeepCollectionEquality().hash(isDone), dogId);
+      expiration, isDone, isUrgent, recurring, dogId);
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, isDone: $isDone, dogId: $dogId)';
+    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, isDone: $isDone, isUrgent: $isUrgent, recurring: $recurring, dogId: $dogId)';
   }
 }
 
@@ -79,7 +89,9 @@ abstract mixin class $TaskCopyWith<$Res> {
       String title,
       String description,
       DateTime? expiration,
-      dynamic isDone,
+      bool isDone,
+      bool isUrgent,
+      RecurringType recurring,
       String? dogId});
 }
 
@@ -99,7 +111,9 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
     Object? title = null,
     Object? description = null,
     Object? expiration = freezed,
-    Object? isDone = freezed,
+    Object? isDone = null,
+    Object? isUrgent = null,
+    Object? recurring = null,
     Object? dogId = freezed,
   }) {
     return _then(_self.copyWith(
@@ -119,10 +133,18 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
           ? _self.expiration
           : expiration // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      isDone: freezed == isDone
+      isDone: null == isDone
           ? _self.isDone
           : isDone // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool,
+      isUrgent: null == isUrgent
+          ? _self.isUrgent
+          : isUrgent // ignore: cast_nullable_to_non_nullable
+              as bool,
+      recurring: null == recurring
+          ? _self.recurring
+          : recurring // ignore: cast_nullable_to_non_nullable
+              as RecurringType,
       dogId: freezed == dogId
           ? _self.dogId
           : dogId // ignore: cast_nullable_to_non_nullable
@@ -132,7 +154,8 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _Task implements Task {
   const _Task(
       {this.id = "",
@@ -140,6 +163,8 @@ class _Task implements Task {
       this.description = "",
       this.expiration,
       this.isDone = false,
+      this.isUrgent = false,
+      this.recurring = RecurringType.none,
       this.dogId});
   factory _Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
 
@@ -165,7 +190,17 @@ class _Task implements Task {
   /// Has the task been completed?
   @override
   @JsonKey()
-  final dynamic isDone;
+  final bool isDone;
+
+  /// Is this task urgent?
+  @override
+  @JsonKey()
+  final bool isUrgent;
+
+  /// If this is a recurring task, and how often it repeats.
+  @override
+  @JsonKey()
+  final RecurringType recurring;
 
   /// The ID of the dog this task relates to.
   @override
@@ -197,18 +232,22 @@ class _Task implements Task {
                 other.description == description) &&
             (identical(other.expiration, expiration) ||
                 other.expiration == expiration) &&
-            const DeepCollectionEquality().equals(other.isDone, isDone) &&
+            (identical(other.isDone, isDone) || other.isDone == isDone) &&
+            (identical(other.isUrgent, isUrgent) ||
+                other.isUrgent == isUrgent) &&
+            (identical(other.recurring, recurring) ||
+                other.recurring == recurring) &&
             (identical(other.dogId, dogId) || other.dogId == dogId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, title, description,
-      expiration, const DeepCollectionEquality().hash(isDone), dogId);
+      expiration, isDone, isUrgent, recurring, dogId);
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, isDone: $isDone, dogId: $dogId)';
+    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, isDone: $isDone, isUrgent: $isUrgent, recurring: $recurring, dogId: $dogId)';
   }
 }
 
@@ -223,7 +262,9 @@ abstract mixin class _$TaskCopyWith<$Res> implements $TaskCopyWith<$Res> {
       String title,
       String description,
       DateTime? expiration,
-      dynamic isDone,
+      bool isDone,
+      bool isUrgent,
+      RecurringType recurring,
       String? dogId});
 }
 
@@ -243,7 +284,9 @@ class __$TaskCopyWithImpl<$Res> implements _$TaskCopyWith<$Res> {
     Object? title = null,
     Object? description = null,
     Object? expiration = freezed,
-    Object? isDone = freezed,
+    Object? isDone = null,
+    Object? isUrgent = null,
+    Object? recurring = null,
     Object? dogId = freezed,
   }) {
     return _then(_Task(
@@ -263,10 +306,18 @@ class __$TaskCopyWithImpl<$Res> implements _$TaskCopyWith<$Res> {
           ? _self.expiration
           : expiration // ignore: cast_nullable_to_non_nullable
               as DateTime?,
-      isDone: freezed == isDone
+      isDone: null == isDone
           ? _self.isDone
           : isDone // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool,
+      isUrgent: null == isUrgent
+          ? _self.isUrgent
+          : isUrgent // ignore: cast_nullable_to_non_nullable
+              as bool,
+      recurring: null == recurring
+          ? _self.recurring
+          : recurring // ignore: cast_nullable_to_non_nullable
+              as RecurringType,
       dogId: freezed == dogId
           ? _self.dogId
           : dogId // ignore: cast_nullable_to_non_nullable

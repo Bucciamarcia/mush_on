@@ -61,6 +61,8 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   DateTime? _expiration;
   late bool _isDone;
   Dog? _selectedDog;
+  late RecurringType _recurringType;
+  late bool _isUrgent;
   late TextEditingController _dogIdController;
 
   @override
@@ -70,6 +72,8 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     _descriptionController = TextEditingController();
     _dogIdController = TextEditingController();
     _isDone = false;
+    _isUrgent = false;
+    _recurringType = RecurringType.none;
   }
 
   @override
@@ -96,15 +100,19 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       ),
       content: Container(
         constraints: const BoxConstraints(maxWidth: 400),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 24,
-          children: [
-            _buildTitleTextField(),
-            _buildDescriptionTextField(),
-            _buildDateSection(colorScheme, context),
-            _buildDogSelector(colorScheme),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 24,
+            children: [
+              _buildTitleTextField(),
+              _buildDescriptionTextField(),
+              _buildDateSection(colorScheme, context),
+              _buildIsRecurring(colorScheme),
+              _buildDogSelector(colorScheme),
+              _buildIsUrgent(colorScheme),
+            ],
+          ),
         ),
       ),
       actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -112,6 +120,60 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         _buildCancelButton(colorScheme, context),
         _buildConfirmButton(colorScheme, context),
       ],
+    );
+  }
+
+  Widget _buildIsUrgent(ColorScheme colorScheme) {
+    return Card(
+      elevation: 0,
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      child: SwitchListTile(
+        title: const Text("Urgent Task",
+            style: TextStyle(fontWeight: FontWeight.w600)),
+        secondary: Icon(Icons.priority_high,
+            color: _isUrgent ? colorScheme.error : colorScheme.primary),
+        value: _isUrgent,
+        onChanged: (v) => setState(() => _isUrgent = v),
+        activeColor: colorScheme.error,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      ),
+    );
+  }
+
+  Widget _buildIsRecurring(ColorScheme colorScheme) {
+    if (_expiration == null) return const SizedBox.shrink();
+
+    return Card(
+      elevation: 0,
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      child: ListTile(
+        leading: Icon(Icons.repeat, color: colorScheme.primary),
+        title:
+            const Text("Repeat", style: TextStyle(fontWeight: FontWeight.w600)),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: DropdownButton<RecurringType>(
+            value: _recurringType,
+            underline: const SizedBox(),
+            borderRadius: BorderRadius.circular(8),
+            onChanged: (value) {
+              if (value != null) setState(() => _recurringType = value);
+            },
+            items: RecurringType.values
+                .map((v) => DropdownMenuItem(
+                      value: v,
+                      child:
+                          Text(v.name[0].toUpperCase() + v.name.substring(1)),
+                    ))
+                .toList(),
+          ),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      ),
     );
   }
 
@@ -245,6 +307,10 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                   title: _titleController.text,
                   dogId: _selectedDog?.id,
                   isDone: _isDone,
+                  isUrgent: _isUrgent,
+                  recurring:
+                      // If there is no expiration, recurring type must be none.
+                      _expiration == null ? RecurringType.none : _recurringType,
                   expiration: _expiration == null
                       ? null
                       : DateTime.utc(_expiration!.year, _expiration!.month,
@@ -418,7 +484,9 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
-              dialogBackgroundColor: Theme.of(context).colorScheme.surface,
+              dialogTheme: DialogThemeData(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+              ),
             ),
             child: child!,
           );
