@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/tasks/tab_bar_view_widget.dart';
 import 'package:mush_on/tasks/tab_bar_widget.dart';
 import 'package:provider/provider.dart';
 
 import 'add_task.dart';
+import 'tab_bar_widgets/main.dart';
 
 class TasksMainWidget extends StatelessWidget {
   static BasicLogger logger = BasicLogger();
@@ -23,7 +23,19 @@ class TasksMainWidget extends StatelessWidget {
           AddTaskElevatedButton(provider: provider, logger: logger),
           TabBarWidget(),
           Expanded(
-            child: TabBarViewWidget(),
+            child: TabBarViewWidget(
+                tasks: provider.tasks,
+                onTaskEdited: (t) async {
+                  try {
+                    await provider.editTask(t);
+                  } catch (e, s) {
+                    logger.error("Couldn't edit task", error: e, stackTrace: s);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "Couldn't edit task"));
+                    }
+                  }
+                }),
           ),
         ],
       ),

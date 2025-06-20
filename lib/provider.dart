@@ -4,10 +4,11 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/models/tasks.dart';
+import 'package:uuid/uuid.dart';
 import 'services/models.dart';
 
 class MainProvider extends ChangeNotifier {
-  BasicLogger _logger = BasicLogger();
+  final BasicLogger _logger = BasicLogger();
   List<Dog> _dogs = [];
 
   /// A list of dogs in alphabetica order.
@@ -37,13 +38,31 @@ class MainProvider extends ChangeNotifier {
   }
 
   Future<void> addTask(Task newTask) async {
+    Task taskToSave = newTask.copyWith(id: Uuid().v4());
     try {
-      await TaskRepository.addOrUpdate(newTask, _account);
+      await TaskRepository.addOrUpdate(taskToSave, _account);
     } catch (e, s) {
       _logger.error("Couldn't add task to db", error: e, stackTrace: s);
       rethrow;
     }
-    _tasks = [..._tasks, newTask];
+    List<Task> newTasks = [..._tasks, taskToSave];
+    newTasks.sort((a, b) => a.title.compareTo(b.title));
+    _tasks = newTasks;
+    notifyListeners();
+  }
+
+  Future<void> editTask(Task editedTask) async {
+    try {
+      await TaskRepository.addOrUpdate(editedTask, _account);
+    } catch (e, s) {
+      _logger.error("Couldn't edit task", error: e, stackTrace: s);
+      rethrow;
+    }
+    List<Task> newTasks = List.from(_tasks);
+    newTasks.removeWhere((t) => t.id == editedTask.id);
+    newTasks.add(editedTask);
+    newTasks.sort((a, b) => a.title.compareTo(b.title));
+    _tasks = newTasks;
     notifyListeners();
   }
 
@@ -83,6 +102,7 @@ class MainProvider extends ChangeNotifier {
   }
 
   void _fetchTasks() async {
+    List<Task> newTasks = [];
     if (_account.isEmpty) {
       _account = await FirestoreService().getUserAccount();
     }
@@ -92,8 +112,10 @@ class MainProvider extends ChangeNotifier {
     var docs = snapshot.docs;
     for (var doc in docs) {
       Map<String, dynamic> data = doc.data();
-      _tasks.add(Task.fromJson(data));
+      newTasks.add(Task.fromJson(data));
     }
+    newTasks.sort((a, b) => a.title.compareTo(b.title));
+    _tasks = newTasks;
     notifyListeners();
   }
 
