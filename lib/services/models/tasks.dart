@@ -81,3 +81,37 @@ class TaskRepository {
     }
   }
 }
+
+extension TaskListExtension on List<Task> {
+  /// Filters only tasks that are due today.
+  List<Task> get dueToday {
+    final now = DateTime.now();
+    return where((t) {
+      bool hasExpiration = t.expiration != null;
+      bool isToday = hasExpiration &&
+          t.expiration!.year == now.year &&
+          t.expiration!.month == now.month &&
+          t.expiration!.day == now.day;
+
+      return hasExpiration && isToday;
+    }).toList();
+  }
+
+  /// Filters only the urgent tasks.
+  List<Task> get urgent => where((t) => t.isUrgent).toList();
+
+  /// Returns the same list but with urgent tasks first.
+  List<Task> urgentFirst() {
+    List<Task> urgentTasks = [];
+    List<Task> normalTasks = [];
+
+    for (Task task in this) {
+      if (task.isUrgent) {
+        urgentTasks.add(task);
+      } else {
+        normalTasks.add(task);
+      }
+    }
+    return [...urgentTasks, ...normalTasks];
+  }
+}
