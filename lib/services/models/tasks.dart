@@ -97,6 +97,32 @@ extension TaskListExtension on List<Task> {
     }).toList();
   }
 
+  /// Filters only tasks that are due today or overdue.
+  List<Task> get dueTodayOrOverdue {
+    final now = DateTime.now();
+    return where((t) {
+      bool hasExpiration = t.expiration != null;
+      bool isToday = hasExpiration &&
+          t.expiration!.year == now.year &&
+          t.expiration!.month == now.month &&
+          t.expiration!.day == now.day;
+
+      bool hasExpirationAndToday = hasExpiration && isToday;
+
+      bool isOverdue = t.expiration != null &&
+          t.expiration!.isBefore(DateTime.now()) &&
+          t.isDone == false;
+
+      return hasExpirationAndToday || isOverdue;
+    }).toList();
+  }
+
+  /// Filters and keeps only the tasks with no expiration.
+  List<Task> get dontExpire => where((t) => t.expiration == null).toList();
+
+  /// Filters and keeps only the tasks that are not done yet.
+  List<Task> get notDone => where((t) => t.isDone == false).toList();
+
   /// Filters only the urgent tasks.
   List<Task> get urgent => where((t) => t.isUrgent).toList();
 

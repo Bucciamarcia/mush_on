@@ -17,6 +17,7 @@ class TasksMainWidget extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         spacing: 10,
         children: [
           SizedBox(height: 10),
@@ -25,9 +26,31 @@ class TasksMainWidget extends StatelessWidget {
           Expanded(
             child: TabBarViewWidget(
                 tasks: provider.tasks,
+                dogs: provider.dogs,
                 onTaskEdited: (t) async {
                   try {
                     await provider.editTask(t);
+                    if (t.isDone) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            duration: Duration(seconds: 5),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            action: SnackBarAction(
+                                label: "UNDO",
+                                onPressed: () async => await provider
+                                    .editTask(t.copyWith(isDone: false))),
+                            content: Text(
+                              "Task completed: ${t.title}",
+                              style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary),
+                            ),
+                          ),
+                        );
+                      }
+                    }
                   } catch (e, s) {
                     logger.error("Couldn't edit task", error: e, stackTrace: s);
                     if (context.mounted) {
