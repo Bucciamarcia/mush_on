@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -73,6 +74,12 @@ abstract class Dog with _$Dog {
   /// Returns a list of dog names from a list of Dog objects
   static List<String> getDogNames(List<Dog> dogObjects) {
     return dogObjects.map((dog) => dog.name).toList();
+  }
+}
+
+extension DogListExtension on List<Dog> {
+  String? getNameFromId(String id) {
+    return firstWhereOrNull((dog) => dog.id == id)?.name;
   }
 }
 

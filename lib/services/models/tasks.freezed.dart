@@ -30,11 +30,17 @@ mixin _$Task {
   /// Has the task been completed?
   bool get isDone;
 
+  /// Mark for "all day" task?
+  bool get isAllDay;
+
   /// Is this task urgent?
   bool get isUrgent;
 
   /// If this is a recurring task, and how often it repeats.
   RecurringType get recurring;
+
+  /// If recurring, the dates that are checked.
+  List<DateTime> get recurringDone;
 
   /// The ID of the dog this task relates to.
   String? get dogId;
@@ -61,21 +67,35 @@ mixin _$Task {
             (identical(other.expiration, expiration) ||
                 other.expiration == expiration) &&
             (identical(other.isDone, isDone) || other.isDone == isDone) &&
+            (identical(other.isAllDay, isAllDay) ||
+                other.isAllDay == isAllDay) &&
             (identical(other.isUrgent, isUrgent) ||
                 other.isUrgent == isUrgent) &&
             (identical(other.recurring, recurring) ||
                 other.recurring == recurring) &&
+            const DeepCollectionEquality()
+                .equals(other.recurringDone, recurringDone) &&
             (identical(other.dogId, dogId) || other.dogId == dogId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, description,
-      expiration, isDone, isUrgent, recurring, dogId);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      title,
+      description,
+      expiration,
+      isDone,
+      isAllDay,
+      isUrgent,
+      recurring,
+      const DeepCollectionEquality().hash(recurringDone),
+      dogId);
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, isDone: $isDone, isUrgent: $isUrgent, recurring: $recurring, dogId: $dogId)';
+    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, isDone: $isDone, isAllDay: $isAllDay, isUrgent: $isUrgent, recurring: $recurring, recurringDone: $recurringDone, dogId: $dogId)';
   }
 }
 
@@ -90,8 +110,10 @@ abstract mixin class $TaskCopyWith<$Res> {
       String description,
       DateTime? expiration,
       bool isDone,
+      bool isAllDay,
       bool isUrgent,
       RecurringType recurring,
+      List<DateTime> recurringDone,
       String? dogId});
 }
 
@@ -112,8 +134,10 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
     Object? description = null,
     Object? expiration = freezed,
     Object? isDone = null,
+    Object? isAllDay = null,
     Object? isUrgent = null,
     Object? recurring = null,
+    Object? recurringDone = null,
     Object? dogId = freezed,
   }) {
     return _then(_self.copyWith(
@@ -137,6 +161,10 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
           ? _self.isDone
           : isDone // ignore: cast_nullable_to_non_nullable
               as bool,
+      isAllDay: null == isAllDay
+          ? _self.isAllDay
+          : isAllDay // ignore: cast_nullable_to_non_nullable
+              as bool,
       isUrgent: null == isUrgent
           ? _self.isUrgent
           : isUrgent // ignore: cast_nullable_to_non_nullable
@@ -145,6 +173,10 @@ class _$TaskCopyWithImpl<$Res> implements $TaskCopyWith<$Res> {
           ? _self.recurring
           : recurring // ignore: cast_nullable_to_non_nullable
               as RecurringType,
+      recurringDone: null == recurringDone
+          ? _self.recurringDone
+          : recurringDone // ignore: cast_nullable_to_non_nullable
+              as List<DateTime>,
       dogId: freezed == dogId
           ? _self.dogId
           : dogId // ignore: cast_nullable_to_non_nullable
@@ -163,9 +195,12 @@ class _Task implements Task {
       this.description = "",
       this.expiration,
       this.isDone = false,
+      this.isAllDay = true,
       this.isUrgent = false,
       this.recurring = RecurringType.none,
-      this.dogId});
+      final List<DateTime> recurringDone = const <DateTime>[],
+      this.dogId})
+      : _recurringDone = recurringDone;
   factory _Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
 
   /// The uuid of the task.
@@ -192,6 +227,11 @@ class _Task implements Task {
   @JsonKey()
   final bool isDone;
 
+  /// Mark for "all day" task?
+  @override
+  @JsonKey()
+  final bool isAllDay;
+
   /// Is this task urgent?
   @override
   @JsonKey()
@@ -201,6 +241,18 @@ class _Task implements Task {
   @override
   @JsonKey()
   final RecurringType recurring;
+
+  /// If recurring, the dates that are checked.
+  final List<DateTime> _recurringDone;
+
+  /// If recurring, the dates that are checked.
+  @override
+  @JsonKey()
+  List<DateTime> get recurringDone {
+    if (_recurringDone is EqualUnmodifiableListView) return _recurringDone;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_recurringDone);
+  }
 
   /// The ID of the dog this task relates to.
   @override
@@ -233,21 +285,35 @@ class _Task implements Task {
             (identical(other.expiration, expiration) ||
                 other.expiration == expiration) &&
             (identical(other.isDone, isDone) || other.isDone == isDone) &&
+            (identical(other.isAllDay, isAllDay) ||
+                other.isAllDay == isAllDay) &&
             (identical(other.isUrgent, isUrgent) ||
                 other.isUrgent == isUrgent) &&
             (identical(other.recurring, recurring) ||
                 other.recurring == recurring) &&
+            const DeepCollectionEquality()
+                .equals(other._recurringDone, _recurringDone) &&
             (identical(other.dogId, dogId) || other.dogId == dogId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, description,
-      expiration, isDone, isUrgent, recurring, dogId);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      title,
+      description,
+      expiration,
+      isDone,
+      isAllDay,
+      isUrgent,
+      recurring,
+      const DeepCollectionEquality().hash(_recurringDone),
+      dogId);
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, isDone: $isDone, isUrgent: $isUrgent, recurring: $recurring, dogId: $dogId)';
+    return 'Task(id: $id, title: $title, description: $description, expiration: $expiration, isDone: $isDone, isAllDay: $isAllDay, isUrgent: $isUrgent, recurring: $recurring, recurringDone: $recurringDone, dogId: $dogId)';
   }
 }
 
@@ -263,8 +329,10 @@ abstract mixin class _$TaskCopyWith<$Res> implements $TaskCopyWith<$Res> {
       String description,
       DateTime? expiration,
       bool isDone,
+      bool isAllDay,
       bool isUrgent,
       RecurringType recurring,
+      List<DateTime> recurringDone,
       String? dogId});
 }
 
@@ -285,8 +353,10 @@ class __$TaskCopyWithImpl<$Res> implements _$TaskCopyWith<$Res> {
     Object? description = null,
     Object? expiration = freezed,
     Object? isDone = null,
+    Object? isAllDay = null,
     Object? isUrgent = null,
     Object? recurring = null,
+    Object? recurringDone = null,
     Object? dogId = freezed,
   }) {
     return _then(_Task(
@@ -310,6 +380,10 @@ class __$TaskCopyWithImpl<$Res> implements _$TaskCopyWith<$Res> {
           ? _self.isDone
           : isDone // ignore: cast_nullable_to_non_nullable
               as bool,
+      isAllDay: null == isAllDay
+          ? _self.isAllDay
+          : isAllDay // ignore: cast_nullable_to_non_nullable
+              as bool,
       isUrgent: null == isUrgent
           ? _self.isUrgent
           : isUrgent // ignore: cast_nullable_to_non_nullable
@@ -318,6 +392,10 @@ class __$TaskCopyWithImpl<$Res> implements _$TaskCopyWith<$Res> {
           ? _self.recurring
           : recurring // ignore: cast_nullable_to_non_nullable
               as RecurringType,
+      recurringDone: null == recurringDone
+          ? _self._recurringDone
+          : recurringDone // ignore: cast_nullable_to_non_nullable
+              as List<DateTime>,
       dogId: freezed == dogId
           ? _self.dogId
           : dogId // ignore: cast_nullable_to_non_nullable

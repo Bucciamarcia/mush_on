@@ -1,4 +1,6 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +60,7 @@ Future<void> main() async {
       return true;
     };
   }
-
+  tz.initializeTimeZones();
   runApp(const MyApp());
 }
 
