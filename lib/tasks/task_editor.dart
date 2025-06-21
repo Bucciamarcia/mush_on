@@ -25,7 +25,8 @@ class AddTaskElevatedButton extends StatelessWidget {
         onPressed: () async {
           await showDialog(
             context: context,
-            builder: (BuildContext context) => AddTaskDialog(
+            builder: (BuildContext context) => TaskEditorDialog(
+              taskEditorType: TaskEditorType.newTask,
               task: task,
               dogs: provider.dogs,
               onTaskAdded: (newTask) async {
@@ -68,18 +69,23 @@ class AddTaskElevatedButton extends StatelessWidget {
   }
 }
 
-class AddTaskDialog extends StatefulWidget {
+class TaskEditorDialog extends StatefulWidget {
   final Function(Task) onTaskAdded;
   final List<Dog> dogs;
   final Task? task;
-  const AddTaskDialog(
-      {super.key, required this.onTaskAdded, required this.dogs, this.task});
+  final TaskEditorType taskEditorType;
+  const TaskEditorDialog(
+      {super.key,
+      required this.onTaskAdded,
+      required this.dogs,
+      this.task,
+      required this.taskEditorType});
 
   @override
-  State<AddTaskDialog> createState() => _AddTaskDialogState();
+  State<TaskEditorDialog> createState() => _AddTaskDialogState();
 }
 
-class _AddTaskDialogState extends State<AddTaskDialog> {
+class _AddTaskDialogState extends State<TaskEditorDialog> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   DateTime? _expiration;
@@ -339,7 +345,9 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
           ? () {
               widget.onTaskAdded(
                 Task(
-                  id: widget.task?.id ?? "",
+                  id: widget.taskEditorType == TaskEditorType.newTask
+                      ? ""
+                      : widget.task?.id ?? "",
                   description: _descriptionController.text,
                   title: _titleController.text,
                   dogId: _selectedDog?.id,
@@ -533,3 +541,5 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     }
   }
 }
+
+enum TaskEditorType { newTask, editTask }
