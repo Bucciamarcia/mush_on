@@ -140,4 +140,20 @@ extension TaskListExtension on List<Task> {
     }
     return [...urgentTasks, ...normalTasks];
   }
+
+  /// Returns the tasks of the next X days, excluding today.
+  List<Task> nextDays(int n) {
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+    DateTime tomorrow = today.add(Duration(days: 1));
+    DateTime endDate = tomorrow.add(Duration(days: n));
+
+    return where((t) {
+      if (t.expiration == null) {
+        return false;
+      }
+      return t.expiration!.compareTo(tomorrow) >= 0 &&
+          t.expiration!.compareTo(endDate) < 0;
+    }).toList();
+  }
 }
