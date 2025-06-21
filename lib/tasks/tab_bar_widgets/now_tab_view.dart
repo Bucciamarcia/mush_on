@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/shared/text_title.dart';
-import 'package:mush_on/tasks/add_task.dart';
+import 'package:mush_on/tasks/task_editor.dart';
 
 class NowTabView extends StatelessWidget {
   final List<Task> tasks;
@@ -279,9 +279,13 @@ class TaskElement extends StatelessWidget {
         // You can add navigation to task details or inline editing here
         // onTaskEdited(task.copyWith(isDone: !task.isDone));
         showDialog(
-            context: context,
-            builder: (BuildContext context) => AddTaskDialog(
-                onTaskAdded: (t) => onTaskEdited(t), dogs: dogs, task: task));
+          context: context,
+          builder: (BuildContext context) => TaskEditorDialog(
+              onTaskAdded: (t) => onTaskEdited(t),
+              dogs: dogs,
+              task: task,
+              taskEditorType: TaskEditorType.editTask),
+        );
       },
     );
   }

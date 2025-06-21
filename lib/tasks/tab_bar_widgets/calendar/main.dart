@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -6,12 +7,24 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 class CalendarTabWidget extends StatelessWidget {
   final List<Task> tasks;
   final List<Dog> dogs;
+  static final BasicLogger logger = BasicLogger();
   const CalendarTabWidget({super.key, required this.tasks, required this.dogs});
 
   @override
   Widget build(BuildContext context) {
     return SfCalendar(
       view: CalendarView.month,
+      showNavigationArrow: true,
+      onTap: (element) {
+        try {
+          _handleTap(element);
+        } catch (e, s) {
+          logger.error("Error in handling tap.", error: e, stackTrace: s);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(errorSnackBar(context, "Unknown error."));
+        }
+      },
+      showWeekNumber: true,
       firstDayOfWeek: 1,
       monthViewSettings: MonthViewSettings(
           appointmentDisplayCount: 5,
@@ -19,6 +32,18 @@ class CalendarTabWidget extends StatelessWidget {
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
       dataSource: TaskDataSource(tasks: tasks.haveExpiration, dogs: dogs),
     );
+  }
+
+  void _handleTap(CalendarTapDetails element) {
+    if (element.appointments == null) {
+      throw Exception("Unknown error");
+    } else {
+      if (element.appointments!.isEmpty) {
+        logger.info("Gotta add new task here");
+      } else {
+        Task task = element.appointments!.first as Task;
+      }
+    }
   }
 }
 

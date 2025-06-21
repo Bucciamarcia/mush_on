@@ -3,9 +3,8 @@ import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/tasks/tab_bar_widget.dart';
 import 'package:provider/provider.dart';
-
-import 'add_task.dart';
 import 'tab_bar_widgets/main.dart';
+import 'task_editor.dart';
 
 class TasksMainWidget extends StatelessWidget {
   static BasicLogger logger = BasicLogger();
