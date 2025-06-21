@@ -24,40 +24,47 @@ class TasksMainWidget extends StatelessWidget {
           TabBarWidget(),
           Expanded(
             child: TabBarViewWidget(
-                tasks: provider.tasks,
-                dogs: provider.dogs,
-                onTaskEdited: (t) async {
-                  try {
-                    await provider.editTask(t);
-                    if (t.isDone) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            duration: Duration(seconds: 5),
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            action: SnackBarAction(
-                                label: "UNDO",
-                                onPressed: () async => await provider
-                                    .editTask(t.copyWith(isDone: false))),
-                            content: Text(
-                              "Task completed: ${t.title}",
-                              style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary),
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                  } catch (e, s) {
-                    logger.error("Couldn't edit task", error: e, stackTrace: s);
+              tasks: provider.tasks,
+              dogs: provider.dogs,
+              onTaskEdited: (t) async {
+                try {
+                  await provider.editTask(t);
+                  if (t.isDone) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          errorSnackBar(context, "Couldn't edit task"));
+                        SnackBar(
+                          duration: Duration(seconds: 5),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          action: SnackBarAction(
+                              label: "UNDO",
+                              onPressed: () async => await provider
+                                  .editTask(t.copyWith(isDone: false))),
+                          content: Text(
+                            "Task completed: ${t.title}",
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary),
+                          ),
+                        ),
+                      );
                     }
                   }
-                }),
+                } catch (e, s) {
+                  logger.error("Couldn't edit task", error: e, stackTrace: s);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Couldn't edit task"));
+                  }
+                }
+              },
+              onTaskAdded: (t) async {
+                await provider.addTask(t);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      confirmationSnackbar(context, "Task added successfully"));
+                }
+              },
+            ),
           ),
         ],
       ),
