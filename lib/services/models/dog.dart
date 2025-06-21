@@ -81,6 +81,10 @@ extension DogListExtension on List<Dog> {
   String? getNameFromId(String id) {
     return firstWhereOrNull((dog) => dog.id == id)?.name;
   }
+
+  Dog? getDogFromId(String id) {
+    return firstWhereOrNull((dog) => dog.id == id);
+  }
 }
 
 /// All the operations related to the Dog class

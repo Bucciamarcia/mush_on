@@ -7,14 +7,15 @@ import 'package:mush_on/services/models/tasks.dart';
 import 'package:searchfield/searchfield.dart';
 
 class AddTaskElevatedButton extends StatelessWidget {
+  final MainProvider provider;
+  final BasicLogger logger;
+  final Task? task;
   const AddTaskElevatedButton({
     super.key,
     required this.provider,
     required this.logger,
+    this.task,
   });
-
-  final MainProvider provider;
-  final BasicLogger logger;
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +26,27 @@ class AddTaskElevatedButton extends StatelessWidget {
           await showDialog(
             context: context,
             builder: (BuildContext context) => AddTaskDialog(
+              task: task,
               dogs: provider.dogs,
               onTaskAdded: (newTask) async {
                 try {
-                  await provider.addTask(newTask);
+                  if (task == null) {
+                    await provider.addTask(newTask);
+                  } else {
+                    await provider.editTask(newTask.copyWith(id: task!.id));
+                  }
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      confirmationSnackbar(context, "Task added successfully!"),
-                    );
+                    if (task == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationSnackbar(
+                            context, "Task added successfully!"),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationSnackbar(
+                            context, "Task edited successfully!"),
+                      );
+                    }
                   }
                 } catch (e, s) {
                   logger.error("Couldn't add the task",
@@ -57,8 +71,9 @@ class AddTaskElevatedButton extends StatelessWidget {
 class AddTaskDialog extends StatefulWidget {
   final Function(Task) onTaskAdded;
   final List<Dog> dogs;
+  final Task? task;
   const AddTaskDialog(
-      {super.key, required this.onTaskAdded, required this.dogs});
+      {super.key, required this.onTaskAdded, required this.dogs, this.task});
 
   @override
   State<AddTaskDialog> createState() => _AddTaskDialogState();
@@ -77,12 +92,24 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController();
-    _descriptionController = TextEditingController();
-    _dogIdController = TextEditingController();
-    _isDone = false;
-    _isUrgent = false;
-    _recurringType = RecurringType.none;
+    if (widget.task != null) {
+      if (widget.task!.expiration != null) {
+        _expiration = widget.task!.expiration;
+      }
+    }
+    _titleController = TextEditingController(text: widget.task?.title ?? "");
+    _descriptionController =
+        TextEditingController(text: widget.task?.description ?? "");
+    _dogIdController = TextEditingController(text: widget.task?.dogId ?? "");
+    if (widget.task != null) {
+      if (widget.task!.dogId != null) {
+        Dog? foundDog = widget.dogs.getDogFromId(widget.task!.dogId!);
+        _selectedDog = foundDog;
+      }
+    }
+    _isDone = widget.task?.isDone ?? false;
+    _isUrgent = widget.task?.isUrgent ?? false;
+    _recurringType = widget.task?.recurring ?? RecurringType.none;
   }
 
   @override
@@ -312,6 +339,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
           ? () {
               widget.onTaskAdded(
                 Task(
+                  id: widget.task?.id ?? "",
                   description: _descriptionController.text,
                   title: _titleController.text,
                   dogId: _selectedDog?.id,

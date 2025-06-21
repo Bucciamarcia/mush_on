@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/shared/text_title.dart';
+import 'package:mush_on/tasks/add_task.dart';
 
 class NowTabView extends StatelessWidget {
   final List<Task> tasks;
@@ -34,6 +35,7 @@ class NowTabView extends StatelessWidget {
                       .urgentFirst()
                       .map(
                         (t) => TaskElement(
+                          dogs: dogs,
                           key: ValueKey(t.id),
                           dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
                           task: t,
@@ -53,6 +55,7 @@ class NowTabView extends StatelessWidget {
                     .urgentFirst()
                     .map(
                       (t) => TaskElement(
+                        dogs: dogs,
                         key: ValueKey(t.id),
                         dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
                         task: t,
@@ -71,6 +74,7 @@ class NowTabView extends StatelessWidget {
                     .nextDays(3)
                     .map(
                       (t) => TaskElement(
+                        dogs: dogs,
                         key: ValueKey(t.id),
                         dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
                         task: t,
@@ -88,9 +92,14 @@ class NowTabView extends StatelessWidget {
 class TaskElement extends StatelessWidget {
   final Task task;
   final Dog? dog;
+  final List<Dog> dogs;
   final Function(Task) onTaskEdited;
   const TaskElement(
-      {super.key, required this.task, required this.onTaskEdited, this.dog});
+      {super.key,
+      required this.task,
+      required this.onTaskEdited,
+      this.dog,
+      required this.dogs});
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +277,11 @@ class TaskElement extends StatelessWidget {
       ),
       onTap: () {
         // You can add navigation to task details or inline editing here
-        onTaskEdited(task.copyWith(isDone: !task.isDone));
+        // onTaskEdited(task.copyWith(isDone: !task.isDone));
+        showDialog(
+            context: context,
+            builder: (BuildContext context) => AddTaskDialog(
+                onTaskAdded: (t) => onTaskEdited(t), dogs: dogs, task: task));
       },
     );
   }
