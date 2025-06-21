@@ -17,42 +17,68 @@ class NowTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLargeScreen = MediaQuery.of(context).size.width > 1100;
     return Align(
       alignment: Alignment.topCenter,
       child: Wrap(
         children: [
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 500),
-            child: Column(
-              children: [
-                TextTitle("Today"),
-                ...tasks.dueTodayOrOverdue.urgentFirst().map(
-                      (t) => TaskElement(
-                        key: ValueKey(t.id),
-                        dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
-                        task: t,
-                        onTaskEdited: (t) => onTaskEdited(t),
-                      ),
-                    ),
-              ],
-            ),
+            child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 500),
+                child: ExpansionTile(
+                  initiallyExpanded: true,
+                  title: TextTitle(
+                      "Today: ${tasks.dueTodayOrOverdue.notDone.length}"),
+                  children: tasks.dueTodayOrOverdue
+                      .urgentFirst()
+                      .map(
+                        (t) => TaskElement(
+                          key: ValueKey(t.id),
+                          dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
+                          task: t,
+                          onTaskEdited: (t) => onTaskEdited(t),
+                        ),
+                      )
+                      .toList(),
+                )),
           ),
           ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 500),
-            child: Column(
-              children: [
-                TextTitle("Tasks with no expiration"),
-                ...tasks.notDone.dontExpire.urgentFirst().map(
+              constraints: BoxConstraints(maxWidth: 500),
+              child: ExpansionTile(
+                title: TextTitle(
+                    "Tasks with no expiration: ${tasks.notDone.dontExpire.length}"),
+                initiallyExpanded: isLargeScreen ? true : false,
+                children: tasks.notDone.dontExpire
+                    .urgentFirst()
+                    .map(
                       (t) => TaskElement(
                         key: ValueKey(t.id),
                         dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
                         task: t,
                         onTaskEdited: (t) => onTaskEdited(t),
                       ),
-                    ),
-              ],
-            ),
-          ),
+                    )
+                    .toList(),
+              )),
+          ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 500),
+              child: ExpansionTile(
+                title: TextTitle(
+                    "Tasks in the next 3 days: ${tasks.nextDays(3).notDone.length}"),
+                initiallyExpanded: isLargeScreen ? true : false,
+                children: tasks
+                    .nextDays(3)
+                    .map(
+                      (t) => TaskElement(
+                        key: ValueKey(t.id),
+                        dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
+                        task: t,
+                        onTaskEdited: (t) => onTaskEdited(t),
+                      ),
+                    )
+                    .toList(),
+              )),
         ],
       ),
     );
