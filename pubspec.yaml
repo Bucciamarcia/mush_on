@@ -58,6 +58,7 @@ dependencies:
   freezed_annotation: ^3.0.0
   syncfusion_flutter_charts: ^29.2.9
   syncfusion_flutter_datepicker: ^29.2.9
+  syncfusion_flutter_calendar: ^29.2.11+1
   file_picker: ^10.1.2
   firebase_storage: ^12.4.5
   path: ^1.9.1
