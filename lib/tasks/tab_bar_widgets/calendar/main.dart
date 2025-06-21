@@ -2,13 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
+import 'package:mush_on/tasks/task_editor.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class CalendarTabWidget extends StatelessWidget {
   final List<Task> tasks;
   final List<Dog> dogs;
+  final Function(Task) onTaskEdited;
+  final Function(Task) onTaskAdded;
   static final BasicLogger logger = BasicLogger();
-  const CalendarTabWidget({super.key, required this.tasks, required this.dogs});
+  const CalendarTabWidget(
+      {super.key,
+      required this.onTaskAdded,
+      required this.tasks,
+      required this.dogs,
+      required this.onTaskEdited});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +25,7 @@ class CalendarTabWidget extends StatelessWidget {
       showNavigationArrow: true,
       onTap: (element) {
         try {
-          _handleTap(element);
+          _handleTap(element, context);
         } catch (e, s) {
           logger.error("Error in handling tap.", error: e, stackTrace: s);
           ScaffoldMessenger.of(context)
@@ -34,14 +42,26 @@ class CalendarTabWidget extends StatelessWidget {
     );
   }
 
-  void _handleTap(CalendarTapDetails element) {
+  void _handleTap(CalendarTapDetails element, BuildContext context) async {
     if (element.appointments == null) {
       throw Exception("Unknown error");
     } else {
       if (element.appointments!.isEmpty) {
         logger.info("Gotta add new task here");
+      } else if (element.appointments!.length != 1) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(errorSnackBar(context, "not implemented yet"));
       } else {
         Task task = element.appointments!.first as Task;
+        return await showDialog(
+          context: context,
+          builder: (context) => TaskEditorDialog(
+            task: task,
+            dogs: dogs,
+            taskEditorType: TaskEditorType.editTask,
+            onTaskAdded: (t) => onTaskEdited(t),
+          ),
+        );
       }
     }
   }

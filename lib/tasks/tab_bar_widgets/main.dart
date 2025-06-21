@@ -9,11 +9,13 @@ class TabBarViewWidget extends StatelessWidget {
   final List<Task> tasks;
   final List<Dog> dogs;
   final Function(Task) onTaskEdited;
+  final Function(Task) onTaskAdded;
   const TabBarViewWidget({
     super.key,
     required this.tasks,
     required this.onTaskEdited,
     required this.dogs,
+    required this.onTaskAdded,
   });
 
   @override
@@ -27,7 +29,12 @@ class TabBarViewWidget extends StatelessWidget {
             onTaskEdited: (t) => onTaskEdited(t),
           ),
         ),
-        CalendarTabWidget(tasks: tasks, dogs: dogs)
+        CalendarTabWidget(
+          tasks: tasks,
+          dogs: dogs,
+          onTaskEdited: (t) => onTaskEdited(t),
+          onTaskAdded: (t) => onTaskAdded(t),
+        )
       ],
     );
   }
