@@ -27,7 +27,7 @@ class TabBarViewWidget extends StatelessWidget {
             onTaskEdited: (t) => onTaskEdited(t),
           ),
         ),
-        CalendarTabWidget()
+        CalendarTabWidget(tasks: tasks, dogs: dogs)
       ],
     );
   }

@@ -28,11 +28,17 @@ abstract class Task with _$Task {
     /// Has the task been completed?
     @Default(false) bool isDone,
 
+    /// Mark for "all day" task?
+    @Default(true) bool isAllDay,
+
     /// Is this task urgent?
     @Default(false) bool isUrgent,
 
     /// If this is a recurring task, and how often it repeats.
     @Default(RecurringType.none) RecurringType recurring,
+
+    /// If recurring, the dates that are checked.
+    @Default(<DateTime>[]) List<DateTime> recurringDone,
 
     /// The ID of the dog this task relates to.
     String? dogId,
@@ -125,6 +131,9 @@ extension TaskListExtension on List<Task> {
 
   /// Filters only the urgent tasks.
   List<Task> get urgent => where((t) => t.isUrgent).toList();
+
+  /// Filter tasks that have an expiration date (expiration != null).
+  List<Task> get haveExpiration => where((t) => t.expiration != null).toList();
 
   /// Returns the same list but with urgent tasks first.
   List<Task> urgentFirst() {
