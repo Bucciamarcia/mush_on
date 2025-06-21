@@ -3,6 +3,8 @@ import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/tasks/tab_bar_widgets/now_tab_view.dart';
 
+import 'calendar/main.dart';
+
 class TabBarViewWidget extends StatelessWidget {
   final List<Task> tasks;
   final List<Dog> dogs;
@@ -25,7 +27,7 @@ class TabBarViewWidget extends StatelessWidget {
             onTaskEdited: (t) => onTaskEdited(t),
           ),
         ),
-        Text("2"),
+        CalendarTabWidget()
       ],
     );
   }
