@@ -1,15 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 
-import '../services/firestore.dart';
-
 class CreateTeamProvider extends ChangeNotifier {
   bool unsavedData = false;
   BasicLogger logger = BasicLogger();
-  List<Dog> dogs = [];
+  List<Dog> dogs;
   List<DogNote> dogNotes = [];
   List<String> runningDogIds = [];
   TeamGroup group = TeamGroup(
@@ -26,27 +23,14 @@ class CreateTeamProvider extends ChangeNotifier {
   final Map<String, Dog> _dogsById = {};
   Map<String, Dog> get dogsById => _dogsById;
 
-  CreateTeamProvider() {
-    _fetchDogs();
+  CreateTeamProvider({required this.dogs}) {
+    _fetchDogsById(dogs);
+    _buildNotes();
   }
 
   void addDogNote(DogNote newNote) {
     dogNotes.add(newNote);
     notifyListeners();
-  }
-
-  void _fetchDogs() async {
-    String account = await FirestoreService().getUserAccount();
-    FirebaseFirestore.instance
-        .collection("accounts/$account/data/kennel/dogs")
-        .snapshots()
-        .listen((snapshot) {
-      dogs = snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList()
-        ..sort((a, b) => a.name.compareTo(b.name));
-      _fetchDogsById(dogs);
-      _buildNotes();
-      notifyListeners();
-    });
   }
 
   void _fetchDogsById(List<Dog> fetchedDogs) {

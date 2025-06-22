@@ -35,6 +35,8 @@ class DogSelector extends StatefulWidget {
 
 class _DogSelectorState extends State<DogSelector> {
   static final BasicLogger logger = BasicLogger();
+  late Map<String, Dog> _dogsById;
+  bool _errorShown = false;
 
   String? _getCurrentValue() {
     // Ensure indices are valid before accessing
@@ -56,13 +58,15 @@ class _DogSelectorState extends State<DogSelector> {
     }
   }
 
-  // Keep dogsById logic if needed, update in didUpdateWidget if widget.dogs changes
-  late Map<String, Dog> _dogsById;
-
   @override
   void initState() {
     super.initState();
     _dogsById = Dog.dogsById(widget.dogs);
+
+    // Check for missing dogs after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForMissingDog();
+    });
   }
 
   @override
@@ -71,6 +75,31 @@ class _DogSelectorState extends State<DogSelector> {
     // Update local map if the input list changes
     if (widget.dogs != oldWidget.dogs) {
       _dogsById = Dog.dogsById(widget.dogs);
+      _errorShown = false; // Reset error flag when dogs list changes
+
+      // Check again after widget update
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkForMissingDog();
+      });
+    }
+  }
+
+  void _checkForMissingDog() {
+    String? currentValue = _getCurrentValue();
+
+    if (currentValue != null &&
+        currentValue.isNotEmpty &&
+        _dogsById[currentValue] == null &&
+        !_errorShown &&
+        mounted) {
+      _errorShown = true;
+      logger.error("The dog with ID '$currentValue' is not in the _dogsById");
+
+      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(context,
+          "Some dogs from the loaded team are no longer available. They have been removed."));
+
+      // Automatically remove the invalid dog reference
+      widget.onDogRemoved(widget.teamNumber, widget.rowNumber);
     }
   }
 
@@ -78,30 +107,35 @@ class _DogSelectorState extends State<DogSelector> {
   Widget build(BuildContext context) {
     String? currentValue = _getCurrentValue();
 
+    // If there's a current value but the dog doesn't exist, show empty autocomplete
     if (currentValue != null && currentValue.isNotEmpty) {
       if (_dogsById[currentValue] == null) {
-        logger.error("The dog is not in the _dogsById");
-        ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
-            context, "Error in fetching the dog! Exit and try again."));
-        return Text("Can't fetch dog");
+        logger.warning(
+            "Dog with ID '$currentValue' not found, showing empty selector");
+        // Don't show error here - it will be handled in the post-frame callback
+        currentValue = null; // Treat as empty
       }
     }
 
     final autoCompleteKey = ValueKey(
         '${widget.teamNumber}_${widget.rowNumber}_${widget.positionNumber}_$currentValue');
+
     return Expanded(
-      child: (currentValue != null && currentValue.isNotEmpty)
-          // If a Dog is selected, show the interface with chip and notes.
+      child: (currentValue != null &&
+              currentValue.isNotEmpty &&
+              _dogsById[currentValue] != null)
+          // If a Dog is selected and exists, show the interface with chip and notes.
           ? DogSelectedInterface(
               dog: _dogsById[currentValue]!,
               notes: widget.notes,
               onDogRemoved: () =>
                   widget.onDogRemoved(widget.teamNumber, widget.rowNumber),
             )
-          // If no dog is selcted for this position, show the autocomplete with textfield.
+          // If no dog is selected for this position, show the autocomplete with textfield.
           : AutocompleteDogs(
               autoCompleteKey: autoCompleteKey,
-              currentValue: currentValue,
+              currentValue:
+                  null, // Always pass null since we've validated above
               notes: widget.notes,
               teamNumber: widget.teamNumber,
               rowNumber: widget.rowNumber,
