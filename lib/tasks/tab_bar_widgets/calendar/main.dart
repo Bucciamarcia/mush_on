@@ -28,23 +28,6 @@ class CalendarTabWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SfCalendar(
       view: CalendarView.month,
-      appointmentBuilder: (context, calendarAppointmentDetails) {
-        final Task task = calendarAppointmentDetails.appointments.first as Task;
-
-        return Container(
-          decoration: BoxDecoration(
-            color: _getTaskColor(task),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(2),
-            child: Text(
-              _getTaskSubject(task),
-              style: _getTaskTextStyle(task),
-            ),
-          ),
-        );
-      },
       onViewChanged: (details) => fetchNewTasks(
           details: details,
           tasks: tasks,
@@ -62,47 +45,11 @@ class CalendarTabWidget extends StatelessWidget {
       showWeekNumber: true,
       firstDayOfWeek: 1,
       monthViewSettings: MonthViewSettings(
-          appointmentDisplayCount: 5,
+          appointmentDisplayCount: 3,
           numberOfWeeksInView: 4,
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
       dataSource: TaskDataSource(tasks: tasks.tasks.haveExpiration, dogs: dogs),
     );
-  }
-
-  String _getTaskSubject(Task task) {
-    if (task.dogId == null) {
-      return task.title;
-    } else {
-      return "${task.title} 🐶 ${dogs.getNameFromId(task.dogId!) ?? ""}";
-    }
-  }
-
-  TextStyle _getTaskTextStyle(Task task) {
-    if (task.isDone) {
-      return TextStyle(
-          color: Colors.white,
-          decoration: TextDecoration.lineThrough,
-          fontStyle: FontStyle.italic,
-          fontSize: 10);
-    } else if (task.isUrgent) {
-      return TextStyle(
-        color: Colors.white,
-        fontSize: 10,
-        fontWeight: FontWeight.bold,
-      );
-    } else {
-      return TextStyle(color: Colors.white, fontSize: 10);
-    }
-  }
-
-  Color _getTaskColor(Task task) {
-    if (task.isDone) {
-      return Colors.grey;
-    } else if (task.isUrgent) {
-      return Colors.red;
-    } else {
-      return Colors.green;
-    }
   }
 
   void _handleTap(CalendarTapDetails element, BuildContext context) async {
