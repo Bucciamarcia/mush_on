@@ -7,7 +7,7 @@ import 'package:mush_on/shared/text_title.dart';
 import 'package:mush_on/tasks/task_editor.dart';
 
 class NowTabView extends StatelessWidget {
-  final List<Task> tasks;
+  final TasksInMemory tasks;
   final List<Dog> dogs;
   final Function(Task) onTaskEdited;
   const NowTabView(
@@ -30,8 +30,8 @@ class NowTabView extends StatelessWidget {
                 child: ExpansionTile(
                   initiallyExpanded: true,
                   title: TextTitle(
-                      "Today: ${tasks.dueTodayOrOverdue.notDone.length}"),
-                  children: tasks.dueTodayOrOverdue
+                      "Today: ${tasks.tasks.dueTodayOrOverdue.notDone.length}"),
+                  children: tasks.tasks.dueTodayOrOverdue
                       .urgentFirst()
                       .map(
                         (t) => TaskElement(
@@ -49,9 +49,9 @@ class NowTabView extends StatelessWidget {
               constraints: BoxConstraints(maxWidth: 500),
               child: ExpansionTile(
                 title: TextTitle(
-                    "Tasks with no expiration: ${tasks.notDone.dontExpire.length}"),
+                    "Tasks with no expiration: ${tasks.tasks.notDone.dontExpire.length}"),
                 initiallyExpanded: isLargeScreen ? true : false,
-                children: tasks.notDone.dontExpire
+                children: tasks.tasks.notDone.dontExpire
                     .urgentFirst()
                     .map(
                       (t) => TaskElement(
@@ -68,9 +68,9 @@ class NowTabView extends StatelessWidget {
               constraints: BoxConstraints(maxWidth: 500),
               child: ExpansionTile(
                 title: TextTitle(
-                    "Tasks in the next 3 days: ${tasks.nextDays(3).notDone.length}"),
+                    "Tasks in the next 3 days: ${tasks.tasks.nextDays(3).notDone.length}"),
                 initiallyExpanded: isLargeScreen ? true : false,
-                children: tasks
+                children: tasks.tasks
                     .nextDays(3)
                     .map(
                       (t) => TaskElement(

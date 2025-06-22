@@ -25,10 +25,10 @@ class MainProvider extends ChangeNotifier {
   /// The account settings.
   SettingsModel get settings => _settings;
 
-  List<Task> _tasks = [];
+  TasksInMemory _tasks = TasksInMemory();
 
   /// The list of tasks.
-  List<Task> get tasks => _tasks;
+  TasksInMemory get tasks => _tasks;
 
   MainProvider() {
     _fetchDogs();
@@ -45,9 +45,9 @@ class MainProvider extends ChangeNotifier {
       _logger.error("Couldn't add task to db", error: e, stackTrace: s);
       rethrow;
     }
-    List<Task> newTasks = [..._tasks, taskToSave];
+    List<Task> newTasks = [..._tasks.tasks, taskToSave];
     newTasks.sort((a, b) => a.title.compareTo(b.title));
-    _tasks = newTasks;
+    _tasks = _tasks.copyWith(tasks: newTasks);
     notifyListeners();
   }
 
@@ -58,11 +58,11 @@ class MainProvider extends ChangeNotifier {
       _logger.error("Couldn't edit task", error: e, stackTrace: s);
       rethrow;
     }
-    List<Task> newTasks = List.from(_tasks);
+    List<Task> newTasks = List.from(_tasks.tasks);
     newTasks.removeWhere((t) => t.id == editedTask.id);
     newTasks.add(editedTask);
     newTasks.sort((a, b) => a.title.compareTo(b.title));
-    _tasks = newTasks;
+    _tasks = _tasks.copyWith(tasks: newTasks);
     notifyListeners();
   }
 
@@ -101,6 +101,7 @@ class MainProvider extends ChangeNotifier {
     });
   }
 
+  /// Initial fetch of tasks. Only gets the last 30 days.
   void _fetchTasks() async {
     List<Task> newTasks = [];
     if (_account.isEmpty) {
@@ -108,14 +109,28 @@ class MainProvider extends ChangeNotifier {
     }
     String path = "accounts/$account/data/misc/tasks";
     var collection = FirebaseFirestore.instance.collection(path);
-    var snapshot = await collection.get();
+    var snapshot = await collection
+        .where("expiration",
+            isGreaterThanOrEqualTo: DateTime.now().subtract(Duration(days: 30)))
+        .get();
     var docs = snapshot.docs;
     for (var doc in docs) {
       Map<String, dynamic> data = doc.data();
       newTasks.add(Task.fromJson(data));
     }
+    var snapshotNoExpirtion =
+        await collection.where("expiration", isNull: true).get();
+    var docsNoExpiration = snapshotNoExpirtion.docs;
+    for (var docNoExpiration in docsNoExpiration) {
+      Map<String, dynamic> dataNoExpiration = docNoExpiration.data();
+      newTasks.add(Task.fromJson(dataNoExpiration));
+    }
     newTasks.sort((a, b) => a.title.compareTo(b.title));
-    _tasks = newTasks;
+    _tasks = TasksInMemory(
+      tasks: newTasks,
+      oldestFetched: DateTime.now().subtract(Duration(days: 30)),
+      noExpirationFetched: true,
+    );
     notifyListeners();
   }
 
@@ -124,5 +139,36 @@ class MainProvider extends ChangeNotifier {
     for (Dog dog in fetchedDogs) {
       _dogsById.addAll({dog.id: dog});
     }
+  }
+
+  Future<void> fetchOlderTasks(DateTime date) async {
+    // If oldestFetched is null, it's already got everything.
+    // Can safely return.
+    if (_tasks.oldestFetched == null) {
+      return;
+    }
+    List<Task> newTasks = [];
+    if (_account.isEmpty) {
+      _account = await FirestoreService().getUserAccount();
+    }
+    String path = "accounts/$account/data/misc/tasks";
+    var collection = FirebaseFirestore.instance.collection(path);
+    var snapshot = await collection
+        .where("expiration", isGreaterThanOrEqualTo: date)
+        .where("expiration",
+            isLessThan:
+                _tasks.oldestFetched!) // No need to fetch docs we already have.
+        .get();
+    var docs = snapshot.docs;
+    for (var doc in docs) {
+      Map<String, dynamic> data = doc.data();
+      newTasks.add(Task.fromJson(data));
+    }
+
+    // Now we sort again
+    List<Task> tasksToSort = [..._tasks.tasks, ...newTasks];
+    tasksToSort.sort((a, b) => a.title.compareTo((b.title)));
+    _tasks = _tasks.copyWith(tasks: tasksToSort, oldestFetched: date);
+    notifyListeners();
   }
 }

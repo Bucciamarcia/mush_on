@@ -6,20 +6,22 @@ part of 'teamgroup.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-TeamGroup _$TeamGroupFromJson(Map<String, dynamic> json) => TeamGroup(
+_TeamGroup _$TeamGroupFromJson(Map<String, dynamic> json) => _TeamGroup(
       name: json['name'] as String? ?? "",
-      date: TeamGroup._dateFromTimestamp(json['date']),
+      date: const NonNullableTimestampConverter()
+          .fromJson(json['date'] as Timestamp),
       distance: (json['distance'] as num?)?.toDouble() ?? 0,
       notes: json['notes'] as String? ?? "",
       teams: json['teams'] == null
           ? const []
-          : TeamGroup._teamsFromJson(json['teams'] as List?),
+          : _teamsFromJson(json['teams'] as List?),
     );
 
-Map<String, dynamic> _$TeamGroupToJson(TeamGroup instance) => <String, dynamic>{
+Map<String, dynamic> _$TeamGroupToJson(_TeamGroup instance) =>
+    <String, dynamic>{
       'name': instance.name,
-      'date': TeamGroup._dateToTimestamp(instance.date),
+      'date': const NonNullableTimestampConverter().toJson(instance.date),
       'distance': instance.distance,
       'notes': instance.notes,
-      'teams': TeamGroup._teamsToJson(instance.teams),
+      'teams': _teamsToJson(instance.teams),
     };

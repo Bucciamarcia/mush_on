@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/custom_converters.dart';
 part 'teamgroup.g.dart';
+part 'teamgroup.freezed.dart';
 
-@JsonSerializable()
+@freezed
 
 /// A class representing a group of teams with associated metadata.
 /// It is equivalent to a "start", meaning all the teams of a convoy of sleds.
@@ -22,73 +25,26 @@ part 'teamgroup.g.dart';
 ///   teams: [team1, team2, team3],
 /// );
 /// ```
-class TeamGroup {
-  /// The name of the entire group.
-  String name;
+abstract class TeamGroup with _$TeamGroup {
+  @JsonSerializable(explicitToJson: true)
+  const factory TeamGroup({
+    /// The name of the entire group.
+    @Default("") String name,
+    @NonNullableTimestampConverter() required DateTime date,
 
-  @JsonKey(fromJson: _dateFromTimestamp, toJson: _dateToTimestamp)
+    /// The distance ran in km.
+    /// Used for stats.
+    @Default(0) double distance,
+    @Default("") String notes,
+    @JsonKey(fromJson: _teamsFromJson, toJson: _teamsToJson)
 
-  /// The date and time of the start.
-  /// Note that there can be only one [TeamGroup] for a specific time and date.
-  /// If more than one [TeamGroup] starts at the same time (e.g. parallel starts),
-  /// they need to be separated by 1 minute.
-  DateTime date;
+    /// The list of teams in the group.
+    /// Each team is represented by a [Team] object.
+    @Default([])
+    List<Team> teams,
+  }) = _TeamGroup;
 
-  /// The distance ran in km.
-  /// Used for stats.
-  double distance;
-
-  String notes;
-
-  @JsonKey(fromJson: _teamsFromJson, toJson: _teamsToJson)
-
-  /// The list of teams in the group.
-  /// Each team is represented by a [Team] object.
-  List<Team> teams;
-
-  TeamGroup({
-    this.name = "",
-    required this.date,
-    this.distance = 0,
-    this.notes = "",
-    this.teams = const [],
-  });
-
-  static List<Team> _teamsFromJson(List<dynamic>? teamJsonList) {
-    if (teamJsonList == null) return [];
-    return teamJsonList
-        .map((teamJson) => Team.fromFirestoreFormat(teamJson))
-        .toList();
-  }
-
-  static List<dynamic> _teamsToJson(List<Team> teams) {
-    // Implement your custom serialization for teams here
-    // This would depend on your Firestore structure
-    return teams.map((team) => team.toJson()).toList();
-  }
-
-  static DateTime _dateFromTimestamp(dynamic timestamp) {
-    if (timestamp is Timestamp) {
-      return timestamp.toDate();
-    }
-    return DateTime.now(); // Fallback
-  }
-
-  static Timestamp _dateToTimestamp(DateTime date) {
-    return Timestamp.fromDate(date);
-  }
-
-  /// Add a new team at the given position
-  void addTeam(int position) {
-    teams.insert(position, Team(name: "${position + 1}."));
-  }
-
-  /// Remove a team at the given index
-  void removeTeam(int index) {
-    if (index >= 0 && index < teams.length) {
-      teams.removeAt(index);
-    }
-  }
+  const TeamGroup._();
 
   /// Find duplicate dogs
   List<String> getDuplicateDogs() {
@@ -114,5 +70,17 @@ class TeamGroup {
 
   factory TeamGroup.fromJson(Map<String, dynamic> json) =>
       _$TeamGroupFromJson(json);
-  Map<String, dynamic> toJson() => _$TeamGroupToJson(this);
+}
+
+List<Team> _teamsFromJson(List<dynamic>? teamJsonList) {
+  if (teamJsonList == null) return [];
+  return teamJsonList
+      .map((teamJson) => Team.fromFirestoreFormat(teamJson))
+      .toList();
+}
+
+List<dynamic> _teamsToJson(List<Team> teams) {
+  // Implement your custom serialization for teams here
+  // This would depend on your Firestore structure
+  return teams.map((team) => team.toJson()).toList();
 }

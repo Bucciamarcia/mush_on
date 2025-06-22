@@ -5,6 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/custom_converters.dart';
 import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
 part "dog.g.dart";
@@ -25,7 +26,7 @@ abstract class Dog with _$Dog {
     @Default([]) List<Tag> tags,
     @Default([]) List<CustomField> customFields,
     @Default([]) List<SingleDogNote> notes,
-    DateTime? birth,
+    @TimestampConverter() DateTime? birth,
   }) = _Dog;
 
   const Dog._();
@@ -294,9 +295,9 @@ abstract class Tag with _$Tag {
     @Default("") String name,
     @Default(false) bool preventFromRun,
     @Default(false) bool showInTeamBuilder,
-    required DateTime created,
+    @TimestampConverter() required DateTime created,
     @ColorConverter() @Default(Colors.green) Color color,
-    DateTime? expired,
+    @TimestampConverter() DateTime? expired,
   }) = _Tag;
 
   factory Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);

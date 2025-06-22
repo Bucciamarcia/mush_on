@@ -3,7 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:uuid/uuid.dart';
-
+import 'custom_converters.dart';
 part "tasks.g.dart";
 part "tasks.freezed.dart";
 
@@ -23,7 +23,7 @@ abstract class Task with _$Task {
     @Default("") String description,
 
     /// The expiration date of the task (if present).
-    DateTime? expiration,
+    @TimestampConverter() DateTime? expiration,
 
     /// Has the task been completed?
     @Default(false) bool isDone,
@@ -38,7 +38,9 @@ abstract class Task with _$Task {
     @Default(RecurringType.none) RecurringType recurring,
 
     /// If recurring, the dates that are checked.
-    @Default(<DateTime>[]) List<DateTime> recurringDone,
+    @TimestampListConverter()
+    @Default(<DateTime>[])
+    List<DateTime> recurringDone,
 
     /// The ID of the dog this task relates to.
     String? dogId,
@@ -135,6 +137,14 @@ extension TaskListExtension on List<Task> {
   /// Filter tasks that have an expiration date (expiration != null).
   List<Task> get haveExpiration => where((t) => t.expiration != null).toList();
 
+  /// Gets the date of the oldest task expiration.
+  DateTime get oldestExpiration {
+    List<Task> tasksCopy = List.from(this);
+    tasksCopy.removeWhere((t) => t.expiration == null);
+    tasksCopy.sort((a, b) => a.expiration!.compareTo(b.expiration!));
+    return tasksCopy.first.expiration!;
+  }
+
   /// Returns the same list but with urgent tasks first.
   List<Task> urgentFirst() {
     List<Task> urgentTasks = [];
@@ -165,4 +175,23 @@ extension TaskListExtension on List<Task> {
           t.expiration!.compareTo(endDate) < 0;
     }).toList();
   }
+}
+
+@freezed
+
+/// Holds the tasks fetched from the db alongside the date range fetched.
+abstract class TasksInMemory with _$TasksInMemory {
+  const factory TasksInMemory({
+    /// The list of tasks
+    @Default(<Task>[]) List<Task> tasks,
+
+    /// The oldest expiration fetched. Null if fetched from the beginning.
+    DateTime? oldestFetched,
+
+    /// The newest expiration fetched (also in the future). Null if fetched until the end.
+    DateTime? newestFetched,
+
+    /// Have the tasks with no expiration been fetched?
+    @Default(false) bool noExpirationFetched,
+  }) = _TasksInMemory;
 }

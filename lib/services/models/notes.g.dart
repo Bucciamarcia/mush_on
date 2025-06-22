@@ -8,15 +8,14 @@ part of 'notes.dart';
 
 _SingleDogNote _$SingleDogNoteFromJson(Map<String, dynamic> json) =>
     _SingleDogNote(
-      date:
-          json['date'] == null ? null : DateTime.parse(json['date'] as String),
+      date: const TimestampConverter().fromJson(json['date'] as Timestamp?),
       id: json['id'] as String? ?? "",
       content: json['content'] as String? ?? "",
     );
 
 Map<String, dynamic> _$SingleDogNoteToJson(_SingleDogNote instance) =>
     <String, dynamic>{
-      'date': instance.date?.toIso8601String(),
+      'date': const TimestampConverter().toJson(instance.date),
       'id': instance.id,
       'content': instance.content,
     };
