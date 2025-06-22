@@ -1,5 +1,7 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+// ignore: depend_on_referenced_packages
 import 'package:timezone/data/latest.dart' as tz;
+// ignore: unused_import, depend_on_referenced_packages
 import 'package:timezone/timezone.dart' as tz;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';

@@ -24,9 +24,9 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
   @override
   SettingsModel get settings => _settings;
 
-  List<Task> _tasks = [];
+  TasksInMemory _tasks = TasksInMemory();
   @override
-  List<Task> get tasks => _tasks;
+  TasksInMemory get tasks => _tasks;
 
   FakeMainProvider() {
     _fetchDogs();
@@ -37,7 +37,19 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
 
   @override
   Future<void> addTask(Task newTask) async {
-    _tasks = [..._tasks, newTask];
+    List<Task> newTasks = [..._tasks.tasks, newTask];
+    newTasks.sort((a, b) => a.title.compareTo(b.title));
+    _tasks = _tasks.copyWith(tasks: newTasks);
+    notifyListeners();
+  }
+
+  @override
+  Future<void> editTask(Task editedTask) async {
+    List<Task> newTasks = List.from(_tasks.tasks);
+    newTasks.removeWhere((t) => t.id == editedTask.id);
+    newTasks.add(editedTask);
+    newTasks.sort((a, b) => a.title.compareTo(b.title));
+    _tasks = _tasks.copyWith(tasks: newTasks);
     notifyListeners();
   }
 
@@ -54,8 +66,18 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
 
   void _fetchTasks() async {
     // Simulate fetching tasks with test data
-    _tasks = [];
+    _tasks = TasksInMemory(
+      tasks: [],
+      oldestFetched: DateTime.now().subtract(Duration(days: 30)),
+      noExpirationFetched: true,
+    );
     notifyListeners();
+  }
+
+  @override
+  Future<void> fetchOlderTasks(DateTime date) async {
+    // Simulate fetching older tasks - for testing, just return without changes
+    return;
   }
 
   void _fetchDogs() async {
@@ -99,7 +121,11 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
   }
 
   void setTestTasks(List<Task> tasks) {
-    _tasks = List.from(tasks);
+    _tasks = TasksInMemory(
+      tasks: List.from(tasks),
+      oldestFetched: DateTime.now().subtract(Duration(days: 30)),
+      noExpirationFetched: true,
+    );
     notifyListeners();
   }
 }
@@ -202,28 +228,32 @@ class FakeCreateTeamProvider extends ChangeNotifier
 
   @override
   changeGlobalName(String newName) {
-    group.name = newName;
+    var newGroup = group.copyWith(name: newName);
+    group = newGroup;
     changeUnsavedData(true);
     notifyListeners();
   }
 
   @override
   changeDistance(double newDistance) {
-    group.distance = newDistance;
+    var newGroup = group.copyWith(distance: newDistance);
+    group = newGroup;
     changeUnsavedData(true);
     notifyListeners();
   }
 
   @override
   changeNotes(String newNotes) {
-    group.notes = newNotes;
+    var newGroup = group.copyWith(notes: newNotes);
+    group = newGroup;
     changeUnsavedData(true);
     notifyListeners();
   }
 
   @override
   changeAllTeams(List<Team> newTeams) {
-    group.teams = newTeams;
+    var newGroup = group.copyWith(teams: newTeams);
+    group = newGroup;
     changeUnsavedData(true);
     updateRunningDogs();
     notifyListeners();
@@ -231,8 +261,9 @@ class FakeCreateTeamProvider extends ChangeNotifier
 
   @override
   addTeam({required int teamNumber}) {
+    var newTeams = List<Team>.from(group.teams);
     try {
-      group.teams.insert(
+      newTeams.insert(
         teamNumber,
         Team(
           dogPairs: [
@@ -246,6 +277,8 @@ class FakeCreateTeamProvider extends ChangeNotifier
       logger.error("Couldn't add team", error: e, stackTrace: s);
       rethrow;
     }
+    var newGroup = group.copyWith(teams: newTeams);
+    group = newGroup;
     changeUnsavedData(true);
     updateRunningDogs();
     notifyListeners();
@@ -253,7 +286,10 @@ class FakeCreateTeamProvider extends ChangeNotifier
 
   @override
   removeTeam({required int teamNumber}) {
-    group.teams.removeAt(teamNumber);
+    var newTeams = List<Team>.from(group.teams);
+    newTeams.removeAt(teamNumber);
+    var newGroup = group.copyWith(teams: newTeams);
+    group = newGroup;
     changeUnsavedData(true);
     updateRunningDogs();
     notifyListeners();
@@ -261,16 +297,20 @@ class FakeCreateTeamProvider extends ChangeNotifier
 
   @override
   changeDate(DateTime newDate) {
-    group.date = DateTime(newDate.year, newDate.month, newDate.day,
-        group.date.hour, group.date.minute);
+    var newGroup = group.copyWith(
+        date: DateTime(newDate.year, newDate.month, newDate.day,
+            group.date.hour, group.date.minute));
+    group = newGroup;
     changeUnsavedData(true);
     notifyListeners();
   }
 
   @override
   changeTime(TimeOfDay time) {
-    group.date = DateTime(group.date.year, group.date.month, group.date.day,
-        time.hour, time.minute);
+    var newGroup = group.copyWith(
+        date: DateTime(group.date.year, group.date.month, group.date.day,
+            time.hour, time.minute));
+    group = newGroup;
     changeUnsavedData(true);
     notifyListeners();
   }
