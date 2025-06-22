@@ -22,6 +22,7 @@ mixin _$Dog {
   List<Tag> get tags;
   List<CustomField> get customFields;
   List<SingleDogNote> get notes;
+  @TimestampConverter()
   DateTime? get birth;
 
   /// Create a copy of Dog
@@ -82,7 +83,7 @@ abstract mixin class $DogCopyWith<$Res> {
       List<Tag> tags,
       List<CustomField> customFields,
       List<SingleDogNote> notes,
-      DateTime? birth});
+      @TimestampConverter() DateTime? birth});
 
   $DogPositionsCopyWith<$Res> get positions;
 }
@@ -167,7 +168,7 @@ class _Dog extends Dog {
       final List<Tag> tags = const [],
       final List<CustomField> customFields = const [],
       final List<SingleDogNote> notes = const [],
-      this.birth})
+      @TimestampConverter() this.birth})
       : _tags = tags,
         _customFields = customFields,
         _notes = notes,
@@ -214,6 +215,7 @@ class _Dog extends Dog {
   }
 
   @override
+  @TimestampConverter()
   final DateTime? birth;
 
   /// Create a copy of Dog
@@ -281,7 +283,7 @@ abstract mixin class _$DogCopyWith<$Res> implements $DogCopyWith<$Res> {
       List<Tag> tags,
       List<CustomField> customFields,
       List<SingleDogNote> notes,
-      DateTime? birth});
+      @TimestampConverter() DateTime? birth});
 
   @override
   $DogPositionsCopyWith<$Res> get positions;
@@ -558,9 +560,11 @@ mixin _$Tag {
   String get name;
   bool get preventFromRun;
   bool get showInTeamBuilder;
+  @TimestampConverter()
   DateTime get created;
   @ColorConverter()
   Color get color;
+  @TimestampConverter()
   DateTime? get expired;
 
   /// Create a copy of Tag
@@ -609,9 +613,9 @@ abstract mixin class $TagCopyWith<$Res> {
       String name,
       bool preventFromRun,
       bool showInTeamBuilder,
-      DateTime created,
+      @TimestampConverter() DateTime created,
       @ColorConverter() Color color,
-      DateTime? expired});
+      @TimestampConverter() DateTime? expired});
 }
 
 /// @nodoc
@@ -675,9 +679,9 @@ class _Tag implements Tag {
       this.name = "",
       this.preventFromRun = false,
       this.showInTeamBuilder = false,
-      required this.created,
+      @TimestampConverter() required this.created,
       @ColorConverter() this.color = Colors.green,
-      this.expired});
+      @TimestampConverter() this.expired});
   factory _Tag.fromJson(Map<String, dynamic> json) => _$TagFromJson(json);
 
   @override
@@ -693,12 +697,14 @@ class _Tag implements Tag {
   @JsonKey()
   final bool showInTeamBuilder;
   @override
+  @TimestampConverter()
   final DateTime created;
   @override
   @JsonKey()
   @ColorConverter()
   final Color color;
   @override
+  @TimestampConverter()
   final DateTime? expired;
 
   /// Create a copy of Tag
@@ -754,9 +760,9 @@ abstract mixin class _$TagCopyWith<$Res> implements $TagCopyWith<$Res> {
       String name,
       bool preventFromRun,
       bool showInTeamBuilder,
-      DateTime created,
+      @TimestampConverter() DateTime created,
       @ColorConverter() Color color,
-      DateTime? expired});
+      @TimestampConverter() DateTime? expired});
 }
 
 /// @nodoc

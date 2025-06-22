@@ -92,34 +92,39 @@ class CreateTeamProvider extends ChangeNotifier {
     }
   }
 
-  changeGlobalName(String newName) {
-    group.name = newName;
+  void changeGlobalName(String newName) {
+    var newGroup = group.copyWith(name: newName);
+    group = newGroup;
     changeUnsavedData(true);
     notifyListeners();
   }
 
-  changeDistance(double newDistance) {
-    group.distance = newDistance;
+  void changeDistance(double newDistance) {
+    var newGroup = group.copyWith(distance: newDistance);
+    group = newGroup;
     changeUnsavedData(true);
     notifyListeners();
   }
 
-  changeNotes(String newNotes) {
-    group.notes = newNotes;
+  void changeNotes(String newNotes) {
+    var newGroup = group.copyWith(notes: newNotes);
+    group = newGroup;
     changeUnsavedData(true);
     notifyListeners();
   }
 
-  changeAllTeams(List<Team> newTeams) {
-    group.teams = newTeams;
+  void changeAllTeams(List<Team> newTeams) {
+    var newGroup = group.copyWith(teams: newTeams);
+    group = newGroup;
     changeUnsavedData(true);
     updateRunningDogs();
     notifyListeners();
   }
 
-  addTeam({required int teamNumber}) {
+  void addTeam({required int teamNumber}) {
+    var newTeams = List<Team>.from(group.teams);
     try {
-      group.teams.insert(
+      newTeams.insert(
         teamNumber,
         Team(
           dogPairs: [
@@ -133,54 +138,63 @@ class CreateTeamProvider extends ChangeNotifier {
       logger.error("Couldn't add team", error: e, stackTrace: s);
       rethrow;
     }
+    var newGroup = group.copyWith(teams: newTeams);
+    group = newGroup;
     changeUnsavedData(true);
     updateRunningDogs();
     notifyListeners();
   }
 
-  removeTeam({required int teamNumber}) {
-    group.teams.removeAt(teamNumber);
+  void removeTeam({required int teamNumber}) {
+    var newTeams = List<Team>.from(group.teams);
+    newTeams.removeAt(teamNumber);
+    var newGroup = group.copyWith(teams: newTeams);
+    group = newGroup;
     changeUnsavedData(true);
     updateRunningDogs();
     notifyListeners();
   }
 
   /// Changes the date but leaves the time of day unchanged
-  changeDate(DateTime newDate) {
-    group.date = DateTime(newDate.year, newDate.month, newDate.day,
-        group.date.hour, group.date.minute);
+  void changeDate(DateTime newDate) {
+    var newGroup = group.copyWith(
+        date: DateTime(newDate.year, newDate.month, newDate.day,
+            group.date.hour, group.date.minute));
+    group = newGroup;
     changeUnsavedData(true);
     notifyListeners();
   }
 
   /// Changes the time of day but leaves the date unchanged
-  changeTime(TimeOfDay time) {
-    group.date = DateTime(group.date.year, group.date.month, group.date.day,
-        time.hour, time.minute);
+  void changeTime(TimeOfDay time) {
+    var newGroup = group.copyWith(
+        date: DateTime(group.date.year, group.date.month, group.date.day,
+            time.hour, time.minute));
+    group = newGroup;
     changeUnsavedData(true);
     notifyListeners();
   }
 
-  changeTeamName(int teamNumber, String newName) {
+  void changeTeamName(int teamNumber, String newName) {
     group.teams[teamNumber].name = newName;
     changeUnsavedData(true);
     notifyListeners();
   }
 
-  addRow({required int teamNumber}) {
+  void addRow({required int teamNumber}) {
     group.teams[teamNumber].dogPairs.add(DogPair());
     changeUnsavedData(true);
     notifyListeners();
   }
 
-  removeRow({required int teamNumber, required int rowNumber}) {
+  void removeRow({required int teamNumber, required int rowNumber}) {
     group.teams[teamNumber].dogPairs.removeAt(rowNumber);
 
     updateRunningDogs();
     notifyListeners();
   }
 
-  changeDog(
+  void changeDog(
       {required String newId,
       required int teamNumber,
       required int rowNumber,
@@ -200,7 +214,7 @@ class CreateTeamProvider extends ChangeNotifier {
     changeUnsavedData(true);
   }
 
-  updateDuplicateDogs() {
+  void updateDuplicateDogs() {
     _clearduplicateDogsNotes();
     Map<String, int> dogCounts = {};
 

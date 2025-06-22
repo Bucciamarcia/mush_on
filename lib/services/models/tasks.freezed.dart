@@ -25,6 +25,7 @@ mixin _$Task {
   String get description;
 
   /// The expiration date of the task (if present).
+  @TimestampConverter()
   DateTime? get expiration;
 
   /// Has the task been completed?
@@ -40,6 +41,7 @@ mixin _$Task {
   RecurringType get recurring;
 
   /// If recurring, the dates that are checked.
+  @TimestampListConverter()
   List<DateTime> get recurringDone;
 
   /// The ID of the dog this task relates to.
@@ -108,12 +110,12 @@ abstract mixin class $TaskCopyWith<$Res> {
       {String id,
       String title,
       String description,
-      DateTime? expiration,
+      @TimestampConverter() DateTime? expiration,
       bool isDone,
       bool isAllDay,
       bool isUrgent,
       RecurringType recurring,
-      List<DateTime> recurringDone,
+      @TimestampListConverter() List<DateTime> recurringDone,
       String? dogId});
 }
 
@@ -193,11 +195,12 @@ class _Task implements Task {
       {this.id = "",
       this.title = "",
       this.description = "",
-      this.expiration,
+      @TimestampConverter() this.expiration,
       this.isDone = false,
       this.isAllDay = true,
       this.isUrgent = false,
       this.recurring = RecurringType.none,
+      @TimestampListConverter()
       final List<DateTime> recurringDone = const <DateTime>[],
       this.dogId})
       : _recurringDone = recurringDone;
@@ -220,6 +223,7 @@ class _Task implements Task {
 
   /// The expiration date of the task (if present).
   @override
+  @TimestampConverter()
   final DateTime? expiration;
 
   /// Has the task been completed?
@@ -248,6 +252,7 @@ class _Task implements Task {
   /// If recurring, the dates that are checked.
   @override
   @JsonKey()
+  @TimestampListConverter()
   List<DateTime> get recurringDone {
     if (_recurringDone is EqualUnmodifiableListView) return _recurringDone;
     // ignore: implicit_dynamic_type
@@ -327,12 +332,12 @@ abstract mixin class _$TaskCopyWith<$Res> implements $TaskCopyWith<$Res> {
       {String id,
       String title,
       String description,
-      DateTime? expiration,
+      @TimestampConverter() DateTime? expiration,
       bool isDone,
       bool isAllDay,
       bool isUrgent,
       RecurringType recurring,
-      List<DateTime> recurringDone,
+      @TimestampListConverter() List<DateTime> recurringDone,
       String? dogId});
 }
 
@@ -400,6 +405,233 @@ class __$TaskCopyWithImpl<$Res> implements _$TaskCopyWith<$Res> {
           ? _self.dogId
           : dogId // ignore: cast_nullable_to_non_nullable
               as String?,
+    ));
+  }
+}
+
+/// @nodoc
+mixin _$TasksInMemory {
+  /// The list of tasks
+  List<Task> get tasks;
+
+  /// The oldest expiration fetched. Null if fetched from the beginning.
+  DateTime? get oldestFetched;
+
+  /// The newest expiration fetched (also in the future). Null if fetched until the end.
+  DateTime? get newestFetched;
+
+  /// Have the tasks with no expiration been fetched?
+  bool get noExpirationFetched;
+
+  /// Create a copy of TasksInMemory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $TasksInMemoryCopyWith<TasksInMemory> get copyWith =>
+      _$TasksInMemoryCopyWithImpl<TasksInMemory>(
+          this as TasksInMemory, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is TasksInMemory &&
+            const DeepCollectionEquality().equals(other.tasks, tasks) &&
+            (identical(other.oldestFetched, oldestFetched) ||
+                other.oldestFetched == oldestFetched) &&
+            (identical(other.newestFetched, newestFetched) ||
+                other.newestFetched == newestFetched) &&
+            (identical(other.noExpirationFetched, noExpirationFetched) ||
+                other.noExpirationFetched == noExpirationFetched));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(tasks),
+      oldestFetched,
+      newestFetched,
+      noExpirationFetched);
+
+  @override
+  String toString() {
+    return 'TasksInMemory(tasks: $tasks, oldestFetched: $oldestFetched, newestFetched: $newestFetched, noExpirationFetched: $noExpirationFetched)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $TasksInMemoryCopyWith<$Res> {
+  factory $TasksInMemoryCopyWith(
+          TasksInMemory value, $Res Function(TasksInMemory) _then) =
+      _$TasksInMemoryCopyWithImpl;
+  @useResult
+  $Res call(
+      {List<Task> tasks,
+      DateTime? oldestFetched,
+      DateTime? newestFetched,
+      bool noExpirationFetched});
+}
+
+/// @nodoc
+class _$TasksInMemoryCopyWithImpl<$Res>
+    implements $TasksInMemoryCopyWith<$Res> {
+  _$TasksInMemoryCopyWithImpl(this._self, this._then);
+
+  final TasksInMemory _self;
+  final $Res Function(TasksInMemory) _then;
+
+  /// Create a copy of TasksInMemory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? tasks = null,
+    Object? oldestFetched = freezed,
+    Object? newestFetched = freezed,
+    Object? noExpirationFetched = null,
+  }) {
+    return _then(_self.copyWith(
+      tasks: null == tasks
+          ? _self.tasks
+          : tasks // ignore: cast_nullable_to_non_nullable
+              as List<Task>,
+      oldestFetched: freezed == oldestFetched
+          ? _self.oldestFetched
+          : oldestFetched // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      newestFetched: freezed == newestFetched
+          ? _self.newestFetched
+          : newestFetched // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      noExpirationFetched: null == noExpirationFetched
+          ? _self.noExpirationFetched
+          : noExpirationFetched // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _TasksInMemory implements TasksInMemory {
+  const _TasksInMemory(
+      {final List<Task> tasks = const <Task>[],
+      this.oldestFetched,
+      this.newestFetched,
+      this.noExpirationFetched = false})
+      : _tasks = tasks;
+
+  /// The list of tasks
+  final List<Task> _tasks;
+
+  /// The list of tasks
+  @override
+  @JsonKey()
+  List<Task> get tasks {
+    if (_tasks is EqualUnmodifiableListView) return _tasks;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_tasks);
+  }
+
+  /// The oldest expiration fetched. Null if fetched from the beginning.
+  @override
+  final DateTime? oldestFetched;
+
+  /// The newest expiration fetched (also in the future). Null if fetched until the end.
+  @override
+  final DateTime? newestFetched;
+
+  /// Have the tasks with no expiration been fetched?
+  @override
+  @JsonKey()
+  final bool noExpirationFetched;
+
+  /// Create a copy of TasksInMemory
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$TasksInMemoryCopyWith<_TasksInMemory> get copyWith =>
+      __$TasksInMemoryCopyWithImpl<_TasksInMemory>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _TasksInMemory &&
+            const DeepCollectionEquality().equals(other._tasks, _tasks) &&
+            (identical(other.oldestFetched, oldestFetched) ||
+                other.oldestFetched == oldestFetched) &&
+            (identical(other.newestFetched, newestFetched) ||
+                other.newestFetched == newestFetched) &&
+            (identical(other.noExpirationFetched, noExpirationFetched) ||
+                other.noExpirationFetched == noExpirationFetched));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(_tasks),
+      oldestFetched,
+      newestFetched,
+      noExpirationFetched);
+
+  @override
+  String toString() {
+    return 'TasksInMemory(tasks: $tasks, oldestFetched: $oldestFetched, newestFetched: $newestFetched, noExpirationFetched: $noExpirationFetched)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$TasksInMemoryCopyWith<$Res>
+    implements $TasksInMemoryCopyWith<$Res> {
+  factory _$TasksInMemoryCopyWith(
+          _TasksInMemory value, $Res Function(_TasksInMemory) _then) =
+      __$TasksInMemoryCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {List<Task> tasks,
+      DateTime? oldestFetched,
+      DateTime? newestFetched,
+      bool noExpirationFetched});
+}
+
+/// @nodoc
+class __$TasksInMemoryCopyWithImpl<$Res>
+    implements _$TasksInMemoryCopyWith<$Res> {
+  __$TasksInMemoryCopyWithImpl(this._self, this._then);
+
+  final _TasksInMemory _self;
+  final $Res Function(_TasksInMemory) _then;
+
+  /// Create a copy of TasksInMemory
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? tasks = null,
+    Object? oldestFetched = freezed,
+    Object? newestFetched = freezed,
+    Object? noExpirationFetched = null,
+  }) {
+    return _then(_TasksInMemory(
+      tasks: null == tasks
+          ? _self._tasks
+          : tasks // ignore: cast_nullable_to_non_nullable
+              as List<Task>,
+      oldestFetched: freezed == oldestFetched
+          ? _self.oldestFetched
+          : oldestFetched // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      newestFetched: freezed == newestFetched
+          ? _self.newestFetched
+          : newestFetched // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      noExpirationFetched: null == noExpirationFetched
+          ? _self.noExpirationFetched
+          : noExpirationFetched // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }

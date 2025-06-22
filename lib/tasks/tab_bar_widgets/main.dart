@@ -6,9 +6,10 @@ import 'package:mush_on/tasks/tab_bar_widgets/now_tab_view.dart';
 import 'calendar/main.dart';
 
 class TabBarViewWidget extends StatelessWidget {
-  final List<Task> tasks;
+  final TasksInMemory tasks;
   final List<Dog> dogs;
   final Function(Task) onTaskEdited;
+  final Function(DateTime) onFetchOlderTasks;
   final Function(Task) onTaskAdded;
   const TabBarViewWidget({
     super.key,
@@ -16,6 +17,7 @@ class TabBarViewWidget extends StatelessWidget {
     required this.onTaskEdited,
     required this.dogs,
     required this.onTaskAdded,
+    required this.onFetchOlderTasks,
   });
 
   @override
@@ -30,6 +32,7 @@ class TabBarViewWidget extends StatelessWidget {
           ),
         ),
         CalendarTabWidget(
+          onFetchOlderTasks: (d) => onFetchOlderTasks(d),
           tasks: tasks,
           dogs: dogs,
           onTaskEdited: (t) => onTaskEdited(t),

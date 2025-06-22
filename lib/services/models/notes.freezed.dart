@@ -15,6 +15,7 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$SingleDogNote {
+  @TimestampConverter()
   DateTime? get date;
   String get id;
   String get content;
@@ -56,7 +57,7 @@ abstract mixin class $SingleDogNoteCopyWith<$Res> {
           SingleDogNote value, $Res Function(SingleDogNote) _then) =
       _$SingleDogNoteCopyWithImpl;
   @useResult
-  $Res call({DateTime? date, String id, String content});
+  $Res call({@TimestampConverter() DateTime? date, String id, String content});
 }
 
 /// @nodoc
@@ -96,11 +97,13 @@ class _$SingleDogNoteCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _SingleDogNote implements SingleDogNote {
-  const _SingleDogNote({this.date, this.id = "", this.content = ""});
+  const _SingleDogNote(
+      {@TimestampConverter() this.date, this.id = "", this.content = ""});
   factory _SingleDogNote.fromJson(Map<String, dynamic> json) =>
       _$SingleDogNoteFromJson(json);
 
   @override
+  @TimestampConverter()
   final DateTime? date;
   @override
   @JsonKey()
@@ -152,7 +155,7 @@ abstract mixin class _$SingleDogNoteCopyWith<$Res>
       __$SingleDogNoteCopyWithImpl;
   @override
   @useResult
-  $Res call({DateTime? date, String id, String content});
+  $Res call({@TimestampConverter() DateTime? date, String id, String content});
 }
 
 /// @nodoc

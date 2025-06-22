@@ -25,9 +25,7 @@ _Dog _$DogFromJson(Map<String, dynamic> json) => _Dog(
               ?.map((e) => SingleDogNote.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      birth: json['birth'] == null
-          ? null
-          : DateTime.parse(json['birth'] as String),
+      birth: const TimestampConverter().fromJson(json['birth'] as Timestamp?),
     );
 
 Map<String, dynamic> _$DogToJson(_Dog instance) => <String, dynamic>{
@@ -38,7 +36,7 @@ Map<String, dynamic> _$DogToJson(_Dog instance) => <String, dynamic>{
       'tags': instance.tags.map((e) => e.toJson()).toList(),
       'customFields': instance.customFields.map((e) => e.toJson()).toList(),
       'notes': instance.notes.map((e) => e.toJson()).toList(),
-      'birth': instance.birth?.toIso8601String(),
+      'birth': const TimestampConverter().toJson(instance.birth),
     };
 
 const _$DogSexEnumMap = {
@@ -72,9 +70,8 @@ _Tag _$TagFromJson(Map<String, dynamic> json) => _Tag(
       color: json['color'] == null
           ? Colors.green
           : const ColorConverter().fromJson((json['color'] as num).toInt()),
-      expired: json['expired'] == null
-          ? null
-          : DateTime.parse(json['expired'] as String),
+      expired:
+          const TimestampConverter().fromJson(json['expired'] as Timestamp?),
     );
 
 Map<String, dynamic> _$TagToJson(_Tag instance) => <String, dynamic>{
@@ -84,5 +81,5 @@ Map<String, dynamic> _$TagToJson(_Tag instance) => <String, dynamic>{
       'showInTeamBuilder': instance.showInTeamBuilder,
       'created': instance.created.toIso8601String(),
       'color': const ColorConverter().toJson(instance.color),
-      'expired': instance.expired?.toIso8601String(),
+      'expired': const TimestampConverter().toJson(instance.expired),
     };

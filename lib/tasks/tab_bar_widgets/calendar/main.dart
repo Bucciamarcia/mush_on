@@ -6,22 +6,25 @@ import 'package:mush_on/tasks/task_editor.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class CalendarTabWidget extends StatelessWidget {
-  final List<Task> tasks;
+  final TasksInMemory tasks;
   final List<Dog> dogs;
   final Function(Task) onTaskEdited;
   final Function(Task) onTaskAdded;
+  final Function(DateTime) onFetchOlderTasks;
   static final BasicLogger logger = BasicLogger();
   const CalendarTabWidget(
       {super.key,
       required this.onTaskAdded,
       required this.tasks,
       required this.dogs,
-      required this.onTaskEdited});
+      required this.onTaskEdited,
+      required this.onFetchOlderTasks});
 
   @override
   Widget build(BuildContext context) {
     return SfCalendar(
       view: CalendarView.month,
+      onViewChanged: (details) => _fetchNewTasks(details),
       showNavigationArrow: true,
       onTap: (element) {
         try {
@@ -38,7 +41,7 @@ class CalendarTabWidget extends StatelessWidget {
           appointmentDisplayCount: 5,
           numberOfWeeksInView: 4,
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
-      dataSource: TaskDataSource(tasks: tasks.haveExpiration, dogs: dogs),
+      dataSource: TaskDataSource(tasks: tasks.tasks.haveExpiration, dogs: dogs),
     );
   }
 
@@ -63,6 +66,16 @@ class CalendarTabWidget extends StatelessWidget {
           ),
         );
       }
+    }
+  }
+
+  void _fetchNewTasks(ViewChangedDetails details) {
+    if (tasks.oldestFetched == null) {
+      return; // If null, it fetched everything.
+    }
+    DateTime firstDate = details.visibleDates.first;
+    if (firstDate.isBefore(tasks.oldestFetched!)) {
+      onFetchOlderTasks(firstDate);
     }
   }
 }

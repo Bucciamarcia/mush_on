@@ -24,6 +24,7 @@ class TasksMainWidget extends StatelessWidget {
           TabBarWidget(),
           Expanded(
             child: TabBarViewWidget(
+              onFetchOlderTasks: (d) => provider.fetchOlderTasks(d),
               tasks: provider.tasks,
               dogs: provider.dogs,
               onTaskEdited: (t) async {
