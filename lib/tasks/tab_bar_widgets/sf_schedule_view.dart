@@ -15,18 +15,33 @@ class SfScheduleView extends StatelessWidget {
   final Function(Task) onTaskEdited;
   final List<Dog> dogs;
   final DateTime? date;
+
+  /// How many days to display (default 1)
+  final int? daysToDisplay;
+
+  /// How many days into the future to start displaying (default 0)
+  final int? startDayOffset;
   const SfScheduleView(
       {super.key,
       required this.tasks,
       required this.onFetchOlderTasks,
       required this.dogs,
       required this.date,
-      required this.onTaskEdited});
+      required this.onTaskEdited,
+      this.daysToDisplay,
+      this.startDayOffset});
 
   @override
   Widget build(BuildContext context) {
+    int daysToDisplayFinal = daysToDisplay ?? 1;
+    int startDayOffsetFinal = startDayOffset ?? 0;
     return SingleChildScrollView(
       child: SfCalendar(
+        firstDayOfWeek: 1,
+        minDate: date?.add(Duration(days: startDayOffsetFinal)),
+        maxDate: date
+            ?.add(Duration(days: daysToDisplayFinal + startDayOffsetFinal))
+            .subtract(Duration(minutes: 1)),
         view: CalendarView.schedule,
         appointmentBuilder: (context, calendarAppointmentDetails) {
           final Task task =
@@ -38,7 +53,7 @@ class SfScheduleView extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Padding(
-              padding: EdgeInsets.all(4),
+              padding: EdgeInsets.all(2),
               child: Text(
                 _getTaskSubject(task),
                 style: _getTaskTextStyle(task),
@@ -78,6 +93,7 @@ class SfScheduleView extends StatelessWidget {
         color: Colors.white,
         decoration: TextDecoration.lineThrough,
         fontStyle: FontStyle.italic,
+        fontSize: 14,
       );
     } else if (task.isUrgent) {
       return TextStyle(
@@ -146,20 +162,7 @@ class TaskDataSource extends CalendarDataSource<Task> {
   List<Task> get appointments {
     List<Task> tasksEditable = List<Task>.from(tasks);
     tasksEditable.removeWhere((t) => t.expiration == null);
-    if (date == null) {
-      return tasksEditable;
-    }
-    try {
-      return tasksEditable
-          .where((t) =>
-              t.expiration!.year == date!.year &&
-              t.expiration!.month == date!.month &&
-              t.expiration!.day == date!.day)
-          .toList();
-    } catch (e, s) {
-      BasicLogger().error("NOOO", error: e, stackTrace: s);
-      rethrow;
-    }
+    return tasksEditable;
   }
 
   @override
