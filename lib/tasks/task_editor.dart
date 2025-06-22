@@ -149,6 +149,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
             children: [
               _buildTitleTextField(),
               _buildDescriptionTextField(),
+              _buildIsdoneCheckmark(),
               _buildDateSection(colorScheme, context),
               _buildIsRecurring(colorScheme),
               _buildDogSelector(colorScheme),
@@ -162,6 +163,20 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
         _buildCancelButton(colorScheme, context),
         _buildConfirmButton(colorScheme, context),
       ],
+    );
+  }
+
+  Widget _buildIsdoneCheckmark() {
+    return CheckboxListTile.adaptive(
+      value: _isDone,
+      title: Text("Mark as done"),
+      onChanged: (v) {
+        if (v != null) {
+          setState(() {
+            _isDone = v;
+          });
+        }
+      },
     );
   }
 
@@ -403,19 +418,22 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
   }
 
   Widget _buildTitleTextField() {
-    return TextField(
-      onChanged: (_) {
-        setState(() {});
-      },
-      controller: _titleController,
-      decoration: InputDecoration(
-        labelText: "Task Title",
-        hintText: "Enter task title",
-        prefixIcon: const Icon(Icons.title),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.only(top: 15),
+      child: TextField(
+        onChanged: (_) {
+          setState(() {});
+        },
+        controller: _titleController,
+        decoration: InputDecoration(
+          labelText: "Task Title",
+          hintText: "Enter task title",
+          prefixIcon: const Icon(Icons.title),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          filled: true,
         ),
-        filled: true,
       ),
     );
   }

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
+import 'package:mush_on/tasks/tab_bar_widgets/sf_schedule_view.dart';
 import 'package:mush_on/tasks/task_editor.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+
+import '../common.dart';
 
 class CalendarTabWidget extends StatelessWidget {
   final TasksInMemory tasks;
@@ -24,7 +28,27 @@ class CalendarTabWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SfCalendar(
       view: CalendarView.month,
-      onViewChanged: (details) => _fetchNewTasks(details),
+      appointmentBuilder: (context, calendarAppointmentDetails) {
+        final Task task = calendarAppointmentDetails.appointments.first as Task;
+
+        return Container(
+          decoration: BoxDecoration(
+            color: _getTaskColor(task),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(2),
+            child: Text(
+              _getTaskSubject(task),
+              style: _getTaskTextStyle(task),
+            ),
+          ),
+        );
+      },
+      onViewChanged: (details) => fetchNewTasks(
+          details: details,
+          tasks: tasks,
+          onFetchOlderTasks: (date) => onFetchOlderTasks(date)),
       showNavigationArrow: true,
       onTap: (element) {
         try {
@@ -45,15 +69,59 @@ class CalendarTabWidget extends StatelessWidget {
     );
   }
 
+  String _getTaskSubject(Task task) {
+    if (task.dogId == null) {
+      return task.title;
+    } else {
+      return "${task.title} 🐶 ${dogs.getNameFromId(task.dogId!) ?? ""}";
+    }
+  }
+
+  TextStyle _getTaskTextStyle(Task task) {
+    if (task.isDone) {
+      return TextStyle(
+          color: Colors.white,
+          decoration: TextDecoration.lineThrough,
+          fontStyle: FontStyle.italic,
+          fontSize: 10);
+    } else if (task.isUrgent) {
+      return TextStyle(
+        color: Colors.white,
+        fontSize: 10,
+        fontWeight: FontWeight.bold,
+      );
+    } else {
+      return TextStyle(color: Colors.white, fontSize: 10);
+    }
+  }
+
+  Color _getTaskColor(Task task) {
+    if (task.isDone) {
+      return Colors.grey;
+    } else if (task.isUrgent) {
+      return Colors.red;
+    } else {
+      return Colors.green;
+    }
+  }
+
   void _handleTap(CalendarTapDetails element, BuildContext context) async {
     if (element.appointments == null) {
-      throw Exception("Unknown error");
+      logger.error("element.appointments is null and shouldn't be");
+      throw Exception("element.appointments is null and shouldn't be");
     } else {
       if (element.appointments!.isEmpty) {
         logger.info("Gotta add new task here");
       } else if (element.appointments!.length != 1) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(errorSnackBar(context, "not implemented yet"));
+        return await showDialog(
+            context: context,
+            builder: (context) => DayTasksDialog(
+                  date: element.date,
+                  onTaskEdited: (t) => onTaskEdited(t),
+                  tasks: tasks,
+                  dogs: dogs,
+                  onFetchOlderTasks: (date) => onFetchOlderTasks(date),
+                ));
       } else {
         Task task = element.appointments!.first as Task;
         return await showDialog(
@@ -68,15 +136,43 @@ class CalendarTabWidget extends StatelessWidget {
       }
     }
   }
+}
 
-  void _fetchNewTasks(ViewChangedDetails details) {
-    if (tasks.oldestFetched == null) {
-      return; // If null, it fetched everything.
-    }
-    DateTime firstDate = details.visibleDates.first;
-    if (firstDate.isBefore(tasks.oldestFetched!)) {
-      onFetchOlderTasks(firstDate);
-    }
+class DayTasksDialog extends StatelessWidget {
+  final DateTime? date;
+  final TasksInMemory tasks;
+  final Function(DateTime) onFetchOlderTasks;
+  final Function(Task) onTaskEdited;
+  final List<Dog> dogs;
+  const DayTasksDialog(
+      {super.key,
+      this.date,
+      required this.tasks,
+      required this.onFetchOlderTasks,
+      required this.dogs,
+      required this.onTaskEdited});
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+
+    return AlertDialog(
+      title: Text(
+          "Tasks for: ${DateFormat("yyyy-MM-dd").format(date ?? DateTime.now())}"),
+      content: SizedBox(
+        width: screenSize.width * 0.8,
+        height: screenSize.height * 0.6,
+        child: SfScheduleView(
+            tasks: tasks,
+            onFetchOlderTasks: onFetchOlderTasks,
+            onTaskEdited: (t) {
+              onTaskEdited(t);
+              Navigator.of(context).pop();
+            },
+            dogs: dogs,
+            date: date),
+      ),
+    );
   }
 }
 
@@ -108,7 +204,9 @@ class TaskDataSource extends CalendarDataSource<Task> {
 
   @override
   Color getColor(int index) {
-    if (appointments[index].isUrgent) {
+    if (appointments[index].isDone) {
+      return Colors.grey;
+    } else if (appointments[index].isUrgent) {
       return Colors.red;
     } else {
       return Colors.green;

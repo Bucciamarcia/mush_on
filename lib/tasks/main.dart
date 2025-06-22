@@ -49,6 +49,12 @@ class TasksMainWidget extends StatelessWidget {
                         ),
                       );
                     }
+                  } else {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(
+                              context, "Task edited successfully"));
+                    }
                   }
                 } catch (e, s) {
                   logger.error("Couldn't edit task", error: e, stackTrace: s);
