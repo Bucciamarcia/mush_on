@@ -4,86 +4,75 @@ import 'package:intl/intl.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/shared/text_title.dart';
+import 'package:mush_on/tasks/tab_bar_widgets/sf_schedule_view.dart';
 import 'package:mush_on/tasks/task_editor.dart';
 
 class NowTabView extends StatelessWidget {
-  final TasksInMemory tasks;
+  final TasksInMemory tasksInMemory;
   final List<Dog> dogs;
   final Function(Task) onTaskEdited;
+  final Function(DateTime) onFetchOlderTasks;
   const NowTabView(
       {super.key,
-      required this.tasks,
+      required this.tasksInMemory,
       required this.onTaskEdited,
-      required this.dogs});
+      required this.dogs,
+      required this.onFetchOlderTasks});
 
   @override
   Widget build(BuildContext context) {
-    final isLargeScreen = MediaQuery.of(context).size.width > 1100;
-    return Align(
-      alignment: Alignment.topCenter,
-      child: Wrap(
-        children: [
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 500),
-            child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 500),
-                child: ExpansionTile(
-                  initiallyExpanded: true,
-                  title: TextTitle(
-                      "Today: ${tasks.tasks.dueTodayOrOverdue.notDone.length}"),
-                  children: tasks.tasks.dueTodayOrOverdue
-                      .urgentFirst()
-                      .map(
-                        (t) => TaskElement(
-                          dogs: dogs,
-                          key: ValueKey(t.id),
-                          dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
-                          task: t,
-                          onTaskEdited: (t) => onTaskEdited(t),
-                        ),
-                      )
-                      .toList(),
-                )),
-          ),
-          ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 500),
+    List<Task> overdueTasks = tasksInMemory.tasks.overdueTasks;
+    overdueTasks.sort((a, b) => a.expiration!.compareTo(b.expiration!));
+    DateTime? firstOverdueTask = overdueTasks.firstOrNull?.expiration;
+    Duration daysToDisplay = Duration();
+    if (firstOverdueTask != null) {
+      daysToDisplay = DateTime.now().difference(firstOverdueTask);
+    }
+    TasksInMemory overdueTasksInMemory =
+        tasksInMemory.copyWith(tasks: overdueTasks);
+    return SingleChildScrollView(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 500),
+        child: Column(
+          children: [
+            firstOverdueTask == null
+                ? SizedBox.shrink()
+                : Card(
+                    child: ExpansionTile(
+                      initiallyExpanded: true,
+                      title:
+                          TextTitle("Overdue tasks (${overdueTasks.length})"),
+                      children: [
+                        SfScheduleView(
+                            tasks: overdueTasksInMemory,
+                            daysToDisplay: daysToDisplay.inDays +
+                                3, // Use the calculated days
+                            onFetchOlderTasks: onFetchOlderTasks,
+                            dogs: dogs,
+                            date: firstOverdueTask.subtract(Duration(
+                                days:
+                                    1)), // Use the actual first overdue task date
+                            onTaskEdited: onTaskEdited)
+                      ],
+                    ),
+                  ),
+            Card(
               child: ExpansionTile(
+                initiallyExpanded: firstOverdueTask == null ? true : false,
                 title: TextTitle(
-                    "Tasks with no expiration: ${tasks.tasks.notDone.dontExpire.length}"),
-                initiallyExpanded: isLargeScreen ? true : false,
-                children: tasks.tasks.notDone.dontExpire
-                    .urgentFirst()
-                    .map(
-                      (t) => TaskElement(
-                        dogs: dogs,
-                        key: ValueKey(t.id),
-                        dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
-                        task: t,
-                        onTaskEdited: (t) => onTaskEdited(t),
-                      ),
-                    )
-                    .toList(),
-              )),
-          ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 500),
-              child: ExpansionTile(
-                title: TextTitle(
-                    "Tasks in the next 3 days: ${tasks.tasks.nextDays(3).notDone.length}"),
-                initiallyExpanded: isLargeScreen ? true : false,
-                children: tasks.tasks
-                    .nextDays(3)
-                    .map(
-                      (t) => TaskElement(
-                        dogs: dogs,
-                        key: ValueKey(t.id),
-                        dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
-                        task: t,
-                        onTaskEdited: (t) => onTaskEdited(t),
-                      ),
-                    )
-                    .toList(),
-              )),
-        ],
+                    "Today's tasks (${tasksInMemory.tasks.dueToday.notDone.length})"),
+                children: [
+                  SfScheduleView(
+                      tasks: tasksInMemory.dueToday,
+                      onFetchOlderTasks: (date) => onFetchOlderTasks(date),
+                      dogs: dogs,
+                      date: DateTime.now(),
+                      onTaskEdited: onTaskEdited),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

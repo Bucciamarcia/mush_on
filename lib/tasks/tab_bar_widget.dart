@@ -12,15 +12,22 @@ class TabBarWidget extends StatelessWidget {
         Tab(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 10,
-            children: [Icon(Icons.today), Text("Now")],
+            spacing: 3,
+            children: [Icon(Icons.today), Text("Today")],
           ),
         ),
         Tab(
           child: Row(
+            spacing: 3,
             mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 10,
-            children: [Icon(Icons.calendar_today), Text("Calendar")],
+            children: [Icon(Icons.question_mark), Text("Perm.")],
+          ),
+        ),
+        Tab(
+          child: Row(
+            spacing: 3,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [Icon(Icons.calendar_today), Text("Cal")],
           ),
         ),
       ],
