@@ -84,6 +84,49 @@ class _SettingsMainState extends State<SettingsMain> {
                       onCustomFieldDeleted: (id) =>
                           settingsProvider.deleteCustomField(id),
                     ),
+                    SaveCancelButtons(
+                      onSavePressed: () async {
+                        try {
+                          await settingsProvider.saveSettingsToDb();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Settings saved successfully",
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                              ),
+                            );
+                          }
+                          if (context.mounted) Navigator.of(context).pop();
+                        } catch (e, s) {
+                          SettingsMain.logger.error("Couldn't save settings",
+                              error: e, stackTrace: s);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(context, "Couldn't save settings"),
+                            );
+                          }
+                        }
+                      },
+                      onCancelPressed: () async {
+                        if (settingsProvider.didSomethingChange) {
+                          final bool shouldPop =
+                              await _showExitConfirmationDialog();
+                          if (shouldPop && context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        } else {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      didSomethingChange: settingsProvider.didSomethingChange,
+                    ),
                     TextTitle("Global distance warnings"),
                     DistanceWarningWidget(
                         warnings:
@@ -133,49 +176,6 @@ class _SettingsMainState extends State<SettingsMain> {
                             }
                           }
                         }),
-                    SaveCancelButtons(
-                      onSavePressed: () async {
-                        try {
-                          await settingsProvider.saveSettingsToDb();
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Settings saved successfully",
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary),
-                                ),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                              ),
-                            );
-                          }
-                          if (context.mounted) Navigator.of(context).pop();
-                        } catch (e, s) {
-                          SettingsMain.logger.error("Couldn't save settings",
-                              error: e, stackTrace: s);
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              errorSnackBar(context, "Couldn't save settings"),
-                            );
-                          }
-                        }
-                      },
-                      onCancelPressed: () async {
-                        if (settingsProvider.didSomethingChange) {
-                          final bool shouldPop =
-                              await _showExitConfirmationDialog();
-                          if (shouldPop && context.mounted) {
-                            Navigator.of(context).pop();
-                          }
-                        } else {
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      didSomethingChange: settingsProvider.didSomethingChange,
-                    ),
                   ],
                 ),
               ),
