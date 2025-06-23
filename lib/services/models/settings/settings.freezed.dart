@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SettingsModel {
   List<CustomFieldTemplate> get customFieldTemplates;
+  List<DistanceWarning> get globalDistanceWarnings;
 
   /// Create a copy of SettingsModel
   /// with the given fields replaced by the non-null parameter values.
@@ -34,17 +35,21 @@ mixin _$SettingsModel {
         (other.runtimeType == runtimeType &&
             other is SettingsModel &&
             const DeepCollectionEquality()
-                .equals(other.customFieldTemplates, customFieldTemplates));
+                .equals(other.customFieldTemplates, customFieldTemplates) &&
+            const DeepCollectionEquality()
+                .equals(other.globalDistanceWarnings, globalDistanceWarnings));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(customFieldTemplates));
+      runtimeType,
+      const DeepCollectionEquality().hash(customFieldTemplates),
+      const DeepCollectionEquality().hash(globalDistanceWarnings));
 
   @override
   String toString() {
-    return 'SettingsModel(customFieldTemplates: $customFieldTemplates)';
+    return 'SettingsModel(customFieldTemplates: $customFieldTemplates, globalDistanceWarnings: $globalDistanceWarnings)';
   }
 }
 
@@ -54,7 +59,9 @@ abstract mixin class $SettingsModelCopyWith<$Res> {
           SettingsModel value, $Res Function(SettingsModel) _then) =
       _$SettingsModelCopyWithImpl;
   @useResult
-  $Res call({List<CustomFieldTemplate> customFieldTemplates});
+  $Res call(
+      {List<CustomFieldTemplate> customFieldTemplates,
+      List<DistanceWarning> globalDistanceWarnings});
 }
 
 /// @nodoc
@@ -71,12 +78,17 @@ class _$SettingsModelCopyWithImpl<$Res>
   @override
   $Res call({
     Object? customFieldTemplates = null,
+    Object? globalDistanceWarnings = null,
   }) {
     return _then(_self.copyWith(
       customFieldTemplates: null == customFieldTemplates
           ? _self.customFieldTemplates
           : customFieldTemplates // ignore: cast_nullable_to_non_nullable
               as List<CustomFieldTemplate>,
+      globalDistanceWarnings: null == globalDistanceWarnings
+          ? _self.globalDistanceWarnings
+          : globalDistanceWarnings // ignore: cast_nullable_to_non_nullable
+              as List<DistanceWarning>,
     ));
   }
 }
@@ -86,8 +98,10 @@ class _$SettingsModelCopyWithImpl<$Res>
 @JsonSerializable(explicitToJson: true)
 class _SettingsModel implements SettingsModel {
   const _SettingsModel(
-      {final List<CustomFieldTemplate> customFieldTemplates = const []})
-      : _customFieldTemplates = customFieldTemplates;
+      {final List<CustomFieldTemplate> customFieldTemplates = const [],
+      final List<DistanceWarning> globalDistanceWarnings = const []})
+      : _customFieldTemplates = customFieldTemplates,
+        _globalDistanceWarnings = globalDistanceWarnings;
   factory _SettingsModel.fromJson(Map<String, dynamic> json) =>
       _$SettingsModelFromJson(json);
 
@@ -99,6 +113,16 @@ class _SettingsModel implements SettingsModel {
       return _customFieldTemplates;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_customFieldTemplates);
+  }
+
+  final List<DistanceWarning> _globalDistanceWarnings;
+  @override
+  @JsonKey()
+  List<DistanceWarning> get globalDistanceWarnings {
+    if (_globalDistanceWarnings is EqualUnmodifiableListView)
+      return _globalDistanceWarnings;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_globalDistanceWarnings);
   }
 
   /// Create a copy of SettingsModel
@@ -122,17 +146,21 @@ class _SettingsModel implements SettingsModel {
         (other.runtimeType == runtimeType &&
             other is _SettingsModel &&
             const DeepCollectionEquality()
-                .equals(other._customFieldTemplates, _customFieldTemplates));
+                .equals(other._customFieldTemplates, _customFieldTemplates) &&
+            const DeepCollectionEquality().equals(
+                other._globalDistanceWarnings, _globalDistanceWarnings));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(_customFieldTemplates));
+      runtimeType,
+      const DeepCollectionEquality().hash(_customFieldTemplates),
+      const DeepCollectionEquality().hash(_globalDistanceWarnings));
 
   @override
   String toString() {
-    return 'SettingsModel(customFieldTemplates: $customFieldTemplates)';
+    return 'SettingsModel(customFieldTemplates: $customFieldTemplates, globalDistanceWarnings: $globalDistanceWarnings)';
   }
 }
 
@@ -144,7 +172,9 @@ abstract mixin class _$SettingsModelCopyWith<$Res>
       __$SettingsModelCopyWithImpl;
   @override
   @useResult
-  $Res call({List<CustomFieldTemplate> customFieldTemplates});
+  $Res call(
+      {List<CustomFieldTemplate> customFieldTemplates,
+      List<DistanceWarning> globalDistanceWarnings});
 }
 
 /// @nodoc
@@ -161,12 +191,17 @@ class __$SettingsModelCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? customFieldTemplates = null,
+    Object? globalDistanceWarnings = null,
   }) {
     return _then(_SettingsModel(
       customFieldTemplates: null == customFieldTemplates
           ? _self._customFieldTemplates
           : customFieldTemplates // ignore: cast_nullable_to_non_nullable
               as List<CustomFieldTemplate>,
+      globalDistanceWarnings: null == globalDistanceWarnings
+          ? _self._globalDistanceWarnings
+          : globalDistanceWarnings // ignore: cast_nullable_to_non_nullable
+              as List<DistanceWarning>,
     ));
   }
 }
