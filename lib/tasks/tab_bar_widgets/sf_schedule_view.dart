@@ -14,13 +14,12 @@ class SfScheduleView extends StatelessWidget {
   final Function(DateTime) onFetchOlderTasks;
   final Function(Task) onTaskEdited;
   final List<Dog> dogs;
+
+  /// The date in which to start counting days
   final DateTime? date;
 
   /// How many days to display (default 1)
   final int? daysToDisplay;
-
-  /// How many days into the future to start displaying (default 0)
-  final int? startDayOffset;
 
   const SfScheduleView({
     super.key,
@@ -30,65 +29,74 @@ class SfScheduleView extends StatelessWidget {
     required this.date,
     required this.onTaskEdited,
     this.daysToDisplay,
-    this.startDayOffset,
   });
 
   @override
   Widget build(BuildContext context) {
-    int daysToDisplayFinal = daysToDisplay ?? 1;
-    int startDayOffsetFinal = startDayOffset ?? 0;
-    return SingleChildScrollView(
-      child: SfCalendar(
-        firstDayOfWeek: 1,
-        minDate: date?.add(Duration(days: startDayOffsetFinal)),
-        maxDate: date
-            ?.add(Duration(days: daysToDisplayFinal + startDayOffsetFinal))
-            .subtract(Duration(minutes: 1)),
-        view: CalendarView.schedule,
-        appointmentBuilder: (context, calendarAppointmentDetails) {
-          final Task task =
-              calendarAppointmentDetails.appointments.first as Task;
+    return SfCalendar(
+      headerHeight: 0,
+      viewHeaderHeight: 0,
+      scheduleViewSettings: ScheduleViewSettings(
+        appointmentItemHeight: 70,
+        monthHeaderSettings: MonthHeaderSettings(height: 0),
+        weekHeaderSettings: WeekHeaderSettings(height: 0),
+        dayHeaderSettings: DayHeaderSettings(width: 0),
+      ),
+      firstDayOfWeek: 1,
+      minDate: date,
+      maxDate: date
+          ?.add(Duration(days: daysToDisplay ?? 1))
+          .subtract(Duration(minutes: 1)),
+      view: CalendarView.schedule,
+      appointmentBuilder: (context, calendarAppointmentDetails) {
+        final Task task = calendarAppointmentDetails.appointments.first as Task;
 
-          return Row(
-            children: [
-              Checkbox(
-                  value: task.isDone,
-                  onChanged: (v) {
-                    if (v != null) {
-                      onTaskEdited(task.copyWith(isDone: v));
-                    }
-                  }),
-              Container(
+        return Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Checkbox(
+                value: task.isDone,
+                onChanged: (v) {
+                  if (v != null) {
+                    onTaskEdited(task.copyWith(isDone: v));
+                  }
+                }),
+            Expanded(
+              child: Container(
+                height: 60,
                 decoration: BoxDecoration(
                   color: _getTaskColor(task),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.all(2),
-                  child: Text(
-                    _getTaskSubject(task),
-                    style: _getTaskTextStyle(task),
+                  padding: EdgeInsets.all(6),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      _getTaskSubject(task),
+                      style: _getTaskTextStyle(task),
+                    ),
                   ),
                 ),
               ),
-            ],
-          );
-        },
-        onTap: (element) {
-          try {
-            _handleTap(element, context);
-          } catch (e, s) {
-            logger.error("Error in handling tap.", error: e, stackTrace: s);
-            ScaffoldMessenger.of(context)
-                .showSnackBar(errorSnackBar(context, "Unknown error."));
-          }
-        },
-        onViewChanged: (details) => fetchNewTasks(
-            details: details,
-            tasks: tasks,
-            onFetchOlderTasks: (date) => onFetchOlderTasks(date)),
-        dataSource: TaskDataSource(tasks: tasks.tasks, dogs: dogs, date: date),
-      ),
+            ),
+          ],
+        );
+      },
+      onTap: (element) {
+        try {
+          _handleTap(element, context);
+        } catch (e, s) {
+          logger.error("Error in handling tap.", error: e, stackTrace: s);
+          ScaffoldMessenger.of(context)
+              .showSnackBar(errorSnackBar(context, "Unknown error."));
+        }
+      },
+      onViewChanged: (details) => fetchNewTasks(
+          details: details,
+          tasks: tasks,
+          onFetchOlderTasks: (date) => onFetchOlderTasks(date)),
+      dataSource: TaskDataSource(tasks: tasks.tasks, dogs: dogs, date: date),
     );
   }
 

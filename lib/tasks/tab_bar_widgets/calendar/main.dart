@@ -112,6 +112,14 @@ class DayTasksDialog extends StatelessWidget {
     final screenSize = MediaQuery.of(context).size;
 
     return AlertDialog(
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              "Exit",
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ))
+      ],
       title: Text(
           "Tasks for: ${DateFormat("yyyy-MM-dd").format(date ?? DateTime.now())}"),
       content: SizedBox(

@@ -14,7 +14,7 @@ class TasksMainWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     MainProvider provider = context.watch<MainProvider>();
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         spacing: 10,

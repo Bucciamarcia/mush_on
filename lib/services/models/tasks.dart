@@ -125,6 +125,19 @@ extension TaskListExtension on List<Task> {
     }).toList();
   }
 
+  /// Filters only tasks that are overdue.
+  List<Task> get overdueTasks {
+    final now =
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    return where((t) {
+      bool hasExpiration = t.expiration != null;
+      bool isOverdue =
+          hasExpiration && t.expiration!.isBefore(now) && t.isDone == false;
+
+      return isOverdue;
+    }).toList();
+  }
+
   /// Filters and keeps only the tasks with no expiration.
   List<Task> get dontExpire => where((t) => t.expiration == null).toList();
 
@@ -194,4 +207,16 @@ abstract class TasksInMemory with _$TasksInMemory {
     /// Have the tasks with no expiration been fetched?
     @Default(false) bool noExpirationFetched,
   }) = _TasksInMemory;
+}
+
+extension TasksInMemoryExtension on TasksInMemory {
+  TasksInMemory get dueToday {
+    return copyWith(
+        tasks: tasks
+            .where((t) =>
+                t.expiration?.year == DateTime.now().year &&
+                t.expiration?.month == DateTime.now().month &&
+                t.expiration?.day == DateTime.now().day)
+            .toList());
+  }
 }
