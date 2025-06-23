@@ -53,7 +53,7 @@ class TasksMainWidget extends StatelessWidget {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                           confirmationSnackbar(
-                              context, "Task edited successfully"));
+                              context, "Task edited successfully: ${t.title}"));
                     }
                   }
                 } catch (e, s) {

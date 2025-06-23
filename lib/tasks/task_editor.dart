@@ -44,8 +44,8 @@ class AddTaskElevatedButton extends StatelessWidget {
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        confirmationSnackbar(
-                            context, "Task edited successfully!"),
+                        confirmationSnackbar(context,
+                            "Task edited successfully: ${task?.title}"),
                       );
                     }
                   }

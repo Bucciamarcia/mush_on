@@ -21,15 +21,17 @@ class SfScheduleView extends StatelessWidget {
 
   /// How many days into the future to start displaying (default 0)
   final int? startDayOffset;
-  const SfScheduleView(
-      {super.key,
-      required this.tasks,
-      required this.onFetchOlderTasks,
-      required this.dogs,
-      required this.date,
-      required this.onTaskEdited,
-      this.daysToDisplay,
-      this.startDayOffset});
+
+  const SfScheduleView({
+    super.key,
+    required this.tasks,
+    required this.onFetchOlderTasks,
+    required this.dogs,
+    required this.date,
+    required this.onTaskEdited,
+    this.daysToDisplay,
+    this.startDayOffset,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,18 +49,29 @@ class SfScheduleView extends StatelessWidget {
           final Task task =
               calendarAppointmentDetails.appointments.first as Task;
 
-          return Container(
-            decoration: BoxDecoration(
-              color: _getTaskColor(task),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(2),
-              child: Text(
-                _getTaskSubject(task),
-                style: _getTaskTextStyle(task),
+          return Row(
+            children: [
+              Checkbox(
+                  value: task.isDone,
+                  onChanged: (v) {
+                    if (v != null) {
+                      onTaskEdited(task.copyWith(isDone: v));
+                    }
+                  }),
+              Container(
+                decoration: BoxDecoration(
+                  color: _getTaskColor(task),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(2),
+                  child: Text(
+                    _getTaskSubject(task),
+                    style: _getTaskTextStyle(task),
+                  ),
+                ),
               ),
-            ),
+            ],
           );
         },
         onTap: (element) {
