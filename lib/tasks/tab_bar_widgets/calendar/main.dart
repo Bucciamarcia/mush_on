@@ -145,7 +145,7 @@ class TaskDataSource extends CalendarDataSource<Task> {
   TaskDataSource({required this.tasks, required this.dogs});
 
   @override
-  List<Task> get appointments => tasks;
+  List<Task> get appointments => tasks.urgentFirst().doneLast();
 
   @override
   bool isAllDay(int index) => appointments[index].isAllDay;

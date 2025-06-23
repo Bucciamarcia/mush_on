@@ -173,6 +173,21 @@ extension TaskListExtension on List<Task> {
     return [...urgentTasks, ...normalTasks];
   }
 
+  /// Tasks marked as done (isDone = true) are at the bottom.
+  List<Task> doneLast() {
+    List<Task> doneTasks = [];
+    List<Task> notDoneTasks = [];
+
+    for (Task task in this) {
+      if (task.isDone) {
+        doneTasks.add(task);
+      } else {
+        notDoneTasks.add(task);
+      }
+    }
+    return [...notDoneTasks, ...doneTasks];
+  }
+
   /// Returns the tasks of the next X days, excluding today.
   List<Task> nextDays(int n) {
     DateTime now = DateTime.now();

@@ -183,7 +183,7 @@ class TaskDataSource extends CalendarDataSource<Task> {
   List<Task> get appointments {
     List<Task> tasksEditable = List<Task>.from(tasks);
     tasksEditable.removeWhere((t) => t.expiration == null);
-    return tasksEditable;
+    return tasksEditable.urgentFirst().doneLast();
   }
 
   @override

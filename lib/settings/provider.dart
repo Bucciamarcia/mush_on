@@ -30,7 +30,6 @@ class SettingsProvider extends ChangeNotifier {
         globalDistanceWarnings: [...settings.globalDistanceWarnings, warning],
       );
       var payload = newSettings.toJson();
-      logger.info("Payload: $payload");
       await firestore.addDocToDb(payload: payload, path: path, merge: true);
       settings = newSettings;
       notifyListeners();
