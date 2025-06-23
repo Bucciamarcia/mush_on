@@ -137,7 +137,9 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
         children: [
           Icon(Icons.add_task, color: colorScheme.primary),
           const SizedBox(width: 12),
-          const Text("Add New Task"),
+          Text(widget.taskEditorType == TaskEditorType.newTask
+              ? "Add New Task"
+              : "Edit task"),
         ],
       ),
       content: Container(
@@ -229,7 +231,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
                 .toList(),
           ),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3),
       ),
     );
   }
@@ -381,7 +383,9 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
             }
           : null,
       icon: const Icon(Icons.add),
-      label: const Text("Add Task"),
+      label: Text(widget.taskEditorType == TaskEditorType.newTask
+          ? "Add Task"
+          : "Edit task"),
     );
   }
 
@@ -501,34 +505,38 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
               ],
             ),
           ),
-          Row(
+          Wrap(
             spacing: 12,
             children: [
               if (_expiration != null)
-                TextButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      _expiration = null;
-                    });
-                  },
-                  icon: const Icon(Icons.clear),
-                  label: const Text("Clear"),
-                  style: TextButton.styleFrom(
-                    foregroundColor: colorScheme.error,
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _expiration = null;
+                      });
+                    },
+                    icon: const Icon(Icons.clear),
+                    label: const Text("Clear"),
+                    style: TextButton.styleFrom(
+                      foregroundColor: colorScheme.error,
+                    ),
                   ),
                 ),
-              FilledButton.tonalIcon(
-                onPressed: () async {
-                  await _selectDate(
-                      context: context,
-                      onDatePicked: (newDate) {
-                        setState(() {
-                          _expiration = newDate;
+              Center(
+                child: FilledButton.tonalIcon(
+                  onPressed: () async {
+                    await _selectDate(
+                        context: context,
+                        onDatePicked: (newDate) {
+                          setState(() {
+                            _expiration = newDate;
+                          });
                         });
-                      });
-                },
-                icon: Icon(_expiration != null ? Icons.edit : Icons.add),
-                label: Text(_expiration != null ? "Change Date" : "Set Date"),
+                  },
+                  icon: Icon(_expiration != null ? Icons.edit : Icons.add),
+                  label: Text(_expiration != null ? "Change Date" : "Set Date"),
+                ),
               ),
             ],
           ),
