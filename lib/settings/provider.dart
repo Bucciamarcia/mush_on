@@ -18,6 +18,11 @@ class SettingsProvider extends ChangeNotifier {
     _getSettings();
   }
 
+  void changeDidSomethingChange(bool b) {
+    didSomethingChange = b;
+    notifyListeners();
+  }
+
   Future<void> addWarning(DistanceWarning warning) async {
     try {
       FirestoreService firestore = FirestoreService();
