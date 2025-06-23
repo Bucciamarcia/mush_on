@@ -92,6 +92,7 @@ class _AddDistanceWarningAlertDialogState
             SizedBox(height: 16),
             // Warning type selector with visual indicators
             Container(
+              alignment: Alignment.topCenter,
               padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surfaceContainerHighest
@@ -102,7 +103,7 @@ class _AddDistanceWarningAlertDialogState
                 ),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text("Warning type", style: theme.textTheme.labelMedium),
                   SizedBox(height: 8),
