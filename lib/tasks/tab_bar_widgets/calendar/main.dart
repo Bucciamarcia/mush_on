@@ -58,7 +58,15 @@ class CalendarTabWidget extends StatelessWidget {
       throw Exception("element.appointments is null and shouldn't be");
     } else {
       if (element.appointments!.isEmpty) {
-        logger.info("Gotta add new task here");
+        return await showDialog(
+          context: context,
+          builder: (context) => TaskEditorDialog(
+            task: Task(expiration: element.date),
+            dogs: dogs,
+            taskEditorType: TaskEditorType.newTask,
+            onTaskAdded: (t) => onTaskEdited(t),
+          ),
+        );
       } else if (element.appointments!.length != 1) {
         return await showDialog(
             context: context,
