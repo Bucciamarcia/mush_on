@@ -4,6 +4,7 @@ import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/settings/custom_fields.dart';
 import 'package:mush_on/settings/provider.dart';
 import 'package:mush_on/settings/save_cancel_buttons.dart';
+import 'package:mush_on/shared/distance_warning_widget/main.dart';
 import 'package:mush_on/shared/text_title.dart';
 import 'package:provider/provider.dart';
 
@@ -83,6 +84,55 @@ class _SettingsMainState extends State<SettingsMain> {
                       onCustomFieldDeleted: (id) =>
                           settingsProvider.deleteCustomField(id),
                     ),
+                    TextTitle("Global distance warnings"),
+                    DistanceWarningWidget(
+                        warnings:
+                            settingsProvider.settings.globalDistanceWarnings,
+                        onWarningAdded: (warning) async {
+                          try {
+                            await settingsProvider.addWarning(warning);
+                          } catch (e, s) {
+                            SettingsMain.logger.error(
+                                "Couldn't add distance warning",
+                                error: e,
+                                stackTrace: s);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  errorSnackBar(context,
+                                      "Couldn't add distance warning"));
+                            }
+                          }
+                        },
+                        onWarningEdited: (warning) async {
+                          try {
+                            await settingsProvider.editWarning(warning);
+                          } catch (e, s) {
+                            SettingsMain.logger.error(
+                                "Couldn't edit distance warning",
+                                error: e,
+                                stackTrace: s);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  errorSnackBar(context,
+                                      "Couldn't edit distance warning"));
+                            }
+                          }
+                        },
+                        onWarningRemoved: (id) async {
+                          try {
+                            await settingsProvider.removeWarning(id);
+                          } catch (e, s) {
+                            SettingsMain.logger.error(
+                                "Couldn't remove distance warning",
+                                error: e,
+                                stackTrace: s);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  errorSnackBar(context,
+                                      "Couldn't remove distance warning"));
+                            }
+                          }
+                        }),
                     SaveCancelButtons(
                       onSavePressed: () async {
                         try {
