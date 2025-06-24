@@ -7,6 +7,7 @@ import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
+import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/storage.dart';
 import 'package:path/path.dart' as path;
 
@@ -20,6 +21,7 @@ class SingleDogProvider extends ChangeNotifier {
   List<DogTotal> runTotals = [];
   bool isLoadingTotals = false;
   Uint8List? image;
+  List<DistanceWarning> warnings = [];
   bool isLoadingImage = false;
   String account = "";
   List<CustomField> customFields = [];
@@ -33,6 +35,7 @@ class SingleDogProvider extends ChangeNotifier {
     name = newDog.name;
     sex = newDog.sex;
     positions = newDog.positions;
+    warnings = newDog.distanceWarnings;
     tags = newDog.tags;
     birth = newDog.birth;
     customFields = newDog.customFields;
@@ -56,6 +59,49 @@ class SingleDogProvider extends ChangeNotifier {
       isLoadingTotals = false;
       notifyListeners();
     });
+  }
+
+  Future<void> addWarning(DistanceWarning w) async {
+    var newWarnings = List<DistanceWarning>.from(warnings);
+    newWarnings.add(w);
+    try {
+      await DogsDbOperations()
+          .updateDistanceWarnings(warnings: newWarnings, dogId: id);
+      warnings = newWarnings;
+      notifyListeners();
+    } catch (e, s) {
+      logger.error("Couldn't add warning", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> editWarning(DistanceWarning w) async {
+    var newWarnings = List<DistanceWarning>.from(warnings);
+    newWarnings.removeWhere((oldWarning) => oldWarning.id == w.id);
+    newWarnings.add(w);
+    try {
+      await DogsDbOperations()
+          .updateDistanceWarnings(warnings: newWarnings, dogId: id);
+      warnings = newWarnings;
+      notifyListeners();
+    } catch (e, s) {
+      logger.error("Couldn't add warning", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> removeWarning(String warningId) async {
+    var newWarnings = List<DistanceWarning>.from(warnings);
+    newWarnings.removeWhere((oldWarning) => oldWarning.id == warningId);
+    try {
+      await DogsDbOperations()
+          .updateDistanceWarnings(warnings: newWarnings, dogId: id);
+      warnings = newWarnings;
+      notifyListeners();
+    } catch (e, s) {
+      logger.error("Couldn't add warning", error: e, stackTrace: s);
+      rethrow;
+    }
   }
 
   Future<void> addCustomField(CustomField newCf) async {

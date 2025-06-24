@@ -11,6 +11,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
+import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/storage.dart';
 import 'package:path/path.dart' as path;
 
@@ -442,7 +443,7 @@ class DogsDbOperations {
     var doc = db.doc(path);
 
     try {
-      await doc.update({"birth": birthday.toUtc().toIso8601String()});
+      await doc.update({"birth": birthday});
     } catch (e, s) {
       logger.error("Couldn't change dog birthday", error: e, stackTrace: s);
       rethrow;
@@ -516,6 +517,25 @@ class DogsDbOperations {
       await doc.update({"notes": payload});
     } catch (e, s) {
       logger.error("Db error in update notes", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> updateDistanceWarnings(
+      {required List<DistanceWarning> warnings, required String dogId}) async {
+    var account = await FirestoreService().getUserAccount();
+    String path = "accounts/$account/data/kennel/dogs";
+    var dogsRef = FirebaseFirestore.instance.collection(path);
+    var doc = dogsRef.doc(dogId);
+    List<Map<String, dynamic>> payload = [];
+    for (DistanceWarning warning in warnings) {
+      payload.add(warning.toJson());
+    }
+    try {
+      await doc.update({"distanceWarnings": payload});
+    } catch (e, s) {
+      logger.error("Couldn't update distance warnings",
+          error: e, stackTrace: s);
       rethrow;
     }
   }
