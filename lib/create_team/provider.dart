@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/create_team/models.dart';
+import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 
 class CreateTeamProvider extends ChangeNotifier {
+  final MainProvider provider;
   bool unsavedData = false;
   BasicLogger logger = BasicLogger();
-  List<Dog> dogs;
   List<DogNote> dogNotes = [];
   List<String> runningDogIds = [];
+  List<Dog> get dogs => provider.dogs;
   TeamGroup group = TeamGroup(
     teams: [
       Team(
@@ -23,8 +25,8 @@ class CreateTeamProvider extends ChangeNotifier {
   final Map<String, Dog> _dogsById = {};
   Map<String, Dog> get dogsById => _dogsById;
 
-  CreateTeamProvider({required this.dogs}) {
-    _fetchDogsById(dogs);
+  CreateTeamProvider(this.provider) {
+    _fetchDogsById(provider.dogs);
     _buildNotes();
   }
 
