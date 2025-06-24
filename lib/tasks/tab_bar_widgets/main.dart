@@ -13,6 +13,7 @@ class TabBarViewWidget extends StatelessWidget {
   final Function(Task) onTaskEdited;
   final Function(DateTime) onFetchOlderTasks;
   final Function(Task) onTaskAdded;
+  final Function(String) onTaskDeleted;
   const TabBarViewWidget({
     super.key,
     required this.tasks,
@@ -20,6 +21,7 @@ class TabBarViewWidget extends StatelessWidget {
     required this.dogs,
     required this.onTaskAdded,
     required this.onFetchOlderTasks,
+    required this.onTaskDeleted,
   });
 
   @override
@@ -31,6 +33,7 @@ class TabBarViewWidget extends StatelessWidget {
           tasksInMemory: tasks,
           dogs: dogs,
           onTaskEdited: (t) => onTaskEdited(t),
+          onTaskDeleted: (t) => onTaskDeleted(t),
         ),
         Column(
           children: [
@@ -42,6 +45,7 @@ class TabBarViewWidget extends StatelessWidget {
                     key: ValueKey(t.id),
                     dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
                     task: t,
+                    onTaskDeleted: (t) => onTaskDeleted(t),
                     onTaskEdited: (t) => onTaskEdited(t),
                   ),
                 )
@@ -52,6 +56,7 @@ class TabBarViewWidget extends StatelessWidget {
           tasks: tasks,
           dogs: dogs,
           onTaskEdited: (t) => onTaskEdited(t),
+          onTaskDeleted: (t) => onTaskDeleted(t),
           onTaskAdded: (t) => onTaskAdded(t),
         )
       ],

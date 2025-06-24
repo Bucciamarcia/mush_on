@@ -12,12 +12,14 @@ class NowTabView extends StatelessWidget {
   final List<Dog> dogs;
   final Function(Task) onTaskEdited;
   final Function(DateTime) onFetchOlderTasks;
+  final Function(String) onTaskDeleted;
   const NowTabView(
       {super.key,
       required this.tasksInMemory,
       required this.onTaskEdited,
       required this.dogs,
-      required this.onFetchOlderTasks});
+      required this.onFetchOlderTasks,
+      required this.onTaskDeleted});
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +51,7 @@ class NowTabView extends StatelessWidget {
                                 3, // Use the calculated days
                             onFetchOlderTasks: onFetchOlderTasks,
                             dogs: dogs,
+                            onTaskDeleted: (tid) => onTaskDeleted(tid),
                             date: firstOverdueTask.subtract(Duration(
                                 days:
                                     1)), // Use the actual first overdue task date
@@ -65,6 +68,7 @@ class NowTabView extends StatelessWidget {
                   SfScheduleView(
                       tasks: tasksInMemory.dueToday,
                       onFetchOlderTasks: (date) => onFetchOlderTasks(date),
+                      onTaskDeleted: (tid) => onTaskDeleted(tid),
                       dogs: dogs,
                       date: DateTime.now(),
                       onTaskEdited: onTaskEdited),
@@ -83,12 +87,14 @@ class TaskElement extends StatelessWidget {
   final Dog? dog;
   final List<Dog> dogs;
   final Function(Task) onTaskEdited;
+  final Function(String) onTaskDeleted;
   const TaskElement(
       {super.key,
       required this.task,
       required this.onTaskEdited,
       this.dog,
-      required this.dogs});
+      required this.dogs,
+      required this.onTaskDeleted});
 
   @override
   Widget build(BuildContext context) {
@@ -273,6 +279,7 @@ class TaskElement extends StatelessWidget {
               onTaskAdded: (t) => onTaskEdited(t),
               dogs: dogs,
               task: task,
+              onTaskDeleted: (tid) => onTaskDeleted(tid),
               taskEditorType: TaskEditorType.editTask),
         );
       },

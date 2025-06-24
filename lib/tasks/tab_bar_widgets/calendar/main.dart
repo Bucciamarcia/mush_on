@@ -14,6 +14,7 @@ class CalendarTabWidget extends StatelessWidget {
   final List<Dog> dogs;
   final Function(Task) onTaskEdited;
   final Function(Task) onTaskAdded;
+  final Function(String) onTaskDeleted;
   final Function(DateTime) onFetchOlderTasks;
   static final BasicLogger logger = BasicLogger();
   const CalendarTabWidget(
@@ -22,6 +23,7 @@ class CalendarTabWidget extends StatelessWidget {
       required this.tasks,
       required this.dogs,
       required this.onTaskEdited,
+      required this.onTaskDeleted,
       required this.onFetchOlderTasks});
 
   @override
@@ -58,21 +60,13 @@ class CalendarTabWidget extends StatelessWidget {
       throw Exception("element.appointments is null and shouldn't be");
     } else {
       if (element.appointments!.isEmpty) {
-        return await showDialog(
-          context: context,
-          builder: (context) => TaskEditorDialog(
-            task: Task(expiration: element.date),
-            dogs: dogs,
-            taskEditorType: TaskEditorType.newTask,
-            onTaskAdded: (t) => onTaskEdited(t),
-          ),
-        );
       } else if (element.appointments!.length != 1) {
         return await showDialog(
             context: context,
             builder: (context) => DayTasksDialog(
                   date: element.date,
                   onTaskEdited: (t) => onTaskEdited(t),
+                  onTaskDeleted: (t) => onTaskDeleted(t),
                   tasks: tasks,
                   dogs: dogs,
                   onFetchOlderTasks: (date) => onFetchOlderTasks(date),
@@ -86,6 +80,7 @@ class CalendarTabWidget extends StatelessWidget {
             dogs: dogs,
             taskEditorType: TaskEditorType.editTask,
             onTaskAdded: (t) => onTaskEdited(t),
+            onTaskDeleted: (t) => onTaskDeleted(t),
           ),
         );
       }
@@ -98,6 +93,7 @@ class DayTasksDialog extends StatelessWidget {
   final TasksInMemory tasks;
   final Function(DateTime) onFetchOlderTasks;
   final Function(Task) onTaskEdited;
+  final Function(String) onTaskDeleted;
   final List<Dog> dogs;
   const DayTasksDialog(
       {super.key,
@@ -105,7 +101,8 @@ class DayTasksDialog extends StatelessWidget {
       required this.tasks,
       required this.onFetchOlderTasks,
       required this.dogs,
-      required this.onTaskEdited});
+      required this.onTaskEdited,
+      required this.onTaskDeleted});
 
   @override
   Widget build(BuildContext context) {
@@ -130,6 +127,10 @@ class DayTasksDialog extends StatelessWidget {
             onFetchOlderTasks: onFetchOlderTasks,
             onTaskEdited: (t) {
               onTaskEdited(t);
+              Navigator.of(context).pop();
+            },
+            onTaskDeleted: (t) {
+              onTaskDeleted(t);
               Navigator.of(context).pop();
             },
             dogs: dogs,
