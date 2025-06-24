@@ -12,6 +12,8 @@ import 'package:mush_on/kennel/dog/single_dog_notes_widget.dart';
 import 'package:mush_on/kennel/dog/tags_widget.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/shared/distance_warning_widget/main.dart';
+import 'package:mush_on/shared/text_title.dart';
 import 'package:provider/provider.dart';
 import '../../services/models/dog.dart';
 import 'name_widget.dart';
@@ -138,6 +140,14 @@ class DogMain extends StatelessWidget {
               }
             });
           },
+        ),
+        Divider(),
+        TextTitle("Custom distance warnings"),
+        DistanceWarningWidget(
+          warnings: singleDogProvider.warnings,
+          onWarningAdded: (w) => singleDogProvider.addWarning(w),
+          onWarningEdited: (w) => singleDogProvider.editWarning(w),
+          onWarningRemoved: (id) => singleDogProvider.removeWarning(id),
         ),
         Divider(),
         CustomFieldArea(

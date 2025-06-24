@@ -8,6 +8,8 @@ import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/custom_converters.dart';
 import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
+
+import 'settings/distance_warning.dart';
 part "dog.g.dart";
 part "dog.freezed.dart";
 
@@ -26,6 +28,7 @@ abstract class Dog with _$Dog {
     @Default([]) List<Tag> tags,
     @Default([]) List<CustomField> customFields,
     @Default([]) List<SingleDogNote> notes,
+    @Default([]) List<DistanceWarning> distanceWarnings,
     @TimestampConverter() DateTime? birth,
   }) = _Dog;
 

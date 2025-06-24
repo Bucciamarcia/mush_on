@@ -22,6 +22,7 @@ mixin _$Dog {
   List<Tag> get tags;
   List<CustomField> get customFields;
   List<SingleDogNote> get notes;
+  List<DistanceWarning> get distanceWarnings;
   @TimestampConverter()
   DateTime? get birth;
 
@@ -49,6 +50,8 @@ mixin _$Dog {
             const DeepCollectionEquality()
                 .equals(other.customFields, customFields) &&
             const DeepCollectionEquality().equals(other.notes, notes) &&
+            const DeepCollectionEquality()
+                .equals(other.distanceWarnings, distanceWarnings) &&
             (identical(other.birth, birth) || other.birth == birth));
   }
 
@@ -63,11 +66,12 @@ mixin _$Dog {
       const DeepCollectionEquality().hash(tags),
       const DeepCollectionEquality().hash(customFields),
       const DeepCollectionEquality().hash(notes),
+      const DeepCollectionEquality().hash(distanceWarnings),
       birth);
 
   @override
   String toString() {
-    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, notes: $notes, birth: $birth)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, notes: $notes, distanceWarnings: $distanceWarnings, birth: $birth)';
   }
 }
 
@@ -83,6 +87,7 @@ abstract mixin class $DogCopyWith<$Res> {
       List<Tag> tags,
       List<CustomField> customFields,
       List<SingleDogNote> notes,
+      List<DistanceWarning> distanceWarnings,
       @TimestampConverter() DateTime? birth});
 
   $DogPositionsCopyWith<$Res> get positions;
@@ -107,6 +112,7 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
     Object? tags = null,
     Object? customFields = null,
     Object? notes = null,
+    Object? distanceWarnings = null,
     Object? birth = freezed,
   }) {
     return _then(_self.copyWith(
@@ -138,6 +144,10 @@ class _$DogCopyWithImpl<$Res> implements $DogCopyWith<$Res> {
           ? _self.notes
           : notes // ignore: cast_nullable_to_non_nullable
               as List<SingleDogNote>,
+      distanceWarnings: null == distanceWarnings
+          ? _self.distanceWarnings
+          : distanceWarnings // ignore: cast_nullable_to_non_nullable
+              as List<DistanceWarning>,
       birth: freezed == birth
           ? _self.birth
           : birth // ignore: cast_nullable_to_non_nullable
@@ -168,10 +178,12 @@ class _Dog extends Dog {
       final List<Tag> tags = const [],
       final List<CustomField> customFields = const [],
       final List<SingleDogNote> notes = const [],
+      final List<DistanceWarning> distanceWarnings = const [],
       @TimestampConverter() this.birth})
       : _tags = tags,
         _customFields = customFields,
         _notes = notes,
+        _distanceWarnings = distanceWarnings,
         super._();
   factory _Dog.fromJson(Map<String, dynamic> json) => _$DogFromJson(json);
 
@@ -214,6 +226,16 @@ class _Dog extends Dog {
     return EqualUnmodifiableListView(_notes);
   }
 
+  final List<DistanceWarning> _distanceWarnings;
+  @override
+  @JsonKey()
+  List<DistanceWarning> get distanceWarnings {
+    if (_distanceWarnings is EqualUnmodifiableListView)
+      return _distanceWarnings;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_distanceWarnings);
+  }
+
   @override
   @TimestampConverter()
   final DateTime? birth;
@@ -247,6 +269,8 @@ class _Dog extends Dog {
             const DeepCollectionEquality()
                 .equals(other._customFields, _customFields) &&
             const DeepCollectionEquality().equals(other._notes, _notes) &&
+            const DeepCollectionEquality()
+                .equals(other._distanceWarnings, _distanceWarnings) &&
             (identical(other.birth, birth) || other.birth == birth));
   }
 
@@ -261,11 +285,12 @@ class _Dog extends Dog {
       const DeepCollectionEquality().hash(_tags),
       const DeepCollectionEquality().hash(_customFields),
       const DeepCollectionEquality().hash(_notes),
+      const DeepCollectionEquality().hash(_distanceWarnings),
       birth);
 
   @override
   String toString() {
-    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, notes: $notes, birth: $birth)';
+    return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, notes: $notes, distanceWarnings: $distanceWarnings, birth: $birth)';
   }
 }
 
@@ -283,6 +308,7 @@ abstract mixin class _$DogCopyWith<$Res> implements $DogCopyWith<$Res> {
       List<Tag> tags,
       List<CustomField> customFields,
       List<SingleDogNote> notes,
+      List<DistanceWarning> distanceWarnings,
       @TimestampConverter() DateTime? birth});
 
   @override
@@ -308,6 +334,7 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
     Object? tags = null,
     Object? customFields = null,
     Object? notes = null,
+    Object? distanceWarnings = null,
     Object? birth = freezed,
   }) {
     return _then(_Dog(
@@ -339,6 +366,10 @@ class __$DogCopyWithImpl<$Res> implements _$DogCopyWith<$Res> {
           ? _self._notes
           : notes // ignore: cast_nullable_to_non_nullable
               as List<SingleDogNote>,
+      distanceWarnings: null == distanceWarnings
+          ? _self._distanceWarnings
+          : distanceWarnings // ignore: cast_nullable_to_non_nullable
+              as List<DistanceWarning>,
       birth: freezed == birth
           ? _self.birth
           : birth // ignore: cast_nullable_to_non_nullable
