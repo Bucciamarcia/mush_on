@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
@@ -27,32 +26,170 @@ class CreateTeamProvider extends ChangeNotifier {
     date: DateTime.now(),
   );
   Map<String, Dog> get dogsById => provider.dogsById;
-
   CreateTeamProvider(this.provider) {
     _buildNotes();
     _buildDistanceWarnings();
   }
-
   void _buildDistanceWarnings() async {
     DateTime earliestGlobalDate = _buildEarliestGlobalDate();
     logger.debug("Earliest global date: $earliestGlobalDate");
     DateTime earliestDogDate = _buildEarliestDogDate();
     logger.debug("Earliest dog date: $earliestDogDate");
+
     DateTime earliestWarningDate;
     if (earliestGlobalDate.isBefore(earliestDogDate)) {
       earliestWarningDate = earliestGlobalDate;
     } else {
       earliestWarningDate = earliestDogDate;
     }
-    List<TeamGroup> teamsAfterEarliestWarning =
+
+    Set<TeamGroup> teamsAfterEarliestWarning =
         await _getTeamsAfterEarliestWarning(earliestWarningDate);
     logger.debug(
         "Fetched teams after earliest warnings: ${teamsAfterEarliestWarning.length} since $earliestWarningDate");
     logger.debug(
         "Days fetched: ${DateTime.now().difference(earliestWarningDate).inDays}");
+
+    // Process global warnings
+    _addGlobalWarnings(teamsAfterEarliestWarning);
+
+    // Process dog-specific warnings
+    _addDogSpecificWarnings(teamsAfterEarliestWarning);
+
+    notifyListeners();
   }
 
-  Future<List<TeamGroup>> _getTeamsAfterEarliestWarning(DateTime cutOff) async {
+  void _addDogSpecificWarnings(Set<TeamGroup> teamGroups) {
+    for (Dog dog in dogs) {
+      for (DistanceWarning warning in dog.distanceWarnings) {
+        _addWarningToSpecificDog(dog, warning, teamGroups);
+      }
+    }
+  }
+
+  void _addWarningToAllDogs(
+      DistanceWarning warning, Set<TeamGroup> teamGroups) {
+    for (Dog dog in dogs) {
+      _checkAndAddWarning(dog, warning, teamGroups);
+    }
+  }
+
+  void _addWarningToSpecificDog(
+      Dog dog, DistanceWarning warning, Set<TeamGroup> teamGroups) {
+    _checkAndAddWarning(dog, warning, teamGroups);
+  }
+
+  void _checkAndAddWarning(
+      Dog dog, DistanceWarning warning, Set<TeamGroup> teamGroups) {
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+    DateTime cutoffDate = today.subtract(Duration(days: warning.daysInterval));
+
+    double distanceRan = _dogDistanceSinceDate(dog, cutoffDate, teamGroups);
+
+    if (distanceRan > warning.distance) {
+      dogNotes = DogNoteRepository.addNote(
+          notes: dogNotes,
+          dogId: dog.id,
+          newNote: DogNoteMessage(
+            type: warning.distanceWarningType == DistanceWarningType.soft
+                ? DogNoteType.distanceWarning
+                : DogNoteType.distanceError,
+            // Consider adding more context to the note
+          ));
+    }
+  }
+
+  double _dogDistanceSinceDate(
+      Dog dog, DateTime date, Set<TeamGroup> teamGroups) {
+    double toReturn = 0;
+    for (TeamGroup teamGroup in teamGroups) {
+      if (teamGroup.date.isAfter(date) ||
+          teamGroup.date.isAtSameMomentAs(date)) {
+        bool dogFoundInGroup = false;
+        for (Team team in teamGroup.teams) {
+          for (DogPair pair in team.dogPairs) {
+            if (pair.firstDogId == dog.id || pair.secondDogId == dog.id) {
+              toReturn = toReturn + teamGroup.distance;
+              dogFoundInGroup = true;
+              break;
+            }
+          }
+          if (dogFoundInGroup) break;
+        }
+      }
+    }
+    return toReturn;
+  }
+
+  void _addGlobalWarnings(Set<TeamGroup> teamGroups) {
+    // Pre-calculate all dog distances for each warning period
+    Map<int, Map<String, double>> distancesByPeriod = {};
+
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+
+    // Build distance maps for each unique warning period
+    Set<int> uniquePeriods = provider.settings.globalDistanceWarnings
+        .map((w) => w.daysInterval)
+        .toSet();
+
+    for (int days in uniquePeriods) {
+      DateTime cutoff = today.subtract(Duration(days: days));
+      distancesByPeriod[days] = _buildDogDistanceMap(cutoff, teamGroups);
+    }
+
+    // Now check warnings using pre-calculated distances
+    for (DistanceWarning warning in provider.settings.globalDistanceWarnings) {
+      Map<String, double> distances = distancesByPeriod[warning.daysInterval]!;
+
+      for (Dog dog in dogs) {
+        double distanceRan = distances[dog.id] ?? 0;
+        if (distanceRan > warning.distance) {
+          dogNotes = DogNoteRepository.addNote(
+              notes: dogNotes,
+              dogId: dog.id,
+              newNote: DogNoteMessage(
+                  type: warning.distanceWarningType == DistanceWarningType.soft
+                      ? DogNoteType.distanceWarning
+                      : DogNoteType.distanceError));
+        }
+      }
+    }
+  }
+
+  Map<String, double> _buildDogDistanceMap(
+      DateTime cutoff, Set<TeamGroup> teamGroups) {
+    Map<String, double> distanceMap = {};
+
+    for (TeamGroup teamGroup in teamGroups) {
+      if (teamGroup.date.isAfter(cutoff) ||
+          teamGroup.date.isAtSameMomentAs(cutoff)) {
+        Set<String> dogsInGroup = {};
+
+        // Collect all unique dogs in this group
+        for (Team team in teamGroup.teams) {
+          for (DogPair pair in team.dogPairs) {
+            if (pair.firstDogId != null && pair.firstDogId!.isNotEmpty) {
+              dogsInGroup.add(pair.firstDogId!);
+            }
+            if (pair.secondDogId != null && pair.secondDogId!.isNotEmpty) {
+              dogsInGroup.add(pair.secondDogId!);
+            }
+          }
+        }
+
+        // Add distance once per dog
+        for (String dogId in dogsInGroup) {
+          distanceMap[dogId] = (distanceMap[dogId] ?? 0) + teamGroup.distance;
+        }
+      }
+    }
+
+    return distanceMap;
+  }
+
+  Future<Set<TeamGroup>> _getTeamsAfterEarliestWarning(DateTime cutOff) async {
     String account = await FirestoreService().getUserAccount();
     FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -64,7 +201,7 @@ class CreateTeamProvider extends ChangeNotifier {
     var docs = results.docs;
     List<TeamGroup> teamGroups =
         docs.map((doc) => TeamGroup.fromJson(doc.data())).toList();
-    return teamGroups;
+    return teamGroups.toSet();
   }
 
   DateTime _buildEarliestDogDate() {
