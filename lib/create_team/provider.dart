@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/extensions.dart';
+import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/settings/distance_warning.dart';
 
 class CreateTeamProvider extends ChangeNotifier {
   final MainProvider provider;
@@ -22,24 +26,96 @@ class CreateTeamProvider extends ChangeNotifier {
     ],
     date: DateTime.now(),
   );
-  final Map<String, Dog> _dogsById = {};
-  Map<String, Dog> get dogsById => _dogsById;
+  Map<String, Dog> get dogsById => provider.dogsById;
 
   CreateTeamProvider(this.provider) {
-    _fetchDogsById(provider.dogs);
     _buildNotes();
+    _buildDistanceWarnings();
+  }
+
+  void _buildDistanceWarnings() async {
+    DateTime earliestGlobalDate = _buildEarliestGlobalDate();
+    logger.debug("Earliest global date: $earliestGlobalDate");
+    DateTime earliestDogDate = _buildEarliestDogDate();
+    logger.debug("Earliest dog date: $earliestDogDate");
+    DateTime earliestWarningDate;
+    if (earliestGlobalDate.isBefore(earliestDogDate)) {
+      earliestWarningDate = earliestGlobalDate;
+    } else {
+      earliestWarningDate = earliestDogDate;
+    }
+    List<TeamGroup> teamsAfterEarliestWarning =
+        await _getTeamsAfterEarliestWarning(earliestWarningDate);
+    logger.debug(
+        "Fetched teams after earliest warnings: ${teamsAfterEarliestWarning.length} since $earliestWarningDate");
+    logger.debug(
+        "Days fetched: ${DateTime.now().difference(earliestWarningDate).inDays}");
+  }
+
+  Future<List<TeamGroup>> _getTeamsAfterEarliestWarning(DateTime cutOff) async {
+    String account = await FirestoreService().getUserAccount();
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    Query<Map<String, dynamic>> ref =
+        db.collection("accounts/$account/data/teams/history");
+
+    ref = ref.where("date", isGreaterThan: cutOff);
+    var results = await ref.get();
+    var docs = results.docs;
+    List<TeamGroup> teamGroups =
+        docs.map((doc) => TeamGroup.fromJson(doc.data())).toList();
+    return teamGroups;
+  }
+
+  DateTime _buildEarliestDogDate() {
+    int interval = 0;
+    for (Dog dog in provider.dogs) {
+      List<DistanceWarning> distanceWarnings = dog.distanceWarnings;
+      if (distanceWarnings.isEmpty) continue;
+      var newDistanceWarnings = List<DistanceWarning>.from(distanceWarnings);
+      newDistanceWarnings
+          .sort((a, b) => a.daysInterval.compareTo(b.daysInterval));
+      if (newDistanceWarnings.last.daysInterval > interval) {
+        interval = newDistanceWarnings.last.daysInterval;
+      }
+    }
+    DateTime now = DateTime.now();
+    var today = DateTime(now.year, now.month, now.day);
+    logger.debug("Max dog interval found: $interval");
+    return today.subtract(Duration(days: interval));
+  }
+
+  DateTime _buildEarliestGlobalDate() {
+    if (provider.settings.globalDistanceWarnings.isEmpty) {
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
+      logger.debug("No global distance warnings: returning today");
+      return today;
+    }
+    var globalWarnings = List.from(provider.settings.globalDistanceWarnings);
+
+    // Now you can safely sort the new list.
+    globalWarnings.sort((a, b) => a.daysInterval.compareTo(b.daysInterval));
+
+    DateTime now = DateTime.now();
+    DateTime today = DateTime(now.year, now.month, now.day);
+    logger.debug("Today: $today");
+
+    // Check if globalWarnings is not empty before accessing 'last'
+    if (globalWarnings.isEmpty) {
+      // Handle the case where there are no warnings.
+      // Returning today's date might be a safe default.
+      return today;
+    }
+
+    int longestDaysInterval = globalWarnings.last.daysInterval;
+    logger.debug("Longest days interval: $longestDaysInterval");
+    return today.subtract(Duration(days: longestDaysInterval));
   }
 
   void addDogNote(DogNote newNote) {
     dogNotes.add(newNote);
     notifyListeners();
-  }
-
-  void _fetchDogsById(List<Dog> fetchedDogs) {
-    _dogsById.clear();
-    for (Dog dog in fetchedDogs) {
-      _dogsById.addAll({dog.id: dog});
-    }
   }
 
   void _buildNotes() {
