@@ -18,10 +18,6 @@ _Task _$TaskFromJson(Map<String, dynamic> json) => _Task(
       recurring:
           $enumDecodeNullable(_$RecurringTypeEnumMap, json['recurring']) ??
               RecurringType.none,
-      recurringDone: json['recurringDone'] == null
-          ? const <DateTime>[]
-          : const TimestampListConverter()
-              .fromJson(json['recurringDone'] as List),
       dogId: json['dogId'] as String?,
     );
 
@@ -34,8 +30,6 @@ Map<String, dynamic> _$TaskToJson(_Task instance) => <String, dynamic>{
       'isAllDay': instance.isAllDay,
       'isUrgent': instance.isUrgent,
       'recurring': _$RecurringTypeEnumMap[instance.recurring]!,
-      'recurringDone':
-          const TimestampListConverter().toJson(instance.recurringDone),
       'dogId': instance.dogId,
     };
 

@@ -37,11 +37,6 @@ abstract class Task with _$Task {
     /// If this is a recurring task, and how often it repeats.
     @Default(RecurringType.none) RecurringType recurring,
 
-    /// If recurring, the dates that are checked.
-    @TimestampListConverter()
-    @Default(<DateTime>[])
-    List<DateTime> recurringDone,
-
     /// The ID of the dog this task relates to.
     String? dogId,
   }) = _Task;
@@ -51,15 +46,18 @@ abstract class Task with _$Task {
 @JsonEnum()
 enum RecurringType {
   @JsonValue("daily")
-  daily,
+  daily(interval: 1),
   @JsonValue("weekly")
-  weekly,
+  weekly(interval: 7),
   @JsonValue("monthly")
-  monthly,
+  monthly(interval: 30),
   @JsonValue("yearly")
-  yearly,
+  yearly(interval: 365),
   @JsonValue("none")
-  none;
+  none(interval: 0);
+
+  const RecurringType({required this.interval});
+  final int interval;
 }
 
 /// All the operations on the Task class.

@@ -58,12 +58,71 @@ class MainProvider extends ChangeNotifier {
       _logger.error("Couldn't edit task", error: e, stackTrace: s);
       rethrow;
     }
+
+    // Update the task in the list
     List<Task> newTasks = List.from(_tasks.tasks);
     newTasks.removeWhere((t) => t.id == editedTask.id);
     newTasks.add(editedTask);
     newTasks.sort((a, b) => a.title.compareTo(b.title));
     _tasks = _tasks.copyWith(tasks: newTasks);
+
+    // Create next occurrence for recurring tasks when marked as done
+    if (editedTask.isDone &&
+        editedTask.expiration != null &&
+        editedTask.recurring != RecurringType.none) {
+      // Calculate next occurrence date
+      DateTime nextDate = _calculateNextOccurrence(
+          editedTask.expiration!, editedTask.recurring);
+
+      // Create new task for next occurrence
+      Task nextOccurrence = editedTask.copyWith(
+        id: '', // Let the repository generate a new ID
+        isDone: false, // Next occurrence starts as not done
+        expiration: nextDate,
+      );
+
+      // Add the next occurrence
+      await addTask(nextOccurrence);
+    }
+
     notifyListeners();
+  }
+
+// Helper method to calculate next occurrence date
+  DateTime _calculateNextOccurrence(
+      DateTime currentDate, RecurringType recurring) {
+    switch (recurring) {
+      case RecurringType.daily:
+        return currentDate.add(Duration(days: 1));
+      case RecurringType.weekly:
+        return currentDate.add(Duration(days: 7));
+      case RecurringType.monthly:
+        // Handle month-end edge cases
+        DateTime nextMonth = DateTime(
+          currentDate.year,
+          currentDate.month + 1,
+          currentDate.day,
+        );
+        // If the day doesn't exist in next month (e.g., Jan 31 -> Feb 31),
+        // use the last day of the next month
+        if (nextMonth.month > currentDate.month + 1 ||
+            nextMonth.year > currentDate.year) {
+          nextMonth = DateTime(
+            currentDate.month == 12 ? currentDate.year + 1 : currentDate.year,
+            currentDate.month == 12 ? 1 : currentDate.month + 1 + 1,
+            0, // 0 gives us the last day of the previous month
+          );
+        }
+        return nextMonth;
+      case RecurringType.yearly:
+        return DateTime(
+          currentDate.year + 1,
+          currentDate.month,
+          currentDate.day,
+        );
+      case RecurringType.none:
+        return currentDate; // Should never reach here
+    }
   }
 
   void _fetchAccount() async {
