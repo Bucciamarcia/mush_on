@@ -48,6 +48,14 @@ enum DogNoteType {
       color: Color.fromARGB(255, 255, 0, 0),
       noteType: NoteType.fatal,
       message: "Has tag: "),
+  distanceWarning(
+      color: Color.fromARGB(255, 255, 165, 0),
+      noteType: NoteType.warning,
+      message: "Distance warning"),
+  distanceError(
+      color: Color.fromARGB(255, 255, 0, 0),
+      noteType: NoteType.fatal,
+      message: "Distance error"),
   showTagInBuilder(
     color: Color.fromARGB(255, 100, 149, 237),
     noteType: NoteType.info,
