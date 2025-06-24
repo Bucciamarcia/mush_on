@@ -15,7 +15,7 @@ class CreateTeamScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     var mainProvider = context.watch<MainProvider>();
     return ChangeNotifierProvider(
-        create: (context) => CreateTeamProvider(dogs: mainProvider.dogs),
+        create: (context) => CreateTeamProvider(mainProvider),
         child: TemplateScreen(
             title: "Create team",
             child: CreateTeamMain(loadedTeam: loadedTeam)));
