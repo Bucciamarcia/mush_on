@@ -51,6 +51,19 @@ class MainProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteTask(String tid) async {
+    try {
+      await TaskRepository.delete(tid, _account);
+    } catch (e, s) {
+      _logger.error("Couldn't add task to db", error: e, stackTrace: s);
+      rethrow;
+    }
+    var newTasks = List<Task>.from(_tasks.tasks);
+    newTasks.removeWhere((t) => t.id == tid);
+    _tasks = _tasks.copyWith(tasks: newTasks);
+    notifyListeners();
+  }
+
   Future<void> editTask(Task editedTask) async {
     try {
       await TaskRepository.addOrUpdate(editedTask, _account);

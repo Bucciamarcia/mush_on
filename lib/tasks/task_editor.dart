@@ -59,6 +59,25 @@ class AddTaskElevatedButton extends StatelessWidget {
                   }
                 }
               },
+              onTaskDeleted: (tid) async {
+                try {
+                  await provider.deleteTask(tid);
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      confirmationSnackbar(
+                          context, "Task removed successfully."),
+                    );
+                  }
+                } catch (e, s) {
+                  logger.error("Couldn't delete task", error: e, stackTrace: s);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      errorSnackBar(context, "Couldn't remove the task."),
+                    );
+                  }
+                }
+              },
             ),
           );
         },
@@ -74,12 +93,14 @@ class TaskEditorDialog extends StatefulWidget {
   final List<Dog> dogs;
   final Task? task;
   final TaskEditorType taskEditorType;
+  final Function(String) onTaskDeleted;
   const TaskEditorDialog(
       {super.key,
       required this.onTaskAdded,
       required this.dogs,
       this.task,
-      required this.taskEditorType});
+      required this.taskEditorType,
+      required this.onTaskDeleted});
 
   @override
   State<TaskEditorDialog> createState() => _AddTaskDialogState();
@@ -163,6 +184,11 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
       actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
       actions: [
         _buildCancelButton(colorScheme, context),
+        widget.task != null
+            ? _buildDeleteTaskButton(
+                onTaskDeleted: () => widget.onTaskDeleted(widget.task!.id),
+              )
+            : SizedBox.shrink(),
         _buildConfirmButton(colorScheme, context),
       ],
     );
@@ -565,6 +591,11 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
     if (picked != null) {
       onDatePicked(picked);
     }
+  }
+
+  TextButton _buildDeleteTaskButton({required Function() onTaskDeleted}) {
+    return TextButton(
+        onPressed: () => onTaskDeleted(), child: Text("Delete task"));
   }
 }
 

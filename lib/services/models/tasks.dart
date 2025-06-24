@@ -86,6 +86,25 @@ class TaskRepository {
       rethrow;
     }
   }
+
+  static Future<void> delete(String tid, String account) async {
+    var db = FirebaseFirestore.instance;
+    if (account.isEmpty) {
+      account = await FirestoreService().getUserAccount();
+    }
+    String path = "accounts/$account/data/misc/tasks";
+    var collection = db.collection(path);
+    var doc = collection.doc(tid);
+    try {
+      await doc.delete();
+    } catch (e, s) {
+      BasicLogger().error(
+          "Couldn't delete the document: addOrUpdate TaskRespository",
+          error: e,
+          stackTrace: s);
+      rethrow;
+    }
+  }
 }
 
 extension TaskListExtension on List<Task> {

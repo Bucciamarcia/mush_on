@@ -71,6 +71,13 @@ class TasksMainWidget extends StatelessWidget {
                       confirmationSnackbar(context, "Task added successfully"));
                 }
               },
+              onTaskDeleted: (t) async {
+                await provider.deleteTask(t);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      confirmationSnackbar(context, "Task added successfully"));
+                }
+              },
             ),
           ),
         ],

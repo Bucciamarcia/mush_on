@@ -13,6 +13,7 @@ class SfScheduleView extends StatelessWidget {
   final TasksInMemory tasks;
   final Function(DateTime) onFetchOlderTasks;
   final Function(Task) onTaskEdited;
+  final Function(String) onTaskDeleted;
   final List<Dog> dogs;
 
   /// The date in which to start counting days
@@ -29,6 +30,7 @@ class SfScheduleView extends StatelessWidget {
     required this.date,
     required this.onTaskEdited,
     this.daysToDisplay,
+    required this.onTaskDeleted,
   });
 
   @override
@@ -156,6 +158,7 @@ class SfScheduleView extends StatelessWidget {
                   dogs: dogs,
                   onFetchOlderTasks: (date) => onFetchOlderTasks(date),
                   onTaskEdited: (t) => onTaskEdited(t),
+                  onTaskDeleted: (t) => onTaskDeleted(t),
                 ));
       } else {
         Task task = element.appointments!.first as Task;
@@ -166,6 +169,7 @@ class SfScheduleView extends StatelessWidget {
             dogs: dogs,
             taskEditorType: TaskEditorType.editTask,
             onTaskAdded: (t) => onTaskEdited(t),
+            onTaskDeleted: (tid) => onTaskDeleted(tid),
           ),
         );
       }
