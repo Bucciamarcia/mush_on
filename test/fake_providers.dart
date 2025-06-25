@@ -28,6 +28,8 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
   @override
   TasksInMemory get tasks => _tasks;
 
+  BasicLogger logger = BasicLogger();
+
   FakeMainProvider() {
     _fetchDogs();
     _fetchAccount();
@@ -46,9 +48,23 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
   @override
   Future<void> editTask(Task editedTask) async {
     List<Task> newTasks = List.from(_tasks.tasks);
-    newTasks.removeWhere((t) => t.id == editedTask.id);
-    newTasks.add(editedTask);
+    final existingIndex = newTasks.indexWhere((t) => t.id == editedTask.id);
+    if (existingIndex != -1) {
+      // Preserve the original ID
+      final originalId = newTasks[existingIndex].id;
+      newTasks[existingIndex] = editedTask.copyWith(id: originalId);
+    } else {
+      newTasks.add(editedTask);
+    }
     newTasks.sort((a, b) => a.title.compareTo(b.title));
+    _tasks = _tasks.copyWith(tasks: newTasks);
+    notifyListeners();
+  }
+
+  @override
+  Future<void> deleteTask(String tid) async {
+    var newTasks = List<Task>.from(_tasks.tasks);
+    newTasks.removeWhere((t) => t.id == tid);
     _tasks = _tasks.copyWith(tasks: newTasks);
     notifyListeners();
   }
@@ -133,11 +149,13 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
 class FakeCreateTeamProvider extends ChangeNotifier
     implements CreateTeamProvider {
   @override
+  final MainProvider provider;
+  @override
   bool unsavedData = false;
   @override
   BasicLogger logger = BasicLogger();
   @override
-  List<Dog> dogs = [];
+  List<Dog> get dogs => provider.dogs;
   @override
   List<DogNote> dogNotes = [];
   @override
@@ -154,12 +172,11 @@ class FakeCreateTeamProvider extends ChangeNotifier
     ],
     date: DateTime.now(),
   );
-  final Map<String, Dog> _dogsById = {};
   @override
-  Map<String, Dog> get dogsById => _dogsById;
+  Map<String, Dog> get dogsById => provider.dogsById;
 
-  FakeCreateTeamProvider() {
-    _fetchDogs();
+  FakeCreateTeamProvider(this.provider) {
+    _buildNotes();
   }
 
   @override
@@ -168,27 +185,6 @@ class FakeCreateTeamProvider extends ChangeNotifier
     notifyListeners();
   }
 
-  void _fetchDogs() async {
-    dogs = [
-      Dog(name: "Alpha", id: "id_Alpha", positions: DogPositions(lead: true)),
-      Dog(name: "Bella", id: "id_Bella", positions: DogPositions(swing: true)),
-      Dog(
-          name: "Charlie",
-          id: "id_Charlie",
-          positions: DogPositions(wheel: true)),
-      Dog(name: "Daisy", id: "id_Daisy", positions: DogPositions(team: true)),
-    ]..sort((a, b) => a.name.compareTo(b.name));
-    _fetchDogsById(dogs);
-    _buildNotes();
-    notifyListeners();
-  }
-
-  void _fetchDogsById(List<Dog> fetchedDogs) {
-    _dogsById.clear();
-    for (Dog dog in fetchedDogs) {
-      _dogsById.addAll({dog.id: dog});
-    }
-  }
 
   void _buildNotes() {
     _buildTagNotes();
@@ -498,8 +494,9 @@ class FakeCreateTeamProvider extends ChangeNotifier
 
   // Test helper methods for controlling the fake data
   void setTestDogs(List<Dog> dogs) {
-    this.dogs = List.from(dogs)..sort((a, b) => a.name.compareTo(b.name));
-    _fetchDogsById(this.dogs);
+    if (provider is FakeMainProvider) {
+      (provider as FakeMainProvider).setTestDogs(dogs);
+    }
     _buildNotes();
     notifyListeners();
   }
@@ -511,10 +508,11 @@ class FakeCreateTeamProvider extends ChangeNotifier
   }
 
   void clearTestData() {
-    dogs.clear();
+    if (provider is FakeMainProvider) {
+      (provider as FakeMainProvider).setTestDogs([]);
+    }
     dogNotes.clear();
     runningDogIds.clear();
-    _dogsById.clear();
     group = TeamGroup(
       teams: [
         Team(
