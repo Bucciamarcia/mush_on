@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/home_page/provider.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/shared/text_title.dart';
@@ -11,8 +12,9 @@ class HomePageScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var provider = context.watch<MainProvider>();
+    var homeProvider = context.watch<HomePageProvider>();
     int totalDogs = provider.dogs.length;
-    int availableDogs = _calculateAvailableDogs();
+    int canRun = totalDogs - homeProvider.dogsWithWarnings.fatal.length;
     return provider.loaded
         ? ListView(
             children: [
@@ -38,10 +40,14 @@ class HomePageScreenContent extends StatelessWidget {
                   children: [
                     ListTile(
                       leading: Icon(Icons.directions_run),
-                      title: Text("Ready to Run"),
-                      trailing: Text("$availableDogs/$totalDogs dogs",
+                      title: Text(
+                        "Ready to Run",
+                      ),
+                      trailing: Text("$canRun/$totalDogs dogs",
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
+                              color: _getTextColor(canRun, totalDogs),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold)),
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
@@ -50,7 +56,8 @@ class HomePageScreenContent extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Chip(
-                              label: Text("6 at limit"),
+                              label: Text(
+                                  "${homeProvider.dogsWithWarnings.warning.length} at limit"),
                               backgroundColor: Colors.orange[100]),
                           Chip(
                               label: Text("2 injured"),
@@ -67,9 +74,10 @@ class HomePageScreenContent extends StatelessWidget {
                       label: Text("Build team"),
                       icon: Icon(Icons.pets),
                     ),
+                    SizedBox(height: 8),
                   ],
                 ),
-              )
+              ),
             ],
           )
         : Align(
@@ -78,7 +86,13 @@ class HomePageScreenContent extends StatelessWidget {
           );
   }
 
-  int _calculateAvailableDogs() {
-    return 1;
+  Color _getTextColor(int canRun, int totalDogs) {
+    if (canRun / totalDogs < 0.75) {
+      return Colors.red;
+    } else if (canRun / totalDogs >= 0.75 && canRun / totalDogs <= 0.9) {
+      return Colors.orange;
+    } else {
+      return Colors.green;
+    }
   }
 }
