@@ -4,6 +4,7 @@ import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/shared/text_title.dart';
+import 'package:mush_on/tasks/tab_bar_widgets/now_tab_view.dart';
 import 'package:mush_on/tasks/tab_bar_widgets/sf_schedule_view.dart';
 
 class DogTasksWidget extends StatelessWidget {
@@ -32,7 +33,12 @@ class DogTasksWidget extends StatelessWidget {
           date: DateTimeUtils.today(),
           onTaskEdited: (t) => onTaskEdited(t),
           onTaskDeleted: (tid) => onTaskDeleted(tid),
-        )
+        ),
+        ..._fetchNonExpiringTasks().map((t) => TaskElement(
+            task: t,
+            onTaskEdited: (t) => onTaskEdited(t),
+            dogs: [dog],
+            onTaskDeleted: (tid) => onTaskDeleted(tid)))
       ],
     );
   }
@@ -41,6 +47,16 @@ class DogTasksWidget extends StatelessWidget {
   TasksInMemory _fetchTasks() {
     List<Task> listOfTasks =
         tasksInMemory.tasks.where((t) => t.dogId == dog.id).toList();
-    return tasksInMemory.copyWith(tasks: listOfTasks);
+    return tasksInMemory.copyWith(tasks: listOfTasks.notDone);
+  }
+
+  List<Task> _fetchNonExpiringTasks() {
+    return tasksInMemory.tasks
+        .where((t) {
+          if (t.expiration != null) return false;
+          return t.dogId == dog.id;
+        })
+        .toList()
+        .notDone;
   }
 }
