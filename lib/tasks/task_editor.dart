@@ -595,7 +595,11 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
 
   TextButton _buildDeleteTaskButton({required Function() onTaskDeleted}) {
     return TextButton(
-        onPressed: () => onTaskDeleted(), child: Text("Delete task"));
+        onPressed: () {
+          onTaskDeleted();
+          Navigator.of(context).pop();
+        },
+        child: Text("Delete task"));
   }
 }
 
