@@ -551,7 +551,7 @@ class AppCheckInterceptor {
           await FirebaseAppCheck.instance.getToken(true);
         }
       } catch (e) {
-        print('App Check token error: $e');
+        BasicLogger().error('App Check token error: $e');
       }
     }
   }

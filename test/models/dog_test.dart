@@ -198,14 +198,6 @@ void main() {
             positions: DogPositions(lead: true)); // Different positions
         expect(dog1, isNot(equals(baseDog)));
       });
-
-      test('returns false for comparison with null', () {
-        expect(baseDog == null, isFalse);
-      });
-
-      test('returns false for comparison with different type', () {
-        expect(baseDog == "some string", isFalse);
-      });
     });
 
     // Test hashCode

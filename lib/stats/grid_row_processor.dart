@@ -373,7 +373,7 @@ class GridRowProcessorResult {
       {required this.dataGridRows, required this.dogGrandTotals});
 }
 
-DateTime calculateOldestTeamGroup(teams) {
+DateTime calculateOldestTeamGroup(List<TeamGroup> teams) {
   DateTime oldestTeamGroup = DateTime.now().toUtc();
   for (TeamGroup team in teams) {
     // Strip time information, keep just the date

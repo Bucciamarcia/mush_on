@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/main.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/provider.dart';
