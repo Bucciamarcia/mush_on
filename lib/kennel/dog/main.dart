@@ -6,6 +6,7 @@ import 'package:mush_on/kennel/dog/dog_info_widget.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/kennel/dog/dog_run_data_widget.dart';
 import 'package:mush_on/kennel/dog/dog_run_table.dart';
+import 'package:mush_on/kennel/dog/dog_tasks_widget.dart';
 import 'package:mush_on/kennel/dog/positions_widget.dart';
 import 'package:mush_on/kennel/dog/provider.dart';
 import 'package:mush_on/kennel/dog/single_dog_notes_widget.dart';
@@ -141,6 +142,8 @@ class DogMain extends StatelessWidget {
             });
           },
         ),
+        Divider(),
+        DogTasksWidget(dog: dog),
         Divider(),
         TextTitle("Custom distance warnings"),
         DistanceWarningWidget(
