@@ -32,9 +32,7 @@ class CreateTeamProvider extends ChangeNotifier {
   }
   void _buildDistanceWarnings() async {
     DateTime earliestGlobalDate = _buildEarliestGlobalDate();
-    logger.debug("Earliest global date: $earliestGlobalDate");
     DateTime earliestDogDate = _buildEarliestDogDate();
-    logger.debug("Earliest dog date: $earliestDogDate");
 
     DateTime earliestWarningDate;
     if (earliestGlobalDate.isBefore(earliestDogDate)) {
@@ -45,10 +43,6 @@ class CreateTeamProvider extends ChangeNotifier {
 
     Set<TeamGroup> teamsAfterEarliestWarning =
         await _getTeamsAfterEarliestWarning(earliestWarningDate);
-    logger.debug(
-        "Fetched teams after earliest warnings: ${teamsAfterEarliestWarning.length} since $earliestWarningDate");
-    logger.debug(
-        "Days fetched: ${DateTime.now().difference(earliestWarningDate).inDays}");
 
     // Process global warnings
     _addGlobalWarnings(teamsAfterEarliestWarning);
