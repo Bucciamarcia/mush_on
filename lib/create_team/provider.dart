@@ -67,13 +67,6 @@ class CreateTeamProvider extends ChangeNotifier {
     }
   }
 
-  void _addWarningToAllDogs(
-      DistanceWarning warning, Set<TeamGroup> teamGroups) {
-    for (Dog dog in dogs) {
-      _checkAndAddWarning(dog, warning, teamGroups);
-    }
-  }
-
   void _addWarningToSpecificDog(
       Dog dog, DistanceWarning warning, Set<TeamGroup> teamGroups) {
     _checkAndAddWarning(dog, warning, teamGroups);
@@ -92,11 +85,11 @@ class CreateTeamProvider extends ChangeNotifier {
           notes: dogNotes,
           dogId: dog.id,
           newNote: DogNoteMessage(
-            type: warning.distanceWarningType == DistanceWarningType.soft
-                ? DogNoteType.distanceWarning
-                : DogNoteType.distanceError,
-            // Consider adding more context to the note
-          ));
+              details:
+                  "${distanceRan.toStringAsFixed(0)}/${warning.distance}km ${warning.daysInterval}d",
+              type: warning.distanceWarningType == DistanceWarningType.soft
+                  ? DogNoteType.distanceWarning
+                  : DogNoteType.distanceError));
     }
   }
 
@@ -150,6 +143,8 @@ class CreateTeamProvider extends ChangeNotifier {
               notes: dogNotes,
               dogId: dog.id,
               newNote: DogNoteMessage(
+                  details:
+                      "${distanceRan.toStringAsFixed(0)}/${warning.distance}km ${warning.daysInterval}d",
                   type: warning.distanceWarningType == DistanceWarningType.soft
                       ? DogNoteType.distanceWarning
                       : DogNoteType.distanceError));
