@@ -30,11 +30,31 @@ class MainProvider extends ChangeNotifier {
   /// The list of tasks.
   TasksInMemory get tasks => _tasks;
 
+  bool loaded = false;
+
   MainProvider() {
-    _fetchDogs();
-    _fetchAccount();
-    _fetchSettings();
-    _fetchTasks();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    try {
+      // Await all initial data fetches together.
+      // They will run in parallel, which is very efficient.
+      await Future.wait([
+        _fetchDogs(),
+        _fetchAccount(),
+        _fetchSettings(),
+        _fetchTasks(),
+      ]);
+    } catch (e, s) {
+      _logger.error("An error occurred during initial data load",
+          error: e, stackTrace: s);
+      throw Exception("Error: couldn't initialize the app.");
+    } finally {
+      // Once all fetches are complete (or have failed), update the state.
+      loaded = true;
+      notifyListeners();
+    }
   }
 
   Future<void> addTask(Task newTask) async {
@@ -99,14 +119,14 @@ class MainProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _fetchAccount() async {
+  Future<void> _fetchAccount() async {
     if (_account.isEmpty) {
       _account = await FirestoreService().getUserAccount();
     }
     notifyListeners();
   }
 
-  void _fetchSettings() async {
+  Future<void> _fetchSettings() async {
     if (_account.isEmpty) {
       _account = await FirestoreService().getUserAccount();
     }
@@ -121,7 +141,7 @@ class MainProvider extends ChangeNotifier {
   }
 
   /// Returns a list of dogs ordere by alphabetical order
-  void _fetchDogs() async {
+  Future<void> _fetchDogs() async {
     String account = await FirestoreService().getUserAccount();
     FirebaseFirestore.instance
         .collection("accounts/$account/data/kennel/dogs")
@@ -135,7 +155,7 @@ class MainProvider extends ChangeNotifier {
   }
 
   /// Initial fetch of tasks. Only gets the last 30 days.
-  void _fetchTasks() async {
+  Future<void> _fetchTasks() async {
     List<Task> newTasks = [];
     if (_account.isEmpty) {
       _account = await FirestoreService().getUserAccount();

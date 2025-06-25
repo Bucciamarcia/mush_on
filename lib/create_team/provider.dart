@@ -11,6 +11,7 @@ class CreateTeamProvider extends ChangeNotifier {
   final MainProvider provider;
   bool unsavedData = false;
   BasicLogger logger = BasicLogger();
+  bool isFetchingDistance = false;
   List<DogNote> dogNotes = [];
   List<String> runningDogIds = [];
   List<Dog> get dogs => provider.dogs;
@@ -31,8 +32,12 @@ class CreateTeamProvider extends ChangeNotifier {
     _buildDistanceWarnings();
   }
   void _buildDistanceWarnings() async {
+    logger.debug("Fetching distance start");
+    isFetchingDistance = true;
+    notifyListeners();
     DateTime earliestGlobalDate = _buildEarliestGlobalDate();
     DateTime earliestDogDate = _buildEarliestDogDate();
+    logger.debug("Fetched dates");
 
     DateTime earliestWarningDate;
     if (earliestGlobalDate.isBefore(earliestDogDate)) {
@@ -41,15 +46,21 @@ class CreateTeamProvider extends ChangeNotifier {
       earliestWarningDate = earliestDogDate;
     }
 
+    logger.debug("Earliest date: $earliestWarningDate");
+
     Set<TeamGroup> teamsAfterEarliestWarning =
         await _getTeamsAfterEarliestWarning(earliestWarningDate);
+    logger.debug("Teams after earliest: $teamsAfterEarliestWarning");
 
+    logger.debug("Before global warnings: $dogNotes");
     // Process global warnings
     _addGlobalWarnings(teamsAfterEarliestWarning);
+    logger.debug("After global warnings: $dogNotes");
 
     // Process dog-specific warnings
     _addDogSpecificWarnings(teamsAfterEarliestWarning);
-
+    logger.debug("After dog-specific warnings: $dogNotes");
+    isFetchingDistance = false;
     notifyListeners();
   }
 
