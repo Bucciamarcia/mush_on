@@ -59,3 +59,10 @@ A cool and open source CRM for sled dog kennels.
 - Added custom fields.
 - Added filtering by custom field.
 - Added notes in the single dog's page.
+
+### 0.0.10
+
+- Added tasks page
+- Added global distance warnings
+- Added dog distance warnings
+- Added distance warnings in team builder
