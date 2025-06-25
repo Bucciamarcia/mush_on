@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/custom_converters.dart';
 part 'teamgroup.g.dart';

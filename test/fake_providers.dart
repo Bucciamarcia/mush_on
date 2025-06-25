@@ -28,6 +28,9 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
   @override
   TasksInMemory get tasks => _tasks;
 
+  @override
+  bool loaded = false;
+
   BasicLogger logger = BasicLogger();
 
   FakeMainProvider() {
@@ -35,6 +38,7 @@ class FakeMainProvider extends ChangeNotifier implements MainProvider {
     _fetchAccount();
     _fetchSettings();
     _fetchTasks();
+    loaded = true;
   }
 
   @override
@@ -154,6 +158,8 @@ class FakeCreateTeamProvider extends ChangeNotifier
   bool unsavedData = false;
   @override
   BasicLogger logger = BasicLogger();
+  @override
+  bool isFetchingDistance = false;
   @override
   List<Dog> get dogs => provider.dogs;
   @override

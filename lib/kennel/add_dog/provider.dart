@@ -25,12 +25,12 @@ class AddDogProvider extends ChangeNotifier {
     id = uuid.v4();
   }
 
-  updateName(String newName) {
+  void updateName(String newName) {
     name = newName;
     notifyListeners();
   }
 
-  updateNameController(String newName) {
+  void updateNameController(String newName) {
     nameController.text = newName;
     notifyListeners();
   }

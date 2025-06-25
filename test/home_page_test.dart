@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mush_on/home_page/main.dart';
-// You might need to import your auth service mock
+import 'package:mush_on/provider.dart';
+import 'package:provider/provider.dart';
+
+import 'fake_providers.dart';
 
 void main() {
   testWidgets(
     "Home page loads with correct number of elements",
     (tester) async {
-      // Wrap your widget in MaterialApp to provide context
+      final fakeMainProvider = FakeMainProvider();
+      
+      // Wrap your widget in MaterialApp and provide the MainProvider
       await tester.pumpWidget(
         MaterialApp(
-          home: HomePageScreenContent(),
+          home: ChangeNotifierProvider<MainProvider>.value(
+            value: fakeMainProvider,
+            child: HomePageScreenContent(),
+          ),
         ),
       );
 
