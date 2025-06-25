@@ -39,10 +39,8 @@ class DogTasksWidget extends StatelessWidget {
 
   /// From all the tasks, only filters the one for this dog.
   TasksInMemory _fetchTasks() {
-    logger.debug("All tasks: ${tasksInMemory.tasks}");
     List<Task> listOfTasks =
         tasksInMemory.tasks.where((t) => t.dogId == dog.id).toList();
-    logger.debug("Filtered: $listOfTasks");
     return tasksInMemory.copyWith(tasks: listOfTasks);
   }
 }

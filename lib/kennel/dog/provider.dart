@@ -211,7 +211,6 @@ class SingleDogProvider extends ChangeNotifier {
 
   Future<void> updatePositions(DogPositions newPositions) async {
     try {
-      logger.debug("New positions in provider: ${newPositions.toString()}");
       await DogsDbOperations().updateDogPositions(
           newPositions: newPositions, id: id, account: account);
     } catch (e, s) {
