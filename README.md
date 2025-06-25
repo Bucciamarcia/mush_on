@@ -67,3 +67,9 @@ A cool and open source CRM for sled dog kennels.
 - Added global distance warnings.
 - Added dog distance warnings.
 - Added distance warnings in team builder.
+
+### 0.0.11
+
+- Tasks now update in real time.
+- Settings now update in real time.
+- Distance hard error now darker red.

@@ -156,34 +156,53 @@ class MainProvider extends ChangeNotifier {
 
   /// Initial fetch of tasks. Only gets the last 30 days.
   Future<void> _fetchTasks() async {
-    List<Task> newTasks = [];
     if (_account.isEmpty) {
       _account = await FirestoreService().getUserAccount();
     }
-    String path = "accounts/$account/data/misc/tasks";
+    String path = "accounts/$_account/data/misc/tasks";
     var collection = FirebaseFirestore.instance.collection(path);
+
+    // Stream for tasks with expiration
+    collection
+        .where("expiration",
+            isGreaterThanOrEqualTo: DateTime.now().subtract(Duration(days: 30)))
+        .snapshots()
+        .listen((snapshot) {
+      _updateTasksFromSnapshots();
+    });
+
+    // Stream for tasks without expiration
+    collection.where("expiration", isNull: true).snapshots().listen((snapshot) {
+      _updateTasksFromSnapshots();
+    });
+  }
+
+  Future<void> _updateTasksFromSnapshots() async {
+    List<Task> newTasks = [];
+    String path = "accounts/$_account/data/misc/tasks";
+    var collection = FirebaseFirestore.instance.collection(path);
+
+    // Get both snapshots
     var snapshot = await collection
         .where("expiration",
             isGreaterThanOrEqualTo: DateTime.now().subtract(Duration(days: 30)))
         .get();
-    var docs = snapshot.docs;
-    for (var doc in docs) {
-      Map<String, dynamic> data = doc.data();
-      newTasks.add(Task.fromJson(data));
-    }
-    var snapshotNoExpirtion =
+
+    var snapshotNoExpiration =
         await collection.where("expiration", isNull: true).get();
-    var docsNoExpiration = snapshotNoExpirtion.docs;
-    for (var docNoExpiration in docsNoExpiration) {
-      Map<String, dynamic> dataNoExpiration = docNoExpiration.data();
-      newTasks.add(Task.fromJson(dataNoExpiration));
-    }
-    newTasks.sort((a, b) => a.title.compareTo(b.title));
+
+    // Combine all tasks
+    newTasks = [
+      ...snapshot.docs.map((doc) => Task.fromJson(doc.data())),
+      ...snapshotNoExpiration.docs.map((doc) => Task.fromJson(doc.data()))
+    ]..sort((a, b) => a.title.compareTo(b.title));
+
     _tasks = TasksInMemory(
       tasks: newTasks,
       oldestFetched: DateTime.now().subtract(Duration(days: 30)),
       noExpirationFetched: true,
     );
+
     notifyListeners();
   }
 
