@@ -34,7 +34,7 @@ void main() {
 
     setUp(() {
       fakeMainProvider = FakeMainProvider();
-      fakeCreateTeamProvider = FakeCreateTeamProvider();
+      fakeCreateTeamProvider = FakeCreateTeamProvider(fakeMainProvider);
     });
     testWidgets(
       "Checks that the initial build is ok",
