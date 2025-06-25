@@ -143,7 +143,44 @@ class DogMain extends StatelessWidget {
           },
         ),
         Divider(),
-        DogTasksWidget(dog: dog),
+        DogTasksWidget(
+          tasksInMemory: provider.tasks,
+          dog: dog,
+          onTaskEdited: (t) async {
+            try {
+              await provider.editTask(t);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  confirmationSnackbar(context, "Task edited"),
+                );
+              }
+            } catch (e, s) {
+              logger.error("Couldn't edit task in dog page.",
+                  error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(errorSnackBar(context, "Couldn't edit task"));
+              }
+            }
+          },
+          onTaskDeleted: (t) async {
+            try {
+              await provider.deleteTask(t);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  confirmationSnackbar(context, "Task deleted"),
+                );
+              }
+            } catch (e, s) {
+              logger.error("Couldn't delete task in dog page.",
+                  error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    errorSnackBar(context, "Couldn't delete task"));
+              }
+            }
+          },
+        ),
         Divider(),
         TextTitle("Custom distance warnings"),
         DistanceWarningWidget(
