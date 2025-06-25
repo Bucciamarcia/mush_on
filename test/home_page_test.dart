@@ -4,19 +4,20 @@ import 'package:mush_on/home_page/main.dart';
 import 'package:mush_on/provider.dart';
 import 'package:provider/provider.dart';
 
-import 'fake_providers.dart';
+import 'test_helpers/mock_providers.mocks.dart';
+import 'test_helpers/test_setup.dart';
 
 void main() {
   testWidgets(
     "Home page loads with correct number of elements",
     (tester) async {
-      final fakeMainProvider = FakeMainProvider();
+      final mockMainProvider = TestSetup.createMainProvider();
       
       // Wrap your widget in MaterialApp and provide the MainProvider
       await tester.pumpWidget(
         MaterialApp(
           home: ChangeNotifierProvider<MainProvider>.value(
-            value: fakeMainProvider,
+            value: mockMainProvider,
             child: HomePageScreenContent(),
           ),
         ),
