@@ -75,7 +75,7 @@ class _SingleWarningDisplayWidgetState
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: _selectedType == DistanceWarningType.hard
-          ? Colors.red.shade50
+          ? Colors.red.shade100
           : Colors.orange.shade50,
       child: Padding(
         padding: const EdgeInsets.all(12),

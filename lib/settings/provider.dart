@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -92,23 +93,39 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> _getSettings() async {
-    FirestoreService firestore = FirestoreService();
     String account = mainProvider.account;
     if (account.isEmpty) {
       account = await FirestoreService().getUserAccount();
     }
     String path = "accounts/$account/data/settings";
+
     try {
-      Map<String, dynamic>? settingsJson = await firestore.getDocument(path);
-      if (settingsJson == null) {
-        settings = SettingsModel();
-      } else {
-        settings = SettingsModel.fromJson(settingsJson);
-      }
+      var db = FirebaseFirestore.instance;
+      var docRef = db.doc(path);
+
+      docRef.snapshots().listen(
+        (snapshot) {
+          var data = snapshot.data();
+          if (data != null) {
+            settings = SettingsModel.fromJson(data);
+          } else {
+            settings = SettingsModel();
+          }
+          _isInitLoading = false;
+          notifyListeners();
+        },
+        onError: (e, s) {
+          logger.error("Couldn't get settings", error: e, stackTrace: s);
+          settings = SettingsModel();
+          _isInitLoading = false;
+          notifyListeners();
+        },
+      );
     } catch (e, s) {
-      logger.error("Couldn't get settings", error: e, stackTrace: s);
+      // This will only catch errors in setting up the listener
+      logger.error("Couldn't set up settings listener",
+          error: e, stackTrace: s);
       settings = SettingsModel();
-    } finally {
       _isInitLoading = false;
       notifyListeners();
     }
