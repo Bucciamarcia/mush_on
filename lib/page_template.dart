@@ -72,6 +72,13 @@ class TemplateScreen extends StatelessWidget {
               ),
             ),
             ListTile(
+              leading: Icon(Icons.health_and_safety),
+              onTap: () => Navigator.pushNamed(context, "/health_dashboard"),
+              title: const Text(
+                "Health dashboard",
+              ),
+            ),
+            ListTile(
               leading: Icon(Icons.logout),
               onTap: () async {
                 await AuthService().signOut();

@@ -4,6 +4,8 @@ import 'package:mush_on/kennel/add_dog/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 
+// TODO: Possibilty to add multiple dogs.
+// TODO: Add other fields to add dog.
 class AddDogButton extends StatelessWidget {
   const AddDogButton({
     super.key,
@@ -46,6 +48,7 @@ class AddDogButton extends StatelessWidget {
           );
         }
         addDogProvider.updateNameController("");
+        if (context.mounted) Navigator.of(context).pop();
       },
       icon: Icon(Icons.add),
       label: Text("Add dog"),
