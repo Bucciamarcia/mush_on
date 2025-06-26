@@ -30,6 +30,22 @@ class HomePageProvider extends ChangeNotifier {
   /// Refreshes the warning dogs data. Can be called from the UI to re-run the check.
   Future<void> refreshWarningDogs() async {
     await _getWarningDogs();
+    _getBlockingTags();
+  }
+
+  void _getBlockingTags() {
+    for (Dog dog in _mainProvider.dogs) {
+      _processDogTagBlocking(dog);
+    }
+  }
+
+  void _processDogTagBlocking(Dog dog) {
+    for (Tag tag in dog.tags) {
+      if (tag.preventFromRun) {
+        _dogsWithWarnings.add(DogsWithWarningAddType.fatal, dog);
+        return;
+      }
+    }
   }
 
   /// Main method to fetch data and calculate which dogs have distance warnings.
@@ -224,4 +240,15 @@ class DogsWithWarnings {
   DogsWithWarnings({List<Dog>? warning, List<Dog>? fatal})
       : warning = warning ?? [],
         fatal = fatal ?? [];
+
+  void add(DogsWithWarningAddType type, Dog dog) {
+    switch (type) {
+      case DogsWithWarningAddType.warning:
+        warning.add(dog);
+      case DogsWithWarningAddType.fatal:
+        fatal.add(dog);
+    }
+  }
 }
+
+enum DogsWithWarningAddType { warning, fatal }
