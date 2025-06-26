@@ -5,6 +5,7 @@ import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/shared/text_title.dart';
 import 'package:mush_on/tasks/tab_bar_widgets/sf_schedule_view.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class HomePageScreenContent extends StatelessWidget {
   const HomePageScreenContent({super.key});
@@ -38,6 +39,32 @@ class HomePageScreenContent extends StatelessWidget {
                 child: Column(
                   spacing: 15,
                   children: [
+                    SfCircularChart(
+                      series: <CircularSeries>[
+                        PieSeries<ReadyDogData, String>(
+                          dataSource: <ReadyDogData>[
+                            ReadyDogData(
+                                "OK",
+                                canRun -
+                                    homeProvider
+                                        .dogsWithWarnings.warning.length,
+                                Colors.green),
+                            ReadyDogData(
+                                "Unavailable", totalDogs - canRun, Colors.red),
+                            ReadyDogData(
+                                "Warning",
+                                homeProvider.dogsWithWarnings.warning.length,
+                                Colors.orange)
+                          ],
+                          xValueMapper: (ReadyDogData data, _) => data.x,
+                          yValueMapper: (ReadyDogData data, _) => data.y,
+                          dataLabelSettings: DataLabelSettings(isVisible: true),
+                          pointColorMapper: (ReadyDogData data, _) =>
+                              data.color,
+                        )
+                      ],
+                      legend: Legend(isVisible: true),
+                    ),
                     ListTile(
                       leading: Icon(Icons.directions_run),
                       title: Text(
@@ -95,4 +122,11 @@ class HomePageScreenContent extends StatelessWidget {
       return Colors.green;
     }
   }
+}
+
+class ReadyDogData {
+  ReadyDogData(this.x, this.y, this.color);
+  final String x;
+  final int y;
+  final Color color;
 }
