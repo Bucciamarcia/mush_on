@@ -132,32 +132,52 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
               Row(
                 children: [
                   Flexible(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        isDense: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.outline),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 2),
-                        ),
-                      ),
-                      inputFormatters: _inputFormatters(),
-                      keyboardType: _keyboardType(),
-                      maxLines: 1,
-                      style: TextStyle(fontSize: 14),
-                      controller: _controller,
-                      onChanged: (_) {
-                        setState(() {
-                          hasChanged = true;
-                        });
-                      },
-                    ),
+                    child: widget.customFieldTemplate.type ==
+                            CustomFieldType.typeDropdown
+                        ? DropdownMenu(
+                            controller: _controller,
+                            onSelected: (v) {
+                              if (v != null) {
+                                setState(() {
+                                  _controller.text = v;
+                                  hasChanged = true;
+                                });
+                              }
+                            },
+                            dropdownMenuEntries: [
+                              DropdownMenuEntry(value: "", label: ""),
+                              ...widget.customFieldTemplate.options!.map(
+                                  (o) => DropdownMenuEntry(value: o, label: o))
+                            ],
+                          )
+                        : TextField(
+                            decoration: InputDecoration(
+                              isDense: true,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.outline),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    width: 2),
+                              ),
+                            ),
+                            inputFormatters: _inputFormatters(),
+                            keyboardType: _keyboardType(),
+                            maxLines: 1,
+                            style: TextStyle(fontSize: 14),
+                            controller: _controller,
+                            onChanged: (_) {
+                              setState(() {
+                                hasChanged = true;
+                              });
+                            },
+                          ),
                   ),
                   SizedBox(width: 10),
                   IconButton(
@@ -228,6 +248,8 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
         return <TextInputFormatter>[
           FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d*')),
         ];
+      case CustomFieldType.typeDropdown:
+        return null;
     }
   }
 
@@ -237,6 +259,8 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
         return null;
       case CustomFieldType.typeInt:
         return TextInputType.number;
+      case CustomFieldType.typeDropdown:
+        return null;
     }
   }
 
@@ -248,6 +272,8 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
           value = CustomFieldValue.stringValue(_controller.text);
         case CustomFieldType.typeInt:
           value = CustomFieldValue.intValue(int.parse(_controller.text));
+        case CustomFieldType.typeDropdown:
+          value = CustomFieldValue.stringValue(_controller.text);
       }
       return CustomField(
           templateId: widget.customFieldTemplate.id, value: value);
@@ -269,6 +295,9 @@ String? _getCurrentValue(
 
       // If the value is an _IntValue, extract its 'value' and convert to string.
       IntValue(value: final intVal) => intVal.toString(),
+
+      // If the value is a _DropdownValue, extract its value property.
+      DropdownValue(value: final dropdownVal) => dropdownVal,
     };
   } else {
     return null;

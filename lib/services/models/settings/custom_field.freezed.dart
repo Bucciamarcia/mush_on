@@ -205,6 +205,11 @@ mixin _$CustomFieldTemplate {
   String get name;
   String get id;
 
+  /// ADDED: A list of options for a dropdown.
+  /// Must not be empty if type is [CustomFieldType.typeDropdown].
+  /// This is ignored for other types.
+  List<String>? get options;
+
   /// Create a copy of CustomFieldTemplate
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -223,16 +228,18 @@ mixin _$CustomFieldTemplate {
             other is CustomFieldTemplate &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.id, id) || other.id == id));
+            (identical(other.id, id) || other.id == id) &&
+            const DeepCollectionEquality().equals(other.options, options));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, type, name, id);
+  int get hashCode => Object.hash(runtimeType, type, name, id,
+      const DeepCollectionEquality().hash(options));
 
   @override
   String toString() {
-    return 'CustomFieldTemplate(type: $type, name: $name, id: $id)';
+    return 'CustomFieldTemplate(type: $type, name: $name, id: $id, options: $options)';
   }
 }
 
@@ -242,7 +249,8 @@ abstract mixin class $CustomFieldTemplateCopyWith<$Res> {
           CustomFieldTemplate value, $Res Function(CustomFieldTemplate) _then) =
       _$CustomFieldTemplateCopyWithImpl;
   @useResult
-  $Res call({CustomFieldType type, String name, String id});
+  $Res call(
+      {CustomFieldType type, String name, String id, List<String>? options});
 }
 
 /// @nodoc
@@ -261,6 +269,7 @@ class _$CustomFieldTemplateCopyWithImpl<$Res>
     Object? type = null,
     Object? name = null,
     Object? id = null,
+    Object? options = freezed,
   }) {
     return _then(_self.copyWith(
       type: null == type
@@ -275,6 +284,10 @@ class _$CustomFieldTemplateCopyWithImpl<$Res>
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      options: freezed == options
+          ? _self.options
+          : options // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ));
   }
 }
@@ -283,7 +296,11 @@ class _$CustomFieldTemplateCopyWithImpl<$Res>
 @JsonSerializable()
 class _CustomFieldTemplate implements CustomFieldTemplate {
   const _CustomFieldTemplate(
-      {required this.type, required this.name, required this.id});
+      {required this.type,
+      required this.name,
+      required this.id,
+      final List<String>? options})
+      : _options = options;
   factory _CustomFieldTemplate.fromJson(Map<String, dynamic> json) =>
       _$CustomFieldTemplateFromJson(json);
 
@@ -293,6 +310,23 @@ class _CustomFieldTemplate implements CustomFieldTemplate {
   final String name;
   @override
   final String id;
+
+  /// ADDED: A list of options for a dropdown.
+  /// Must not be empty if type is [CustomFieldType.typeDropdown].
+  /// This is ignored for other types.
+  final List<String>? _options;
+
+  /// ADDED: A list of options for a dropdown.
+  /// Must not be empty if type is [CustomFieldType.typeDropdown].
+  /// This is ignored for other types.
+  @override
+  List<String>? get options {
+    final value = _options;
+    if (value == null) return null;
+    if (_options is EqualUnmodifiableListView) return _options;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   /// Create a copy of CustomFieldTemplate
   /// with the given fields replaced by the non-null parameter values.
@@ -317,16 +351,18 @@ class _CustomFieldTemplate implements CustomFieldTemplate {
             other is _CustomFieldTemplate &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.id, id) || other.id == id));
+            (identical(other.id, id) || other.id == id) &&
+            const DeepCollectionEquality().equals(other._options, _options));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, type, name, id);
+  int get hashCode => Object.hash(runtimeType, type, name, id,
+      const DeepCollectionEquality().hash(_options));
 
   @override
   String toString() {
-    return 'CustomFieldTemplate(type: $type, name: $name, id: $id)';
+    return 'CustomFieldTemplate(type: $type, name: $name, id: $id, options: $options)';
   }
 }
 
@@ -338,7 +374,8 @@ abstract mixin class _$CustomFieldTemplateCopyWith<$Res>
       __$CustomFieldTemplateCopyWithImpl;
   @override
   @useResult
-  $Res call({CustomFieldType type, String name, String id});
+  $Res call(
+      {CustomFieldType type, String name, String id, List<String>? options});
 }
 
 /// @nodoc
@@ -357,6 +394,7 @@ class __$CustomFieldTemplateCopyWithImpl<$Res>
     Object? type = null,
     Object? name = null,
     Object? id = null,
+    Object? options = freezed,
   }) {
     return _then(_CustomFieldTemplate(
       type: null == type
@@ -371,6 +409,10 @@ class __$CustomFieldTemplateCopyWithImpl<$Res>
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      options: freezed == options
+          ? _self._options
+          : options // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
     ));
   }
 }
@@ -381,6 +423,8 @@ CustomFieldValue _$CustomFieldValueFromJson(Map<String, dynamic> json) {
       return StringValue.fromJson(json);
     case 'intValue':
       return IntValue.fromJson(json);
+    case 'dropdownValue':
+      return DropdownValue.fromJson(json);
 
     default:
       throw CheckedFromJsonException(json, 'runtimeType', 'CustomFieldValue',
@@ -573,6 +617,86 @@ class _$IntValueCopyWithImpl<$Res> implements $IntValueCopyWith<$Res> {
           ? _self.value
           : value // ignore: cast_nullable_to_non_nullable
               as int,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class DropdownValue extends CustomFieldValue {
+  const DropdownValue(this.value, {final String? $type})
+      : $type = $type ?? 'dropdownValue',
+        super._();
+  factory DropdownValue.fromJson(Map<String, dynamic> json) =>
+      _$DropdownValueFromJson(json);
+
+  @override
+  final String value;
+
+  @JsonKey(name: 'runtimeType')
+  final String $type;
+
+  /// Create a copy of CustomFieldValue
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $DropdownValueCopyWith<DropdownValue> get copyWith =>
+      _$DropdownValueCopyWithImpl<DropdownValue>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$DropdownValueToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is DropdownValue &&
+            (identical(other.value, value) || other.value == value));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, value);
+
+  @override
+  String toString() {
+    return 'CustomFieldValue.dropdownValue(value: $value)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $DropdownValueCopyWith<$Res>
+    implements $CustomFieldValueCopyWith<$Res> {
+  factory $DropdownValueCopyWith(
+          DropdownValue value, $Res Function(DropdownValue) _then) =
+      _$DropdownValueCopyWithImpl;
+  @useResult
+  $Res call({String value});
+}
+
+/// @nodoc
+class _$DropdownValueCopyWithImpl<$Res>
+    implements $DropdownValueCopyWith<$Res> {
+  _$DropdownValueCopyWithImpl(this._self, this._then);
+
+  final DropdownValue _self;
+  final $Res Function(DropdownValue) _then;
+
+  /// Create a copy of CustomFieldValue
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? value = null,
+  }) {
+    return _then(DropdownValue(
+      null == value
+          ? _self.value
+          : value // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
