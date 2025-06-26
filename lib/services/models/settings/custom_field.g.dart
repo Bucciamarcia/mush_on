@@ -22,6 +22,8 @@ _CustomFieldTemplate _$CustomFieldTemplateFromJson(Map<String, dynamic> json) =>
       type: $enumDecode(_$CustomFieldTypeEnumMap, json['type']),
       name: json['name'] as String,
       id: json['id'] as String,
+      options:
+          (json['options'] as List<dynamic>?)?.map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$CustomFieldTemplateToJson(
@@ -30,11 +32,13 @@ Map<String, dynamic> _$CustomFieldTemplateToJson(
       'type': _$CustomFieldTypeEnumMap[instance.type]!,
       'name': instance.name,
       'id': instance.id,
+      'options': instance.options,
     };
 
 const _$CustomFieldTypeEnumMap = {
   CustomFieldType.typeString: 'string',
   CustomFieldType.typeInt: 'int',
+  CustomFieldType.typeDropdown: 'dropdown',
 };
 
 StringValue _$StringValueFromJson(Map<String, dynamic> json) => StringValue(
@@ -54,6 +58,18 @@ IntValue _$IntValueFromJson(Map<String, dynamic> json) => IntValue(
     );
 
 Map<String, dynamic> _$IntValueToJson(IntValue instance) => <String, dynamic>{
+      'value': instance.value,
+      'runtimeType': instance.$type,
+    };
+
+DropdownValue _$DropdownValueFromJson(Map<String, dynamic> json) =>
+    DropdownValue(
+      json['value'] as String,
+      $type: json['runtimeType'] as String?,
+    );
+
+Map<String, dynamic> _$DropdownValueToJson(DropdownValue instance) =>
+    <String, dynamic>{
       'value': instance.value,
       'runtimeType': instance.$type,
     };

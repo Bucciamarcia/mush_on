@@ -50,11 +50,11 @@ class HomePageScreenContent extends StatelessWidget {
                                         .dogsWithWarnings.warning.length,
                                 Colors.green),
                             ReadyDogData(
-                                "Unavailable", totalDogs - canRun, Colors.red),
-                            ReadyDogData(
                                 "Warning",
                                 homeProvider.dogsWithWarnings.warning.length,
-                                Colors.orange)
+                                Colors.orange),
+                            ReadyDogData(
+                                "Unavailable", totalDogs - canRun, Colors.red),
                           ],
                           xValueMapper: (ReadyDogData data, _) => data.x,
                           yValueMapper: (ReadyDogData data, _) => data.y,

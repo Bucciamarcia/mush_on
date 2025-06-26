@@ -74,3 +74,4 @@ A cool and open source CRM for sled dog kennels.
 - Settings now update in real time.
 - Distance hard error now darker red.
 - Added a drawer.
+- Added dropdown custom field type.
