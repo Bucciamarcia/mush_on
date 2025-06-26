@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/create_team/create_team.dart';
+import 'package:mush_on/health/health.dart';
 import 'package:mush_on/kennel/add_dog/add_dog.dart';
 import 'package:mush_on/kennel/dog/dog.dart';
 import 'package:mush_on/kennel/kennel.dart';
@@ -39,4 +40,5 @@ var appRoutes = {
   "/stats": (context) => const StatsScreen(),
   "/settings": (context) => const SettingsScreen(),
   "/tasks": (context) => const TasksScreen(),
+  "/health_dashboard": (context) => const HealthScreen(),
 };
