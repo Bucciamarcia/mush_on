@@ -76,3 +76,4 @@ A cool and open source CRM for sled dog kennels.
 - Added a drawer.
 - Added dropdown custom field type.
 - Adding a dog now exits the create dog page.
+- Strenghtened offline capabilities.
