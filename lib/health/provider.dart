@@ -1,91 +1,46 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/health/models.dart';
-import 'package:mush_on/health/repository.dart';
-import 'package:mush_on/provider.dart';
-import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/extensions.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-class HealthProvider extends ChangeNotifier {
-  final BasicLogger logger = BasicLogger();
-  final _healthRepo = HealthRepository();
-  MainProvider mainProvider;
-  bool isLoadingHealthEvents = true;
-  bool isLoadingVaccinationEvents = true;
-  bool isLoadingHeatCycleEvents = true;
-  List<HealthEvent> _healthEvents = [];
-  List<HealthEvent> get healthEvents => _healthEvents;
-  List<Vaccination> _vaccinations = [];
-  List<Vaccination> get vaccinations => _vaccinations;
-  List<HeatCycle> _heatCycles = [];
-  List<HeatCycle> get heatCycles => _heatCycles;
+part 'provider.g.dart';
 
-  StreamSubscription<List<HealthEvent>>? _healthEventsSubscription;
-  StreamSubscription<List<Vaccination>>? _vaccinationEventsSubscription;
-  StreamSubscription<List<HeatCycle>>? _heatEventsSubscription;
+@riverpod
+Stream<List<HealthEvent>> healthEvents(Ref ref, int? cutOff) async* {
+  var db = FirebaseFirestore.instance;
+  String account = await ref.watch(accountProvider.future);
+  var cutoffDays = DateTimeUtils.today().subtract(Duration(days: cutOff ?? 30));
+  String path = "accounts/$account/data/kennel/healthEvents";
+  var collection = db.collection(path);
+  var query = collection.where("createdAt", isGreaterThanOrEqualTo: cutoffDays);
+  yield* query.snapshots().map((snapshot) =>
+      snapshot.docs.map((d) => HealthEvent.fromJson(d.data())).toList());
+}
 
-  HealthProvider(this.mainProvider) {
-    Future.microtask(() => _initHealthEvents());
-    Future.microtask(() => _initVaccinationEvents());
-    Future.microtask(() => _initHeatEvents());
-  }
+@riverpod
+Stream<List<Vaccination>> vaccinations(Ref ref, int? cutOff) async* {
+  var db = FirebaseFirestore.instance;
+  String account = await ref.watch(accountProvider.future);
+  var cutoffDays = DateTimeUtils.today().subtract(Duration(days: cutOff ?? 30));
+  String path = "accounts/$account/data/kennel/vaccinations";
+  var collection = db.collection(path);
+  var query = collection.where("createdAt", isGreaterThanOrEqualTo: cutoffDays);
+  yield* query.snapshots().map((snapshot) =>
+      snapshot.docs.map((d) => Vaccination.fromJson(d.data())).toList());
+}
 
-  @override
-  void dispose() {
-    super.dispose();
-    _healthEventsSubscription?.cancel();
-    _vaccinationEventsSubscription?.cancel();
-    _heatEventsSubscription?.cancel();
-  }
-
-  void _initHealthEvents() async {
-    await _healthEventsSubscription?.cancel();
-
-    _healthEventsSubscription = _healthRepo
-        .watchHealthEvents(account: mainProvider.account)
-        .listen((events) {
-      _healthEvents = events;
-      isLoadingHealthEvents = false;
-      notifyListeners();
-    }, onError: (e, s) {
-      logger.error("Failed to fetch health events in init",
-          error: e, stackTrace: s);
-      isLoadingHealthEvents = false;
-      notifyListeners();
-    });
-  }
-
-  void _initVaccinationEvents() async {
-    await _vaccinationEventsSubscription?.cancel();
-
-    _vaccinationEventsSubscription = _healthRepo
-        .watchVaccinationEvents(account: mainProvider.account)
-        .listen((events) {
-      _vaccinations = events;
-      isLoadingVaccinationEvents = false;
-      notifyListeners();
-    }, onError: (e, s) {
-      logger.error("Failed to fetch vaccinations in init",
-          error: e, stackTrace: s);
-      isLoadingVaccinationEvents = false;
-      notifyListeners();
-    });
-  }
-
-  void _initHeatEvents() async {
-    await _heatEventsSubscription?.cancel();
-
-    _heatEventsSubscription = _healthRepo
-        .watchHeatEvents(account: mainProvider.account)
-        .listen((events) {
-      _heatCycles = events;
-      isLoadingHeatCycleEvents = false;
-      notifyListeners();
-    }, onError: (e, s) {
-      logger.error("Failed to fetch heat cycles in init",
-          error: e, stackTrace: s);
-      isLoadingHeatCycleEvents = false;
-      notifyListeners();
-    });
-  }
+@riverpod
+Stream<List<HeatCycle>> heatCycles(Ref ref, int? cutOff) async* {
+  var db = FirebaseFirestore.instance;
+  String account = await ref.watch(accountProvider.future);
+  var cutoffDays = DateTimeUtils.today().subtract(Duration(days: cutOff ?? 30));
+  String path = "accounts/$account/data/kennel/heatCycles";
+  var collection = db.collection(path);
+  var query = collection.where("createdAt", isGreaterThanOrEqualTo: cutoffDays);
+  yield* query.snapshots().map((snapshot) =>
+      snapshot.docs.map((d) => HeatCycle.fromJson(d.data())).toList());
 }

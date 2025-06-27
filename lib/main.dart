@@ -1,5 +1,8 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:mush_on/home_page/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/shared/text_title.dart';
 // ignore: depend_on_referenced_packages
 import 'package:timezone/data/latest.dart' as tz;
 // ignore: unused_import, depend_on_referenced_packages
@@ -64,14 +67,26 @@ Future<void> main() async {
     };
   }
   tz.initializeTimeZones();
-  runApp(const MyApp());
+  runApp(rp.ProviderScope(child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends rp.ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, rp.WidgetRef ref) {
+    final dogs = ref.watch(dogsProvider);
+    if (dogs.hasError) {
+      BasicLogger().error("Fatal error in the while loading the dogs db!",
+          error: dogs.error);
+      return MaterialApp(
+        home: Scaffold(
+            body: Center(
+          child:
+              TextTitle("There was a fatal error while loading the database!"),
+        )),
+      );
+    }
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => MainProvider()),
