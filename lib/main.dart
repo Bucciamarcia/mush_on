@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:mush_on/riverpod.dart';
@@ -33,7 +32,7 @@ Future<void> main() async {
   );
   FirebaseFirestore.instance.settings = const Settings(
       persistenceEnabled: true, cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
-  await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
+  // await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
   // 2. Initialize App Check
   // Use kDebugMode to determine which providers to use
   if (kDebugMode) {
