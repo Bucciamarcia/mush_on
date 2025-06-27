@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/shared/text_title.dart';
 
 class HealthMain extends ConsumerWidget {
@@ -10,26 +11,12 @@ class HealthMain extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final dogs = ref.watch(dogsProvider);
+    List<Dog>? dogs = ref.watch(dogsProvider).valueOrNull;
     var colorScheme = Theme.of(context).colorScheme;
-    switch (dogs) {
-      case AsyncData(:final value):
-        return ListView(
-          children: [
-            TextTitle(value[0].name),
-            Card(
-              color: colorScheme.surfaceContainer,
-              child: Column(
-                children: [],
-              ),
-            )
-          ],
-        );
-      case AsyncError(:final error):
-        logger.error("Error in async dog fetch: $error");
-        return Text("error");
-      default:
-        return const CircularProgressIndicator();
+    if (dogs == null) {
+      return CircularProgressIndicator.adaptive();
+    } else {
+      return TextTitle(dogs[0].name);
     }
   }
 }

@@ -86,7 +86,7 @@ Stream<List<Dog>> dogs(Ref ref) async* {
   var db = FirebaseFirestore.instance;
   String account = await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/kennel/dogs";
-  var query = db.collection(path);
+  var query = db.collection(path).orderBy("name");
   yield* query.snapshots().map(
       (snapshot) => snapshot.docs.map((d) => Dog.fromJson(d.data())).toList());
 }
