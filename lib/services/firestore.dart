@@ -80,7 +80,21 @@ class FirestoreService {
   }
 
   Future<void> userLoginActions() async {
-    await AppCheckInterceptor.ensureAppCheck();
+    // Skip App Check when offline - it's causing issues
+    try {
+      // Only do App Check if we might be online
+      // Quick timeout to avoid hanging
+      await AppCheckInterceptor.ensureAppCheck().timeout(
+        const Duration(seconds: 2),
+        onTimeout: () {
+          logger.info('App Check timed out - likely offline');
+        },
+      );
+    } catch (e) {
+      logger.info('App Check failed: $e');
+      // Continue anyway
+    }
+
     late final User user;
     try {
       user = AuthService().user!;
@@ -88,13 +102,33 @@ class FirestoreService {
       logger.error("Couldn't fetch user", error: e, stackTrace: s);
       rethrow;
     }
+
     try {
       var ref = db.collection("users").doc(user.uid);
       var data = {"last_login": DateTime.now().toUtc()};
-      return ref.set(data, SetOptions(merge: true));
+
+      // Use a timeout to avoid hanging when offline
+      await ref.set(data, SetOptions(merge: true)).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          throw TimeoutException('Login update timed out - likely offline');
+        },
+      );
     } catch (e, s) {
-      logger.error("Couldn't log in", error: e, stackTrace: s);
-      rethrow;
+      if (e is TimeoutException) {
+        logger.info("Login update timed out - continuing offline");
+        // Don't rethrow - we can continue offline
+      } else {
+        logger.error("Couldn't log in", error: e, stackTrace: s);
+        // Don't rethrow for offline-related errors
+        if (e.toString().contains('offline') ||
+            e.toString().contains('network') ||
+            e.toString().contains('UNAVAILABLE')) {
+          logger.info("Offline - skipping login update");
+        } else {
+          rethrow;
+        }
+      }
     }
   }
 

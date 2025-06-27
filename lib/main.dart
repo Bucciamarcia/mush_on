@@ -106,8 +106,43 @@ class MyApp extends rp.ConsumerWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // Create the future ONCE to avoid infinite loops
+  late Future<void> _loginFuture;
+  late Future<String?> _accountFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize futures once - they won't be called again on rebuilds
+    _loginFuture = _performLoginActions();
+    _accountFuture = _getAccount();
+  }
+
+  Future<void> _performLoginActions() async {
+    try {
+      await FirestoreService().userLoginActions();
+    } catch (e) {
+      // Log but don't throw - we can continue offline
+      logger.info('Login actions failed (likely offline): $e');
+    }
+  }
+
+  Future<String?> _getAccount() async {
+    try {
+      return await FirestoreService().getUserAccount();
+    } catch (e) {
+      logger.info('Failed to get account: $e');
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,52 +160,61 @@ class HomeScreen extends StatelessWidget {
             ),
           );
         } else if (snapshot.hasData) {
+          // User is authenticated
           return FutureBuilder<void>(
-            future: FirestoreService().userLoginActions(),
+            future: _loginFuture, // Use the cached future
             builder: (context, loginSnapshot) {
-              if (loginSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                );
-              } else if (loginSnapshot.hasError) {
-                return Center(
-                  child: Text("Login action error: ${loginSnapshot.error}"),
-                );
-              } else {
-                // Login actions completed, now check account status
-                return FutureBuilder<String?>(
-                  future: FirestoreService().getUserAccount(),
-                  builder: (context, accountSnapshot) {
-                    if (accountSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator.adaptive(),
-                      );
-                    } else if (accountSnapshot.hasError) {
-                      return Center(
-                        child: Text("Error: ${accountSnapshot.error}"),
-                      );
-                    } else {
-                      // Account data loaded
-                      final accountData = accountSnapshot.data;
+              // Don't wait for login actions - they're optional
+              // Check account status immediately
+              return FutureBuilder<String?>(
+                future: _accountFuture, // Use the cached future
+                builder: (context, accountSnapshot) {
+                  if (accountSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator.adaptive(),
+                    );
+                  } else if (accountSnapshot.hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Error: ${accountSnapshot.error}"),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                // Recreate futures on retry
+                                _loginFuture = _performLoginActions();
+                                _accountFuture = _getAccount();
+                              });
+                            },
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    // Account data loaded (or null)
+                    final accountData = accountSnapshot.data;
 
-                      if (accountData == null) {
-                        return Scaffold(
-                          body: Container(
-                            padding: const EdgeInsets.all(10),
-                            child: const SafeArea(
-                              child: Text(
-                                  "Access not authorized. This is normal for new accounts. The admin will authorize your account as needed."),
+                    if (accountData == null) {
+                      return Scaffold(
+                        body: Container(
+                          padding: const EdgeInsets.all(10),
+                          child: const SafeArea(
+                            child: Text(
+                              "Access not authorized. This is normal for new accounts. The admin will authorize your account as needed.",
                             ),
                           ),
-                        );
-                      } else {
-                        return const HomePageScreen();
-                      }
+                        ),
+                      );
+                    } else {
+                      return const HomePageScreen();
                     }
-                  },
-                );
-              }
+                  }
+                },
+              );
             },
           );
         } else {
