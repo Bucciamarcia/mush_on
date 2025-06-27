@@ -336,7 +336,7 @@ class _TasksProviderElement extends StreamProviderElement<TasksInMemory>
   int? get days => (origin as TasksProvider).days;
 }
 
-String _$dogsHash() => r'8ae3dc094b7584f5b3287c389d3b59fbf96611db';
+String _$dogsHash() => r'25024bf42f1503f765a876964eed096aaddd3f6e';
 
 /// See also [dogs].
 @ProviderFor(dogs)
