@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/page_template.dart';
-import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/shared/text_title.dart';
 
