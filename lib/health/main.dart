@@ -16,7 +16,16 @@ class HealthMain extends ConsumerWidget {
     if (dogs == null) {
       return CircularProgressIndicator.adaptive();
     } else {
-      return TextTitle(dogs[0].name);
+      return ListView(
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextTitle("Health Overview"),
+            ),
+          ),
+        ],
+      );
     }
   }
 }
