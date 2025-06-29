@@ -22,11 +22,11 @@ mixin _$HealthEvent {
   String get dogId;
 
   /// When the event was created initially
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   DateTime get createdAt;
 
   /// When the event was last updated.
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   DateTime get lastUpdated;
 
   /// The title of the event
@@ -118,8 +118,8 @@ abstract mixin class $HealthEventCopyWith<$Res> {
   $Res call(
       {String id,
       String dogId,
-      @TimestampConverter() DateTime createdAt,
-      @TimestampConverter() DateTime lastUpdated,
+      @NonNullableTimestampConverter() DateTime createdAt,
+      @NonNullableTimestampConverter() DateTime lastUpdated,
       String title,
       @TimestampConverter() DateTime date,
       @TimestampConverter() DateTime? resolvedDate,
@@ -209,8 +209,8 @@ class _HealthEvent implements HealthEvent {
   const _HealthEvent(
       {required this.id,
       required this.dogId,
-      @TimestampConverter() required this.createdAt,
-      @TimestampConverter() required this.lastUpdated,
+      @NonNullableTimestampConverter() required this.createdAt,
+      @NonNullableTimestampConverter() required this.lastUpdated,
       required this.title,
       @TimestampConverter() required this.date,
       @TimestampConverter() this.resolvedDate,
@@ -232,12 +232,12 @@ class _HealthEvent implements HealthEvent {
 
   /// When the event was created initially
   @override
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   final DateTime createdAt;
 
   /// When the event was last updated.
   @override
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   final DateTime lastUpdated;
 
   /// The title of the event
@@ -354,8 +354,8 @@ abstract mixin class _$HealthEventCopyWith<$Res>
   $Res call(
       {String id,
       String dogId,
-      @TimestampConverter() DateTime createdAt,
-      @TimestampConverter() DateTime lastUpdated,
+      @NonNullableTimestampConverter() DateTime createdAt,
+      @NonNullableTimestampConverter() DateTime lastUpdated,
       String title,
       @TimestampConverter() DateTime date,
       @TimestampConverter() DateTime? resolvedDate,

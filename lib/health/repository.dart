@@ -1,55 +1,51 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/health/models.dart';
-import 'package:mush_on/services/extensions.dart';
-import 'package:mush_on/services/firestore.dart';
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+part 'repository.g.dart';
 
-/// Db interaction for all health related stuff
-class HealthRepository {
-  final _db = FirebaseFirestore.instance;
+@riverpod
+HealthEventRepository healthEventRepository(Ref ref) {
+  // Read the current user's account once
+  final account = ref.watch(accountProvider);
 
-  /// Returns a list of health events. Defaults to 30 days cutoff and all dogs.
-  Stream<List<HealthEvent>> watchHealthEvents(
-      {DateTime? cutOff, String? dogId, String? account}) async* {
-    account ??= await FirestoreService().getUserAccount();
-    cutOff ??= DateTimeUtils.today().subtract(Duration(days: 30));
-    String path = "accounts/$account/data/kennel/healthEvents";
-    var collectionRef = _db.collection(path);
-    var query =
-        collectionRef.where("createdAt", isGreaterThanOrEqualTo: cutOff);
-    if (dogId != null) {
-      query = query.where("dogId", isEqualTo: dogId);
+  // Return an instance of the repository.
+  // The 'account' is available as a loading/error/data state.
+  return HealthEventRepository(account);
+}
+
+class HealthEventRepository {
+  var db = FirebaseFirestore.instance;
+  static final logger = BasicLogger();
+  // It now holds the account state
+  final AsyncValue<String> _account;
+
+  // 3. The constructor accepts the account state from the provider
+  HealthEventRepository(this._account);
+
+  // 4. Your method is now an instance method, not static
+  Future<void> addEvent(HealthEvent event) async {
+    // Access the account value safely
+    final accountValue = _account.valueOrNull;
+
+    // A robust check to ensure the account is available before proceeding
+    if (accountValue == null) {
+      logger.error('Could not add event: User account is not available.');
+      throw Exception("Could not add event: User account is not available.");
     }
-    yield* query.snapshots().map((snapshot) =>
-        snapshot.docs.map((d) => HealthEvent.fromJson(d.data())).toList());
-  }
 
-  Stream<List<Vaccination>> watchVaccinationEvents(
-      {DateTime? cutOff, String? dogId, String? account}) async* {
-    account ??= await FirestoreService().getUserAccount();
-    cutOff ??= DateTimeUtils.today().subtract(Duration(days: 30));
-    String path = "accounts/$account/data/kennel/vaccinations";
-    var collectionRef = _db.collection(path);
-    var query =
-        collectionRef.where("createdAt", isGreaterThanOrEqualTo: cutOff);
-    if (dogId != null) {
-      query = query.where("dogId", isEqualTo: dogId);
+    logger.debug('Adding event for account: $accountValue');
+    var payload = event.toJson();
+    String path = "accounts/$accountValue/data/kennel/healthEvents";
+    var collection = db.collection(path);
+    try {
+      collection.doc(event.id).set(payload);
+    } catch (e, s) {
+      logger.error("Couldn't set the new document health event",
+          error: e, stackTrace: s);
+      rethrow;
     }
-    yield* query.snapshots().map((snapshot) =>
-        snapshot.docs.map((d) => Vaccination.fromJson(d.data())).toList());
-  }
-
-  Stream<List<HeatCycle>> watchHeatEvents(
-      {DateTime? cutOff, String? dogId, String? account}) async* {
-    account ??= await FirestoreService().getUserAccount();
-    cutOff ??= DateTimeUtils.today().subtract(Duration(days: 30));
-    String path = "accounts/$account/data/kennel/heatCycles";
-    var collectionRef = _db.collection(path);
-    var query =
-        collectionRef.where("createdAt", isGreaterThanOrEqualTo: cutOff);
-    if (dogId != null) {
-      query = query.where("dogId", isEqualTo: dogId);
-    }
-    yield* query.snapshots().map((snapshot) =>
-        snapshot.docs.map((d) => HeatCycle.fromJson(d.data())).toList());
   }
 }

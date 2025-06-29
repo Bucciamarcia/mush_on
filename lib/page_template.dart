@@ -1,15 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mush_on/health/main.dart';
+import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/services/auth.dart';
 
-class TemplateScreen extends StatelessWidget {
+class TemplateScreen extends ConsumerWidget {
   final Widget child;
   final String title;
 
   const TemplateScreen({super.key, required this.child, required this.title});
 
+  SpeedDial? _getFab(WidgetRef ref) {
+    if (child is HealthMain) {
+      return SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        backgroundColor: Colors.blue,
+        children: [
+          SpeedDialChild(
+            child: Icon(Icons.local_hospital),
+            label: 'Add health event',
+            onTap: () {
+              ref.read(triggerAddhealthEventProvider.notifier).setValue(true);
+            },
+          ),
+          SpeedDialChild(
+            child: Icon(Icons.vaccines),
+            label: 'Add vaccination',
+            onTap: () {
+              // Handle schedule
+            },
+          ),
+          SpeedDialChild(
+            child: FaIcon(FontAwesomeIcons.fire),
+            label: 'Add heat',
+            onTap: () {
+              // Handle analytics
+            },
+          ),
+        ],
+      );
+    }
+    return null;
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      floatingActionButton: _getFab(ref),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,

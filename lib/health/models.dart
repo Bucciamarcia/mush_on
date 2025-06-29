@@ -15,10 +15,10 @@ abstract class HealthEvent with _$HealthEvent {
     required String dogId,
 
     /// When the event was created initially
-    @TimestampConverter() required DateTime createdAt,
+    @NonNullableTimestampConverter() required DateTime createdAt,
 
     /// When the event was last updated.
-    @TimestampConverter() required DateTime lastUpdated,
+    @NonNullableTimestampConverter() required DateTime lastUpdated,
 
     /// The title of the event
     required String title,
@@ -44,6 +44,13 @@ abstract class HealthEvent with _$HealthEvent {
   }) = _HealthEvent;
   factory HealthEvent.fromJson(Map<String, dynamic> json) =>
       _$HealthEventFromJson(json);
+}
+
+extension HealthEventExtension on HealthEvent {
+  bool get isOneShot => createdAt == resolvedDate;
+  bool get isOngoing => resolvedDate == null;
+  bool get isResolved => resolvedDate != null && resolvedDate != date;
+  Duration? get duration => resolvedDate?.difference(date);
 }
 
 @freezed

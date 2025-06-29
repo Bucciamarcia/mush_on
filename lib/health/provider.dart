@@ -44,3 +44,13 @@ Stream<List<HeatCycle>> heatCycles(Ref ref, int? cutOff) async* {
   yield* query.snapshots().map((snapshot) =>
       snapshot.docs.map((d) => HeatCycle.fromJson(d.data())).toList());
 }
+
+@riverpod
+class TriggerAddhealthEvent extends _$TriggerAddhealthEvent {
+  @override
+  bool build() => false;
+
+  void setValue(bool value) {
+    state = value;
+  }
+}
