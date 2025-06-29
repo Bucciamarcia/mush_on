@@ -9,8 +9,10 @@ part of 'models.dart';
 _HealthEvent _$HealthEventFromJson(Map<String, dynamic> json) => _HealthEvent(
       id: json['id'] as String,
       dogId: json['dogId'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      lastUpdated: DateTime.parse(json['lastUpdated'] as String),
+      createdAt: const NonNullableTimestampConverter()
+          .fromJson(json['createdAt'] as Timestamp),
+      lastUpdated: const NonNullableTimestampConverter()
+          .fromJson(json['lastUpdated'] as Timestamp),
       title: json['title'] as String,
       date: DateTime.parse(json['date'] as String),
       resolvedDate: const TimestampConverter()
@@ -30,8 +32,10 @@ Map<String, dynamic> _$HealthEventToJson(_HealthEvent instance) =>
     <String, dynamic>{
       'id': instance.id,
       'dogId': instance.dogId,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'lastUpdated': instance.lastUpdated.toIso8601String(),
+      'createdAt':
+          const NonNullableTimestampConverter().toJson(instance.createdAt),
+      'lastUpdated':
+          const NonNullableTimestampConverter().toJson(instance.lastUpdated),
       'title': instance.title,
       'date': instance.date.toIso8601String(),
       'resolvedDate': const TimestampConverter().toJson(instance.resolvedDate),

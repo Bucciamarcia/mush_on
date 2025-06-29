@@ -421,5 +421,23 @@ class _HeatCyclesProviderElement
   @override
   int? get cutOff => (origin as HeatCyclesProvider).cutOff;
 }
+
+String _$triggerAddhealthEventHash() =>
+    r'2cd7c3ea83210a53bb68b27c677d1bd0672ae09f';
+
+/// See also [TriggerAddhealthEvent].
+@ProviderFor(TriggerAddhealthEvent)
+final triggerAddhealthEventProvider =
+    AutoDisposeNotifierProvider<TriggerAddhealthEvent, bool>.internal(
+  TriggerAddhealthEvent.new,
+  name: r'triggerAddhealthEventProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$triggerAddhealthEventHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$TriggerAddhealthEvent = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
