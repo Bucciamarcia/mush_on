@@ -26,7 +26,7 @@ class TemplateScreen extends ConsumerWidget {
             },
           ),
           SpeedDialChild(
-            child: Icon(Icons.vaccines),
+            child: FaIcon(FontAwesomeIcons.syringe),
             label: 'Add vaccination',
             onTap: () {
               // Handle schedule
