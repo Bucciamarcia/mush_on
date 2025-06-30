@@ -55,7 +55,7 @@ class HealthMain extends ConsumerWidget {
             ),
           ),
           ...healthEvents.map((e) => Text(e.title)),
-          ...vaccinations.map((e) => Text(e.name)),
+          ...vaccinations.map((e) => Text(e.title)),
         ],
       );
     }

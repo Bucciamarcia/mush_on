@@ -447,15 +447,15 @@ mixin _$Vaccination {
   String get dogId;
 
   /// When the event was created initially
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   DateTime get createdAt;
 
   /// When the event was last updated.
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   DateTime get lastUpdated;
 
   /// When the vaccination was administered
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   DateTime get dateAdministered;
 
   /// When this vaccination expires
@@ -465,8 +465,8 @@ mixin _$Vaccination {
   /// The ids of the documents related to the vaccination
   List<String> get documentIds;
 
-  /// The custom name of this vaccination.
-  String get name;
+  /// The custom title of this vaccination.
+  String get title;
 
   /// Some custom notes for the vaccination.
   String get notes;
@@ -501,7 +501,7 @@ mixin _$Vaccination {
                 other.expirationDate == expirationDate) &&
             const DeepCollectionEquality()
                 .equals(other.documentIds, documentIds) &&
-            (identical(other.name, name) || other.name == name) &&
+            (identical(other.title, title) || other.title == title) &&
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.vaccinationType, vaccinationType) ||
                 other.vaccinationType == vaccinationType));
@@ -518,13 +518,13 @@ mixin _$Vaccination {
       dateAdministered,
       expirationDate,
       const DeepCollectionEquality().hash(documentIds),
-      name,
+      title,
       notes,
       vaccinationType);
 
   @override
   String toString() {
-    return 'Vaccination(id: $id, dogId: $dogId, createdAt: $createdAt, lastUpdated: $lastUpdated, dateAdministered: $dateAdministered, expirationDate: $expirationDate, documentIds: $documentIds, name: $name, notes: $notes, vaccinationType: $vaccinationType)';
+    return 'Vaccination(id: $id, dogId: $dogId, createdAt: $createdAt, lastUpdated: $lastUpdated, dateAdministered: $dateAdministered, expirationDate: $expirationDate, documentIds: $documentIds, title: $title, notes: $notes, vaccinationType: $vaccinationType)';
   }
 }
 
@@ -537,12 +537,12 @@ abstract mixin class $VaccinationCopyWith<$Res> {
   $Res call(
       {String id,
       String dogId,
-      @TimestampConverter() DateTime createdAt,
-      @TimestampConverter() DateTime lastUpdated,
-      @TimestampConverter() DateTime dateAdministered,
+      @NonNullableTimestampConverter() DateTime createdAt,
+      @NonNullableTimestampConverter() DateTime lastUpdated,
+      @NonNullableTimestampConverter() DateTime dateAdministered,
       @TimestampConverter() DateTime? expirationDate,
       List<String> documentIds,
-      String name,
+      String title,
       String notes,
       String vaccinationType});
 }
@@ -566,7 +566,7 @@ class _$VaccinationCopyWithImpl<$Res> implements $VaccinationCopyWith<$Res> {
     Object? dateAdministered = null,
     Object? expirationDate = freezed,
     Object? documentIds = null,
-    Object? name = null,
+    Object? title = null,
     Object? notes = null,
     Object? vaccinationType = null,
   }) {
@@ -599,9 +599,9 @@ class _$VaccinationCopyWithImpl<$Res> implements $VaccinationCopyWith<$Res> {
           ? _self.documentIds
           : documentIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
+      title: null == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
               as String,
       notes: null == notes
           ? _self.notes
@@ -621,12 +621,12 @@ class _Vaccination implements Vaccination {
   const _Vaccination(
       {required this.id,
       required this.dogId,
-      @TimestampConverter() required this.createdAt,
-      @TimestampConverter() required this.lastUpdated,
-      @TimestampConverter() required this.dateAdministered,
+      @NonNullableTimestampConverter() required this.createdAt,
+      @NonNullableTimestampConverter() required this.lastUpdated,
+      @NonNullableTimestampConverter() required this.dateAdministered,
       @TimestampConverter() this.expirationDate,
       final List<String> documentIds = const [],
-      required this.name,
+      required this.title,
       this.notes = "",
       required this.vaccinationType})
       : _documentIds = documentIds;
@@ -643,17 +643,17 @@ class _Vaccination implements Vaccination {
 
   /// When the event was created initially
   @override
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   final DateTime createdAt;
 
   /// When the event was last updated.
   @override
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   final DateTime lastUpdated;
 
   /// When the vaccination was administered
   @override
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   final DateTime dateAdministered;
 
   /// When this vaccination expires
@@ -673,9 +673,9 @@ class _Vaccination implements Vaccination {
     return EqualUnmodifiableListView(_documentIds);
   }
 
-  /// The custom name of this vaccination.
+  /// The custom title of this vaccination.
   @override
-  final String name;
+  final String title;
 
   /// Some custom notes for the vaccination.
   @override
@@ -718,7 +718,7 @@ class _Vaccination implements Vaccination {
                 other.expirationDate == expirationDate) &&
             const DeepCollectionEquality()
                 .equals(other._documentIds, _documentIds) &&
-            (identical(other.name, name) || other.name == name) &&
+            (identical(other.title, title) || other.title == title) &&
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.vaccinationType, vaccinationType) ||
                 other.vaccinationType == vaccinationType));
@@ -735,13 +735,13 @@ class _Vaccination implements Vaccination {
       dateAdministered,
       expirationDate,
       const DeepCollectionEquality().hash(_documentIds),
-      name,
+      title,
       notes,
       vaccinationType);
 
   @override
   String toString() {
-    return 'Vaccination(id: $id, dogId: $dogId, createdAt: $createdAt, lastUpdated: $lastUpdated, dateAdministered: $dateAdministered, expirationDate: $expirationDate, documentIds: $documentIds, name: $name, notes: $notes, vaccinationType: $vaccinationType)';
+    return 'Vaccination(id: $id, dogId: $dogId, createdAt: $createdAt, lastUpdated: $lastUpdated, dateAdministered: $dateAdministered, expirationDate: $expirationDate, documentIds: $documentIds, title: $title, notes: $notes, vaccinationType: $vaccinationType)';
   }
 }
 
@@ -756,12 +756,12 @@ abstract mixin class _$VaccinationCopyWith<$Res>
   $Res call(
       {String id,
       String dogId,
-      @TimestampConverter() DateTime createdAt,
-      @TimestampConverter() DateTime lastUpdated,
-      @TimestampConverter() DateTime dateAdministered,
+      @NonNullableTimestampConverter() DateTime createdAt,
+      @NonNullableTimestampConverter() DateTime lastUpdated,
+      @NonNullableTimestampConverter() DateTime dateAdministered,
       @TimestampConverter() DateTime? expirationDate,
       List<String> documentIds,
-      String name,
+      String title,
       String notes,
       String vaccinationType});
 }
@@ -785,7 +785,7 @@ class __$VaccinationCopyWithImpl<$Res> implements _$VaccinationCopyWith<$Res> {
     Object? dateAdministered = null,
     Object? expirationDate = freezed,
     Object? documentIds = null,
-    Object? name = null,
+    Object? title = null,
     Object? notes = null,
     Object? vaccinationType = null,
   }) {
@@ -818,9 +818,9 @@ class __$VaccinationCopyWithImpl<$Res> implements _$VaccinationCopyWith<$Res> {
           ? _self._documentIds
           : documentIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
+      title: null == title
+          ? _self.title
+          : title // ignore: cast_nullable_to_non_nullable
               as String,
       notes: null == notes
           ? _self.notes

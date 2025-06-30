@@ -57,16 +57,19 @@ const _$HealthEventTypeEnumMap = {
 _Vaccination _$VaccinationFromJson(Map<String, dynamic> json) => _Vaccination(
       id: json['id'] as String,
       dogId: json['dogId'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      lastUpdated: DateTime.parse(json['lastUpdated'] as String),
-      dateAdministered: DateTime.parse(json['dateAdministered'] as String),
+      createdAt: const NonNullableTimestampConverter()
+          .fromJson(json['createdAt'] as Timestamp),
+      lastUpdated: const NonNullableTimestampConverter()
+          .fromJson(json['lastUpdated'] as Timestamp),
+      dateAdministered: const NonNullableTimestampConverter()
+          .fromJson(json['dateAdministered'] as Timestamp),
       expirationDate: const TimestampConverter()
           .fromJson(json['expirationDate'] as Timestamp?),
       documentIds: (json['documentIds'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],
-      name: json['name'] as String,
+      title: json['title'] as String,
       notes: json['notes'] as String? ?? "",
       vaccinationType: json['vaccinationType'] as String,
     );
@@ -75,13 +78,16 @@ Map<String, dynamic> _$VaccinationToJson(_Vaccination instance) =>
     <String, dynamic>{
       'id': instance.id,
       'dogId': instance.dogId,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'lastUpdated': instance.lastUpdated.toIso8601String(),
-      'dateAdministered': instance.dateAdministered.toIso8601String(),
+      'createdAt':
+          const NonNullableTimestampConverter().toJson(instance.createdAt),
+      'lastUpdated':
+          const NonNullableTimestampConverter().toJson(instance.lastUpdated),
+      'dateAdministered': const NonNullableTimestampConverter()
+          .toJson(instance.dateAdministered),
       'expirationDate':
           const TimestampConverter().toJson(instance.expirationDate),
       'documentIds': instance.documentIds,
-      'name': instance.name,
+      'title': instance.title,
       'notes': instance.notes,
       'vaccinationType': instance.vaccinationType,
     };
