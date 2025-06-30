@@ -95,9 +95,14 @@ Map<String, dynamic> _$VaccinationToJson(_Vaccination instance) =>
 _HeatCycle _$HeatCycleFromJson(Map<String, dynamic> json) => _HeatCycle(
       id: json['id'] as String,
       dogId: json['dogId'] as String,
-      startDate: DateTime.parse(json['startDate'] as String),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      lastUpdated: DateTime.parse(json['lastUpdated'] as String),
+      notes: json['notes'] as String? ?? "",
+      startDate: const NonNullableTimestampConverter()
+          .fromJson(json['startDate'] as Timestamp),
+      createdAt: const NonNullableTimestampConverter()
+          .fromJson(json['createdAt'] as Timestamp),
+      lastUpdated: const NonNullableTimestampConverter()
+          .fromJson(json['lastUpdated'] as Timestamp),
+      preventFromRunning: json['preventFromRunning'] as bool? ?? false,
       endDate:
           const TimestampConverter().fromJson(json['endDate'] as Timestamp?),
     );
@@ -106,8 +111,13 @@ Map<String, dynamic> _$HeatCycleToJson(_HeatCycle instance) =>
     <String, dynamic>{
       'id': instance.id,
       'dogId': instance.dogId,
-      'startDate': instance.startDate.toIso8601String(),
-      'createdAt': instance.createdAt.toIso8601String(),
-      'lastUpdated': instance.lastUpdated.toIso8601String(),
+      'notes': instance.notes,
+      'startDate':
+          const NonNullableTimestampConverter().toJson(instance.startDate),
+      'createdAt':
+          const NonNullableTimestampConverter().toJson(instance.createdAt),
+      'lastUpdated':
+          const NonNullableTimestampConverter().toJson(instance.lastUpdated),
+      'preventFromRunning': instance.preventFromRunning,
       'endDate': const TimestampConverter().toJson(instance.endDate),
     };
