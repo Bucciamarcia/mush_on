@@ -63,13 +63,13 @@ abstract class Vaccination with _$Vaccination {
     required String dogId,
 
     /// When the event was created initially
-    @TimestampConverter() required DateTime createdAt,
+    @NonNullableTimestampConverter() required DateTime createdAt,
 
     /// When the event was last updated.
-    @TimestampConverter() required DateTime lastUpdated,
+    @NonNullableTimestampConverter() required DateTime lastUpdated,
 
     /// When the vaccination was administered
-    @TimestampConverter() required DateTime dateAdministered,
+    @NonNullableTimestampConverter() required DateTime dateAdministered,
 
     /// When this vaccination expires
     @TimestampConverter() DateTime? expirationDate,
@@ -77,8 +77,8 @@ abstract class Vaccination with _$Vaccination {
     /// The ids of the documents related to the vaccination
     @Default([]) List<String> documentIds,
 
-    /// The custom name of this vaccination.
-    required String name,
+    /// The custom title of this vaccination.
+    required String title,
 
     /// Some custom notes for the vaccination.
     @Default("") String notes,
