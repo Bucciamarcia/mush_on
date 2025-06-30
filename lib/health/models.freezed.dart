@@ -841,6 +841,8 @@ mixin _$HeatCycle {
 
   /// The dog's id associated with this heat event.
   String get dogId;
+
+  /// Notes regarding this heat.
   String get notes;
 
   /// Heat started date
@@ -998,6 +1000,8 @@ class _HeatCycle implements HeatCycle {
   /// The dog's id associated with this heat event.
   @override
   final String dogId;
+
+  /// Notes regarding this heat.
   @override
   @JsonKey()
   final String notes;

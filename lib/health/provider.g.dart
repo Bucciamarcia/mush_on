@@ -159,7 +159,7 @@ class _HealthEventsProviderElement
   int? get cutOff => (origin as HealthEventsProvider).cutOff;
 }
 
-String _$vaccinationsHash() => r'a7ab6336874e6cd34d78c1062aa769991f820a8e';
+String _$vaccinationsHash() => r'420500b20eef84a0e0cd5d7db499959e6e7942dc';
 
 /// See also [vaccinations].
 @ProviderFor(vaccinations)
@@ -291,7 +291,7 @@ class _VaccinationsProviderElement
   int? get cutOff => (origin as VaccinationsProvider).cutOff;
 }
 
-String _$heatCyclesHash() => r'ff474e37ba6b500bb78e1289825f088f6e7525fc';
+String _$heatCyclesHash() => r'c08fb7dc5719b79ede61652eb57730425794afa1';
 
 /// See also [heatCycles].
 @ProviderFor(heatCycles)
@@ -456,5 +456,22 @@ final triggerAddVaccinationProvider =
 );
 
 typedef _$TriggerAddVaccination = AutoDisposeNotifier<bool>;
+String _$triggerAddHeatCycleHash() =>
+    r'e742251dd7f6a028597130024d5cae370205c833';
+
+/// See also [TriggerAddHeatCycle].
+@ProviderFor(TriggerAddHeatCycle)
+final triggerAddHeatCycleProvider =
+    AutoDisposeNotifierProvider<TriggerAddHeatCycle, bool>.internal(
+  TriggerAddHeatCycle.new,
+  name: r'triggerAddHeatCycleProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$triggerAddHeatCycleHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$TriggerAddHeatCycle = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

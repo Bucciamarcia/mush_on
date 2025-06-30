@@ -25,7 +25,8 @@ Stream<List<HealthEvent>> healthEvents(Ref ref, int? cutOff) async* {
 Stream<List<Vaccination>> vaccinations(Ref ref, int? cutOff) async* {
   var db = FirebaseFirestore.instance;
   String account = await ref.watch(accountProvider.future);
-  var cutoffDays = DateTimeUtils.today().subtract(Duration(days: cutOff ?? 30));
+  var cutoffDays =
+      DateTimeUtils.today().subtract(Duration(days: cutOff ?? 365));
   String path = "accounts/$account/data/kennel/vaccinations";
   var collection = db.collection(path);
   var query = collection.where("createdAt", isGreaterThanOrEqualTo: cutoffDays);
@@ -37,7 +38,8 @@ Stream<List<Vaccination>> vaccinations(Ref ref, int? cutOff) async* {
 Stream<List<HeatCycle>> heatCycles(Ref ref, int? cutOff) async* {
   var db = FirebaseFirestore.instance;
   String account = await ref.watch(accountProvider.future);
-  var cutoffDays = DateTimeUtils.today().subtract(Duration(days: cutOff ?? 30));
+  var cutoffDays =
+      DateTimeUtils.today().subtract(Duration(days: cutOff ?? 365));
   String path = "accounts/$account/data/kennel/heatCycles";
   var collection = db.collection(path);
   var query = collection.where("createdAt", isGreaterThanOrEqualTo: cutoffDays);
@@ -57,6 +59,16 @@ class TriggerAddhealthEvent extends _$TriggerAddhealthEvent {
 
 @riverpod
 class TriggerAddVaccination extends _$TriggerAddVaccination {
+  @override
+  bool build() => false;
+
+  void setValue(bool value) {
+    state = value;
+  }
+}
+
+@riverpod
+class TriggerAddHeatCycle extends _$TriggerAddHeatCycle {
   @override
   bool build() => false;
 
