@@ -841,18 +841,22 @@ mixin _$HeatCycle {
 
   /// The dog's id associated with this heat event.
   String get dogId;
+  String get notes;
 
   /// Heat started date
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   DateTime get startDate;
 
   /// When the event was created initially
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   DateTime get createdAt;
 
   /// When the event was last updated.
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   DateTime get lastUpdated;
+
+  /// This heat prevents the dog from running
+  bool get preventFromRunning;
 
   /// When it finished. If null, still ongoing.
   @TimestampConverter()
@@ -875,23 +879,26 @@ mixin _$HeatCycle {
             other is HeatCycle &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.dogId, dogId) || other.dogId == dogId) &&
+            (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.startDate, startDate) ||
                 other.startDate == startDate) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.lastUpdated, lastUpdated) ||
                 other.lastUpdated == lastUpdated) &&
+            (identical(other.preventFromRunning, preventFromRunning) ||
+                other.preventFromRunning == preventFromRunning) &&
             (identical(other.endDate, endDate) || other.endDate == endDate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, dogId, startDate, createdAt, lastUpdated, endDate);
+  int get hashCode => Object.hash(runtimeType, id, dogId, notes, startDate,
+      createdAt, lastUpdated, preventFromRunning, endDate);
 
   @override
   String toString() {
-    return 'HeatCycle(id: $id, dogId: $dogId, startDate: $startDate, createdAt: $createdAt, lastUpdated: $lastUpdated, endDate: $endDate)';
+    return 'HeatCycle(id: $id, dogId: $dogId, notes: $notes, startDate: $startDate, createdAt: $createdAt, lastUpdated: $lastUpdated, preventFromRunning: $preventFromRunning, endDate: $endDate)';
   }
 }
 
@@ -903,9 +910,11 @@ abstract mixin class $HeatCycleCopyWith<$Res> {
   $Res call(
       {String id,
       String dogId,
-      @TimestampConverter() DateTime startDate,
-      @TimestampConverter() DateTime createdAt,
-      @TimestampConverter() DateTime lastUpdated,
+      String notes,
+      @NonNullableTimestampConverter() DateTime startDate,
+      @NonNullableTimestampConverter() DateTime createdAt,
+      @NonNullableTimestampConverter() DateTime lastUpdated,
+      bool preventFromRunning,
       @TimestampConverter() DateTime? endDate});
 }
 
@@ -923,9 +932,11 @@ class _$HeatCycleCopyWithImpl<$Res> implements $HeatCycleCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? dogId = null,
+    Object? notes = null,
     Object? startDate = null,
     Object? createdAt = null,
     Object? lastUpdated = null,
+    Object? preventFromRunning = null,
     Object? endDate = freezed,
   }) {
     return _then(_self.copyWith(
@@ -936,6 +947,10 @@ class _$HeatCycleCopyWithImpl<$Res> implements $HeatCycleCopyWith<$Res> {
       dogId: null == dogId
           ? _self.dogId
           : dogId // ignore: cast_nullable_to_non_nullable
+              as String,
+      notes: null == notes
+          ? _self.notes
+          : notes // ignore: cast_nullable_to_non_nullable
               as String,
       startDate: null == startDate
           ? _self.startDate
@@ -949,6 +964,10 @@ class _$HeatCycleCopyWithImpl<$Res> implements $HeatCycleCopyWith<$Res> {
           ? _self.lastUpdated
           : lastUpdated // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      preventFromRunning: null == preventFromRunning
+          ? _self.preventFromRunning
+          : preventFromRunning // ignore: cast_nullable_to_non_nullable
+              as bool,
       endDate: freezed == endDate
           ? _self.endDate
           : endDate // ignore: cast_nullable_to_non_nullable
@@ -963,9 +982,11 @@ class _HeatCycle implements HeatCycle {
   const _HeatCycle(
       {required this.id,
       required this.dogId,
-      @TimestampConverter() required this.startDate,
-      @TimestampConverter() required this.createdAt,
-      @TimestampConverter() required this.lastUpdated,
+      this.notes = "",
+      @NonNullableTimestampConverter() required this.startDate,
+      @NonNullableTimestampConverter() required this.createdAt,
+      @NonNullableTimestampConverter() required this.lastUpdated,
+      this.preventFromRunning = false,
       @TimestampConverter() this.endDate});
   factory _HeatCycle.fromJson(Map<String, dynamic> json) =>
       _$HeatCycleFromJson(json);
@@ -977,21 +998,29 @@ class _HeatCycle implements HeatCycle {
   /// The dog's id associated with this heat event.
   @override
   final String dogId;
+  @override
+  @JsonKey()
+  final String notes;
 
   /// Heat started date
   @override
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   final DateTime startDate;
 
   /// When the event was created initially
   @override
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   final DateTime createdAt;
 
   /// When the event was last updated.
   @override
-  @TimestampConverter()
+  @NonNullableTimestampConverter()
   final DateTime lastUpdated;
+
+  /// This heat prevents the dog from running
+  @override
+  @JsonKey()
+  final bool preventFromRunning;
 
   /// When it finished. If null, still ongoing.
   @override
@@ -1020,23 +1049,26 @@ class _HeatCycle implements HeatCycle {
             other is _HeatCycle &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.dogId, dogId) || other.dogId == dogId) &&
+            (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.startDate, startDate) ||
                 other.startDate == startDate) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.lastUpdated, lastUpdated) ||
                 other.lastUpdated == lastUpdated) &&
+            (identical(other.preventFromRunning, preventFromRunning) ||
+                other.preventFromRunning == preventFromRunning) &&
             (identical(other.endDate, endDate) || other.endDate == endDate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, dogId, startDate, createdAt, lastUpdated, endDate);
+  int get hashCode => Object.hash(runtimeType, id, dogId, notes, startDate,
+      createdAt, lastUpdated, preventFromRunning, endDate);
 
   @override
   String toString() {
-    return 'HeatCycle(id: $id, dogId: $dogId, startDate: $startDate, createdAt: $createdAt, lastUpdated: $lastUpdated, endDate: $endDate)';
+    return 'HeatCycle(id: $id, dogId: $dogId, notes: $notes, startDate: $startDate, createdAt: $createdAt, lastUpdated: $lastUpdated, preventFromRunning: $preventFromRunning, endDate: $endDate)';
   }
 }
 
@@ -1051,9 +1083,11 @@ abstract mixin class _$HeatCycleCopyWith<$Res>
   $Res call(
       {String id,
       String dogId,
-      @TimestampConverter() DateTime startDate,
-      @TimestampConverter() DateTime createdAt,
-      @TimestampConverter() DateTime lastUpdated,
+      String notes,
+      @NonNullableTimestampConverter() DateTime startDate,
+      @NonNullableTimestampConverter() DateTime createdAt,
+      @NonNullableTimestampConverter() DateTime lastUpdated,
+      bool preventFromRunning,
       @TimestampConverter() DateTime? endDate});
 }
 
@@ -1071,9 +1105,11 @@ class __$HeatCycleCopyWithImpl<$Res> implements _$HeatCycleCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? dogId = null,
+    Object? notes = null,
     Object? startDate = null,
     Object? createdAt = null,
     Object? lastUpdated = null,
+    Object? preventFromRunning = null,
     Object? endDate = freezed,
   }) {
     return _then(_HeatCycle(
@@ -1084,6 +1120,10 @@ class __$HeatCycleCopyWithImpl<$Res> implements _$HeatCycleCopyWith<$Res> {
       dogId: null == dogId
           ? _self.dogId
           : dogId // ignore: cast_nullable_to_non_nullable
+              as String,
+      notes: null == notes
+          ? _self.notes
+          : notes // ignore: cast_nullable_to_non_nullable
               as String,
       startDate: null == startDate
           ? _self.startDate
@@ -1097,6 +1137,10 @@ class __$HeatCycleCopyWithImpl<$Res> implements _$HeatCycleCopyWith<$Res> {
           ? _self.lastUpdated
           : lastUpdated // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      preventFromRunning: null == preventFromRunning
+          ? _self.preventFromRunning
+          : preventFromRunning // ignore: cast_nullable_to_non_nullable
+              as bool,
       endDate: freezed == endDate
           ? _self.endDate
           : endDate // ignore: cast_nullable_to_non_nullable

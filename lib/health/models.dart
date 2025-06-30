@@ -100,14 +100,20 @@ abstract class HeatCycle with _$HeatCycle {
     /// The dog's id associated with this heat event.
     required String dogId,
 
+    /// Notes regarding this heat.
+    @Default("") String notes,
+
     /// Heat started date
-    @TimestampConverter() required DateTime startDate,
+    @NonNullableTimestampConverter() required DateTime startDate,
 
     /// When the event was created initially
-    @TimestampConverter() required DateTime createdAt,
+    @NonNullableTimestampConverter() required DateTime createdAt,
 
     /// When the event was last updated.
-    @TimestampConverter() required DateTime lastUpdated,
+    @NonNullableTimestampConverter() required DateTime lastUpdated,
+
+    /// This heat prevents the dog from running
+    @Default(false) bool preventFromRunning,
 
     /// When it finished. If null, still ongoing.
     @TimestampConverter() DateTime? endDate,
