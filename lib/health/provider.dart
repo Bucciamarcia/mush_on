@@ -54,3 +54,13 @@ class TriggerAddhealthEvent extends _$TriggerAddhealthEvent {
     state = value;
   }
 }
+
+@riverpod
+class TriggerAddVaccination extends _$TriggerAddVaccination {
+  @override
+  bool build() => false;
+
+  void setValue(bool value) {
+    state = value;
+  }
+}

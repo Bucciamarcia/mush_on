@@ -8,6 +8,8 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/shared/text_title.dart';
 
+import 'new_vaccination_alert_dialog.dart';
+
 class HealthMain extends ConsumerWidget {
   static final logger = BasicLogger();
   const HealthMain({super.key});
@@ -17,6 +19,8 @@ class HealthMain extends ConsumerWidget {
     List<Dog>? dogs = ref.watch(dogsProvider).valueOrNull;
     List<HealthEvent> healthEvents =
         ref.watch(healthEventsProvider(null)).valueOrNull ?? [];
+    List<Vaccination> vaccinations =
+        ref.watch(vaccinationsProvider(null)).valueOrNull ?? [];
     ref.listen(
       triggerAddhealthEventProvider,
       (previous, next) async {
@@ -25,6 +29,17 @@ class HealthMain extends ConsumerWidget {
           await showDialog(
               context: context,
               builder: (BuildContext context) => NewHealthEventAlertDialog());
+        }
+      },
+    );
+    ref.listen(
+      triggerAddVaccinationProvider,
+      (previous, next) async {
+        if (previous == false && next == true && dogs != null) {
+          ref.read(triggerAddVaccinationProvider.notifier).setValue(false);
+          await showDialog(
+              context: context,
+              builder: (BuildContext context) => NewVaccinationAlertDialog());
         }
       },
     );
@@ -40,6 +55,7 @@ class HealthMain extends ConsumerWidget {
             ),
           ),
           ...healthEvents.map((e) => Text(e.title)),
+          ...vaccinations.map((e) => Text(e.name)),
         ],
       );
     }

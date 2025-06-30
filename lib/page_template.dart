@@ -29,7 +29,7 @@ class TemplateScreen extends ConsumerWidget {
             child: FaIcon(FontAwesomeIcons.syringe),
             label: 'Add vaccination',
             onTap: () {
-              // Handle schedule
+              ref.read(triggerAddVaccinationProvider.notifier).setValue(true);
             },
           ),
           SpeedDialChild(
