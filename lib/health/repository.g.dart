@@ -46,5 +46,24 @@ final vaccinationRepositoryProvider =
 // ignore: unused_element
 typedef VaccinationRepositoryRef
     = AutoDisposeProviderRef<VaccinationRepository>;
+String _$heatCycleRepositoryHash() =>
+    r'4eb0e917838a2baca364392b94ddc0b38bbd19d0';
+
+/// See also [heatCycleRepository].
+@ProviderFor(heatCycleRepository)
+final heatCycleRepositoryProvider =
+    AutoDisposeProvider<HeatCycleRepository>.internal(
+  heatCycleRepository,
+  name: r'heatCycleRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$heatCycleRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef HeatCycleRepositoryRef = AutoDisposeProviderRef<HeatCycleRepository>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

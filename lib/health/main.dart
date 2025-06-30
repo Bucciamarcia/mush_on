@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/health/models.dart';
 import 'package:mush_on/health/new_health_event_alert_dialog.dart';
+import 'package:mush_on/health/new_heat_cycle_alert_dialog.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -21,6 +22,8 @@ class HealthMain extends ConsumerWidget {
         ref.watch(healthEventsProvider(null)).valueOrNull ?? [];
     List<Vaccination> vaccinations =
         ref.watch(vaccinationsProvider(null)).valueOrNull ?? [];
+    List<HeatCycle> heatCycles =
+        ref.watch(heatCyclesProvider(null)).valueOrNull ?? [];
     ref.listen(
       triggerAddhealthEventProvider,
       (previous, next) async {
@@ -43,6 +46,14 @@ class HealthMain extends ConsumerWidget {
         }
       },
     );
+    ref.listen(triggerAddHeatCycleProvider, (previous, next) async {
+      if (previous == false && next == true && dogs != null) {
+        ref.read(triggerAddHeatCycleProvider.notifier).setValue(false);
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) => NewHeatCycleAlertDialog());
+      }
+    });
     if (dogs == null) {
       return CircularProgressIndicator.adaptive();
     } else {
@@ -56,6 +67,7 @@ class HealthMain extends ConsumerWidget {
           ),
           ...healthEvents.map((e) => Text(e.title)),
           ...vaccinations.map((e) => Text(e.title)),
+          ...heatCycles.map((e) => Text(e.notes)),
         ],
       );
     }

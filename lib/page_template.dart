@@ -36,7 +36,7 @@ class TemplateScreen extends ConsumerWidget {
             child: FaIcon(FontAwesomeIcons.fire),
             label: 'Add heat',
             onTap: () {
-              // Handle analytics
+              ref.read(triggerAddHeatCycleProvider.notifier).setValue(true);
             },
           ),
         ],

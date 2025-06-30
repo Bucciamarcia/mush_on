@@ -50,6 +50,12 @@ class HealthEventRepository {
   }
 }
 
+@riverpod
+VaccinationRepository vaccinationRepository(Ref ref) {
+  final account = ref.watch(accountProvider);
+  return VaccinationRepository(account);
+}
+
 class VaccinationRepository {
   final AsyncValue<String> _account;
   var db = FirebaseFirestore.instance;
@@ -82,7 +88,38 @@ class VaccinationRepository {
 }
 
 @riverpod
-VaccinationRepository vaccinationRepository(Ref ref) {
+HeatCycleRepository heatCycleRepository(Ref ref) {
   final account = ref.watch(accountProvider);
-  return VaccinationRepository(account);
+  return HeatCycleRepository(account);
+}
+
+class HeatCycleRepository {
+  final AsyncValue<String> _account;
+  var db = FirebaseFirestore.instance;
+  static final logger = BasicLogger();
+  HeatCycleRepository(this._account);
+
+  Future<void> addHeatCycle(HeatCycle heatCycle) async {
+    // Access the account value safely
+    final accountValue = _account.valueOrNull;
+
+    // A robust check to ensure the account is available before proceeding
+    if (accountValue == null) {
+      logger.error('Could not add heat cycle: User account is not available.');
+      throw Exception(
+          "Could not add heat cycle: User account is not available.");
+    }
+
+    logger.debug('Adding heat cycle for account: $accountValue');
+    var payload = heatCycle.toJson();
+    String path = "accounts/$accountValue/data/kennel/heatCycles";
+    var collection = db.collection(path);
+    try {
+      collection.doc(heatCycle.id).set(payload);
+    } catch (e, s) {
+      logger.error("Couldn't set the new document heat cycle",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }
