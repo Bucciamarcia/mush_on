@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/custom_converters.dart';
 part 'models.g.dart';
 part 'models.freezed.dart';
@@ -53,6 +54,25 @@ extension HealthEventExtension on HealthEvent {
   Duration? get duration => resolvedDate?.difference(date);
 }
 
+extension HealthEventsExtension on List<HealthEvent> {
+  List<HealthEvent> get active => where((e) => e.resolvedDate == null).toList();
+
+  List<HealthEvent> getRecentlySolved({required int days}) {
+    return where((e) {
+      if (e.resolvedDate == null) return false;
+      if (e.isResolved &&
+          e.resolvedDate!.isAfter(
+            DateTimeUtils.today().subtract(
+              Duration(days: days),
+            ),
+          )) {
+        return true;
+      }
+      return false;
+    }).toList();
+  }
+}
+
 @freezed
 abstract class Vaccination with _$Vaccination {
   const factory Vaccination({
@@ -91,6 +111,29 @@ abstract class Vaccination with _$Vaccination {
       _$VaccinationFromJson(json);
 }
 
+extension VaccinationsExtension on List<Vaccination> {
+  List<Vaccination> expiringSoon({required int days}) {
+    return where((v) {
+      if (v.expirationDate == null) return false;
+      if (v.expirationDate!.isAfter(DateTimeUtils.today()) &&
+          v.expirationDate!
+              .isBefore(DateTimeUtils.today().add(Duration(days: days)))) {
+        return true;
+      } else {
+        return false;
+      }
+    }).toList();
+  }
+
+  List<Vaccination> get overdue {
+    return where((v) {
+      if (v.expirationDate == null) return false;
+      if (v.expirationDate!.isBefore(DateTimeUtils.today())) return true;
+      return false;
+    }).toList();
+  }
+}
+
 @freezed
 abstract class HeatCycle with _$HeatCycle {
   const factory HeatCycle({
@@ -120,6 +163,10 @@ abstract class HeatCycle with _$HeatCycle {
   }) = _HeatCycle;
   factory HeatCycle.fromJson(Map<String, dynamic> json) =>
       _$HeatCycleFromJson(json);
+}
+
+extension HeatCyclesExtension on List<HeatCycle> {
+  List<HeatCycle> get active => where((c) => c.endDate == null).toList();
 }
 
 @JsonEnum()
