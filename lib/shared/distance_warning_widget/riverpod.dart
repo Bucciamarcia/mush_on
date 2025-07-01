@@ -27,6 +27,8 @@ abstract class DogDistanceWarning with _$DogDistanceWarning {
 }
 
 @riverpod
+
+/// A list of distance warnings for dogs that ran too much.
 Stream<List<DogDistanceWarning>> distanceWarnings(Ref ref) async* {
   // Watch the providers to get automatic updates
   final dogsAsync = await ref.watch(dogsProvider.future);
