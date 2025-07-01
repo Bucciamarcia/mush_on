@@ -5,6 +5,8 @@ import 'package:mush_on/health/models.dart';
 import 'package:mush_on/health/new_health_event_alert_dialog.dart';
 import 'package:mush_on/health/new_heat_cycle_alert_dialog.dart';
 import 'package:mush_on/health/provider.dart';
+import 'package:mush_on/home_page/provider.dart';
+import 'package:mush_on/home_page/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
@@ -29,7 +31,7 @@ class HealthMain extends ConsumerWidget {
     List<HeatCycle> heatCycles =
         ref.watch(heatCyclesProvider(null)).valueOrNull ?? [];
     final AsyncValue<DogsWithWarnings> warningDogsAsync =
-        ref.watch(warningDogsProvider);
+        ref.watch(dogsWithWarningsProvider);
 
     // Dialog listeners
     ref.listen(
@@ -103,7 +105,11 @@ class HealthMain extends ConsumerWidget {
                     );
                   },
                   loading: () => LinearProgressIndicator(),
-                  error: (e, s) => Text("Error loading status"),
+                  error: (e, s) {
+                    logger.error("Couldn't load status",
+                        error: e, stackTrace: s);
+                    return Text("Error loading status");
+                  },
                 ),
                 SizedBox(height: 8),
                 Wrap(
