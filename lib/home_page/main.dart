@@ -24,6 +24,8 @@ class HomePageScreenContent extends ConsumerWidget {
         DogsWithWarnings dogsWithWarnings = riverpod.dogsWithWarnings;
         TasksInMemory tasks = riverpod.tasks;
         int canRun = dogs.length - dogsWithWarnings.fatal.length;
+        List<Dog> dogsWithOnlyWarnings =
+            _getDogsWithOnlyWarnings(dogsWithWarnings);
         return ListView(
           children: [
             Card(
@@ -54,10 +56,10 @@ class HomePageScreenContent extends ConsumerWidget {
                         dataSource: <ReadyDogData>[
                           ReadyDogData(
                               "OK",
-                              canRun - dogsWithWarnings.warning.length,
+                              canRun - dogsWithOnlyWarnings.length,
                               Colors.green),
-                          ReadyDogData("Warning",
-                              dogsWithWarnings.warning.length, Colors.orange),
+                          ReadyDogData("Warning", dogsWithOnlyWarnings.length,
+                              Colors.orange),
                           ReadyDogData(
                               "Unavailable", dogs.length - canRun, Colors.red),
                         ],
@@ -87,8 +89,8 @@ class HomePageScreenContent extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Chip(
-                            label: Text(
-                                "${dogsWithWarnings.warning.length} at limit"),
+                            label:
+                                Text("${dogsWithOnlyWarnings.length} at limit"),
                             backgroundColor: Colors.orange[100]),
                         Chip(
                             label: Text("2 injured"),
@@ -131,6 +133,18 @@ class HomePageScreenContent extends ConsumerWidget {
     } else {
       return Colors.green;
     }
+  }
+
+  List<Dog> _getDogsWithOnlyWarnings(DogsWithWarnings dogsWithWarnings) {
+    List<Dog> fatal = dogsWithWarnings.fatal;
+    List<Dog> warning = dogsWithWarnings.warning;
+    List<Dog> toReturn = [];
+    for (final dog in warning) {
+      if (!fatal.contains(dog)) {
+        toReturn.add(dog);
+      }
+    }
+    return toReturn;
   }
 }
 
