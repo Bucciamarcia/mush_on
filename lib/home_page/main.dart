@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/health/models.dart';
 import 'package:mush_on/home_page/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -84,19 +85,17 @@ class HomePageScreenContent extends ConsumerWidget {
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
                       spacing: 8,
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Chip(
-                            label:
-                                Text("${dogsWithOnlyWarnings.length} at limit"),
-                            backgroundColor: Colors.orange[100]),
-                        Chip(
-                            label: Text("2 injured"),
+                            label: Text(
+                                "${riverpod.healthEvents.active.length} active health events"),
                             backgroundColor: Colors.red[100]),
                         Chip(
-                            label: Text("1 in heat"),
+                            label: Text(
+                                "${riverpod.heatCycles.active.length} in heat"),
                             backgroundColor: Colors.purple[100]),
                       ],
                     ),

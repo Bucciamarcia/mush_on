@@ -55,7 +55,9 @@ extension HealthEventExtension on HealthEvent {
 }
 
 extension HealthEventsExtension on List<HealthEvent> {
-  List<HealthEvent> get active => where((e) => e.resolvedDate == null).toList();
+  List<HealthEvent> get active => where((e) =>
+      e.resolvedDate == null ||
+      e.resolvedDate!.isAfter(DateTimeUtils.today())).toList();
 
   List<HealthEvent> getRecentlySolved({required int days}) {
     return where((e) {
@@ -166,7 +168,9 @@ abstract class HeatCycle with _$HeatCycle {
 }
 
 extension HeatCyclesExtension on List<HeatCycle> {
-  List<HeatCycle> get active => where((c) => c.endDate == null).toList();
+  List<HeatCycle> get active => where(
+          (c) => c.endDate == null || c.endDate!.isAfter(DateTimeUtils.today()))
+      .toList();
 }
 
 @JsonEnum()
