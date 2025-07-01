@@ -207,7 +207,7 @@ final tasksNoExpirationProvider = StreamProvider<List<Task>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef TasksNoExpirationRef = StreamProviderRef<List<Task>>;
-String _$tasksHash() => r'ed60d46177153fc55d37053a648e52aa5ee6e05f';
+String _$tasksHash() => r'520468235b613eed5560f2cd8a56adcfbeb25e94';
 
 /// See also [tasks].
 @ProviderFor(tasks)
@@ -352,5 +352,22 @@ final dogsProvider = StreamProvider<List<Dog>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DogsRef = StreamProviderRef<List<Dog>>;
+String _$warningDogsHash() => r'd37f2f82e9407dc8483341921e4e0de55201cec3';
+
+/// See also [warningDogs].
+@ProviderFor(warningDogs)
+final warningDogsProvider =
+    AutoDisposeStreamProvider<DogsWithWarnings>.internal(
+  warningDogs,
+  name: r'warningDogsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$warningDogsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef WarningDogsRef = AutoDisposeStreamProviderRef<DogsWithWarnings>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

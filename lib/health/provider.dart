@@ -13,7 +13,7 @@ part 'provider.g.dart';
 Stream<List<HealthEvent>> healthEvents(Ref ref, int? cutOff) async* {
   var db = FirebaseFirestore.instance;
   String account = await ref.watch(accountProvider.future);
-  var cutoffDays = DateTimeUtils.today().subtract(Duration(days: cutOff ?? 30));
+  var cutoffDays = DateTimeUtils.today().subtract(Duration(days: cutOff ?? 90));
   String path = "accounts/$account/data/kennel/healthEvents";
   var collection = db.collection(path);
   var query = collection.where("createdAt", isGreaterThanOrEqualTo: cutoffDays);

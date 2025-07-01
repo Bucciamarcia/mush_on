@@ -9,7 +9,7 @@ part 'custom_field.g.dart';
 /// Must be assigned to a template ID.
 ///
 /// Eg. "Favorite toy -> Stuffed fox"
-sealed class CustomField with _$CustomField {
+abstract class CustomField with _$CustomField {
   @JsonSerializable(explicitToJson: true)
   const factory CustomField({
     /// The ID of the template this custom field is assigned to.

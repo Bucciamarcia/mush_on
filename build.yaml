@@ -1,0 +1,5 @@
+targets:
+  $default:
+    sources:
+      - "lib/**"
+      - "!lib/**/[0-9]*"
