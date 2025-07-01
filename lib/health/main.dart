@@ -8,6 +8,7 @@ import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
 import 'package:mush_on/shared/text_title.dart';
 
@@ -19,6 +20,7 @@ class HealthMain extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     List<Dog>? dogs = ref.watch(dogsProvider).valueOrNull;
     List<HealthEvent> healthEvents =
         ref.watch(healthEventsProvider(null)).valueOrNull ?? [];
@@ -28,6 +30,8 @@ class HealthMain extends ConsumerWidget {
         ref.watch(heatCyclesProvider(null)).valueOrNull ?? [];
     final AsyncValue<DogsWithWarnings> warningDogsAsync =
         ref.watch(warningDogsProvider);
+
+    // Dialog listeners
     ref.listen(
       triggerAddhealthEventProvider,
       (previous, next) async {
@@ -58,106 +62,383 @@ class HealthMain extends ConsumerWidget {
             builder: (BuildContext context) => NewHeatCycleAlertDialog());
       }
     });
+
     if (dogs == null) {
-      return CircularProgressIndicator.adaptive();
-    } else {
-      final distanceWarningsAsync = ref.watch(distanceWarningsProvider);
-      return ListView(
-        children: [
-          Card(
+      return Center(child: CircularProgressIndicator.adaptive());
+    }
+
+    final distanceWarningsAsync = ref.watch(distanceWarningsProvider);
+
+    return ListView(
+      padding: EdgeInsets.all(8),
+      children: [
+        // Summary Card
+        Card(
+          child: Padding(
+            padding: EdgeInsets.all(16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextTitle("Right now"),
-                ),
+                TextTitle("Health Status"),
+                SizedBox(height: 12),
                 warningDogsAsync.when(
-                    data: (dogsWithWarnings) => Text(
-                        "Dogs that can run: ${dogs.length - dogsWithWarnings.fatal.length}/${dogs.length}"),
-                    loading: () => const Center(
-                        child: CircularProgressIndicator.adaptive()),
-                    error: (e, s) {
-                      logger.error("Couldn't load dogs",
-                          error: e, stackTrace: s);
-                      return Text("Couldn't fetch dogs that can run");
-                    }),
-                Text("Active health events: ${healthEvents.active.length}"),
-                Text("Dogs in heat: ${heatCycles.active.length}"),
-                Text(
-                    "Vaccinations expiring in next 30 days: ${vaccinations.expiringSoon(days: 30).length}"),
+                  data: (dogsWithWarnings) {
+                    final canRun = dogs.length - dogsWithWarnings.fatal.length;
+                    final cantRun = dogsWithWarnings.fatal.length;
+                    return Row(
+                      children: [
+                        _StatusChip(
+                          icon: Icons.check_circle,
+                          label: "$canRun can run",
+                          color: Colors.green,
+                        ),
+                        SizedBox(width: 8),
+                        if (cantRun > 0)
+                          _StatusChip(
+                            icon: Icons.cancel,
+                            label: "$cantRun can't run",
+                            color: colorScheme.error,
+                          ),
+                      ],
+                    );
+                  },
+                  loading: () => LinearProgressIndicator(),
+                  error: (e, s) => Text("Error loading status"),
+                ),
+                SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (healthEvents.active.isNotEmpty)
+                      _StatusChip(
+                        icon: Icons.warning,
+                        label: "${healthEvents.active.length} active events",
+                        color: Colors.orange,
+                      ),
+                    if (heatCycles.active.isNotEmpty)
+                      _StatusChip(
+                        icon: Icons.favorite,
+                        label: "${heatCycles.active.length} in heat",
+                        color: Colors.pink,
+                      ),
+                    if (vaccinations.expiringSoon(days: 30).isNotEmpty)
+                      _StatusChip(
+                        icon: Icons.schedule,
+                        label:
+                            "${vaccinations.expiringSoon(days: 30).length} vaccines expiring",
+                        color: Colors.amber,
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
-          healthEvents.active.isNotEmpty
-              ? Card(
-                  child: Column(
+        ),
+
+        // All healthy message
+        if (healthEvents.active.isEmpty &&
+            heatCycles.active.isEmpty &&
+            vaccinations.overdue.isEmpty)
+          Card(
+            color: colorScheme.primaryContainer,
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Icon(Icons.celebration, color: colorScheme.primary),
+                  SizedBox(width: 12),
+                  Text(
+                    "All dogs are healthy! 🎉",
+                    style: TextStyle(
+                      color: colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+        // Overdue vaccinations (HIGH PRIORITY)
+        if (vaccinations.overdue.isNotEmpty)
+          Card(
+            color: colorScheme.errorContainer,
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      TextTitle("Active health events"),
-                      ...healthEvents.active.map((e) => Text(
-                          "${dogs.getDogFromId(e.dogId)?.name ?? "Unknown"}: ${e.title} - ${e.eventType}"))
+                      Icon(Icons.error, color: colorScheme.error),
+                      SizedBox(width: 8),
+                      TextTitle("⚠️ Overdue Vaccinations"),
                     ],
                   ),
-                )
-              : SizedBox.shrink(),
-          heatCycles.active.isNotEmpty
-              ? Card(
-                  child: Column(
+                  SizedBox(height: 8),
+                  ...vaccinations.overdue.map((v) => Padding(
+                        padding: EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Icon(Icons.pets, size: 16),
+                            SizedBox(width: 8),
+                            Text(
+                              dogs.getDogFromId(v.dogId)?.name ?? "Unknown",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            Text(" - ${v.title}"),
+                            Spacer(),
+                            Text(
+                              "Expired ${DateFormat("MMM d").format(v.expirationDate!)}",
+                              style: TextStyle(color: colorScheme.error),
+                            ),
+                          ],
+                        ),
+                      )),
+                ],
+              ),
+            ),
+          ),
+
+        // Active health events
+        if (healthEvents.active.isNotEmpty)
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextTitle("Active Health Events"),
+                  SizedBox(height: 8),
+                  ...healthEvents.active.map((e) => ListTile(
+                        dense: true,
+                        leading: CircleAvatar(
+                          backgroundColor: e.preventFromRunning
+                              ? colorScheme.errorContainer
+                              : colorScheme.secondaryContainer,
+                          child: Icon(
+                            _getEventIcon(e.eventType),
+                            size: 20,
+                            color: e.preventFromRunning
+                                ? colorScheme.error
+                                : colorScheme.secondary,
+                          ),
+                        ),
+                        title:
+                            Text(dogs.getDogFromId(e.dogId)?.name ?? "Unknown"),
+                        subtitle: Text(
+                            "${e.title} • ${_formatEventType(e.eventType)}"),
+                        trailing: e.preventFromRunning
+                            ? Chip(
+                                label: Text("Can't run",
+                                    style: TextStyle(fontSize: 12)),
+                                backgroundColor: colorScheme.errorContainer,
+                              )
+                            : null,
+                      )),
+                ],
+              ),
+            ),
+          ),
+
+        // Dogs in heat
+        if (heatCycles.active.isNotEmpty)
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextTitle("Dogs in Heat"),
+                  SizedBox(height: 8),
+                  ...heatCycles.active.map((h) => ListTile(
+                        dense: true,
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.pink,
+                          child: Icon(Icons.favorite,
+                              size: 20, color: Colors.pink),
+                        ),
+                        title:
+                            Text(dogs.getDogFromId(h.dogId)?.name ?? "Unknown"),
+                        subtitle: Text(
+                            "Started ${DateFormat("MMM d").format(h.startDate)}"),
+                        trailing: h.preventFromRunning
+                            ? Chip(
+                                label: Text("Can't run",
+                                    style: TextStyle(fontSize: 12)),
+                                backgroundColor: colorScheme.errorContainer,
+                              )
+                            : null,
+                      )),
+                ],
+              ),
+            ),
+          ),
+
+        // Upcoming vaccinations
+        if (vaccinations.expiringSoon(days: 30).isNotEmpty)
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextTitle("Vaccinations Expiring Soon"),
+                  SizedBox(height: 8),
+                  ...vaccinations.expiringSoon(days: 30).map((v) => ListTile(
+                        dense: true,
+                        leading: Icon(Icons.vaccines, color: Colors.amber),
+                        title:
+                            Text(dogs.getDogFromId(v.dogId)?.name ?? "Unknown"),
+                        subtitle: Text(v.title),
+                        trailing: Text(
+                          DateFormat("MMM d").format(v.expirationDate!),
+                          style: TextStyle(color: Colors.amber[700]),
+                        ),
+                      )),
+                ],
+              ),
+            ),
+          ),
+
+        // Recent events
+        if (healthEvents.getRecentlySolved(days: 7).isNotEmpty)
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextTitle("Recently Resolved"),
+                  SizedBox(height: 8),
+                  ...healthEvents.getRecentlySolved(days: 7).map((e) =>
+                      ListTile(
+                        dense: true,
+                        leading: Icon(Icons.check_circle, color: Colors.green),
+                        title:
+                            Text(dogs.getDogFromId(e.dogId)?.name ?? "Unknown"),
+                        subtitle: Text(
+                            "${e.title} • Resolved ${DateFormat("MMM d").format(e.resolvedDate!)}"),
+                      )),
+                ],
+              ),
+            ),
+          ),
+
+        // Distance warnings
+        distanceWarningsAsync.when(
+          data: (warnings) {
+            if (warnings.isEmpty) return SizedBox.shrink();
+            return Card(
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextTitle("Dogs in heat"),
-                    ...heatCycles.active.map((e) => Text(
-                        "${dogs.getDogFromId(e.dogId)?.name ?? "Unknown"}"))
+                    TextTitle("Distance Warnings"),
+                    SizedBox(height: 8),
+                    ...warnings.map((w) => ListTile(
+                          dense: true,
+                          leading: CircleAvatar(
+                            backgroundColor:
+                                w.distanceWarning.distanceWarningType ==
+                                        DistanceWarningType.hard
+                                    ? colorScheme.errorContainer
+                                    : Colors.orange[100],
+                            child: Icon(
+                              Icons.speed,
+                              size: 20,
+                              color: w.distanceWarning.distanceWarningType ==
+                                      DistanceWarningType.hard
+                                  ? colorScheme.error
+                                  : Colors.orange,
+                            ),
+                          ),
+                          title: Text(w.dog.name),
+                          subtitle: Text(
+                            "${w.distanceRan.toStringAsFixed(1)}km / ${w.distanceWarning.distance}km in ${w.distanceWarning.daysInterval} days",
+                          ),
+                          trailing: Icon(
+                            w.distanceWarning.distanceWarningType ==
+                                    DistanceWarningType.hard
+                                ? Icons.error
+                                : Icons.warning,
+                            color: w.distanceWarning.distanceWarningType ==
+                                    DistanceWarningType.hard
+                                ? colorScheme.error
+                                : Colors.orange,
+                          ),
+                        )),
                   ],
-                ))
-              : SizedBox.shrink(),
-          vaccinations.overdue.isNotEmpty
-              ? Card(
-                  child: Column(
-                  children: [
-                    TextTitle("Vaccinations overdue"),
-                    ...vaccinations.overdue.map((e) => Text(
-                        "${dogs.getDogFromId(e.dogId)?.name ?? "Unknown"}: ${DateFormat("yyyy-MM-dd").format(e.expirationDate!)}"))
-                  ],
-                ))
-              : SizedBox.shrink(),
-          vaccinations.expiringSoon(days: 30).isNotEmpty
-              ? Card(
-                  child: Column(
-                  children: [
-                    TextTitle("Vaccinations expiring soon"),
-                    ...vaccinations.expiringSoon(days: 30).map((e) => Text(
-                        "${dogs.getDogFromId(e.dogId)?.name ?? "Unknown"}: ${DateFormat("yyyy-MM-dd").format(e.expirationDate!)}"))
-                  ],
-                ))
-              : SizedBox.shrink(),
-          healthEvents.getRecentlySolved(days: 7).isNotEmpty
-              ? Card(
-                  child: Column(
-                    children: [
-                      TextTitle("Recently solved events"),
-                      ...healthEvents.getRecentlySolved(days: 7).map((e) => Text(
-                          "${dogs.getDogFromId(e.dogId)?.name ?? "Unknown"}: ${e.title} - ${e.eventType}"))
-                    ],
-                  ),
-                )
-              : SizedBox.shrink(),
-          distanceWarningsAsync.when(
-            data: (distanceWarnings) {
-              return Column(
-                children: distanceWarnings
-                    .map((w) => Text(
-                        "${w.distanceWarning.distanceWarningType} - ${w.dog.name}: ${w.distanceRan}/${w.distanceWarning.distance} in ${w.distanceWarning.daysInterval}"))
-                    .toList(),
-              );
-            },
-            error: (e, s) {
-              logger.error("Couldn't get distanceWarningsAsync provider",
-                  error: e, stackTrace: s);
-              return Text("Error: couln't get warnings: $e");
-            },
-            loading: () => Center(child: CircularProgressIndicator.adaptive()),
+                ),
+              ),
+            );
+          },
+          error: (e, s) => SizedBox.shrink(),
+          loading: () => LinearProgressIndicator(),
+        ),
+
+        SizedBox(height: 80), // Space for FAB
+      ],
+    );
+  }
+
+  IconData _getEventIcon(HealthEventType type) {
+    switch (type) {
+      case HealthEventType.injury:
+        return Icons.personal_injury;
+      case HealthEventType.illness:
+        return Icons.sick;
+      case HealthEventType.vetVisit:
+        return Icons.local_hospital;
+      case HealthEventType.procedure:
+        return Icons.medical_services;
+      case HealthEventType.observation:
+        return Icons.visibility;
+      case HealthEventType.other:
+        return Icons.more_horiz;
+    }
+  }
+
+  String _formatEventType(HealthEventType type) {
+    return type.name.substring(0, 1).toUpperCase() + type.name.substring(1);
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _StatusChip({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
-      );
-    }
+      ),
+    );
   }
 }
