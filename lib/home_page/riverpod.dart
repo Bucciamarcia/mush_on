@@ -21,6 +21,8 @@ abstract class HomePageRiverpodResults with _$HomePageRiverpodResults {
     required DogsWithWarnings dogsWithWarnings,
     required List<Dog> dogs,
     required TasksInMemory tasks,
+    required List<HeatCycle> heatCycles,
+    required List<HealthEvent> healthEvents,
   }) = _HomePageRiverpodResults;
 }
 
@@ -31,8 +33,14 @@ Stream<HomePageRiverpodResults> homePageRiverpod(Ref ref) async* {
   var dww = await ref.watch(dogsWithWarningsProvider.future);
   var dogs = await ref.watch(dogsProvider.future);
   var tasks = await ref.watch(tasksProvider(null).future);
+  var healthEvents = await ref.watch(healthEventsProvider(null).future);
+  var heatCycles = await ref.watch(heatCyclesProvider(null).future);
   yield HomePageRiverpodResults(
-      dogsWithWarnings: dww, dogs: dogs, tasks: tasks);
+      dogsWithWarnings: dww,
+      dogs: dogs,
+      tasks: tasks,
+      heatCycles: heatCycles,
+      healthEvents: healthEvents);
 }
 
 @riverpod

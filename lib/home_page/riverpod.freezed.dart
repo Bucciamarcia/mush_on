@@ -18,6 +18,8 @@ mixin _$HomePageRiverpodResults {
   DogsWithWarnings get dogsWithWarnings;
   List<Dog> get dogs;
   TasksInMemory get tasks;
+  List<HeatCycle> get heatCycles;
+  List<HealthEvent> get healthEvents;
 
   /// Create a copy of HomePageRiverpodResults
   /// with the given fields replaced by the non-null parameter values.
@@ -35,16 +37,25 @@ mixin _$HomePageRiverpodResults {
             (identical(other.dogsWithWarnings, dogsWithWarnings) ||
                 other.dogsWithWarnings == dogsWithWarnings) &&
             const DeepCollectionEquality().equals(other.dogs, dogs) &&
-            (identical(other.tasks, tasks) || other.tasks == tasks));
+            (identical(other.tasks, tasks) || other.tasks == tasks) &&
+            const DeepCollectionEquality()
+                .equals(other.heatCycles, heatCycles) &&
+            const DeepCollectionEquality()
+                .equals(other.healthEvents, healthEvents));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, dogsWithWarnings,
-      const DeepCollectionEquality().hash(dogs), tasks);
+  int get hashCode => Object.hash(
+      runtimeType,
+      dogsWithWarnings,
+      const DeepCollectionEquality().hash(dogs),
+      tasks,
+      const DeepCollectionEquality().hash(heatCycles),
+      const DeepCollectionEquality().hash(healthEvents));
 
   @override
   String toString() {
-    return 'HomePageRiverpodResults(dogsWithWarnings: $dogsWithWarnings, dogs: $dogs, tasks: $tasks)';
+    return 'HomePageRiverpodResults(dogsWithWarnings: $dogsWithWarnings, dogs: $dogs, tasks: $tasks, heatCycles: $heatCycles, healthEvents: $healthEvents)';
   }
 }
 
@@ -55,7 +66,11 @@ abstract mixin class $HomePageRiverpodResultsCopyWith<$Res> {
       _$HomePageRiverpodResultsCopyWithImpl;
   @useResult
   $Res call(
-      {DogsWithWarnings dogsWithWarnings, List<Dog> dogs, TasksInMemory tasks});
+      {DogsWithWarnings dogsWithWarnings,
+      List<Dog> dogs,
+      TasksInMemory tasks,
+      List<HeatCycle> heatCycles,
+      List<HealthEvent> healthEvents});
 
   $TasksInMemoryCopyWith<$Res> get tasks;
 }
@@ -76,6 +91,8 @@ class _$HomePageRiverpodResultsCopyWithImpl<$Res>
     Object? dogsWithWarnings = null,
     Object? dogs = null,
     Object? tasks = null,
+    Object? heatCycles = null,
+    Object? healthEvents = null,
   }) {
     return _then(_self.copyWith(
       dogsWithWarnings: null == dogsWithWarnings
@@ -90,6 +107,14 @@ class _$HomePageRiverpodResultsCopyWithImpl<$Res>
           ? _self.tasks
           : tasks // ignore: cast_nullable_to_non_nullable
               as TasksInMemory,
+      heatCycles: null == heatCycles
+          ? _self.heatCycles
+          : heatCycles // ignore: cast_nullable_to_non_nullable
+              as List<HeatCycle>,
+      healthEvents: null == healthEvents
+          ? _self.healthEvents
+          : healthEvents // ignore: cast_nullable_to_non_nullable
+              as List<HealthEvent>,
     ));
   }
 
@@ -110,8 +135,12 @@ class _HomePageRiverpodResults implements HomePageRiverpodResults {
   const _HomePageRiverpodResults(
       {required this.dogsWithWarnings,
       required final List<Dog> dogs,
-      required this.tasks})
-      : _dogs = dogs;
+      required this.tasks,
+      required final List<HeatCycle> heatCycles,
+      required final List<HealthEvent> healthEvents})
+      : _dogs = dogs,
+        _heatCycles = heatCycles,
+        _healthEvents = healthEvents;
 
   @override
   final DogsWithWarnings dogsWithWarnings;
@@ -125,6 +154,21 @@ class _HomePageRiverpodResults implements HomePageRiverpodResults {
 
   @override
   final TasksInMemory tasks;
+  final List<HeatCycle> _heatCycles;
+  @override
+  List<HeatCycle> get heatCycles {
+    if (_heatCycles is EqualUnmodifiableListView) return _heatCycles;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_heatCycles);
+  }
+
+  final List<HealthEvent> _healthEvents;
+  @override
+  List<HealthEvent> get healthEvents {
+    if (_healthEvents is EqualUnmodifiableListView) return _healthEvents;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_healthEvents);
+  }
 
   /// Create a copy of HomePageRiverpodResults
   /// with the given fields replaced by the non-null parameter values.
@@ -143,16 +187,25 @@ class _HomePageRiverpodResults implements HomePageRiverpodResults {
             (identical(other.dogsWithWarnings, dogsWithWarnings) ||
                 other.dogsWithWarnings == dogsWithWarnings) &&
             const DeepCollectionEquality().equals(other._dogs, _dogs) &&
-            (identical(other.tasks, tasks) || other.tasks == tasks));
+            (identical(other.tasks, tasks) || other.tasks == tasks) &&
+            const DeepCollectionEquality()
+                .equals(other._heatCycles, _heatCycles) &&
+            const DeepCollectionEquality()
+                .equals(other._healthEvents, _healthEvents));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, dogsWithWarnings,
-      const DeepCollectionEquality().hash(_dogs), tasks);
+  int get hashCode => Object.hash(
+      runtimeType,
+      dogsWithWarnings,
+      const DeepCollectionEquality().hash(_dogs),
+      tasks,
+      const DeepCollectionEquality().hash(_heatCycles),
+      const DeepCollectionEquality().hash(_healthEvents));
 
   @override
   String toString() {
-    return 'HomePageRiverpodResults(dogsWithWarnings: $dogsWithWarnings, dogs: $dogs, tasks: $tasks)';
+    return 'HomePageRiverpodResults(dogsWithWarnings: $dogsWithWarnings, dogs: $dogs, tasks: $tasks, heatCycles: $heatCycles, healthEvents: $healthEvents)';
   }
 }
 
@@ -165,7 +218,11 @@ abstract mixin class _$HomePageRiverpodResultsCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {DogsWithWarnings dogsWithWarnings, List<Dog> dogs, TasksInMemory tasks});
+      {DogsWithWarnings dogsWithWarnings,
+      List<Dog> dogs,
+      TasksInMemory tasks,
+      List<HeatCycle> heatCycles,
+      List<HealthEvent> healthEvents});
 
   @override
   $TasksInMemoryCopyWith<$Res> get tasks;
@@ -187,6 +244,8 @@ class __$HomePageRiverpodResultsCopyWithImpl<$Res>
     Object? dogsWithWarnings = null,
     Object? dogs = null,
     Object? tasks = null,
+    Object? heatCycles = null,
+    Object? healthEvents = null,
   }) {
     return _then(_HomePageRiverpodResults(
       dogsWithWarnings: null == dogsWithWarnings
@@ -201,6 +260,14 @@ class __$HomePageRiverpodResultsCopyWithImpl<$Res>
           ? _self.tasks
           : tasks // ignore: cast_nullable_to_non_nullable
               as TasksInMemory,
+      heatCycles: null == heatCycles
+          ? _self._heatCycles
+          : heatCycles // ignore: cast_nullable_to_non_nullable
+              as List<HeatCycle>,
+      healthEvents: null == healthEvents
+          ? _self._healthEvents
+          : healthEvents // ignore: cast_nullable_to_non_nullable
+              as List<HealthEvent>,
     ));
   }
 
