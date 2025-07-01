@@ -70,6 +70,7 @@ A cool and open source CRM for sled dog kennels.
 
 ### 0.0.11
 
+- Added home page overview.
 - Tasks now update in real time.
 - Settings now update in real time.
 - Distance hard error now darker red.

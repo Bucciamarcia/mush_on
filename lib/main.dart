@@ -78,18 +78,6 @@ class MyApp extends rp.ConsumerWidget {
 
   @override
   Widget build(BuildContext context, rp.WidgetRef ref) {
-    final dogs = ref.watch(dogsProvider);
-    if (dogs.hasError) {
-      BasicLogger().error("Fatal error in the while loading the dogs db!",
-          error: dogs.error);
-      return MaterialApp(
-        home: Scaffold(
-            body: Center(
-          child:
-              TextTitle("There was a fatal error while loading the database!"),
-        )),
-      );
-    }
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => MainProvider()),
