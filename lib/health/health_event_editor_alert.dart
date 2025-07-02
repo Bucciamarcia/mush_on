@@ -11,16 +11,19 @@ import 'package:uuid/uuid.dart';
 import 'models.dart';
 import 'repository.dart';
 
-class NewHealthEventAlertDialog extends ConsumerStatefulWidget {
-  const NewHealthEventAlertDialog({super.key});
+class HealthEventEditorAlert extends ConsumerStatefulWidget {
+  final HealthEvent? event;
+  final List<Dog>? dogs;
+  const HealthEventEditorAlert({super.key, this.event, this.dogs});
 
   @override
-  ConsumerState<NewHealthEventAlertDialog> createState() =>
-      _NewHealthEventAlertDialogState();
+  ConsumerState<HealthEventEditorAlert> createState() =>
+      HealtheventEditorAlertState();
 }
 
-class _NewHealthEventAlertDialogState
-    extends ConsumerState<NewHealthEventAlertDialog> {
+class HealtheventEditorAlertState
+    extends ConsumerState<HealthEventEditorAlert> {
+  String? _id;
   Dog? _selectedDog;
   late TextEditingController _nameController;
   late TextEditingController _notesController;
@@ -35,14 +38,18 @@ class _NewHealthEventAlertDialogState
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _notesController = TextEditingController();
-    _selectedDogNameController = TextEditingController();
-    _eventStartDate = DateTimeUtils.today();
-    _isOneshot = false;
-    _preventsFromRunning = false;
+    _id = widget.event?.id;
+    _selectedDog = widget.dogs?.getDogFromId(widget.event?.dogId ?? "");
+    _nameController = TextEditingController(text: widget.event?.title);
+    _notesController = TextEditingController(text: widget.event?.notes);
+    _selectedDogNameController = TextEditingController(
+        text: widget.dogs?.getNameFromId(widget.event?.dogId ?? ""));
+    _eventStartDate = widget.event?.date ?? DateTimeUtils.today();
+    _isOneshot = widget.event?.isOneShot ?? false;
+    _eventFinishDate = widget.event?.resolvedDate;
+    _preventsFromRunning = widget.event?.preventFromRunning ?? false;
     _isSaving = false;
-    _healthEventType = HealthEventType.observation;
+    _healthEventType = widget.event?.eventType ?? HealthEventType.observation;
     _hetController = TextEditingController(text: _healthEventType.name);
   }
 
@@ -307,7 +314,7 @@ class _NewHealthEventAlertDialogState
                   var repository = ref.read(healthEventRepositoryProvider);
                   try {
                     await repository.addEvent(HealthEvent(
-                        id: Uuid().v4(),
+                        id: _id ?? Uuid().v4(),
                         dogId: _selectedDog!.id,
                         title: _nameController.text,
                         date: _eventStartDate,
@@ -315,7 +322,8 @@ class _NewHealthEventAlertDialogState
                         notes: _notesController.text,
                         resolvedDate:
                             _isOneshot ? _eventStartDate : _eventFinishDate,
-                        createdAt: DateTimeUtils.today(),
+                        createdAt:
+                            widget.event?.createdAt ?? DateTimeUtils.today(),
                         eventType: _healthEventType,
                         lastUpdated: DateTimeUtils.today()));
                     if (context.mounted) {

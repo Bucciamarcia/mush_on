@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/health/health_event_editor_alert.dart';
+import 'package:mush_on/health/heat_cycle_editor_alert.dart';
 import 'package:mush_on/health/models.dart';
-import 'package:mush_on/health/new_health_event_alert_dialog.dart';
-import 'package:mush_on/health/new_heat_cycle_alert_dialog.dart';
 import 'package:mush_on/health/provider.dart';
+import 'package:mush_on/health/vaccination_editor_alert.dart';
 import 'package:mush_on/home_page/provider.dart';
 import 'package:mush_on/home_page/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
 import 'package:mush_on/shared/text_title.dart';
-
-import 'new_vaccination_alert_dialog.dart';
 
 class HealthMain extends ConsumerWidget {
   static final logger = BasicLogger();
@@ -41,7 +41,7 @@ class HealthMain extends ConsumerWidget {
           ref.read(triggerAddhealthEventProvider.notifier).setValue(false);
           await showDialog(
               context: context,
-              builder: (BuildContext context) => NewHealthEventAlertDialog());
+              builder: (BuildContext context) => HealthEventEditorAlert());
         }
       },
     );
@@ -52,7 +52,7 @@ class HealthMain extends ConsumerWidget {
           ref.read(triggerAddVaccinationProvider.notifier).setValue(false);
           await showDialog(
               context: context,
-              builder: (BuildContext context) => NewVaccinationAlertDialog());
+              builder: (BuildContext context) => VaccinationEditorAlert());
         }
       },
     );
@@ -61,7 +61,7 @@ class HealthMain extends ConsumerWidget {
         ref.read(triggerAddHeatCycleProvider.notifier).setValue(false);
         await showDialog(
             context: context,
-            builder: (BuildContext context) => NewHeatCycleAlertDialog());
+            builder: (BuildContext context) => HeatCycleEditorAlert());
       }
     });
 
@@ -69,7 +69,8 @@ class HealthMain extends ConsumerWidget {
       return Center(child: CircularProgressIndicator.adaptive());
     }
 
-    final distanceWarningsAsync = ref.watch(distanceWarningsProvider);
+    final distanceWarningsAsync =
+        ref.watch(distanceWarningsProvider(latestDate: DateTimeUtils.today()));
 
     return ListView(
       padding: EdgeInsets.all(8),
@@ -218,6 +219,14 @@ class HealthMain extends ConsumerWidget {
                   TextTitle("Active Health Events"),
                   SizedBox(height: 8),
                   ...healthEvents.active.map((e) => ListTile(
+                        onTap: () => showDialog(
+                            context: context,
+                            builder: (context) {
+                              return HealthEventEditorAlert(
+                                event: e,
+                                dogs: dogs,
+                              );
+                            }),
                         dense: true,
                         leading: CircleAvatar(
                           backgroundColor: e.preventFromRunning
@@ -259,6 +268,11 @@ class HealthMain extends ConsumerWidget {
                   TextTitle("Dogs in Heat"),
                   SizedBox(height: 8),
                   ...heatCycles.active.map((h) => ListTile(
+                        onTap: () => showDialog(
+                            context: context,
+                            builder: (context) {
+                              return HeatCycleEditorAlert(event: h, dogs: dogs);
+                            }),
                         dense: true,
                         leading: CircleAvatar(
                           backgroundColor: Colors.pink,
@@ -293,6 +307,10 @@ class HealthMain extends ConsumerWidget {
                   TextTitle("Vaccinations Expiring Soon"),
                   SizedBox(height: 8),
                   ...vaccinations.expiringSoon(days: 30).map((v) => ListTile(
+                        onTap: () => showDialog(
+                            context: context,
+                            builder: (context) =>
+                                VaccinationEditorAlert(dogs: dogs, event: v)),
                         dense: true,
                         leading: Icon(Icons.vaccines, color: Colors.amber),
                         title:
@@ -320,6 +338,12 @@ class HealthMain extends ConsumerWidget {
                   SizedBox(height: 8),
                   ...healthEvents.getRecentlySolved(days: 7).map((e) =>
                       ListTile(
+                        onTap: () => showDialog(
+                            context: context,
+                            builder: (context) => HealthEventEditorAlert(
+                                  dogs: dogs,
+                                  event: e,
+                                )),
                         dense: true,
                         leading: Icon(Icons.check_circle, color: Colors.green),
                         title:

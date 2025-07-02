@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/shared/dog_filter/date_range_picker/main.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -33,8 +34,11 @@ class StatsMain extends StatelessWidget {
             title: Text("Filter date"),
             children: [
               DateRangePicker(
-                maxDate: DateTime.now().toUtc(),
-                minDate: calculateOldestTeamGroup(statsProvider.teams),
+                maxDate: DateTimeUtils.today(),
+                minDate: calculateOldestTeamGroup(statsProvider.teams)
+                        .isBefore(DateTimeUtils.today())
+                    ? calculateOldestTeamGroup(statsProvider.teams)
+                    : DateTimeUtils.today(),
                 onSelectionChanged: (r) => _onSelectionChanged(
                   r: r,
                   onNewEndDate: (date) => statsProvider.changeEndDate(date),

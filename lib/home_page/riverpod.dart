@@ -4,6 +4,7 @@ import 'package:mush_on/health/models.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/home_page/provider.dart';
 import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/models/tasks.dart';
@@ -48,7 +49,8 @@ Stream<HomePageRiverpodResults> homePageRiverpod(Ref ref) async* {
 /// Simply returns the dogs with warnigns and errors, no other info.
 Stream<DogsWithWarnings> dogsWithWarnings(Ref ref) async* {
   List<Dog> dogs = await ref.watch(dogsProvider.future);
-  var distanceWarnings = await ref.watch(distanceWarningsProvider.future);
+  var distanceWarnings = await ref.watch(
+      distanceWarningsProvider(latestDate: DateTimeUtils.today()).future);
   var dogsWithBlockingTags =
       await ref.watch(dogsWithBlockingTagsProvider.future);
   var healthEvents = await ref.watch(healthEventsProvider(null).future);

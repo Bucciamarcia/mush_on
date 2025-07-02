@@ -76,6 +76,8 @@ extension HealthEventsExtension on List<HealthEvent> {
 }
 
 @freezed
+
+/// Represent a single vaccination event.
 abstract class Vaccination with _$Vaccination {
   const factory Vaccination({
     /// The unique uuid of the vaccination
