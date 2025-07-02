@@ -11,18 +11,20 @@ import 'package:uuid/uuid.dart';
 
 import 'models.dart';
 
-class NewHeatCycleAlertDialog extends ConsumerStatefulWidget {
-  const NewHeatCycleAlertDialog({super.key});
+class HeatCycleEditorAlert extends ConsumerStatefulWidget {
+  final HeatCycle? event;
+  final List<Dog>? dogs;
+  const HeatCycleEditorAlert({super.key, this.event, this.dogs});
 
   @override
-  ConsumerState<NewHeatCycleAlertDialog> createState() =>
-      _NewHeatCycleAlertDialogState();
+  ConsumerState<HeatCycleEditorAlert> createState() =>
+      _HeatCycleEditorAlertState();
 }
 
-class _NewHeatCycleAlertDialogState
-    extends ConsumerState<NewHeatCycleAlertDialog> {
+class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
+  String? _id;
   late bool _isSaving;
-  late Dog? _selectedDog;
+  Dog? _selectedDog;
   late TextEditingController _notesController;
   late TextEditingController _selectedDogNameController;
   late DateTime _startDate;
@@ -33,13 +35,14 @@ class _NewHeatCycleAlertDialogState
   void initState() {
     super.initState();
     _isSaving = false;
-    _selectedDog = null;
-    _notesController = TextEditingController();
-    _selectedDogNameController = TextEditingController();
-    _startDate = DateTimeUtils.today();
-    _endDate = null;
-    _preventFromRunning =
-        true; // Default to true as dogs in heat typically shouldn't run
+    _id = widget.event?.id;
+    _selectedDog = widget.dogs?.getDogFromId(widget.event?.dogId ?? "");
+    _notesController = TextEditingController(text: widget.event?.notes);
+    _selectedDogNameController = TextEditingController(
+        text: widget.dogs?.getNameFromId(widget.event?.dogId ?? ""));
+    _startDate = widget.event?.startDate ?? DateTimeUtils.today();
+    _endDate = widget.event?.endDate;
+    _preventFromRunning = widget.event?.preventFromRunning ?? true;
   }
 
   @override
@@ -255,13 +258,14 @@ class _NewHeatCycleAlertDialogState
                   var repository = ref.read(heatCycleRepositoryProvider);
                   try {
                     await repository.addHeatCycle(HeatCycle(
-                      id: Uuid().v4(),
+                      id: _id ?? Uuid().v4(),
                       dogId: _selectedDog!.id,
                       startDate: _startDate,
                       endDate: _endDate,
                       preventFromRunning: _preventFromRunning,
                       notes: _notesController.text,
-                      createdAt: DateTimeUtils.today(),
+                      createdAt:
+                          widget.event?.createdAt ?? DateTimeUtils.today(),
                       lastUpdated: DateTimeUtils.today(),
                     ));
                     if (context.mounted) {

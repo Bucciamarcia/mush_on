@@ -95,16 +95,16 @@ class FirestoreService {
       // Continue anyway
     }
 
-    late final User user;
+    late final User? user;
     try {
-      user = AuthService().user!;
+      user = AuthService().user;
     } catch (e, s) {
       logger.error("Couldn't fetch user", error: e, stackTrace: s);
       rethrow;
     }
 
     try {
-      var ref = db.collection("users").doc(user.uid);
+      var ref = db.collection("users").doc(user?.uid ?? "");
       var data = {"last_login": DateTime.now().toUtc()};
 
       // Use a timeout to avoid hanging when offline
@@ -136,14 +136,14 @@ class FirestoreService {
   /// If it doesn't, return null.
   Future<String> getUserAccount() async {
     try {
-      late final User user;
+      late final User? user;
       try {
-        user = AuthService().user!;
+        user = AuthService().user;
       } catch (e, s) {
         logger.error("Couldn't fetch user", error: e, stackTrace: s);
         rethrow;
       }
-      var ref = db.doc("users/${user.uid}");
+      var ref = db.doc("users/${user?.uid ?? ""}");
       var snapshot = await ref.get();
 
       // Check if document exists first
@@ -159,7 +159,7 @@ class FirestoreService {
       }
 
       UserName userName = UserName.fromJson(data);
-      return userName.account!;
+      return userName.account ?? "";
     } catch (e, s) {
       logger.error("Couldn't get user account", error: e, stackTrace: s);
       rethrow;

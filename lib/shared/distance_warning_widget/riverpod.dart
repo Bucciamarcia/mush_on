@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
@@ -29,17 +30,20 @@ abstract class DogDistanceWarning with _$DogDistanceWarning {
 @riverpod
 
 /// A list of distance warnings for dogs that ran too much.
-Stream<List<DogDistanceWarning>> distanceWarnings(Ref ref) async* {
+Stream<List<DogDistanceWarning>> distanceWarnings(Ref ref,
+    {DateTime? latestDate}) async* {
   // Watch the providers to get automatic updates
   final dogsAsync = await ref.watch(dogsProvider.future);
   final settingsAsync = await ref.watch(settingsProvider.future);
+  final finalDate = latestDate ?? DateTimeUtils.today();
 
   // Calculate earliest date needed
   final earliestDate = _calculateEarliestDate(dogsAsync, settingsAsync);
 
   // Get the teams stream
-  final teamGroups = await ref.watch(teamGroupsProvider(earliestDate).future);
-
+  final teamGroups = await ref.watch(
+      teamGroupsProvider(earliestDate: earliestDate, finalDate: finalDate)
+          .future);
   // Listen to the teams stream and process warnings for each update
   yield _processWarnings(teamGroups.toSet(), dogsAsync, settingsAsync);
 }

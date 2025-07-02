@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/firestore.dart';
@@ -11,8 +12,24 @@ import 'package:rxdart/rxdart.dart';
 part 'riverpod.g.dart';
 
 @Riverpod(keepAlive: true)
+Stream<User?> authStateChanges(Ref ref) {
+  return FirebaseAuth.instance.authStateChanges();
+}
+
+@Riverpod(keepAlive: true)
 Future<String> account(Ref ref) async {
-  String account = await FirestoreService().getUserAccount();
+  // Wait for the auth state to produce a valid, non-null user
+  final user = await ref.watch(authStateChangesProvider.future);
+
+  // If the user is null after the stream resolves, it means they are logged out.
+  // Throwing an error here will put dependent providers in an error state.
+  if (user == null) {
+    throw Exception('User not authenticated');
+  }
+
+  // Now it's safe to call your FirestoreService
+  String account =
+      await FirestoreService().getUserAccount(); // This should now be safe
   return account;
 }
 

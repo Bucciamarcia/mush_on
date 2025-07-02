@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$teamGroupsHash() => r'63f4691bab4ebd154b82eeb855b2899008fd3caa';
+String _$teamGroupsHash() => r'fd541ea76671fa1b544f088e96fe4860a84e699f';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -39,11 +39,13 @@ class TeamGroupsFamily extends Family<AsyncValue<List<TeamGroup>>> {
   const TeamGroupsFamily();
 
   /// See also [teamGroups].
-  TeamGroupsProvider call(
-    DateTime cutoff,
-  ) {
+  TeamGroupsProvider call({
+    required DateTime earliestDate,
+    DateTime? finalDate,
+  }) {
     return TeamGroupsProvider(
-      cutoff,
+      earliestDate: earliestDate,
+      finalDate: finalDate,
     );
   }
 
@@ -52,7 +54,8 @@ class TeamGroupsFamily extends Family<AsyncValue<List<TeamGroup>>> {
     covariant TeamGroupsProvider provider,
   ) {
     return call(
-      provider.cutoff,
+      earliestDate: provider.earliestDate,
+      finalDate: provider.finalDate,
     );
   }
 
@@ -74,12 +77,14 @@ class TeamGroupsFamily extends Family<AsyncValue<List<TeamGroup>>> {
 /// See also [teamGroups].
 class TeamGroupsProvider extends AutoDisposeStreamProvider<List<TeamGroup>> {
   /// See also [teamGroups].
-  TeamGroupsProvider(
-    DateTime cutoff,
-  ) : this._internal(
+  TeamGroupsProvider({
+    required DateTime earliestDate,
+    DateTime? finalDate,
+  }) : this._internal(
           (ref) => teamGroups(
             ref as TeamGroupsRef,
-            cutoff,
+            earliestDate: earliestDate,
+            finalDate: finalDate,
           ),
           from: teamGroupsProvider,
           name: r'teamGroupsProvider',
@@ -90,7 +95,8 @@ class TeamGroupsProvider extends AutoDisposeStreamProvider<List<TeamGroup>> {
           dependencies: TeamGroupsFamily._dependencies,
           allTransitiveDependencies:
               TeamGroupsFamily._allTransitiveDependencies,
-          cutoff: cutoff,
+          earliestDate: earliestDate,
+          finalDate: finalDate,
         );
 
   TeamGroupsProvider._internal(
@@ -100,10 +106,12 @@ class TeamGroupsProvider extends AutoDisposeStreamProvider<List<TeamGroup>> {
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.cutoff,
+    required this.earliestDate,
+    required this.finalDate,
   }) : super.internal();
 
-  final DateTime cutoff;
+  final DateTime earliestDate;
+  final DateTime? finalDate;
 
   @override
   Override overrideWith(
@@ -118,7 +126,8 @@ class TeamGroupsProvider extends AutoDisposeStreamProvider<List<TeamGroup>> {
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        cutoff: cutoff,
+        earliestDate: earliestDate,
+        finalDate: finalDate,
       ),
     );
   }
@@ -130,13 +139,16 @@ class TeamGroupsProvider extends AutoDisposeStreamProvider<List<TeamGroup>> {
 
   @override
   bool operator ==(Object other) {
-    return other is TeamGroupsProvider && other.cutoff == cutoff;
+    return other is TeamGroupsProvider &&
+        other.earliestDate == earliestDate &&
+        other.finalDate == finalDate;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, cutoff.hashCode);
+    hash = _SystemHash.combine(hash, earliestDate.hashCode);
+    hash = _SystemHash.combine(hash, finalDate.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -145,8 +157,11 @@ class TeamGroupsProvider extends AutoDisposeStreamProvider<List<TeamGroup>> {
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin TeamGroupsRef on AutoDisposeStreamProviderRef<List<TeamGroup>> {
-  /// The parameter `cutoff` of this provider.
-  DateTime get cutoff;
+  /// The parameter `earliestDate` of this provider.
+  DateTime get earliestDate;
+
+  /// The parameter `finalDate` of this provider.
+  DateTime? get finalDate;
 }
 
 class _TeamGroupsProviderElement
@@ -155,7 +170,9 @@ class _TeamGroupsProviderElement
   _TeamGroupsProviderElement(super.provider);
 
   @override
-  DateTime get cutoff => (origin as TeamGroupsProvider).cutoff;
+  DateTime get earliestDate => (origin as TeamGroupsProvider).earliestDate;
+  @override
+  DateTime? get finalDate => (origin as TeamGroupsProvider).finalDate;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

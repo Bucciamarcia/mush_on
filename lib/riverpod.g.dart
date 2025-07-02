@@ -6,7 +6,24 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$accountHash() => r'56d2d306c03429b9be8e50868271a6556b3bad69';
+String _$authStateChangesHash() => r'f896fd5aefa8abd341dd1aa93cff43efff57e9a1';
+
+/// See also [authStateChanges].
+@ProviderFor(authStateChanges)
+final authStateChangesProvider = StreamProvider<User?>.internal(
+  authStateChanges,
+  name: r'authStateChangesProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$authStateChangesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AuthStateChangesRef = StreamProviderRef<User?>;
+String _$accountHash() => r'8e83ba12a96afebb4532b64c170040c641e6f5fb';
 
 /// See also [account].
 @ProviderFor(account)

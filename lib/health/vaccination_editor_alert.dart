@@ -15,16 +15,19 @@ import 'package:uuid/uuid.dart';
 
 import 'models.dart';
 
-class NewVaccinationAlertDialog extends ConsumerStatefulWidget {
-  const NewVaccinationAlertDialog({super.key});
+class VaccinationEditorAlert extends ConsumerStatefulWidget {
+  final Vaccination? event;
+  final List<Dog>? dogs;
+  const VaccinationEditorAlert({super.key, this.event, this.dogs});
 
   @override
-  ConsumerState<NewVaccinationAlertDialog> createState() =>
-      _NewVaccinationAlertDialogState();
+  ConsumerState<VaccinationEditorAlert> createState() =>
+      _VaccinationEditorAlertState();
 }
 
-class _NewVaccinationAlertDialogState
-    extends ConsumerState<NewVaccinationAlertDialog> {
+class _VaccinationEditorAlertState
+    extends ConsumerState<VaccinationEditorAlert> {
+  String? _id;
   late bool _isSaving;
   late Dog? _selectedDog;
   late TextEditingController _titleController;
@@ -38,15 +41,18 @@ class _NewVaccinationAlertDialogState
   @override
   void initState() {
     super.initState();
+    _id = widget.event?.id;
     _isSaving = false;
-    _selectedDog = null;
-    _titleController = TextEditingController();
-    _notesController = TextEditingController();
-    _vaccinationTypeController = TextEditingController();
-    _selectedDogNameController = TextEditingController();
+    _selectedDog = widget.dogs?.getDogFromId(widget.event?.dogId ?? "");
+    _titleController = TextEditingController(text: widget.event?.title);
+    _notesController = TextEditingController(text: widget.event?.notes);
+    _vaccinationTypeController =
+        TextEditingController(text: widget.event?.vaccinationType);
+    _selectedDogNameController = TextEditingController(
+        text: widget.dogs?.getNameFromId(widget.event?.dogId ?? ""));
     _daysBeforeExpirationReminderController = TextEditingController(text: "0");
-    _dateAdministered = DateTimeUtils.today();
-    _expirationDate = null;
+    _dateAdministered = widget.event?.dateAdministered ?? DateTimeUtils.today();
+    _expirationDate = widget.event?.expirationDate;
     _addReminderCheckboxValue = false;
   }
 
@@ -310,10 +316,11 @@ class _NewVaccinationAlertDialogState
                         dateAdministered: _dateAdministered,
                         vaccinationType: _vaccinationTypeController.text,
                         expirationDate: _expirationDate,
-                        id: Uuid().v4(),
+                        id: _id ?? Uuid().v4(),
                         dogId: _selectedDog!.id,
                         notes: _notesController.text,
-                        createdAt: DateTimeUtils.today(),
+                        createdAt:
+                            widget.event?.createdAt ?? DateTimeUtils.today(),
                         lastUpdated: DateTimeUtils.today()));
                     if (_expirationDate != null &&
                         _addReminderCheckboxValue == true) {

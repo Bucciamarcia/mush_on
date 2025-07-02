@@ -6,14 +6,18 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
 
 @riverpod
-Stream<List<TeamGroup>> teamGroups(Ref ref, DateTime cutoff) async* {
+Stream<List<TeamGroup>> teamGroups(Ref ref,
+    {required DateTime earliestDate, DateTime? finalDate}) async* {
   String account = await ref.watch(accountProvider.future);
 
   final db = FirebaseFirestore.instance;
 
-  final collection = db
+  var collection = db
       .collection("accounts/$account/data/teams/history")
-      .where("date", isGreaterThan: cutoff);
+      .where("date", isGreaterThan: earliestDate);
+  if (finalDate != null) {
+    collection = collection.where("date", isLessThanOrEqualTo: finalDate);
+  }
 
   yield* collection.snapshots().map(
         (snapshot) =>

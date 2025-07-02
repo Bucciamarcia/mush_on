@@ -1,9 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
-import 'package:mush_on/riverpod.dart';
-import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/shared/text_title.dart';
 // ignore: depend_on_referenced_packages
 import 'package:timezone/data/latest.dart' as tz;
 // ignore: unused_import, depend_on_referenced_packages
