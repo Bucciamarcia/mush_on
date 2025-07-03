@@ -89,6 +89,11 @@ extension DogListExtension on List<Dog> {
   Dog? getDogFromId(String id) {
     return firstWhereOrNull((dog) => dog.id == id);
   }
+
+  /// Gets a Map with a list of dog ID -> Dog object with all dogs.
+  Map<String, Dog> getAllDogsById() {
+    return {for (var dog in this) dog.id: dog};
+  }
 }
 
 /// All the operations related to the Dog class

@@ -258,29 +258,6 @@ class DogsDbOperations {
     return toReturn;
   }
 
-  /// Gets a Map with a list of dog ID -> Dog object with all dogs.
-  Future<Map<String, Dog>> getAllDogsById() async {
-    String account = await FirestoreService().getUserAccount();
-    String path = "accounts/$account/data/kennel/dogs";
-    Map<String, Dog> toReturn = {};
-    try {
-      QuerySnapshot querySnapshot = await db.collection(path).get();
-      for (var docSnapshot in querySnapshot.docs) {
-        try {
-          Dog dogObj = Dog.fromJson(docSnapshot.data() as Map<String, dynamic>);
-          toReturn[docSnapshot.id] = dogObj;
-        } catch (e, s) {
-          logger.error("Error parsing Dog with ID ${docSnapshot.id}",
-              error: e, stackTrace: s);
-        }
-      }
-    } catch (e, s) {
-      logger.error("Error fetching dogs from $path", error: e, stackTrace: s);
-      rethrow;
-    }
-    return toReturn;
-  }
-
   Future<List<TeamGroup>> getTeamgroups(DateTime? cutoff) async {
     cutoff ??= DateTime.now().toUtc().subtract(Duration(days: 30));
     String account = await FirestoreService().getUserAccount();
