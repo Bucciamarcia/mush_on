@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/shared/dog_filter/filter_operations.dart';
+import 'package:mush_on/shared/dog_filter/riverpod.dart';
 import "enums.dart";
-import 'package:mush_on/shared/dog_filter/provider.dart';
-import 'package:provider/provider.dart';
 
-class DogFilterWidget extends StatelessWidget {
+class DogFilterWidget extends ConsumerWidget {
   final Function(List<Dog>) onResult;
 
   /// List of dogs to use for flitering
@@ -21,26 +21,27 @@ class DogFilterWidget extends StatelessWidget {
       required this.templates});
 
   @override
-  Widget build(BuildContext context) {
-    DogFilterProvider provider = context.watch<DogFilterProvider>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    var filterConditions = ref.watch(filterConditionsProvider);
+    var filterConditionsNotifier = ref.read(filterConditionsProvider.notifier);
     return Column(
       spacing: 10,
       children: [
         ConditionGroup(
           allDogs: dogs,
           templates: templates,
-          conditionSelected: (provider.conditions.isEmpty)
+          conditionSelected: (filterConditions.conditions.isEmpty)
               ? null
-              : provider.conditions.firstOrNull?.conditionSelection,
-          operationSelected: (provider.conditions.isEmpty)
+              : filterConditions.conditions.firstOrNull?.conditionSelection,
+          operationSelected: (filterConditions.conditions.isEmpty)
               ? null
-              : provider.conditions.firstOrNull?.operationSelection,
-          onConditionSelected: (v) =>
-              provider.setCondition(position: 0, conditionSelection: v),
-          onOperatorSelected: (v) =>
-              provider.setCondition(position: 0, operationSelection: v),
-          onFilterChanged: (v) =>
-              provider.setCondition(position: 0, filterSelection: v),
+              : filterConditions.conditions.firstOrNull?.operationSelection,
+          onConditionSelected: (v) => filterConditionsNotifier.setCondition(
+              position: 0, conditionSelection: v),
+          onOperatorSelected: (v) => filterConditionsNotifier.setCondition(
+              position: 0, operationSelection: v),
+          onFilterChanged: (v) => filterConditionsNotifier.setCondition(
+              position: 0, filterSelection: v),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -48,14 +49,14 @@ class DogFilterWidget extends StatelessWidget {
           children: [
             SubmitButton(
               dogs: dogs,
-              conditions: provider.conditions,
-              conditionType: provider.conditionType,
+              conditions: filterConditions.conditions,
+              conditionType: filterConditions.conditionType,
               onResult: (result) => onResult(result),
             ),
             ElevatedButton(
                 child: Text("Reset"),
                 onPressed: () {
-                  provider.resetConditions();
+                  filterConditionsNotifier.resetConditions();
                   onResult(dogs);
                 }),
           ],
