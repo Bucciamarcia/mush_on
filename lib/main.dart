@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:mush_on/routes.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/firestore.dart';
-import 'package:mush_on/shared/dog_filter/provider.dart';
 import 'package:provider/provider.dart';
 import 'home_page/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -78,7 +77,6 @@ class MyApp extends rp.ConsumerWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => MainProvider()),
-        ChangeNotifierProvider(create: (context) => DogFilterProvider())
       ],
       child: MaterialApp(
           title: 'Mush On!',
