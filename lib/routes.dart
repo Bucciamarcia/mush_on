@@ -18,7 +18,7 @@ var appRoutes = {
   "/editkennel": (context) => const EditKennelScreen(),
   "/dog": (context) {
     final args = ModalRoute.of(context)?.settings.arguments;
-    if (args is Dog) {
+    if (args is String) {
       return DogScreen(dog: args);
     } else {
       final errorMessage =
