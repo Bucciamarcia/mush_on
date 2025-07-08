@@ -1,11 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/services/models/dog.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/health/models.dart';
 import 'package:mush_on/health/provider.dart';
-import 'package:mush_on/home_page/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/extensions.dart';
-import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/services/riverpod/tags.dart';
@@ -92,3 +91,24 @@ Stream<DogsWithWarnings> dogsWithWarnings(Ref ref) async* {
     fatal: fatalDogs.toList(),
   );
 }
+
+/// A simple data class to hold categorized lists of dogs with warnings.
+class DogsWithWarnings {
+  final List<Dog> warning;
+  final List<Dog> fatal;
+
+  DogsWithWarnings({List<Dog>? warning, List<Dog>? fatal})
+      : warning = warning ?? [],
+        fatal = fatal ?? [];
+
+  void add(DogsWithWarningAddType type, Dog dog) {
+    switch (type) {
+      case DogsWithWarningAddType.warning:
+        warning.add(dog);
+      case DogsWithWarningAddType.fatal:
+        fatal.add(dog);
+    }
+  }
+}
+
+enum DogsWithWarningAddType { warning, fatal }
