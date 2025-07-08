@@ -85,3 +85,4 @@ A cool and open source CRM for sled dog kennels.
 
 - Optimized app speed and responsiveness.
 - Adding a custom field template doesn't require saving anymore.
+- Adding a dog allows to add all fields.
