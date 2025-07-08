@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$addDogHash() => r'4c29571995183e50049afa6f1c52edf75e40722a';
+String _$addDogHash() => r'7d15f016d3045f2df70213875db3be1380ccf68f';
 
 /// See also [AddDog].
 @ProviderFor(AddDog)

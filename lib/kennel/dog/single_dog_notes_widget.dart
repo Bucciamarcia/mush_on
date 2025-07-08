@@ -122,8 +122,10 @@ class _SingleDogNotesWidgetState extends State<SingleDogNotesWidget> {
                     key: ValueKey(note.id),
                     note: note,
                     isFirst: index == 0,
-                    onNoteChanged: (updatedNote) =>
-                        widget.onNoteAdded(updatedNote),
+                    onNoteChanged: (updatedNote) {
+                      widget.onNoteDeleted(updatedNote.id);
+                      widget.onNoteAdded(updatedNote);
+                    },
                     onNoteDeleted: () => widget.onNoteDeleted(note.id),
                   );
                 },

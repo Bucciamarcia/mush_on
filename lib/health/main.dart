@@ -6,7 +6,6 @@ import 'package:mush_on/health/heat_cycle_editor_alert.dart';
 import 'package:mush_on/health/models.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/health/vaccination_editor_alert.dart';
-import 'package:mush_on/home_page/provider.dart';
 import 'package:mush_on/home_page/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
