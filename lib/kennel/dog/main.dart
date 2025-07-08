@@ -400,8 +400,8 @@ class DogMain extends ConsumerWidget {
                     DeleteDogButton(
                         dog: dog,
                         onDogDeleted: () {
-                          dog
-                              .delete()
+                          DogsDbOperations()
+                              .deleteDog(dog.id)
                               .then((_) => {
                                     if (context.mounted)
                                       {
