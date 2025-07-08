@@ -7,6 +7,7 @@ import 'package:mush_on/firestore_dogs_to_id.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:provider/provider.dart';
 import 'save_teams_button.dart';

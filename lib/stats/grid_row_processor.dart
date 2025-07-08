@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/stats/group_summary.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
