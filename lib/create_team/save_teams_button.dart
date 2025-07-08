@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/teamgroup.dart';
 
 class SaveTeamsButton extends StatelessWidget {
-  final CreateTeamProvider teamProvider;
+  final TeamGroup teamGroup;
   static final BasicLogger logger = BasicLogger();
   const SaveTeamsButton({
     super.key,
-    required this.teamProvider,
+    required this.teamGroup,
   });
 
   @override
@@ -18,7 +18,7 @@ class SaveTeamsButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {
         try {
-          saveToDb(teamProvider);
+          saveToDb(teamGroup);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -30,13 +30,11 @@ class SaveTeamsButton extends StatelessWidget {
               behavior: SnackBarBehavior.floating,
             ),
           );
-          teamProvider.changeUnsavedData(false);
         } catch (e, s) {
           logger.error("Couldn't save team to db", error: e, stackTrace: s);
           ScaffoldMessenger.of(context).showSnackBar(
             errorSnackBar(context, "Couldn't save team to database"),
           );
-          teamProvider.changeUnsavedData(true);
         }
       },
       style: ElevatedButton.styleFrom(
@@ -48,21 +46,21 @@ class SaveTeamsButton extends StatelessWidget {
     );
   }
 
-  Future<void> saveToDb(CreateTeamProvider teamProvider) async {
+  Future<void> saveToDb(TeamGroup teamGroup) async {
     try {
-      DateTime utcDate = teamProvider.group.date.toUtc();
+      DateTime utcDate = teamGroup.date.toUtc();
       DateTime dateTimeNoSeconds = DateTime.utc(utcDate.year, utcDate.month,
           utcDate.day, utcDate.hour, utcDate.minute);
       QuerySnapshot<Object?> snapshot = await doesTeamExist(dateTimeNoSeconds);
       final FirebaseFirestore db = FirebaseFirestore.instance;
       List<Map<String, dynamic>> cleanTeams =
-          _modifyTeamsForDb(teamProvider.group.teams);
+          _modifyTeamsForDb(teamGroup.teams);
       var data = {
         "date": dateTimeNoSeconds,
-        "name": teamProvider.group.name,
-        "notes": teamProvider.group.notes,
+        "name": teamGroup.name,
+        "notes": teamGroup.notes,
         "teams": cleanTeams,
-        "distance": teamProvider.group.distance
+        "distance": teamGroup.distance
       };
       String account = await FirestoreService().getUserAccount();
       String path = "accounts/$account/data/teams/history";

@@ -1,82 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/dog_selector.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/provider.dart';
+import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/firestore_dogs_to_id.dart';
 import 'package:mush_on/provider.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:provider/provider.dart';
 import 'save_teams_button.dart';
 import 'select_datetime.dart';
 
-class CreateTeamMain extends StatefulWidget {
+class CreateTeamMain extends ConsumerStatefulWidget {
   final TeamGroup? loadedTeam;
   const CreateTeamMain({super.key, this.loadedTeam});
 
   @override
-  State<CreateTeamMain> createState() => _CreateTeamMainState();
+  ConsumerState<CreateTeamMain> createState() => _CreateTeamMainState();
 }
 
-class _CreateTeamMainState extends State<CreateTeamMain> {
-  late TextEditingController globalNamecontroller;
-  late TextEditingController notesController;
-  @override
-  void initState() {
-    super.initState();
-    globalNamecontroller = TextEditingController();
-    notesController = TextEditingController();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      initializeTeam();
-    });
-  }
-
-  void initializeTeam() {
-    final teamProvider =
-        Provider.of<CreateTeamProvider>(context, listen: false);
-
-    if (widget.loadedTeam != null) {
-      // Process date with error handling
-      DateTime date = widget.loadedTeam!.date;
-      teamProvider.changeDate(date);
-
-      TimeOfDay time = TimeOfDay.fromDateTime(date);
-      teamProvider.changeTime(time);
-
-      double distance = widget.loadedTeam!.distance;
-      teamProvider.changeDistance(distance);
-
-      // Process name with error handling
-      String groupName = widget.loadedTeam!.name;
-      teamProvider.changeGlobalName(groupName);
-
-      String groupNotes = widget.loadedTeam!.notes;
-      teamProvider.changeNotes(groupNotes);
-      notesController.text = teamProvider.group.notes;
-
-      // Process teams with error handling
-      var teams = widget.loadedTeam!.teams;
-
-      teamProvider.changeAllTeams(teams);
-      logger.debug("All teams: ${teams[0].toJson().toString()}");
-
-      // Update the controller text after setting the provider value
-      globalNamecontroller.text = teamProvider.group.name;
-    } else {
-      globalNamecontroller.text = teamProvider.group.name;
-    }
-  }
-
-  @override
-  void dispose() {
-    globalNamecontroller.dispose();
-    super.dispose();
-  }
-
+class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
   Future<bool?> showBackDialog() {
     return showDialog<bool>(
       context: context,
@@ -110,13 +59,17 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
 
   @override
   Widget build(BuildContext context) {
-    CreateTeamProvider teamProvider = context.watch<CreateTeamProvider>();
-    MainProvider provider = context.watch<MainProvider>();
-    List<Team> teams = teamProvider.group.teams;
-    List<String> runningDogs = teamProvider.runningDogIds;
+    var teamGroup = ref.watch(createTeamGroupProvider(widget.loadedTeam));
+    var runningDogs = ref.watch(runningDogsProvider);
+    var dogNotes = ref.watch(createDogNotesProvider);
+    var notifier =
+        ref.read(createTeamGroupProvider(widget.loadedTeam).notifier);
+    List<Dog>? allDogs = ref.watch(dogsProvider).value;
+    SettingsModel? settings = ref.watch(settingsProvider).value;
 
     return PopScope(
-      canPop: !teamProvider.unsavedData,
+      canPop: teamGroup.copyWith(date: DateTime.now()) !=
+          TeamGroup(date: DateTime.now()),
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) {
           return;
@@ -126,105 +79,121 @@ class _CreateTeamMainState extends State<CreateTeamMain> {
           if (context.mounted) Navigator.of(context).pop(false);
         }
       },
-      child: teamProvider.isFetchingDistance
-          ? Align(
-              alignment: Alignment.center,
-              child: CircularProgressIndicator.adaptive(),
-            )
-          : ListView(
+      child: ListView(
+        children: [
+          Card(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: ExpansionTile(
+              title: Center(child: Text("Filter")),
               children: [
-                Card(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  child: ExpansionTile(
-                    title: Center(child: Text("Filter")),
-                    children: [
-                      DogFilterWidget(
-                          dogs: teamProvider.dogs,
-                          templates: provider.settings.customFieldTemplates,
-                          onResult: (dogs) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Filter successful",
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary),
-                                ),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                              ),
-                            );
-                            teamProvider.addErrorToUnavailableDogs(dogs);
-                          }),
-                    ],
-                  ),
-                ),
-                DateTimePicker(),
-                TextField(
-                  controller: globalNamecontroller,
-                  decoration: InputDecoration(labelText: "Group name"),
-                  onChanged: (String text) {
-                    teamProvider.changeUnsavedData(true);
-                    teamProvider.changeGlobalName(text);
-                  },
-                ),
-                TextField(
-                  controller: notesController,
-                  decoration: InputDecoration(labelText: "Group notes"),
-                  onChanged: (String text) {
-                    teamProvider.changeUnsavedData(true);
-                    teamProvider.changeNotes(text);
-                  },
-                ),
-                ...teams.asMap().entries.map(
-                  (entry) {
-                    return TeamRetriever(
-                      teamNumber: entry.key,
-                      dogs: context.watch<MainProvider>().dogs,
-                      runningDogs: runningDogs,
-                      teams: teamProvider.group.teams,
-                      notes: teamProvider.dogNotes,
-                      onDogSelected: (DogSelection newDog) {
-                        teamProvider.changeDog(
-                            newId: newDog.dog.id,
-                            teamNumber: newDog.teamNumber,
-                            rowNumber: newDog.rowNumber,
-                            dogPosition: newDog.dogPosition);
-                      },
-                      onTeamNameChanged: (int teamNumber, String newName) =>
-                          teamProvider.changeTeamName(teamNumber, newName),
-                      onRowRemoved: (int teamNumber, int rowNumber) =>
-                          teamProvider.removeRow(
-                              teamNumber: teamNumber, rowNumber: rowNumber),
-                      onAddRow: (int teamNumber) =>
-                          teamProvider.addRow(teamNumber: teamNumber),
-                      onDogRemoved:
-                          (int teamNumber, int rowNumber, int dogPosition) =>
-                              teamProvider.changeDog(
-                                  newId: "",
-                                  teamNumber: teamNumber,
-                                  rowNumber: rowNumber,
-                                  dogPosition: dogPosition),
-                      onAddTeam: (teamNumber) =>
-                          teamProvider.addTeam(teamNumber: teamNumber),
-                      onRemoveTeam: (teamNumber) =>
-                          teamProvider.removeTeam(teamNumber: teamNumber),
-                    );
-                  },
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () async {
-                    String teamString = teamProvider.createTeamsString();
-                    Clipboard.setData(ClipboardData(text: teamString));
-                  },
-                  child: Text("Copy teams"),
-                ),
-                SaveTeamsButton(teamProvider: teamProvider)
+                DogFilterWidget(
+                    dogs: allDogs ?? [],
+                    templates: settings?.customFieldTemplates ?? [],
+                    onResult: (dogs) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            "Filter successful",
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary),
+                          ),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                        ),
+                      );
+                    }),
               ],
             ),
+          ),
+          DateTimePicker(),
+          TextField(
+            controller: TextEditingController(text: teamGroup.name),
+            decoration: InputDecoration(labelText: "Group name"),
+            onChanged: (String text) {
+              notifier.changeName(text);
+            },
+          ),
+          TextField(
+            controller: TextEditingController(text: teamGroup.notes),
+            decoration: InputDecoration(labelText: "Group notes"),
+            onChanged: (String text) {
+              notifier.changeNotes(text);
+            },
+          ),
+          ...teamGroup.teams.asMap().entries.map(
+            (entry) {
+              return TeamRetriever(
+                teamNumber: entry.key,
+                dogs: context.watch<MainProvider>().dogs,
+                runningDogs: runningDogs,
+                teams: teamGroup.teams,
+                notes: dogNotes,
+                onDogSelected: (DogSelection newDog) {
+                  notifier.changePosition(
+                      dogId: newDog.dog.id,
+                      teamNumber: newDog.teamNumber,
+                      rowNumber: newDog.rowNumber,
+                      positionNumber: newDog.dogPosition);
+                },
+                onTeamNameChanged: (int teamNumber, String newName) => notifier
+                    .changeTeamName(teamNumber: teamNumber, newName: newName),
+                onRowRemoved: (int teamNumber, int rowNumber) => notifier
+                    .removeRow(teamNumber: teamNumber, rowNumber: rowNumber),
+                onAddRow: (int teamNumber) =>
+                    notifier.addRow(teamNumber: teamNumber),
+                onDogRemoved:
+                    (int teamNumber, int rowNumber, int dogPosition) =>
+                        notifier.changePosition(
+                            dogId: "",
+                            teamNumber: teamNumber,
+                            rowNumber: rowNumber,
+                            positionNumber: dogPosition),
+                onAddTeam: (teamNumber) =>
+                    notifier.addTeam(teamNumber: teamNumber),
+                onRemoveTeam: (teamNumber) =>
+                    notifier.removeTeam(teamNumber: teamNumber),
+              );
+            },
+          ),
+          SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () async {
+              String teamString = createTeamsString(teamGroup);
+              Clipboard.setData(ClipboardData(text: teamString));
+            },
+            child: Text("Copy teams"),
+          ),
+          SaveTeamsButton(teamGroup: teamGroup),
+        ],
+      ),
     );
+  }
+
+  String createTeamsString(TeamGroup group) {
+    String stringTeams = "${group.name}\n\n";
+    stringTeams = "$stringTeams${group.notes}\n\n";
+    for (Team team in group.teams) {
+      stringTeams = stringTeams + _stringifyTeam(team);
+      stringTeams = "$stringTeams\n";
+    }
+    stringTeams = stringTeams.substring(0, stringTeams.length - 2);
+    return stringTeams;
+  }
+
+  String _stringifyTeam(Team team) {
+    String streamTeam = team.name;
+    String dogPairs = _stringifyDogPairs(team.dogPairs);
+    return "$streamTeam$dogPairs\n";
+  }
+
+  String _stringifyDogPairs(List<DogPair> teamDogs) {
+    List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
+    String dogList = "";
+    for (DogPair dogPair in teamDogs) {
+      dogList =
+          "$dogList\n${allDogs.getAllDogsById()[dogPair.firstDogId]?.name ?? ""} - ${allDogs.getAllDogsById()[dogPair.secondDogId]?.name ?? ""}";
+    }
+    return dogList;
   }
 }
 
