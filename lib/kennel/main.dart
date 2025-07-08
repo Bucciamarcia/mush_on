@@ -78,7 +78,8 @@ class DogCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-        onPressed: () => Navigator.pushNamed(context, "/dog", arguments: dog),
+        onPressed: () =>
+            Navigator.pushNamed(context, "/dog", arguments: dog.id),
         child: Text(dog.name));
   }
 }

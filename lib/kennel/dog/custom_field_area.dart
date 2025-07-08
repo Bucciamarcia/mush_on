@@ -5,7 +5,7 @@ import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/shared/text_title.dart';
 
 class CustomFieldArea extends StatelessWidget {
-  final List<CustomFieldTemplate> customFieldTemplates;
+  final List<CustomFieldTemplate>? customFieldTemplates;
   final List<CustomField> dogCustomFields;
   final Function(CustomField) onCustomFieldSaved;
   final Function(String) onCustomFieldDeleted;
@@ -34,7 +34,7 @@ class CustomFieldArea extends StatelessWidget {
 }
 
 class CustomFieldsWidget extends StatelessWidget {
-  final List<CustomFieldTemplate> customFieldTemplates;
+  final List<CustomFieldTemplate>? customFieldTemplates;
   final List<CustomField> dogCustomFields;
   final Function(CustomField) onCustomFieldSaved;
   final Function(String) onCustomFieldDeleted;
@@ -47,18 +47,22 @@ class CustomFieldsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 10,
-      children: customFieldTemplates
-          .map((t) => DogCustomFieldCard(
-                customFieldTemplate: t,
-                dogCustomFields: dogCustomFields,
-                onCustomFieldSaved: (r) => onCustomFieldSaved(r),
-                onCustomFieldDeleted: (templateId) =>
-                    onCustomFieldDeleted(templateId),
-              ))
-          .toList(),
-    );
+    if (customFieldTemplates != null) {
+      return Wrap(
+        spacing: 10,
+        children: customFieldTemplates!
+            .map((t) => DogCustomFieldCard(
+                  customFieldTemplate: t,
+                  dogCustomFields: dogCustomFields,
+                  onCustomFieldSaved: (r) => onCustomFieldSaved(r),
+                  onCustomFieldDeleted: (templateId) =>
+                      onCustomFieldDeleted(templateId),
+                ))
+            .toList(),
+      );
+    } else {
+      return CircularProgressIndicator.adaptive();
+    }
   }
 }
 
