@@ -14,6 +14,7 @@ import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/storage.dart';
 import 'package:path/path.dart' as path;
+import 'package:uuid/uuid.dart';
 
 class FirestoreService {
   final BasicLogger logger = BasicLogger();
@@ -52,6 +53,9 @@ class FirestoreService {
   }
 
   Future<void> addDogToDb(Dog dog, File? imageFile) async {
+    if (dog.id == "") {
+      dog = dog.copyWith(id: Uuid().v4());
+    }
     String account = await FirestoreService().getUserAccount();
     try {
       if (imageFile != null) {
@@ -483,8 +487,23 @@ class DogsDbOperations {
 
   /// Deletes a dog from the db
   Future<void> deleteDog(String dogId) async {
-    // Reference to the 'dogs' collection
     var account = await FirestoreService().getUserAccount();
+    // Delete the dog's data on storage
+    var imagesPath = "accounts/$account/dogs/$dogId";
+    try {
+      logger.info("Getting files");
+      var files = await StorageService().listFilesInFolder(imagesPath);
+      logger.info("Files: $files");
+      for (var file in files) {
+        logger.info("Deleting file: $file");
+        await StorageService().deleteFile("$imagesPath/$file");
+      }
+    } catch (e, s) {
+      BasicLogger()
+          .error("Couldn't delete dog's files", error: e, stackTrace: s);
+      rethrow;
+    }
+    // Reference to the 'dogs' collection
     String path = "accounts/$account/data/kennel/dogs";
     var dogsRef = FirebaseFirestore.instance.collection(path);
     var doc = dogsRef.doc(dogId);

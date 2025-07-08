@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/kennel/add_dog/provider.dart';
 
-class DogNameWidget extends StatelessWidget {
+class DogNameWidget extends StatefulWidget {
+  final Function(String) onChanged;
+
   const DogNameWidget({
     super.key,
-    required this.addDogProvider,
+    required this.onChanged,
   });
 
-  final AddDogProvider addDogProvider;
+  @override
+  State<DogNameWidget> createState() => _DogNameWidgetState();
+}
 
+class _DogNameWidgetState extends State<DogNameWidget> {
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: addDogProvider.nameController,
       onChanged: (value) {
-        addDogProvider.updateName(value);
+        widget.onChanged(value);
       },
       decoration: InputDecoration(labelText: "Name of the dog"),
     );

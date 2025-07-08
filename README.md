@@ -80,3 +80,8 @@ A cool and open source CRM for sled dog kennels.
 - Strenghtened offline capabilities.
 - Added health dashboard.
 - Can add events, heats, vaccinations.
+
+### 0.0.12
+
+- Optimized app speed and responsiveness.
+- Adding a custom field template doesn't require saving anymore.

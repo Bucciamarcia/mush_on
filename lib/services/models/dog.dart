@@ -79,21 +79,6 @@ abstract class Dog with _$Dog {
   static List<String> getDogNames(List<Dog> dogObjects) {
     return dogObjects.map((dog) => dog.name).toList();
   }
-
-  /// Deletes the dog from the db.
-  Future<void> delete() async {
-    var account = await FirestoreService().getUserAccount();
-    String path = "accounts/$account/data/kennel/dogs";
-    var dogsRef = FirebaseFirestore.instance.collection(path);
-    var doc = dogsRef.doc(id);
-    try {
-      await doc.delete();
-    } catch (e, s) {
-      BasicLogger()
-          .error("Error deleting dog with id $id", error: e, stackTrace: s);
-      rethrow;
-    }
-  }
 }
 
 extension DogListExtension on List<Dog> {
