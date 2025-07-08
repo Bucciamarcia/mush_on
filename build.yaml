@@ -2,4 +2,10 @@ targets:
   $default:
     sources:
       - "lib/**"
-      - "!lib/**/[0-9]*"
+      - "!lib/**/*~"        # vim backup files
+      - "!lib/**/.*"        # hidden files
+      - "!lib/**/*.swp"     # vim swap files
+      - "!lib/**/*.swo"     # vim swap files
+      - "!lib/**/*.swn"     # vim swap files
+      - "!lib/**/[0-9]*"    # numeric temp files
+      - "!lib/**/#*"        # emacs temp files
