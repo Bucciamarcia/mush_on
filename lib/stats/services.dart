@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mush_on/services/firestore.dart';
-import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/teamgroup.dart';
 
 class StatsDb extends FirestoreService {
   /// Gets all the TeamGroups after a specific date.

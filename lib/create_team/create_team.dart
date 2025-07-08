@@ -3,7 +3,7 @@ import 'package:mush_on/create_team/main.dart';
 import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/provider.dart';
-import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:provider/provider.dart';
 
 class CreateTeamScreen extends StatelessWidget {

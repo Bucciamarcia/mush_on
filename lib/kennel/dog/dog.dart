@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/page_template.dart';
-import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/teamgroup.dart';
 
 import 'main.dart';
 
