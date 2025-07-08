@@ -398,40 +398,50 @@ class DogMain extends ConsumerWidget {
                         }),
                     Divider(),
                     DeleteDogButton(
-                        dog: dog,
-                        onDogDeleted: () {
-                          DogsDbOperations()
-                              .deleteDog(dog.id)
-                              .then((_) => {
-                                    if (context.mounted)
-                                      {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          content: Text(
-                                            "Dog deleted",
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onPrimary),
-                                          ),
-                                          backgroundColor: Theme.of(context)
+                      dog: dog,
+                      onDogDeleted: () async {
+                        await showDialog(
+                          context: context,
+                          builder: (dialogContext) =>
+                              DeleteDogConfirmationDialog(
+                            dog: dog,
+                            onConfirmed: () async {
+                              try {
+                                await DogsDbOperations().deleteDog(dog.id);
+                                // First pop the dialog
+                                if (dialogContext.mounted) {
+                                  Navigator.of(dialogContext).pop();
+                                }
+                                // Then pop the original page using the original context
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content: Text(
+                                      "Dog deleted",
+                                      style: TextStyle(
+                                          color: Theme.of(context)
                                               .colorScheme
-                                              .primary,
-                                        )),
-                                        Navigator.of(context).pop(),
-                                      }
-                                  })
-                              // ignore: body_might_complete_normally_catch_error
-                              .catchError((e, s) {
-                            logger.error("Couldn't delete dog ${dog.name}",
-                                error: e, stackTrace: s);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(
-                                      context, "Error: couldn't delete dog"));
-                            }
-                          });
-                        }),
+                                              .onPrimary),
+                                    ),
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.primary,
+                                  ));
+                                  Navigator.of(context).pop();
+                                }
+                              } catch (e, s) {
+                                logger.error("Couldn't delete dog ${dog.name}",
+                                    error: e, stackTrace: s);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      errorSnackBar(context,
+                                          "Error: couldn't delete dog"));
+                                }
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 );
               },
@@ -446,5 +456,40 @@ class DogMain extends ConsumerWidget {
           return Text("Couldn't load dog: error");
         },
         loading: () => CircularProgressIndicator.adaptive());
+  }
+}
+
+class DeleteDogConfirmationDialog extends StatelessWidget {
+  final Dog dog;
+  final Function() onConfirmed;
+  const DeleteDogConfirmationDialog(
+      {super.key, required this.dog, required this.onConfirmed});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog.adaptive(
+      title: Text("Delete"),
+      content: Text(
+          "Are you sure you want to delete ${dog.name}? The action is irreversible, all data will be lost."),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("Cancel")),
+        TextButton(
+          style: ButtonStyle(
+            backgroundColor:
+                WidgetStatePropertyAll(Theme.of(context).colorScheme.error),
+          ),
+          onPressed: () {
+            onConfirmed();
+            Navigator.of(context).pop();
+          },
+          child: Text(
+            "Delete dog",
+            style: TextStyle(color: Theme.of(context).colorScheme.onError),
+          ),
+        ),
+      ],
+    );
   }
 }
