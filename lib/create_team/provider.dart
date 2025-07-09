@@ -6,7 +6,6 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
 
 class CreateTeamProvider extends ChangeNotifier {
   final MainProvider provider;
