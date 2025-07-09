@@ -3,15 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/dog_selector.dart';
 import 'package:mush_on/create_team/models.dart';
-import 'package:mush_on/create_team/provider.dart';
 import 'package:mush_on/create_team/riverpod.dart';
-import 'package:mush_on/firestore_dogs_to_id.dart';
 import 'package:mush_on/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:provider/provider.dart';
 import 'save_teams_button.dart';
@@ -60,7 +57,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
   @override
   Widget build(BuildContext context) {
     var teamGroup = ref.watch(createTeamGroupProvider(widget.loadedTeam));
-    var runningDogs = ref.watch(runningDogsProvider);
+    var runningDogs = ref.watch(runningDogsProvider(teamGroup));
     var dogNotes = ref.watch(createDogNotesProvider);
     var notifier =
         ref.read(createTeamGroupProvider(widget.loadedTeam).notifier);

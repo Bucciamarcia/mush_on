@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$createTeamGroupHash() => r'b7f28c07d2d112f3934019ad87d7f1a9f6decb0f';
+String _$createTeamGroupHash() => r'ed07fc44c1704190c9e55f44b8474f59f2e8e03f';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -185,7 +185,16 @@ class _CreateTeamGroupProviderElement
   TeamGroup? get teamGroup => (origin as CreateTeamGroupProvider).teamGroup;
 }
 
-String _$runningDogsHash() => r'6a493df024f0ca518832ce7fbe4ffe8cda5b0b6e';
+String _$runningDogsHash() => r'47508d280bbaccdb1ff51a9e023fef1e0a6c42ad';
+
+abstract class _$RunningDogs
+    extends BuildlessAutoDisposeNotifier<List<String>> {
+  late final TeamGroup group;
+
+  List<String> build(
+    TeamGroup group,
+  );
+}
 
 /// The ids of the dogs that are currently running.
 ///
@@ -193,17 +202,159 @@ String _$runningDogsHash() => r'6a493df024f0ca518832ce7fbe4ffe8cda5b0b6e';
 ///
 /// Copied from [RunningDogs].
 @ProviderFor(RunningDogs)
-final runningDogsProvider =
-    AutoDisposeNotifierProvider<RunningDogs, List<String>>.internal(
-  RunningDogs.new,
-  name: r'runningDogsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$runningDogsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+const runningDogsProvider = RunningDogsFamily();
 
-typedef _$RunningDogs = AutoDisposeNotifier<List<String>>;
+/// The ids of the dogs that are currently running.
+///
+/// Used to make the unavailable in the dropdown selection.
+///
+/// Copied from [RunningDogs].
+class RunningDogsFamily extends Family<List<String>> {
+  /// The ids of the dogs that are currently running.
+  ///
+  /// Used to make the unavailable in the dropdown selection.
+  ///
+  /// Copied from [RunningDogs].
+  const RunningDogsFamily();
+
+  /// The ids of the dogs that are currently running.
+  ///
+  /// Used to make the unavailable in the dropdown selection.
+  ///
+  /// Copied from [RunningDogs].
+  RunningDogsProvider call(
+    TeamGroup group,
+  ) {
+    return RunningDogsProvider(
+      group,
+    );
+  }
+
+  @override
+  RunningDogsProvider getProviderOverride(
+    covariant RunningDogsProvider provider,
+  ) {
+    return call(
+      provider.group,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'runningDogsProvider';
+}
+
+/// The ids of the dogs that are currently running.
+///
+/// Used to make the unavailable in the dropdown selection.
+///
+/// Copied from [RunningDogs].
+class RunningDogsProvider
+    extends AutoDisposeNotifierProviderImpl<RunningDogs, List<String>> {
+  /// The ids of the dogs that are currently running.
+  ///
+  /// Used to make the unavailable in the dropdown selection.
+  ///
+  /// Copied from [RunningDogs].
+  RunningDogsProvider(
+    TeamGroup group,
+  ) : this._internal(
+          () => RunningDogs()..group = group,
+          from: runningDogsProvider,
+          name: r'runningDogsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$runningDogsHash,
+          dependencies: RunningDogsFamily._dependencies,
+          allTransitiveDependencies:
+              RunningDogsFamily._allTransitiveDependencies,
+          group: group,
+        );
+
+  RunningDogsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.group,
+  }) : super.internal();
+
+  final TeamGroup group;
+
+  @override
+  List<String> runNotifierBuild(
+    covariant RunningDogs notifier,
+  ) {
+    return notifier.build(
+      group,
+    );
+  }
+
+  @override
+  Override overrideWith(RunningDogs Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: RunningDogsProvider._internal(
+        () => create()..group = group,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        group: group,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeNotifierProviderElement<RunningDogs, List<String>>
+      createElement() {
+    return _RunningDogsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RunningDogsProvider && other.group == group;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, group.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin RunningDogsRef on AutoDisposeNotifierProviderRef<List<String>> {
+  /// The parameter `group` of this provider.
+  TeamGroup get group;
+}
+
+class _RunningDogsProviderElement
+    extends AutoDisposeNotifierProviderElement<RunningDogs, List<String>>
+    with RunningDogsRef {
+  _RunningDogsProviderElement(super.provider);
+
+  @override
+  TeamGroup get group => (origin as RunningDogsProvider).group;
+}
+
 String _$createDogNotesHash() => r'e849ebafa7a0d9fc87d8cd5bd2ed14f1f146d8d7';
 
 /// See also [CreateDogNotes].

@@ -1,4 +1,5 @@
 import 'package:mush_on/create_team/models.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dogpair.dart';
 import 'package:mush_on/services/models/team.dart';
 import 'package:mush_on/services/models/teamgroup.dart';
@@ -46,6 +47,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
     } else if (positionNumber == 1) {
       newGroups[teamNumber].dogPairs[rowNumber].secondDogId = dogId;
     }
+    ref.invalidate(runningDogsProvider);
     state = state.copyWith(teams: newGroups);
   }
 
@@ -89,8 +91,21 @@ class CreateTeamGroup extends _$CreateTeamGroup {
 /// Used to make the unavailable in the dropdown selection.
 class RunningDogs extends _$RunningDogs {
   @override
-  List<String> build() {
-    return [];
+  List<String> build(TeamGroup group) {
+    List<String> toReturn = [];
+    var teams = group.teams;
+    for (var team in teams) {
+      for (var row in team.dogPairs) {
+        if (row.firstDogId != null && !toReturn.contains(row.firstDogId)) {
+          toReturn.add(row.firstDogId!);
+        }
+        if (row.secondDogId != null && !toReturn.contains(row.secondDogId)) {
+          toReturn.add(row.secondDogId!);
+        }
+      }
+    }
+    BasicLogger().debug("Running dogs: $toReturn");
+    return toReturn;
   }
 }
 
