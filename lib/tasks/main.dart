@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/extensions.dart';
+import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/tasks/tab_bar_widget.dart';
-import 'package:provider/provider.dart';
 import 'tab_bar_widgets/main.dart';
 import 'task_editor.dart';
 
-class TasksMainWidget extends StatelessWidget {
+class TasksMainWidget extends ConsumerWidget {
   static BasicLogger logger = BasicLogger();
   const TasksMainWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    MainProvider provider = context.watch<MainProvider>();
+  Widget build(BuildContext context, WidgetRef ref) {
+    TasksInMemory tasks =
+        ref.watch(tasksProvider(365)).value ?? TasksInMemory();
+    List<Dog> dogs = ref.watch(dogsProvider).value ?? [];
     return DefaultTabController(
       length: 3,
       child: Column(
@@ -20,16 +25,37 @@ class TasksMainWidget extends StatelessWidget {
         spacing: 10,
         children: [
           SizedBox(height: 10),
-          AddTaskElevatedButton(provider: provider, logger: logger),
+          AddTaskElevatedButton(),
           TabBarWidget(),
           Expanded(
             child: TabBarViewWidget(
-              onFetchOlderTasks: (d) => provider.fetchOlderTasks(d),
-              tasks: provider.tasks,
-              dogs: provider.dogs,
+              onFetchOlderTasks: (d) {
+                final daysToRemove = DateTimeUtils.today().difference(d);
+                tasks = ref.watch(tasksProvider(daysToRemove.inDays)).value ??
+                    TasksInMemory();
+              },
+              tasks: tasks,
+              dogs: dogs,
               onTaskEdited: (t) async {
                 try {
-                  await provider.editTask(t);
+                  await TaskRepository.addOrUpdate(
+                      t, await ref.watch(accountProvider.future));
+                  if (t.isDone &&
+                      t.expiration != null &&
+                      t.recurring != RecurringType.none) {
+                    // Create new task for next occurrence
+                    Task nextOccurrence = t.copyWith(
+                      id: '', // Let the repository generate a new ID
+                      isDone: false, // Next occurrence starts as not done
+                      expiration: t.expiration!.add(
+                        (Duration(days: t.recurring.interval)),
+                      ),
+                    );
+                    TaskRepository.addOrUpdate(
+                      nextOccurrence,
+                      await ref.watch(accountProvider.future),
+                    );
+                  }
                   if (t.isDone) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -39,8 +65,12 @@ class TasksMainWidget extends StatelessWidget {
                               Theme.of(context).colorScheme.primary,
                           action: SnackBarAction(
                               label: "UNDO",
-                              onPressed: () async => await provider
-                                  .editTask(t.copyWith(isDone: false))),
+                              onPressed: () async {
+                                await TaskRepository.addOrUpdate(
+                                  t.copyWith(isDone: false),
+                                  await ref.watch(accountProvider.future),
+                                );
+                              }),
                           content: Text(
                             "Task completed: ${t.title}",
                             style: TextStyle(
@@ -65,14 +95,16 @@ class TasksMainWidget extends StatelessWidget {
                 }
               },
               onTaskAdded: (t) async {
-                await provider.addTask(t);
+                await TaskRepository.addOrUpdate(
+                    t, await ref.watch(accountProvider.future));
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       confirmationSnackbar(context, "Task added successfully"));
                 }
               },
               onTaskDeleted: (t) async {
-                await provider.deleteTask(t);
+                await TaskRepository.delete(
+                    t, await ref.watch(accountProvider.future));
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       confirmationSnackbar(context, "Task added successfully"));

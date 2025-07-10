@@ -3,13 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/health/repository.dart';
-import 'package:mush_on/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
-import 'package:provider/provider.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:uuid/uuid.dart';
 
@@ -70,7 +68,6 @@ class _VaccinationEditorAlertState
   Widget build(BuildContext context) {
     var dogs = ref.watch(dogsProvider).valueOrNull ?? [];
     var colorScheme = Theme.of(context).colorScheme;
-    var provider = context.watch<MainProvider>();
     return AlertDialog.adaptive(
       scrollable: true,
       title: Text("Add Vaccination"),
@@ -324,25 +321,25 @@ class _VaccinationEditorAlertState
                         lastUpdated: DateTimeUtils.today()));
                     if (_expirationDate != null &&
                         _addReminderCheckboxValue == true) {
-                      await provider.addTask(
-                        Task(
-                            id: Uuid().v4(),
-                            title: "Vaccination expiration",
-                            dogId: _selectedDog!.id,
-                            isDone: false,
-                            isAllDay: true,
-                            isUrgent: false,
-                            recurring: RecurringType.none,
-                            expiration: _expirationDate!.subtract(
-                              Duration(
-                                days: int.parse(
-                                    _daysBeforeExpirationReminderController
-                                        .text),
+                      await TaskRepository.addOrUpdate(
+                          Task(
+                              id: Uuid().v4(),
+                              title: "Vaccination expiration",
+                              dogId: _selectedDog!.id,
+                              isDone: false,
+                              isAllDay: true,
+                              isUrgent: false,
+                              recurring: RecurringType.none,
+                              expiration: _expirationDate!.subtract(
+                                Duration(
+                                  days: int.parse(
+                                      _daysBeforeExpirationReminderController
+                                          .text),
+                                ),
                               ),
-                            ),
-                            description:
-                                "Automatically added vaccination expiration: ${_titleController.text} - Expires on: ${DateFormat("yyyy-MM-dd").format(_expirationDate!)} - Vaccination type: ${_vaccinationTypeController.text}"),
-                      );
+                              description:
+                                  "Automatically added vaccination expiration: ${_titleController.text} - Expires on: ${DateFormat("yyyy-MM-dd").format(_expirationDate!)} - Vaccination type: ${_vaccinationTypeController.text}"),
+                          ref.watch(accountProvider).value ?? "");
                     }
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

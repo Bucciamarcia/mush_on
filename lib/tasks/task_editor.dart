@@ -1,24 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mush_on/provider.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:searchfield/searchfield.dart';
 
-class AddTaskElevatedButton extends StatelessWidget {
-  final MainProvider provider;
-  final BasicLogger logger;
+class AddTaskElevatedButton extends ConsumerWidget {
   final Task? task;
+  static final BasicLogger logger = BasicLogger();
   const AddTaskElevatedButton({
     super.key,
-    required this.provider,
-    required this.logger,
     this.task,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Center(
       child: ElevatedButton.icon(
         style: ButtonStyle(alignment: Alignment.topCenter),
@@ -28,13 +26,28 @@ class AddTaskElevatedButton extends StatelessWidget {
             builder: (BuildContext context) => TaskEditorDialog(
               taskEditorType: TaskEditorType.newTask,
               task: task,
-              dogs: provider.dogs,
+              dogs: ref.watch(dogsProvider).value ?? [],
               onTaskAdded: (newTask) async {
                 try {
-                  if (task == null) {
-                    await provider.addTask(newTask);
-                  } else {
-                    await provider.editTask(newTask.copyWith(id: task!.id));
+                  await TaskRepository.addOrUpdate(
+                    newTask,
+                    await ref.watch(accountProvider.future),
+                  );
+                  if (newTask.isDone &&
+                      newTask.expiration != null &&
+                      newTask.recurring != RecurringType.none) {
+                    // Create new task for next occurrence
+                    Task nextOccurrence = newTask.copyWith(
+                      id: '', // Let the repository generate a new ID
+                      isDone: false, // Next occurrence starts as not done
+                      expiration: newTask.expiration!.add(
+                        (Duration(days: newTask.recurring.interval)),
+                      ),
+                    );
+                    TaskRepository.addOrUpdate(
+                      nextOccurrence,
+                      await ref.watch(accountProvider.future),
+                    );
                   }
                   if (context.mounted) {
                     if (task == null) {
@@ -61,7 +74,8 @@ class AddTaskElevatedButton extends StatelessWidget {
               },
               onTaskDeleted: (tid) async {
                 try {
-                  await provider.deleteTask(tid);
+                  await TaskRepository.delete(
+                      tid, await ref.watch(accountProvider.future));
 
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
