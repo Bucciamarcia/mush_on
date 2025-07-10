@@ -79,6 +79,15 @@ Stream<DogsWithWarnings> dogsWithWarnings(Ref ref) async* {
     if (dog != null) fatalDogs.add(dog);
   }
 
+  for (var heat in heatCycles.active) {
+    final dog = dogs.getDogFromId(heat.dogId);
+    if (heat.preventFromRunning == true && dog != null) {
+      fatalDogs.add(dog);
+    } else if (heat.preventFromRunning == false && dog != null) {
+      warningDogs.add(dog);
+    }
+  }
+
   // Active heat cycles that prevent running
   for (var heat
       in heatCycles.where((h) => h.endDate == null && h.preventFromRunning)) {

@@ -89,10 +89,20 @@ enum DogNoteType {
       color: Color.fromARGB(255, 255, 0, 0),
       noteType: NoteType.fatal,
       message: "Health event: "),
+
+  /// In heat, and cannot run.
+  ///
+  /// Heats that can run use heatLight.
   heat(
       color: Color.fromARGB(255, 255, 0, 0),
       noteType: NoteType.fatal,
       message: "In heat since: "),
+
+  /// In heat, but can still run (return warning).
+  heatLight(
+      color: Color.fromARGB(255, 255, 165, 0),
+      noteType: NoteType.warning,
+      message: "In heat (can run)"),
   showTagInBuilder(
     color: Color.fromARGB(255, 100, 149, 237),
     noteType: NoteType.info,

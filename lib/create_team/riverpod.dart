@@ -135,7 +135,6 @@ class CreateTeamGroup extends _$CreateTeamGroup {
 
 @riverpod
 List<DogNote> dogNotes(Ref ref) {
-  final logger = BasicLogger();
   final dogs = ref.watch(dogsProvider).value ?? [];
   final distanceWarnings =
       ref.watch(distanceWarningsProvider(latestDate: null)).value ?? [];
@@ -274,6 +273,26 @@ List<DogNote> dogNotes(Ref ref) {
             DogNoteMessage(
               type: DogNoteType.heat,
               details: DateFormat("dd-MM-yyyy").format(heat.startDate),
+            ),
+          ],
+        ),
+      );
+    } else {
+      dogNotesMap.update(
+        heat.dogId,
+        (existing) => existing.copyWith(
+          dogNoteMessage: [
+            ...existing.dogNoteMessage,
+            DogNoteMessage(
+              type: DogNoteType.heatLight,
+            ),
+          ],
+        ),
+        ifAbsent: () => DogNote(
+          dogId: heat.dogId,
+          dogNoteMessage: [
+            DogNoteMessage(
+              type: DogNoteType.heatLight,
             ),
           ],
         ),
