@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
-
+import 'package:freezed_annotation/freezed_annotation.dart';
 import '../services/models.dart';
+part 'models.freezed.dart';
 
 /// Helper class with the data to pass up the chain in a callback function.
 class DogSelection {
@@ -16,11 +17,39 @@ class DogSelection {
       required this.dogPosition});
 }
 
-class DogNote {
-  final String dogId;
-  List<DogNoteMessage> dogNoteMessage;
+@freezed
+sealed class DogNote with _$DogNote {
+  const factory DogNote({
+    required String dogId,
+    required List<DogNoteMessage> dogNoteMessage,
+  }) = _DogNote;
+}
 
-  DogNote({required this.dogId, required this.dogNoteMessage});
+extension DogNotesExtension on List<DogNote> {
+  /// Adds a dog note to the list.
+  ///
+  /// If the dog already exists, adds a warning to the dog.
+  List<DogNote> addOrModify(DogNote newNote) {
+    if (_containsDog(this, newNote)) {
+      var toReturn = List<DogNote>.from(this);
+      var index = toReturn.indexWhere((note) => note.dogId == newNote.dogId);
+
+      var existingNote = toReturn[index];
+      var combinedMessages = [
+        ...existingNote.dogNoteMessage,
+        ...newNote.dogNoteMessage
+      ];
+      toReturn[index] = existingNote.copyWith(dogNoteMessage: combinedMessages);
+
+      return toReturn;
+    } else {
+      return [...this, newNote];
+    }
+  }
+
+  bool _containsDog(List<DogNote> notes, DogNote newNote) {
+    return notes.any((note) => note.dogId == newNote.dogId);
+  }
 }
 
 class DogNoteMessage {
@@ -109,8 +138,9 @@ class DogNoteRepository {
 
   /// Removes notes of a certain type from a DogNote.
   static DogNote removeNoteType(DogNote dogNote, DogNoteType type) {
-    dogNote.dogNoteMessage.removeWhere((e) => e.type == type);
-    return dogNote;
+    var newdnm = List<DogNoteMessage>.from(dogNote.dogNoteMessage);
+    newdnm.removeWhere((e) => e.type == type);
+    return dogNote.copyWith(dogNoteMessage: newdnm);
   }
 
   /// Finds the DogNote with that dog id.
