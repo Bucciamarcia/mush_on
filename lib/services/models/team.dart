@@ -1,8 +1,9 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/models.dart';
 part 'team.g.dart';
+part 'team.freezed.dart';
 
-@JsonSerializable()
+@freezed
 
 /// A class representing a team of sled dogs.
 /// A [Team] consists of a name and a list of [DogPair] objects.
@@ -19,25 +20,17 @@ part 'team.g.dart';
 ///  ],
 ///  );
 ///  ```
-class Team {
-  /// The name of the team.
-  /// This is normally a number and/or a descriptive name.
-  /// E.G. "1. Musher" or "2. 2 adults 1 kid".
-  String name;
+abstract class Team with _$Team {
+  const factory Team({
+    @Default("") String name,
+    @Default([]) List<DogPair> dogPairs,
+  }) = _Team;
 
-  /// The list of dog pairs in the team.
-  /// Each [DogPair] object represents a pair of dogs in the team.
-  /// E.G. [DogPair(firstDog: Dog(name: "Buddy"), secondDog: Dog(name: "Rex"))]
-  List<DogPair> dogPairs;
-
-  Team({
-    this.name = "",
-    this.dogPairs = const [],
-  });
+  const Team._();
 
   static Team fromFirestoreFormat(Map<String, dynamic> teamJson) {
     Team toReturn = Team(name: teamJson["name"] as String);
-    toReturn.dogPairs = []; // Start with empty list
+    toReturn = toReturn.copyWith(dogPairs: []);
 
     // Get the dogs data and handle type safety
     Map<String, dynamic>? dogsJson = teamJson["dogs"] as Map<String, dynamic>?;
@@ -51,6 +44,8 @@ class Team {
         return numA.compareTo(numB);
       });
 
+    List<DogPair> toAddToToReturn = [];
+
     // Process each row
     for (String rowKey in sortedKeys) {
       Map<String, dynamic> rowData = dogsJson[rowKey] as Map<String, dynamic>;
@@ -60,9 +55,10 @@ class Team {
         firstDogId: rowData["position_1"] ?? "",
         secondDogId: rowData["position_2"] ?? "",
       );
-
-      toReturn.dogPairs.add(pair);
+      toAddToToReturn.add(pair);
     }
+    toReturn =
+        toReturn.copyWith(dogPairs: [...toReturn.dogPairs, ...toAddToToReturn]);
 
     return toReturn;
   }
@@ -80,21 +76,5 @@ class Team {
     }
   }
 
-  /// Update a dog in the team.
-  /// The [pairIndex] is the index of the dog pair in the team.
-  /// The [isFirst] flag indicates whether the first or second dog should be updated.
-  /// The [dog] parameter is the new dog object to be set.
-  /// If the [pairIndex] is out of bounds, this method does nothing.
-  void updateDog(int pairIndex, bool isFirst, String? dog) {
-    if (pairIndex >= 0 && pairIndex < dogPairs.length) {
-      if (isFirst) {
-        dogPairs[pairIndex].firstDogId = dog;
-      } else {
-        dogPairs[pairIndex].secondDogId = dog;
-      }
-    }
-  }
-
   factory Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
-  Map<String, dynamic> toJson() => _$TeamToJson(this);
 }

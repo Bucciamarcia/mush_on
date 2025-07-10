@@ -10,6 +10,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
+import 'package:mush_on/teams_history/riverpod.dart';
 import 'package:provider/provider.dart';
 import 'save_teams_button.dart';
 import 'select_datetime.dart';
@@ -58,7 +59,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
   Widget build(BuildContext context) {
     var teamGroup = ref.watch(createTeamGroupProvider(widget.loadedTeam));
     var runningDogs = ref.watch(runningDogsProvider(teamGroup));
-    var dogNotes = ref.watch(createDogNotesProvider);
+    var dogNotes = ref.watch(dogNotesProvider);
     var notifier =
         ref.read(createTeamGroupProvider(widget.loadedTeam).notifier);
     List<Dog>? allDogs = ref.watch(dogsProvider).value;
@@ -102,7 +103,12 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
               ],
             ),
           ),
-          DateTimePicker(),
+          DateTimeDistancePicker(
+            teamGroup: teamGroup,
+            onDateChanged: (newDate) => notifier.changeDate(newDate),
+            onDistanceChanged: (newDistance) =>
+                notifier.changeDistance(newDistance),
+          ),
           TextField(
             controller: TextEditingController(text: teamGroup.name),
             decoration: InputDecoration(labelText: "Group name"),
@@ -156,7 +162,11 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
           ElevatedButton(
             onPressed: () async {
               String teamString = createTeamsString(teamGroup);
-              Clipboard.setData(ClipboardData(text: teamString));
+              await Clipboard.setData(ClipboardData(text: teamString));
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    confirmationSnackbar(context, "Teams copied"));
+              }
             },
             child: Text("Copy teams"),
           ),
@@ -325,8 +335,9 @@ class _TeamRetrieverState extends State<TeamRetriever> {
   @override
   void didUpdateWidget(covariant TeamRetriever oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.teams[widget.teamNumber].name !=
-        oldWidget.teams[widget.teamNumber].name) {
+    if (widget.teamNumber < widget.teams.length &&
+        widget.teams[widget.teamNumber].name !=
+            oldWidget.teams[widget.teamNumber].name) {
       textController.text = widget.teams[widget.teamNumber].name;
     }
   }

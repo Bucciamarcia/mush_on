@@ -1,7 +1,8 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 part 'dogpair.g.dart';
+part 'dogpair.freezed.dart';
 
-@JsonSerializable()
+@freezed
 
 /// A class representing a pair of dogs in a team.
 /// A [DogPair] consists of two [Dog] objects.
@@ -13,18 +14,15 @@ part 'dogpair.g.dart';
 /// secondDog: Dog(name: "Rex"),
 /// );
 /// ```
-class DogPair {
-  String? firstDogId;
-  String? secondDogId;
-
-  DogPair({
-    this.firstDogId,
-    this.secondDogId,
-  });
+sealed class DogPair with _$DogPair {
+  const factory DogPair({
+    String? firstDogId,
+    String? secondDogId,
+  }) = _DogPair;
+  const DogPair._();
 
   bool get isEmpty => firstDogId == null && secondDogId == null;
 
   factory DogPair.fromJson(Map<String, dynamic> json) =>
       _$DogPairFromJson(json);
-  Map<String, dynamic> toJson() => _$DogPairToJson(this);
 }

@@ -6,7 +6,40 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$createTeamGroupHash() => r'ed07fc44c1704190c9e55f44b8474f59f2e8e03f';
+String _$dogNotesHash() => r'0cdfb2537c646ac722aa2917dfacf8b1d1d0a05b';
+
+/// See also [dogNotes].
+@ProviderFor(dogNotes)
+final dogNotesProvider = AutoDisposeProvider<List<DogNote>>.internal(
+  dogNotes,
+  name: r'dogNotesProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$dogNotesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DogNotesRef = AutoDisposeProviderRef<List<DogNote>>;
+String _$duplicateDogsHash() => r'79c3c033b192f43fe8046981b43bcab769b7a34c';
+
+/// See also [duplicateDogs].
+@ProviderFor(duplicateDogs)
+final duplicateDogsProvider = AutoDisposeProvider<List<String>>.internal(
+  duplicateDogs,
+  name: r'duplicateDogsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$duplicateDogsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef DuplicateDogsRef = AutoDisposeProviderRef<List<String>>;
+String _$createTeamGroupHash() => r'fcdd6d6e9eb4a590b9ebc51a8a8125c35e46f8fa';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -185,7 +218,7 @@ class _CreateTeamGroupProviderElement
   TeamGroup? get teamGroup => (origin as CreateTeamGroupProvider).teamGroup;
 }
 
-String _$runningDogsHash() => r'47508d280bbaccdb1ff51a9e023fef1e0a6c42ad';
+String _$runningDogsHash() => r'2edf930a90f4de4cc28013d64d0a627e28b5cb5e';
 
 abstract class _$RunningDogs
     extends BuildlessAutoDisposeNotifier<List<String>> {
@@ -354,22 +387,5 @@ class _RunningDogsProviderElement
   @override
   TeamGroup get group => (origin as RunningDogsProvider).group;
 }
-
-String _$createDogNotesHash() => r'e849ebafa7a0d9fc87d8cd5bd2ed14f1f146d8d7';
-
-/// See also [CreateDogNotes].
-@ProviderFor(CreateDogNotes)
-final createDogNotesProvider =
-    AutoDisposeNotifierProvider<CreateDogNotes, List<DogNote>>.internal(
-  CreateDogNotes.new,
-  name: r'createDogNotesProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$createDogNotesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$CreateDogNotes = AutoDisposeNotifier<List<DogNote>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
