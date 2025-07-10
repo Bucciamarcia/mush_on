@@ -187,7 +187,6 @@ class DropdownOptions extends StatelessWidget {
       children: [
         const Text("Options", style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        // Use ListView.builder for efficiency
         Column(
           mainAxisSize: MainAxisSize.min,
           children: options.asMap().entries.map((entry) {
