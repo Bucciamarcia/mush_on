@@ -4,7 +4,9 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mush_on/health/main.dart';
 import 'package:mush_on/health/provider.dart';
+import 'package:mush_on/kennel/main.dart';
 import 'package:mush_on/services/auth.dart';
+import 'package:mush_on/services/error_handling.dart';
 
 class TemplateScreen extends ConsumerWidget {
   final Widget child;
@@ -12,7 +14,7 @@ class TemplateScreen extends ConsumerWidget {
 
   const TemplateScreen({super.key, required this.child, required this.title});
 
-  SpeedDial? _getFab(WidgetRef ref) {
+  Widget? _getFab(BuildContext context, WidgetRef ref) {
     if (child is HealthMain) {
       return SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
@@ -42,13 +44,22 @@ class TemplateScreen extends ConsumerWidget {
         ],
       );
     }
+    if (child is EditKennelMain) {
+      return FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          BasicLogger().trace("awoo");
+          Navigator.pushNamed(context, "/adddog");
+        },
+      );
+    }
     return null;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      floatingActionButton: _getFab(ref),
+      floatingActionButton: _getFab(context, ref),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,

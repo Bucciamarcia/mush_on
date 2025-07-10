@@ -51,11 +51,6 @@ class EditKennelMain extends ConsumerWidget {
                   ],
                 ),
               ),
-              ElevatedButton.icon(
-                onPressed: () => Navigator.pushNamed(context, "/adddog"),
-                label: Text("Add a dog"),
-                icon: Icon(Icons.add),
-              ),
               ...ref.watch(dogsDisplayListProvider).map(
                     (dog) => DogCard(dog: dog),
                   ),
