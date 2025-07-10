@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/models.dart';
+import 'package:mush_on/health/models.dart';
+import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dogpair.dart';
@@ -184,6 +186,72 @@ List<DogNote> dogNotes(Ref ref) {
         dogNoteMessage: [DogNoteMessage(type: DogNoteType.duplicate)],
       ),
     );
+  }
+
+  // Process tags (errors and notes)
+  for (final dog in dogs) {
+    for (final tag in dog.tags) {
+      if (tag.preventFromRun == true) {
+        dogNotesMap.update(
+          dog.id,
+          (existing) => existing.copyWith(
+            dogNoteMessage: [
+              ...existing.dogNoteMessage,
+              DogNoteMessage(type: DogNoteType.tagPreventing, details: tag.name)
+            ],
+          ),
+          ifAbsent: () => DogNote(
+            dogId: dog.id,
+            dogNoteMessage: [
+              DogNoteMessage(type: DogNoteType.tagPreventing, details: tag.name)
+            ],
+          ),
+        );
+      }
+      if (tag.showInTeamBuilder == true) {
+        dogNotesMap.update(
+          dog.id,
+          (existing) => existing.copyWith(dogNoteMessage: [
+            ...existing.dogNoteMessage,
+            DogNoteMessage(
+                type: DogNoteType.showTagInBuilder, details: tag.name)
+          ]),
+          ifAbsent: () => DogNote(
+            dogId: dog.id,
+            dogNoteMessage: [
+              DogNoteMessage(
+                  type: DogNoteType.showTagInBuilder, details: tag.name)
+            ],
+          ),
+        );
+      }
+    }
+  }
+
+  // Process health events
+  List<HealthEvent>? healthEvents = ref.watch(healthEventsProvider(365)).value;
+  if (healthEvents != null) {
+    for (final event in healthEvents) {
+      if (event.preventFromRunning == true) {
+        dogNotesMap.update(
+          event.dogId,
+          (existing) => existing.copyWith(
+            dogNoteMessage: [
+              ...existing.dogNoteMessage,
+              DogNoteMessage(
+                  type: DogNoteType.healthEventError, details: event.title),
+            ],
+          ),
+          ifAbsent: () => DogNote(
+            dogId: event.dogId,
+            dogNoteMessage: [
+              DogNoteMessage(
+                  type: DogNoteType.healthEventError, details: event.title),
+            ],
+          ),
+        );
+      }
+    }
   }
 
   return dogNotesMap.values.toList();

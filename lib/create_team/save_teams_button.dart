@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
 
 class SaveTeamsButton extends StatelessWidget {
   final TeamGroup teamGroup;
