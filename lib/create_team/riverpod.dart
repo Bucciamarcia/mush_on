@@ -4,10 +4,8 @@ import 'package:mush_on/health/models.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/models/dogpair.dart';
+import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
-import 'package:mush_on/services/models/team.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
@@ -190,7 +188,7 @@ List<DogNote> dogNotes(Ref ref) {
 
   // Process tags (errors and notes)
   for (final dog in dogs) {
-    for (final tag in dog.tags) {
+    for (final tag in dog.tags.available) {
       if (tag.preventFromRun == true) {
         dogNotesMap.update(
           dog.id,
@@ -231,7 +229,7 @@ List<DogNote> dogNotes(Ref ref) {
   // Process health events
   List<HealthEvent>? healthEvents = ref.watch(healthEventsProvider(365)).value;
   if (healthEvents != null) {
-    for (final event in healthEvents) {
+    for (final event in healthEvents.active) {
       if (event.preventFromRunning == true) {
         dogNotesMap.update(
           event.dogId,

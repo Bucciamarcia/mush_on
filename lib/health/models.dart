@@ -55,6 +55,7 @@ extension HealthEventExtension on HealthEvent {
 }
 
 extension HealthEventsExtension on List<HealthEvent> {
+  /// Returns a list of health events that are currently active.
   List<HealthEvent> get active => where((e) =>
       e.resolvedDate == null ||
       e.resolvedDate!.isAfter(DateTimeUtils.today())).toList();

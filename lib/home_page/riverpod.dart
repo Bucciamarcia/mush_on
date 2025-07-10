@@ -73,8 +73,8 @@ Stream<DogsWithWarnings> dogsWithWarnings(Ref ref) async* {
   fatalDogs.addAll(dogsWithBlockingTags);
 
   // Active health events that prevent running
-  for (var event
-      in healthEvents.where((e) => e.isOngoing && e.preventFromRunning)) {
+  for (var event in healthEvents.active
+      .where((e) => e.isOngoing && e.preventFromRunning)) {
     final dog = dogs.getDogFromId(event.dogId);
     if (dog != null) fatalDogs.add(dog);
   }
