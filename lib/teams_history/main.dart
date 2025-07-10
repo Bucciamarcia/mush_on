@@ -7,7 +7,6 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/teams_history/riverpod.dart';
 import 'format_exp_card_content.dart';
 

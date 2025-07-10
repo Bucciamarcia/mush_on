@@ -7,17 +7,12 @@ import 'package:mush_on/kennel/add_dog/riverpod.dart';
 import 'package:mush_on/kennel/dog/custom_field_area.dart';
 import 'package:mush_on/kennel/dog/dog_info_widget.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
-import 'package:mush_on/kennel/dog/dog_tasks_widget.dart';
 import 'package:mush_on/kennel/dog/positions_widget.dart';
 import 'package:mush_on/kennel/dog/single_dog_notes_widget.dart';
 import 'package:mush_on/kennel/dog/tags_widget.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
-import 'package:mush_on/services/models/notes.dart';
-import 'package:mush_on/services/models/settings/custom_field.dart';
-import 'package:mush_on/services/models/settings/distance_warning.dart';
-import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/shared/distance_warning_widget/main.dart';
 
 class AddDogMain extends ConsumerWidget {

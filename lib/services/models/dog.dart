@@ -8,7 +8,6 @@ import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/custom_converters.dart';
 import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
 
 import 'settings/distance_warning.dart';
 part "dog.g.dart";
