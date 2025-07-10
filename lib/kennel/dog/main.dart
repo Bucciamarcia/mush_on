@@ -177,6 +177,24 @@ class DogMain extends ConsumerWidget {
                       onTaskEdited: (t) async {
                         try {
                           await TaskRepository.addOrUpdate(t, account);
+                          if (t.isDone &&
+                              t.expiration != null &&
+                              t.recurring != RecurringType.none) {
+                            // Create new task for next occurrence
+                            Task nextOccurrence = t.copyWith(
+                              id: '', // Let the repository generate a new ID
+                              isDone:
+                                  false, // Next occurrence starts as not done
+                              expiration: t.expiration!.add(
+                                (Duration(days: t.recurring.interval)),
+                              ),
+                            );
+                            TaskRepository.addOrUpdate(
+                              nextOccurrence,
+                              await ref.watch(accountProvider.future),
+                            );
+                          }
+
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               confirmationSnackbar(context, "Task edited"),

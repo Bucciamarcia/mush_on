@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mush_on/provider.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 
 import 'services/models.dart'; // Assuming BasicLogger is here
@@ -10,20 +10,17 @@ import 'services/models.dart'; // Assuming BasicLogger is here
 // Ensure BasicLogger has info, warning, and error methods.
 final BasicLogger logger = BasicLogger();
 
-class DbIdChanger extends StatelessWidget {
+class DbIdChanger extends ConsumerWidget {
   const DbIdChanger({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ElevatedButton(
       onPressed: () {
-        // --- Get data from provider ONCE using READ ---
-        // This safely reads the current state of the provider without listening
-        final mainProvider = context.read<MainProvider>();
         // Create a defensive copy of the map to avoid potential issues if the
         // provider's map were to change unexpectedly during the script's run.
         final Map<String, Dog> dogsMapFromProvider =
-            Map.from(mainProvider.dogsById);
+            Map.from(ref.watch(dogsProvider).value?.getAllDogsById() ?? {});
 
         if (dogsMapFromProvider.isEmpty) {
           logger.error(

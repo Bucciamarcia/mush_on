@@ -4,13 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/dog_selector.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/riverpod.dart';
-import 'package:mush_on/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
-import 'package:provider/provider.dart';
 import 'save_teams_button.dart';
 import 'select_datetime.dart';
 
@@ -126,7 +124,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
             (entry) {
               return TeamRetriever(
                 teamNumber: entry.key,
-                dogs: context.watch<MainProvider>().dogs,
+                dogs: allDogs ?? [],
                 runningDogs: runningDogs,
                 teams: teamGroup.teams,
                 notes: dogNotes,

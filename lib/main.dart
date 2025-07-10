@@ -11,12 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:mush_on/routes.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/firestore.dart';
-import 'package:provider/provider.dart';
 import 'home_page/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'login_screen/login_screen.dart';
-import 'provider.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 
 Future<void> main() async {
@@ -74,17 +72,13 @@ class MyApp extends rp.ConsumerWidget {
 
   @override
   Widget build(BuildContext context, rp.WidgetRef ref) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => MainProvider()),
-      ],
-      child: MaterialApp(
-          title: 'Mush On!',
-          routes: appRoutes,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
-            useMaterial3: true,
-          )),
+    return MaterialApp(
+      title: 'Mush On!',
+      routes: appRoutes,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        useMaterial3: true,
+      ),
     );
   }
 }
