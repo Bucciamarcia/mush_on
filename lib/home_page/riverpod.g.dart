@@ -27,7 +27,7 @@ final homePageRiverpodProvider =
 // ignore: unused_element
 typedef HomePageRiverpodRef
     = AutoDisposeStreamProviderRef<HomePageRiverpodResults>;
-String _$dogsWithWarningsHash() => r'16d365e83258e943b18bbd6aa2eb785cb37e81b5';
+String _$dogsWithWarningsHash() => r'834e9373a9e7d95f5f2abfb832628ec22a53c0c5';
 
 /// Simply returns the dogs with warnigns and errors, no other info.
 ///
