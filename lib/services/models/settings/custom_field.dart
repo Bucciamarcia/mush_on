@@ -94,7 +94,7 @@ sealed class CustomFieldValue with _$CustomFieldValue {
       IntValue(:final value) => value,
       StringValue() ||
       DropdownValue() =>
-        throw Exception("The value is not an int! It is a ${this.runtimeType}"),
+        throw Exception("The value is not an int! It is a $runtimeType"),
     };
   }
 

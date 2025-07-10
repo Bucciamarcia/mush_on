@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/services/models.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
 
 class FormatObject extends StatelessWidget {
   final TeamGroup item;

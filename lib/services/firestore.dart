@@ -12,7 +12,6 @@ import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/services/storage.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
