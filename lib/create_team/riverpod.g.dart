@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dogNotesHash() => r'f0d123351eb5a9d486a0edc8a17871397da3109f';
+String _$dogNotesHash() => r'22e5426393975c37a21620b3ea9a5e4a96961fdc';
 
 /// See also [dogNotes].
 @ProviderFor(dogNotes)
