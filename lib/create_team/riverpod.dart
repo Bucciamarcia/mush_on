@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/health/models.dart';
 import 'package:mush_on/health/provider.dart';
@@ -249,6 +250,34 @@ List<DogNote> dogNotes(Ref ref) {
           ),
         );
       }
+    }
+  }
+
+  // Process heats
+  List<HeatCycle> heatCycles = ref.watch(heatCyclesProvider(60)).value ?? [];
+  for (final heat in heatCycles.active) {
+    if (heat.preventFromRunning == true) {
+      dogNotesMap.update(
+        heat.dogId,
+        (existing) => existing.copyWith(
+          dogNoteMessage: [
+            ...existing.dogNoteMessage,
+            DogNoteMessage(
+              type: DogNoteType.heat,
+              details: DateFormat("dd-MM-yyyy").format(heat.startDate),
+            ),
+          ],
+        ),
+        ifAbsent: () => DogNote(
+          dogId: heat.dogId,
+          dogNoteMessage: [
+            DogNoteMessage(
+              type: DogNoteType.heat,
+              details: DateFormat("dd-MM-yyyy").format(heat.startDate),
+            ),
+          ],
+        ),
+      );
     }
   }
 
