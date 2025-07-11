@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/firestore.dart';
-import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -14,6 +14,23 @@ part 'riverpod.g.dart';
 @Riverpod(keepAlive: true)
 Stream<User?> authStateChanges(Ref ref) {
   return FirebaseAuth.instance.authStateChanges();
+}
+
+@Riverpod(keepAlive: true)
+Stream<UserName?> userName(Ref ref) async* {
+  User? user = ref.watch(authStateChangesProvider).value;
+  if (user == null) {
+    yield null;
+  }
+  final path = "users/$user";
+  var doc = FirebaseFirestore.instance.doc(path);
+  yield* doc.snapshots().map((snapshot) {
+    if (snapshot.data() != null) {
+      return UserName.fromJson(snapshot.data()!);
+    } else {
+      return null;
+    }
+  });
 }
 
 @Riverpod(keepAlive: true)

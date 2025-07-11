@@ -23,6 +23,22 @@ final authStateChangesProvider = StreamProvider<User?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthStateChangesRef = StreamProviderRef<User?>;
+String _$userNameHash() => r'cd858c95d2a3093bc3d804c7afbda3d506761311';
+
+/// See also [userName].
+@ProviderFor(userName)
+final userNameProvider = StreamProvider<UserName?>.internal(
+  userName,
+  name: r'userNameProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$userNameHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef UserNameRef = StreamProviderRef<UserName?>;
 String _$accountHash() => r'8e83ba12a96afebb4532b64c170040c641e6f5fb';
 
 /// See also [account].
