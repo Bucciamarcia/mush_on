@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 
-class SaveTeamsButton extends StatelessWidget {
+class SaveTeamsButton extends ConsumerWidget {
   final TeamGroup teamGroup;
   static final BasicLogger logger = BasicLogger();
   const SaveTeamsButton({
@@ -13,11 +14,12 @@ class SaveTeamsButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         try {
-          saveToDb(teamGroup);
+          String account = await ref.watch(accountProvider.future);
+          saveToDb(teamGroup, account);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -45,7 +47,7 @@ class SaveTeamsButton extends StatelessWidget {
     );
   }
 
-  Future<void> saveToDb(TeamGroup teamGroup) async {
+  Future<void> saveToDb(TeamGroup teamGroup, String account) async {
     try {
       DateTime utcDate = teamGroup.date.toUtc();
       DateTime dateTimeNoSeconds = DateTime.utc(utcDate.year, utcDate.month,
@@ -61,7 +63,6 @@ class SaveTeamsButton extends StatelessWidget {
         "teams": cleanTeams,
         "distance": teamGroup.distance
       };
-      String account = await FirestoreService().getUserAccount();
       String path = "accounts/$account/data/teams/history";
 
       if (snapshot.docs.isEmpty) {
@@ -118,7 +119,6 @@ class SaveTeamsButton extends StatelessWidget {
   Future<QuerySnapshot<Object?>> doesTeamExist(DateTime newDate) async {
     try {
       var db = FirebaseFirestore.instance;
-      String account = await FirestoreService().getUserAccount();
       String path = "accounts/$account/data/teams/history";
       var ref = db.collection(path);
       var query = ref.where(

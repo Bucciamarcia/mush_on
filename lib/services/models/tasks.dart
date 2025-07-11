@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'custom_converters.dart';
 part "tasks.g.dart";
@@ -65,9 +64,6 @@ class TaskRepository {
   /// Adds a task to the db if it doesn't exist, or overwrites it completely if it doesn't.
   static Future<void> addOrUpdate(Task task, String account) async {
     var db = FirebaseFirestore.instance;
-    if (account.isEmpty) {
-      account = await FirestoreService().getUserAccount();
-    }
     String path = "accounts/$account/data/misc/tasks";
     var collection = db.collection(path);
     Task taskToSave = task;
@@ -89,9 +85,6 @@ class TaskRepository {
 
   static Future<void> delete(String tid, String account) async {
     var db = FirebaseFirestore.instance;
-    if (account.isEmpty) {
-      account = await FirestoreService().getUserAccount();
-    }
     String path = "accounts/$account/data/misc/tasks";
     var collection = db.collection(path);
     var doc = collection.doc(tid);

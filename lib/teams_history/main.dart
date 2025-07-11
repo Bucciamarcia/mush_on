@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
-import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/teams_history/riverpod.dart';
 import 'format_exp_card_content.dart';
@@ -88,11 +87,12 @@ class TeamViewer extends ConsumerWidget {
                       ),
                       IconButton(
                         onPressed: () async {
+                          var account = await ref.watch(accountProvider.future);
                           showDialog(
                             context: context,
                             barrierDismissible: false,
                             builder: (BuildContext context) {
-                              return buildAlertDialog(context);
+                              return buildAlertDialog(context, account);
                             },
                           );
                         },
@@ -124,7 +124,7 @@ class TeamViewer extends ConsumerWidget {
     );
   }
 
-  AlertDialog buildAlertDialog(BuildContext context) {
+  AlertDialog buildAlertDialog(BuildContext context, String account) {
     return AlertDialog.adaptive(
       title: Text("Are you sure?"),
       content: Column(
@@ -146,7 +146,7 @@ class TeamViewer extends ConsumerWidget {
                 WidgetStateProperty.all(Theme.of(context).colorScheme.onError),
           ),
           onPressed: () async {
-            bool r = await deleteGroup();
+            bool r = await deleteGroup(account);
             if (r == true) {
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -177,10 +177,9 @@ class TeamViewer extends ConsumerWidget {
     );
   }
 
-  Future<bool> deleteGroup() async {
+  Future<bool> deleteGroup(String account) async {
     try {
       var db = FirebaseFirestore.instance;
-      String? account = await FirestoreService().getUserAccount();
 
       String path = "accounts/$account/data/teams/history";
       var ref = db.collection(path);

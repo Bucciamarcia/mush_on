@@ -1,13 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/general/loading_overlay.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models/dog.dart';
 
 // TODO: Possibilty to add multiple dogs.
 // TODO: Add other fields to add dog.
-class AddDogButton extends StatelessWidget {
+class AddDogButton extends ConsumerWidget {
   final Dog dog;
   final File? imageData;
   final Function() onDogAdded;
@@ -19,7 +21,7 @@ class AddDogButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ElevatedButton.icon(
       onPressed: () async {
         LoadingOverlay.show(context);
@@ -30,7 +32,8 @@ class AddDogButton extends StatelessWidget {
           return;
         }
         try {
-          await FirestoreService().addDogToDb(dog, imageData);
+          String account = await ref.watch(accountProvider.future);
+          await FirestoreService().addDogToDb(dog, imageData, account);
         } catch (e) {
           if (context.mounted) {
             ScaffoldMessenger.of(context)

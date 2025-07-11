@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mush_on/services/firestore.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/models/tasks.dart';
@@ -17,37 +17,34 @@ Stream<User?> authStateChanges(Ref ref) {
 }
 
 @Riverpod(keepAlive: true)
+
+/// This provider streams the current user from Firestore.
+/// If it returns null, the user is not logged in.
 Stream<UserName?> userName(Ref ref) async* {
   User? user = ref.watch(authStateChangesProvider).value;
   if (user == null) {
     yield null;
+  } else {
+    final path = "users/${user.uid}";
+    BasicLogger().info("path: $path");
+    var doc = FirebaseFirestore.instance.doc(path);
+    yield* doc.snapshots().map(
+      (snapshot) {
+        if (snapshot.data() != null) {
+          return UserName.fromJson(snapshot.data()!);
+        } else {
+          return null;
+        }
+      },
+    );
   }
-  final path = "users/$user";
-  var doc = FirebaseFirestore.instance.doc(path);
-  yield* doc.snapshots().map((snapshot) {
-    if (snapshot.data() != null) {
-      return UserName.fromJson(snapshot.data()!);
-    } else {
-      return null;
-    }
-  });
 }
 
 @Riverpod(keepAlive: true)
-Future<String> account(Ref ref) async {
+Stream<String> account(Ref ref) async* {
   // Wait for the auth state to produce a valid, non-null user
-  final user = await ref.watch(authStateChangesProvider.future);
-
-  // If the user is null after the stream resolves, it means they are logged out.
-  // Throwing an error here will put dependent providers in an error state.
-  if (user == null) {
-    throw Exception('User not authenticated');
-  }
-
-  // Now it's safe to call your FirestoreService
-  String account =
-      await FirestoreService().getUserAccount(); // This should now be safe
-  return account;
+  UserName? userName = await ref.watch(userNameProvider.future);
+  yield userName?.account ?? "";
 }
 
 @Riverpod(keepAlive: true)
