@@ -1,27 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mush_on/services/models/custom_converters.dart';
 part 'username.g.dart';
+part 'username.freezed.dart';
 
-@JsonSerializable()
+@freezed
 
 /// This class represents a user in the database.
-class UserName {
-  @JsonKey(name: 'last_login', fromJson: _timestampToDateTime)
-  final DateTime lastLogin;
+sealed class UserName with _$UserName {
+  const factory UserName({
+    @TimestampConverter() DateTime? lastLogin,
+    String? account,
+    required String uid,
+    required String email,
+  }) = _UserName;
 
-  final String? account;
-
-  UserName({required this.lastLogin, this.account});
-
-  // Converter for Timestamp to DateTime
-  static DateTime _timestampToDateTime(dynamic timestamp) {
-    if (timestamp is Timestamp) {
-      return timestamp.toDate();
-    }
-    throw ArgumentError('Expected Timestamp');
-  }
+  const UserName._();
 
   factory UserName.fromJson(Map<String, dynamic> json) =>
       _$UserNameFromJson(json);
-  Map<String, dynamic> toJson() => _$UserNameToJson(this);
 }

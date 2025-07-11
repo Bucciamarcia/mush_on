@@ -6,12 +6,17 @@ part of 'username.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-UserName _$UserNameFromJson(Map<String, dynamic> json) => UserName(
-      lastLogin: UserName._timestampToDateTime(json['last_login']),
+_UserName _$UserNameFromJson(Map<String, dynamic> json) => _UserName(
+      lastLogin:
+          const TimestampConverter().fromJson(json['lastLogin'] as Timestamp?),
       account: json['account'] as String?,
+      uid: json['uid'] as String,
+      email: json['email'] as String,
     );
 
-Map<String, dynamic> _$UserNameToJson(UserName instance) => <String, dynamic>{
-      'last_login': instance.lastLogin.toIso8601String(),
+Map<String, dynamic> _$UserNameToJson(_UserName instance) => <String, dynamic>{
+      'lastLogin': const TimestampConverter().toJson(instance.lastLogin),
       'account': instance.account,
+      'uid': instance.uid,
+      'email': instance.email,
     };
