@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/health/models.dart';
@@ -10,6 +11,7 @@ import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/services/riverpod/tags.dart';
 import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:rxdart/rxdart.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
 
@@ -30,17 +32,17 @@ abstract class HomePageRiverpodResults with _$HomePageRiverpodResults {
 
 /// Just for the home page
 Stream<HomePageRiverpodResults> homePageRiverpod(Ref ref) async* {
-  var dww = await ref.watch(dogsWithWarningsProvider.future);
-  var dogs = await ref.watch(dogsProvider.future);
-  var tasks = await ref.watch(tasksProvider(null).future);
-  var healthEvents = await ref.watch(healthEventsProvider(null).future);
-  var heatCycles = await ref.watch(heatCyclesProvider(null).future);
-  yield HomePageRiverpodResults(
-      dogsWithWarnings: dww,
-      dogs: dogs,
-      tasks: tasks,
-      heatCycles: heatCycles,
-      healthEvents: healthEvents);
+  BasicLogger().debug("Creating home page riverpod provider with rxDart");
+  yield* Rx.combineLatest5(dogsWithWarnings(ref), dogs(ref), tasks(ref, null),
+      healthEvents(ref, null), heatCycles(ref, null), (a, b, c, d, e) {
+    return HomePageRiverpodResults(
+      dogsWithWarnings: a,
+      dogs: b,
+      tasks: c,
+      healthEvents: d,
+      heatCycles: e,
+    );
+  });
 }
 
 @riverpod
