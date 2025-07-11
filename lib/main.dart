@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
+import 'package:mush_on/riverpod.dart';
 // ignore: depend_on_referenced_packages
 import 'package:timezone/data/latest.dart' as tz;
 // ignore: unused_import, depend_on_referenced_packages
@@ -9,8 +13,6 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mush_on/routes.dart';
-import 'package:mush_on/services/auth.dart';
-import 'package:mush_on/services/firestore.dart';
 import 'home_page/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -67,11 +69,11 @@ Future<void> main() async {
   runApp(rp.ProviderScope(child: const MyApp()));
 }
 
-class MyApp extends rp.ConsumerWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, rp.WidgetRef ref) {
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Mush On!',
       routes: appRoutes,
@@ -83,122 +85,99 @@ class MyApp extends rp.ConsumerWidget {
   }
 }
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends rp.ConsumerWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  // Create the future ONCE to avoid infinite loops
-  late Future<void> _loginFuture;
-  late Future<String?> _accountFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize futures once - they won't be called again on rebuilds
-    _loginFuture = _performLoginActions();
-    _accountFuture = _getAccount();
-  }
-
-  Future<void> _performLoginActions() async {
+  Future<void> _performLoginActions(User? user) async {
+    final db = FirebaseFirestore.instance;
     try {
-      await FirestoreService().userLoginActions();
+      if (user != null) {
+        try {
+          var ref = db.collection("users").doc(user.uid);
+          var data = {
+            "lastLogin": DateTime.now().toUtc(),
+            "email": user.email,
+            "uid": user.uid
+          };
+
+          // Use a timeout to avoid hanging when offline
+          await ref.set(data, SetOptions(merge: true)).timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              throw TimeoutException('Login update timed out - likely offline');
+            },
+          );
+        } catch (e, s) {
+          if (e is TimeoutException) {
+            logger.info("Login update timed out - continuing offline");
+            // Don't rethrow - we can continue offline
+          } else {
+            logger.error("Couldn't log in", error: e, stackTrace: s);
+            // Don't rethrow for offline-related errors
+            if (e.toString().contains('offline') ||
+                e.toString().contains('network') ||
+                e.toString().contains('UNAVAILABLE')) {
+              logger.info("Offline - skipping login update");
+            } else {
+              rethrow;
+            }
+          }
+        }
+      }
     } catch (e) {
       // Log but don't throw - we can continue offline
       logger.info('Login actions failed (likely offline): $e');
     }
   }
 
-  Future<String?> _getAccount() async {
-    try {
-      return await FirestoreService().getUserAccount();
-    } catch (e) {
-      logger.info('Failed to get account: $e');
-      return null;
-    }
-  }
-
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: AuthService().userStream,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator.adaptive(),
-          );
-        } else if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              snapshot.error.toString(),
-            ),
-          );
-        } else if (snapshot.hasData) {
-          // User is authenticated
-          return FutureBuilder<void>(
-            future: _loginFuture, // Use the cached future
-            builder: (context, loginSnapshot) {
-              // Don't wait for login actions - they're optional
-              // Check account status immediately
-              return FutureBuilder<String?>(
-                future: _accountFuture, // Use the cached future
-                builder: (context, accountSnapshot) {
-                  if (accountSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator.adaptive(),
-                    );
-                  } else if (accountSnapshot.hasError) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Error: ${accountSnapshot.error}"),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                // Recreate futures on retry
-                                _loginFuture = _performLoginActions();
-                                _accountFuture = _getAccount();
-                              });
-                            },
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    // Account data loaded (or null)
-                    final accountData = accountSnapshot.data;
-
-                    if (accountData == null) {
-                      return Scaffold(
-                        body: Container(
-                          padding: const EdgeInsets.all(10),
-                          child: const SafeArea(
-                            child: Text(
-                              "Access not authorized. This is normal for new accounts. The admin will authorize your account as needed.",
-                            ),
-                          ),
-                        ),
-                      );
-                    } else {
-                      return const HomePageScreen();
-                    }
-                  }
-                },
-              );
-            },
-          );
+  Widget build(BuildContext context, rp.WidgetRef ref) {
+    rp.AsyncValue<User?> userAsync = ref.watch(authStateChangesProvider);
+    switch (userAsync) {
+      case rp.AsyncData(:final value):
+        if (value == null) {
+          logger.info("Value of user is null: not logged in");
+          return LoginScreen();
         } else {
-          // User is not logged in
-          return const LoginScreen();
+          logger.info("Logging in!");
+          ref.listen<rp.AsyncValue<User?>>(authStateChangesProvider,
+              (previous, next) {
+            final user = next.value;
+            if (previous?.value == null && user != null) {
+              logger.info("User logged in, performing login actions.");
+              _performLoginActions(user);
+            }
+          });
+          final userNameAsync = ref.watch(userNameProvider);
+          switch (userNameAsync) {
+            case rp.AsyncData(:final value):
+              if (value == null) {
+                logger.warning("Couldn't find an account for the user");
+                return Text("Error: couldn't find an account");
+              } else if (value.account == null) {
+                return Text(
+                    "You are not assigned to any account. This is normal for new accounts, get in touch with admin to fix.");
+              } else {
+                return const HomePageScreen();
+              }
+            case rp.AsyncError(:final error, :final stackTrace):
+              logger.error("Error in fetching username",
+                  error: error, stackTrace: stackTrace);
+              return Text("Error: couldn't fetch the username");
+            default:
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+          }
         }
-      },
-    );
+      case rp.AsyncError(:final error, :final stackTrace):
+        logger.error("Error in fetching user.",
+            error: error, stackTrace: stackTrace);
+        return Text("Unknown error occurred");
+      default:
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+    }
   }
 }

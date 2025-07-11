@@ -23,9 +23,12 @@ final authStateChangesProvider = StreamProvider<User?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthStateChangesRef = StreamProviderRef<User?>;
-String _$userNameHash() => r'cd858c95d2a3093bc3d804c7afbda3d506761311';
+String _$userNameHash() => r'd39921f93ebd48e40503072014b934b2c59657a5';
 
-/// See also [userName].
+/// This provider streams the current user from Firestore.
+/// If it returns null, the user is not logged in.
+///
+/// Copied from [userName].
 @ProviderFor(userName)
 final userNameProvider = StreamProvider<UserName?>.internal(
   userName,
@@ -39,11 +42,11 @@ final userNameProvider = StreamProvider<UserName?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef UserNameRef = StreamProviderRef<UserName?>;
-String _$accountHash() => r'8e83ba12a96afebb4532b64c170040c641e6f5fb';
+String _$accountHash() => r'8d319a714f0da21e029f1ba56b5d16819e08622e';
 
 /// See also [account].
 @ProviderFor(account)
-final accountProvider = FutureProvider<String>.internal(
+final accountProvider = StreamProvider<String>.internal(
   account,
   name: r'accountProvider',
   debugGetCreateSourceHash:
@@ -54,7 +57,7 @@ final accountProvider = FutureProvider<String>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef AccountRef = FutureProviderRef<String>;
+typedef AccountRef = StreamProviderRef<String>;
 String _$settingsHash() => r'f3b3253278e100e7614d882468c2b2e23a7650b5';
 
 /// See also [settings].

@@ -98,20 +98,6 @@ extension DogListExtension on List<Dog> {
 
 /// All the operations related to the Dog class
 class DogRepository {
-  Future<List<Dog>> getDogs() async {
-    var data = await FirestoreService().getCollection("data/kennel/dogs");
-    var topics = data.map((d) => Dog.fromJson(d));
-    return topics.toList();
-  }
-
-  Future<Stream<List<Dog>>> streamDogs() async {
-    var account = await FirestoreService().getUserAccount();
-    String path = "accounts/$account/data/kennel/dogs";
-    return FirebaseFirestore.instance.collection(path).snapshots().map(
-        (snapshot) =>
-            snapshot.docs.map((doc) => Dog.fromJson(doc.data())).toList());
-  }
-
   /// Gets all the tags for a list of dogs
   static List<Tag> getAllTags(List<Dog> dogs) {
     List<Tag> toReturn = [];
@@ -148,7 +134,7 @@ class DogTotal {
   /// Retrieves from the db the kms run by a dog after a cutoff date.
   /// If cutoff is not set, it defaults to 30 days.
   static Future<List<DogTotal>> getDogTotals(
-      {required String id, DateTime? cutoff}) async {
+      {required String id, DateTime? cutoff, required String account}) async {
     // --- Effective Cutoff Date ---
     // Determine the real start date, applying default if needed, and ensure UTC midnight
     final DateTime nowUtc = DateTime.now().toUtc();
@@ -199,7 +185,8 @@ class DogTotal {
       // Fetch team groups using the *original* effective cutoff (or null if DB handles default)
       // IMPORTANT: Decide if getTeamgroups needs the precise time or just the date boundary.
       // Assuming it needs the original timestamp boundary:
-      teamGroups = await DogsDbOperations().getTeamgroups(effectiveCutoffInput);
+      teamGroups =
+          await DogsDbOperations().getTeamgroups(effectiveCutoffInput, account);
       // Or if it just needs the date:
       // teamGroups = await DogsDbOperations().getTeamgroups(effectiveCutoffDate);
     } catch (e, s) {

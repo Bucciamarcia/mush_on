@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
-import 'package:mush_on/services/auth.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/notes.dart';
@@ -52,11 +50,10 @@ class FirestoreService {
     }
   }
 
-  Future<void> addDogToDb(Dog dog, File? imageFile) async {
+  Future<void> addDogToDb(Dog dog, File? imageFile, String account) async {
     if (dog.id == "") {
       dog = dog.copyWith(id: Uuid().v4());
     }
-    String account = await FirestoreService().getUserAccount();
     try {
       if (imageFile != null) {
         DogPhotoCardUtils utils =
@@ -82,115 +79,14 @@ class FirestoreService {
       rethrow;
     }
   }
-
-  Future<void> userLoginActions() async {
-    // Skip App Check when offline - it's causing issues
-    try {
-      // Only do App Check if we might be online
-      // Quick timeout to avoid hanging
-      await AppCheckInterceptor.ensureAppCheck().timeout(
-        const Duration(seconds: 2),
-        onTimeout: () {
-          logger.info('App Check timed out - likely offline');
-        },
-      );
-    } catch (e) {
-      logger.info('App Check failed: $e');
-      // Continue anyway
-    }
-
-    late final User? user;
-    try {
-      user = AuthService().user;
-    } catch (e, s) {
-      logger.error("Couldn't fetch user", error: e, stackTrace: s);
-      rethrow;
-    }
-
-    if (user != null) {
-      try {
-        var ref = db.collection("users").doc(user.uid);
-        var data = {
-          "lastLogin": DateTime.now().toUtc(),
-          "email": user.email,
-          "uid": user.uid
-        };
-
-        // Use a timeout to avoid hanging when offline
-        await ref.set(data, SetOptions(merge: true)).timeout(
-          const Duration(seconds: 5),
-          onTimeout: () {
-            throw TimeoutException('Login update timed out - likely offline');
-          },
-        );
-      } catch (e, s) {
-        if (e is TimeoutException) {
-          logger.info("Login update timed out - continuing offline");
-          // Don't rethrow - we can continue offline
-        } else {
-          logger.error("Couldn't log in", error: e, stackTrace: s);
-          // Don't rethrow for offline-related errors
-          if (e.toString().contains('offline') ||
-              e.toString().contains('network') ||
-              e.toString().contains('UNAVAILABLE')) {
-            logger.info("Offline - skipping login update");
-          } else {
-            rethrow;
-          }
-        }
-      }
-    }
-  }
-
-  /// Get the user's account name if it exists.
-  /// If it doesn't, return null.
-  Future<String> getUserAccount() async {
-    try {
-      late final User? user;
-      try {
-        user = AuthService().user;
-      } catch (e, s) {
-        logger.error("Couldn't fetch user", error: e, stackTrace: s);
-        rethrow;
-      }
-      late final DocumentSnapshot<Map<String, dynamic>> snapshot;
-      try {
-        var ref = db.doc("users/${user?.uid ?? ""}");
-        snapshot = await ref.get();
-      } catch (e, s) {
-        logger.warning("Couldn't get snapshot for user account",
-            error: e, stackTrace: s);
-        return "";
-      }
-
-      // Check if document exists first
-      if (!snapshot.exists) {
-        logger.error("Snapshot doesn't exist");
-        throw Exception("Snapshot doesn't exist");
-      }
-
-      var data = snapshot.data();
-      if (data == null || data.isEmpty) {
-        logger.error("Snapshot is empty");
-        throw Exception("Snapshot is empty");
-      }
-
-      UserName userName = UserName.fromJson(data);
-      return userName.account ?? "";
-    } catch (e, s) {
-      logger.error("Couldn't get user account", error: e, stackTrace: s);
-      rethrow;
-    }
-  }
 }
 
 class DogsDbOperations {
   BasicLogger logger = BasicLogger();
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  Future<Dog> getDog(String dogId) async {
+  Future<Dog> getDog(String dogId, String account) async {
     try {
-      String account = await FirestoreService().getUserAccount();
       String path = "accounts/$account/data/kennel/dogs/$dogId";
       var doc = await db.doc(path).get();
 
@@ -207,9 +103,9 @@ class DogsDbOperations {
     }
   }
 
-  Future<String?> getDogNameFromId(String dogId) async {
+  Future<String?> getDogNameFromId(String dogId, String account) async {
     try {
-      Dog dog = await getDog(dogId);
+      Dog dog = await getDog(dogId, account);
       return dog.name;
     } catch (e) {
       logger.warning("Couldn't get dog name from id");
@@ -218,9 +114,8 @@ class DogsDbOperations {
   }
 
   /// Gets a list of all dog names in alphabetical order.
-  Future<List<String>> getAllDogNames() async {
+  Future<List<String>> getAllDogNames(String account) async {
     try {
-      String account = await FirestoreService().getUserAccount();
       String path = "accounts/$account/data/kennel/dogs";
       List<String> toReturn = [];
       var ref = db.collection(path);
@@ -239,9 +134,9 @@ class DogsDbOperations {
 
   /// Gets a Map with a list of dog ID -> Dog object starting from
   /// just a list of Dog Ids.
-  Future<Map<String, Dog>> getDogsByIds(List<String> dogIds) async {
+  Future<Map<String, Dog>> getDogsByIds(
+      List<String> dogIds, String account) async {
     try {
-      String account = await FirestoreService().getUserAccount();
       String path = "accounts/$account/data/kennel/dogs";
       List<QueryDocumentSnapshot<Map<String, dynamic>>> allDocSnapshots = [];
       List<List<String>> batches = [];
@@ -275,9 +170,9 @@ class DogsDbOperations {
     return toReturn;
   }
 
-  Future<List<TeamGroup>> getTeamgroups(DateTime? cutoff) async {
+  Future<List<TeamGroup>> getTeamgroups(
+      DateTime? cutoff, String account) async {
     cutoff ??= DateTime.now().toUtc().subtract(Duration(days: 30));
-    String account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/teams/history";
     var ref = db.collection(path);
     var snapshot =
@@ -289,10 +184,8 @@ class DogsDbOperations {
   Future<void> updateDogPositions(
       {required DogPositions newPositions,
       required String id,
-      String? account}) async {
-    try {
-      account ??= await FirestoreService().getUserAccount();
-    } catch (e, s) {
+      required String account}) async {
+    try {} catch (e, s) {
       logger.error("Couldn't fetch account in updateDogPositions",
           error: e, stackTrace: s);
       rethrow;
@@ -314,10 +207,10 @@ class DogsDbOperations {
   }
 
   Future<void> changeDogName(
-      {required String newName, required String id, String? account}) async {
-    try {
-      account ??= await FirestoreService().getUserAccount();
-    } catch (e, s) {
+      {required String newName,
+      required String id,
+      required String account}) async {
+    try {} catch (e, s) {
       logger.error("Couldn't fetch account in changeDogName",
           error: e, stackTrace: s);
       rethrow;
@@ -333,10 +226,10 @@ class DogsDbOperations {
   }
 
   Future<void> changeDogTags(
-      {required List<Tag> tags, required String id, String? account}) async {
-    try {
-      account ??= await FirestoreService().getUserAccount();
-    } catch (e, s) {
+      {required List<Tag> tags,
+      required String id,
+      required String account}) async {
+    try {} catch (e, s) {
       logger.error("Couldn't fetch account in changeDogName",
           error: e, stackTrace: s);
       rethrow;
@@ -352,10 +245,8 @@ class DogsDbOperations {
   }
 
   Future<void> addTag(
-      {required Tag tag, required String id, String? account}) async {
-    try {
-      account ??= await FirestoreService().getUserAccount();
-    } catch (e, s) {
+      {required Tag tag, required String id, required String account}) async {
+    try {} catch (e, s) {
       logger.error("Couldn't fetch account in addTag", error: e, stackTrace: s);
       rethrow;
     }
@@ -388,14 +279,7 @@ class DogsDbOperations {
   }
 
   Future<void> deleteTag(
-      {required Tag tag, required String id, String? account}) async {
-    try {
-      account ??= await FirestoreService().getUserAccount();
-    } catch (e, s) {
-      logger.error("Couldn't fetch account in addTag", error: e, stackTrace: s);
-      rethrow;
-    }
-
+      {required Tag tag, required String id, required String account}) async {
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
     try {
@@ -424,14 +308,7 @@ class DogsDbOperations {
   }
 
   Future<void> editTag(
-      {required Tag tag, required String id, String? account}) async {
-    try {
-      account ??= await FirestoreService().getUserAccount();
-    } catch (e, s) {
-      logger.error("Couldn't fetch account in addTag", error: e, stackTrace: s);
-      rethrow;
-    }
-
+      {required Tag tag, required String id, required String account}) async {
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
 
@@ -459,14 +336,9 @@ class DogsDbOperations {
   }
 
   Future<void> changeBirthday(
-      {required DateTime birthday, required String id, String? account}) async {
-    try {
-      account ??= await FirestoreService().getUserAccount();
-    } catch (e, s) {
-      logger.error("Couldn't fetch account in addTag", error: e, stackTrace: s);
-      rethrow;
-    }
-
+      {required DateTime birthday,
+      required String id,
+      required String account}) async {
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
 
@@ -479,14 +351,9 @@ class DogsDbOperations {
   }
 
   Future<void> changeSex(
-      {required DogSex sex, required String id, String? account}) async {
-    try {
-      account ??= await FirestoreService().getUserAccount();
-    } catch (e, s) {
-      logger.error("Couldn't fetch account in addTag", error: e, stackTrace: s);
-      rethrow;
-    }
-
+      {required DogSex sex,
+      required String id,
+      required String account}) async {
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
 
@@ -499,8 +366,7 @@ class DogsDbOperations {
   }
 
   /// Deletes a dog from the db
-  Future<void> deleteDog(String dogId) async {
-    var account = await FirestoreService().getUserAccount();
+  Future<void> deleteDog(String dogId, String account) async {
     // Delete the dog's data on storage
     var imagesPath = "accounts/$account/dogs/$dogId";
     try {
@@ -530,7 +396,6 @@ class DogsDbOperations {
 
   Future<void> updateCustomFields(
       {required String dogId, required List<CustomField> customFields}) async {
-    var account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/kennel/dogs";
     var dogsRef = FirebaseFirestore.instance.collection(path);
     var doc = dogsRef.doc(dogId);
@@ -548,7 +413,6 @@ class DogsDbOperations {
 
   Future<void> updateNotes(
       {required String dogId, required List<SingleDogNote> notes}) async {
-    var account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/kennel/dogs";
     var dogsRef = FirebaseFirestore.instance.collection(path);
     var doc = dogsRef.doc(dogId);
@@ -566,7 +430,6 @@ class DogsDbOperations {
 
   Future<void> updateDistanceWarnings(
       {required List<DistanceWarning> warnings, required String dogId}) async {
-    var account = await FirestoreService().getUserAccount();
     String path = "accounts/$account/data/kennel/dogs";
     var dogsRef = FirebaseFirestore.instance.collection(path);
     var doc = dogsRef.doc(dogId);

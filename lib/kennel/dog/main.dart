@@ -43,8 +43,8 @@ class DogMain extends ConsumerWidget {
                         name: dog.name,
                         onNameChanged: (String newName) async {
                           try {
-                            await DogsDbOperations()
-                                .changeDogName(id: dog.id, newName: newName);
+                            await DogsDbOperations().changeDogName(
+                                id: dog.id, newName: newName, account: account);
                             // Optionally show success message
                           } catch (e, s) {
                             logger.error("Couldn't change the name of the dog",
@@ -83,7 +83,9 @@ class DogMain extends ConsumerWidget {
                       onPositionsChanged: (DogPositions newPositions) async {
                         try {
                           await DogsDbOperations().updateDogPositions(
-                              newPositions: newPositions, id: dog.id);
+                              newPositions: newPositions,
+                              id: dog.id,
+                              account: account);
                         } catch (e, s) {
                           logger.error("Couldn't update dog positions",
                               error: e, stackTrace: s);
@@ -102,7 +104,8 @@ class DogMain extends ConsumerWidget {
                       onTagAdded: (Tag tag) async {
                         logger.debug("Initiating adding a tag: ${tag.name}");
                         try {
-                          await DogsDbOperations().addTag(tag: tag, id: dog.id);
+                          await DogsDbOperations()
+                              .addTag(tag: tag, id: dog.id, account: account);
                         } catch (e, s) {
                           logger.error("Couldn't add tag",
                               error: e, stackTrace: s);
@@ -114,7 +117,8 @@ class DogMain extends ConsumerWidget {
                       },
                       onTagChanged: (Tag tag) {
                         try {
-                          DogsDbOperations().editTag(tag: tag, id: dog.id);
+                          DogsDbOperations()
+                              .editTag(tag: tag, id: dog.id, account: account);
                         } catch (e, s) {
                           logger.error("Couldn't edit tag",
                               error: e, stackTrace: s);
@@ -126,7 +130,8 @@ class DogMain extends ConsumerWidget {
                       },
                       onTagDeleted: (Tag tag) {
                         try {
-                          DogsDbOperations().deleteTag(tag: tag, id: dog.id);
+                          DogsDbOperations().deleteTag(
+                              tag: tag, id: dog.id, account: account);
                         } catch (e, s) {
                           logger.error("Couldn't delete tag",
                               error: e, stackTrace: s);
@@ -145,7 +150,9 @@ class DogMain extends ConsumerWidget {
                       onBirthdayChanged: (DateTime newBirthday) async {
                         try {
                           await DogsDbOperations().changeBirthday(
-                              birthday: newBirthday, id: dog.id);
+                              birthday: newBirthday,
+                              id: dog.id,
+                              account: account);
                         } catch (e, s) {
                           logger.error("Couldn't change birthday",
                               error: e, stackTrace: s);
@@ -158,7 +165,8 @@ class DogMain extends ConsumerWidget {
                       },
                       onSexChanged: (DogSex newSex) {
                         try {
-                          DogsDbOperations().changeSex(sex: newSex, id: dog.id);
+                          DogsDbOperations().changeSex(
+                              sex: newSex, id: dog.id, account: account);
                         } catch (e, s) {
                           logger.error("Couldn't change sex",
                               error: e, stackTrace: s);
@@ -425,7 +433,8 @@ class DogMain extends ConsumerWidget {
                             dog: dog,
                             onConfirmed: () async {
                               try {
-                                await DogsDbOperations().deleteDog(dog.id);
+                                await DogsDbOperations()
+                                    .deleteDog(dog.id, account);
                                 // First pop the dialog
                                 if (dialogContext.mounted) {
                                   Navigator.of(dialogContext).pop();
