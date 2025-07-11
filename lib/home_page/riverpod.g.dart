@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$homePageRiverpodHash() => r'8aa04d9a4c87828262e0838d8a6dfc721ee8a8f2';
+String _$homePageRiverpodHash() => r'b860f47ab8fe873cce2d6b238eff26a3e283cf20';
 
 /// Just for the home page
 ///
