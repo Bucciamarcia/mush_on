@@ -79,18 +79,13 @@ extension HealthEventsExtension on List<HealthEvent> {
   }
 
   List<HealthEvent> startingInNext({required int days}) {
+    final DateTime today = DateTimeUtils.today();
+    final DateTime futureDate = today.add(Duration(days: days));
+
     return where((e) {
-      if (!e.isResolved &&
-          e.date.isAfter(DateTimeUtils.today()) &&
-          e.date.isBefore(
-            DateTimeUtils.today().add(
-              Duration(days: days),
-            ),
-          )) {
-        return true;
-      } else {
-        return false;
-      }
+      return !e.isResolved &&
+          !e.date.isBefore(today) &&
+          e.date.isBefore(futureDate);
     }).toList();
   }
 }
