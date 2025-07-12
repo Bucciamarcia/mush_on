@@ -88,3 +88,4 @@ A cool and open source CRM for sled dog kennels.
 - Adding a dog allows to add all fields.
 - Dogs in heat that can run now result in warnings.
 - Add dog in kennel page moved to floating action button.
+- Added whiteboard.

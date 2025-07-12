@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/health/models.dart';
+import 'package:mush_on/home_page/repository.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
@@ -10,8 +11,10 @@ import 'package:mush_on/tasks/tab_bar_widgets/sf_schedule_view.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'models.dart';
 import 'riverpod.dart';
+import 'whiteboard_element.dart';
 
 class HomePageScreenContent extends ConsumerWidget {
+  static final logger = BasicLogger();
   const HomePageScreenContent({super.key});
 
   @override
@@ -20,10 +23,13 @@ class HomePageScreenContent extends ConsumerWidget {
         ref.watch(homePageRiverpodProvider);
     return riverpodAsync.when(
       data: (riverpod) {
+        String? account = ref.watch(accountProvider).value;
         List<Dog> dogs = riverpod.dogs;
         DogsWithWarnings dogsWithWarnings = riverpod.dogsWithWarnings;
         TasksInMemory tasks = riverpod.tasks;
         int canRun = dogs.length - dogsWithWarnings.fatal.length;
+        List<WhiteboardElement> whiteboardElements =
+            riverpod.whiteboardElements;
         List<Dog> dogsWithOnlyWarnings =
             _getDogsWithOnlyWarnings(dogsWithWarnings);
         return ListView(
@@ -31,19 +37,106 @@ class HomePageScreenContent extends ConsumerWidget {
             Card(
               color: Theme.of(context).colorScheme.surfaceContainer,
               child: ExpansionTile(
-                title: Row(
+                  title: Row(
+                    children: [
+                      Tooltip(
+                        showDuration: Duration(seconds: 5),
+                        triggerMode: TooltipTriggerMode.tap,
+                        message:
+                            "A quick whiteboard that refreshes every day. For easy communication.",
+                        child: Icon(Icons.question_mark),
+                      ),
+                      TextTitle("Whiteboard"),
+                    ],
+                  ),
                   children: [
-                    Tooltip(
-                      showDuration: Duration(seconds: 5),
-                      triggerMode: TooltipTriggerMode.tap,
-                      message:
-                          "A quick whiteboard that refreshes every day. For easy communication.",
-                      child: Icon(Icons.question_mark),
+                    AddWhiteboardElementDisplayWidget(
+                      onDeleted: (id) {
+                        if (account == null) {
+                          logger.warning("Couldn't load account in home page");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(
+                                  context, "Error: couldn't load account"));
+                        } else {
+                          try {
+                            WhiteboardElementRepository(account: account)
+                                .deleteElement(id);
+                          } catch (e, s) {
+                            logger.error("couldn't delete element",
+                                error: e, stackTrace: s);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                errorSnackBar(
+                                    context, "Error: couldn't delete element"));
+                          }
+                        }
+                      },
+                      onSaved: (e) {
+                        if (account == null) {
+                          logger.warning("Couldn't load account in home page");
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(
+                                  context, "Error: couldn't load account"));
+                        } else {
+                          try {
+                            WhiteboardElementRepository(account: account)
+                                .addElement(e);
+                          } catch (e, s) {
+                            logger.error("couldn't add element",
+                                error: e, stackTrace: s);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                errorSnackBar(
+                                    context, "Error: couldn't add element"));
+                          }
+                        }
+                      },
                     ),
-                    TextTitle("Whiteboard"),
-                  ],
-                ),
-              ),
+                    ...whiteboardElements.map((element) => SizedBox(
+                          width: double.infinity,
+                          child: WhiteboardElementDisplayWidget(
+                            element: element,
+                            onDeleted: (id) {
+                              if (account == null) {
+                                logger.warning(
+                                    "Couldn't load account in home page");
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    errorSnackBar(context,
+                                        "Error: couldn't load account"));
+                              } else {
+                                try {
+                                  WhiteboardElementRepository(account: account)
+                                      .deleteElement(id);
+                                } catch (e, s) {
+                                  logger.error("couldn't delete element",
+                                      error: e, stackTrace: s);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      errorSnackBar(context,
+                                          "Error: couldn't delete element"));
+                                }
+                              }
+                            },
+                            onSaved: (e) {
+                              if (account == null) {
+                                logger.warning(
+                                    "Couldn't load account in home page");
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    errorSnackBar(context,
+                                        "Error: couldn't load account"));
+                              } else {
+                                try {
+                                  WhiteboardElementRepository(account: account)
+                                      .addElement(e);
+                                } catch (e, s) {
+                                  logger.error("couldn't add element",
+                                      error: e, stackTrace: s);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      errorSnackBar(context,
+                                          "Error: couldn't add element"));
+                                }
+                              }
+                            },
+                          ),
+                        ))
+                  ]),
             ),
             Card(
               color: Theme.of(context).colorScheme.surfaceContainer,
