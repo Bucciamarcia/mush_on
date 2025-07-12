@@ -1,48 +1,60 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/health/models.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
-import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/services/riverpod/tags.dart';
 import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
+
+import 'models.dart';
 part 'riverpod.g.dart';
-part 'riverpod.freezed.dart';
-
-@freezed
-
-/// Just a class that contains all the riverpod results that Homepage needs
-abstract class HomePageRiverpodResults with _$HomePageRiverpodResults {
-  const factory HomePageRiverpodResults({
-    required DogsWithWarnings dogsWithWarnings,
-    required List<Dog> dogs,
-    required TasksInMemory tasks,
-    required List<HeatCycle> heatCycles,
-    required List<HealthEvent> healthEvents,
-  }) = _HomePageRiverpodResults;
-}
 
 @riverpod
 
 /// Just for the home page
 Stream<HomePageRiverpodResults> homePageRiverpod(Ref ref) async* {
   BasicLogger().debug("Creating home page riverpod provider with rxDart");
-  yield* Rx.combineLatest5(dogsWithWarnings(ref), dogs(ref), tasks(ref, null),
-      healthEvents(ref, null), heatCycles(ref, null), (a, b, c, d, e) {
+  yield* Rx.combineLatest6(
+      dogsWithWarnings(ref),
+      dogs(ref),
+      tasks(ref, null),
+      healthEvents(ref, null),
+      heatCycles(ref, null),
+      todayWhiteboard(ref), (a, b, c, d, e, f) {
     return HomePageRiverpodResults(
-      dogsWithWarnings: a,
-      dogs: b,
-      tasks: c,
-      healthEvents: d,
-      heatCycles: e,
-    );
+        dogsWithWarnings: a,
+        dogs: b,
+        tasks: c,
+        healthEvents: d,
+        heatCycles: e,
+        whiteboardElements: f);
   });
+}
+
+@riverpod
+
+/// Streams the list of today's whiteboard elements from the db.
+Stream<List<WhiteboardElement>> todayWhiteboard(Ref ref) async* {
+  String account = await ref.watch(accountProvider.future);
+  String path = "accounts/$account/data/homePage/whiteboardElements";
+  final db = FirebaseFirestore.instance;
+  var dbRef =
+      db.collection(path).where("date", isEqualTo: DateTimeUtils.today());
+  yield* dbRef.snapshots().map(
+        (snapshot) => snapshot.docs
+            .map(
+              (doc) => WhiteboardElement.fromJson(
+                doc.data(),
+              ),
+            )
+            .toList(),
+      );
 }
 
 @riverpod
