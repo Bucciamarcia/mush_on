@@ -44,8 +44,10 @@ Stream<List<WhiteboardElement>> todayWhiteboard(Ref ref) async* {
   String account = await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/homePage/whiteboardElements";
   final db = FirebaseFirestore.instance;
-  var dbRef =
-      db.collection(path).where("date", isEqualTo: DateTimeUtils.today());
+  var dbRef = db
+      .collection(path)
+      .where("date", isEqualTo: DateTimeUtils.today())
+      .orderBy("title", descending: false);
   yield* dbRef.snapshots().map(
         (snapshot) => snapshot.docs
             .map(
