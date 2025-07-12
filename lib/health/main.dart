@@ -183,23 +183,31 @@ class HealthMain extends ConsumerWidget {
                     ],
                   ),
                   SizedBox(height: 8),
-                  ...vaccinations.overdue.map((v) => Padding(
-                        padding: EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          children: [
-                            Icon(Icons.pets, size: 16),
-                            SizedBox(width: 8),
-                            Text(
-                              dogs.getDogFromId(v.dogId)?.name ?? "Unknown",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(" - ${v.title}"),
-                            Spacer(),
-                            Text(
-                              "Expired ${DateFormat("MMM d").format(v.expirationDate!)}",
-                              style: TextStyle(color: colorScheme.error),
-                            ),
-                          ],
+                  ...vaccinations.overdue.map((v) => InkWell(
+                        onTap: () => showDialog(
+                            context: context,
+                            builder: (dialogContext) => VaccinationEditorAlert(
+                                  event: v,
+                                  dogs: dogs,
+                                )),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              Icon(Icons.pets, size: 16),
+                              SizedBox(width: 8),
+                              Text(
+                                dogs.getDogFromId(v.dogId)?.name ?? "Unknown",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text(" - ${v.title}"),
+                              Spacer(),
+                              Text(
+                                "Expired ${DateFormat("MMM d").format(v.expirationDate!)}",
+                                style: TextStyle(color: colorScheme.error),
+                              ),
+                            ],
+                          ),
                         ),
                       )),
                 ],
