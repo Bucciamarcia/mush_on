@@ -74,6 +74,22 @@ extension HealthEventsExtension on List<HealthEvent> {
       return false;
     }).toList();
   }
+
+  List<HealthEvent> expiringSoon({required int days}) {
+    return where((e) {
+      if (!e.isResolved &&
+          e.date.isAfter(DateTimeUtils.today()) &&
+          e.date.isBefore(
+            DateTimeUtils.today().add(
+              Duration(days: days),
+            ),
+          )) {
+        return true;
+      } else {
+        return false;
+      }
+    }).toList();
+  }
 }
 
 @freezed

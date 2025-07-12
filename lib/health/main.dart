@@ -303,6 +303,36 @@ class HealthMain extends ConsumerWidget {
             ),
           ),
 
+        //Upcoming health events
+        if (healthEvents.expiringSoon(days: 30).isNotEmpty)
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextTitle("Upcoming health events"),
+                  SizedBox(height: 8),
+                  ...healthEvents.expiringSoon(days: 30).map((v) => ListTile(
+                        onTap: () => showDialog(
+                            context: context,
+                            builder: (context) =>
+                                HealthEventEditorAlert(dogs: dogs, event: v)),
+                        dense: true,
+                        leading: Icon(Icons.healing, color: Colors.amber),
+                        title:
+                            Text(dogs.getDogFromId(v.dogId)?.name ?? "Unknown"),
+                        subtitle: Text(v.title),
+                        trailing: Text(
+                          DateFormat("MMM d").format(v.date),
+                          style: TextStyle(color: Colors.amber[700]),
+                        ),
+                      )),
+                ],
+              ),
+            ),
+          ),
+
         // Upcoming vaccinations
         if (vaccinations.expiringSoon(days: 30).isNotEmpty)
           Card(
