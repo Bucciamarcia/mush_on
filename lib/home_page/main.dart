@@ -8,6 +8,7 @@ import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/shared/text_title.dart';
 import 'package:mush_on/tasks/tab_bar_widgets/sf_schedule_view.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'models.dart';
 import 'riverpod.dart';
 
 class HomePageScreenContent extends ConsumerWidget {
@@ -27,6 +28,23 @@ class HomePageScreenContent extends ConsumerWidget {
             _getDogsWithOnlyWarnings(dogsWithWarnings);
         return ListView(
           children: [
+            Card(
+              color: Theme.of(context).colorScheme.surfaceContainer,
+              child: ExpansionTile(
+                title: Row(
+                  children: [
+                    Tooltip(
+                      showDuration: Duration(seconds: 5),
+                      triggerMode: TooltipTriggerMode.tap,
+                      message:
+                          "A quick whiteboard that refreshes every day. For easy communication.",
+                      child: Icon(Icons.question_mark),
+                    ),
+                    TextTitle("Whiteboard"),
+                  ],
+                ),
+              ),
+            ),
             Card(
               color: Theme.of(context).colorScheme.surfaceContainer,
               child: ExpansionTile(
