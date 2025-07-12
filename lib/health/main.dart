@@ -304,7 +304,7 @@ class HealthMain extends ConsumerWidget {
           ),
 
         //Upcoming health events
-        if (healthEvents.expiringSoon(days: 30).isNotEmpty)
+        if (healthEvents.startingInNext(days: 30).isNotEmpty)
           Card(
             child: Padding(
               padding: EdgeInsets.all(12),
@@ -313,7 +313,7 @@ class HealthMain extends ConsumerWidget {
                 children: [
                   TextTitle("Upcoming health events"),
                   SizedBox(height: 8),
-                  ...healthEvents.expiringSoon(days: 30).map((v) => ListTile(
+                  ...healthEvents.startingInNext(days: 30).map((v) => ListTile(
                         onTap: () => showDialog(
                             context: context,
                             builder: (context) =>

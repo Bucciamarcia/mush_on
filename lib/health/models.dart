@@ -48,9 +48,12 @@ abstract class HealthEvent with _$HealthEvent {
 }
 
 extension HealthEventExtension on HealthEvent {
-  bool get isOneShot => createdAt == resolvedDate;
+  bool get isOneShot => date == resolvedDate;
   bool get isOngoing => resolvedDate == null;
-  bool get isResolved => resolvedDate != null && resolvedDate != date;
+  bool get isResolved =>
+      resolvedDate != null &&
+      resolvedDate != date &&
+      resolvedDate!.isBefore(DateTimeUtils.today());
   Duration? get duration => resolvedDate?.difference(date);
 }
 
@@ -75,7 +78,7 @@ extension HealthEventsExtension on List<HealthEvent> {
     }).toList();
   }
 
-  List<HealthEvent> expiringSoon({required int days}) {
+  List<HealthEvent> startingInNext({required int days}) {
     return where((e) {
       if (!e.isResolved &&
           e.date.isAfter(DateTimeUtils.today()) &&
