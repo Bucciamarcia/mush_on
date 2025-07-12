@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/home_page/models.dart';
 import 'package:mush_on/services/extensions.dart';
-import 'package:mush_on/shared/text_title.dart';
 import 'package:uuid/uuid.dart';
 
 class WhiteboardElementDisplayWidget extends StatelessWidget {

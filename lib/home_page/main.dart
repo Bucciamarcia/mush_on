@@ -37,6 +37,7 @@ class HomePageScreenContent extends ConsumerWidget {
             Card(
               color: Theme.of(context).colorScheme.surfaceContainer,
               child: ExpansionTile(
+                  initiallyExpanded: true,
                   title: Row(
                     children: [
                       Tooltip(
