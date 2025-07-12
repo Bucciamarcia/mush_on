@@ -11,7 +11,8 @@ _WhiteboardElement _$WhiteboardElementFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       title: json['title'] as String? ?? "",
       description: json['description'] as String? ?? "",
-      date: DateTime.parse(json['date'] as String),
+      date: const NonNullableTimestampConverter()
+          .fromJson(json['date'] as Timestamp),
       comments: (json['comments'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -23,6 +24,6 @@ Map<String, dynamic> _$WhiteboardElementToJson(_WhiteboardElement instance) =>
       'id': instance.id,
       'title': instance.title,
       'description': instance.description,
-      'date': instance.date.toIso8601String(),
+      'date': const NonNullableTimestampConverter().toJson(instance.date),
       'comments': instance.comments,
     };

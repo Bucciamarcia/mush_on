@@ -317,6 +317,7 @@ mixin _$WhiteboardElement {
   String get id;
   String get title;
   String get description;
+  @NonNullableTimestampConverter()
   DateTime get date;
   List<String> get comments;
 
@@ -365,7 +366,7 @@ abstract mixin class $WhiteboardElementCopyWith<$Res> {
       {String id,
       String title,
       String description,
-      DateTime date,
+      @NonNullableTimestampConverter() DateTime date,
       List<String> comments});
 }
 
@@ -420,7 +421,7 @@ class _WhiteboardElement implements WhiteboardElement {
       {required this.id,
       this.title = "",
       this.description = "",
-      required this.date,
+      @NonNullableTimestampConverter() required this.date,
       final List<String> comments = const <String>[]})
       : _comments = comments;
   factory _WhiteboardElement.fromJson(Map<String, dynamic> json) =>
@@ -435,6 +436,7 @@ class _WhiteboardElement implements WhiteboardElement {
   @JsonKey()
   final String description;
   @override
+  @NonNullableTimestampConverter()
   final DateTime date;
   final List<String> _comments;
   @override
@@ -496,7 +498,7 @@ abstract mixin class _$WhiteboardElementCopyWith<$Res>
       {String id,
       String title,
       String description,
-      DateTime date,
+      @NonNullableTimestampConverter() DateTime date,
       List<String> comments});
 }
 
