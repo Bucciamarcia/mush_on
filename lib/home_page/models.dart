@@ -4,7 +4,6 @@ import 'package:mush_on/health/models.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/custom_converters.dart';
 import 'package:mush_on/services/models/tasks.dart';
-import 'riverpod.dart';
 part 'models.g.dart';
 part 'models.freezed.dart';
 
@@ -13,7 +12,6 @@ part 'models.freezed.dart';
 /// Just a class that contains all the riverpod results that Homepage needs
 abstract class HomePageRiverpodResults with _$HomePageRiverpodResults {
   const factory HomePageRiverpodResults({
-    required DogsWithWarnings dogsWithWarnings,
     required List<Dog> dogs,
     required TasksInMemory tasks,
     required List<HeatCycle> heatCycles,

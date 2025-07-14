@@ -47,6 +47,46 @@ extension DogNotesExtension on List<DogNote> {
     }
   }
 
+  /// Returns a list of DogNotes where at least one note is type note.
+  List<DogNote> typeNote() {
+    return where(
+      (note) {
+        for (var n in note.dogNoteMessage) {
+          if (n.type.noteType == NoteType.info) {
+            return true;
+          }
+        }
+        return false;
+      },
+    ).toList();
+  }
+
+  List<DogNote> typeWarning() {
+    return where(
+      (note) {
+        for (var n in note.dogNoteMessage) {
+          if (n.type.noteType == NoteType.warning) {
+            return true;
+          }
+        }
+        return false;
+      },
+    ).toList();
+  }
+
+  List<DogNote> typeFatal() {
+    return where(
+      (note) {
+        for (var n in note.dogNoteMessage) {
+          if (n.type.noteType == NoteType.fatal) {
+            return true;
+          }
+        }
+        return false;
+      },
+    ).toList();
+  }
+
   bool _containsDog(List<DogNote> notes, DogNote newNote) {
     return notes.any((note) => note.dogId == newNote.dogId);
   }

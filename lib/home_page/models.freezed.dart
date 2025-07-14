@@ -15,7 +15,6 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$HomePageRiverpodResults {
-  DogsWithWarnings get dogsWithWarnings;
   List<Dog> get dogs;
   TasksInMemory get tasks;
   List<HeatCycle> get heatCycles;
@@ -35,8 +34,6 @@ mixin _$HomePageRiverpodResults {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is HomePageRiverpodResults &&
-            (identical(other.dogsWithWarnings, dogsWithWarnings) ||
-                other.dogsWithWarnings == dogsWithWarnings) &&
             const DeepCollectionEquality().equals(other.dogs, dogs) &&
             (identical(other.tasks, tasks) || other.tasks == tasks) &&
             const DeepCollectionEquality()
@@ -50,7 +47,6 @@ mixin _$HomePageRiverpodResults {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      dogsWithWarnings,
       const DeepCollectionEquality().hash(dogs),
       tasks,
       const DeepCollectionEquality().hash(heatCycles),
@@ -59,7 +55,7 @@ mixin _$HomePageRiverpodResults {
 
   @override
   String toString() {
-    return 'HomePageRiverpodResults(dogsWithWarnings: $dogsWithWarnings, dogs: $dogs, tasks: $tasks, heatCycles: $heatCycles, healthEvents: $healthEvents, whiteboardElements: $whiteboardElements)';
+    return 'HomePageRiverpodResults(dogs: $dogs, tasks: $tasks, heatCycles: $heatCycles, healthEvents: $healthEvents, whiteboardElements: $whiteboardElements)';
   }
 }
 
@@ -70,8 +66,7 @@ abstract mixin class $HomePageRiverpodResultsCopyWith<$Res> {
       _$HomePageRiverpodResultsCopyWithImpl;
   @useResult
   $Res call(
-      {DogsWithWarnings dogsWithWarnings,
-      List<Dog> dogs,
+      {List<Dog> dogs,
       TasksInMemory tasks,
       List<HeatCycle> heatCycles,
       List<HealthEvent> healthEvents,
@@ -93,7 +88,6 @@ class _$HomePageRiverpodResultsCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? dogsWithWarnings = null,
     Object? dogs = null,
     Object? tasks = null,
     Object? heatCycles = null,
@@ -101,10 +95,6 @@ class _$HomePageRiverpodResultsCopyWithImpl<$Res>
     Object? whiteboardElements = null,
   }) {
     return _then(_self.copyWith(
-      dogsWithWarnings: null == dogsWithWarnings
-          ? _self.dogsWithWarnings
-          : dogsWithWarnings // ignore: cast_nullable_to_non_nullable
-              as DogsWithWarnings,
       dogs: null == dogs
           ? _self.dogs
           : dogs // ignore: cast_nullable_to_non_nullable
@@ -143,8 +133,7 @@ class _$HomePageRiverpodResultsCopyWithImpl<$Res>
 
 class _HomePageRiverpodResults implements HomePageRiverpodResults {
   const _HomePageRiverpodResults(
-      {required this.dogsWithWarnings,
-      required final List<Dog> dogs,
+      {required final List<Dog> dogs,
       required this.tasks,
       required final List<HeatCycle> heatCycles,
       required final List<HealthEvent> healthEvents,
@@ -154,8 +143,6 @@ class _HomePageRiverpodResults implements HomePageRiverpodResults {
         _healthEvents = healthEvents,
         _whiteboardElements = whiteboardElements;
 
-  @override
-  final DogsWithWarnings dogsWithWarnings;
   final List<Dog> _dogs;
   @override
   List<Dog> get dogs {
@@ -205,8 +192,6 @@ class _HomePageRiverpodResults implements HomePageRiverpodResults {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _HomePageRiverpodResults &&
-            (identical(other.dogsWithWarnings, dogsWithWarnings) ||
-                other.dogsWithWarnings == dogsWithWarnings) &&
             const DeepCollectionEquality().equals(other._dogs, _dogs) &&
             (identical(other.tasks, tasks) || other.tasks == tasks) &&
             const DeepCollectionEquality()
@@ -220,7 +205,6 @@ class _HomePageRiverpodResults implements HomePageRiverpodResults {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      dogsWithWarnings,
       const DeepCollectionEquality().hash(_dogs),
       tasks,
       const DeepCollectionEquality().hash(_heatCycles),
@@ -229,7 +213,7 @@ class _HomePageRiverpodResults implements HomePageRiverpodResults {
 
   @override
   String toString() {
-    return 'HomePageRiverpodResults(dogsWithWarnings: $dogsWithWarnings, dogs: $dogs, tasks: $tasks, heatCycles: $heatCycles, healthEvents: $healthEvents, whiteboardElements: $whiteboardElements)';
+    return 'HomePageRiverpodResults(dogs: $dogs, tasks: $tasks, heatCycles: $heatCycles, healthEvents: $healthEvents, whiteboardElements: $whiteboardElements)';
   }
 }
 
@@ -242,8 +226,7 @@ abstract mixin class _$HomePageRiverpodResultsCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {DogsWithWarnings dogsWithWarnings,
-      List<Dog> dogs,
+      {List<Dog> dogs,
       TasksInMemory tasks,
       List<HeatCycle> heatCycles,
       List<HealthEvent> healthEvents,
@@ -266,7 +249,6 @@ class __$HomePageRiverpodResultsCopyWithImpl<$Res>
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? dogsWithWarnings = null,
     Object? dogs = null,
     Object? tasks = null,
     Object? heatCycles = null,
@@ -274,10 +256,6 @@ class __$HomePageRiverpodResultsCopyWithImpl<$Res>
     Object? whiteboardElements = null,
   }) {
     return _then(_HomePageRiverpodResults(
-      dogsWithWarnings: null == dogsWithWarnings
-          ? _self.dogsWithWarnings
-          : dogsWithWarnings // ignore: cast_nullable_to_non_nullable
-              as DogsWithWarnings,
       dogs: null == dogs
           ? _self._dogs
           : dogs // ignore: cast_nullable_to_non_nullable
