@@ -61,6 +61,7 @@ extension DogNotesExtension on List<DogNote> {
     ).toList();
   }
 
+  /// Returns a list of DogNotes where at least one note is type warning.
   List<DogNote> typeWarning() {
     return where(
       (note) {
@@ -74,6 +75,7 @@ extension DogNotesExtension on List<DogNote> {
     ).toList();
   }
 
+  /// Returns a list of DogNotes where at least one note is type fatal.
   List<DogNote> typeFatal() {
     return where(
       (note) {

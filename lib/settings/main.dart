@@ -109,22 +109,3 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
     );
   }
 }
-
-class ReturnAlertDialog extends StatelessWidget {
-  final Function() onCancelled;
-  final Function() onConfirm;
-  const ReturnAlertDialog(
-      {super.key, required this.onCancelled, required this.onConfirm});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
-      title: Text("Unsaved data"),
-      actions: [
-        ElevatedButton(
-            onPressed: () => onCancelled(), child: Text("No, go back")),
-        ElevatedButton(onPressed: onConfirm(), child: Text("Yes, I'm sure"))
-      ],
-    );
-  }
-}
