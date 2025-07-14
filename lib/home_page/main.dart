@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/health/models.dart';
 import 'package:mush_on/home_page/repository.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
+import 'package:mush_on/services/riverpod/dog_notes.dart';
 import 'package:mush_on/shared/text_title.dart';
 import 'package:mush_on/tasks/tab_bar_widgets/sf_schedule_view.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -25,14 +27,12 @@ class HomePageScreenContent extends ConsumerWidget {
       data: (riverpod) {
         String? account = ref.watch(accountProvider).value;
         List<Dog> dogs = riverpod.dogs;
-        DogsWithWarnings dogsWithWarnings = riverpod.dogsWithWarnings;
+        List<DogNote> dogNotes = ref.watch(dogNotesProvider);
         TasksInMemory tasks = riverpod.tasks;
-        int canRun = dogs.length - dogsWithWarnings.fatal.length;
+        int canRun = dogs.length - dogNotes.typeFatal().length;
         List<WhiteboardElement> whiteboardElements = riverpod.whiteboardElements
             .toList()
           ..sort((a, b) => a.title.compareTo(b.title));
-        List<Dog> dogsWithOnlyWarnings =
-            _getDogsWithOnlyWarnings(dogsWithWarnings);
         return ListView(
           children: [
             Card(
@@ -168,9 +168,9 @@ class HomePageScreenContent extends ConsumerWidget {
                         dataSource: <ReadyDogData>[
                           ReadyDogData(
                               "OK",
-                              canRun - dogsWithOnlyWarnings.length,
+                              canRun - dogNotes.typeWarning().length,
                               Colors.green),
-                          ReadyDogData("Warning", dogsWithOnlyWarnings.length,
+                          ReadyDogData("Warning", dogNotes.typeWarning().length,
                               Colors.orange),
                           ReadyDogData(
                               "Unavailable", dogs.length - canRun, Colors.red),
@@ -243,18 +243,6 @@ class HomePageScreenContent extends ConsumerWidget {
     } else {
       return Colors.green;
     }
-  }
-
-  List<Dog> _getDogsWithOnlyWarnings(DogsWithWarnings dogsWithWarnings) {
-    List<Dog> fatal = dogsWithWarnings.fatal;
-    List<Dog> warning = dogsWithWarnings.warning;
-    List<Dog> toReturn = [];
-    for (final dog in warning) {
-      if (!fatal.contains(dog)) {
-        toReturn.add(dog);
-      }
-    }
-    return toReturn;
   }
 }
 

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/health/health_event_editor_alert.dart';
 import 'package:mush_on/health/heat_cycle_editor_alert.dart';
 import 'package:mush_on/health/models.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/health/vaccination_editor_alert.dart';
-import 'package:mush_on/home_page/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
+import 'package:mush_on/services/riverpod/dog_notes.dart';
 import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
 import 'package:mush_on/shared/text_title.dart';
 
@@ -29,8 +30,7 @@ class HealthMain extends ConsumerWidget {
         ref.watch(vaccinationsProvider(null)).valueOrNull ?? [];
     List<HeatCycle> heatCycles =
         ref.watch(heatCyclesProvider(null)).valueOrNull ?? [];
-    final AsyncValue<DogsWithWarnings> warningDogsAsync =
-        ref.watch(dogsWithWarningsProvider);
+    final dogNotes = ref.watch(dogNotesProvider);
 
     // Dialog listeners
     ref.listen(
@@ -71,6 +71,8 @@ class HealthMain extends ConsumerWidget {
     final distanceWarningsAsync =
         ref.watch(distanceWarningsProvider(latestDate: DateTimeUtils.today()));
 
+    final cantRun = dogNotes.typeFatal().length;
+    final canRun = dogs.length - cantRun;
     return ListView(
       padding: EdgeInsets.all(8),
       children: [
@@ -83,33 +85,21 @@ class HealthMain extends ConsumerWidget {
               children: [
                 TextTitle("Health Status"),
                 SizedBox(height: 12),
-                warningDogsAsync.when(
-                  data: (dogsWithWarnings) {
-                    final canRun = dogs.length - dogsWithWarnings.fatal.length;
-                    final cantRun = dogsWithWarnings.fatal.length;
-                    return Row(
-                      children: [
-                        _StatusChip(
-                          icon: Icons.check_circle,
-                          label: "$canRun can run",
-                          color: Colors.green,
-                        ),
-                        SizedBox(width: 8),
-                        if (cantRun > 0)
-                          _StatusChip(
-                            icon: Icons.cancel,
-                            label: "$cantRun can't run",
-                            color: colorScheme.error,
-                          ),
-                      ],
-                    );
-                  },
-                  loading: () => LinearProgressIndicator(),
-                  error: (e, s) {
-                    logger.error("Couldn't load status",
-                        error: e, stackTrace: s);
-                    return Text("Error loading status");
-                  },
+                Row(
+                  children: [
+                    _StatusChip(
+                      icon: Icons.check_circle,
+                      label: "$canRun can run",
+                      color: Colors.green,
+                    ),
+                    SizedBox(width: 8),
+                    if (cantRun > 0)
+                      _StatusChip(
+                        icon: Icons.cancel,
+                        label: "$cantRun can't run",
+                        color: colorScheme.error,
+                      ),
+                  ],
                 ),
                 SizedBox(height: 8),
                 Wrap(
@@ -319,7 +309,8 @@ class HealthMain extends ConsumerWidget {
                             builder: (context) =>
                                 HealthEventEditorAlert(dogs: dogs, event: v)),
                         dense: true,
-                        leading: Icon(Icons.healing, color: Colors.amber),
+                        leading: Icon(_getEventIcon(v.eventType),
+                            color: Colors.amber),
                         title:
                             Text(dogs.getDogFromId(v.dogId)?.name ?? "Unknown"),
                         subtitle: Text(v.title),

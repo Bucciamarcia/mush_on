@@ -1,16 +1,14 @@
 targets:
   $default:
     sources:
-      - "$package$"          # Add this line - refers to pubspec.yaml
+      - "$package$"
       - "lib/**"
-      - "!lib/**/*~"        # vim backup files
-      - "!lib/**/.*"        # hidden files
-      - "!lib/**/*.swp"     # vim swap files
-      - "!lib/**/*.swo"     # vim swap files
-      - "!lib/**/*.swn"     # vim swap files
-      - "!lib/**/[0-9]*"    # numeric temp files
-      - "!lib/**/#*"        # emacs temp files
-      - "!lib/**/.#*"       # emacs lock files
-      - "!lib/**/4913"      # specific problematic file
-      - "!lib/**/*.*~"      # more backup patterns
-      - "!lib/**/%*"        # vim recovery files
+      # vim/Emacs temp files
+      - "!lib/**/#*#"
+      - "!lib/**/*~"
+      - "!lib/**/.*"
+      - "!lib/**/*.swp"
+      - "!lib/**/*.swo"
+      - "!lib/**/*.swn"
+      # numeric‐only folders and their contents
+      - "!lib/**/[0-9]*/**"

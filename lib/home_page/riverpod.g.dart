@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$homePageRiverpodHash() => r'f889cf5b9f97157944f9669d6769fa3629e565cc';
+String _$homePageRiverpodHash() => r'4cc37ee3fda74a7d4edeeadc8c8870a97c88d1e5';
 
 /// Just for the home page
 ///
@@ -48,25 +48,5 @@ final todayWhiteboardProvider =
 // ignore: unused_element
 typedef TodayWhiteboardRef
     = AutoDisposeStreamProviderRef<List<WhiteboardElement>>;
-String _$dogsWithWarningsHash() => r'9fd0bdff023bde64ad75066400ee2073d4d376ea';
-
-/// Simply returns the dogs with warnigns and errors, no other info.
-///
-/// Copied from [dogsWithWarnings].
-@ProviderFor(dogsWithWarnings)
-final dogsWithWarningsProvider =
-    AutoDisposeStreamProvider<DogsWithWarnings>.internal(
-  dogsWithWarnings,
-  name: r'dogsWithWarningsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$dogsWithWarningsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef DogsWithWarningsRef = AutoDisposeStreamProviderRef<DogsWithWarnings>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
