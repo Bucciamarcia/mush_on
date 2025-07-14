@@ -8,6 +8,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
+import 'package:mush_on/services/riverpod/dog_notes.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'save_teams_button.dart';
 import 'select_datetime.dart';
