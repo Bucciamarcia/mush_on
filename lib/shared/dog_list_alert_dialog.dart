@@ -24,6 +24,10 @@ class DogListAlertDialog extends StatelessWidget {
             )
             .toList(),
       ),
+      actions: [
+        ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(), child: Text("Close"))
+      ],
     );
   }
 }
