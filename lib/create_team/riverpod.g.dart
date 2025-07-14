@@ -6,22 +6,6 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dogNotesHash() => r'22e5426393975c37a21620b3ea9a5e4a96961fdc';
-
-/// See also [dogNotes].
-@ProviderFor(dogNotes)
-final dogNotesProvider = AutoDisposeProvider<List<DogNote>>.internal(
-  dogNotes,
-  name: r'dogNotesProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$dogNotesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef DogNotesRef = AutoDisposeProviderRef<List<DogNote>>;
 String _$duplicateDogsHash() => r'79c3c033b192f43fe8046981b43bcab769b7a34c';
 
 /// See also [duplicateDogs].
