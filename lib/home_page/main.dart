@@ -8,6 +8,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/services/riverpod/dog_notes.dart';
+import 'package:mush_on/shared/dog_list_alert_dialog.dart';
 import 'package:mush_on/shared/text_title.dart';
 import 'package:mush_on/tasks/tab_bar_widgets/sf_schedule_view.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -200,14 +201,75 @@ class HomePageScreenContent extends ConsumerWidget {
                       alignment: WrapAlignment.center,
                       spacing: 8,
                       children: [
-                        Chip(
-                            label: Text(
-                                "${riverpod.healthEvents.active.length} active health events"),
-                            backgroundColor: Colors.red[100]),
-                        Chip(
-                            label: Text(
-                                "${riverpod.heatCycles.active.length} in heat"),
-                            backgroundColor: Colors.purple[100]),
+                        ActionChip(
+                          label:
+                              Text("${dogNotes.typeFatal().length} cannot run"),
+                          backgroundColor: Colors.red[100],
+                          onPressed: () {
+                            List<String> dogIds = dogNotes
+                                .typeFatal()
+                                .map((note) => note.dogId)
+                                .toList();
+                            List<Dog> fatalDogs = [];
+                            for (String dogId in dogIds) {
+                              Dog? sDog = dogs.getDogFromId(dogId);
+                              if (sDog != null && !fatalDogs.contains(sDog)) {
+                                fatalDogs.add(sDog);
+                              }
+                            }
+                            showDialog(
+                              context: context,
+                              builder: (_) => DogListAlertDialog(
+                                title: "Dogs that can't run",
+                                dogs: fatalDogs,
+                              ),
+                            );
+                          },
+                        ),
+                        ActionChip(
+                          label: Text(
+                              "${riverpod.healthEvents.active.length} active health events"),
+                          backgroundColor: Colors.amber[100],
+                          onPressed: () {
+                            final events = riverpod.healthEvents.active;
+                            var healthEventDogs = <Dog>[];
+                            for (var e in events) {
+                              var r = dogs.getDogFromId(e.dogId);
+                              if (r != null && !healthEventDogs.contains(r)) {
+                                healthEventDogs.add(r);
+                              }
+                            }
+                            showDialog(
+                              context: context,
+                              builder: (_) => DogListAlertDialog(
+                                title: "Dogs with health events",
+                                dogs: healthEventDogs,
+                              ),
+                            );
+                          },
+                        ),
+                        ActionChip(
+                          label: Text(
+                              "${riverpod.heatCycles.active.length} in heat"),
+                          backgroundColor: Colors.purple[100],
+                          onPressed: () {
+                            final events = riverpod.heatCycles.active;
+                            var heatDogs = <Dog>[];
+                            for (var e in events) {
+                              var r = dogs.getDogFromId(e.dogId);
+                              if (r != null && !heatDogs.contains(r)) {
+                                heatDogs.add(r);
+                              }
+                            }
+                            showDialog(
+                              context: context,
+                              builder: (_) => DogListAlertDialog(
+                                title: "Dogs in heat",
+                                dogs: heatDogs,
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
