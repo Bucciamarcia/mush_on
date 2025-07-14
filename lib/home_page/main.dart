@@ -28,8 +28,9 @@ class HomePageScreenContent extends ConsumerWidget {
         DogsWithWarnings dogsWithWarnings = riverpod.dogsWithWarnings;
         TasksInMemory tasks = riverpod.tasks;
         int canRun = dogs.length - dogsWithWarnings.fatal.length;
-        List<WhiteboardElement> whiteboardElements =
-            riverpod.whiteboardElements;
+        List<WhiteboardElement> whiteboardElements = riverpod.whiteboardElements
+            .toList()
+          ..sort((a, b) => a.title.compareTo(b.title));
         List<Dog> dogsWithOnlyWarnings =
             _getDogsWithOnlyWarnings(dogsWithWarnings);
         return ListView(
