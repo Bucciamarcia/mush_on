@@ -6,7 +6,9 @@ import 'package:mush_on/health/health_event_editor_alert.dart';
 import 'package:mush_on/health/heat_cycle_editor_alert.dart';
 import 'package:mush_on/health/models.dart';
 import 'package:mush_on/health/provider.dart';
+import 'package:mush_on/health/provider.dart' as riverpod;
 import 'package:mush_on/health/vaccination_editor_alert.dart';
+import 'package:mush_on/home_page/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
@@ -14,6 +16,7 @@ import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/riverpod/dog_notes.dart';
 import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
+import 'package:mush_on/shared/dog_list_alert_dialog.dart';
 import 'package:mush_on/shared/text_title.dart';
 
 class HealthMain extends ConsumerWidget {
@@ -71,8 +74,16 @@ class HealthMain extends ConsumerWidget {
     final distanceWarningsAsync =
         ref.watch(distanceWarningsProvider(latestDate: DateTimeUtils.today()));
 
-    final cantRun = dogNotes.typeFatal().length;
-    final canRun = dogs.length - cantRun;
+    final cantRun = dogNotes.typeFatal();
+    final canRun = List<Dog>.from(dogs);
+    canRun.removeWhere(
+      (dog) {
+        for (var note in cantRun) {
+          if (dog.id == note.dogId) return true;
+        }
+        return false;
+      },
+    );
     return ListView(
       padding: EdgeInsets.all(8),
       children: [
@@ -85,48 +96,112 @@ class HealthMain extends ConsumerWidget {
               children: [
                 TextTitle("Health Status"),
                 SizedBox(height: 12),
-                Row(
-                  children: [
-                    _StatusChip(
-                      icon: Icons.check_circle,
-                      label: "$canRun can run",
-                      color: Colors.green,
-                    ),
-                    SizedBox(width: 8),
-                    if (cantRun > 0)
-                      _StatusChip(
-                        icon: Icons.cancel,
-                        label: "$cantRun can't run",
-                        color: colorScheme.error,
-                      ),
-                  ],
-                ),
-                SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: [
+                    ActionChip(
+                      shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadiusGeometry.all(Radius.circular(20))),
+                      label: Text("${canRun.length} can run"),
+                      avatar: Icon(Icons.check_circle, color: Colors.green),
+                      backgroundColor: Colors.green[100],
+                      onPressed: () => showDialog(
+                        context: context,
+                        builder: (_) => DogListAlertDialog(
+                            title: "Dogs that can run", dogs: canRun),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    if (cantRun.isNotEmpty)
+                      ActionChip(
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadiusGeometry.all(Radius.circular(20))),
+                        label: Text("${cantRun.length} can't run"),
+                        avatar: Icon(Icons.cancel, color: Colors.red),
+                        backgroundColor: Colors.red[100],
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (_) => DogListAlertDialog(
+                              title: "Dogs that can't run", dogs: canRun),
+                        ),
+                      ),
                     if (healthEvents.active.isNotEmpty)
-                      _StatusChip(
-                        icon: Icons.warning,
-                        label: "${healthEvents.active.length} active events",
-                        color: Colors.orange,
-                      ),
+                      ActionChip(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadiusGeometry.all(
+                                  Radius.circular(20))),
+                          label: Text(
+                              "${healthEvents.active.length} active health events"),
+                          avatar:
+                              Icon(Icons.check_circle, color: Colors.orange),
+                          backgroundColor: Colors.orange[100],
+                          onPressed: () {
+                            var healthEventDogs = <Dog>[];
+                            for (var e in healthEvents.active) {
+                              var r = dogs.getDogFromId(e.dogId);
+                              if (r != null && !healthEventDogs.contains(r)) {
+                                healthEventDogs.add(r);
+                              }
+                            }
+                            showDialog(
+                              context: context,
+                              builder: (_) => DogListAlertDialog(
+                                  title: "Dogs with health events",
+                                  dogs: healthEventDogs),
+                            );
+                          }),
                     if (heatCycles.active.isNotEmpty)
-                      _StatusChip(
-                        icon: Icons.favorite,
-                        label: "${heatCycles.active.length} in heat",
-                        color: Colors.pink,
-                      ),
+                      ActionChip(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadiusGeometry.all(
+                                  Radius.circular(20))),
+                          label: Text("${heatCycles.active.length} in heat"),
+                          avatar: Icon(Icons.check_circle, color: Colors.pink),
+                          backgroundColor: Colors.pink[100],
+                          onPressed: () {
+                            var dogsInHeat = <Dog>[];
+                            for (var e in heatCycles.active) {
+                              var r = dogs.getDogFromId(e.dogId);
+                              if (r != null && !dogsInHeat.contains(r)) {
+                                dogsInHeat.add(r);
+                              }
+                            }
+                            showDialog(
+                              context: context,
+                              builder: (_) => DogListAlertDialog(
+                                  title: "Dogs in heat", dogs: dogsInHeat),
+                            );
+                          }),
                     if (vaccinations.expiringSoon(days: 30).isNotEmpty)
-                      _StatusChip(
-                        icon: Icons.schedule,
-                        label:
-                            "${vaccinations.expiringSoon(days: 30).length} vaccines expiring",
-                        color: Colors.amber,
-                      ),
+                      ActionChip(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadiusGeometry.all(
+                                  Radius.circular(20))),
+                          label: Text(
+                              "${vaccinations.expiringSoon(days: 30).length} vaccines expiring soon"),
+                          avatar: Icon(Icons.check_circle, color: Colors.amber),
+                          backgroundColor: Colors.amber[100],
+                          onPressed: () {
+                            var dogse = <Dog>[];
+                            for (var e in vaccinations.expiringSoon(days: 30)) {
+                              var r = dogs.getDogFromId(e.dogId);
+                              if (r != null && !dogse.contains(r)) {
+                                dogse.add(r);
+                              }
+                            }
+                            showDialog(
+                              context: context,
+                              builder: (_) => DogListAlertDialog(
+                                  title: "Dogs with vaccinations expiring soon",
+                                  dogs: dogse),
+                            );
+                          }),
                   ],
                 ),
+                SizedBox(height: 8),
               ],
             ),
           ),
@@ -461,42 +536,5 @@ class HealthMain extends ConsumerWidget {
 
   String _formatEventType(HealthEventType type) {
     return type.name.substring(0, 1).toUpperCase() + type.name.substring(1);
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  const _StatusChip({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
