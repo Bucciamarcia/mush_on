@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/health/models.dart';
+import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
@@ -22,6 +24,14 @@ class InsightsMain extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     StatsDateRange dateRange = ref.watch(statsDatesProvider);
     List<Dog> dogs = ref.watch(dogsProvider).value ?? [];
+    List<HealthEvent> healthEvents = ref
+            .watch(
+              healthEventsProvider(
+                  dateRange.endDate.difference(dateRange.startDate).inDays -
+                      60),
+            )
+            .value ??
+        [];
     List<TeamGroup> teamGroups = ref
             .watch(teamGroupsProvider(
                 earliestDate:
@@ -66,7 +76,18 @@ class InsightsMain extends ConsumerWidget {
         Expanded(
           child: SfDataGrid(
             columnWidthMode: ColumnWidthMode.auto,
-            source: _getDataSource(dateRange, dogs, dogDailyStats),
+            source: _getDataSource(
+              dateRange,
+              dogs,
+              dogDailyStats,
+              healthEvents
+                  .where(
+                    (event) =>
+                        event.preventFromRunning == true &&
+                        event.date.isBefore(dateRange.endDate),
+                  )
+                  .toList(),
+            ),
             columns: _getGridColumns(),
           ),
         ),
@@ -83,11 +104,17 @@ class InsightsMain extends ConsumerWidget {
     if (range.endDate != null) onNewEndDate(range.endDate!);
   }
 
-  DataGridSource _getDataSource(StatsDateRange dateRange, List<Dog> dogs,
-      Map<String, List<DogDailyStats>> dogDailyStats) {
+  DataGridSource _getDataSource(
+      StatsDateRange dateRange,
+      List<Dog> dogs,
+      Map<String, List<DogDailyStats>> dogDailyStats,
+      List<HealthEvent> healthEvents) {
     logger.info("Building insights data source");
     return InsightsDataSource(
-        dateRange: dateRange, dogs: dogs, dogDailyStats: dogDailyStats);
+        dateRange: dateRange,
+        dogs: dogs,
+        healthEvents: healthEvents,
+        dogDailyStats: dogDailyStats);
   }
 
   List<GridColumn> _getGridColumns() {
@@ -130,6 +157,27 @@ class InsightsMain extends ConsumerWidget {
                 showDuration: Duration(seconds: 5),
                 triggerMode: TooltipTriggerMode.tap,
                 message: "How many days the dog has run in % of the total",
+                child: Icon(Icons.question_mark),
+              ),
+            ],
+          ),
+        ),
+      ),
+      GridColumn(
+        columnName: "reliability",
+        label: Center(
+          child: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  "Reliability",
+                ),
+              ),
+              Tooltip(
+                showDuration: Duration(seconds: 5),
+                triggerMode: TooltipTriggerMode.tap,
+                message:
+                    "How many days the dog was not affected by a blocking health event in % of the total",
                 child: Icon(Icons.question_mark),
               ),
             ],
