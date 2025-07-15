@@ -16,7 +16,11 @@ class InsightsDataSource extends DataGridSource {
               DataGridCell(columnName: "dog", value: dog.name),
               DataGridCell(
                 columnName: "totalRan",
-                value: _getTotalRanForDog(dog, dogDailyStats[dog.id]!),
+                value: _getTotalRanForDog(dogDailyStats[dog.id]!),
+              ),
+              DataGridCell(
+                columnName: "runRate",
+                value: _getRunRate(dogDailyStats[dog.id]!, dateRange),
               ),
             ],
           ),
@@ -45,7 +49,7 @@ class InsightsDataSource extends DataGridSource {
     );
   }
 
-  String _getTotalRanForDog(Dog dog, List<DogDailyStats> dogDailyStats) {
+  String _getTotalRanForDog(List<DogDailyStats> dogDailyStats) {
     double returnValue = 0;
     for (var stat in dogDailyStats) {
       returnValue = returnValue + stat.distanceRan;
@@ -55,5 +59,17 @@ class InsightsDataSource extends DataGridSource {
     } else {
       return returnValue.toString();
     }
+  }
+
+  String _getRunRate(List<DogDailyStats> list, StatsDateRange dateRange) {
+    Duration interval = dateRange.endDate.difference(dateRange.startDate);
+    double days = interval.inDays.toDouble();
+    double runDays = list.length.toDouble();
+    double runRate = runDays / days;
+    runRate = runRate * 100;
+    if (runRate % 1 == 0) {
+      return "${runRate.toInt().toString()}%";
+    }
+    return "${runRate.toStringAsFixed(2)}%";
   }
 }
