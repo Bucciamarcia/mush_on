@@ -5,16 +5,19 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class InsightsDataSource extends DataGridSource {
   InsightsDataSource(
-      {required List<Dog> dogs, required StatsDateRange dateRange}) {
-    dataGridRows = [
-      DataGridRow(
-        cells: dogs
-            .map(
-              (dog) => DataGridCell(columnName: dog.name, value: dog.name),
-            )
-            .toList(),
-      ),
-    ];
+      {required List<Dog> dogs,
+      required StatsDateRange dateRange,
+      required List<TeamGroup> teamGroups}) {
+    dataGridRows = dogs
+        .map(
+          (dog) => DataGridRow(
+            cells: [
+              DataGridCell(columnName: "dog", value: dog.name),
+              DataGridCell(columnName: "totalRan", value: dog.name),
+            ],
+          ),
+        )
+        .toList();
   }
 
   List<DataGridRow> dataGridRows = [];
@@ -27,7 +30,7 @@ class InsightsDataSource extends DataGridSource {
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (dataGridCell) {
-          return Container(
+          return Align(
               alignment: Alignment.center,
               child: Text(
                 dataGridCell.value.toString(),
