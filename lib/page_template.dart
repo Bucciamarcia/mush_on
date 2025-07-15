@@ -100,11 +100,40 @@ class TemplateScreen extends ConsumerWidget {
                 "Teams history",
               ),
             ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+              child: Text(
+                "Data",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
             ListTile(
               leading: Icon(Icons.query_stats),
               onTap: () => Navigator.pushNamed(context, "/stats"),
               title: const Text(
                 "Stats",
+              ),
+            ),
+            ListTile(
+              leading: FaIcon(FontAwesomeIcons.magnifyingGlassChart),
+              onTap: () => Navigator.pushNamed(context, "/insights"),
+              title: const Text(
+                "Insights",
+              ),
+            ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+              child: Text(
+                "Data",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ),
             ListTile(
