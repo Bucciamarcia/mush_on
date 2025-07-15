@@ -63,8 +63,9 @@ class InsightsMain extends ConsumerWidget {
         ),
         Text(
             "Date selected: ${DateFormat("dd-MM-yyyy").format(dateRange.startDate)} - ${DateFormat("dd-MM-yyyy").format(dateRange.endDate)}"),
-        Flexible(
+        Expanded(
           child: SfDataGrid(
+            columnWidthMode: ColumnWidthMode.auto,
             source: _getDataSource(dateRange, dogs, dogDailyStats),
             columns: _getGridColumns(),
           ),
@@ -103,12 +104,32 @@ class InsightsMain extends ConsumerWidget {
           child: Row(
             spacing: 3,
             children: [
-              Text("Total run"),
+              Flexible(child: Text("Total run")),
               Tooltip(
                 showDuration: Duration(seconds: 5),
                 triggerMode: TooltipTriggerMode.tap,
                 message:
                     "The total distance run by this dog in the selected period.",
+                child: Icon(Icons.question_mark),
+              ),
+            ],
+          ),
+        ),
+      ),
+      GridColumn(
+        columnName: "runRate",
+        label: Center(
+          child: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  "Run rate",
+                ),
+              ),
+              Tooltip(
+                showDuration: Duration(seconds: 5),
+                triggerMode: TooltipTriggerMode.tap,
+                message: "How many days the dog has run in % of the total",
                 child: Icon(Icons.question_mark),
               ),
             ],
@@ -147,6 +168,7 @@ class InsightsMain extends ConsumerWidget {
           .map((entry) =>
               DogDailyStats(date: entry.key, distanceRan: entry.value))
           .toList();
+      dogDailies.sort((a, b) => a.date.compareTo(b.date));
 
       toReturn[dog.id] = dogDailies;
     }
