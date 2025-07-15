@@ -24,11 +24,14 @@ class InsightsMain extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     StatsDateRange dateRange = ref.watch(statsDatesProvider);
     List<Dog> dogs = ref.watch(dogsProvider).value ?? [];
+// Calculate days from 90 days before start date to end date
+    int daysToFetch = dateRange.endDate
+        .difference(dateRange.startDate.subtract(Duration(days: 90)))
+        .inDays;
+
     List<HealthEvent> healthEvents = ref
             .watch(
-              healthEventsProvider(
-                  dateRange.endDate.difference(dateRange.startDate).inDays -
-                      60),
+              healthEventsProvider(daysToFetch),
             )
             .value ??
         [];
@@ -82,9 +85,7 @@ class InsightsMain extends ConsumerWidget {
               dogDailyStats,
               healthEvents
                   .where(
-                    (event) =>
-                        event.preventFromRunning == true &&
-                        event.date.isBefore(dateRange.endDate),
+                    (event) => event.preventFromRunning == true,
                   )
                   .toList(),
             ),

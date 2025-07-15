@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/health/models.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/stats/insights/models.dart';
 import 'package:mush_on/stats/riverpod.dart';
@@ -89,6 +90,7 @@ class InsightsDataSource extends DataGridSource {
         healthEvents.where((event) => event.dogId == id).toList();
 
     Set<DateTime> injuryDates = {};
+    BasicLogger().debug("Processing getReliability: ${healthEvents.length}");
 
     for (var event in filteredHealthEvents) {
       // If event was resolved before our date range started, ignore it
