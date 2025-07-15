@@ -141,6 +141,7 @@ class TemplateScreen extends ConsumerWidget {
                 "Log out",
               ),
             ),
+            SizedBox(height: 100),
           ],
         ),
       ),
