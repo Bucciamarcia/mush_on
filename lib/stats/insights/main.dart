@@ -7,6 +7,7 @@ import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/dog_filter/date_range_picker/main.dart';
 import 'package:mush_on/stats/grid_row_processor.dart';
+import 'package:mush_on/stats/insights/models.dart';
 import 'package:mush_on/stats/riverpod.dart';
 import 'package:mush_on/teams_history/riverpod.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -28,6 +29,13 @@ class InsightsMain extends ConsumerWidget {
                 finalDate: DateTimeUtils.today()))
             .value ??
         [];
+    List<TeamGroup> filteredTeamGroups = teamGroups
+        .where((teamGroup) =>
+            teamGroup.date.isAfter(dateRange.startDate) &&
+            teamGroup.date.isBefore(dateRange.endDate.add(Duration(days: 1))))
+        .toList();
+    Map<String, List<DogDailyStats>> dogDailyStats =
+        _getDogDailyStats(dogs, filteredTeamGroups);
     return Column(
       spacing: 20,
       children: [
@@ -57,7 +65,7 @@ class InsightsMain extends ConsumerWidget {
             "Date selected: ${DateFormat("dd-MM-yyyy").format(dateRange.startDate)} - ${DateFormat("dd-MM-yyyy").format(dateRange.endDate)}"),
         Flexible(
           child: SfDataGrid(
-            source: _getDataSource(dateRange, dogs, teamGroups),
+            source: _getDataSource(dateRange, dogs, dogDailyStats),
             columns: _getGridColumns(),
           ),
         ),
@@ -74,11 +82,11 @@ class InsightsMain extends ConsumerWidget {
     if (range.endDate != null) onNewEndDate(range.endDate!);
   }
 
-  DataGridSource _getDataSource(
-      StatsDateRange dateRange, List<Dog> dogs, List<TeamGroup> teamGroups) {
+  DataGridSource _getDataSource(StatsDateRange dateRange, List<Dog> dogs,
+      Map<String, List<DogDailyStats>> dogDailyStats) {
     logger.info("Building insights data source");
     return InsightsDataSource(
-        dateRange: dateRange, dogs: dogs, teamGroups: teamGroups);
+        dateRange: dateRange, dogs: dogs, dogDailyStats: dogDailyStats);
   }
 
   List<GridColumn> _getGridColumns() {
@@ -108,5 +116,41 @@ class InsightsMain extends ConsumerWidget {
         ),
       ),
     ];
+  }
+
+  Map<String, List<DogDailyStats>> _getDogDailyStats(
+      List<Dog> dogs, List<TeamGroup> teamGroups) {
+    Map<String, List<DogDailyStats>> toReturn = {};
+
+    for (Dog dog in dogs) {
+      Map<DateTime, double> dailyDistances = {};
+
+      for (TeamGroup teamGroup in teamGroups) {
+        DateTime day = DateTime(
+            teamGroup.date.year, teamGroup.date.month, teamGroup.date.day);
+
+        bool dogFound = false;
+        for (var team in teamGroup.teams) {
+          for (var pair in team.dogPairs) {
+            if (pair.firstDogId == dog.id || pair.secondDogId == dog.id) {
+              dailyDistances[day] =
+                  (dailyDistances[day] ?? 0) + teamGroup.distance;
+              dogFound = true;
+              break;
+            }
+          }
+          if (dogFound) break;
+        }
+      }
+
+      List<DogDailyStats> dogDailies = dailyDistances.entries
+          .map((entry) =>
+              DogDailyStats(date: entry.key, distanceRan: entry.value))
+          .toList();
+
+      toReturn[dog.id] = dogDailies;
+    }
+
+    return toReturn;
   }
 }

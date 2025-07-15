@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/stats/insights/models.dart';
 import 'package:mush_on/stats/riverpod.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -7,13 +8,16 @@ class InsightsDataSource extends DataGridSource {
   InsightsDataSource(
       {required List<Dog> dogs,
       required StatsDateRange dateRange,
-      required List<TeamGroup> teamGroups}) {
+      required Map<String, List<DogDailyStats>> dogDailyStats}) {
     dataGridRows = dogs
         .map(
           (dog) => DataGridRow(
             cells: [
               DataGridCell(columnName: "dog", value: dog.name),
-              DataGridCell(columnName: "totalRan", value: dog.name),
+              DataGridCell(
+                columnName: "totalRan",
+                value: _getTotalRanForDog(dog, dogDailyStats[dog.id]!),
+              ),
             ],
           ),
         )
@@ -39,5 +43,17 @@ class InsightsDataSource extends DataGridSource {
         },
       ).toList(),
     );
+  }
+
+  String _getTotalRanForDog(Dog dog, List<DogDailyStats> dogDailyStats) {
+    double returnValue = 0;
+    for (var stat in dogDailyStats) {
+      returnValue = returnValue + stat.distanceRan;
+    }
+    if (returnValue % 1 == 0) {
+      return returnValue.toInt().toString();
+    } else {
+      return returnValue.toString();
+    }
   }
 }
