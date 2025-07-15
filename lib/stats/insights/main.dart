@@ -77,19 +77,39 @@ class InsightsMain extends ConsumerWidget {
         Text(
             "Date selected: ${DateFormat("dd-MM-yyyy").format(dateRange.startDate)} - ${DateFormat("dd-MM-yyyy").format(dateRange.endDate)}"),
         Expanded(
-          child: SfDataGrid(
-            columnWidthMode: ColumnWidthMode.auto,
-            source: _getDataSource(
-              dateRange,
-              dogs,
-              dogDailyStats,
-              healthEvents
-                  .where(
-                    (event) => event.preventFromRunning == true,
-                  )
-                  .toList(),
+          child: DefaultTabController(
+            length: 2,
+            child: Column(
+              children: [
+                TabBar(
+                  tabs: [
+                    Tab(text: "one"),
+                    Tab(text: "two"),
+                  ],
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      SfDataGrid(
+                        columnWidthMode: ColumnWidthMode.auto,
+                        source: _getDataSource(
+                          dateRange,
+                          dogs,
+                          dogDailyStats,
+                          healthEvents
+                              .where(
+                                (event) => event.preventFromRunning == true,
+                              )
+                              .toList(),
+                        ),
+                        columns: _getGridColumns(),
+                      ),
+                      Text("moi"),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            columns: _getGridColumns(),
           ),
         ),
       ],
