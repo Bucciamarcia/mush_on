@@ -8,6 +8,7 @@ import 'package:mush_on/main.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/settings/settings.dart';
+import 'package:mush_on/stats/insights/insights.dart';
 import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
 import 'package:mush_on/stats/stats.dart';
@@ -41,4 +42,5 @@ var appRoutes = {
   "/settings": (context) => const SettingsScreen(),
   "/tasks": (context) => const TasksScreen(),
   "/health_dashboard": (context) => const HealthScreen(),
+  "/insights": (context) => const InsightsScreen(),
 };
