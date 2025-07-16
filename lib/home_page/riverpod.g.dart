@@ -27,7 +27,7 @@ final homePageRiverpodProvider =
 // ignore: unused_element
 typedef HomePageRiverpodRef
     = AutoDisposeStreamProviderRef<HomePageRiverpodResults>;
-String _$todayWhiteboardHash() => r'26d4f795d21262dd3020ee9b63f485269692b2f2';
+String _$todayWhiteboardHash() => r'c56435382f952356b2199b34349f04fea8b1c266';
 
 /// Streams the list of today's whiteboard elements from the db.
 ///

@@ -33,7 +33,7 @@ class HomePageScreenContent extends ConsumerWidget {
         int canRun = dogs.length - dogNotes.typeFatal().length;
         List<WhiteboardElement> whiteboardElements = riverpod.whiteboardElements
             .toList()
-          ..sort((a, b) => a.title.compareTo(b.title));
+          ..sort((a, b) => a.date.compareTo(b.date));
         return ListView(
           children: [
             Card(
