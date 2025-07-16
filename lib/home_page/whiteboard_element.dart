@@ -282,7 +282,6 @@ class _WhiteboardElementEditorState extends State<WhiteboardElementEditor> {
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
           ),
-        Spacer(),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text("Cancel"),
