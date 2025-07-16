@@ -160,4 +160,168 @@ class __$DogDailyStatsCopyWithImpl<$Res>
   }
 }
 
+/// @nodoc
+mixin _$ReliabilityMatrixChartData {
+  String get dogId;
+  double get x;
+  double get y;
+
+  /// Create a copy of ReliabilityMatrixChartData
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $ReliabilityMatrixChartDataCopyWith<ReliabilityMatrixChartData>
+      get copyWith =>
+          _$ReliabilityMatrixChartDataCopyWithImpl<ReliabilityMatrixChartData>(
+              this as ReliabilityMatrixChartData, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is ReliabilityMatrixChartData &&
+            (identical(other.dogId, dogId) || other.dogId == dogId) &&
+            (identical(other.x, x) || other.x == x) &&
+            (identical(other.y, y) || other.y == y));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, dogId, x, y);
+
+  @override
+  String toString() {
+    return 'ReliabilityMatrixChartData(dogId: $dogId, x: $x, y: $y)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $ReliabilityMatrixChartDataCopyWith<$Res> {
+  factory $ReliabilityMatrixChartDataCopyWith(ReliabilityMatrixChartData value,
+          $Res Function(ReliabilityMatrixChartData) _then) =
+      _$ReliabilityMatrixChartDataCopyWithImpl;
+  @useResult
+  $Res call({String dogId, double x, double y});
+}
+
+/// @nodoc
+class _$ReliabilityMatrixChartDataCopyWithImpl<$Res>
+    implements $ReliabilityMatrixChartDataCopyWith<$Res> {
+  _$ReliabilityMatrixChartDataCopyWithImpl(this._self, this._then);
+
+  final ReliabilityMatrixChartData _self;
+  final $Res Function(ReliabilityMatrixChartData) _then;
+
+  /// Create a copy of ReliabilityMatrixChartData
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? dogId = null,
+    Object? x = null,
+    Object? y = null,
+  }) {
+    return _then(_self.copyWith(
+      dogId: null == dogId
+          ? _self.dogId
+          : dogId // ignore: cast_nullable_to_non_nullable
+              as String,
+      x: null == x
+          ? _self.x
+          : x // ignore: cast_nullable_to_non_nullable
+              as double,
+      y: null == y
+          ? _self.y
+          : y // ignore: cast_nullable_to_non_nullable
+              as double,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _ReliabilityMatrixChartData implements ReliabilityMatrixChartData {
+  const _ReliabilityMatrixChartData(
+      {required this.dogId, required this.x, required this.y});
+
+  @override
+  final String dogId;
+  @override
+  final double x;
+  @override
+  final double y;
+
+  /// Create a copy of ReliabilityMatrixChartData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$ReliabilityMatrixChartDataCopyWith<_ReliabilityMatrixChartData>
+      get copyWith => __$ReliabilityMatrixChartDataCopyWithImpl<
+          _ReliabilityMatrixChartData>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _ReliabilityMatrixChartData &&
+            (identical(other.dogId, dogId) || other.dogId == dogId) &&
+            (identical(other.x, x) || other.x == x) &&
+            (identical(other.y, y) || other.y == y));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, dogId, x, y);
+
+  @override
+  String toString() {
+    return 'ReliabilityMatrixChartData(dogId: $dogId, x: $x, y: $y)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$ReliabilityMatrixChartDataCopyWith<$Res>
+    implements $ReliabilityMatrixChartDataCopyWith<$Res> {
+  factory _$ReliabilityMatrixChartDataCopyWith(
+          _ReliabilityMatrixChartData value,
+          $Res Function(_ReliabilityMatrixChartData) _then) =
+      __$ReliabilityMatrixChartDataCopyWithImpl;
+  @override
+  @useResult
+  $Res call({String dogId, double x, double y});
+}
+
+/// @nodoc
+class __$ReliabilityMatrixChartDataCopyWithImpl<$Res>
+    implements _$ReliabilityMatrixChartDataCopyWith<$Res> {
+  __$ReliabilityMatrixChartDataCopyWithImpl(this._self, this._then);
+
+  final _ReliabilityMatrixChartData _self;
+  final $Res Function(_ReliabilityMatrixChartData) _then;
+
+  /// Create a copy of ReliabilityMatrixChartData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? dogId = null,
+    Object? x = null,
+    Object? y = null,
+  }) {
+    return _then(_ReliabilityMatrixChartData(
+      dogId: null == dogId
+          ? _self.dogId
+          : dogId // ignore: cast_nullable_to_non_nullable
+              as String,
+      x: null == x
+          ? _self.x
+          : x // ignore: cast_nullable_to_non_nullable
+              as double,
+      y: null == y
+          ? _self.y
+          : y // ignore: cast_nullable_to_non_nullable
+              as double,
+    ));
+  }
+}
+
 // dart format on

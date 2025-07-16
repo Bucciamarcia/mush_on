@@ -73,6 +73,10 @@ class HealthMain extends ConsumerWidget {
         ref.watch(distanceWarningsProvider(latestDate: DateTimeUtils.today()));
 
     final cantRun = dogNotes.typeFatal();
+    final cantRunDogIds = cantRun.map((note) => note.dogId).toSet();
+
+    List<Dog> cantRunDogs =
+        dogs.where((dog) => cantRunDogIds.contains(dog.id)).toList();
     final canRun = List<Dog>.from(dogs);
     canRun.removeWhere(
       (dog) {
@@ -123,7 +127,7 @@ class HealthMain extends ConsumerWidget {
                         onPressed: () => showDialog(
                           context: context,
                           builder: (_) => DogListAlertDialog(
-                              title: "Dogs that can't run", dogs: canRun),
+                              title: "Dogs that can't run", dogs: cantRunDogs),
                         ),
                       ),
                     if (healthEvents.active.isNotEmpty)

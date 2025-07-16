@@ -91,3 +91,4 @@ A cool and open source CRM for sled dog kennels.
 - Added whiteboard.
 - Added upcoming health events in health dashboard.
 - Chips in home page and health dashboards (eg. "3 cannot run") are now clickable.
+- Added insights page.

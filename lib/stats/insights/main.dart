@@ -10,8 +10,10 @@ import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/dog_filter/date_range_picker/main.dart';
 import 'package:mush_on/stats/grid_row_processor.dart';
 import 'package:mush_on/stats/insights/models.dart';
+import 'package:mush_on/stats/insights/riverpod.dart';
 import 'package:mush_on/stats/riverpod.dart';
 import 'package:mush_on/teams_history/riverpod.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'insights_data_source_class.dart';
@@ -49,6 +51,17 @@ class InsightsMain extends ConsumerWidget {
         .toList();
     Map<String, List<DogDailyStats>> dogDailyStats =
         _getDogDailyStats(dogs, filteredTeamGroups);
+    List<DataGridRow> insightsData = ref.watch(insightsDataProvider(
+        dogs: dogs,
+        dateRange: dateRange,
+        healthEvents: healthEvents,
+        dogDailyStats: dogDailyStats));
+    List<ReliabilityMatrixChartData> realiabilityData = ref.watch(
+        reliabilityMatrixDataProvider(
+            dogDailyStats: dogDailyStats,
+            dogs: dogs,
+            dateRange: dateRange,
+            healthEvents: healthEvents));
     return Column(
       spacing: 20,
       children: [
@@ -83,8 +96,8 @@ class InsightsMain extends ConsumerWidget {
               children: [
                 TabBar(
                   tabs: [
-                    Tab(text: "one"),
-                    Tab(text: "two"),
+                    Tab(text: "Insights"),
+                    Tab(text: "Reliability matrix"),
                   ],
                 ),
                 Expanded(
@@ -101,10 +114,33 @@ class InsightsMain extends ConsumerWidget {
                                 (event) => event.preventFromRunning == true,
                               )
                               .toList(),
+                          insightsData,
                         ),
                         columns: _getGridColumns(),
                       ),
-                      Text("moi"),
+                      SfCartesianChart(
+                        primaryXAxis: NumericAxis(
+                          title: AxisTitle(text: "Km ran"),
+                          plotOffset: 20,
+                        ),
+                        primaryYAxis: NumericAxis(
+                          title: AxisTitle(text: "Reliability %"),
+                          plotOffset: 20,
+                        ),
+                        series: [
+                          ScatterSeries<ReliabilityMatrixChartData, double>(
+                            dataLabelSettings:
+                                DataLabelSettings(isVisible: true),
+                            dataLabelMapper: (data, _) =>
+                                dogs.getNameFromId(data.dogId),
+                            markerSettings:
+                                MarkerSettings(width: 25, height: 25),
+                            dataSource: realiabilityData,
+                            xValueMapper: (data, _) => data.x,
+                            yValueMapper: (data, _) => data.y,
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
@@ -129,13 +165,10 @@ class InsightsMain extends ConsumerWidget {
       StatsDateRange dateRange,
       List<Dog> dogs,
       Map<String, List<DogDailyStats>> dogDailyStats,
-      List<HealthEvent> healthEvents) {
+      List<HealthEvent> healthEvents,
+      List<DataGridRow> insightsData) {
     logger.info("Building insights data source");
-    return InsightsDataSource(
-        dateRange: dateRange,
-        dogs: dogs,
-        healthEvents: healthEvents,
-        dogDailyStats: dogDailyStats);
+    return InsightsDataSource(insightsData: insightsData);
   }
 
   List<GridColumn> _getGridColumns() {
