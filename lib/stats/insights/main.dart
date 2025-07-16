@@ -243,38 +243,39 @@ class InsightsMain extends ConsumerWidget {
 
   Map<String, List<DogDailyStats>> _getDogDailyStats(
       List<Dog> dogs, List<TeamGroup> teamGroups) {
-    Map<String, List<DogDailyStats>> toReturn = {};
+    Map<String, Map<DateTime, double>> tempDailyDistances = {
+      for (var dog in dogs) dog.id: {}
+    };
 
-    for (Dog dog in dogs) {
-      Map<DateTime, double> dailyDistances = {};
-
-      for (TeamGroup teamGroup in teamGroups) {
-        DateTime day = DateTime(
-            teamGroup.date.year, teamGroup.date.month, teamGroup.date.day);
-
-        bool dogFound = false;
-        for (var team in teamGroup.teams) {
-          for (var pair in team.dogPairs) {
-            if (pair.firstDogId == dog.id || pair.secondDogId == dog.id) {
-              dailyDistances[day] =
-                  (dailyDistances[day] ?? 0) + teamGroup.distance;
-              dogFound = true;
-              break;
-            }
+    for (final teamGroup in teamGroups) {
+      final day = DateTime(
+          teamGroup.date.year, teamGroup.date.month, teamGroup.date.day);
+      for (final team in teamGroup.teams) {
+        for (final pair in team.dogPairs) {
+          if (pair.firstDogId != null) {
+            tempDailyDistances[pair.firstDogId]?[day] =
+                (tempDailyDistances[pair.firstDogId]![day] ?? 0) +
+                    teamGroup.distance;
           }
-          if (dogFound) break;
+          if (pair.secondDogId != null) {
+            tempDailyDistances[pair.secondDogId]?[day] =
+                (tempDailyDistances[pair.secondDogId]![day] ?? 0) +
+                    teamGroup.distance;
+          }
         }
       }
+    }
 
-      List<DogDailyStats> dogDailies = dailyDistances.entries
+    Map<String, List<DogDailyStats>> toReturn = {};
+    for (final dogId in tempDailyDistances.keys) {
+      final dogDailies = tempDailyDistances[dogId]!
+          .entries
           .map((entry) =>
               DogDailyStats(date: entry.key, distanceRan: entry.value))
           .toList();
       dogDailies.sort((a, b) => a.date.compareTo(b.date));
-
-      toReturn[dog.id] = dogDailies;
+      toReturn[dogId] = dogDailies;
     }
-
     return toReturn;
   }
 }
