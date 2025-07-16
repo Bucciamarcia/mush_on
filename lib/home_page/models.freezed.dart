@@ -297,7 +297,7 @@ mixin _$WhiteboardElement {
   String get description;
   @NonNullableTimestampConverter()
   DateTime get date;
-  List<String> get comments;
+  List<WhiteboardElementComment> get comments;
 
   /// Create a copy of WhiteboardElement
   /// with the given fields replaced by the non-null parameter values.
@@ -345,7 +345,7 @@ abstract mixin class $WhiteboardElementCopyWith<$Res> {
       String title,
       String description,
       @NonNullableTimestampConverter() DateTime date,
-      List<String> comments});
+      List<WhiteboardElementComment> comments});
 }
 
 /// @nodoc
@@ -387,20 +387,22 @@ class _$WhiteboardElementCopyWithImpl<$Res>
       comments: null == comments
           ? _self.comments
           : comments // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as List<WhiteboardElementComment>,
     ));
   }
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _WhiteboardElement implements WhiteboardElement {
   const _WhiteboardElement(
       {required this.id,
       this.title = "",
       this.description = "",
       @NonNullableTimestampConverter() required this.date,
-      final List<String> comments = const <String>[]})
+      final List<WhiteboardElementComment> comments =
+          const <WhiteboardElementComment>[]})
       : _comments = comments;
   factory _WhiteboardElement.fromJson(Map<String, dynamic> json) =>
       _$WhiteboardElementFromJson(json);
@@ -416,10 +418,10 @@ class _WhiteboardElement implements WhiteboardElement {
   @override
   @NonNullableTimestampConverter()
   final DateTime date;
-  final List<String> _comments;
+  final List<WhiteboardElementComment> _comments;
   @override
   @JsonKey()
-  List<String> get comments {
+  List<WhiteboardElementComment> get comments {
     if (_comments is EqualUnmodifiableListView) return _comments;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_comments);
@@ -477,7 +479,7 @@ abstract mixin class _$WhiteboardElementCopyWith<$Res>
       String title,
       String description,
       @NonNullableTimestampConverter() DateTime date,
-      List<String> comments});
+      List<WhiteboardElementComment> comments});
 }
 
 /// @nodoc
@@ -519,7 +521,171 @@ class __$WhiteboardElementCopyWithImpl<$Res>
       comments: null == comments
           ? _self._comments
           : comments // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as List<WhiteboardElementComment>,
+    ));
+  }
+}
+
+/// @nodoc
+mixin _$WhiteboardElementComment {
+  String get comment;
+  @NonNullableTimestampConverter()
+  DateTime get date;
+
+  /// Create a copy of WhiteboardElementComment
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $WhiteboardElementCommentCopyWith<WhiteboardElementComment> get copyWith =>
+      _$WhiteboardElementCommentCopyWithImpl<WhiteboardElementComment>(
+          this as WhiteboardElementComment, _$identity);
+
+  /// Serializes this WhiteboardElementComment to a JSON map.
+  Map<String, dynamic> toJson();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is WhiteboardElementComment &&
+            (identical(other.comment, comment) || other.comment == comment) &&
+            (identical(other.date, date) || other.date == date));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, comment, date);
+
+  @override
+  String toString() {
+    return 'WhiteboardElementComment(comment: $comment, date: $date)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $WhiteboardElementCommentCopyWith<$Res> {
+  factory $WhiteboardElementCommentCopyWith(WhiteboardElementComment value,
+          $Res Function(WhiteboardElementComment) _then) =
+      _$WhiteboardElementCommentCopyWithImpl;
+  @useResult
+  $Res call({String comment, @NonNullableTimestampConverter() DateTime date});
+}
+
+/// @nodoc
+class _$WhiteboardElementCommentCopyWithImpl<$Res>
+    implements $WhiteboardElementCommentCopyWith<$Res> {
+  _$WhiteboardElementCommentCopyWithImpl(this._self, this._then);
+
+  final WhiteboardElementComment _self;
+  final $Res Function(WhiteboardElementComment) _then;
+
+  /// Create a copy of WhiteboardElementComment
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? comment = null,
+    Object? date = null,
+  }) {
+    return _then(_self.copyWith(
+      comment: null == comment
+          ? _self.comment
+          : comment // ignore: cast_nullable_to_non_nullable
+              as String,
+      date: null == date
+          ? _self.date
+          : date // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _WhiteboardElementComment implements WhiteboardElementComment {
+  const _WhiteboardElementComment(
+      {this.comment = "", @NonNullableTimestampConverter() required this.date});
+  factory _WhiteboardElementComment.fromJson(Map<String, dynamic> json) =>
+      _$WhiteboardElementCommentFromJson(json);
+
+  @override
+  @JsonKey()
+  final String comment;
+  @override
+  @NonNullableTimestampConverter()
+  final DateTime date;
+
+  /// Create a copy of WhiteboardElementComment
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$WhiteboardElementCommentCopyWith<_WhiteboardElementComment> get copyWith =>
+      __$WhiteboardElementCommentCopyWithImpl<_WhiteboardElementComment>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$WhiteboardElementCommentToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _WhiteboardElementComment &&
+            (identical(other.comment, comment) || other.comment == comment) &&
+            (identical(other.date, date) || other.date == date));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, comment, date);
+
+  @override
+  String toString() {
+    return 'WhiteboardElementComment(comment: $comment, date: $date)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$WhiteboardElementCommentCopyWith<$Res>
+    implements $WhiteboardElementCommentCopyWith<$Res> {
+  factory _$WhiteboardElementCommentCopyWith(_WhiteboardElementComment value,
+          $Res Function(_WhiteboardElementComment) _then) =
+      __$WhiteboardElementCommentCopyWithImpl;
+  @override
+  @useResult
+  $Res call({String comment, @NonNullableTimestampConverter() DateTime date});
+}
+
+/// @nodoc
+class __$WhiteboardElementCommentCopyWithImpl<$Res>
+    implements _$WhiteboardElementCommentCopyWith<$Res> {
+  __$WhiteboardElementCommentCopyWithImpl(this._self, this._then);
+
+  final _WhiteboardElementComment _self;
+  final $Res Function(_WhiteboardElementComment) _then;
+
+  /// Create a copy of WhiteboardElementComment
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? comment = null,
+    Object? date = null,
+  }) {
+    return _then(_WhiteboardElementComment(
+      comment: null == comment
+          ? _self.comment
+          : comment // ignore: cast_nullable_to_non_nullable
+              as String,
+      date: null == date
+          ? _self.date
+          : date // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ));
   }
 }

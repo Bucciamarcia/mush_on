@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mush_on/home_page/models.dart';
-import 'package:mush_on/services/extensions.dart';
 import 'package:uuid/uuid.dart';
 
 class WhiteboardElementDisplayWidget extends StatelessWidget {
@@ -15,6 +15,8 @@ class WhiteboardElementDisplayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<WhiteboardElementComment> comments = List.from(element.comments);
+    comments.sort((a, b) => a.date.compareTo(b.date));
     return InkWell(
       onTap: () => showDialog(
         context: context,
@@ -54,6 +56,13 @@ class WhiteboardElementDisplayWidget extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  Text(
+                    DateFormat("hh:mm:ss").format(element.date),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  )
                 ],
               ),
 
@@ -71,7 +80,7 @@ class WhiteboardElementDisplayWidget extends StatelessWidget {
               ],
 
               // Comments section
-              if (element.comments.isNotEmpty) ...[
+              if (comments.isNotEmpty) ...[
                 SizedBox(height: 16),
                 Divider(height: 1),
                 SizedBox(height: 12),
@@ -84,7 +93,7 @@ class WhiteboardElementDisplayWidget extends StatelessWidget {
                     ),
                     SizedBox(width: 6),
                     Text(
-                      "Comments (${element.comments.length})",
+                      "Comments (${comments.length})",
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                             color: Theme.of(context).colorScheme.secondary,
                             fontWeight: FontWeight.w600,
@@ -93,7 +102,7 @@ class WhiteboardElementDisplayWidget extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 8),
-                ...element.comments.map((comment) => Padding(
+                ...comments.map((comment) => Padding(
                       padding: const EdgeInsets.only(left: 22, bottom: 8),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +119,7 @@ class WhiteboardElementDisplayWidget extends StatelessWidget {
                           SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              comment,
+                              comment.comment,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
@@ -119,6 +128,13 @@ class WhiteboardElementDisplayWidget extends StatelessWidget {
                                         .colorScheme
                                         .onSurfaceVariant,
                                   ),
+                            ),
+                          ),
+                          Text(
+                            DateFormat("hh:mm:ss").format(comment.date),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w300,
                             ),
                           ),
                         ],
@@ -275,16 +291,22 @@ class _WhiteboardElementEditorState extends State<WhiteboardElementEditor> {
         FilledButton.icon(
           onPressed: () {
             if (_formKey.currentState!.validate()) {
-              List<String> constComments = [];
-              constComments.addAll(widget.element?.comments ?? <String>[]);
+              List<WhiteboardElementComment> constComments = [];
+              constComments.addAll(
+                  widget.element?.comments ?? <WhiteboardElementComment>[]);
               if (_addCommentController.text.trim().isNotEmpty) {
-                constComments.add(_addCommentController.text.trim());
+                constComments.add(
+                  WhiteboardElementComment(
+                    comment: _addCommentController.text.trim(),
+                    date: DateTime.now(),
+                  ),
+                );
               }
               widget.onSaved(
                 WhiteboardElement(
                   id: widget.element?.id ?? Uuid().v4(),
                   title: _titleController.text.trim(),
-                  date: DateTimeUtils.today(),
+                  date: widget.element?.date ?? DateTime.now(),
                   comments: constComments,
                   description: _descriptionController.text.trim(),
                 ),
