@@ -39,8 +39,7 @@ class InsightsMain extends ConsumerWidget {
         [];
     List<TeamGroup> teamGroups = ref
             .watch(teamGroupsProvider(
-                earliestDate:
-                    DateTimeUtils.today().subtract(Duration(days: 360)),
+                earliestDate: dateRange.startDate.subtract(Duration(days: 30)),
                 finalDate: DateTimeUtils.today()))
             .value ??
         [];
@@ -231,7 +230,7 @@ class InsightsMain extends ConsumerWidget {
                 showDuration: Duration(seconds: 5),
                 triggerMode: TooltipTriggerMode.tap,
                 message:
-                    "How many days the dog was not affected by a blocking health event in % of the total",
+                    "Percentage of days in the selected period that the dog was available to run (i.e., not sidelined by a health event).",
                 child: Icon(Icons.question_mark),
               ),
             ],
