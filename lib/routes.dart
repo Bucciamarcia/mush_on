@@ -13,6 +13,8 @@ import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
 import 'package:mush_on/stats/stats.dart';
 
+import 'customer_management/customer_management.dart';
+
 BasicLogger logger = BasicLogger();
 var appRoutes = {
   "/": (context) => const HomeScreen(),
@@ -43,4 +45,5 @@ var appRoutes = {
   "/tasks": (context) => const TasksScreen(),
   "/health_dashboard": (context) => const HealthScreen(),
   "/insights": (context) => const InsightsScreen(),
+  "/client_management": (context) => const ClientManagementScreen(),
 };
