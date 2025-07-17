@@ -100,6 +100,13 @@ class TemplateScreen extends ConsumerWidget {
                 "Teams history",
               ),
             ),
+            ListTile(
+              leading: Icon(Icons.history),
+              onTap: () => Navigator.pushNamed(context, "/client_management"),
+              title: const Text(
+                "Manage clients",
+              ),
+            ),
             const Divider(),
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
