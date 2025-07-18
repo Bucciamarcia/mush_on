@@ -10,7 +10,6 @@ import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/riverpod/dog_notes.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
-import 'package:uuid/uuid.dart';
 import 'save_teams_button.dart';
 import 'select_datetime.dart';
 
@@ -23,6 +22,24 @@ class CreateTeamMain extends ConsumerStatefulWidget {
 }
 
 class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
+  late TextEditingController groupNameController;
+  late TextEditingController groupNotesController;
+  @override
+  void initState() {
+    super.initState();
+    groupNameController =
+        TextEditingController(text: widget.loadedTeam?.name ?? "");
+    groupNotesController =
+        TextEditingController(text: widget.loadedTeam?.notes ?? "");
+  }
+
+  @override
+  void dispose() {
+    groupNameController.dispose();
+    groupNotesController.dispose();
+    super.dispose();
+  }
+
   Future<bool?> showBackDialog() {
     return showDialog<bool>(
       context: context,
@@ -109,14 +126,14 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                 notifier.changeDistance(newDistance),
           ),
           TextField(
-            controller: TextEditingController(text: teamGroup.name),
+            controller: groupNameController,
             decoration: InputDecoration(labelText: "Group name"),
             onChanged: (String text) {
               notifier.changeName(text);
             },
           ),
           TextField(
-            controller: TextEditingController(text: teamGroup.notes),
+            controller: groupNotesController,
             decoration: InputDecoration(labelText: "Group notes"),
             onChanged: (String text) {
               notifier.changeNotes(text);

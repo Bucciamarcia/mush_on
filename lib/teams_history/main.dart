@@ -28,7 +28,7 @@ class TeamsHistoryMain extends ConsumerWidget {
                 itemCount: groups.length,
                 itemBuilder: (context, index) {
                   TeamGroup item = groups[index];
-                  return TeamViewer(item: item);
+                  return TeamViewer(item: item, key: ValueKey(item.id));
                 });
           },
           error: (e, s) {
