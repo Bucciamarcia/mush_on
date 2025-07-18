@@ -52,7 +52,6 @@ class SaveTeamsButton extends ConsumerWidget {
       DateTime utcDate = teamGroup.date.toUtc();
       DateTime dateTimeNoSeconds = DateTime.utc(utcDate.year, utcDate.month,
           utcDate.day, utcDate.hour, utcDate.minute);
-      QuerySnapshot<Object?> snapshot = await doesTeamExist(dateTimeNoSeconds);
       final FirebaseFirestore db = FirebaseFirestore.instance;
       List<Map<String, dynamic>> cleanTeams =
           _modifyTeamsForDb(teamGroup.teams);
@@ -66,14 +65,8 @@ class SaveTeamsButton extends ConsumerWidget {
       };
       String path = "accounts/$account/data/teams/history";
 
-      if (snapshot.docs.isEmpty) {
-        var ref = db.collection(path);
-
-        ref.add(data);
-      } else {
-        var ref = db.collection(path).doc(snapshot.docs[0].id);
-        ref.set(data);
-      }
+      var ref = db.collection(path).doc(teamGroup.id);
+      ref.set(data);
     } catch (e, s) {
       logger.error("Error in saving to db", error: e, stackTrace: s);
       rethrow;
