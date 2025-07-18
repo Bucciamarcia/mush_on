@@ -17,7 +17,8 @@ class HomePageScreen extends ConsumerWidget {
           future: addIdToTeamgroups(account),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator.adaptive();
+              return Scaffold(
+                  body: Center(child: CircularProgressIndicator.adaptive()));
             } else if (snapshot.hasError) {
               return Text("Error in database.");
             } else if (snapshot.connectionState == ConnectionState.done) {

@@ -97,3 +97,4 @@ A cool and open source CRM for sled dog kennels.
 
 - New create team logic: now changing the time doesn't create a new team group, and can have multiple groups at the same time.
 - Accidentally going back in create team now keeps the teams in memory.
+- Fix bug: team building text fields now function correctly.
