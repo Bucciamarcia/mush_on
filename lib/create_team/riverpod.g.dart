@@ -23,7 +23,23 @@ final duplicateDogsProvider = AutoDisposeProvider<List<String>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DuplicateDogsRef = AutoDisposeProviderRef<List<String>>;
-String _$createTeamGroupHash() => r'df6680913210d8d569a4929a44be0ccf10a62c2e';
+String _$canPopTeamGroupHash() => r'c9af7216c65b52eed3154435651dc810e0585519';
+
+/// See also [CanPopTeamGroup].
+@ProviderFor(CanPopTeamGroup)
+final canPopTeamGroupProvider =
+    AutoDisposeNotifierProvider<CanPopTeamGroup, bool>.internal(
+  CanPopTeamGroup.new,
+  name: r'canPopTeamGroupProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$canPopTeamGroupHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
+String _$createTeamGroupHash() => r'317da1e66df7a985718c59fe316ae7c784730a06';
 
 /// Copied from Dart SDK
 class _SystemHash {

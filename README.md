@@ -92,3 +92,8 @@ A cool and open source CRM for sled dog kennels.
 - Added upcoming health events in health dashboard.
 - Chips in home page and health dashboards (eg. "3 cannot run") are now clickable.
 - Added insights page.
+
+### 0.0.13
+
+- New create team logic: now changing the time doesn't create a new team group, and can have multiple groups at the same time.
+- Accidentally going back in create team now keeps the teams in memory.

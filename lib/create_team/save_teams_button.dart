@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
@@ -31,6 +32,7 @@ class SaveTeamsButton extends ConsumerWidget {
               behavior: SnackBarBehavior.floating,
             ),
           );
+          ref.read(canPopTeamGroupProvider.notifier).changeState(true);
         } catch (e, s) {
           logger.error("Couldn't save team to db", error: e, stackTrace: s);
           ScaffoldMessenger.of(context).showSnackBar(

@@ -5,6 +5,18 @@ import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
 
 @riverpod
+class CanPopTeamGroup extends _$CanPopTeamGroup {
+  @override
+  bool build() {
+    return true;
+  }
+
+  void changeState(bool n) {
+    state = n;
+  }
+}
+
+@riverpod
 
 /// The teamgroup that is being built.
 class CreateTeamGroup extends _$CreateTeamGroup {
@@ -30,18 +42,22 @@ class CreateTeamGroup extends _$CreateTeamGroup {
 
   /// Change name of the teamgroup.
   void changeName(String newName) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     state = state.copyWith(name: newName);
   }
 
   void changeNotes(String newNotes) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     state = state.copyWith(notes: newNotes);
   }
 
   void changeDate(DateTime newDate) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     state = state.copyWith(date: newDate);
   }
 
   void changeDistance(double newDistance) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     state = state.copyWith(distance: newDistance);
   }
 
@@ -52,6 +68,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
     required int rowNumber,
     required int positionNumber,
   }) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     // More efficient update pattern
     state = state.copyWith(
       teams: [
@@ -76,6 +93,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
   }
 
   void changeTeamName({required int teamNumber, required String newName}) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     state = state.copyWith(
       teams: [
         for (int i = 0; i < state.teams.length; i++)
@@ -88,6 +106,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
   }
 
   void removeRow({required int teamNumber, required int rowNumber}) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     state = state.copyWith(
       teams: [
         for (int i = 0; i < state.teams.length; i++)
@@ -106,6 +125,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
 
   /// Adds a row at the end of the team.
   void addRow({required int teamNumber}) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     var teamToEdit = state.teams[teamNumber];
     var newRows = List<DogPair>.from(state.teams[teamNumber].dogPairs);
     newRows.add(DogPair());
@@ -117,6 +137,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
   }
 
   void addTeam({required int teamNumber}) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     var newTeams = List<Team>.from(state.teams);
     newTeams.insert(
         teamNumber, Team(dogPairs: [DogPair(), DogPair(), DogPair()]));
@@ -124,6 +145,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
   }
 
   void removeTeam({required int teamNumber}) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     var newTeams = List<Team>.from(state.teams);
     newTeams.removeAt(teamNumber);
     state = state.copyWith(teams: newTeams);
