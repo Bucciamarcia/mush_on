@@ -185,16 +185,7 @@ class TeamViewer extends ConsumerWidget {
 
       String path = "accounts/$account/data/teams/history";
       var ref = db.collection(path);
-      var snapshot = await ref.where("date", isEqualTo: item.date).get();
-
-      if (snapshot.docs.length != 1) {
-        return false;
-      }
-      for (var doc in snapshot.docs) {
-        String docPath = "accounts/$account/data/teams/history/${doc.id}";
-        await db.doc(docPath).delete();
-      }
-
+      await ref.doc(item.id).delete();
       return true;
     } catch (e) {
       return false;

@@ -59,14 +59,14 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
     var teamGroup = ref.watch(createTeamGroupProvider(widget.loadedTeam));
     var runningDogs = ref.watch(runningDogsProvider(teamGroup));
     var dogNotes = ref.watch(dogNotesProvider);
+    bool canPopProvider = ref.watch(canPopTeamGroupProvider);
     var notifier =
         ref.read(createTeamGroupProvider(widget.loadedTeam).notifier);
     List<Dog>? allDogs = ref.watch(dogsProvider).value;
     SettingsModel? settings = ref.watch(settingsProvider).value;
 
     return PopScope(
-      canPop: teamGroup.copyWith(date: DateTime.now()) !=
-          TeamGroup(date: DateTime.now(), id: Uuid().v4()),
+      canPop: canPopProvider,
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) {
           return;
