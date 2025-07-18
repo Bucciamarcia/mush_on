@@ -61,7 +61,8 @@ class SaveTeamsButton extends ConsumerWidget {
         "name": teamGroup.name,
         "notes": teamGroup.notes,
         "teams": cleanTeams,
-        "distance": teamGroup.distance
+        "distance": teamGroup.distance,
+        "id": teamGroup.id
       };
       String path = "accounts/$account/data/teams/history";
 

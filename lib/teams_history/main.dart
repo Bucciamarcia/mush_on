@@ -23,21 +23,23 @@ class TeamsHistoryMain extends ConsumerWidget {
           ),
         )
         .when(
-            data: (groups) {
-              return ListView.builder(
-                  itemCount: groups.length,
-                  itemBuilder: (context, index) {
-                    TeamGroup item = groups[index];
-                    return TeamViewer(item: item);
-                  });
-            },
-            error: (e, s) {
-              BasicLogger().error("Couldn't load teamgroups.");
-              return Text("Error: couldn't load team groups.");
-            },
-            loading: () => Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ));
+          data: (groups) {
+            return ListView.builder(
+                itemCount: groups.length,
+                itemBuilder: (context, index) {
+                  TeamGroup item = groups[index];
+                  return TeamViewer(item: item);
+                });
+          },
+          error: (e, s) {
+            BasicLogger()
+                .error("Couldn't load teamgroups.", error: e, stackTrace: s);
+            return Text("Error: couldn't load team groups.");
+          },
+          loading: () => Center(
+            child: CircularProgressIndicator.adaptive(),
+          ),
+        );
   }
 }
 

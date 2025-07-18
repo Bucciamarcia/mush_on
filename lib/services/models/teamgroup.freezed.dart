@@ -15,6 +15,8 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$TeamGroup {
+  String get id;
+
   /// The name of the entire group.
   String get name;
   @NonNullableTimestampConverter()
@@ -42,6 +44,7 @@ mixin _$TeamGroup {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is TeamGroup &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.date, date) || other.date == date) &&
             (identical(other.distance, distance) ||
@@ -52,12 +55,12 @@ mixin _$TeamGroup {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, date, distance, notes,
+  int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes,
       const DeepCollectionEquality().hash(teams));
 
   @override
   String toString() {
-    return 'TeamGroup(name: $name, date: $date, distance: $distance, notes: $notes, teams: $teams)';
+    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, teams: $teams)';
   }
 }
 
@@ -67,7 +70,8 @@ abstract mixin class $TeamGroupCopyWith<$Res> {
       _$TeamGroupCopyWithImpl;
   @useResult
   $Res call(
-      {String name,
+      {String id,
+      String name,
       @NonNullableTimestampConverter() DateTime date,
       double distance,
       String notes,
@@ -87,6 +91,7 @@ class _$TeamGroupCopyWithImpl<$Res> implements $TeamGroupCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? name = null,
     Object? date = null,
     Object? distance = null,
@@ -94,6 +99,10 @@ class _$TeamGroupCopyWithImpl<$Res> implements $TeamGroupCopyWith<$Res> {
     Object? teams = null,
   }) {
     return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -123,7 +132,8 @@ class _$TeamGroupCopyWithImpl<$Res> implements $TeamGroupCopyWith<$Res> {
 @JsonSerializable(explicitToJson: true)
 class _TeamGroup extends TeamGroup {
   const _TeamGroup(
-      {this.name = "",
+      {this.id = "",
+      this.name = "",
       @NonNullableTimestampConverter() required this.date,
       this.distance = 0,
       this.notes = "",
@@ -133,6 +143,10 @@ class _TeamGroup extends TeamGroup {
         super._();
   factory _TeamGroup.fromJson(Map<String, dynamic> json) =>
       _$TeamGroupFromJson(json);
+
+  @override
+  @JsonKey()
+  final String id;
 
   /// The name of the entire group.
   @override
@@ -179,6 +193,7 @@ class _TeamGroup extends TeamGroup {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _TeamGroup &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.date, date) || other.date == date) &&
             (identical(other.distance, distance) ||
@@ -189,12 +204,12 @@ class _TeamGroup extends TeamGroup {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, date, distance, notes,
+  int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes,
       const DeepCollectionEquality().hash(_teams));
 
   @override
   String toString() {
-    return 'TeamGroup(name: $name, date: $date, distance: $distance, notes: $notes, teams: $teams)';
+    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, teams: $teams)';
   }
 }
 
@@ -207,7 +222,8 @@ abstract mixin class _$TeamGroupCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String name,
+      {String id,
+      String name,
       @NonNullableTimestampConverter() DateTime date,
       double distance,
       String notes,
@@ -227,6 +243,7 @@ class __$TeamGroupCopyWithImpl<$Res> implements _$TeamGroupCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
+    Object? id = null,
     Object? name = null,
     Object? date = null,
     Object? distance = null,
@@ -234,6 +251,10 @@ class __$TeamGroupCopyWithImpl<$Res> implements _$TeamGroupCopyWith<$Res> {
     Object? teams = null,
   }) {
     return _then(_TeamGroup(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable

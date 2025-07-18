@@ -23,7 +23,7 @@ final duplicateDogsProvider = AutoDisposeProvider<List<String>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DuplicateDogsRef = AutoDisposeProviderRef<List<String>>;
-String _$createTeamGroupHash() => r'fcdd6d6e9eb4a590b9ebc51a8a8125c35e46f8fa';
+String _$createTeamGroupHash() => r'df6680913210d8d569a4929a44be0ccf10a62c2e';
 
 /// Copied from Dart SDK
 class _SystemHash {

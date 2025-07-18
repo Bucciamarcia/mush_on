@@ -8,6 +8,8 @@ part 'models.freezed.dart';
 /// Can be part of a larger group or come alone.
 sealed class Customer with _$Customer {
   const factory Customer({
+    required String id,
+
     /// The full name of the customer.
     @Default("") String name,
 
@@ -38,6 +40,7 @@ sealed class Customer with _$Customer {
 sealed class Booking with _$Booking {
   @JsonSerializable(explicitToJson: true)
   const factory Booking({
+    required String id,
     @Default([]) List<Customer> customers,
 
     /// How much this group has paid
@@ -57,7 +60,8 @@ sealed class Booking with _$Booking {
 sealed class CustomerGroup with _$CustomerGroup {
   @JsonSerializable(explicitToJson: true)
   const factory CustomerGroup(
-      {
+      {required String id,
+
       /// A list of bookings that are assigned to this CustomerGroup
       @Default([]) List<Booking> bookings,
 

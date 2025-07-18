@@ -24,9 +24,11 @@ part 'teamgroup.freezed.dart';
 ///   teams: [team1, team2, team3],
 /// );
 /// ```
-abstract class TeamGroup with _$TeamGroup {
+sealed class TeamGroup with _$TeamGroup {
   @JsonSerializable(explicitToJson: true)
   const factory TeamGroup({
+    @Default("") String id,
+
     /// The name of the entire group.
     @Default("") String name,
     @NonNullableTimestampConverter() required DateTime date,
