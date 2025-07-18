@@ -10,6 +10,11 @@ sealed class Customer with _$Customer {
   const factory Customer({
     required String id,
 
+    /// The booking Id this customer is part of.
+    ///
+    /// Must always exist, because customers need a booking to book a tour!
+    required String bookingId,
+
     /// The full name of the customer.
     @Default("") String name,
 
@@ -41,7 +46,11 @@ sealed class Booking with _$Booking {
   @JsonSerializable(explicitToJson: true)
   const factory Booking({
     required String id,
-    @Default([]) List<Customer> customers,
+
+    /// The ID of the CustomerGroup this booking is part of.
+    ///
+    /// Nullable because bookings when they're created they may not be assigned yet.
+    String? customerGroupId,
 
     /// How much this group has paid
     @Default(0) double price,
@@ -59,14 +68,16 @@ sealed class Booking with _$Booking {
 /// A CustomerGroup can have multiple bookings for mixed groups.
 sealed class CustomerGroup with _$CustomerGroup {
   @JsonSerializable(explicitToJson: true)
-  const factory CustomerGroup(
-      {required String id,
+  const factory CustomerGroup({
+    required String id,
 
-      /// A list of bookings that are assigned to this CustomerGroup
-      @Default([]) List<Booking> bookings,
-
-      /// The TeamGroup id this CustomerGroup is assigned to. Must have 1=1 correspondence.
-      String? teamGroupId}) = _CustomerGroup;
+    /// The ID of the teamGroup this customerGroup is assigned to.
+    /// Null if it has not been assigned to a teamgroup yet.
+    ///
+    /// Logic: customer groups are assigned 1=1 to teamGroups, they're very similar:
+    /// The teamGroup handles the dogs, the customerGroup handles the humans.
+    String? teamGroupId,
+  }) = _CustomerGroup;
 
   factory CustomerGroup.fromJson(Map<String, dynamic> json) =>
       _$CustomerGroupFromJson(json);
