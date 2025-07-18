@@ -7,6 +7,7 @@ part of 'models.dart';
 // **************************************************************************
 
 _Customer _$CustomerFromJson(Map<String, dynamic> json) => _Customer(
+      id: json['id'] as String,
       name: json['name'] as String? ?? "",
       email: json['email'] as String?,
       age: (json['age'] as num?)?.toInt(),
@@ -16,6 +17,7 @@ _Customer _$CustomerFromJson(Map<String, dynamic> json) => _Customer(
     );
 
 Map<String, dynamic> _$CustomerToJson(_Customer instance) => <String, dynamic>{
+      'id': instance.id,
       'name': instance.name,
       'email': instance.email,
       'age': instance.age,
@@ -25,6 +27,7 @@ Map<String, dynamic> _$CustomerToJson(_Customer instance) => <String, dynamic>{
     };
 
 _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
+      id: json['id'] as String,
       customers: (json['customers'] as List<dynamic>?)
               ?.map((e) => Customer.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -33,12 +36,14 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
     );
 
 Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
+      'id': instance.id,
       'customers': instance.customers.map((e) => e.toJson()).toList(),
       'price': instance.price,
     };
 
 _CustomerGroup _$CustomerGroupFromJson(Map<String, dynamic> json) =>
     _CustomerGroup(
+      id: json['id'] as String,
       bookings: (json['bookings'] as List<dynamic>?)
               ?.map((e) => Booking.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -48,6 +53,7 @@ _CustomerGroup _$CustomerGroupFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$CustomerGroupToJson(_CustomerGroup instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'bookings': instance.bookings.map((e) => e.toJson()).toList(),
       'teamGroupId': instance.teamGroupId,
     };

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
 
 @riverpod
@@ -10,14 +11,18 @@ class CreateTeamGroup extends _$CreateTeamGroup {
   @override
   TeamGroup build(TeamGroup? teamGroup) {
     if (teamGroup == null) {
-      return TeamGroup(date: DateTime.now(), teams: [
-        Team(
-          dogPairs: [
-            DogPair(),
-            DogPair(),
-          ],
-        ),
-      ]);
+      return TeamGroup(
+        date: DateTime.now(),
+        id: Uuid().v4(),
+        teams: [
+          Team(
+            dogPairs: [
+              DogPair(),
+              DogPair(),
+            ],
+          ),
+        ],
+      );
     } else {
       return teamGroup;
     }

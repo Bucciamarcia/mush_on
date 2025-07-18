@@ -15,6 +15,8 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$Customer {
+  String get id;
+
   /// The full name of the customer.
   String get name;
 
@@ -48,6 +50,7 @@ mixin _$Customer {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Customer &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.age, age) || other.age == age) &&
@@ -61,11 +64,11 @@ mixin _$Customer {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, name, email, age, isSingleDriver, weight, isDriving);
+      runtimeType, id, name, email, age, isSingleDriver, weight, isDriving);
 
   @override
   String toString() {
-    return 'Customer(name: $name, email: $email, age: $age, isSingleDriver: $isSingleDriver, weight: $weight, isDriving: $isDriving)';
+    return 'Customer(id: $id, name: $name, email: $email, age: $age, isSingleDriver: $isSingleDriver, weight: $weight, isDriving: $isDriving)';
   }
 }
 
@@ -75,7 +78,8 @@ abstract mixin class $CustomerCopyWith<$Res> {
       _$CustomerCopyWithImpl;
   @useResult
   $Res call(
-      {String name,
+      {String id,
+      String name,
       String? email,
       int? age,
       bool isSingleDriver,
@@ -95,6 +99,7 @@ class _$CustomerCopyWithImpl<$Res> implements $CustomerCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? name = null,
     Object? email = freezed,
     Object? age = freezed,
@@ -103,6 +108,10 @@ class _$CustomerCopyWithImpl<$Res> implements $CustomerCopyWith<$Res> {
     Object? isDriving = null,
   }) {
     return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -135,7 +144,8 @@ class _$CustomerCopyWithImpl<$Res> implements $CustomerCopyWith<$Res> {
 @JsonSerializable()
 class _Customer implements Customer {
   const _Customer(
-      {this.name = "",
+      {required this.id,
+      this.name = "",
       this.email,
       this.age,
       this.isSingleDriver = false,
@@ -143,6 +153,9 @@ class _Customer implements Customer {
       this.isDriving = true});
   factory _Customer.fromJson(Map<String, dynamic> json) =>
       _$CustomerFromJson(json);
+
+  @override
+  final String id;
 
   /// The full name of the customer.
   @override
@@ -191,6 +204,7 @@ class _Customer implements Customer {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _Customer &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.age, age) || other.age == age) &&
@@ -204,11 +218,11 @@ class _Customer implements Customer {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, name, email, age, isSingleDriver, weight, isDriving);
+      runtimeType, id, name, email, age, isSingleDriver, weight, isDriving);
 
   @override
   String toString() {
-    return 'Customer(name: $name, email: $email, age: $age, isSingleDriver: $isSingleDriver, weight: $weight, isDriving: $isDriving)';
+    return 'Customer(id: $id, name: $name, email: $email, age: $age, isSingleDriver: $isSingleDriver, weight: $weight, isDriving: $isDriving)';
   }
 }
 
@@ -220,7 +234,8 @@ abstract mixin class _$CustomerCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String name,
+      {String id,
+      String name,
       String? email,
       int? age,
       bool isSingleDriver,
@@ -240,6 +255,7 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
+    Object? id = null,
     Object? name = null,
     Object? email = freezed,
     Object? age = freezed,
@@ -248,6 +264,10 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
     Object? isDriving = null,
   }) {
     return _then(_Customer(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -278,6 +298,7 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
 
 /// @nodoc
 mixin _$Booking {
+  String get id;
   List<Customer> get customers;
 
   /// How much this group has paid
@@ -298,6 +319,7 @@ mixin _$Booking {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Booking &&
+            (identical(other.id, id) || other.id == id) &&
             const DeepCollectionEquality().equals(other.customers, customers) &&
             (identical(other.price, price) || other.price == price));
   }
@@ -305,11 +327,11 @@ mixin _$Booking {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(customers), price);
+      runtimeType, id, const DeepCollectionEquality().hash(customers), price);
 
   @override
   String toString() {
-    return 'Booking(customers: $customers, price: $price)';
+    return 'Booking(id: $id, customers: $customers, price: $price)';
   }
 }
 
@@ -318,7 +340,7 @@ abstract mixin class $BookingCopyWith<$Res> {
   factory $BookingCopyWith(Booking value, $Res Function(Booking) _then) =
       _$BookingCopyWithImpl;
   @useResult
-  $Res call({List<Customer> customers, double price});
+  $Res call({String id, List<Customer> customers, double price});
 }
 
 /// @nodoc
@@ -333,10 +355,15 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? customers = null,
     Object? price = null,
   }) {
     return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       customers: null == customers
           ? _self.customers
           : customers // ignore: cast_nullable_to_non_nullable
@@ -353,11 +380,16 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
 
 @JsonSerializable(explicitToJson: true)
 class _Booking implements Booking {
-  const _Booking({final List<Customer> customers = const [], this.price = 0})
+  const _Booking(
+      {required this.id,
+      final List<Customer> customers = const [],
+      this.price = 0})
       : _customers = customers;
   factory _Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
 
+  @override
+  final String id;
   final List<Customer> _customers;
   @override
   @JsonKey()
@@ -392,6 +424,7 @@ class _Booking implements Booking {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _Booking &&
+            (identical(other.id, id) || other.id == id) &&
             const DeepCollectionEquality()
                 .equals(other._customers, _customers) &&
             (identical(other.price, price) || other.price == price));
@@ -400,11 +433,11 @@ class _Booking implements Booking {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(_customers), price);
+      runtimeType, id, const DeepCollectionEquality().hash(_customers), price);
 
   @override
   String toString() {
-    return 'Booking(customers: $customers, price: $price)';
+    return 'Booking(id: $id, customers: $customers, price: $price)';
   }
 }
 
@@ -414,7 +447,7 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
       __$BookingCopyWithImpl;
   @override
   @useResult
-  $Res call({List<Customer> customers, double price});
+  $Res call({String id, List<Customer> customers, double price});
 }
 
 /// @nodoc
@@ -429,10 +462,15 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
+    Object? id = null,
     Object? customers = null,
     Object? price = null,
   }) {
     return _then(_Booking(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       customers: null == customers
           ? _self._customers
           : customers // ignore: cast_nullable_to_non_nullable
@@ -447,6 +485,8 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
 
 /// @nodoc
 mixin _$CustomerGroup {
+  String get id;
+
   /// A list of bookings that are assigned to this CustomerGroup
   List<Booking> get bookings;
 
@@ -469,6 +509,7 @@ mixin _$CustomerGroup {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is CustomerGroup &&
+            (identical(other.id, id) || other.id == id) &&
             const DeepCollectionEquality().equals(other.bookings, bookings) &&
             (identical(other.teamGroupId, teamGroupId) ||
                 other.teamGroupId == teamGroupId));
@@ -476,12 +517,12 @@ mixin _$CustomerGroup {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(bookings), teamGroupId);
+  int get hashCode => Object.hash(runtimeType, id,
+      const DeepCollectionEquality().hash(bookings), teamGroupId);
 
   @override
   String toString() {
-    return 'CustomerGroup(bookings: $bookings, teamGroupId: $teamGroupId)';
+    return 'CustomerGroup(id: $id, bookings: $bookings, teamGroupId: $teamGroupId)';
   }
 }
 
@@ -491,7 +532,7 @@ abstract mixin class $CustomerGroupCopyWith<$Res> {
           CustomerGroup value, $Res Function(CustomerGroup) _then) =
       _$CustomerGroupCopyWithImpl;
   @useResult
-  $Res call({List<Booking> bookings, String? teamGroupId});
+  $Res call({String id, List<Booking> bookings, String? teamGroupId});
 }
 
 /// @nodoc
@@ -507,10 +548,15 @@ class _$CustomerGroupCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? bookings = null,
     Object? teamGroupId = freezed,
   }) {
     return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       bookings: null == bookings
           ? _self.bookings
           : bookings // ignore: cast_nullable_to_non_nullable
@@ -528,10 +574,15 @@ class _$CustomerGroupCopyWithImpl<$Res>
 @JsonSerializable(explicitToJson: true)
 class _CustomerGroup implements CustomerGroup {
   const _CustomerGroup(
-      {final List<Booking> bookings = const [], this.teamGroupId})
+      {required this.id,
+      final List<Booking> bookings = const [],
+      this.teamGroupId})
       : _bookings = bookings;
   factory _CustomerGroup.fromJson(Map<String, dynamic> json) =>
       _$CustomerGroupFromJson(json);
+
+  @override
+  final String id;
 
   /// A list of bookings that are assigned to this CustomerGroup
   final List<Booking> _bookings;
@@ -569,6 +620,7 @@ class _CustomerGroup implements CustomerGroup {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _CustomerGroup &&
+            (identical(other.id, id) || other.id == id) &&
             const DeepCollectionEquality().equals(other._bookings, _bookings) &&
             (identical(other.teamGroupId, teamGroupId) ||
                 other.teamGroupId == teamGroupId));
@@ -576,12 +628,12 @@ class _CustomerGroup implements CustomerGroup {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(_bookings), teamGroupId);
+  int get hashCode => Object.hash(runtimeType, id,
+      const DeepCollectionEquality().hash(_bookings), teamGroupId);
 
   @override
   String toString() {
-    return 'CustomerGroup(bookings: $bookings, teamGroupId: $teamGroupId)';
+    return 'CustomerGroup(id: $id, bookings: $bookings, teamGroupId: $teamGroupId)';
   }
 }
 
@@ -593,7 +645,7 @@ abstract mixin class _$CustomerGroupCopyWith<$Res>
       __$CustomerGroupCopyWithImpl;
   @override
   @useResult
-  $Res call({List<Booking> bookings, String? teamGroupId});
+  $Res call({String id, List<Booking> bookings, String? teamGroupId});
 }
 
 /// @nodoc
@@ -609,10 +661,15 @@ class __$CustomerGroupCopyWithImpl<$Res>
   @override
   @pragma('vm:prefer-inline')
   $Res call({
+    Object? id = null,
     Object? bookings = null,
     Object? teamGroupId = freezed,
   }) {
     return _then(_CustomerGroup(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       bookings: null == bookings
           ? _self._bookings
           : bookings // ignore: cast_nullable_to_non_nullable

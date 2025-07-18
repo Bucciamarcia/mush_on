@@ -7,6 +7,7 @@ part of 'teamgroup.dart';
 // **************************************************************************
 
 _TeamGroup _$TeamGroupFromJson(Map<String, dynamic> json) => _TeamGroup(
+      id: json['id'] as String? ?? "",
       name: json['name'] as String? ?? "",
       date: const NonNullableTimestampConverter()
           .fromJson(json['date'] as Timestamp),
@@ -19,6 +20,7 @@ _TeamGroup _$TeamGroupFromJson(Map<String, dynamic> json) => _TeamGroup(
 
 Map<String, dynamic> _$TeamGroupToJson(_TeamGroup instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'name': instance.name,
       'date': const NonNullableTimestampConverter().toJson(instance.date),
       'distance': instance.distance,

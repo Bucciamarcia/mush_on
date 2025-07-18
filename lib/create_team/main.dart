@@ -10,6 +10,7 @@ import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/riverpod/dog_notes.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
+import 'package:uuid/uuid.dart';
 import 'save_teams_button.dart';
 import 'select_datetime.dart';
 
@@ -65,7 +66,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
 
     return PopScope(
       canPop: teamGroup.copyWith(date: DateTime.now()) !=
-          TeamGroup(date: DateTime.now()),
+          TeamGroup(date: DateTime.now(), id: Uuid().v4()),
       onPopInvokedWithResult: (bool didPop, Object? result) async {
         if (didPop) {
           return;
