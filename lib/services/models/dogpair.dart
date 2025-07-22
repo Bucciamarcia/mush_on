@@ -16,6 +16,7 @@ part 'dogpair.freezed.dart';
 /// ```
 sealed class DogPair with _$DogPair {
   const factory DogPair({
+    @Default("") String id,
     String? firstDogId,
     String? secondDogId,
   }) = _DogPair;

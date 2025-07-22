@@ -22,6 +22,7 @@ part 'team.freezed.dart';
 ///  ```
 abstract class Team with _$Team {
   const factory Team({
+    @Default("") String id,
     @Default("") String name,
     @Default([]) List<DogPair> dogPairs,
   }) = _Team;
