@@ -1,4 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mush_on/services/models/custom_converters.dart';
 part 'models.g.dart';
 part 'models.freezed.dart';
 
@@ -47,17 +49,28 @@ sealed class Booking with _$Booking {
   const factory Booking({
     required String id,
 
+    /// The date and time of the booking
+    @NonNullableTimestampConverter() required DateTime date,
+
     /// The ID of the CustomerGroup this booking is part of.
     ///
     /// Nullable because bookings when they're created they may not be assigned yet.
     String? customerGroupId,
 
-    /// How much this group has paid
+    /// The price for this group.
     @Default(0) double price,
+
+    /// How much this group has paid.
+    @Default(0) double hasPaidAmount,
   }) = _Booking;
 
   factory Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
+}
+
+extension BookingExtension on Booking {
+  bool get isFullyPaid => price == hasPaidAmount;
+  double get leftToPay => price - hasPaidAmount;
 }
 
 @freezed

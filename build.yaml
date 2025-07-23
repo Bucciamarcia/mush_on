@@ -3,12 +3,4 @@ targets:
     sources:
       - "$package$"
       - "lib/**"
-      # vim/Emacs temp files
-      - "!lib/**/#*#"
-      - "!lib/**/*~"
-      - "!lib/**/.*"
-      - "!lib/**/*.swp"
-      - "!lib/**/*.swo"
-      - "!lib/**/*.swn"
-      # numeric‐only folders and their contents
-      - "!lib/**/[0-9]*/**"
+      - "!lib/**/4913"

@@ -328,13 +328,20 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
 mixin _$Booking {
   String get id;
 
+  /// The date and time of the booking
+  @NonNullableTimestampConverter()
+  DateTime get date;
+
   /// The ID of the CustomerGroup this booking is part of.
   ///
   /// Nullable because bookings when they're created they may not be assigned yet.
   String? get customerGroupId;
 
-  /// How much this group has paid
+  /// The price for this group.
   double get price;
+
+  /// How much this group has paid.
+  double get hasPaidAmount;
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -352,18 +359,22 @@ mixin _$Booking {
         (other.runtimeType == runtimeType &&
             other is Booking &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.date, date) || other.date == date) &&
             (identical(other.customerGroupId, customerGroupId) ||
                 other.customerGroupId == customerGroupId) &&
-            (identical(other.price, price) || other.price == price));
+            (identical(other.price, price) || other.price == price) &&
+            (identical(other.hasPaidAmount, hasPaidAmount) ||
+                other.hasPaidAmount == hasPaidAmount));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, customerGroupId, price);
+  int get hashCode =>
+      Object.hash(runtimeType, id, date, customerGroupId, price, hasPaidAmount);
 
   @override
   String toString() {
-    return 'Booking(id: $id, customerGroupId: $customerGroupId, price: $price)';
+    return 'Booking(id: $id, date: $date, customerGroupId: $customerGroupId, price: $price, hasPaidAmount: $hasPaidAmount)';
   }
 }
 
@@ -372,7 +383,12 @@ abstract mixin class $BookingCopyWith<$Res> {
   factory $BookingCopyWith(Booking value, $Res Function(Booking) _then) =
       _$BookingCopyWithImpl;
   @useResult
-  $Res call({String id, String? customerGroupId, double price});
+  $Res call(
+      {String id,
+      @NonNullableTimestampConverter() DateTime date,
+      String? customerGroupId,
+      double price,
+      double hasPaidAmount});
 }
 
 /// @nodoc
@@ -388,14 +404,20 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
   @override
   $Res call({
     Object? id = null,
+    Object? date = null,
     Object? customerGroupId = freezed,
     Object? price = null,
+    Object? hasPaidAmount = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      date: null == date
+          ? _self.date
+          : date // ignore: cast_nullable_to_non_nullable
+              as DateTime,
       customerGroupId: freezed == customerGroupId
           ? _self.customerGroupId
           : customerGroupId // ignore: cast_nullable_to_non_nullable
@@ -403,6 +425,10 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
       price: null == price
           ? _self.price
           : price // ignore: cast_nullable_to_non_nullable
+              as double,
+      hasPaidAmount: null == hasPaidAmount
+          ? _self.hasPaidAmount
+          : hasPaidAmount // ignore: cast_nullable_to_non_nullable
               as double,
     ));
   }
@@ -412,12 +438,22 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
 
 @JsonSerializable(explicitToJson: true)
 class _Booking implements Booking {
-  const _Booking({required this.id, this.customerGroupId, this.price = 0});
+  const _Booking(
+      {required this.id,
+      @NonNullableTimestampConverter() required this.date,
+      this.customerGroupId,
+      this.price = 0,
+      this.hasPaidAmount = 0});
   factory _Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
 
   @override
   final String id;
+
+  /// The date and time of the booking
+  @override
+  @NonNullableTimestampConverter()
+  final DateTime date;
 
   /// The ID of the CustomerGroup this booking is part of.
   ///
@@ -425,10 +461,15 @@ class _Booking implements Booking {
   @override
   final String? customerGroupId;
 
-  /// How much this group has paid
+  /// The price for this group.
   @override
   @JsonKey()
   final double price;
+
+  /// How much this group has paid.
+  @override
+  @JsonKey()
+  final double hasPaidAmount;
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -451,18 +492,22 @@ class _Booking implements Booking {
         (other.runtimeType == runtimeType &&
             other is _Booking &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.date, date) || other.date == date) &&
             (identical(other.customerGroupId, customerGroupId) ||
                 other.customerGroupId == customerGroupId) &&
-            (identical(other.price, price) || other.price == price));
+            (identical(other.price, price) || other.price == price) &&
+            (identical(other.hasPaidAmount, hasPaidAmount) ||
+                other.hasPaidAmount == hasPaidAmount));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, customerGroupId, price);
+  int get hashCode =>
+      Object.hash(runtimeType, id, date, customerGroupId, price, hasPaidAmount);
 
   @override
   String toString() {
-    return 'Booking(id: $id, customerGroupId: $customerGroupId, price: $price)';
+    return 'Booking(id: $id, date: $date, customerGroupId: $customerGroupId, price: $price, hasPaidAmount: $hasPaidAmount)';
   }
 }
 
@@ -472,7 +517,12 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
       __$BookingCopyWithImpl;
   @override
   @useResult
-  $Res call({String id, String? customerGroupId, double price});
+  $Res call(
+      {String id,
+      @NonNullableTimestampConverter() DateTime date,
+      String? customerGroupId,
+      double price,
+      double hasPaidAmount});
 }
 
 /// @nodoc
@@ -488,14 +538,20 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
+    Object? date = null,
     Object? customerGroupId = freezed,
     Object? price = null,
+    Object? hasPaidAmount = null,
   }) {
     return _then(_Booking(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      date: null == date
+          ? _self.date
+          : date // ignore: cast_nullable_to_non_nullable
+              as DateTime,
       customerGroupId: freezed == customerGroupId
           ? _self.customerGroupId
           : customerGroupId // ignore: cast_nullable_to_non_nullable
@@ -503,6 +559,10 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
       price: null == price
           ? _self.price
           : price // ignore: cast_nullable_to_non_nullable
+              as double,
+      hasPaidAmount: null == hasPaidAmount
+          ? _self.hasPaidAmount
+          : hasPaidAmount // ignore: cast_nullable_to_non_nullable
               as double,
     ));
   }

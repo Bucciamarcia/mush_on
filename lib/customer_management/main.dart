@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/repository.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:uuid/uuid.dart';
 
 class ClientManagementMainScreen extends ConsumerWidget {
   const ClientManagementMainScreen({super.key});
@@ -13,7 +15,10 @@ class ClientManagementMainScreen extends ConsumerWidget {
     final customerRepo = CustomerManagementRepository(account: account);
     return ElevatedButton(
       onPressed: () async {
-        try {} catch (e) {
+        try {
+          customerRepo.setBooking(Booking(
+              id: Uuid().v4(), date: DateTime.now().add(Duration(days: 3))));
+        } catch (e) {
           ScaffoldMessenger.of(context).showSnackBar(
             errorSnackBar(context, "Couldn't add the booking: $e"),
           );
