@@ -45,3 +45,24 @@ Stream<List<CustomerGroup>> customerGroupsByDate(
             .toList(),
       );
 }
+
+@riverpod
+
+/// Gets all the customers assigned to a certain booking
+
+Stream<List<Customer>> customersByBookingId(Ref ref, String bookingId) async* {
+  String account = await ref.watch(accountProvider.future);
+  final db = FirebaseFirestore.instance;
+  var collection = db
+      .collection("accounts/$account/data/bookingManager/customers")
+      .where("bookingId", isEqualTo: bookingId);
+  yield* collection.snapshots().map(
+        (snapshot) => snapshot.docs
+            .map(
+              (doc) => Customer.fromJson(
+                doc.data(),
+              ),
+            )
+            .toList(),
+      );
+}

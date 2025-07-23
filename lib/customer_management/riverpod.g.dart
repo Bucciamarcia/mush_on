@@ -330,5 +330,151 @@ class _CustomerGroupsByDateProviderElement
   @override
   DateTime get date => (origin as CustomerGroupsByDateProvider).date;
 }
+
+String _$customersByBookingIdHash() =>
+    r'92c846e32819d114ef1584666606ee648c5b89d9';
+
+/// Gets all the customers assigned to a certain booking
+///
+/// Copied from [customersByBookingId].
+@ProviderFor(customersByBookingId)
+const customersByBookingIdProvider = CustomersByBookingIdFamily();
+
+/// Gets all the customers assigned to a certain booking
+///
+/// Copied from [customersByBookingId].
+class CustomersByBookingIdFamily extends Family<AsyncValue<List<Customer>>> {
+  /// Gets all the customers assigned to a certain booking
+  ///
+  /// Copied from [customersByBookingId].
+  const CustomersByBookingIdFamily();
+
+  /// Gets all the customers assigned to a certain booking
+  ///
+  /// Copied from [customersByBookingId].
+  CustomersByBookingIdProvider call(
+    String bookingId,
+  ) {
+    return CustomersByBookingIdProvider(
+      bookingId,
+    );
+  }
+
+  @override
+  CustomersByBookingIdProvider getProviderOverride(
+    covariant CustomersByBookingIdProvider provider,
+  ) {
+    return call(
+      provider.bookingId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'customersByBookingIdProvider';
+}
+
+/// Gets all the customers assigned to a certain booking
+///
+/// Copied from [customersByBookingId].
+class CustomersByBookingIdProvider
+    extends AutoDisposeStreamProvider<List<Customer>> {
+  /// Gets all the customers assigned to a certain booking
+  ///
+  /// Copied from [customersByBookingId].
+  CustomersByBookingIdProvider(
+    String bookingId,
+  ) : this._internal(
+          (ref) => customersByBookingId(
+            ref as CustomersByBookingIdRef,
+            bookingId,
+          ),
+          from: customersByBookingIdProvider,
+          name: r'customersByBookingIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$customersByBookingIdHash,
+          dependencies: CustomersByBookingIdFamily._dependencies,
+          allTransitiveDependencies:
+              CustomersByBookingIdFamily._allTransitiveDependencies,
+          bookingId: bookingId,
+        );
+
+  CustomersByBookingIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.bookingId,
+  }) : super.internal();
+
+  final String bookingId;
+
+  @override
+  Override overrideWith(
+    Stream<List<Customer>> Function(CustomersByBookingIdRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: CustomersByBookingIdProvider._internal(
+        (ref) => create(ref as CustomersByBookingIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        bookingId: bookingId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<Customer>> createElement() {
+    return _CustomersByBookingIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CustomersByBookingIdProvider &&
+        other.bookingId == bookingId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, bookingId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin CustomersByBookingIdRef on AutoDisposeStreamProviderRef<List<Customer>> {
+  /// The parameter `bookingId` of this provider.
+  String get bookingId;
+}
+
+class _CustomersByBookingIdProviderElement
+    extends AutoDisposeStreamProviderElement<List<Customer>>
+    with CustomersByBookingIdRef {
+  _CustomersByBookingIdProviderElement(super.provider);
+
+  @override
+  String get bookingId => (origin as CustomersByBookingIdProvider).bookingId;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

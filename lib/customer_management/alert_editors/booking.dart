@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/customer_management/alert_editors/customer.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:uuid/uuid.dart';
 
@@ -10,9 +11,13 @@ import '../riverpod.dart';
 
 class BookingEditorAlert extends ConsumerStatefulWidget {
   final Function(Booking) onBookingEdited;
+  final Function(Customer) onCustomerEdited;
   final Booking? booking;
   const BookingEditorAlert(
-      {super.key, required this.onBookingEdited, this.booking});
+      {super.key,
+      required this.onBookingEdited,
+      this.booking,
+      required this.onCustomerEdited});
 
   @override
   ConsumerState<BookingEditorAlert> createState() => _BookingEditorAlertState();
@@ -25,6 +30,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   late TextEditingController priceController;
   late bool isPaid;
   late DateTime dateTime;
+  List<Customer> customers = [];
   CustomerGroup? selectedCustomerGroup;
   @override
   void initState() {
@@ -49,6 +55,13 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   Widget build(BuildContext context) {
     List<CustomerGroup> possibleCustomerGroups =
         ref.watch(customerGroupsByDateProvider(dateTime)).value ?? [];
+    if (widget.booking != null && widget.booking!.customerGroupId != null) {
+      customers = ref
+              .watch(customersByBookingIdProvider(
+                  widget.booking!.customerGroupId!))
+              .value ??
+          [];
+    }
     return AlertDialog(
       scrollable: true,
       title: Text("Booking editor"),
@@ -142,6 +155,24 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
               }
             },
           ),
+          Text(
+            "Customers in this booking",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
+          ...customers.map(
+            (customer) => Text("${customer.name} - ${customer..age}"),
+          ),
+          ElevatedButton(
+              onPressed: () async {
+                showDialog(
+                    context: context,
+                    builder: (_) {
+                      return CustomerEditorAlert(
+                          onCustomerEdited: (customer) =>
+                              widget.onCustomerEdited(customer));
+                    });
+              },
+              child: Text("Add customer")),
           Text(
             "Assign to Customer Group",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
