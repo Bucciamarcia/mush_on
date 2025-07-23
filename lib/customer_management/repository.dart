@@ -20,4 +20,16 @@ class CustomerManagementRepository {
       rethrow;
     }
   }
+
+  Future<void> setCustomerGroup(CustomerGroup cg) async {
+    String path =
+        "accounts/$account/data/bookingManager/customerGroups/${cg.id}";
+    var doc = _db.doc(path);
+    try {
+      await doc.set(cg.toJson());
+    } catch (e, s) {
+      logger.error("Couldn't set customer group.", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }
