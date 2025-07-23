@@ -50,6 +50,7 @@ Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
 _CustomerGroup _$CustomerGroupFromJson(Map<String, dynamic> json) =>
     _CustomerGroup(
       id: json['id'] as String,
+      name: json['name'] as String? ?? "",
       datetime: DateTime.parse(json['datetime'] as String),
       teamGroupId: json['teamGroupId'] as String?,
     );
@@ -57,6 +58,7 @@ _CustomerGroup _$CustomerGroupFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$CustomerGroupToJson(_CustomerGroup instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'name': instance.name,
       'datetime': instance.datetime.toIso8601String(),
       'teamGroupId': instance.teamGroupId,
     };

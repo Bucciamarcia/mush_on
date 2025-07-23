@@ -30,7 +30,7 @@ class _BookingEditorAlertState extends State<BookingEditorAlert> {
 
   /// The customer groups this booking can be assigned to (same date and time)
   late List<CustomerGroup> potentialCustomerGroups;
-  late CustomerGroup? selectedCustomerGroup;
+  CustomerGroup? selectedCustomerGroup;
   @override
   void initState() {
     super.initState();
@@ -48,6 +48,7 @@ class _BookingEditorAlertState extends State<BookingEditorAlert> {
   @override
   void dispose() {
     nameController.dispose();
+    priceController.dispose();
     super.dispose();
   }
 
@@ -178,7 +179,7 @@ class _BookingEditorAlertState extends State<BookingEditorAlert> {
             Navigator.of(context).pop();
           },
           child: Text(
-            "Save booking",
+            "Save",
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
         ),
