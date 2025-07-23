@@ -328,7 +328,7 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
 mixin _$Booking {
   String get id;
 
-  /// The user friendly name of this group.
+  /// The internal user friendly name of this group.
   String get name;
 
   /// The date and time of the booking
@@ -461,7 +461,7 @@ class _Booking implements Booking {
   @override
   final String id;
 
-  /// The user friendly name of this group.
+  /// The internal user friendly name of this group.
   @override
   @JsonKey()
   final String name;
@@ -594,6 +594,9 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
 /// @nodoc
 mixin _$CustomerGroup {
   String get id;
+
+  /// The internal user friendly name of the customer group
+  String get name;
   DateTime get datetime;
 
   /// The ID of the teamGroup this customerGroup is assigned to.
@@ -620,6 +623,7 @@ mixin _$CustomerGroup {
         (other.runtimeType == runtimeType &&
             other is CustomerGroup &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.datetime, datetime) ||
                 other.datetime == datetime) &&
             (identical(other.teamGroupId, teamGroupId) ||
@@ -628,11 +632,11 @@ mixin _$CustomerGroup {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, datetime, teamGroupId);
+  int get hashCode => Object.hash(runtimeType, id, name, datetime, teamGroupId);
 
   @override
   String toString() {
-    return 'CustomerGroup(id: $id, datetime: $datetime, teamGroupId: $teamGroupId)';
+    return 'CustomerGroup(id: $id, name: $name, datetime: $datetime, teamGroupId: $teamGroupId)';
   }
 }
 
@@ -642,7 +646,7 @@ abstract mixin class $CustomerGroupCopyWith<$Res> {
           CustomerGroup value, $Res Function(CustomerGroup) _then) =
       _$CustomerGroupCopyWithImpl;
   @useResult
-  $Res call({String id, DateTime datetime, String? teamGroupId});
+  $Res call({String id, String name, DateTime datetime, String? teamGroupId});
 }
 
 /// @nodoc
@@ -659,6 +663,7 @@ class _$CustomerGroupCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? name = null,
     Object? datetime = null,
     Object? teamGroupId = freezed,
   }) {
@@ -666,6 +671,10 @@ class _$CustomerGroupCopyWithImpl<$Res>
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
       datetime: null == datetime
           ? _self.datetime
@@ -684,12 +693,20 @@ class _$CustomerGroupCopyWithImpl<$Res>
 @JsonSerializable(explicitToJson: true)
 class _CustomerGroup implements CustomerGroup {
   const _CustomerGroup(
-      {required this.id, required this.datetime, this.teamGroupId});
+      {required this.id,
+      this.name = "",
+      required this.datetime,
+      this.teamGroupId});
   factory _CustomerGroup.fromJson(Map<String, dynamic> json) =>
       _$CustomerGroupFromJson(json);
 
   @override
   final String id;
+
+  /// The internal user friendly name of the customer group
+  @override
+  @JsonKey()
+  final String name;
   @override
   final DateTime datetime;
 
@@ -722,6 +739,7 @@ class _CustomerGroup implements CustomerGroup {
         (other.runtimeType == runtimeType &&
             other is _CustomerGroup &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.datetime, datetime) ||
                 other.datetime == datetime) &&
             (identical(other.teamGroupId, teamGroupId) ||
@@ -730,11 +748,11 @@ class _CustomerGroup implements CustomerGroup {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, datetime, teamGroupId);
+  int get hashCode => Object.hash(runtimeType, id, name, datetime, teamGroupId);
 
   @override
   String toString() {
-    return 'CustomerGroup(id: $id, datetime: $datetime, teamGroupId: $teamGroupId)';
+    return 'CustomerGroup(id: $id, name: $name, datetime: $datetime, teamGroupId: $teamGroupId)';
   }
 }
 
@@ -746,7 +764,7 @@ abstract mixin class _$CustomerGroupCopyWith<$Res>
       __$CustomerGroupCopyWithImpl;
   @override
   @useResult
-  $Res call({String id, DateTime datetime, String? teamGroupId});
+  $Res call({String id, String name, DateTime datetime, String? teamGroupId});
 }
 
 /// @nodoc
@@ -763,6 +781,7 @@ class __$CustomerGroupCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
+    Object? name = null,
     Object? datetime = null,
     Object? teamGroupId = freezed,
   }) {
@@ -770,6 +789,10 @@ class __$CustomerGroupCopyWithImpl<$Res>
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
       datetime: null == datetime
           ? _self.datetime

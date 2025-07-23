@@ -49,7 +49,7 @@ sealed class Booking with _$Booking {
   const factory Booking({
     required String id,
 
-    /// The user friendly name of this group.
+    /// The internal user friendly name of this group.
     @Default("") String name,
 
     /// The date and time of the booking
@@ -86,6 +86,9 @@ sealed class CustomerGroup with _$CustomerGroup {
   @JsonSerializable(explicitToJson: true)
   const factory CustomerGroup({
     required String id,
+
+    /// The internal user friendly name of the customer group
+    @Default("") String name,
     required DateTime datetime,
 
     /// The ID of the teamGroup this customerGroup is assigned to.
