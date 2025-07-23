@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/repository.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:uuid/uuid.dart';
+
+import 'alert_editors/booking.dart';
 
 class ClientManagementMainScreen extends ConsumerWidget {
+  static final logger = BasicLogger();
   const ClientManagementMainScreen({super.key});
 
   @override
@@ -14,15 +15,25 @@ class ClientManagementMainScreen extends ConsumerWidget {
     String account = ref.watch(accountProvider).value ?? "";
     final customerRepo = CustomerManagementRepository(account: account);
     return ElevatedButton(
-      onPressed: () async {
-        try {
-          customerRepo.setBooking(Booking(
-              id: Uuid().v4(), date: DateTime.now().add(Duration(days: 3))));
-        } catch (e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            errorSnackBar(context, "Couldn't add the booking: $e"),
-          );
-        }
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (_) =>
+              BookingEditorAlert(onBookingAdded: (newBooking) async {
+            try {
+              await customerRepo.setBooking(newBooking);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(confirmationSnackbar(
+                    context, "Booking added successfully"));
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    errorSnackBar(context, "Couldn't add booking"));
+              }
+            }
+          }),
+        );
       },
       child: Text("Add Booking"),
     );

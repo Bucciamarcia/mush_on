@@ -49,6 +49,9 @@ sealed class Booking with _$Booking {
   const factory Booking({
     required String id,
 
+    /// The user friendly name of this group.
+    @Default("") String name,
+
     /// The date and time of the booking
     @NonNullableTimestampConverter() required DateTime date,
 
