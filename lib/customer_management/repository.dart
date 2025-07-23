@@ -8,6 +8,18 @@ class CustomerManagementRepository {
   final String account;
   CustomerManagementRepository({required this.account});
 
+  Future<void> setCustomer(Customer customer) async {
+    String path =
+        "accounts/$account/data/customerManagement/customers/${customer.id}";
+    var doc = _db.doc(path);
+    try {
+      await doc.set(customer.toJson());
+    } catch (e, s) {
+      logger.error("Couldn't set customer.", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   /// Adds a new booking, or replaces it ENTIRELY if it already exists.
   Future<void> setBooking(Booking booking) async {
     String path =

@@ -22,7 +22,21 @@ class ClientManagementMainScreen extends ConsumerWidget {
             showDialog(
               context: context,
               builder: (_) =>
-                  BookingEditorAlert(onBookingEdited: (newBooking) async {
+                  BookingEditorAlert(onCustomerEdited: (customer) async {
+                try {
+                  await customerRepo.setCustomer(customer);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationSnackbar(
+                            context, "Customer added successfully"));
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Couldn't add customer"));
+                  }
+                }
+              }, onBookingEdited: (newBooking) async {
                 try {
                   await customerRepo.setBooking(newBooking);
                   if (context.mounted) {
