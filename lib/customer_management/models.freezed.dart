@@ -594,6 +594,7 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
 /// @nodoc
 mixin _$CustomerGroup {
   String get id;
+  DateTime get datetime;
 
   /// The ID of the teamGroup this customerGroup is assigned to.
   /// Null if it has not been assigned to a teamgroup yet.
@@ -619,17 +620,19 @@ mixin _$CustomerGroup {
         (other.runtimeType == runtimeType &&
             other is CustomerGroup &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.datetime, datetime) ||
+                other.datetime == datetime) &&
             (identical(other.teamGroupId, teamGroupId) ||
                 other.teamGroupId == teamGroupId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, teamGroupId);
+  int get hashCode => Object.hash(runtimeType, id, datetime, teamGroupId);
 
   @override
   String toString() {
-    return 'CustomerGroup(id: $id, teamGroupId: $teamGroupId)';
+    return 'CustomerGroup(id: $id, datetime: $datetime, teamGroupId: $teamGroupId)';
   }
 }
 
@@ -639,7 +642,7 @@ abstract mixin class $CustomerGroupCopyWith<$Res> {
           CustomerGroup value, $Res Function(CustomerGroup) _then) =
       _$CustomerGroupCopyWithImpl;
   @useResult
-  $Res call({String id, String? teamGroupId});
+  $Res call({String id, DateTime datetime, String? teamGroupId});
 }
 
 /// @nodoc
@@ -656,6 +659,7 @@ class _$CustomerGroupCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? datetime = null,
     Object? teamGroupId = freezed,
   }) {
     return _then(_self.copyWith(
@@ -663,6 +667,10 @@ class _$CustomerGroupCopyWithImpl<$Res>
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      datetime: null == datetime
+          ? _self.datetime
+          : datetime // ignore: cast_nullable_to_non_nullable
+              as DateTime,
       teamGroupId: freezed == teamGroupId
           ? _self.teamGroupId
           : teamGroupId // ignore: cast_nullable_to_non_nullable
@@ -675,12 +683,15 @@ class _$CustomerGroupCopyWithImpl<$Res>
 
 @JsonSerializable(explicitToJson: true)
 class _CustomerGroup implements CustomerGroup {
-  const _CustomerGroup({required this.id, this.teamGroupId});
+  const _CustomerGroup(
+      {required this.id, required this.datetime, this.teamGroupId});
   factory _CustomerGroup.fromJson(Map<String, dynamic> json) =>
       _$CustomerGroupFromJson(json);
 
   @override
   final String id;
+  @override
+  final DateTime datetime;
 
   /// The ID of the teamGroup this customerGroup is assigned to.
   /// Null if it has not been assigned to a teamgroup yet.
@@ -711,17 +722,19 @@ class _CustomerGroup implements CustomerGroup {
         (other.runtimeType == runtimeType &&
             other is _CustomerGroup &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.datetime, datetime) ||
+                other.datetime == datetime) &&
             (identical(other.teamGroupId, teamGroupId) ||
                 other.teamGroupId == teamGroupId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, teamGroupId);
+  int get hashCode => Object.hash(runtimeType, id, datetime, teamGroupId);
 
   @override
   String toString() {
-    return 'CustomerGroup(id: $id, teamGroupId: $teamGroupId)';
+    return 'CustomerGroup(id: $id, datetime: $datetime, teamGroupId: $teamGroupId)';
   }
 }
 
@@ -733,7 +746,7 @@ abstract mixin class _$CustomerGroupCopyWith<$Res>
       __$CustomerGroupCopyWithImpl;
   @override
   @useResult
-  $Res call({String id, String? teamGroupId});
+  $Res call({String id, DateTime datetime, String? teamGroupId});
 }
 
 /// @nodoc
@@ -750,6 +763,7 @@ class __$CustomerGroupCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
+    Object? datetime = null,
     Object? teamGroupId = freezed,
   }) {
     return _then(_CustomerGroup(
@@ -757,6 +771,10 @@ class __$CustomerGroupCopyWithImpl<$Res>
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      datetime: null == datetime
+          ? _self.datetime
+          : datetime // ignore: cast_nullable_to_non_nullable
+              as DateTime,
       teamGroupId: freezed == teamGroupId
           ? _self.teamGroupId
           : teamGroupId // ignore: cast_nullable_to_non_nullable

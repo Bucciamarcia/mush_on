@@ -5,6 +5,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 
 import 'alert_editors/booking.dart';
+import 'alert_editors/customer_group.dart';
 
 class ClientManagementMainScreen extends ConsumerWidget {
   static final logger = BasicLogger();
@@ -14,28 +15,58 @@ class ClientManagementMainScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     String account = ref.watch(accountProvider).value ?? "";
     final customerRepo = CustomerManagementRepository(account: account);
-    return ElevatedButton(
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (_) =>
-              BookingEditorAlert(onBookingAdded: (newBooking) async {
-            try {
-              await customerRepo.setBooking(newBooking);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(confirmationSnackbar(
-                    context, "Booking added successfully"));
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    errorSnackBar(context, "Couldn't add booking"));
-              }
-            }
-          }),
-        );
-      },
-      child: Text("Add Booking"),
+    return Row(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (_) => BookingEditorAlert(
+                  customerGroups: [],
+                  onBookingEdited: (newBooking) async {
+                    try {
+                      await customerRepo.setBooking(newBooking);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            confirmationSnackbar(
+                                context, "Booking added successfully"));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(context, "Couldn't add booking"));
+                      }
+                    }
+                  }),
+            );
+          },
+          child: Text("Add Booking"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (_) => CustomerGroupEditorAlert(
+                  onCgEdited: (newCustomerGroup) async {
+                try {
+                  await customerRepo.setCustomerGroup(newCustomerGroup);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationSnackbar(
+                            context, "Customer group added successfully"));
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Couldn't add customer group"));
+                  }
+                }
+              }),
+            );
+          },
+          child: Text("Add Customer Group"),
+        ),
+      ],
     );
   }
 }

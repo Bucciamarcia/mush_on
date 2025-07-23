@@ -86,6 +86,7 @@ sealed class CustomerGroup with _$CustomerGroup {
   @JsonSerializable(explicitToJson: true)
   const factory CustomerGroup({
     required String id,
+    required DateTime datetime,
 
     /// The ID of the teamGroup this customerGroup is assigned to.
     /// Null if it has not been assigned to a teamgroup yet.

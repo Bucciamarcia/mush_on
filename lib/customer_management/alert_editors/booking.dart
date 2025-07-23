@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:uuid/uuid.dart';
@@ -6,10 +7,14 @@ import 'package:uuid/uuid.dart';
 import '../models.dart';
 
 class BookingEditorAlert extends StatefulWidget {
-  final Function(Booking) onBookingAdded;
+  final Function(Booking) onBookingEdited;
   final Booking? booking;
+  final List<CustomerGroup> customerGroups;
   const BookingEditorAlert(
-      {super.key, required this.onBookingAdded, this.booking});
+      {super.key,
+      required this.onBookingEdited,
+      this.booking,
+      required this.customerGroups});
 
   @override
   State<BookingEditorAlert> createState() => _BookingEditorAlertState();
@@ -19,14 +24,31 @@ class _BookingEditorAlertState extends State<BookingEditorAlert> {
   late bool isNewBooking;
   late String id;
   late TextEditingController nameController;
+  late TextEditingController priceController;
+  late bool isPaid;
   late DateTime dateTime;
+
+  /// The customer groups this booking can be assigned to (same date and time)
+  late List<CustomerGroup> potentialCustomerGroups;
+  late CustomerGroup? selectedCustomerGroup;
   @override
   void initState() {
     super.initState();
     isNewBooking = widget.booking == null;
     id = widget.booking?.id ?? Uuid().v4();
     nameController = TextEditingController(text: widget.booking?.name);
+    priceController =
+        TextEditingController(text: widget.booking?.price.toString());
+    isPaid = widget.booking?.isFullyPaid ?? false;
     dateTime = widget.booking?.date ?? DateTimeUtils.today();
+    potentialCustomerGroups =
+        widget.customerGroups.where((cg) => cg.datetime == dateTime).toList();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -71,7 +93,9 @@ class _BookingEditorAlertState extends State<BookingEditorAlert> {
                       month: newDate.month,
                       day: newDate.day,
                     );
-                    setState(() {});
+                    setState(() {
+                      selectedCustomerGroup = null;
+                    });
                   }
                 },
                 child: Text("Pick date"),
@@ -90,13 +114,45 @@ class _BookingEditorAlertState extends State<BookingEditorAlert> {
                       hour: newTime.hour,
                       minute: newTime.minute,
                     );
-                    setState(() {});
+                    setState(() {
+                      selectedCustomerGroup = null;
+                    });
                   }
                 },
                 child: Text("Pick time"),
               ),
             ],
-          )
+          ),
+          Text(
+            "Price",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
+          TextField(
+            decoration: InputDecoration(
+              label: Text("The price of the booking"),
+            ),
+            controller: priceController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          ),
+          CheckboxListTile.adaptive(
+            title: Text("Is paid"),
+            value: isPaid,
+            onChanged: (v) {
+              if (v != null) {
+                setState(() {
+                  isPaid = v;
+                });
+              }
+            },
+          ),
+          Text(
+            "Assign to Customer Group",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
+          potentialCustomerGroups.isEmpty
+              ? Text("No customer groups have the same date and time")
+              : Text("TODO")
         ],
       ),
       actions: [
@@ -109,6 +165,16 @@ class _BookingEditorAlertState extends State<BookingEditorAlert> {
         ),
         TextButton(
           onPressed: () {
+            widget.onBookingEdited(
+              Booking(
+                id: id,
+                date: dateTime,
+                name: nameController.text,
+                price: double.parse(priceController.text),
+                hasPaidAmount: isPaid ? double.parse(priceController.text) : 0,
+                customerGroupId: selectedCustomerGroup?.id,
+              ),
+            );
             Navigator.of(context).pop();
           },
           child: Text(
