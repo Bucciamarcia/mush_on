@@ -30,6 +30,7 @@ Map<String, dynamic> _$CustomerToJson(_Customer instance) => <String, dynamic>{
 
 _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
       id: json['id'] as String,
+      name: json['name'] as String? ?? "",
       date: const NonNullableTimestampConverter()
           .fromJson(json['date'] as Timestamp),
       customerGroupId: json['customerGroupId'] as String?,
@@ -39,6 +40,7 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
 
 Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
       'id': instance.id,
+      'name': instance.name,
       'date': const NonNullableTimestampConverter().toJson(instance.date),
       'customerGroupId': instance.customerGroupId,
       'price': instance.price,

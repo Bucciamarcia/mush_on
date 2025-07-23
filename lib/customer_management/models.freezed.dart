@@ -328,6 +328,9 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
 mixin _$Booking {
   String get id;
 
+  /// The user friendly name of this group.
+  String get name;
+
   /// The date and time of the booking
   @NonNullableTimestampConverter()
   DateTime get date;
@@ -359,6 +362,7 @@ mixin _$Booking {
         (other.runtimeType == runtimeType &&
             other is Booking &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.date, date) || other.date == date) &&
             (identical(other.customerGroupId, customerGroupId) ||
                 other.customerGroupId == customerGroupId) &&
@@ -369,12 +373,12 @@ mixin _$Booking {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, date, customerGroupId, price, hasPaidAmount);
+  int get hashCode => Object.hash(
+      runtimeType, id, name, date, customerGroupId, price, hasPaidAmount);
 
   @override
   String toString() {
-    return 'Booking(id: $id, date: $date, customerGroupId: $customerGroupId, price: $price, hasPaidAmount: $hasPaidAmount)';
+    return 'Booking(id: $id, name: $name, date: $date, customerGroupId: $customerGroupId, price: $price, hasPaidAmount: $hasPaidAmount)';
   }
 }
 
@@ -385,6 +389,7 @@ abstract mixin class $BookingCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
+      String name,
       @NonNullableTimestampConverter() DateTime date,
       String? customerGroupId,
       double price,
@@ -404,6 +409,7 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
   @override
   $Res call({
     Object? id = null,
+    Object? name = null,
     Object? date = null,
     Object? customerGroupId = freezed,
     Object? price = null,
@@ -413,6 +419,10 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
       date: null == date
           ? _self.date
@@ -440,6 +450,7 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
 class _Booking implements Booking {
   const _Booking(
       {required this.id,
+      this.name = "",
       @NonNullableTimestampConverter() required this.date,
       this.customerGroupId,
       this.price = 0,
@@ -449,6 +460,11 @@ class _Booking implements Booking {
 
   @override
   final String id;
+
+  /// The user friendly name of this group.
+  @override
+  @JsonKey()
+  final String name;
 
   /// The date and time of the booking
   @override
@@ -492,6 +508,7 @@ class _Booking implements Booking {
         (other.runtimeType == runtimeType &&
             other is _Booking &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.name, name) || other.name == name) &&
             (identical(other.date, date) || other.date == date) &&
             (identical(other.customerGroupId, customerGroupId) ||
                 other.customerGroupId == customerGroupId) &&
@@ -502,12 +519,12 @@ class _Booking implements Booking {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, date, customerGroupId, price, hasPaidAmount);
+  int get hashCode => Object.hash(
+      runtimeType, id, name, date, customerGroupId, price, hasPaidAmount);
 
   @override
   String toString() {
-    return 'Booking(id: $id, date: $date, customerGroupId: $customerGroupId, price: $price, hasPaidAmount: $hasPaidAmount)';
+    return 'Booking(id: $id, name: $name, date: $date, customerGroupId: $customerGroupId, price: $price, hasPaidAmount: $hasPaidAmount)';
   }
 }
 
@@ -519,6 +536,7 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
+      String name,
       @NonNullableTimestampConverter() DateTime date,
       String? customerGroupId,
       double price,
@@ -538,6 +556,7 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
+    Object? name = null,
     Object? date = null,
     Object? customerGroupId = freezed,
     Object? price = null,
@@ -547,6 +566,10 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
       date: null == date
           ? _self.date
