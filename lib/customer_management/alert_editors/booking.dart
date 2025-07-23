@@ -1,35 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models.dart';
+import '../riverpod.dart';
 
-class BookingEditorAlert extends StatefulWidget {
+class BookingEditorAlert extends ConsumerStatefulWidget {
   final Function(Booking) onBookingEdited;
   final Booking? booking;
-  final List<CustomerGroup> customerGroups;
   const BookingEditorAlert(
-      {super.key,
-      required this.onBookingEdited,
-      this.booking,
-      required this.customerGroups});
+      {super.key, required this.onBookingEdited, this.booking});
 
   @override
-  State<BookingEditorAlert> createState() => _BookingEditorAlertState();
+  ConsumerState<BookingEditorAlert> createState() => _BookingEditorAlertState();
 }
 
-class _BookingEditorAlertState extends State<BookingEditorAlert> {
+class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   late bool isNewBooking;
   late String id;
   late TextEditingController nameController;
   late TextEditingController priceController;
   late bool isPaid;
   late DateTime dateTime;
-
-  /// The customer groups this booking can be assigned to (same date and time)
-  late List<CustomerGroup> potentialCustomerGroups;
   CustomerGroup? selectedCustomerGroup;
   @override
   void initState() {
@@ -41,8 +36,6 @@ class _BookingEditorAlertState extends State<BookingEditorAlert> {
         TextEditingController(text: widget.booking?.price.toString());
     isPaid = widget.booking?.isFullyPaid ?? false;
     dateTime = widget.booking?.date ?? DateTimeUtils.today();
-    potentialCustomerGroups =
-        widget.customerGroups.where((cg) => cg.datetime == dateTime).toList();
   }
 
   @override
@@ -54,6 +47,8 @@ class _BookingEditorAlertState extends State<BookingEditorAlert> {
 
   @override
   Widget build(BuildContext context) {
+    List<CustomerGroup> possibleCustomerGroups =
+        ref.watch(customerGroupsByDateProvider(dateTime)).value ?? [];
     return AlertDialog(
       scrollable: true,
       title: Text("Booking editor"),
@@ -151,7 +146,7 @@ class _BookingEditorAlertState extends State<BookingEditorAlert> {
             "Assign to Customer Group",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
-          potentialCustomerGroups.isEmpty
+          possibleCustomerGroups.isEmpty
               ? Text("No customer groups have the same date and time")
               : Text("TODO")
         ],

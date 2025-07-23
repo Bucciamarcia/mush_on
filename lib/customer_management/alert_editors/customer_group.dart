@@ -5,7 +5,6 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/teamgroup.dart';
-import 'package:mush_on/services/riverpod/teamgroup.dart';
 import 'package:uuid/uuid.dart';
 
 class CustomerGroupEditorAlert extends ConsumerStatefulWidget {
