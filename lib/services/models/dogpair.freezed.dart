@@ -15,7 +15,6 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$DogPair {
-  String get id;
   String? get firstDogId;
   String? get secondDogId;
 
@@ -34,7 +33,6 @@ mixin _$DogPair {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is DogPair &&
-            (identical(other.id, id) || other.id == id) &&
             (identical(other.firstDogId, firstDogId) ||
                 other.firstDogId == firstDogId) &&
             (identical(other.secondDogId, secondDogId) ||
@@ -43,11 +41,11 @@ mixin _$DogPair {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, firstDogId, secondDogId);
+  int get hashCode => Object.hash(runtimeType, firstDogId, secondDogId);
 
   @override
   String toString() {
-    return 'DogPair(id: $id, firstDogId: $firstDogId, secondDogId: $secondDogId)';
+    return 'DogPair(firstDogId: $firstDogId, secondDogId: $secondDogId)';
   }
 }
 
@@ -56,7 +54,7 @@ abstract mixin class $DogPairCopyWith<$Res> {
   factory $DogPairCopyWith(DogPair value, $Res Function(DogPair) _then) =
       _$DogPairCopyWithImpl;
   @useResult
-  $Res call({String id, String? firstDogId, String? secondDogId});
+  $Res call({String? firstDogId, String? secondDogId});
 }
 
 /// @nodoc
@@ -71,15 +69,10 @@ class _$DogPairCopyWithImpl<$Res> implements $DogPairCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
     Object? firstDogId = freezed,
     Object? secondDogId = freezed,
   }) {
     return _then(_self.copyWith(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
       firstDogId: freezed == firstDogId
           ? _self.firstDogId
           : firstDogId // ignore: cast_nullable_to_non_nullable
@@ -95,13 +88,10 @@ class _$DogPairCopyWithImpl<$Res> implements $DogPairCopyWith<$Res> {
 /// @nodoc
 @JsonSerializable()
 class _DogPair extends DogPair {
-  const _DogPair({this.id = "", this.firstDogId, this.secondDogId}) : super._();
+  const _DogPair({this.firstDogId, this.secondDogId}) : super._();
   factory _DogPair.fromJson(Map<String, dynamic> json) =>
       _$DogPairFromJson(json);
 
-  @override
-  @JsonKey()
-  final String id;
   @override
   final String? firstDogId;
   @override
@@ -127,7 +117,6 @@ class _DogPair extends DogPair {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _DogPair &&
-            (identical(other.id, id) || other.id == id) &&
             (identical(other.firstDogId, firstDogId) ||
                 other.firstDogId == firstDogId) &&
             (identical(other.secondDogId, secondDogId) ||
@@ -136,11 +125,11 @@ class _DogPair extends DogPair {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, firstDogId, secondDogId);
+  int get hashCode => Object.hash(runtimeType, firstDogId, secondDogId);
 
   @override
   String toString() {
-    return 'DogPair(id: $id, firstDogId: $firstDogId, secondDogId: $secondDogId)';
+    return 'DogPair(firstDogId: $firstDogId, secondDogId: $secondDogId)';
   }
 }
 
@@ -150,7 +139,7 @@ abstract mixin class _$DogPairCopyWith<$Res> implements $DogPairCopyWith<$Res> {
       __$DogPairCopyWithImpl;
   @override
   @useResult
-  $Res call({String id, String? firstDogId, String? secondDogId});
+  $Res call({String? firstDogId, String? secondDogId});
 }
 
 /// @nodoc
@@ -165,15 +154,10 @@ class __$DogPairCopyWithImpl<$Res> implements _$DogPairCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? id = null,
     Object? firstDogId = freezed,
     Object? secondDogId = freezed,
   }) {
     return _then(_DogPair(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
       firstDogId: freezed == firstDogId
           ? _self.firstDogId
           : firstDogId // ignore: cast_nullable_to_non_nullable

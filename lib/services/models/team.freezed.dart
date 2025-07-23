@@ -15,7 +15,6 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$Team {
-  String get id;
   String get name;
   List<DogPair> get dogPairs;
 
@@ -34,7 +33,6 @@ mixin _$Team {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Team &&
-            (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality().equals(other.dogPairs, dogPairs));
   }
@@ -42,11 +40,11 @@ mixin _$Team {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, name, const DeepCollectionEquality().hash(dogPairs));
+      runtimeType, name, const DeepCollectionEquality().hash(dogPairs));
 
   @override
   String toString() {
-    return 'Team(id: $id, name: $name, dogPairs: $dogPairs)';
+    return 'Team(name: $name, dogPairs: $dogPairs)';
   }
 }
 
@@ -55,7 +53,7 @@ abstract mixin class $TeamCopyWith<$Res> {
   factory $TeamCopyWith(Team value, $Res Function(Team) _then) =
       _$TeamCopyWithImpl;
   @useResult
-  $Res call({String id, String name, List<DogPair> dogPairs});
+  $Res call({String name, List<DogPair> dogPairs});
 }
 
 /// @nodoc
@@ -70,15 +68,10 @@ class _$TeamCopyWithImpl<$Res> implements $TeamCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
     Object? name = null,
     Object? dogPairs = null,
   }) {
     return _then(_self.copyWith(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -94,15 +87,11 @@ class _$TeamCopyWithImpl<$Res> implements $TeamCopyWith<$Res> {
 /// @nodoc
 @JsonSerializable()
 class _Team extends Team {
-  const _Team(
-      {this.id = "", this.name = "", final List<DogPair> dogPairs = const []})
+  const _Team({this.name = "", final List<DogPair> dogPairs = const []})
       : _dogPairs = dogPairs,
         super._();
   factory _Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
 
-  @override
-  @JsonKey()
-  final String id;
   @override
   @JsonKey()
   final String name;
@@ -135,7 +124,6 @@ class _Team extends Team {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _Team &&
-            (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality().equals(other._dogPairs, _dogPairs));
   }
@@ -143,11 +131,11 @@ class _Team extends Team {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, name, const DeepCollectionEquality().hash(_dogPairs));
+      runtimeType, name, const DeepCollectionEquality().hash(_dogPairs));
 
   @override
   String toString() {
-    return 'Team(id: $id, name: $name, dogPairs: $dogPairs)';
+    return 'Team(name: $name, dogPairs: $dogPairs)';
   }
 }
 
@@ -157,7 +145,7 @@ abstract mixin class _$TeamCopyWith<$Res> implements $TeamCopyWith<$Res> {
       __$TeamCopyWithImpl;
   @override
   @useResult
-  $Res call({String id, String name, List<DogPair> dogPairs});
+  $Res call({String name, List<DogPair> dogPairs});
 }
 
 /// @nodoc
@@ -172,15 +160,10 @@ class __$TeamCopyWithImpl<$Res> implements _$TeamCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? id = null,
     Object? name = null,
     Object? dogPairs = null,
   }) {
     return _then(_Team(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
