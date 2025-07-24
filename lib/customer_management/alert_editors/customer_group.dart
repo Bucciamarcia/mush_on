@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -115,7 +116,19 @@ class _CustomerGroupEditorAlertState
           ),
           possibleTeamGroups.isEmpty
               ? Text("No team groups with the same date and time")
-              : Text("TODO"),
+              : DropdownMenu<TeamGroup>(
+                  controller: TextEditingController(
+                      text: possibleTeamGroups
+                          .firstWhereOrNull((t) => t.id == selectedTeamGroupId)
+                          ?.name),
+                  label: Text("Select the teamgroup"),
+                  dropdownMenuEntries: possibleTeamGroups
+                      .map((tg) => DropdownMenuEntry(value: tg, label: tg.name))
+                      .toList(),
+                  onSelected: (v) {
+                    selectedTeamGroupId = v?.id;
+                  },
+                ),
         ],
       ),
       actions: [
