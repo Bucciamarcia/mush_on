@@ -14,11 +14,13 @@ class BookingEditorAlert extends ConsumerStatefulWidget {
   final Function(Booking) onBookingEdited;
   final Function(List<Customer>) onCustomersEdited;
   final Booking? booking;
+  final CustomerGroup? selectedCustomerGroup;
   const BookingEditorAlert(
       {super.key,
       required this.onBookingEdited,
       this.booking,
-      required this.onCustomersEdited});
+      required this.onCustomersEdited,
+      this.selectedCustomerGroup});
 
   @override
   ConsumerState<BookingEditorAlert> createState() => _BookingEditorAlertState();
@@ -46,6 +48,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
     isPaid = widget.booking?.isFullyPaid ?? false;
     dateTime = widget.booking?.date ?? DateTimeUtils.today();
     possibleCustomerGroups = [];
+    selectedCustomerGroup = widget.selectedCustomerGroup;
   }
 
   @override
@@ -199,7 +202,22 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                 if (data.isEmpty) {
                   return Text("No customer groups have the same date and time");
                 } else {
-                  return Text("todo");
+                  return DropdownMenu<CustomerGroup>(
+                    controller: TextEditingController(
+                        text: selectedCustomerGroup?.name),
+                    label: Text("Select customer group"),
+                    initialSelection: selectedCustomerGroup,
+                    dropdownMenuEntries: data
+                        .map((c) => DropdownMenuEntry(value: c, label: c.name))
+                        .toList(),
+                    onSelected: (v) {
+                      setState(
+                        () {
+                          selectedCustomerGroup = v;
+                        },
+                      );
+                    },
+                  );
                 }
               },
               error: (e, s) {
