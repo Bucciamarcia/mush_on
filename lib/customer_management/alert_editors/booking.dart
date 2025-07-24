@@ -14,13 +14,12 @@ class BookingEditorAlert extends ConsumerStatefulWidget {
   final Function(Booking) onBookingEdited;
   final Function(List<Customer>) onCustomersEdited;
   final Booking? booking;
-  final CustomerGroup? selectedCustomerGroup;
-  const BookingEditorAlert(
-      {super.key,
-      required this.onBookingEdited,
-      this.booking,
-      required this.onCustomersEdited,
-      this.selectedCustomerGroup});
+  const BookingEditorAlert({
+    super.key,
+    required this.onBookingEdited,
+    this.booking,
+    required this.onCustomersEdited,
+  });
 
   @override
   ConsumerState<BookingEditorAlert> createState() => _BookingEditorAlertState();
@@ -34,7 +33,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   late TextEditingController priceController;
   late bool isPaid;
   late DateTime dateTime;
-  List<Customer> customers = [];
   CustomerGroup? selectedCustomerGroup;
   late List<CustomerGroup> possibleCustomerGroups;
   @override
@@ -48,7 +46,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
     isPaid = widget.booking?.isFullyPaid ?? false;
     dateTime = widget.booking?.date ?? DateTimeUtils.today();
     possibleCustomerGroups = [];
-    selectedCustomerGroup = widget.selectedCustomerGroup;
   }
 
   @override
@@ -60,6 +57,19 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
 
   @override
   Widget build(BuildContext context) {
+    List<Customer> customers = [];
+    if (widget.booking != null) {
+      customers =
+          ref.watch(customersByBookingIdProvider(widget.booking!.id)).value ??
+              [];
+    }
+    if (selectedCustomerGroup == null && widget.booking != null && widget.booking!.customerGroupId != null) {
+      selectedCustomerGroup = ref
+          .watch(
+            customerGroupByIdProvider(widget.booking!.customerGroupId!),
+          )
+          .valueOrNull;
+    }
     final customerGroupsAsync =
         ref.watch(customerGroupsByDateProvider(dateTime));
     var colorScheme = Theme.of(context).colorScheme;
@@ -394,6 +404,8 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                                       value: c, label: c.name))
                                   .toList(),
                               onSelected: (v) {
+                                logger.debug(
+                                    "Selected customer group: ${v?.name}");
                                 setState(
                                   () {
                                     selectedCustomerGroup = v;
