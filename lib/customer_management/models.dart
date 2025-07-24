@@ -89,7 +89,7 @@ sealed class CustomerGroup with _$CustomerGroup {
 
     /// The internal user friendly name of the customer group
     @Default("") String name,
-    required DateTime datetime,
+    @NonNullableTimestampConverter() required DateTime datetime,
 
     /// The ID of the teamGroup this customerGroup is assigned to.
     /// Null if it has not been assigned to a teamgroup yet.

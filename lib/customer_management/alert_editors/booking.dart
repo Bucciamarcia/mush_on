@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_management/alert_editors/customer.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:uuid/uuid.dart';
 
@@ -11,19 +12,20 @@ import '../riverpod.dart';
 
 class BookingEditorAlert extends ConsumerStatefulWidget {
   final Function(Booking) onBookingEdited;
-  final Function(Customer) onCustomerEdited;
+  final Function(List<Customer>) onCustomersEdited;
   final Booking? booking;
   const BookingEditorAlert(
       {super.key,
       required this.onBookingEdited,
       this.booking,
-      required this.onCustomerEdited});
+      required this.onCustomersEdited});
 
   @override
   ConsumerState<BookingEditorAlert> createState() => _BookingEditorAlertState();
 }
 
 class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
+  static final logger = BasicLogger();
   late bool isNewBooking;
   late String id;
   late TextEditingController nameController;
@@ -32,6 +34,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   late DateTime dateTime;
   List<Customer> customers = [];
   CustomerGroup? selectedCustomerGroup;
+  late List<CustomerGroup> possibleCustomerGroups;
   @override
   void initState() {
     super.initState();
@@ -42,6 +45,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
         TextEditingController(text: widget.booking?.price.toString());
     isPaid = widget.booking?.isFullyPaid ?? false;
     dateTime = widget.booking?.date ?? DateTimeUtils.today();
+    possibleCustomerGroups = [];
   }
 
   @override
@@ -53,15 +57,8 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
 
   @override
   Widget build(BuildContext context) {
-    List<CustomerGroup> possibleCustomerGroups =
-        ref.watch(customerGroupsByDateProvider(dateTime)).value ?? [];
-    if (widget.booking != null && widget.booking!.customerGroupId != null) {
-      customers = ref
-              .watch(customersByBookingIdProvider(
-                  widget.booking!.customerGroupId!))
-              .value ??
-          [];
-    }
+    final customerGroupsAsync =
+        ref.watch(customerGroupsByDateProvider(dateTime));
     return AlertDialog(
       scrollable: true,
       title: Text("Booking editor"),
@@ -97,12 +94,12 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                     ),
                   );
                   if (newDate != null) {
-                    dateTime = dateTime.copyWith(
-                      year: newDate.year,
-                      month: newDate.month,
-                      day: newDate.day,
-                    );
                     setState(() {
+                      dateTime = dateTime.copyWith(
+                        year: newDate.year,
+                        month: newDate.month,
+                        day: newDate.day,
+                      );
                       selectedCustomerGroup = null;
                     });
                   }
@@ -160,7 +157,22 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
           ...customers.map(
-            (customer) => Text("${customer.name} - ${customer..age}"),
+            (customer) => ActionChip.elevated(
+              label: Text(customer.name),
+              onPressed: () => showDialog(
+                  context: context,
+                  builder: (_) => CustomerEditorAlert(
+                        customer: customer,
+                        onCustomerEdited: (editedCustomer) {
+                          setState(() {
+                            customers
+                                .removeWhere((c) => c.id == editedCustomer.id);
+                            customers.add(editedCustomer);
+                          });
+                        },
+                        bookingId: id,
+                      )),
+            ),
           ),
           ElevatedButton(
               onPressed: () async {
@@ -168,8 +180,13 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                     context: context,
                     builder: (_) {
                       return CustomerEditorAlert(
-                          onCustomerEdited: (customer) =>
-                              widget.onCustomerEdited(customer));
+                        bookingId: id,
+                        onCustomerEdited: (customer) => setState(
+                          () {
+                            customers = [...customers, customer];
+                          },
+                        ),
+                      );
                     });
               },
               child: Text("Add customer")),
@@ -177,14 +194,26 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
             "Assign to Customer Group",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
           ),
-          possibleCustomerGroups.isEmpty
-              ? Text("No customer groups have the same date and time")
-              : Text("TODO")
+          customerGroupsAsync.when(
+              data: (data) {
+                if (data.isEmpty) {
+                  return Text("No customer groups have the same date and time");
+                } else {
+                  return Text("todo");
+                }
+              },
+              error: (e, s) {
+                logger.error("Couldn't get customer group async",
+                    error: e, stackTrace: s);
+                return Text("error");
+              },
+              loading: () => SizedBox.shrink()),
         ],
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context)
+              .popUntil(ModalRoute.withName("/client_management")),
           child: Text(
             "Cancel",
             style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -192,17 +221,20 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
         ),
         TextButton(
           onPressed: () {
+            widget.onCustomersEdited(customers);
             widget.onBookingEdited(
               Booking(
                 id: id,
                 date: dateTime,
                 name: nameController.text,
-                price: double.parse(priceController.text),
-                hasPaidAmount: isPaid ? double.parse(priceController.text) : 0,
+                price: double.tryParse(priceController.text) ?? 0,
+                hasPaidAmount:
+                    isPaid ? double.tryParse(priceController.text) ?? 0 : 0,
                 customerGroupId: selectedCustomerGroup?.id,
               ),
             );
-            Navigator.of(context).pop();
+            Navigator.of(context)
+                .popUntil(ModalRoute.withName("/client_management"));
           },
           child: Text(
             "Save",

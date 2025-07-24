@@ -44,4 +44,21 @@ class CustomerManagementRepository {
       rethrow;
     }
   }
+
+  /// Sets all the customers for this group in a batch operation.
+  Future<void> setCustomers(List<Customer> customers) async {
+    String path = "accounts/$account/data/bookingManager/customers";
+    var batch = _db.batch();
+    for (Customer customer in customers) {
+      var docRef = _db.doc("$path/${customer.id}");
+      batch.set(docRef, customer.toJson());
+    }
+    try {
+      await batch.commit();
+    } catch (e, s) {
+      logger.error("Couldn't set customers for group.",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }

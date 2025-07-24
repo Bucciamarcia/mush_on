@@ -597,6 +597,7 @@ mixin _$CustomerGroup {
 
   /// The internal user friendly name of the customer group
   String get name;
+  @NonNullableTimestampConverter()
   DateTime get datetime;
 
   /// The ID of the teamGroup this customerGroup is assigned to.
@@ -646,7 +647,11 @@ abstract mixin class $CustomerGroupCopyWith<$Res> {
           CustomerGroup value, $Res Function(CustomerGroup) _then) =
       _$CustomerGroupCopyWithImpl;
   @useResult
-  $Res call({String id, String name, DateTime datetime, String? teamGroupId});
+  $Res call(
+      {String id,
+      String name,
+      @NonNullableTimestampConverter() DateTime datetime,
+      String? teamGroupId});
 }
 
 /// @nodoc
@@ -695,7 +700,7 @@ class _CustomerGroup implements CustomerGroup {
   const _CustomerGroup(
       {required this.id,
       this.name = "",
-      required this.datetime,
+      @NonNullableTimestampConverter() required this.datetime,
       this.teamGroupId});
   factory _CustomerGroup.fromJson(Map<String, dynamic> json) =>
       _$CustomerGroupFromJson(json);
@@ -708,6 +713,7 @@ class _CustomerGroup implements CustomerGroup {
   @JsonKey()
   final String name;
   @override
+  @NonNullableTimestampConverter()
   final DateTime datetime;
 
   /// The ID of the teamGroup this customerGroup is assigned to.
@@ -764,7 +770,11 @@ abstract mixin class _$CustomerGroupCopyWith<$Res>
       __$CustomerGroupCopyWithImpl;
   @override
   @useResult
-  $Res call({String id, String name, DateTime datetime, String? teamGroupId});
+  $Res call(
+      {String id,
+      String name,
+      @NonNullableTimestampConverter() DateTime datetime,
+      String? teamGroupId});
 }
 
 /// @nodoc
