@@ -24,6 +24,7 @@ class TeamsHistoryMain extends ConsumerWidget {
         )
         .when(
           data: (groups) {
+            groups.sort((a, b) => b.date.compareTo(a.date));
             return ListView.builder(
                 itemCount: groups.length,
                 itemBuilder: (context, index) {

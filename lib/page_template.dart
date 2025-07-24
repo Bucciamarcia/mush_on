@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/health/main.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/kennel/main.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
+
+import 'customer_management/alert_editors/customer_group.dart';
+import 'customer_management/main.dart';
+import 'customer_management/repository.dart';
+import 'riverpod.dart';
 
 class TemplateScreen extends ConsumerWidget {
   final Widget child;
@@ -41,6 +47,78 @@ class TemplateScreen extends ConsumerWidget {
               ref.read(triggerAddHeatCycleProvider.notifier).setValue(true);
             },
           ),
+        ],
+      );
+    }
+    if (child is ClientManagementMainScreen) {
+      String account = ref.watch(accountProvider).value ?? "";
+      final customerRepo = CustomerManagementRepository(account: account);
+      return SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        backgroundColor: Colors.blue,
+        children: [
+          SpeedDialChild(
+            child: FaIcon(FontAwesomeIcons.bookOpen),
+            label: "Add booking",
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => BookingEditorAlert(
+                onCustomersEdited: (customers) async {
+                  try {
+                    await customerRepo.setCustomers(customers);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(
+                              context, "Customers added successfully"));
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "Couldn't add customers"));
+                    }
+                  }
+                },
+                onBookingEdited: (newBooking) async {
+                  try {
+                    await customerRepo.setBooking(newBooking);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(
+                              context, "Booking added successfully"));
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "Couldn't add booking"));
+                    }
+                  }
+                },
+              ),
+            ),
+          ),
+          SpeedDialChild(
+              child: Icon(Icons.people_alt),
+              label: "Add Customer Group",
+              onTap: () => showDialog(
+                    context: context,
+                    builder: (_) => CustomerGroupEditorAlert(
+                        onCgEdited: (newCustomerGroup) async {
+                      try {
+                        await customerRepo.setCustomerGroup(newCustomerGroup);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              confirmationSnackbar(context,
+                                  "Customer group added successfully"));
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(
+                                  context, "Couldn't add customer group"));
+                        }
+                      }
+                    }),
+                  ))
         ],
       );
     }
@@ -101,7 +179,7 @@ class TemplateScreen extends ConsumerWidget {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.history),
+              leading: Icon(Icons.person_2),
               onTap: () => Navigator.pushNamed(context, "/client_management"),
               title: const Text(
                 "Manage clients",
