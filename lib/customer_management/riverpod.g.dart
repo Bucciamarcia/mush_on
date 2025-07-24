@@ -172,7 +172,7 @@ class _TeamGroupsByDateProviderElement
 }
 
 String _$customerGroupsByDateHash() =>
-    r'c5b3edfbd2a64bbf536ad9f6b65ec0aebd7d3a9e';
+    r'e71bb7c8197d11440635fa54fafef071e6aa9a24';
 
 /// Returns a list of customer groups that have the same date and time as the input.
 ///

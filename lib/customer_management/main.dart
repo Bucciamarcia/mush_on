@@ -21,36 +21,38 @@ class ClientManagementMainScreen extends ConsumerWidget {
           onPressed: () {
             showDialog(
               context: context,
-              builder: (_) =>
-                  BookingEditorAlert(onCustomerEdited: (customer) async {
-                try {
-                  await customerRepo.setCustomer(customer);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        confirmationSnackbar(
-                            context, "Customer added successfully"));
+              builder: (_) => BookingEditorAlert(
+                onCustomersEdited: (customers) async {
+                  try {
+                    await customerRepo.setCustomers(customers);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(
+                              context, "Customers added successfully"));
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "Couldn't add customers"));
+                    }
                   }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        errorSnackBar(context, "Couldn't add customer"));
+                },
+                onBookingEdited: (newBooking) async {
+                  try {
+                    await customerRepo.setBooking(newBooking);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(
+                              context, "Booking added successfully"));
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "Couldn't add booking"));
+                    }
                   }
-                }
-              }, onBookingEdited: (newBooking) async {
-                try {
-                  await customerRepo.setBooking(newBooking);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        confirmationSnackbar(
-                            context, "Booking added successfully"));
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        errorSnackBar(context, "Couldn't add booking"));
-                  }
-                }
-              }),
+                },
+              ),
             );
           },
           child: Text("Add Booking"),

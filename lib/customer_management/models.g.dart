@@ -51,7 +51,8 @@ _CustomerGroup _$CustomerGroupFromJson(Map<String, dynamic> json) =>
     _CustomerGroup(
       id: json['id'] as String,
       name: json['name'] as String? ?? "",
-      datetime: DateTime.parse(json['datetime'] as String),
+      datetime: const NonNullableTimestampConverter()
+          .fromJson(json['datetime'] as Timestamp),
       teamGroupId: json['teamGroupId'] as String?,
     );
 
@@ -59,6 +60,7 @@ Map<String, dynamic> _$CustomerGroupToJson(_CustomerGroup instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'datetime': instance.datetime.toIso8601String(),
+      'datetime':
+          const NonNullableTimestampConverter().toJson(instance.datetime),
       'teamGroupId': instance.teamGroupId,
     };

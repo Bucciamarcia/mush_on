@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
@@ -30,11 +31,12 @@ Stream<List<TeamGroup>> teamGroupsByDate(Ref ref, DateTime date) async* {
 /// Used to get the customer groups that can be assigned to a booking.
 Stream<List<CustomerGroup>> customerGroupsByDate(
     Ref ref, DateTime date) async* {
+  BasicLogger().debug("To search: $date");
   String account = await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
   var collection = db
       .collection("accounts/$account/data/bookingManager/customerGroups")
-      .where("date", isEqualTo: date);
+      .where("datetime", isEqualTo: date);
   yield* collection.snapshots().map(
         (snapshot) => snapshot.docs
             .map(
