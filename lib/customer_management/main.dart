@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/customer_management/alert_editors/customer_group.dart';
 import 'package:mush_on/customer_management/repository.dart';
@@ -8,6 +9,7 @@ import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
+import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/shared/text_title.dart';
 import 'models.dart';
 
@@ -99,15 +101,24 @@ class ClientManagementMainScreen extends ConsumerWidget {
               bookings: todaysBookings,
               customerGroups: todaysCustomerGroups,
             ),
+            TextTitle("Tomorrow"),
+            ListCustomerGroups(
+                customerGroups: ref
+                        .watch(futureCustomerGroupsProvider(
+                            untilDate:
+                                DateTimeUtils.today().add(Duration(days: 2))))
+                        .value ??
+                    [],
+                baseColor: Theme.of(context).colorScheme.primary),
             TextTitle("Next 7 days"),
             ListCustomerGroups(
                 customerGroups: ref
                         .watch(futureCustomerGroupsProvider(
                             untilDate:
-                                DateTimeUtils.today().add(Duration(days: 7))))
+                                DateTimeUtils.today().add(Duration(days: 8))))
                         .value ??
                     [],
-                baseColor: Theme.of(context).colorScheme.primary),
+                baseColor: Theme.of(context).colorScheme.secondary),
             TextTitle("Customer groups without teamgroup"),
             ListCustomerGroups(
               customerGroups: customerGroupsWithoutTeamgroup,
@@ -143,15 +154,25 @@ class ListCustomerGroups extends ConsumerWidget {
         (cg) {
           List<Booking> bookings =
               ref.watch(bookingsByCustomerGroupIdProvider(cg.id)).value ?? [];
+          TeamGroup? teamGroup;
+          BasicLogger().debug("Teamgroup to check: ${cg.id}");
+          BasicLogger().debug("Starting provider to get id: ${cg.teamGroupId}");
+          if (cg.teamGroupId != null) {
+            BasicLogger().debug("Not null, can continue");
+            teamGroup = ref.watch(teamGroupByIdProvider(cg.teamGroupId!)).value;
+            BasicLogger().debug(
+                "Teamgroup name: ${teamGroup?.name ?? "no name gotten!"}");
+          }
           return InkWell(
             onTap: () => showDialog(
               context: context,
               builder: (_) => CustomerGroupEditorAlert(
                 customerGroup: cg,
-                onCgEdited: (ncg) {
+                onCgEdited: (ncg) async {
                   customerRepo.setCustomerGroup(ncg);
                   ref.invalidate(customerGroupsByDayProvider);
                   ref.invalidate(futureCustomerGroupsProvider);
+                  ref.invalidate(teamGroupByIdProvider);
                 },
               ),
             ),
@@ -186,11 +207,21 @@ class ListCustomerGroups extends ConsumerWidget {
                                               b.id))
                                           .value ??
                                       [];
+                                  String isPaidBlock = b.isFullyPaid
+                                      ? "Fully paid"
+                                      : "Not fully paid";
                                   return Text(
-                                      "${b.name} - Customers: ${customers.length}");
+                                      "${b.name} - Customers: ${customers.length} - $isPaidBlock");
                                 },
                               ).toList(),
                             ),
+                      Divider(
+                        color: baseColor.withAlpha(200),
+                      ),
+                      Text("Teamgroup assigned:"),
+                      teamGroup == null
+                          ? Text("No teamgroup assigned")
+                          : Text(teamGroup.name)
                     ],
                   ),
                 ),

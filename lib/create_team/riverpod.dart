@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -201,4 +204,29 @@ List<String> duplicateDogs(Ref ref) {
       .where((entry) => entry.value > 1)
       .map((entry) => entry.key)
       .toList();
+}
+
+@riverpod
+Future<TeamGroup?> teamGroupById(Ref ref, String id) async {
+  BasicLogger().debug("Getting teamgroup by id: $id");
+  var db = FirebaseFirestore.instance;
+  String account = await ref.watch(accountProvider.future);
+  var doc = db.doc("accounts/$account/data/teams/history/$id");
+  try {
+    var snapshot = await doc.get();
+    var data = snapshot.data();
+    BasicLogger().debug("teamgroup by id: $data");
+    if (data == null) {
+      throw Exception("Data is empty");
+    } else {
+      return TeamGroup.fromJson(data);
+    }
+  } catch (e, s) {
+    BasicLogger().error(
+      "Error getting team group by id: $id",
+      error: e,
+      stackTrace: s,
+    );
+    return null;
+  }
 }
