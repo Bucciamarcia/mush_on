@@ -10,7 +10,6 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/teamgroup.dart';
-import 'package:mush_on/shared/text_title.dart';
 import 'models.dart';
 
 class ClientManagementMainScreen extends ConsumerWidget {
@@ -19,120 +18,197 @@ class ClientManagementMainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<CustomerGroup> todaysCustomerGroups =
-        ref.watch(customerGroupsByDayProvider(DateTimeUtils.today())).value ??
-            [];
-    List<CustomerGroup> todaysOrphanedCustomerGroups =
+    // Data fetching remains the same
+    final todaysCustomerGroups =
+        ref.watch(customerGroupsByDayProvider(DateTimeUtils.today())).value ?? [];
+    final todaysOrphanedCustomerGroups =
         todaysCustomerGroups.where((cg) => cg.teamGroupId == null).toList();
-    List<Booking> todaysBookings =
+    final todaysBookings =
         ref.watch(bookingsByDayProvider(DateTimeUtils.today())).value ?? [];
-    List<Booking> todaysOrphanedBookings =
+    final todaysOrphanedBookings =
         todaysBookings.where((b) => b.customerGroupId == null).toList();
-    double todaysRevenue = 0;
-    for (Booking b in todaysBookings) {
-      todaysRevenue = todaysRevenue += b.price;
-    }
-    List<Booking> futureBookings =
+    final futureBookings =
         ref.watch(futureBookingsProvider(untilDate: null)).value ?? [];
-    List<Booking> bookingsWithoutCustomerGroup =
-        futureBookings.where((b) => b.customerGroupId == null).toList();
-    List<Booking> unpaidBookings =
-        futureBookings.where((b) => !b.isFullyPaid).toList();
-    List<CustomerGroup> futureCustomerGroups =
+    final unpaidBookings = futureBookings.where((b) => !b.isFullyPaid).toList();
+    final futureCustomerGroups =
         ref.watch(futureCustomerGroupsProvider(untilDate: null)).value ?? [];
-    List<CustomerGroup> customerGroupsWithoutTeamgroup =
+    final customerGroupsWithoutTeamgroup =
         futureCustomerGroups.where((c) => c.teamGroupId == null).toList();
+    final bookingsWithoutCustomerGroup =
+        futureBookings.where((b) => b.customerGroupId == null).toList();
+
+    final tomorrowCustomerGroups = ref
+            .watch(futureCustomerGroupsProvider(
+                untilDate: DateTimeUtils.today().add(const Duration(days: 2))))
+            .value ??
+        [];
+    final next7DaysCustomerGroups = ref
+            .watch(futureCustomerGroupsProvider(
+                untilDate: DateTimeUtils.today().add(const Duration(days: 8))))
+            .value ??
+        [];
+
+    final warnings = [
+      if (todaysOrphanedCustomerGroups.isNotEmpty)
+        _WarningSection(
+          title: "Today's Orphaned Customer Groups",
+          child: ListCustomerGroups(customerGroups: todaysOrphanedCustomerGroups),
+        ),
+      if (todaysOrphanedBookings.isNotEmpty)
+        _WarningSection(
+          title: "Today's Orphaned Bookings",
+          child: ListBookings(
+            bookings: todaysOrphanedBookings,
+            customerGroups: todaysCustomerGroups,
+          ),
+        ),
+      if (unpaidBookings.isNotEmpty)
+        _WarningSection(
+          title: "Future Unpaid Bookings",
+          child: ListBookings(
+            bookings: unpaidBookings,
+            customerGroups: futureCustomerGroups,
+          ),
+        ),
+      if (customerGroupsWithoutTeamgroup.isNotEmpty)
+        _WarningSection(
+          title: "Future Customer Groups Without a Team",
+          child: ListCustomerGroups(customerGroups: customerGroupsWithoutTeamgroup),
+        ),
+      if (bookingsWithoutCustomerGroup.isNotEmpty)
+        _WarningSection(
+          title: "Future Bookings Without a Customer Group",
+          child: ListBookings(
+            bookings: bookingsWithoutCustomerGroup,
+            customerGroups: futureCustomerGroups,
+          ),
+        ),
+    ];
 
     return ListView(
+      padding: const EdgeInsets.all(16.0),
       children: [
-        Align(
-          alignment: Alignment.topCenter,
-          child: TextTitle("Today's overview"),
+        Text(
+          "Customer Management",
+          style: Theme.of(context).textTheme.headlineMedium,
+          textAlign: TextAlign.center,
         ),
-        SizedBox(height: 15),
-        Column(
-          spacing: 5,
+        const SizedBox(height: 24),
+
+        // Warnings Section
+        if (warnings.isNotEmpty) ...[
+          Card(
+            color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.5),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Action Required",
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.onErrorContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...warnings,
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+
+        // Today's Overview
+        _buildSectionTitle(context, "Today's Overview"),
+        if (todaysCustomerGroups.isNotEmpty)
+          ListCustomerGroups(customerGroups: todaysCustomerGroups)
+        else
+          const Text("No customer groups for today."),
+        const SizedBox(height: 16),
+        if (todaysBookings.isNotEmpty)
+          ListBookings(
+            bookings: todaysBookings,
+            customerGroups: todaysCustomerGroups,
+          )
+        else
+          const Text("No bookings for today."),
+        const SizedBox(height: 24),
+
+        // Future
+        ExpansionTile(
+          title: _buildSectionTitle(context, "Upcoming"),
           children: [
-            todaysOrphanedCustomerGroups.isEmpty
-                ? SizedBox.shrink()
-                : Column(
-                    children: [
-                      TextTitle("Orphaned customer groups"),
-                      SizedBox(height: 15),
-                      ListCustomerGroups(
-                          customerGroups: todaysOrphanedCustomerGroups,
-                          baseColor: Colors.red),
-                    ],
-                  ),
-            todaysOrphanedBookings.isEmpty
-                ? SizedBox.shrink()
-                : Column(
-                    children: [
-                      TextTitle("Orhpaned bookings"),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      ListBookings(
-                          baseColor: Colors.red,
-                          bookings: todaysOrphanedBookings,
-                          customerGroups: todaysCustomerGroups)
-                    ],
-                  ),
-            unpaidBookings.isEmpty
-                ? SizedBox.shrink()
-                : Column(
-                    children: [
-                      TextTitle("Unpaid bookings"),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      ListBookings(
-                          baseColor: Colors.red,
-                          bookings: unpaidBookings,
-                          customerGroups: futureCustomerGroups)
-                    ],
-                  ),
-            TextTitle("Today's customer groups"),
-            ListCustomerGroups(
-                customerGroups: todaysCustomerGroups, baseColor: Colors.green),
-            TextTitle("Today's bookings"),
-            ListBookings(
-              baseColor: Colors.greenAccent,
-              bookings: todaysBookings,
-              customerGroups: todaysCustomerGroups,
+            _buildExpansionTileChild(
+              context,
+              "Tomorrow",
+              tomorrowCustomerGroups.isNotEmpty
+                  ? ListCustomerGroups(customerGroups: tomorrowCustomerGroups)
+                  : const Text("No customer groups for tomorrow."),
             ),
-            TextTitle("Tomorrow"),
-            ListCustomerGroups(
-                customerGroups: ref
-                        .watch(futureCustomerGroupsProvider(
-                            untilDate:
-                                DateTimeUtils.today().add(Duration(days: 2))))
-                        .value ??
-                    [],
-                baseColor: Theme.of(context).colorScheme.primary),
-            TextTitle("Next 7 days"),
-            ListCustomerGroups(
-                customerGroups: ref
-                        .watch(futureCustomerGroupsProvider(
-                            untilDate:
-                                DateTimeUtils.today().add(Duration(days: 8))))
-                        .value ??
-                    [],
-                baseColor: Theme.of(context).colorScheme.secondary),
-            TextTitle("Customer groups without teamgroup"),
-            ListCustomerGroups(
-              customerGroups: customerGroupsWithoutTeamgroup,
-              baseColor: Colors.red,
-            ),
-            TextTitle("Bookings without customer group"),
-            ListBookings(
-              baseColor: Colors.red,
-              bookings: bookingsWithoutCustomerGroup,
-              customerGroups: futureCustomerGroups,
+            _buildExpansionTileChild(
+              context,
+              "Next 7 Days",
+              next7DaysCustomerGroups.isNotEmpty
+                  ? ListCustomerGroups(customerGroups: next7DaysCustomerGroups)
+                  : const Text("No customer groups for the next 7 days."),
             ),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleLarge,
+      ),
+    );
+  }
+
+  Widget _buildExpansionTileChild(
+      BuildContext context, String title, Widget content) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          content,
+        ],
+      ),
+    );
+  }
+}
+
+class _WarningSection extends StatelessWidget {
+  final String title;
+  final Widget child;
+
+  const _WarningSection({required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onErrorContainer,
+                fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          child,
+        ],
+      ),
     );
   }
 }
@@ -140,85 +216,108 @@ class ClientManagementMainScreen extends ConsumerWidget {
 /// A list of the customer groups that can be clicked. In Column() form.
 class ListCustomerGroups extends ConsumerWidget {
   final List<CustomerGroup> customerGroups;
-  final Color baseColor;
-  const ListCustomerGroups(
-      {super.key, required this.customerGroups, required this.baseColor});
+  const ListCustomerGroups({super.key, required this.customerGroups});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final account = ref.watch(accountProvider).value ?? "";
     final customerRepo = CustomerManagementRepository(account: account);
     return Column(
-      spacing: 15,
       children: customerGroups.map(
         (cg) {
-          List<Booking> bookings =
+          final bookings =
               ref.watch(bookingsByCustomerGroupIdProvider(cg.id)).value ?? [];
-          TeamGroup? teamGroup;
-          if (cg.teamGroupId != null) {
-            teamGroup = ref.watch(teamGroupByIdProvider(cg.teamGroupId!)).value;
-          }
-          return InkWell(
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => CustomerGroupEditorAlert(
-                customerGroup: cg,
-                onCgEdited: (ncg) async {
-                  customerRepo.setCustomerGroup(ncg);
-                  ref.invalidate(customerGroupsByDayProvider);
-                  ref.invalidate(futureCustomerGroupsProvider);
-                  ref.invalidate(teamGroupByIdProvider);
-                },
-              ),
+          final teamGroup = (cg.teamGroupId != null)
+              ? ref.watch(teamGroupByIdProvider(cg.teamGroupId!)).value
+              : null;
+
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: SizedBox(
-              width: double.infinity,
-              child: Card.outlined(
-                color: baseColor.withAlpha(75),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: baseColor, width: 2),
-                  borderRadius: BorderRadius.circular(10),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => showDialog(
+                context: context,
+                builder: (_) => CustomerGroupEditorAlert(
+                  customerGroup: cg,
+                  onCgEdited: (ncg) async {
+                    customerRepo.setCustomerGroup(ncg);
+                    ref.invalidate(customerGroupsByDayProvider);
+                    ref.invalidate(futureCustomerGroupsProvider);
+                    ref.invalidate(teamGroupByIdProvider);
+                  },
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        "${cg.name} - ${DateFormat("dd-MM-yyyy | hh:mm").format(cg.datetime)}",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
-                      Divider(
-                        color: baseColor.withAlpha(200),
-                      ),
-                      Text("Bookings:"),
-                      bookings.isEmpty
-                          ? Text("No bookings assigned")
-                          : Wrap(
-                              children: bookings.map(
-                                (b) {
-                                  List<Customer> customers = ref
-                                          .watch(customersByBookingIdProvider(
-                                              b.id))
-                                          .value ??
-                                      [];
-                                  String isPaidBlock = b.isFullyPaid
-                                      ? "Fully paid"
-                                      : "Not fully paid";
-                                  return Text(
-                                      "${b.name} - Customers: ${customers.length} - $isPaidBlock");
-                                },
-                              ).toList(),
-                            ),
-                      Divider(
-                        color: baseColor.withAlpha(200),
-                      ),
-                      Text("Teamgroup assigned:"),
-                      teamGroup == null
-                          ? Text("No teamgroup assigned")
-                          : Text(teamGroup.name)
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      cg.name,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.calendar_today, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        const SizedBox(width: 8),
+                        Text(
+                          DateFormat("dd-MM-yyyy 'at' hh:mm").format(cg.datetime),
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    const Divider(),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8.0,
+                      runSpacing: 4.0,
+                      children: [
+                        Chip(
+                          avatar: Icon(teamGroup == null ? Icons.warning_amber_rounded : Icons.check_circle_outline_rounded, size: 18),
+                          label: Text(teamGroup == null ? "No Team Assigned" : teamGroup.name),
+                          backgroundColor: teamGroup == null ? Theme.of(context).colorScheme.errorContainer : Theme.of(context).colorScheme.primaryContainer,
+                        ),
+                      ],
+                    ),
+                    if (bookings.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text("Bookings:", style: Theme.of(context).textTheme.labelLarge),
+                      const SizedBox(height: 8),
+                      ...bookings.map((b) {
+                        final customers = ref.watch(customersByBookingIdProvider(b.id)).value ?? [];
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 4.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(b.name),
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 8,
+                                children: [
+                                  Text("${customers.length} ppl"),
+                                  Chip(
+                                    label: Text(b.isFullyPaid ? "Paid" : "Unpaid"),
+                                    padding: EdgeInsets.zero,
+                                    labelStyle: Theme.of(context).textTheme.labelSmall,
+                                    backgroundColor: b.isFullyPaid ? Colors.green.shade100 : Colors.orange.shade100,
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        );
+                      }),
                     ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -233,65 +332,107 @@ class ListCustomerGroups extends ConsumerWidget {
 class ListBookings extends ConsumerWidget {
   final List<Booking> bookings;
   final List<CustomerGroup> customerGroups;
-  final Color baseColor;
-  const ListBookings(
-      {super.key,
-      required this.baseColor,
-      required this.bookings,
-      required this.customerGroups});
+
+  const ListBookings({
+    super.key,
+    required this.bookings,
+    required this.customerGroups,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final account = ref.watch(accountProvider).value ?? "";
     final customerRepo = CustomerManagementRepository(account: account);
+
     return Column(
-      spacing: 15,
-      children: bookings
-          .map(
-            (b) => InkWell(
-              onTap: () => showDialog(
-                context: context,
-                builder: (_) => BookingEditorAlert(
-                  booking: b,
-                  onBookingEdited: (nb) {
-                    customerRepo.setBooking(nb);
-                    ref.invalidate(bookingsByDayProvider);
-                    ref.invalidate(bookingsByCustomerGroupIdProvider);
-                    ref.invalidate(futureBookingsProvider);
-                  },
-                  onCustomersEdited: (ncs) {
-                    customerRepo.setCustomers(ncs);
-                    ref.invalidate(bookingsByDayProvider);
-                    ref.invalidate(bookingsByCustomerGroupIdProvider);
-                    ref.invalidate(futureBookingsProvider);
-                  },
-                ),
-              ),
-              child: SizedBox(
-                width: double.infinity,
-                child: Card.outlined(
-                  color: baseColor.withAlpha(75),
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: baseColor, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          "${b.name} - ${DateFormat("dd-MM-yyyy | hh:mm").format(b.date)}",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+      children: bookings.map((b) {
+        final customers = ref.watch(customersByBookingIdProvider(b.id)).value ?? [];
+        CustomerGroup? customerGroup;
+        if (b.customerGroupId != null) {
+          customerGroup = customerGroups.firstWhere((cg) => cg.id == b.customerGroupId);
+        }
+
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8.0),
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => BookingEditorAlert(
+                booking: b,
+                onBookingEdited: (nb) {
+                  customerRepo.setBooking(nb);
+                  ref.invalidate(bookingsByDayProvider);
+                  ref.invalidate(bookingsByCustomerGroupIdProvider);
+                  ref.invalidate(futureBookingsProvider);
+                },
+                onCustomersEdited: (ncs) {
+                  customerRepo.setCustomers(ncs);
+                  ref.invalidate(bookingsByDayProvider);
+                  ref.invalidate(bookingsByCustomerGroupIdProvider);
+                  ref.invalidate(futureBookingsProvider);
+                },
               ),
             ),
-          )
-          .toList(),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    b.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      const SizedBox(width: 8),
+                      Text(
+                        DateFormat("dd-MM-yyyy 'at' hh:mm").format(b.date),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 4.0,
+                    children: [
+                      Chip(
+                        avatar: Icon(b.isFullyPaid ? Icons.check_circle_outline_rounded : Icons.error_outline_rounded, size: 18),
+                        label: Text(b.isFullyPaid ? "Fully Paid" : "Not Fully Paid"),
+                        backgroundColor: b.isFullyPaid ? Colors.green.shade100 : Colors.orange.shade100,
+                      ),
+                      Chip(
+                        avatar: Icon(Icons.people_outline_rounded, size: 18),
+                        label: Text("${customers.length} Customers"),
+                      ),
+                      if (customerGroup != null)
+                        Chip(
+                          avatar: Icon(Icons.group_work_outlined, size: 18),
+                          label: Text(customerGroup.name),
+                        )
+                      else
+                         Chip(
+                          avatar: Icon(Icons.warning_amber_rounded, size: 18),
+                          label: const Text("No Customer Group"),
+                          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                        ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }
