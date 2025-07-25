@@ -44,7 +44,7 @@ class SaveTeamsButton extends ConsumerWidget {
       style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary),
       child: Text(
-        "Save Teams",
+        "Save team group",
         style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
       ),
     );

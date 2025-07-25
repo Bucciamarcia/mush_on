@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/dog_selector.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/riverpod.dart';
+import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
@@ -24,6 +25,9 @@ class CreateTeamMain extends ConsumerStatefulWidget {
 class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
   late TextEditingController groupNameController;
   late TextEditingController groupNotesController;
+
+  /// The list of customer groups assigned to this teamgroup
+  late List<CustomerGroup> customerGroups;
   @override
   void initState() {
     super.initState();
@@ -31,6 +35,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
         TextEditingController(text: widget.loadedTeam?.name ?? "");
     groupNotesController =
         TextEditingController(text: widget.loadedTeam?.notes ?? "");
+    customerGroups = [];
   }
 
   @override
@@ -74,6 +79,11 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
   @override
   Widget build(BuildContext context) {
     var teamGroup = ref.watch(createTeamGroupProvider(widget.loadedTeam));
+    if (customerGroups.isEmpty) {
+      customerGroups =
+          ref.watch(customerGroupsForTeamgroupProvider(teamGroup.id)).value ??
+              [];
+    }
     var runningDogs = ref.watch(runningDogsProvider(teamGroup));
     var dogNotes = ref.watch(dogNotesProvider);
     bool canPopProvider = ref.watch(canPopTeamGroupProvider);
@@ -98,7 +108,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
           Card(
             color: Theme.of(context).colorScheme.primaryContainer,
             child: ExpansionTile(
-              title: Center(child: Text("Filter")),
+              title: Center(child: Text("Filter dogs")),
               children: [
                 DogFilterWidget(
                     dogs: allDogs ?? [],
@@ -139,38 +149,52 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
               notifier.changeNotes(text);
             },
           ),
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              child: Text(
+                  "Assigned customer groups: ${customerGroups.first.name}"),
+            ),
+          ),
           ...teamGroup.teams.asMap().entries.map(
             (entry) {
-              return TeamRetriever(
-                teamNumber: entry.key,
-                dogs: allDogs ?? [],
-                runningDogs: runningDogs,
-                teams: teamGroup.teams,
-                notes: dogNotes,
-                onDogSelected: (DogSelection newDog) {
-                  notifier.changePosition(
-                      dogId: newDog.dog.id,
-                      teamNumber: newDog.teamNumber,
-                      rowNumber: newDog.rowNumber,
-                      positionNumber: newDog.dogPosition);
-                },
-                onTeamNameChanged: (int teamNumber, String newName) => notifier
-                    .changeTeamName(teamNumber: teamNumber, newName: newName),
-                onRowRemoved: (int teamNumber, int rowNumber) => notifier
-                    .removeRow(teamNumber: teamNumber, rowNumber: rowNumber),
-                onAddRow: (int teamNumber) =>
-                    notifier.addRow(teamNumber: teamNumber),
-                onDogRemoved:
-                    (int teamNumber, int rowNumber, int dogPosition) =>
-                        notifier.changePosition(
-                            dogId: "",
-                            teamNumber: teamNumber,
-                            rowNumber: rowNumber,
-                            positionNumber: dogPosition),
-                onAddTeam: (teamNumber) =>
-                    notifier.addTeam(teamNumber: teamNumber),
-                onRemoveTeam: (teamNumber) =>
-                    notifier.removeTeam(teamNumber: teamNumber),
+              return Column(
+                children: [
+                  Divider(),
+                  TeamRetriever(
+                    teamNumber: entry.key,
+                    dogs: allDogs ?? [],
+                    runningDogs: runningDogs,
+                    teams: teamGroup.teams,
+                    notes: dogNotes,
+                    onDogSelected: (DogSelection newDog) {
+                      notifier.changePosition(
+                          dogId: newDog.dog.id,
+                          teamNumber: newDog.teamNumber,
+                          rowNumber: newDog.rowNumber,
+                          positionNumber: newDog.dogPosition);
+                    },
+                    onTeamNameChanged: (int teamNumber, String newName) =>
+                        notifier.changeTeamName(
+                            teamNumber: teamNumber, newName: newName),
+                    onRowRemoved: (int teamNumber, int rowNumber) =>
+                        notifier.removeRow(
+                            teamNumber: teamNumber, rowNumber: rowNumber),
+                    onAddRow: (int teamNumber) =>
+                        notifier.addRow(teamNumber: teamNumber),
+                    onDogRemoved:
+                        (int teamNumber, int rowNumber, int dogPosition) =>
+                            notifier.changePosition(
+                                dogId: "",
+                                teamNumber: teamNumber,
+                                rowNumber: rowNumber,
+                                positionNumber: dogPosition),
+                    onAddTeam: (teamNumber) =>
+                        notifier.addTeam(teamNumber: teamNumber),
+                    onRemoveTeam: (teamNumber) =>
+                        notifier.removeTeam(teamNumber: teamNumber),
+                  ),
+                ],
               );
             },
           ),
@@ -184,7 +208,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                     confirmationSnackbar(context, "Teams copied"));
               }
             },
-            child: Text("Copy teams"),
+            child: Text("Copy team group"),
           ),
           SaveTeamsButton(teamGroup: teamGroup),
         ],

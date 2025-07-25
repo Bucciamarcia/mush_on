@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
@@ -229,4 +230,25 @@ Future<TeamGroup?> teamGroupById(Ref ref, String id) async {
     );
     return null;
   }
+}
+
+@riverpod
+
+/// Gets all the customer groups assigned to this teamgroup.
+Stream<List<CustomerGroup>> customerGroupsForTeamgroup(
+    Ref ref, String teamGroupId) async* {
+  final db = FirebaseFirestore.instance;
+  String account = await ref.watch(accountProvider.future);
+  String path = "accounts/$account/data/bookingManager/customerGroups";
+  final collection =
+      db.collection(path).where("teamGroupId", isEqualTo: teamGroupId);
+  yield* collection.snapshots().map(
+        (snapshot) => snapshot.docs
+            .map(
+              (doc) => CustomerGroup.fromJson(
+                doc.data(),
+              ),
+            )
+            .toList(),
+      );
 }
