@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/customer_management/alert_editors/customer_group.dart';
 import 'package:mush_on/customer_management/repository.dart';
@@ -49,7 +50,6 @@ class ClientManagementMainScreen extends ConsumerWidget {
         Wrap(
           spacing: 5,
           children: [
-            Text("Today's revenue: $todaysRevenue"),
             todaysOrphanedCustomerGroups.isEmpty
                 ? SizedBox.shrink()
                 : Column(
@@ -130,9 +130,27 @@ class ListCustomerGroups extends ConsumerWidget {
                   },
                 ),
               ),
-              child: Card(
-                color: baseColor.withAlpha(150),
-                child: Text(cg.name),
+              child: SizedBox(
+                width: double.infinity,
+                child: Card.outlined(
+                  color: baseColor.withAlpha(75),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(color: baseColor, width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          "${cg.name} - ${DateFormat("dd-MM-yyyy | hh:mm").format(cg.datetime)}",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           )
@@ -177,9 +195,27 @@ class ListBookings extends ConsumerWidget {
                   },
                 ),
               ),
-              child: Card(
-                color: baseColor.withAlpha(150),
-                child: Text(b.name),
+              child: SizedBox(
+                width: double.infinity,
+                child: Card.outlined(
+                  color: baseColor.withAlpha(75),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(color: baseColor, width: 2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          "${b.name} - ${DateFormat("dd-MM-yyyy | hh:mm").format(b.date)}",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           )
