@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/riverpod.dart';
+import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
@@ -69,10 +70,40 @@ class SaveTeamsButton extends ConsumerWidget {
 
       var ref = db.collection(path).doc(teamGroup.id);
       ref.set(data);
+      await _removeCustomerGroups(teamGroup.id, account, dateTimeNoSeconds);
     } catch (e, s) {
       logger.error("Error in saving to db", error: e, stackTrace: s);
       rethrow;
     }
+  }
+
+  Future<void> _removeCustomerGroups(
+      String teamId, String account, DateTime newTeamDate) async {
+    logger.debug("Checking remove cg");
+    String path = "accounts/$account/data/bookingManager/customerGroups";
+    final db = FirebaseFirestore.instance;
+    var collection =
+        db.collection(path).where("teamGroupId", isEqualTo: teamId);
+    var data = await collection.get();
+    List<CustomerGroup> cgs =
+        data.docs.map((doc) => CustomerGroup.fromJson(doc.data())).toList();
+    logger.debug("Cgs in this tg: ${cgs.length}");
+    if (cgs.isEmpty) {
+      logger.debug("None to remove");
+      return;
+    }
+    var batch = db.batch();
+    for (var cg in cgs) {
+      logger.debug("Checing for for id: ${cg.id}");
+      logger.debug("cg datetime: ${cg.datetime.toUtc()}");
+      logger.debug("New teamdate: $newTeamDate");
+      if (cg.datetime.toUtc() != newTeamDate) {
+        logger.debug("Need to remove!");
+        var newCg = cg.copyWith(teamGroupId: null);
+        batch.set(db.doc("$path/${cg.id}"), newCg.toJson());
+      }
+    }
+    await batch.commit();
   }
 
   List<Map<String, dynamic>> _modifyTeamsForDb(List<Team> teams) {
