@@ -155,13 +155,8 @@ class ListCustomerGroups extends ConsumerWidget {
           List<Booking> bookings =
               ref.watch(bookingsByCustomerGroupIdProvider(cg.id)).value ?? [];
           TeamGroup? teamGroup;
-          BasicLogger().debug("Teamgroup to check: ${cg.id}");
-          BasicLogger().debug("Starting provider to get id: ${cg.teamGroupId}");
           if (cg.teamGroupId != null) {
-            BasicLogger().debug("Not null, can continue");
             teamGroup = ref.watch(teamGroupByIdProvider(cg.teamGroupId!)).value;
-            BasicLogger().debug(
-                "Teamgroup name: ${teamGroup?.name ?? "no name gotten!"}");
           }
           return InkWell(
             onTap: () => showDialog(
