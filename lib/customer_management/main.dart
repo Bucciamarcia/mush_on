@@ -9,7 +9,6 @@ import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
 import 'models.dart';
 
 class ClientManagementMainScreen extends ConsumerWidget {
@@ -20,7 +19,8 @@ class ClientManagementMainScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Data fetching remains the same
     final todaysCustomerGroups =
-        ref.watch(customerGroupsByDayProvider(DateTimeUtils.today())).value ?? [];
+        ref.watch(customerGroupsByDayProvider(DateTimeUtils.today())).value ??
+            [];
     final todaysOrphanedCustomerGroups =
         todaysCustomerGroups.where((cg) => cg.teamGroupId == null).toList();
     final todaysBookings =
@@ -52,7 +52,8 @@ class ClientManagementMainScreen extends ConsumerWidget {
       if (todaysOrphanedCustomerGroups.isNotEmpty)
         _WarningSection(
           title: "Today's Orphaned Customer Groups",
-          child: ListCustomerGroups(customerGroups: todaysOrphanedCustomerGroups),
+          child:
+              ListCustomerGroups(customerGroups: todaysOrphanedCustomerGroups),
         ),
       if (todaysOrphanedBookings.isNotEmpty)
         _WarningSection(
@@ -73,7 +74,8 @@ class ClientManagementMainScreen extends ConsumerWidget {
       if (customerGroupsWithoutTeamgroup.isNotEmpty)
         _WarningSection(
           title: "Future Customer Groups Without a Team",
-          child: ListCustomerGroups(customerGroups: customerGroupsWithoutTeamgroup),
+          child: ListCustomerGroups(
+              customerGroups: customerGroupsWithoutTeamgroup),
         ),
       if (bookingsWithoutCustomerGroup.isNotEmpty)
         _WarningSection(
@@ -98,7 +100,8 @@ class ClientManagementMainScreen extends ConsumerWidget {
         // Warnings Section
         if (warnings.isNotEmpty) ...[
           Card(
-            color: Theme.of(context).colorScheme.errorContainer.withOpacity(0.5),
+            color:
+                Theme.of(context).colorScheme.errorContainer.withOpacity(0.5),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -137,24 +140,20 @@ class ClientManagementMainScreen extends ConsumerWidget {
         const SizedBox(height: 24),
 
         // Future
-        ExpansionTile(
-          title: _buildSectionTitle(context, "Upcoming"),
-          children: [
-            _buildExpansionTileChild(
-              context,
-              "Tomorrow",
-              tomorrowCustomerGroups.isNotEmpty
-                  ? ListCustomerGroups(customerGroups: tomorrowCustomerGroups)
-                  : const Text("No customer groups for tomorrow."),
-            ),
-            _buildExpansionTileChild(
-              context,
-              "Next 7 Days",
-              next7DaysCustomerGroups.isNotEmpty
-                  ? ListCustomerGroups(customerGroups: next7DaysCustomerGroups)
-                  : const Text("No customer groups for the next 7 days."),
-            ),
-          ],
+        _buildSectionTitle(context, "Upcoming"),
+        _buildExpansionTileChild(
+          context,
+          "Tomorrow",
+          tomorrowCustomerGroups.isNotEmpty
+              ? ListCustomerGroups(customerGroups: tomorrowCustomerGroups)
+              : const Text("No customer groups for tomorrow."),
+        ),
+        _buildExpansionTileChild(
+          context,
+          "Next 7 Days",
+          next7DaysCustomerGroups.isNotEmpty
+              ? ListCustomerGroups(customerGroups: next7DaysCustomerGroups)
+              : const Text("No customer groups for the next 7 days."),
         ),
       ],
     );
@@ -265,10 +264,14 @@ class ListCustomerGroups extends ConsumerWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.calendar_today, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        Icon(Icons.calendar_today,
+                            size: 14,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant),
                         const SizedBox(width: 8),
                         Text(
-                          DateFormat("dd-MM-yyyy 'at' hh:mm").format(cg.datetime),
+                          DateFormat("dd-MM-yyyy 'at' hh:mm")
+                              .format(cg.datetime),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
@@ -281,41 +284,26 @@ class ListCustomerGroups extends ConsumerWidget {
                       runSpacing: 4.0,
                       children: [
                         Chip(
-                          avatar: Icon(teamGroup == null ? Icons.warning_amber_rounded : Icons.check_circle_outline_rounded, size: 18),
-                          label: Text(teamGroup == null ? "No Team Assigned" : teamGroup.name),
-                          backgroundColor: teamGroup == null ? Theme.of(context).colorScheme.errorContainer : Theme.of(context).colorScheme.primaryContainer,
+                          avatar: Icon(
+                              teamGroup == null
+                                  ? Icons.warning_amber_rounded
+                                  : Icons.check_circle_outline_rounded,
+                              size: 18),
+                          label: Text(teamGroup == null
+                              ? "No Team Assigned"
+                              : teamGroup.name),
+                          backgroundColor: teamGroup == null
+                              ? Theme.of(context).colorScheme.errorContainer
+                              : Theme.of(context).colorScheme.primaryContainer,
                         ),
                       ],
                     ),
                     if (bookings.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      Text("Bookings:", style: Theme.of(context).textTheme.labelLarge),
+                      Text("Bookings:",
+                          style: Theme.of(context).textTheme.labelLarge),
                       const SizedBox(height: 8),
-                      ...bookings.map((b) {
-                        final customers = ref.watch(customersByBookingIdProvider(b.id)).value ?? [];
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 8.0, top: 4.0, bottom: 4.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(b.name),
-                              Wrap(
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                spacing: 8,
-                                children: [
-                                  Text("${customers.length} ppl"),
-                                  Chip(
-                                    label: Text(b.isFullyPaid ? "Paid" : "Unpaid"),
-                                    padding: EdgeInsets.zero,
-                                    labelStyle: Theme.of(context).textTheme.labelSmall,
-                                    backgroundColor: b.isFullyPaid ? Colors.green.shade100 : Colors.orange.shade100,
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        );
-                      }),
+                      ...bookings.map((b) => _BookingCardInGroup(booking: b)),
                     ],
                   ],
                 ),
@@ -324,6 +312,70 @@ class ListCustomerGroups extends ConsumerWidget {
           );
         },
       ).toList(),
+    );
+  }
+}
+
+class _BookingCardInGroup extends ConsumerWidget {
+  final Booking booking;
+
+  const _BookingCardInGroup({required this.booking});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final account = ref.watch(accountProvider).value ?? "";
+    final customerRepo = CustomerManagementRepository(account: account);
+    final customers =
+        ref.watch(customersByBookingIdProvider(booking.id)).value ?? [];
+
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12), // same as Card's shape
+        onTap: () => showDialog(
+          context: context,
+          builder: (_) => BookingEditorAlert(
+            booking: booking,
+            onBookingEdited: (nb) {
+              customerRepo.setBooking(nb);
+              ref.invalidate(bookingsByDayProvider);
+              ref.invalidate(bookingsByCustomerGroupIdProvider);
+              ref.invalidate(futureBookingsProvider);
+            },
+            onCustomersEdited: (ncs) {
+              customerRepo.setCustomers(ncs);
+              ref.invalidate(bookingsByDayProvider);
+              ref.invalidate(bookingsByCustomerGroupIdProvider);
+              ref.invalidate(futureBookingsProvider);
+            },
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(booking.name),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                children: [
+                  Text("${customers.length} ppl"),
+                  Chip(
+                    label: Text(booking.isFullyPaid ? "Paid" : "Unpaid"),
+                    padding: EdgeInsets.zero,
+                    labelStyle: Theme.of(context).textTheme.labelSmall,
+                    backgroundColor: booking.isFullyPaid
+                        ? Colors.green.shade100
+                        : Colors.orange.shade100,
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -346,10 +398,16 @@ class ListBookings extends ConsumerWidget {
 
     return Column(
       children: bookings.map((b) {
-        final customers = ref.watch(customersByBookingIdProvider(b.id)).value ?? [];
+        final customers =
+            ref.watch(customersByBookingIdProvider(b.id)).value ?? [];
         CustomerGroup? customerGroup;
         if (b.customerGroupId != null) {
-          customerGroup = customerGroups.firstWhere((cg) => cg.id == b.customerGroupId);
+          try {
+            customerGroup =
+                customerGroups.firstWhere((cg) => cg.id == b.customerGroupId);
+          } catch (e) {
+            customerGroup = null;
+          }
         }
 
         return Card(
@@ -392,7 +450,10 @@ class ListBookings extends ConsumerWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 14, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      Icon(Icons.calendar_today,
+                          size: 14,
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant),
                       const SizedBox(width: 8),
                       Text(
                         DateFormat("dd-MM-yyyy 'at' hh:mm").format(b.date),
@@ -406,9 +467,16 @@ class ListBookings extends ConsumerWidget {
                     runSpacing: 4.0,
                     children: [
                       Chip(
-                        avatar: Icon(b.isFullyPaid ? Icons.check_circle_outline_rounded : Icons.error_outline_rounded, size: 18),
-                        label: Text(b.isFullyPaid ? "Fully Paid" : "Not Fully Paid"),
-                        backgroundColor: b.isFullyPaid ? Colors.green.shade100 : Colors.orange.shade100,
+                        avatar: Icon(
+                            b.isFullyPaid
+                                ? Icons.check_circle_outline_rounded
+                                : Icons.error_outline_rounded,
+                            size: 18),
+                        label: Text(
+                            b.isFullyPaid ? "Fully Paid" : "Not Fully Paid"),
+                        backgroundColor: b.isFullyPaid
+                            ? Colors.green.shade100
+                            : Colors.orange.shade100,
                       ),
                       Chip(
                         avatar: Icon(Icons.people_outline_rounded, size: 18),
@@ -420,10 +488,11 @@ class ListBookings extends ConsumerWidget {
                           label: Text(customerGroup.name),
                         )
                       else
-                         Chip(
+                        Chip(
                           avatar: Icon(Icons.warning_amber_rounded, size: 18),
                           label: const Text("No Customer Group"),
-                          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.errorContainer,
                         ),
                     ],
                   )
