@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:uuid/uuid.dart';
 
 class CustomerEditorAlert extends StatefulWidget {
@@ -189,6 +190,8 @@ class _CustomerEditorAlertState extends State<CustomerEditorAlert> {
           ),
           onPressed: nameController.text.isNotEmpty
               ? () {
+                  BasicLogger().debug(
+                      "Adding customer in customer: ${nameController.text}");
                   widget.onCustomerEdited(
                     Customer(
                       id: id,

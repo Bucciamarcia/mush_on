@@ -35,6 +35,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   late DateTime dateTime;
   CustomerGroup? selectedCustomerGroup;
   late List<CustomerGroup> possibleCustomerGroups;
+  late List<Customer> customers;
   @override
   void initState() {
     super.initState();
@@ -46,6 +47,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
     isPaid = widget.booking?.isFullyPaid ?? false;
     dateTime = widget.booking?.date ?? DateTimeUtils.today();
     possibleCustomerGroups = [];
+    customers = [];
   }
 
   @override
@@ -57,13 +59,14 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
 
   @override
   Widget build(BuildContext context) {
-    List<Customer> customers = [];
-    if (widget.booking != null) {
+    if (widget.booking != null && customers.isEmpty) {
       customers =
           ref.watch(customersByBookingIdProvider(widget.booking!.id)).value ??
               [];
     }
-    if (selectedCustomerGroup == null && widget.booking != null && widget.booking!.customerGroupId != null) {
+    if (selectedCustomerGroup == null &&
+        widget.booking != null &&
+        widget.booking!.customerGroupId != null) {
       selectedCustomerGroup = ref
           .watch(
             customerGroupByIdProvider(widget.booking!.customerGroupId!),
@@ -327,7 +330,12 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                                   bookingId: id,
                                   onCustomerEdited: (customer) => setState(
                                     () {
+                                      logger.debug(
+                                          "Existing customers: $customers");
+                                      logger.debug(
+                                          "New customer: ${customer.name}");
                                       customers = [...customers, customer];
+                                      logger.debug("New customers: $customers");
                                     },
                                   ),
                                 );
