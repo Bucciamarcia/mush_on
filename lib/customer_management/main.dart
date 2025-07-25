@@ -30,11 +30,12 @@ class ClientManagementMainScreen extends ConsumerWidget {
     for (Booking b in todaysBookings) {
       todaysRevenue = todaysRevenue += b.price;
     }
-    List<Booking> bookingsWithoutCustomerGroup =
+    List<Booking> futureBookings =
         ref.watch(futureBookingsProvider(untilDate: null)).value ?? [];
-    bookingsWithoutCustomerGroup = bookingsWithoutCustomerGroup
-        .where((b) => b.customerGroupId == null)
-        .toList();
+    List<Booking> bookingsWithoutCustomerGroup =
+        futureBookings.where((b) => b.customerGroupId == null).toList();
+    List<Booking> unpaidBookings =
+        futureBookings.where((b) => !b.isFullyPaid).toList();
     List<CustomerGroup> futureCustomerGroups =
         ref.watch(futureCustomerGroupsProvider(untilDate: null)).value ?? [];
     List<CustomerGroup> customerGroupsWithoutTeamgroup =
@@ -47,7 +48,7 @@ class ClientManagementMainScreen extends ConsumerWidget {
           child: TextTitle("Today's overview"),
         ),
         SizedBox(height: 15),
-        Wrap(
+        Column(
           spacing: 5,
           children: [
             todaysOrphanedCustomerGroups.isEmpty
@@ -75,6 +76,20 @@ class ClientManagementMainScreen extends ConsumerWidget {
                           customerGroups: todaysCustomerGroups)
                     ],
                   ),
+            unpaidBookings.isEmpty
+                ? SizedBox.shrink()
+                : Column(
+                    children: [
+                      TextTitle("Unpaid bookings"),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      ListBookings(
+                          baseColor: Colors.red,
+                          bookings: unpaidBookings,
+                          customerGroups: futureCustomerGroups)
+                    ],
+                  ),
             TextTitle("Today's customer groups"),
             ListCustomerGroups(
                 customerGroups: todaysCustomerGroups, baseColor: Colors.green),
@@ -84,6 +99,15 @@ class ClientManagementMainScreen extends ConsumerWidget {
               bookings: todaysBookings,
               customerGroups: todaysCustomerGroups,
             ),
+            TextTitle("Next 7 days"),
+            ListCustomerGroups(
+                customerGroups: ref
+                        .watch(futureCustomerGroupsProvider(
+                            untilDate:
+                                DateTimeUtils.today().add(Duration(days: 7))))
+                        .value ??
+                    [],
+                baseColor: Theme.of(context).colorScheme.primary),
             TextTitle("Customer groups without teamgroup"),
             ListCustomerGroups(
               customerGroups: customerGroupsWithoutTeamgroup,
@@ -115,46 +139,66 @@ class ListCustomerGroups extends ConsumerWidget {
     final customerRepo = CustomerManagementRepository(account: account);
     return Column(
       spacing: 15,
-      children: customerGroups
-          .map(
-            (cg) => InkWell(
-              onTap: () => showDialog(
-                context: context,
-                builder: (_) => CustomerGroupEditorAlert(
-                  customerGroup: cg,
-                  onCgEdited: (ncg) {
-                    customerRepo.setCustomerGroup(ncg);
-                    ref.invalidate(customerGroupsByDayProvider);
-                    ref.invalidate(
-                        futureCustomerGroupsProvider(untilDate: null));
-                  },
-                ),
+      children: customerGroups.map(
+        (cg) {
+          List<Booking> bookings =
+              ref.watch(bookingsByCustomerGroupIdProvider(cg.id)).value ?? [];
+          return InkWell(
+            onTap: () => showDialog(
+              context: context,
+              builder: (_) => CustomerGroupEditorAlert(
+                customerGroup: cg,
+                onCgEdited: (ncg) {
+                  customerRepo.setCustomerGroup(ncg);
+                  ref.invalidate(customerGroupsByDayProvider);
+                  ref.invalidate(futureCustomerGroupsProvider);
+                },
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: Card.outlined(
-                  color: baseColor.withAlpha(75),
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: baseColor, width: 2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          "${cg.name} - ${DateFormat("dd-MM-yyyy | hh:mm").format(cg.datetime)}",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: Card.outlined(
+                color: baseColor.withAlpha(75),
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(color: baseColor, width: 2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        "${cg.name} - ${DateFormat("dd-MM-yyyy | hh:mm").format(cg.datetime)}",
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      Divider(
+                        color: baseColor.withAlpha(200),
+                      ),
+                      Text("Bookings:"),
+                      bookings.isEmpty
+                          ? Text("No bookings assigned")
+                          : Wrap(
+                              children: bookings.map(
+                                (b) {
+                                  List<Customer> customers = ref
+                                          .watch(customersByBookingIdProvider(
+                                              b.id))
+                                          .value ??
+                                      [];
+                                  return Text(
+                                      "${b.name} - Customers: ${customers.length}");
+                                },
+                              ).toList(),
+                            ),
+                    ],
                   ),
                 ),
               ),
             ),
-          )
-          .toList(),
+          );
+        },
+      ).toList(),
     );
   }
 }
@@ -186,11 +230,13 @@ class ListBookings extends ConsumerWidget {
                   onBookingEdited: (nb) {
                     customerRepo.setBooking(nb);
                     ref.invalidate(bookingsByDayProvider);
+                    ref.invalidate(bookingsByCustomerGroupIdProvider);
                     ref.invalidate(futureBookingsProvider);
                   },
                   onCustomersEdited: (ncs) {
                     customerRepo.setCustomers(ncs);
                     ref.invalidate(bookingsByDayProvider);
+                    ref.invalidate(bookingsByCustomerGroupIdProvider);
                     ref.invalidate(futureBookingsProvider);
                   },
                 ),
