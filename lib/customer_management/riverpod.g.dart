@@ -888,6 +888,142 @@ class _BookingsByDayProviderElement
   DateTime get date => (origin as BookingsByDayProvider).date;
 }
 
+String _$bookingsByCustomerGroupIdHash() =>
+    r'd74bbb941e9fa3b549e5f93e785a3004a680363b';
+
+/// See also [bookingsByCustomerGroupId].
+@ProviderFor(bookingsByCustomerGroupId)
+const bookingsByCustomerGroupIdProvider = BookingsByCustomerGroupIdFamily();
+
+/// See also [bookingsByCustomerGroupId].
+class BookingsByCustomerGroupIdFamily
+    extends Family<AsyncValue<List<Booking>>> {
+  /// See also [bookingsByCustomerGroupId].
+  const BookingsByCustomerGroupIdFamily();
+
+  /// See also [bookingsByCustomerGroupId].
+  BookingsByCustomerGroupIdProvider call(
+    String id,
+  ) {
+    return BookingsByCustomerGroupIdProvider(
+      id,
+    );
+  }
+
+  @override
+  BookingsByCustomerGroupIdProvider getProviderOverride(
+    covariant BookingsByCustomerGroupIdProvider provider,
+  ) {
+    return call(
+      provider.id,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'bookingsByCustomerGroupIdProvider';
+}
+
+/// See also [bookingsByCustomerGroupId].
+class BookingsByCustomerGroupIdProvider
+    extends AutoDisposeStreamProvider<List<Booking>> {
+  /// See also [bookingsByCustomerGroupId].
+  BookingsByCustomerGroupIdProvider(
+    String id,
+  ) : this._internal(
+          (ref) => bookingsByCustomerGroupId(
+            ref as BookingsByCustomerGroupIdRef,
+            id,
+          ),
+          from: bookingsByCustomerGroupIdProvider,
+          name: r'bookingsByCustomerGroupIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$bookingsByCustomerGroupIdHash,
+          dependencies: BookingsByCustomerGroupIdFamily._dependencies,
+          allTransitiveDependencies:
+              BookingsByCustomerGroupIdFamily._allTransitiveDependencies,
+          id: id,
+        );
+
+  BookingsByCustomerGroupIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.id,
+  }) : super.internal();
+
+  final String id;
+
+  @override
+  Override overrideWith(
+    Stream<List<Booking>> Function(BookingsByCustomerGroupIdRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: BookingsByCustomerGroupIdProvider._internal(
+        (ref) => create(ref as BookingsByCustomerGroupIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        id: id,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<Booking>> createElement() {
+    return _BookingsByCustomerGroupIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is BookingsByCustomerGroupIdProvider && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, id.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin BookingsByCustomerGroupIdRef
+    on AutoDisposeStreamProviderRef<List<Booking>> {
+  /// The parameter `id` of this provider.
+  String get id;
+}
+
+class _BookingsByCustomerGroupIdProviderElement
+    extends AutoDisposeStreamProviderElement<List<Booking>>
+    with BookingsByCustomerGroupIdRef {
+  _BookingsByCustomerGroupIdProviderElement(super.provider);
+
+  @override
+  String get id => (origin as BookingsByCustomerGroupIdProvider).id;
+}
+
 String _$futureBookingsHash() => r'8aa08bdf72b5173934fe9528a56c67b01c6b8966';
 
 /// Returns the bookings without a customer group assigned, defaulting to 30 days from now.

@@ -139,6 +139,24 @@ Stream<List<Booking>> bookingsByDay(Ref ref, DateTime date) async* {
 }
 
 @riverpod
+Stream<List<Booking>> bookingsByCustomerGroupId(Ref ref, String id) async* {
+  String account = await ref.watch(accountProvider.future);
+  final db = FirebaseFirestore.instance;
+  var collection = db
+      .collection("accounts/$account/data/bookingManager/bookings")
+      .where("customerGroupId", isEqualTo: id);
+  yield* collection.snapshots().map(
+        (snapshot) => snapshot.docs
+            .map(
+              (doc) => Booking.fromJson(
+                doc.data(),
+              ),
+            )
+            .toList(),
+      );
+}
+
+@riverpod
 
 /// Returns the bookings without a customer group assigned, defaulting to 30 days from now.
 Stream<List<Booking>> futureBookings(Ref ref,

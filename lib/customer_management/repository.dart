@@ -22,6 +22,7 @@ class CustomerManagementRepository {
 
   /// Adds a new booking, or replaces it ENTIRELY if it already exists.
   Future<void> setBooking(Booking booking) async {
+    logger.debug("Called setBooking");
     String path =
         "accounts/$account/data/bookingManager/bookings/${booking.id}";
     var doc = _db.doc(path);
