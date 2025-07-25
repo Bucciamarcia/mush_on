@@ -23,23 +23,7 @@ final duplicateDogsProvider = AutoDisposeProvider<List<String>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DuplicateDogsRef = AutoDisposeProviderRef<List<String>>;
-String _$canPopTeamGroupHash() => r'c9af7216c65b52eed3154435651dc810e0585519';
-
-/// See also [CanPopTeamGroup].
-@ProviderFor(CanPopTeamGroup)
-final canPopTeamGroupProvider =
-    AutoDisposeNotifierProvider<CanPopTeamGroup, bool>.internal(
-  CanPopTeamGroup.new,
-  name: r'canPopTeamGroupProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$canPopTeamGroupHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
-String _$createTeamGroupHash() => r'317da1e66df7a985718c59fe316ae7c784730a06';
+String _$teamGroupByIdHash() => r'ca49231cdd446e8faf4c75c00cbb7a653c0d393e';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -61,6 +45,152 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+/// See also [teamGroupById].
+@ProviderFor(teamGroupById)
+const teamGroupByIdProvider = TeamGroupByIdFamily();
+
+/// See also [teamGroupById].
+class TeamGroupByIdFamily extends Family<AsyncValue<TeamGroup?>> {
+  /// See also [teamGroupById].
+  const TeamGroupByIdFamily();
+
+  /// See also [teamGroupById].
+  TeamGroupByIdProvider call(
+    String id,
+  ) {
+    return TeamGroupByIdProvider(
+      id,
+    );
+  }
+
+  @override
+  TeamGroupByIdProvider getProviderOverride(
+    covariant TeamGroupByIdProvider provider,
+  ) {
+    return call(
+      provider.id,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'teamGroupByIdProvider';
+}
+
+/// See also [teamGroupById].
+class TeamGroupByIdProvider extends AutoDisposeFutureProvider<TeamGroup?> {
+  /// See also [teamGroupById].
+  TeamGroupByIdProvider(
+    String id,
+  ) : this._internal(
+          (ref) => teamGroupById(
+            ref as TeamGroupByIdRef,
+            id,
+          ),
+          from: teamGroupByIdProvider,
+          name: r'teamGroupByIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$teamGroupByIdHash,
+          dependencies: TeamGroupByIdFamily._dependencies,
+          allTransitiveDependencies:
+              TeamGroupByIdFamily._allTransitiveDependencies,
+          id: id,
+        );
+
+  TeamGroupByIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.id,
+  }) : super.internal();
+
+  final String id;
+
+  @override
+  Override overrideWith(
+    FutureOr<TeamGroup?> Function(TeamGroupByIdRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: TeamGroupByIdProvider._internal(
+        (ref) => create(ref as TeamGroupByIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        id: id,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<TeamGroup?> createElement() {
+    return _TeamGroupByIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TeamGroupByIdProvider && other.id == id;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, id.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin TeamGroupByIdRef on AutoDisposeFutureProviderRef<TeamGroup?> {
+  /// The parameter `id` of this provider.
+  String get id;
+}
+
+class _TeamGroupByIdProviderElement
+    extends AutoDisposeFutureProviderElement<TeamGroup?> with TeamGroupByIdRef {
+  _TeamGroupByIdProviderElement(super.provider);
+
+  @override
+  String get id => (origin as TeamGroupByIdProvider).id;
+}
+
+String _$canPopTeamGroupHash() => r'c9af7216c65b52eed3154435651dc810e0585519';
+
+/// See also [CanPopTeamGroup].
+@ProviderFor(CanPopTeamGroup)
+final canPopTeamGroupProvider =
+    AutoDisposeNotifierProvider<CanPopTeamGroup, bool>.internal(
+  CanPopTeamGroup.new,
+  name: r'canPopTeamGroupProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$canPopTeamGroupHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
+String _$createTeamGroupHash() => r'317da1e66df7a985718c59fe316ae7c784730a06';
 
 abstract class _$CreateTeamGroup
     extends BuildlessAutoDisposeNotifier<TeamGroup> {
