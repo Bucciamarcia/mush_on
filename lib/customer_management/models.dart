@@ -34,6 +34,9 @@ sealed class Customer with _$Customer {
 
     /// Does this customer want to drive the sled? Must be false for minors.
     @Default(true) bool isDriving,
+
+    /// The team Id this customer will go on.
+    String? teamId,
   }) = _Customer;
 
   factory Customer.fromJson(Map<String, dynamic> json) =>

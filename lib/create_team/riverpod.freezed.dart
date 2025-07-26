@@ -35,6 +35,9 @@ mixin _$TeamGroupWorkspace {
       _$TeamGroupWorkspaceCopyWithImpl<TeamGroupWorkspace>(
           this as TeamGroupWorkspace, _$identity);
 
+  /// Serializes this TeamGroupWorkspace to a JSON map.
+  Map<String, dynamic> toJson();
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
@@ -49,6 +52,7 @@ mixin _$TeamGroupWorkspace {
             const DeepCollectionEquality().equals(other.teams, teams));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes,
       const DeepCollectionEquality().hash(teams));
@@ -124,7 +128,7 @@ class _$TeamGroupWorkspaceCopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _TeamGroupWorkspace implements TeamGroupWorkspace {
   const _TeamGroupWorkspace(
       {this.id = "",
@@ -134,6 +138,8 @@ class _TeamGroupWorkspace implements TeamGroupWorkspace {
       this.notes = "",
       final List<TeamWorkspace> teams = const []})
       : _teams = teams;
+  factory _TeamGroupWorkspace.fromJson(Map<String, dynamic> json) =>
+      _$TeamGroupWorkspaceFromJson(json);
 
   @override
   @JsonKey()
@@ -172,6 +178,13 @@ class _TeamGroupWorkspace implements TeamGroupWorkspace {
       __$TeamGroupWorkspaceCopyWithImpl<_TeamGroupWorkspace>(this, _$identity);
 
   @override
+  Map<String, dynamic> toJson() {
+    return _$TeamGroupWorkspaceToJson(
+      this,
+    );
+  }
+
+  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
@@ -185,6 +198,7 @@ class _TeamGroupWorkspace implements TeamGroupWorkspace {
             const DeepCollectionEquality().equals(other._teams, _teams));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes,
       const DeepCollectionEquality().hash(_teams));
@@ -275,6 +289,9 @@ mixin _$TeamWorkspace {
       _$TeamWorkspaceCopyWithImpl<TeamWorkspace>(
           this as TeamWorkspace, _$identity);
 
+  /// Serializes this TeamWorkspace to a JSON map.
+  Map<String, dynamic> toJson();
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
@@ -285,6 +302,7 @@ mixin _$TeamWorkspace {
             const DeepCollectionEquality().equals(other.dogPairs, dogPairs));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, name, id, const DeepCollectionEquality().hash(dogPairs));
@@ -339,13 +357,15 @@ class _$TeamWorkspaceCopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _TeamWorkspace implements TeamWorkspace {
   const _TeamWorkspace(
       {this.name = "",
       required this.id,
       final List<DogPairWorkspace> dogPairs = const []})
       : _dogPairs = dogPairs;
+  factory _TeamWorkspace.fromJson(Map<String, dynamic> json) =>
+      _$TeamWorkspaceFromJson(json);
 
   @override
   @JsonKey()
@@ -370,6 +390,13 @@ class _TeamWorkspace implements TeamWorkspace {
       __$TeamWorkspaceCopyWithImpl<_TeamWorkspace>(this, _$identity);
 
   @override
+  Map<String, dynamic> toJson() {
+    return _$TeamWorkspaceToJson(
+      this,
+    );
+  }
+
+  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
@@ -379,6 +406,7 @@ class _TeamWorkspace implements TeamWorkspace {
             const DeepCollectionEquality().equals(other._dogPairs, _dogPairs));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType, name, id, const DeepCollectionEquality().hash(_dogPairs));
@@ -448,6 +476,9 @@ mixin _$DogPairWorkspace {
       _$DogPairWorkspaceCopyWithImpl<DogPairWorkspace>(
           this as DogPairWorkspace, _$identity);
 
+  /// Serializes this DogPairWorkspace to a JSON map.
+  Map<String, dynamic> toJson();
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
@@ -460,6 +491,7 @@ mixin _$DogPairWorkspace {
             (identical(other.id, id) || other.id == id));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, firstDogId, secondDogId, id);
 
@@ -513,10 +545,12 @@ class _$DogPairWorkspaceCopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _DogPairWorkspace implements DogPairWorkspace {
   const _DogPairWorkspace(
       {this.firstDogId, this.secondDogId, required this.id});
+  factory _DogPairWorkspace.fromJson(Map<String, dynamic> json) =>
+      _$DogPairWorkspaceFromJson(json);
 
   @override
   final String? firstDogId;
@@ -534,6 +568,13 @@ class _DogPairWorkspace implements DogPairWorkspace {
       __$DogPairWorkspaceCopyWithImpl<_DogPairWorkspace>(this, _$identity);
 
   @override
+  Map<String, dynamic> toJson() {
+    return _$DogPairWorkspaceToJson(
+      this,
+    );
+  }
+
+  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
@@ -545,6 +586,7 @@ class _DogPairWorkspace implements DogPairWorkspace {
             (identical(other.id, id) || other.id == id));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, firstDogId, secondDogId, id);
 

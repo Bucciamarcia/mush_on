@@ -40,6 +40,9 @@ mixin _$Customer {
   /// Does this customer want to drive the sled? Must be false for minors.
   bool get isDriving;
 
+  /// The team Id this customer will go on.
+  String? get teamId;
+
   /// Create a copy of Customer
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -65,17 +68,18 @@ mixin _$Customer {
                 other.isSingleDriver == isSingleDriver) &&
             (identical(other.weight, weight) || other.weight == weight) &&
             (identical(other.isDriving, isDriving) ||
-                other.isDriving == isDriving));
+                other.isDriving == isDriving) &&
+            (identical(other.teamId, teamId) || other.teamId == teamId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, bookingId, name, email, age,
-      isSingleDriver, weight, isDriving);
+      isSingleDriver, weight, isDriving, teamId);
 
   @override
   String toString() {
-    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, isSingleDriver: $isSingleDriver, weight: $weight, isDriving: $isDriving)';
+    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, isSingleDriver: $isSingleDriver, weight: $weight, isDriving: $isDriving, teamId: $teamId)';
   }
 }
 
@@ -92,7 +96,8 @@ abstract mixin class $CustomerCopyWith<$Res> {
       int? age,
       bool isSingleDriver,
       int? weight,
-      bool isDriving});
+      bool isDriving,
+      String? teamId});
 }
 
 /// @nodoc
@@ -115,6 +120,7 @@ class _$CustomerCopyWithImpl<$Res> implements $CustomerCopyWith<$Res> {
     Object? isSingleDriver = null,
     Object? weight = freezed,
     Object? isDriving = null,
+    Object? teamId = freezed,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -149,6 +155,10 @@ class _$CustomerCopyWithImpl<$Res> implements $CustomerCopyWith<$Res> {
           ? _self.isDriving
           : isDriving // ignore: cast_nullable_to_non_nullable
               as bool,
+      teamId: freezed == teamId
+          ? _self.teamId
+          : teamId // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -164,7 +174,8 @@ class _Customer implements Customer {
       this.age,
       this.isSingleDriver = false,
       this.weight,
-      this.isDriving = true});
+      this.isDriving = true,
+      this.teamId});
   factory _Customer.fromJson(Map<String, dynamic> json) =>
       _$CustomerFromJson(json);
 
@@ -204,6 +215,10 @@ class _Customer implements Customer {
   @JsonKey()
   final bool isDriving;
 
+  /// The team Id this customer will go on.
+  @override
+  final String? teamId;
+
   /// Create a copy of Customer
   /// with the given fields replaced by the non-null parameter values.
   @override
@@ -234,17 +249,18 @@ class _Customer implements Customer {
                 other.isSingleDriver == isSingleDriver) &&
             (identical(other.weight, weight) || other.weight == weight) &&
             (identical(other.isDriving, isDriving) ||
-                other.isDriving == isDriving));
+                other.isDriving == isDriving) &&
+            (identical(other.teamId, teamId) || other.teamId == teamId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, bookingId, name, email, age,
-      isSingleDriver, weight, isDriving);
+      isSingleDriver, weight, isDriving, teamId);
 
   @override
   String toString() {
-    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, isSingleDriver: $isSingleDriver, weight: $weight, isDriving: $isDriving)';
+    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, isSingleDriver: $isSingleDriver, weight: $weight, isDriving: $isDriving, teamId: $teamId)';
   }
 }
 
@@ -263,7 +279,8 @@ abstract mixin class _$CustomerCopyWith<$Res>
       int? age,
       bool isSingleDriver,
       int? weight,
-      bool isDriving});
+      bool isDriving,
+      String? teamId});
 }
 
 /// @nodoc
@@ -286,6 +303,7 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
     Object? isSingleDriver = null,
     Object? weight = freezed,
     Object? isDriving = null,
+    Object? teamId = freezed,
   }) {
     return _then(_Customer(
       id: null == id
@@ -320,6 +338,10 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
           ? _self.isDriving
           : isDriving // ignore: cast_nullable_to_non_nullable
               as bool,
+      teamId: freezed == teamId
+          ? _self.teamId
+          : teamId // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }

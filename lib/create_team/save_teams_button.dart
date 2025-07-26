@@ -5,14 +5,15 @@ import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/models.dart';
 
 class SaveTeamsButton extends ConsumerWidget {
-  final TeamGroup teamGroup;
+  final TeamGroupWorkspace newtg;
+  final TeamGroupWorkspace oldtg;
   static final BasicLogger logger = BasicLogger();
   const SaveTeamsButton({
     super.key,
-    required this.teamGroup,
+    required this.oldtg,
+    required this.newtg,
   });
 
   @override
@@ -21,7 +22,7 @@ class SaveTeamsButton extends ConsumerWidget {
       onPressed: () async {
         try {
           String account = await ref.watch(accountProvider.future);
-          saveToDb(teamGroup, account);
+          saveToDb(newtg, oldtg, account);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -50,31 +51,70 @@ class SaveTeamsButton extends ConsumerWidget {
     );
   }
 
-  Future<void> saveToDb(TeamGroup teamGroup, String account) async {
-    try {
-      DateTime utcDate = teamGroup.date.toUtc();
-      DateTime dateTimeNoSeconds = DateTime.utc(utcDate.year, utcDate.month,
-          utcDate.day, utcDate.hour, utcDate.minute);
-      final FirebaseFirestore db = FirebaseFirestore.instance;
-      List<Map<String, dynamic>> cleanTeams =
-          _modifyTeamsForDb(teamGroup.teams);
-      var data = {
-        "date": dateTimeNoSeconds,
-        "name": teamGroup.name,
-        "notes": teamGroup.notes,
-        "teams": cleanTeams,
-        "distance": teamGroup.distance,
-        "id": teamGroup.id
-      };
-      String path = "accounts/$account/data/teams/history";
-
-      var ref = db.collection(path).doc(teamGroup.id);
-      ref.set(data);
-      await _removeCustomerGroups(teamGroup.id, account, dateTimeNoSeconds);
-    } catch (e, s) {
-      logger.error("Error in saving to db", error: e, stackTrace: s);
-      rethrow;
+  Future<void> saveToDb(TeamGroupWorkspace newtg, TeamGroupWorkspace oldtg,
+      String account) async {
+    if (newtg == oldtg) {
+      logger.info("New tg equals old tg, no update necessary");
+      return;
     }
+    if (newtg.date != oldtg.date) {
+      _removeCustomerGroups(newtg.id, account, newtg.date);
+    }
+
+    final db = FirebaseFirestore.instance;
+    var batch = db.batch();
+    var newtgObject = newtg.toJson();
+    newtgObject.remove("teams");
+    var oldtgObject = oldtg.toJson();
+    oldtgObject.remove("teams");
+
+    // Updates teamgroup
+    if (newtgObject != oldtgObject) {
+      batch.set(db.doc("accounts/$account/data/teams/history/${newtg.id}"),
+          newtgObject);
+    }
+
+    var oldteamsObject = [];
+    for (var (i, team) in oldtg.teams.indexed) {
+      var tempobj = team.toJson();
+      tempobj.addAll({"index": i});
+      oldteamsObject.add(tempobj);
+    }
+    var newteamsObject = [];
+    for (var (i, team) in newtg.teams.indexed) {
+      var tempobj = team.toJson();
+      tempobj.addAll({"index": i});
+      newteamsObject.add(tempobj);
+    }
+    if (oldteamsObject != newteamsObject) {
+      // First, delete all teams and their dogpairs.
+      for (var team in oldtg.teams) {
+        batch.delete(db.doc(
+            "accounts/$account/data/teams/history/${oldtg.id}/teams/${team.id}"));
+        // Delete all dogpairs for this team
+        for (var dogPair in team.dogPairs) {
+          batch.delete(db.doc(
+              "accounts/$account/data/teams/history/${oldtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"));
+        }
+      }
+      // Then re-set them all.
+      for (var team in newtg.teams) {
+        batch.set(
+            db.doc(
+                "accounts/$account/data/teams/history/${oldtg.id}/teams/${team.id}"),
+            newteamsObject.firstWhere((o) => o["id"] == team.id));
+        // Re-set all dogpairs for this team
+        for (var (i, dogPair) in team.dogPairs.indexed) {
+          var dogPairData = dogPair.toJson();
+          dogPairData.addAll({"rank": i});
+          batch.set(
+              db.doc(
+                  "accounts/$account/data/teams/history/${oldtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"),
+              dogPairData);
+        }
+      }
+    }
+    batch.commit();
   }
 
   Future<void> _removeCustomerGroups(
@@ -104,43 +144,6 @@ class SaveTeamsButton extends ConsumerWidget {
       }
     }
     await batch.commit();
-  }
-
-  List<Map<String, dynamic>> _modifyTeamsForDb(List<Team> teams) {
-    if (teams.isEmpty == true) {
-      logger.warning("Teams is empty in modifyTeamsForDb");
-    }
-    List<Map<String, dynamic>> cleanTeams = [];
-
-    try {
-      for (int i = 0; i < teams.length; i++) {
-        Team team = teams[i];
-
-        // Create a new map for this team
-        Map<String, dynamic> cleanTeam = {};
-        cleanTeam["name"] = team.name;
-        cleanTeam["dogs"] = {};
-
-        List<DogPair> dogs = team.dogPairs;
-        for (int j = 0; j < dogs.length; j++) {
-          var dogsRow = dogs[j];
-
-          // Create the nested map structure
-          cleanTeam["dogs"]["row_$j"] = {
-            "position_1": dogsRow.firstDogId,
-            "position_2": dogsRow.secondDogId
-          };
-        }
-
-        // Add the completed team to the cleanTeams list
-        cleanTeams.add(cleanTeam);
-      }
-    } catch (e, s) {
-      logger.error("Can't loop through teams", error: e, stackTrace: s);
-      rethrow;
-    }
-
-    return cleanTeams;
   }
 
   Future<QuerySnapshot<Object?>> doesTeamExist(DateTime newDate) async {

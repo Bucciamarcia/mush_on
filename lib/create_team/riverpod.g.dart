@@ -3,6 +3,64 @@
 part of 'riverpod.dart';
 
 // **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_TeamGroupWorkspace _$TeamGroupWorkspaceFromJson(Map<String, dynamic> json) =>
+    _TeamGroupWorkspace(
+      id: json['id'] as String? ?? "",
+      name: json['name'] as String? ?? "",
+      date: DateTime.parse(json['date'] as String),
+      distance: (json['distance'] as num?)?.toDouble() ?? 0,
+      notes: json['notes'] as String? ?? "",
+      teams: (json['teams'] as List<dynamic>?)
+              ?.map((e) => TeamWorkspace.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$TeamGroupWorkspaceToJson(_TeamGroupWorkspace instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'date': instance.date.toIso8601String(),
+      'distance': instance.distance,
+      'notes': instance.notes,
+      'teams': instance.teams,
+    };
+
+_TeamWorkspace _$TeamWorkspaceFromJson(Map<String, dynamic> json) =>
+    _TeamWorkspace(
+      name: json['name'] as String? ?? "",
+      id: json['id'] as String,
+      dogPairs: (json['dogPairs'] as List<dynamic>?)
+              ?.map((e) => DogPairWorkspace.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+    );
+
+Map<String, dynamic> _$TeamWorkspaceToJson(_TeamWorkspace instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'id': instance.id,
+      'dogPairs': instance.dogPairs,
+    };
+
+_DogPairWorkspace _$DogPairWorkspaceFromJson(Map<String, dynamic> json) =>
+    _DogPairWorkspace(
+      firstDogId: json['firstDogId'] as String?,
+      secondDogId: json['secondDogId'] as String?,
+      id: json['id'] as String,
+    );
+
+Map<String, dynamic> _$DogPairWorkspaceToJson(_DogPairWorkspace instance) =>
+    <String, dynamic>{
+      'firstDogId': instance.firstDogId,
+      'secondDogId': instance.secondDogId,
+      'id': instance.id,
+    };
+
+// **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
