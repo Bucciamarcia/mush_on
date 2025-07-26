@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
+import 'package:mush_on/create_team/riverpod.dart';
 
 class DateTimeDistancePicker extends StatefulWidget {
-  final TeamGroup teamGroup;
+  final TeamGroupWorkspace teamGroup;
   final Function(DateTime) onDateChanged;
   final Function(double) onDistanceChanged;
   const DateTimeDistancePicker({

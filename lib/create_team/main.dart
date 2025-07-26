@@ -78,7 +78,11 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
 
   @override
   Widget build(BuildContext context) {
-    var teamGroup = ref.watch(createTeamGroupProvider(widget.loadedTeam));
+    TeamGroupWorkspace teamGroup =
+        ref.watch(createTeamGroupProvider(widget.loadedTeam));
+
+    /// Original teamgroup, used to check if db needs updating.
+    TeamGroupWorkspace oldTeamGroup = teamGroup.copyWith();
     if (customerGroups.isEmpty) {
       customerGroups =
           ref.watch(customerGroupsForTeamgroupProvider(teamGroup.id)).value ??
@@ -209,16 +213,19 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
             },
             child: Text("Copy team group"),
           ),
-          SaveTeamsButton(teamGroup: teamGroup),
+          SaveTeamsButton(
+            newtg: teamGroup,
+            oldtg: oldTeamGroup,
+          ),
         ],
       ),
     );
   }
 
-  String createTeamsString(TeamGroup group) {
+  String createTeamsString(TeamGroupWorkspace group) {
     String stringTeams = "${group.name}\n\n";
     stringTeams = "$stringTeams${group.notes}\n\n";
-    for (Team team in group.teams) {
+    for (TeamWorkspace team in group.teams) {
       stringTeams = stringTeams + _stringifyTeam(team);
       stringTeams = "$stringTeams\n";
     }
@@ -226,16 +233,16 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
     return stringTeams;
   }
 
-  String _stringifyTeam(Team team) {
+  String _stringifyTeam(TeamWorkspace team) {
     String streamTeam = team.name;
     String dogPairs = _stringifyDogPairs(team.dogPairs);
     return "$streamTeam$dogPairs\n";
   }
 
-  String _stringifyDogPairs(List<DogPair> teamDogs) {
+  String _stringifyDogPairs(List<DogPairWorkspace> teamDogs) {
     List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
     String dogList = "";
-    for (DogPair dogPair in teamDogs) {
+    for (DogPairWorkspace dogPair in teamDogs) {
       dogList =
           "$dogList\n${allDogs.getAllDogsById()[dogPair.firstDogId]?.name ?? ""} - ${allDogs.getAllDogsById()[dogPair.secondDogId]?.name ?? ""}";
     }
@@ -247,7 +254,7 @@ class TeamRetriever extends StatefulWidget {
   final int teamNumber;
   final List<Dog> dogs;
   final List<String> runningDogs;
-  final List<Team> teams;
+  final List<TeamWorkspace> teams;
   final List<DogNote> notes;
   final Function(DogSelection) onDogSelected;
   final Function(int, String) onTeamNameChanged;
@@ -279,7 +286,7 @@ class PairRetriever extends StatelessWidget {
   static final BasicLogger logger = BasicLogger();
   final int teamNumber;
   final int rowNumber;
-  final List<Team> teams;
+  final List<TeamWorkspace> teams;
   final List<Dog> dogs;
   final List<String> runningDogs;
   final List<DogNote> notes;

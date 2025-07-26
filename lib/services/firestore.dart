@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -170,15 +171,40 @@ class DogsDbOperations {
     return toReturn;
   }
 
-  Future<List<TeamGroup>> getTeamgroups(
-      DateTime? cutoff, String account) async {
-    cutoff ??= DateTime.now().toUtc().subtract(Duration(days: 30));
-    String path = "accounts/$account/data/teams/history";
-    var ref = db.collection(path);
-    var snapshot =
-        await ref.where("date", isGreaterThanOrEqualTo: cutoff).get();
-    var docs = snapshot.docs;
-    return docs.map((var doc) => TeamGroup.fromJson(doc.data())).toList();
+  Future<TeamGroupWorkspace> getTeamGroupWorkspace(
+      {required String account, required String id}) async {
+    var doc = db.doc("accounts/$account/data/teams/history/$id");
+    var snapshot = await doc.get();
+    var tg = snapshot.data() ?? {};
+    var toReturn = TeamGroupWorkspace.fromJson(tg);
+
+    // Now get the teams with its dogpairs.
+    var collection = db
+        .collection("accounts/$account/data/teams/history/$id/teams")
+        .orderBy("rank");
+    var teamsSnapshot = await collection.get();
+    var teamsDocs = teamsSnapshot.docs;
+    List<TeamWorkspace> teams = [];
+    for (var team in teamsDocs) {
+      var tempTeam = TeamWorkspace.fromJson(team.data());
+
+      // Now handle all its dogpairs
+      var dpCollection = db
+          .collection(
+              "accounts/$account/data/teams/history/$id/teams/${tempTeam.id}/dogPairs")
+          .orderBy("rank");
+      var dpSnapshot = await dpCollection.get();
+      var dpDocs = dpSnapshot.docs;
+      for (var dp in dpDocs) {
+        tempTeam = tempTeam.copyWith(dogPairs: [
+          ...tempTeam.dogPairs,
+          DogPairWorkspace.fromJson(dp.data())
+        ]);
+      }
+      teams = [...teams, tempTeam];
+    }
+    toReturn = toReturn.copyWith(teams: teams);
+    return toReturn;
   }
 
   Future<void> updateDogPositions(

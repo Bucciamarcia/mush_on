@@ -25,6 +25,8 @@ sealed class TeamGroupWorkspace with _$TeamGroupWorkspace {
     @Default("") String notes,
     @Default([]) List<TeamWorkspace> teams,
   }) = _TeamGroupWorkspace;
+  factory TeamGroupWorkspace.fromJson(Map<String, dynamic> json) =>
+      _$TeamGroupWorkspaceFromJson(json);
 }
 
 @freezed
@@ -34,6 +36,8 @@ sealed class TeamWorkspace with _$TeamWorkspace {
     required String id,
     @Default([]) List<DogPairWorkspace> dogPairs,
   }) = _TeamWorkspace;
+  factory TeamWorkspace.fromJson(Map<String, dynamic> json) =>
+      _$TeamWorkspaceFromJson(json);
 }
 
 @freezed
@@ -43,6 +47,8 @@ sealed class DogPairWorkspace with _$DogPairWorkspace {
     String? secondDogId,
     required String id,
   }) = _DogPairWorkspace;
+  factory DogPairWorkspace.fromJson(Map<String, dynamic> json) =>
+      _$DogPairWorkspaceFromJson(json);
 }
 
 @riverpod
