@@ -7,6 +7,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/riverpod/teamgroup.dart';
 import 'package:mush_on/shared/dog_filter/date_range_picker/main.dart';
 import 'package:mush_on/stats/grid_row_processor.dart';
 import 'package:mush_on/stats/insights/models.dart';
@@ -49,7 +50,7 @@ class InsightsMain extends ConsumerWidget {
             teamGroup.date.isBefore(dateRange.endDate.add(Duration(days: 1))))
         .toList();
     Map<String, List<DogDailyStats>> dogDailyStats =
-        _getDogDailyStats(dogs, filteredTeamGroups);
+        _getDogDailyStats(dogs, filteredTeamGroups, ref);
     List<DataGridRow> insightsData = ref.watch(insightsDataProvider(
         dogs: dogs,
         dateRange: dateRange,
@@ -241,7 +242,7 @@ class InsightsMain extends ConsumerWidget {
   }
 
   Map<String, List<DogDailyStats>> _getDogDailyStats(
-      List<Dog> dogs, List<TeamGroup> teamGroups) {
+      List<Dog> dogs, List<TeamGroup> teamGroups, WidgetRef ref) {
     Map<String, Map<DateTime, double>> tempDailyDistances = {
       for (var dog in dogs) dog.id: {}
     };
@@ -249,8 +250,13 @@ class InsightsMain extends ConsumerWidget {
     for (final teamGroup in teamGroups) {
       final day = DateTime(
           teamGroup.date.year, teamGroup.date.month, teamGroup.date.day);
-      for (final team in teamGroup.teams) {
-        for (final pair in team.dogPairs) {
+      List<Team> teams =
+          ref.watch(teamsInTeamgroupProvider(teamGroup.id)).value ?? [];
+      for (final team in teams) {
+        List<DogPair> dogPairs =
+            ref.watch(dogPairsInTeamProvider(teamGroup.id, team.id)).value ??
+                [];
+        for (final pair in dogPairs) {
           if (pair.firstDogId != null) {
             tempDailyDistances[pair.firstDogId]?[day] =
                 (tempDailyDistances[pair.firstDogId]![day] ?? 0) +

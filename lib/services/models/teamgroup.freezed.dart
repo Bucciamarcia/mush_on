@@ -26,8 +26,6 @@ mixin _$TeamGroup {
   /// Used for stats.
   double get distance;
   String get notes;
-  @JsonKey(fromJson: _teamsFromJson, toJson: _teamsToJson)
-  List<Team> get teams;
 
   /// Create a copy of TeamGroup
   /// with the given fields replaced by the non-null parameter values.
@@ -49,18 +47,16 @@ mixin _$TeamGroup {
             (identical(other.date, date) || other.date == date) &&
             (identical(other.distance, distance) ||
                 other.distance == distance) &&
-            (identical(other.notes, notes) || other.notes == notes) &&
-            const DeepCollectionEquality().equals(other.teams, teams));
+            (identical(other.notes, notes) || other.notes == notes));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes,
-      const DeepCollectionEquality().hash(teams));
+  int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes);
 
   @override
   String toString() {
-    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, teams: $teams)';
+    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes)';
   }
 }
 
@@ -74,9 +70,7 @@ abstract mixin class $TeamGroupCopyWith<$Res> {
       String name,
       @NonNullableTimestampConverter() DateTime date,
       double distance,
-      String notes,
-      @JsonKey(fromJson: _teamsFromJson, toJson: _teamsToJson)
-      List<Team> teams});
+      String notes});
 }
 
 /// @nodoc
@@ -96,7 +90,6 @@ class _$TeamGroupCopyWithImpl<$Res> implements $TeamGroupCopyWith<$Res> {
     Object? date = null,
     Object? distance = null,
     Object? notes = null,
-    Object? teams = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -119,10 +112,6 @@ class _$TeamGroupCopyWithImpl<$Res> implements $TeamGroupCopyWith<$Res> {
           ? _self.notes
           : notes // ignore: cast_nullable_to_non_nullable
               as String,
-      teams: null == teams
-          ? _self.teams
-          : teams // ignore: cast_nullable_to_non_nullable
-              as List<Team>,
     ));
   }
 }
@@ -136,11 +125,8 @@ class _TeamGroup extends TeamGroup {
       this.name = "",
       @NonNullableTimestampConverter() required this.date,
       this.distance = 0,
-      this.notes = "",
-      @JsonKey(fromJson: _teamsFromJson, toJson: _teamsToJson)
-      final List<Team> teams = const []})
-      : _teams = teams,
-        super._();
+      this.notes = ""})
+      : super._();
   factory _TeamGroup.fromJson(Map<String, dynamic> json) =>
       _$TeamGroupFromJson(json);
 
@@ -164,14 +150,6 @@ class _TeamGroup extends TeamGroup {
   @override
   @JsonKey()
   final String notes;
-  final List<Team> _teams;
-  @override
-  @JsonKey(fromJson: _teamsFromJson, toJson: _teamsToJson)
-  List<Team> get teams {
-    if (_teams is EqualUnmodifiableListView) return _teams;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_teams);
-  }
 
   /// Create a copy of TeamGroup
   /// with the given fields replaced by the non-null parameter values.
@@ -198,18 +176,16 @@ class _TeamGroup extends TeamGroup {
             (identical(other.date, date) || other.date == date) &&
             (identical(other.distance, distance) ||
                 other.distance == distance) &&
-            (identical(other.notes, notes) || other.notes == notes) &&
-            const DeepCollectionEquality().equals(other._teams, _teams));
+            (identical(other.notes, notes) || other.notes == notes));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes,
-      const DeepCollectionEquality().hash(_teams));
+  int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes);
 
   @override
   String toString() {
-    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, teams: $teams)';
+    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes)';
   }
 }
 
@@ -226,9 +202,7 @@ abstract mixin class _$TeamGroupCopyWith<$Res>
       String name,
       @NonNullableTimestampConverter() DateTime date,
       double distance,
-      String notes,
-      @JsonKey(fromJson: _teamsFromJson, toJson: _teamsToJson)
-      List<Team> teams});
+      String notes});
 }
 
 /// @nodoc
@@ -248,7 +222,6 @@ class __$TeamGroupCopyWithImpl<$Res> implements _$TeamGroupCopyWith<$Res> {
     Object? date = null,
     Object? distance = null,
     Object? notes = null,
-    Object? teams = null,
   }) {
     return _then(_TeamGroup(
       id: null == id
@@ -271,10 +244,6 @@ class __$TeamGroupCopyWithImpl<$Res> implements _$TeamGroupCopyWith<$Res> {
           ? _self.notes
           : notes // ignore: cast_nullable_to_non_nullable
               as String,
-      teams: null == teams
-          ? _self._teams
-          : teams // ignore: cast_nullable_to_non_nullable
-              as List<Team>,
     ));
   }
 }

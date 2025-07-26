@@ -1,34 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/riverpod/teamgroup.dart';
 
-class FormatObject extends StatelessWidget {
+class FormatObject extends ConsumerWidget {
   final TeamGroup item;
   final Map<String, Dog> dogIdMaps;
   const FormatObject(this.item, this.dogIdMaps, {super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
       width: double.infinity,
       child: Text(
-        formatMap(),
+        formatMap(ref),
         textAlign: TextAlign.left,
       ),
     );
   }
 
-  String formatMap() {
-    List<Team> teams = item.teams;
+  String formatMap(WidgetRef ref) {
+    List<Team> teams = ref.watch(teamsInTeamgroupProvider(item.id)).value ?? [];
     String toReturn = item.name;
     for (Team teamItem in teams) {
-      toReturn = "$toReturn\n\n${processTeam(teamItem)}";
+      toReturn = "$toReturn\n\n${processTeam(teamItem, ref)}";
     }
     return toReturn;
   }
 
-  String processTeam(Team team) {
+  String processTeam(Team team, WidgetRef ref) {
     String teamString = team.name;
-    List<DogPair> teamDogs = team.dogPairs;
+    List<DogPair> teamDogs =
+        ref.watch(dogPairsInTeamProvider(item.id, team.id)).value ?? [];
 
     for (DogPair pair in teamDogs) {
       String position_1 = "";

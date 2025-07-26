@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$distanceWarningsHash() => r'2e754f757fa579758e25ddb006e47f114cced58a';
+String _$distanceWarningsHash() => r'40b6f90c1204f45e05e93eddcd695cee1be121c7';
 
 /// Copied from Dart SDK
 class _SystemHash {

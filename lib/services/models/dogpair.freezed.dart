@@ -17,6 +17,8 @@ T _$identity<T>(T value) => value;
 mixin _$DogPair {
   String? get firstDogId;
   String? get secondDogId;
+  String get id;
+  int get rank;
 
   /// Create a copy of DogPair
   /// with the given fields replaced by the non-null parameter values.
@@ -36,16 +38,19 @@ mixin _$DogPair {
             (identical(other.firstDogId, firstDogId) ||
                 other.firstDogId == firstDogId) &&
             (identical(other.secondDogId, secondDogId) ||
-                other.secondDogId == secondDogId));
+                other.secondDogId == secondDogId) &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.rank, rank) || other.rank == rank));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, firstDogId, secondDogId);
+  int get hashCode =>
+      Object.hash(runtimeType, firstDogId, secondDogId, id, rank);
 
   @override
   String toString() {
-    return 'DogPair(firstDogId: $firstDogId, secondDogId: $secondDogId)';
+    return 'DogPair(firstDogId: $firstDogId, secondDogId: $secondDogId, id: $id, rank: $rank)';
   }
 }
 
@@ -54,7 +59,7 @@ abstract mixin class $DogPairCopyWith<$Res> {
   factory $DogPairCopyWith(DogPair value, $Res Function(DogPair) _then) =
       _$DogPairCopyWithImpl;
   @useResult
-  $Res call({String? firstDogId, String? secondDogId});
+  $Res call({String? firstDogId, String? secondDogId, String id, int rank});
 }
 
 /// @nodoc
@@ -71,6 +76,8 @@ class _$DogPairCopyWithImpl<$Res> implements $DogPairCopyWith<$Res> {
   $Res call({
     Object? firstDogId = freezed,
     Object? secondDogId = freezed,
+    Object? id = null,
+    Object? rank = null,
   }) {
     return _then(_self.copyWith(
       firstDogId: freezed == firstDogId
@@ -81,6 +88,14 @@ class _$DogPairCopyWithImpl<$Res> implements $DogPairCopyWith<$Res> {
           ? _self.secondDogId
           : secondDogId // ignore: cast_nullable_to_non_nullable
               as String?,
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      rank: null == rank
+          ? _self.rank
+          : rank // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -88,7 +103,9 @@ class _$DogPairCopyWithImpl<$Res> implements $DogPairCopyWith<$Res> {
 /// @nodoc
 @JsonSerializable()
 class _DogPair extends DogPair {
-  const _DogPair({this.firstDogId, this.secondDogId}) : super._();
+  const _DogPair(
+      {this.firstDogId, this.secondDogId, required this.id, required this.rank})
+      : super._();
   factory _DogPair.fromJson(Map<String, dynamic> json) =>
       _$DogPairFromJson(json);
 
@@ -96,6 +113,10 @@ class _DogPair extends DogPair {
   final String? firstDogId;
   @override
   final String? secondDogId;
+  @override
+  final String id;
+  @override
+  final int rank;
 
   /// Create a copy of DogPair
   /// with the given fields replaced by the non-null parameter values.
@@ -120,16 +141,19 @@ class _DogPair extends DogPair {
             (identical(other.firstDogId, firstDogId) ||
                 other.firstDogId == firstDogId) &&
             (identical(other.secondDogId, secondDogId) ||
-                other.secondDogId == secondDogId));
+                other.secondDogId == secondDogId) &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.rank, rank) || other.rank == rank));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, firstDogId, secondDogId);
+  int get hashCode =>
+      Object.hash(runtimeType, firstDogId, secondDogId, id, rank);
 
   @override
   String toString() {
-    return 'DogPair(firstDogId: $firstDogId, secondDogId: $secondDogId)';
+    return 'DogPair(firstDogId: $firstDogId, secondDogId: $secondDogId, id: $id, rank: $rank)';
   }
 }
 
@@ -139,7 +163,7 @@ abstract mixin class _$DogPairCopyWith<$Res> implements $DogPairCopyWith<$Res> {
       __$DogPairCopyWithImpl;
   @override
   @useResult
-  $Res call({String? firstDogId, String? secondDogId});
+  $Res call({String? firstDogId, String? secondDogId, String id, int rank});
 }
 
 /// @nodoc
@@ -156,6 +180,8 @@ class __$DogPairCopyWithImpl<$Res> implements _$DogPairCopyWith<$Res> {
   $Res call({
     Object? firstDogId = freezed,
     Object? secondDogId = freezed,
+    Object? id = null,
+    Object? rank = null,
   }) {
     return _then(_DogPair(
       firstDogId: freezed == firstDogId
@@ -166,6 +192,14 @@ class __$DogPairCopyWithImpl<$Res> implements _$DogPairCopyWith<$Res> {
           ? _self.secondDogId
           : secondDogId // ignore: cast_nullable_to_non_nullable
               as String?,
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      rank: null == rank
+          ? _self.rank
+          : rank // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }

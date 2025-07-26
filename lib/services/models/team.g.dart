@@ -8,13 +8,12 @@ part of 'team.dart';
 
 _Team _$TeamFromJson(Map<String, dynamic> json) => _Team(
       name: json['name'] as String? ?? "",
-      dogPairs: (json['dogPairs'] as List<dynamic>?)
-              ?.map((e) => DogPair.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      id: json['id'] as String,
+      rank: (json['rank'] as num).toInt(),
     );
 
 Map<String, dynamic> _$TeamToJson(_Team instance) => <String, dynamic>{
       'name': instance.name,
-      'dogPairs': instance.dogPairs,
+      'id': instance.id,
+      'rank': instance.rank,
     };
