@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -68,37 +69,38 @@ class CanPopTeamGroup extends _$CanPopTeamGroup {
 /// The teamgroup that is being built.
 class CreateTeamGroup extends _$CreateTeamGroup {
   @override
-  TeamGroupWorkspace build(TeamGroup? teamGroup) {
+  Future<TeamGroupWorkspace> build(TeamGroup? teamGroup) async {
     if (teamGroup == null) {
       return TeamGroupWorkspace(
         date: DateTime.now(),
         id: Uuid().v4(),
       );
     } else {
-      //TODO: do teamgroup from id;
-      throw Exception("Not yet implemented");
+      String account = await ref.watch(accountProvider.future);
+      return await DogsDbOperations()
+          .getTeamGroupWorkspace(account: account, id: teamGroup.id);
     }
   }
 
   /// Change name of the teamgroup.
-  void changeName(String newName) {
+  void changeName(String newName) async {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    state = state.copyWith(name: newName);
+    state = state.whenData((data) => data.copyWith(name: newName));
   }
 
   void changeNotes(String newNotes) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    state = state.copyWith(notes: newNotes);
+    state = state.whenData((data) => data.copyWith(notes: newNotes));
   }
 
   void changeDate(DateTime newDate) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    state = state.copyWith(date: newDate);
+    state = state.whenData((data) => data.copyWith(date: newDate));
   }
 
   void changeDistance(double newDistance) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    state = state.copyWith(distance: newDistance);
+    state = state.whenData((data) => data.copyWith(distance: newDistance));
   }
 
   /// Changes a dog in a certain position with another dog.
@@ -110,91 +112,103 @@ class CreateTeamGroup extends _$CreateTeamGroup {
   }) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     // More efficient update pattern
-    state = state.copyWith(
-      teams: [
-        for (int i = 0; i < state.teams.length; i++)
-          if (i == teamNumber)
-            state.teams[i].copyWith(
-              dogPairs: [
-                for (int j = 0; j < state.teams[i].dogPairs.length; j++)
-                  if (j == rowNumber)
-                    positionNumber == 0
-                        ? state.teams[i].dogPairs[j].copyWith(firstDogId: dogId)
-                        : state.teams[i].dogPairs[j]
-                            .copyWith(secondDogId: dogId)
-                  else
-                    state.teams[i].dogPairs[j]
-              ],
-            )
-          else
-            state.teams[i]
-      ],
+    state = state.whenData(
+      (data) => data.copyWith(
+        teams: [
+          for (int i = 0; i < data.teams.length; i++)
+            if (i == teamNumber)
+              data.teams[i].copyWith(
+                dogPairs: [
+                  for (int j = 0; j < data.teams[i].dogPairs.length; j++)
+                    if (j == rowNumber)
+                      positionNumber == 0
+                          ? data.teams[i].dogPairs[j]
+                              .copyWith(firstDogId: dogId)
+                          : data.teams[i].dogPairs[j]
+                              .copyWith(secondDogId: dogId)
+                    else
+                      data.teams[i].dogPairs[j]
+                ],
+              )
+            else
+              data.teams[i]
+        ],
+      ),
     );
   }
 
   void changeTeamName({required int teamNumber, required String newName}) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    state = state.copyWith(
-      teams: [
-        for (int i = 0; i < state.teams.length; i++)
-          if (i == teamNumber)
-            state.teams[i].copyWith(name: newName)
-          else
-            state.teams[i]
-      ],
+    state = state.whenData(
+      (data) => data.copyWith(
+        teams: [
+          for (int i = 0; i < data.teams.length; i++)
+            if (i == teamNumber)
+              data.teams[i].copyWith(name: newName)
+            else
+              data.teams[i]
+        ],
+      ),
     );
   }
 
   void removeRow({required int teamNumber, required int rowNumber}) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    state = state.copyWith(
-      teams: [
-        for (int i = 0; i < state.teams.length; i++)
-          if (i == teamNumber)
-            state.teams[i].copyWith(
-              dogPairs: [
-                for (int j = 0; j < state.teams[i].dogPairs.length; j++)
-                  if (j != rowNumber) state.teams[i].dogPairs[j]
-              ],
-            )
-          else
-            state.teams[i]
-      ],
-    );
+    state = state.whenData((data) => data.copyWith(
+          teams: [
+            for (int i = 0; i < data.teams.length; i++)
+              if (i == teamNumber)
+                data.teams[i].copyWith(
+                  dogPairs: [
+                    for (int j = 0; j < data.teams[i].dogPairs.length; j++)
+                      if (j != rowNumber) data.teams[i].dogPairs[j]
+                  ],
+                )
+              else
+                data.teams[i]
+          ],
+        ));
   }
 
   /// Adds a row at the end of the team.
   void addRow({required int teamNumber}) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    var teamToEdit = state.teams[teamNumber];
-    var newRows = List<DogPairWorkspace>.from(state.teams[teamNumber].dogPairs);
-    newRows.add(DogPairWorkspace(id: Uuid().v4()));
-    var editedTeam = teamToEdit.copyWith(dogPairs: newRows);
-    var newTeams = List<TeamWorkspace>.from(state.teams);
-    newTeams.removeAt(teamNumber);
-    newTeams.insert(teamNumber, editedTeam);
-    state = state.copyWith(teams: newTeams);
+    state = state.whenData((data) {
+      var teamToEdit = data.teams[teamNumber];
+      var newRows =
+          List<DogPairWorkspace>.from(data.teams[teamNumber].dogPairs);
+      newRows.add(DogPairWorkspace(id: Uuid().v4()));
+      var editedTeam = teamToEdit.copyWith(dogPairs: newRows);
+      var newTeams = List<TeamWorkspace>.from(data.teams);
+      newTeams.removeAt(teamNumber);
+      newTeams.insert(teamNumber, editedTeam);
+      return data.copyWith(teams: newTeams);
+    });
   }
 
   void addTeam({required int teamNumber}) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    var newTeams = List<TeamWorkspace>.from(state.teams);
-    newTeams.insert(
-      teamNumber,
-      TeamWorkspace(dogPairs: [
-        DogPairWorkspace(id: Uuid().v4()),
-        DogPairWorkspace(id: Uuid().v4()),
-        DogPairWorkspace(id: Uuid().v4()),
-      ], id: Uuid().v4()),
-    );
-    state = state.copyWith(teams: newTeams);
+    state = state.whenData((data) {
+      var newTeams = List<TeamWorkspace>.from(data.teams);
+      newTeams.insert(
+        teamNumber,
+        TeamWorkspace(dogPairs: [
+          DogPairWorkspace(id: Uuid().v4()),
+          DogPairWorkspace(id: Uuid().v4()),
+          DogPairWorkspace(id: Uuid().v4()),
+        ], id: Uuid().v4()),
+      );
+      return data.copyWith(teams: newTeams);
+    });
   }
 
   void removeTeam({required int teamNumber}) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    var newTeams = List<TeamWorkspace>.from(state.teams);
-    newTeams.removeAt(teamNumber);
-    state = state.copyWith(teams: newTeams);
+    state = state.whenData((data) {
+      var newTeams = List<TeamWorkspace>.from(data.teams);
+      newTeams.removeAt(teamNumber);
+      return data.copyWith(teams: newTeams);
+    });
   }
 }
 
@@ -226,7 +240,10 @@ class RunningDogs extends _$RunningDogs {
 
 @riverpod
 List<String> duplicateDogs(Ref ref) {
-  final teamGroup = ref.watch(createTeamGroupProvider(null));
+  final teamGroup = ref.watch(createTeamGroupProvider(null)).value;
+  if (teamGroup == null) {
+    return [];
+  }
 
   // Count occurrences in a single pass
   final dogCounts = <String, int>{};

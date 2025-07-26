@@ -64,7 +64,7 @@ Map<String, dynamic> _$DogPairWorkspaceToJson(_DogPairWorkspace instance) =>
 // RiverpodGenerator
 // **************************************************************************
 
-String _$duplicateDogsHash() => r'79c3c033b192f43fe8046981b43bcab769b7a34c';
+String _$duplicateDogsHash() => r'a1d4dc31e0385ef9efa3ed628f01b36c6d623bb0';
 
 /// See also [duplicateDogs].
 @ProviderFor(duplicateDogs)
@@ -398,13 +398,13 @@ final canPopTeamGroupProvider =
 );
 
 typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
-String _$createTeamGroupHash() => r'64bbedebc3c5a73a9464af9541cb7d5d6311de69';
+String _$createTeamGroupHash() => r'2aa4767c2dc0e92048d71b365f6125ac32b19c60';
 
 abstract class _$CreateTeamGroup
-    extends BuildlessAutoDisposeNotifier<TeamGroupWorkspace> {
+    extends BuildlessAutoDisposeAsyncNotifier<TeamGroupWorkspace> {
   late final TeamGroup? teamGroup;
 
-  TeamGroupWorkspace build(
+  FutureOr<TeamGroupWorkspace> build(
     TeamGroup? teamGroup,
   );
 }
@@ -418,7 +418,7 @@ const createTeamGroupProvider = CreateTeamGroupFamily();
 /// The teamgroup that is being built.
 ///
 /// Copied from [CreateTeamGroup].
-class CreateTeamGroupFamily extends Family<TeamGroupWorkspace> {
+class CreateTeamGroupFamily extends Family<AsyncValue<TeamGroupWorkspace>> {
   /// The teamgroup that is being built.
   ///
   /// Copied from [CreateTeamGroup].
@@ -462,7 +462,7 @@ class CreateTeamGroupFamily extends Family<TeamGroupWorkspace> {
 /// The teamgroup that is being built.
 ///
 /// Copied from [CreateTeamGroup].
-class CreateTeamGroupProvider extends AutoDisposeNotifierProviderImpl<
+class CreateTeamGroupProvider extends AutoDisposeAsyncNotifierProviderImpl<
     CreateTeamGroup, TeamGroupWorkspace> {
   /// The teamgroup that is being built.
   ///
@@ -496,7 +496,7 @@ class CreateTeamGroupProvider extends AutoDisposeNotifierProviderImpl<
   final TeamGroup? teamGroup;
 
   @override
-  TeamGroupWorkspace runNotifierBuild(
+  FutureOr<TeamGroupWorkspace> runNotifierBuild(
     covariant CreateTeamGroup notifier,
   ) {
     return notifier.build(
@@ -521,7 +521,7 @@ class CreateTeamGroupProvider extends AutoDisposeNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeNotifierProviderElement<CreateTeamGroup, TeamGroupWorkspace>
+  AutoDisposeAsyncNotifierProviderElement<CreateTeamGroup, TeamGroupWorkspace>
       createElement() {
     return _CreateTeamGroupProviderElement(this);
   }
@@ -542,13 +542,14 @@ class CreateTeamGroupProvider extends AutoDisposeNotifierProviderImpl<
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin CreateTeamGroupRef on AutoDisposeNotifierProviderRef<TeamGroupWorkspace> {
+mixin CreateTeamGroupRef
+    on AutoDisposeAsyncNotifierProviderRef<TeamGroupWorkspace> {
   /// The parameter `teamGroup` of this provider.
   TeamGroup? get teamGroup;
 }
 
 class _CreateTeamGroupProviderElement
-    extends AutoDisposeNotifierProviderElement<CreateTeamGroup,
+    extends AutoDisposeAsyncNotifierProviderElement<CreateTeamGroup,
         TeamGroupWorkspace> with CreateTeamGroupRef {
   _CreateTeamGroupProviderElement(super.provider);
 

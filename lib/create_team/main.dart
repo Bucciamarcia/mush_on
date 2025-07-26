@@ -78,148 +78,158 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
 
   @override
   Widget build(BuildContext context) {
-    TeamGroupWorkspace teamGroup =
-        ref.watch(createTeamGroupProvider(widget.loadedTeam));
+    var teamGroupAsync = ref.watch(createTeamGroupProvider(widget.loadedTeam));
+    return teamGroupAsync.when(
+        data: (teamGroup) {
+          /// Original teamgroup, used to check if db needs updating.
+          TeamGroupWorkspace oldTeamGroup = teamGroup.copyWith();
+          if (customerGroups.isEmpty) {
+            customerGroups = ref
+                    .watch(customerGroupsForTeamgroupProvider(teamGroup.id))
+                    .value ??
+                [];
+          }
+          var runningDogs = ref.watch(runningDogsProvider(teamGroup));
+          var dogNotes = ref.watch(dogNotesProvider);
+          bool canPopProvider = ref.watch(canPopTeamGroupProvider);
+          var notifier =
+              ref.read(createTeamGroupProvider(widget.loadedTeam).notifier);
+          List<Dog>? allDogs = ref.watch(dogsProvider).value;
+          SettingsModel? settings = ref.watch(settingsProvider).value;
 
-    /// Original teamgroup, used to check if db needs updating.
-    TeamGroupWorkspace oldTeamGroup = teamGroup.copyWith();
-    if (customerGroups.isEmpty) {
-      customerGroups =
-          ref.watch(customerGroupsForTeamgroupProvider(teamGroup.id)).value ??
-              [];
-    }
-    var runningDogs = ref.watch(runningDogsProvider(teamGroup));
-    var dogNotes = ref.watch(dogNotesProvider);
-    bool canPopProvider = ref.watch(canPopTeamGroupProvider);
-    var notifier =
-        ref.read(createTeamGroupProvider(widget.loadedTeam).notifier);
-    List<Dog>? allDogs = ref.watch(dogsProvider).value;
-    SettingsModel? settings = ref.watch(settingsProvider).value;
-
-    return PopScope(
-      canPop: canPopProvider,
-      onPopInvokedWithResult: (bool didPop, Object? result) async {
-        if (didPop) {
-          return;
-        }
-        final bool shouldPop = await showBackDialog() ?? false;
-        if (shouldPop) {
-          if (context.mounted) Navigator.of(context).pop(false);
-        }
-      },
-      child: ListView(
-        children: [
-          Card(
-            color: Theme.of(context).colorScheme.primaryContainer,
-            child: ExpansionTile(
-              title: Center(child: Text("Filter dogs")),
-              children: [
-                DogFilterWidget(
-                    dogs: allDogs ?? [],
-                    templates: settings?.customFieldTemplates ?? [],
-                    onResult: (dogs) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            "Filter successful",
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary),
-                          ),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                        ),
-                      );
-                    }),
-              ],
-            ),
-          ),
-          DateTimeDistancePicker(
-            teamGroup: teamGroup,
-            onDateChanged: (newDate) => notifier.changeDate(newDate),
-            onDistanceChanged: (newDistance) =>
-                notifier.changeDistance(newDistance),
-          ),
-          TextField(
-            controller: groupNameController,
-            decoration: InputDecoration(labelText: "Group name"),
-            onChanged: (String text) {
-              notifier.changeName(text);
-            },
-          ),
-          TextField(
-            controller: groupNotesController,
-            decoration: InputDecoration(labelText: "Group notes"),
-            onChanged: (String text) {
-              notifier.changeNotes(text);
-            },
-          ),
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              child: Text("Assigned customer groups: $customerGroups"),
-            ),
-          ),
-          ...teamGroup.teams.asMap().entries.map(
-            (entry) {
-              return Column(
-                children: [
-                  Divider(),
-                  TeamRetriever(
-                    teamNumber: entry.key,
-                    dogs: allDogs ?? [],
-                    runningDogs: runningDogs,
-                    teams: teamGroup.teams,
-                    notes: dogNotes,
-                    onDogSelected: (DogSelection newDog) {
-                      notifier.changePosition(
-                          dogId: newDog.dog.id,
-                          teamNumber: newDog.teamNumber,
-                          rowNumber: newDog.rowNumber,
-                          positionNumber: newDog.dogPosition);
-                    },
-                    onTeamNameChanged: (int teamNumber, String newName) =>
-                        notifier.changeTeamName(
-                            teamNumber: teamNumber, newName: newName),
-                    onRowRemoved: (int teamNumber, int rowNumber) =>
-                        notifier.removeRow(
-                            teamNumber: teamNumber, rowNumber: rowNumber),
-                    onAddRow: (int teamNumber) =>
-                        notifier.addRow(teamNumber: teamNumber),
-                    onDogRemoved:
-                        (int teamNumber, int rowNumber, int dogPosition) =>
-                            notifier.changePosition(
-                                dogId: "",
-                                teamNumber: teamNumber,
-                                rowNumber: rowNumber,
-                                positionNumber: dogPosition),
-                    onAddTeam: (teamNumber) =>
-                        notifier.addTeam(teamNumber: teamNumber),
-                    onRemoveTeam: (teamNumber) =>
-                        notifier.removeTeam(teamNumber: teamNumber),
-                  ),
-                ],
-              );
-            },
-          ),
-          SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () async {
-              String teamString = createTeamsString(teamGroup);
-              await Clipboard.setData(ClipboardData(text: teamString));
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    confirmationSnackbar(context, "Teams copied"));
+          return PopScope(
+            canPop: canPopProvider,
+            onPopInvokedWithResult: (bool didPop, Object? result) async {
+              if (didPop) {
+                return;
+              }
+              final bool shouldPop = await showBackDialog() ?? false;
+              if (shouldPop) {
+                if (context.mounted) Navigator.of(context).pop(false);
               }
             },
-            child: Text("Copy team group"),
-          ),
-          SaveTeamsButton(
-            newtg: teamGroup,
-            oldtg: oldTeamGroup,
-          ),
-        ],
-      ),
-    );
+            child: ListView(
+              children: [
+                Card(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  child: ExpansionTile(
+                    title: Center(child: Text("Filter dogs")),
+                    children: [
+                      DogFilterWidget(
+                          dogs: allDogs ?? [],
+                          templates: settings?.customFieldTemplates ?? [],
+                          onResult: (dogs) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Filter successful",
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                              ),
+                            );
+                          }),
+                    ],
+                  ),
+                ),
+                DateTimeDistancePicker(
+                  teamGroup: teamGroup,
+                  onDateChanged: (newDate) => notifier.changeDate(newDate),
+                  onDistanceChanged: (newDistance) =>
+                      notifier.changeDistance(newDistance),
+                ),
+                TextField(
+                  controller: groupNameController,
+                  decoration: InputDecoration(labelText: "Group name"),
+                  onChanged: (String text) {
+                    notifier.changeName(text);
+                  },
+                ),
+                TextField(
+                  controller: groupNotesController,
+                  decoration: InputDecoration(labelText: "Group notes"),
+                  onChanged: (String text) {
+                    notifier.changeNotes(text);
+                  },
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: Card(
+                    child: Text("Assigned customer groups: $customerGroups"),
+                  ),
+                ),
+                ...teamGroup.teams.asMap().entries.map(
+                  (entry) {
+                    return Column(
+                      children: [
+                        Divider(),
+                        TeamRetriever(
+                          teamNumber: entry.key,
+                          dogs: allDogs ?? [],
+                          runningDogs: runningDogs,
+                          teams: teamGroup.teams,
+                          notes: dogNotes,
+                          onDogSelected: (DogSelection newDog) {
+                            notifier.changePosition(
+                                dogId: newDog.dog.id,
+                                teamNumber: newDog.teamNumber,
+                                rowNumber: newDog.rowNumber,
+                                positionNumber: newDog.dogPosition);
+                          },
+                          onTeamNameChanged: (int teamNumber, String newName) =>
+                              notifier.changeTeamName(
+                                  teamNumber: teamNumber, newName: newName),
+                          onRowRemoved: (int teamNumber, int rowNumber) =>
+                              notifier.removeRow(
+                                  teamNumber: teamNumber, rowNumber: rowNumber),
+                          onAddRow: (int teamNumber) =>
+                              notifier.addRow(teamNumber: teamNumber),
+                          onDogRemoved: (int teamNumber, int rowNumber,
+                                  int dogPosition) =>
+                              notifier.changePosition(
+                                  dogId: "",
+                                  teamNumber: teamNumber,
+                                  rowNumber: rowNumber,
+                                  positionNumber: dogPosition),
+                          onAddTeam: (teamNumber) =>
+                              notifier.addTeam(teamNumber: teamNumber),
+                          onRemoveTeam: (teamNumber) =>
+                              notifier.removeTeam(teamNumber: teamNumber),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    String teamString = createTeamsString(teamGroup);
+                    await Clipboard.setData(ClipboardData(text: teamString));
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(context, "Teams copied"));
+                    }
+                  },
+                  child: Text("Copy team group"),
+                ),
+                SaveTeamsButton(
+                  newtg: teamGroup,
+                  oldtg: oldTeamGroup,
+                ),
+              ],
+            ),
+          );
+        },
+        error: (e, s) {
+          BasicLogger()
+              .error("Couldn't get teamgroup", error: e, stackTrace: s);
+          return Text("Couldn't get teamgroup");
+        },
+        loading: () => CircularProgressIndicator.adaptive());
   }
 
   String createTeamsString(TeamGroupWorkspace group) {
