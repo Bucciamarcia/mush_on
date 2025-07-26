@@ -2,10 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/extensions.dart';
-import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
+import 'package:mush_on/services/riverpod/teamgroup.dart';
 import 'package:mush_on/teams_history/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
@@ -45,34 +45,37 @@ Stream<List<DogDistanceWarning>> distanceWarnings(Ref ref,
       teamGroupsProvider(earliestDate: earliestDate, finalDate: finalDate)
           .future);
   // Listen to the teams stream and process warnings for each update
-  yield _processWarnings(teamGroups.toSet(), dogsAsync, settingsAsync);
+  yield await _processWarnings(
+      teamGroups.toSet(), dogsAsync, settingsAsync, ref);
 }
 
-List<DogDistanceWarning> _processWarnings(
+Future<List<DogDistanceWarning>> _processWarnings(
   Set<TeamGroup> teams,
   List<Dog> dogs,
   SettingsModel settings,
-) {
+  Ref ref,
+) async {
   final List<DogDistanceWarning> allWarnings = [];
 
   // Process global warnings
-  allWarnings.addAll(_processGlobalWarnings(teams, dogs, settings));
+  allWarnings.addAll(await _processGlobalWarnings(teams, dogs, settings, ref));
 
   // Process dog-specific warnings
-  allWarnings.addAll(_processDogSpecificWarnings(teams, dogs));
+  allWarnings.addAll(await _processDogSpecificWarnings(teams, dogs, ref));
 
   return allWarnings;
 }
 
-List<DogDistanceWarning> _processDogSpecificWarnings(
+Future<List<DogDistanceWarning>> _processDogSpecificWarnings(
   Set<TeamGroup> teams,
   List<Dog> dogs,
-) {
+  Ref ref,
+) async {
   final List<DogDistanceWarning> warnings = [];
 
   for (final dog in dogs) {
     for (final warning in dog.distanceWarnings) {
-      final dogWarning = _checkWarning(dog, warning, teams);
+      final dogWarning = await _checkWarning(dog, warning, teams, ref);
       if (dogWarning != null) {
         warnings.add(dogWarning);
       }
@@ -82,16 +85,17 @@ List<DogDistanceWarning> _processDogSpecificWarnings(
   return warnings;
 }
 
-DogDistanceWarning? _checkWarning(
+Future<DogDistanceWarning?> _checkWarning(
   Dog dog,
   DistanceWarning warning,
   Set<TeamGroup> teams,
-) {
+  Ref ref,
+) async {
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final cutoffDate = today.subtract(Duration(days: warning.daysInterval));
 
-  final distanceRan = _calculateDogDistance(dog, cutoffDate, teams);
+  final distanceRan = await _calculateDogDistance(dog, cutoffDate, teams, ref);
 
   if (distanceRan > warning.distance) {
     return DogDistanceWarning(
@@ -104,11 +108,12 @@ DogDistanceWarning? _checkWarning(
   return null;
 }
 
-double _calculateDogDistance(
+Future<double> _calculateDogDistance(
   Dog dog,
   DateTime cutoffDate,
   Set<TeamGroup> teams,
-) {
+  Ref ref,
+) async {
   double totalDistance = 0;
 
   for (final teamGroup in teams) {
@@ -117,8 +122,12 @@ double _calculateDogDistance(
       // Check if dog is in this team group
       bool dogFound = false;
 
-      for (final team in teamGroup.teams) {
-        for (final pair in team.dogPairs) {
+      List<Team> teams =
+          await ref.watch(teamsInTeamgroupProvider(teamGroup.id).future);
+      for (final team in teams) {
+        List<DogPair> dogPairs = await ref
+            .watch(dogPairsInTeamProvider(teamGroup.id, team.id).future);
+        for (final pair in dogPairs) {
           if (pair.firstDogId == dog.id || pair.secondDogId == dog.id) {
             totalDistance += teamGroup.distance;
             dogFound = true;
@@ -133,11 +142,12 @@ double _calculateDogDistance(
   return totalDistance;
 }
 
-List<DogDistanceWarning> _processGlobalWarnings(
+Future<List<DogDistanceWarning>> _processGlobalWarnings(
   Set<TeamGroup> teams,
   List<Dog> dogs,
   SettingsModel settings,
-) {
+  Ref ref,
+) async {
   final List<DogDistanceWarning> warnings = [];
 
   // Pre-calculate distances for all unique warning periods
@@ -152,7 +162,7 @@ List<DogDistanceWarning> _processGlobalWarnings(
   // Calculate distances for each period
   for (final days in uniquePeriods) {
     final cutoff = today.subtract(Duration(days: days));
-    distancesByPeriod[days] = _buildDogDistanceMap(cutoff, teams);
+    distancesByPeriod[days] = await _buildDogDistanceMap(cutoff, teams, ref);
   }
 
   // Check warnings using pre-calculated distances
@@ -174,10 +184,11 @@ List<DogDistanceWarning> _processGlobalWarnings(
   return warnings;
 }
 
-Map<String, double> _buildDogDistanceMap(
+Future<Map<String, double>> _buildDogDistanceMap(
   DateTime cutoff,
   Set<TeamGroup> teams,
-) {
+  Ref ref,
+) async {
   final distanceMap = <String, double>{};
 
   for (final teamGroup in teams) {
@@ -186,8 +197,12 @@ Map<String, double> _buildDogDistanceMap(
       final dogsInGroup = <String>{};
 
       // Collect all unique dogs in this group
-      for (final team in teamGroup.teams) {
-        for (final pair in team.dogPairs) {
+      List<Team> teams =
+          await ref.watch(teamsInTeamgroupProvider(teamGroup.id).future);
+      for (final team in teams) {
+        List<DogPair> dogPairs = await ref
+            .watch(dogPairsInTeamProvider(teamGroup.id, team.id).future);
+        for (final pair in dogPairs) {
           if (pair.firstDogId != null && pair.firstDogId!.isNotEmpty) {
             dogsInGroup.add(pair.firstDogId!);
           }

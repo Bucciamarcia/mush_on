@@ -1,5 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/riverpod/teamgroup.dart';
 import 'package:mush_on/stats/group_summary.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
@@ -12,16 +14,18 @@ class GridRowProcessor {
   List<Dog> dogs;
   DateTime startDate;
   DateTime finishDate;
+  WidgetRef ref;
   GridRowProcessor(
       {required this.teams,
       required this.dogs,
       required this.startDate,
-      required this.finishDate});
-  GridRowProcessorResult run() {
+      required this.finishDate,
+      required this.ref});
+  Future<GridRowProcessorResult> run() async {
     Map<String, Dog> dogsMap = _generateDogsMap();
     // Get daily aggregated data
     List<DailyDogStats> aggregatedStats =
-        _aggregateData(dogsMap, startDate, finishDate);
+        await _aggregateData(dogsMap, startDate, finishDate);
 
     // Calculate monthly summary data
     List<MonthSummary> monthlySummariesList =
@@ -56,8 +60,8 @@ class GridRowProcessor {
     return toReturn;
   }
 
-  List<DailyDogStats> _aggregateData(
-      Map<String, Dog> dogsMap, DateTime startDate, DateTime finishDate) {
+  Future<List<DailyDogStats>> _aggregateData(
+      Map<String, Dog> dogsMap, DateTime startDate, DateTime finishDate) async {
     List<DailyDogStats> toReturn = [];
     Map<String, List<TeamGroup>> teamsByDay = getTeamsByDay();
     DateTime startDateOrBeginning = findOldestDate(startDate);
@@ -84,8 +88,12 @@ class GridRowProcessor {
         try {
           // Add try-catch to catch potential errors in inner loops
           for (TeamGroup dayTeam in dayTeams) {
-            for (Team team in dayTeam.teams) {
-              for (DogPair dogPair in team.dogPairs) {
+            List<Team> teams =
+                await ref.watch(teamsInTeamgroupProvider(dayTeam.id).future);
+            for (Team team in teams) {
+              List<DogPair> dogPairs = await ref
+                  .watch(dogPairsInTeamProvider(dayTeam.id, team.id).future);
+              for (DogPair dogPair in dogPairs) {
                 if (dogPair.firstDogId != null) {
                   dogDistances[dogPair.firstDogId!] =
                       (dogDistances[dogPair.firstDogId!] ?? 0) +
@@ -302,57 +310,6 @@ class GridRowProcessor {
           nextDayIncrement.day); // Re-normalize to midnight
     }
     return currentDate;
-  }
-
-  DataGridRow constructFilledRow(
-      Map<String, List<TeamGroup>> teamsByDay, String dateKey, DateTime day) {
-    List<TeamGroup> dayTeams = teamsByDay[dateKey]!;
-    Map<String, double> dogDistances = {};
-
-    for (TeamGroup dayTeam in dayTeams) {
-      for (Team team in dayTeam.teams) {
-        for (DogPair dogPair in team.dogPairs) {
-          if (dogPair.firstDogId != null) {
-            String dogId = dogPair.firstDogId!;
-            dogDistances[dogId] = (dogDistances[dogId] ?? 0) + dayTeam.distance;
-          }
-          if (dogPair.secondDogId != null) {
-            String dogId = dogPair.secondDogId!;
-            dogDistances[dogId] = (dogDistances[dogId] ?? 0) + dayTeam.distance;
-          }
-        }
-      }
-    }
-
-    DataGridRow row = DataGridRow(
-      cells: <DataGridCell>[
-        DataGridCell(
-            columnName: dateColumnName, value: _formatDateForDisplay(day)),
-        ...dogs.map(
-          (dog) => DataGridCell(
-            columnName: dog.id,
-            value: dogDistances[dog.id] ?? 0,
-          ),
-        )
-      ],
-    );
-    return row;
-  }
-
-  DataGridRow constructEmptyRow(DateTime day) {
-    DataGridRow row = DataGridRow(
-      cells: <DataGridCell>[
-        DataGridCell(
-            columnName: dateColumnName, value: _formatDateForDisplay(day)),
-        ...dogs.map(
-          (dog) => DataGridCell(
-            columnName: dog.id,
-            value: 0.0,
-          ),
-        )
-      ],
-    );
-    return row;
   }
 
   /// Helper method to format date for display

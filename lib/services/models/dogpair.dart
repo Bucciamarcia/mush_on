@@ -18,6 +18,8 @@ sealed class DogPair with _$DogPair {
   const factory DogPair({
     String? firstDogId,
     String? secondDogId,
+    required String id,
+    required int rank,
   }) = _DogPair;
   const DogPair._();
 

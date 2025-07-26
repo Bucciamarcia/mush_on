@@ -16,7 +16,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Team {
   String get name;
-  List<DogPair> get dogPairs;
+  String get id;
+  int get rank;
 
   /// Create a copy of Team
   /// with the given fields replaced by the non-null parameter values.
@@ -34,17 +35,17 @@ mixin _$Team {
         (other.runtimeType == runtimeType &&
             other is Team &&
             (identical(other.name, name) || other.name == name) &&
-            const DeepCollectionEquality().equals(other.dogPairs, dogPairs));
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.rank, rank) || other.rank == rank));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, name, const DeepCollectionEquality().hash(dogPairs));
+  int get hashCode => Object.hash(runtimeType, name, id, rank);
 
   @override
   String toString() {
-    return 'Team(name: $name, dogPairs: $dogPairs)';
+    return 'Team(name: $name, id: $id, rank: $rank)';
   }
 }
 
@@ -53,7 +54,7 @@ abstract mixin class $TeamCopyWith<$Res> {
   factory $TeamCopyWith(Team value, $Res Function(Team) _then) =
       _$TeamCopyWithImpl;
   @useResult
-  $Res call({String name, List<DogPair> dogPairs});
+  $Res call({String name, String id, int rank});
 }
 
 /// @nodoc
@@ -69,17 +70,22 @@ class _$TeamCopyWithImpl<$Res> implements $TeamCopyWith<$Res> {
   @override
   $Res call({
     Object? name = null,
-    Object? dogPairs = null,
+    Object? id = null,
+    Object? rank = null,
   }) {
     return _then(_self.copyWith(
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      dogPairs: null == dogPairs
-          ? _self.dogPairs
-          : dogPairs // ignore: cast_nullable_to_non_nullable
-              as List<DogPair>,
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      rank: null == rank
+          ? _self.rank
+          : rank // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -87,22 +93,17 @@ class _$TeamCopyWithImpl<$Res> implements $TeamCopyWith<$Res> {
 /// @nodoc
 @JsonSerializable()
 class _Team extends Team {
-  const _Team({this.name = "", final List<DogPair> dogPairs = const []})
-      : _dogPairs = dogPairs,
-        super._();
+  const _Team({this.name = "", required this.id, required this.rank})
+      : super._();
   factory _Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
 
   @override
   @JsonKey()
   final String name;
-  final List<DogPair> _dogPairs;
   @override
-  @JsonKey()
-  List<DogPair> get dogPairs {
-    if (_dogPairs is EqualUnmodifiableListView) return _dogPairs;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_dogPairs);
-  }
+  final String id;
+  @override
+  final int rank;
 
   /// Create a copy of Team
   /// with the given fields replaced by the non-null parameter values.
@@ -125,17 +126,17 @@ class _Team extends Team {
         (other.runtimeType == runtimeType &&
             other is _Team &&
             (identical(other.name, name) || other.name == name) &&
-            const DeepCollectionEquality().equals(other._dogPairs, _dogPairs));
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.rank, rank) || other.rank == rank));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, name, const DeepCollectionEquality().hash(_dogPairs));
+  int get hashCode => Object.hash(runtimeType, name, id, rank);
 
   @override
   String toString() {
-    return 'Team(name: $name, dogPairs: $dogPairs)';
+    return 'Team(name: $name, id: $id, rank: $rank)';
   }
 }
 
@@ -145,7 +146,7 @@ abstract mixin class _$TeamCopyWith<$Res> implements $TeamCopyWith<$Res> {
       __$TeamCopyWithImpl;
   @override
   @useResult
-  $Res call({String name, List<DogPair> dogPairs});
+  $Res call({String name, String id, int rank});
 }
 
 /// @nodoc
@@ -161,17 +162,22 @@ class __$TeamCopyWithImpl<$Res> implements _$TeamCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   $Res call({
     Object? name = null,
-    Object? dogPairs = null,
+    Object? id = null,
+    Object? rank = null,
   }) {
     return _then(_Team(
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      dogPairs: null == dogPairs
-          ? _self._dogPairs
-          : dogPairs // ignore: cast_nullable_to_non_nullable
-              as List<DogPair>,
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      rank: null == rank
+          ? _self.rank
+          : rank // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
