@@ -4,6 +4,7 @@ import 'package:mush_on/home_page/main.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/shared/add_id_to_teamgroup/main.dart';
+import 'package:mush_on/shared/refactor_teamgroups/main.dart';
 
 class HomePageScreen extends ConsumerWidget {
   const HomePageScreen({super.key});
@@ -14,7 +15,10 @@ class HomePageScreen extends ConsumerWidget {
     return asyncAccount.when(
       data: (account) {
         return FutureBuilder(
-          future: addIdToTeamgroups(account),
+          future: Future.wait([
+            addIdToTeamgroups(account),
+            RefactorTeamgroups(account: account).run(),
+          ]),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Scaffold(

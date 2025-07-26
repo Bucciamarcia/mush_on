@@ -6,29 +6,22 @@ import 'package:mush_on/services/models/teamgroup.dart';
 
 Future<void> addIdToTeamgroups(String account) async {
   final db = FirebaseFirestore.instance;
-  final logger = BasicLogger();
   late String path;
   late CollectionReference<Map<String, dynamic>> collection;
   late QuerySnapshot<Map<String, dynamic>> noIdDocs;
   try {
     path = "accounts/$account/data/teams/history";
-    logger.debug("path: $path");
     collection = db.collection(path);
-  } catch (e, s) {
-    logger.error("Couldn't fetch collection", error: e, stackTrace: s);
+  } catch (e) {
     return;
   }
   try {
     noIdDocs = await collection.get();
-  } catch (e, s) {
-    logger.error("Couldn't fetch documents", error: e, stackTrace: s);
+  } catch (e) {
     return;
   }
   final docData = noIdDocs.docs;
-  logger.debug("Numbner of docs: ${docData.length}");
   for (var doc in docData) {
-    logger.debug("object: ${doc.data()}");
-    logger.debug("id: ${doc.id}");
     try {
       final obj = TeamGroup.fromJson(doc.data());
       List<Map<String, dynamic>> cleanTeams = _modifyTeamsForDb(obj.teams);
@@ -41,9 +34,7 @@ Future<void> addIdToTeamgroups(String account) async {
         "id": doc.id
       };
       await db.doc("$path/${doc.id}").set(data);
-    } catch (e, s) {
-      logger.error("Couldn't update document ${doc.id}",
-          error: e, stackTrace: s);
+    } catch (e) {
       return;
     }
   }
