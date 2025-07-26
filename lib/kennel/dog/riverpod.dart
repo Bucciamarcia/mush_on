@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/riverpod.dart';
-import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/riverpod/teamgroup.dart';
 import 'package:mush_on/services/storage.dart';
 import 'package:mush_on/teams_history/riverpod.dart';
 import 'package:path/path.dart' as path;
@@ -89,8 +90,14 @@ Stream<List<DogTotal>> dogTotal(
         teamGroup.date.year, teamGroup.date.month, teamGroup.date.day);
     double distance = 0.0;
 
-    final isDogInTeam = teamGroup.teams.any((team) => team.dogPairs
-        .any((pair) => pair.firstDogId == dogId || pair.secondDogId == dogId));
+    List<Team> teams =
+        await ref.watch(teamsInTeamgroupProvider(teamGroup.id).future);
+    final isDogInTeam = teams.any((team) {
+      List<DogPair> dogPairs =
+          ref.watch(dogPairsInTeamProvider(teamGroup.id, team.id)).value ?? [];
+      return dogPairs
+          .any((pair) => pair.firstDogId == dogId || pair.secondDogId == dogId);
+    });
 
     if (isDogInTeam) {
       distance = teamGroup.distance;
