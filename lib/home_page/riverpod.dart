@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/extensions.dart';
@@ -14,7 +13,6 @@ part 'riverpod.g.dart';
 
 /// Just for the home page
 Stream<HomePageRiverpodResults> homePageRiverpod(Ref ref) async* {
-  BasicLogger().debug("Creating home page riverpod provider with rxDart");
   yield* Rx.combineLatest5(dogs(ref), tasks(ref, null), healthEvents(ref, null),
       heatCycles(ref, null), todayWhiteboard(ref), (b, c, d, e, f) {
     return HomePageRiverpodResults(

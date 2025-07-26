@@ -152,8 +152,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
           SizedBox(
             width: double.infinity,
             child: Card(
-              child: Text(
-                  "Assigned customer groups: ${customerGroups.first.name}"),
+              child: Text("Assigned customer groups: $customerGroups"),
             ),
           ),
           ...teamGroup.teams.asMap().entries.map(
