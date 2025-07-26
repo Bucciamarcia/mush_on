@@ -340,13 +340,13 @@ final canPopTeamGroupProvider =
 );
 
 typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
-String _$createTeamGroupHash() => r'317da1e66df7a985718c59fe316ae7c784730a06';
+String _$createTeamGroupHash() => r'64bbedebc3c5a73a9464af9541cb7d5d6311de69';
 
 abstract class _$CreateTeamGroup
-    extends BuildlessAutoDisposeNotifier<TeamGroup> {
+    extends BuildlessAutoDisposeNotifier<TeamGroupWorkspace> {
   late final TeamGroup? teamGroup;
 
-  TeamGroup build(
+  TeamGroupWorkspace build(
     TeamGroup? teamGroup,
   );
 }
@@ -360,7 +360,7 @@ const createTeamGroupProvider = CreateTeamGroupFamily();
 /// The teamgroup that is being built.
 ///
 /// Copied from [CreateTeamGroup].
-class CreateTeamGroupFamily extends Family<TeamGroup> {
+class CreateTeamGroupFamily extends Family<TeamGroupWorkspace> {
   /// The teamgroup that is being built.
   ///
   /// Copied from [CreateTeamGroup].
@@ -404,8 +404,8 @@ class CreateTeamGroupFamily extends Family<TeamGroup> {
 /// The teamgroup that is being built.
 ///
 /// Copied from [CreateTeamGroup].
-class CreateTeamGroupProvider
-    extends AutoDisposeNotifierProviderImpl<CreateTeamGroup, TeamGroup> {
+class CreateTeamGroupProvider extends AutoDisposeNotifierProviderImpl<
+    CreateTeamGroup, TeamGroupWorkspace> {
   /// The teamgroup that is being built.
   ///
   /// Copied from [CreateTeamGroup].
@@ -438,7 +438,7 @@ class CreateTeamGroupProvider
   final TeamGroup? teamGroup;
 
   @override
-  TeamGroup runNotifierBuild(
+  TeamGroupWorkspace runNotifierBuild(
     covariant CreateTeamGroup notifier,
   ) {
     return notifier.build(
@@ -463,7 +463,7 @@ class CreateTeamGroupProvider
   }
 
   @override
-  AutoDisposeNotifierProviderElement<CreateTeamGroup, TeamGroup>
+  AutoDisposeNotifierProviderElement<CreateTeamGroup, TeamGroupWorkspace>
       createElement() {
     return _CreateTeamGroupProviderElement(this);
   }
@@ -484,28 +484,28 @@ class CreateTeamGroupProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin CreateTeamGroupRef on AutoDisposeNotifierProviderRef<TeamGroup> {
+mixin CreateTeamGroupRef on AutoDisposeNotifierProviderRef<TeamGroupWorkspace> {
   /// The parameter `teamGroup` of this provider.
   TeamGroup? get teamGroup;
 }
 
 class _CreateTeamGroupProviderElement
-    extends AutoDisposeNotifierProviderElement<CreateTeamGroup, TeamGroup>
-    with CreateTeamGroupRef {
+    extends AutoDisposeNotifierProviderElement<CreateTeamGroup,
+        TeamGroupWorkspace> with CreateTeamGroupRef {
   _CreateTeamGroupProviderElement(super.provider);
 
   @override
   TeamGroup? get teamGroup => (origin as CreateTeamGroupProvider).teamGroup;
 }
 
-String _$runningDogsHash() => r'2edf930a90f4de4cc28013d64d0a627e28b5cb5e';
+String _$runningDogsHash() => r'db264451cef793ff4d560ea8e34df898aae17e5e';
 
 abstract class _$RunningDogs
     extends BuildlessAutoDisposeNotifier<List<String>> {
-  late final TeamGroup group;
+  late final TeamGroupWorkspace group;
 
   List<String> build(
-    TeamGroup group,
+    TeamGroupWorkspace group,
   );
 }
 
@@ -536,7 +536,7 @@ class RunningDogsFamily extends Family<List<String>> {
   ///
   /// Copied from [RunningDogs].
   RunningDogsProvider call(
-    TeamGroup group,
+    TeamGroupWorkspace group,
   ) {
     return RunningDogsProvider(
       group,
@@ -580,7 +580,7 @@ class RunningDogsProvider
   ///
   /// Copied from [RunningDogs].
   RunningDogsProvider(
-    TeamGroup group,
+    TeamGroupWorkspace group,
   ) : this._internal(
           () => RunningDogs()..group = group,
           from: runningDogsProvider,
@@ -605,7 +605,7 @@ class RunningDogsProvider
     required this.group,
   }) : super.internal();
 
-  final TeamGroup group;
+  final TeamGroupWorkspace group;
 
   @override
   List<String> runNotifierBuild(
@@ -656,7 +656,7 @@ class RunningDogsProvider
 // ignore: unused_element
 mixin RunningDogsRef on AutoDisposeNotifierProviderRef<List<String>> {
   /// The parameter `group` of this provider.
-  TeamGroup get group;
+  TeamGroupWorkspace get group;
 }
 
 class _RunningDogsProviderElement
@@ -665,7 +665,7 @@ class _RunningDogsProviderElement
   _RunningDogsProviderElement(super.provider);
 
   @override
-  TeamGroup get group => (origin as RunningDogsProvider).group;
+  TeamGroupWorkspace get group => (origin as RunningDogsProvider).group;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

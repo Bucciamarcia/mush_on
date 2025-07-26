@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/home_page/main.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/riverpod.dart';
-import 'package:mush_on/shared/add_id_to_teamgroup/main.dart';
-import 'package:mush_on/shared/refactor_teamgroups/main.dart';
 
 class HomePageScreen extends ConsumerWidget {
   const HomePageScreen({super.key});
@@ -14,25 +12,7 @@ class HomePageScreen extends ConsumerWidget {
     final asyncAccount = ref.watch(accountProvider);
     return asyncAccount.when(
       data: (account) {
-        return FutureBuilder(
-          future: Future.wait([
-            addIdToTeamgroups(account),
-            RefactorTeamgroups(account: account).run(),
-          ]),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Scaffold(
-                  body: Center(child: CircularProgressIndicator.adaptive()));
-            } else if (snapshot.hasError) {
-              return Text("Error in database.");
-            } else if (snapshot.connectionState == ConnectionState.done) {
-              return TemplateScreen(
-                  title: "Kennel", child: HomePageScreenContent());
-            } else {
-              return Text("Unknown state.");
-            }
-          },
-        );
+        return TemplateScreen(title: "Kennel", child: HomePageScreenContent());
       },
       error: (e, s) => Text("Error getting account"),
       loading: () => CircularProgressIndicator.adaptive(),

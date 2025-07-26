@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -7,6 +8,42 @@ import 'package:mush_on/services/models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
+part 'riverpod.freezed.dart';
+
+@freezed
+sealed class TeamGroupWorkspace with _$TeamGroupWorkspace {
+  const factory TeamGroupWorkspace({
+    @Default("") String id,
+
+    /// The name of the entire group.
+    @Default("") String name,
+    required DateTime date,
+
+    /// The distance ran in km.
+    /// Used for stats.
+    @Default(0) double distance,
+    @Default("") String notes,
+    @Default([]) List<TeamWorkspace> teams,
+  }) = _TeamGroupWorkspace;
+}
+
+@freezed
+sealed class TeamWorkspace with _$TeamWorkspace {
+  const factory TeamWorkspace({
+    @Default("") String name,
+    required String id,
+    @Default([]) List<DogPairWorkspace> dogPairs,
+  }) = _TeamWorkspace;
+}
+
+@freezed
+sealed class DogPairWorkspace with _$DogPairWorkspace {
+  const factory DogPairWorkspace({
+    String? firstDogId,
+    String? secondDogId,
+    required String id,
+  }) = _DogPairWorkspace;
+}
 
 @riverpod
 class CanPopTeamGroup extends _$CanPopTeamGroup {
@@ -25,22 +62,15 @@ class CanPopTeamGroup extends _$CanPopTeamGroup {
 /// The teamgroup that is being built.
 class CreateTeamGroup extends _$CreateTeamGroup {
   @override
-  TeamGroup build(TeamGroup? teamGroup) {
+  TeamGroupWorkspace build(TeamGroup? teamGroup) {
     if (teamGroup == null) {
-      return TeamGroup(
+      return TeamGroupWorkspace(
         date: DateTime.now(),
         id: Uuid().v4(),
-        teams: [
-          Team(
-            dogPairs: [
-              DogPair(),
-              DogPair(),
-            ],
-          ),
-        ],
       );
     } else {
-      return teamGroup;
+      //TODO: do teamgroup from id;
+      throw Exception("Not yet implemented");
     }
   }
 
@@ -131,10 +161,10 @@ class CreateTeamGroup extends _$CreateTeamGroup {
   void addRow({required int teamNumber}) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     var teamToEdit = state.teams[teamNumber];
-    var newRows = List<DogPair>.from(state.teams[teamNumber].dogPairs);
-    newRows.add(DogPair());
+    var newRows = List<DogPairWorkspace>.from(state.teams[teamNumber].dogPairs);
+    newRows.add(DogPairWorkspace(id: Uuid().v4()));
     var editedTeam = teamToEdit.copyWith(dogPairs: newRows);
-    var newTeams = List<Team>.from(state.teams);
+    var newTeams = List<TeamWorkspace>.from(state.teams);
     newTeams.removeAt(teamNumber);
     newTeams.insert(teamNumber, editedTeam);
     state = state.copyWith(teams: newTeams);
@@ -142,15 +172,21 @@ class CreateTeamGroup extends _$CreateTeamGroup {
 
   void addTeam({required int teamNumber}) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    var newTeams = List<Team>.from(state.teams);
+    var newTeams = List<TeamWorkspace>.from(state.teams);
     newTeams.insert(
-        teamNumber, Team(dogPairs: [DogPair(), DogPair(), DogPair()]));
+      teamNumber,
+      TeamWorkspace(dogPairs: [
+        DogPairWorkspace(id: Uuid().v4()),
+        DogPairWorkspace(id: Uuid().v4()),
+        DogPairWorkspace(id: Uuid().v4()),
+      ], id: Uuid().v4()),
+    );
     state = state.copyWith(teams: newTeams);
   }
 
   void removeTeam({required int teamNumber}) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    var newTeams = List<Team>.from(state.teams);
+    var newTeams = List<TeamWorkspace>.from(state.teams);
     newTeams.removeAt(teamNumber);
     state = state.copyWith(teams: newTeams);
   }
@@ -163,7 +199,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
 /// Used to make the unavailable in the dropdown selection.
 class RunningDogs extends _$RunningDogs {
   @override
-  List<String> build(TeamGroup group) {
+  List<String> build(TeamGroupWorkspace group) {
     // Use a Set for O(1) lookups
     final dogSet = <String>{};
 
