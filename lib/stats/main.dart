@@ -31,52 +31,41 @@ class StatsMain extends ConsumerWidget {
                 startDate: dates.startDate,
                 finishDate: dates.endDate,
                 ref: ref);
-            return FutureBuilder(
-                future: dataManipulator.run(),
-                builder: (context, v) {
-                  if (v.connectionState == ConnectionState.waiting ||
-                      v.data == null) {
-                    return CircularProgressIndicator();
-                  } else if (v.hasError) {
-                    return Text("Error");
-                  } else {
-                    GridRowProcessorResult gridData = v.data!;
+            GridRowProcessorResult gridData = dataManipulator.run();
 
-                    StatsDataSource statsDataSource =
-                        StatsDataSource(gridData: gridData);
+            StatsDataSource statsDataSource =
+                StatsDataSource(gridData: gridData);
 
-                    return Column(
-                      children: [
-                        Card(
-                          child: ExpansionTile(
-                            title: Text("Filter date"),
-                            children: [
-                              DateRangePicker(
-                                maxDate: DateTimeUtils.today(),
-                                minDate: calculateOldestTeamGroup(teams)
-                                        .isBefore(DateTimeUtils.today())
-                                    ? calculateOldestTeamGroup(teams)
-                                    : DateTimeUtils.today(),
-                                onSelectionChanged: (r) => _onSelectionChanged(
-                                  r: r,
-                                  onNewEndDate: (date) => ref
-                                      .read(statsDatesProvider.notifier)
-                                      .changeEndDate(date),
-                                  onNewStartDate: (date) => ref
-                                      .read(statsDatesProvider.notifier)
-                                      .changeStartDate(date),
-                                ),
-                              )
-                            ],
-                          ),
+            return Column(
+              children: [
+                Card(
+                  child: ExpansionTile(
+                    title: Text("Filter date"),
+                    children: [
+                      DateRangePicker(
+                        maxDate: DateTimeUtils.today(),
+                        minDate: calculateOldestTeamGroup(teams)
+                                .isBefore(DateTimeUtils.today())
+                            ? calculateOldestTeamGroup(teams)
+                            : DateTimeUtils.today(),
+                        onSelectionChanged: (r) => _onSelectionChanged(
+                          r: r,
+                          onNewEndDate: (date) => ref
+                              .read(statsDatesProvider.notifier)
+                              .changeEndDate(date),
+                          onNewStartDate: (date) => ref
+                              .read(statsDatesProvider.notifier)
+                              .changeStartDate(date),
                         ),
-                        Flexible(
-                            child: SfDataGridClass(
-                                statsDataSource: statsDataSource, dogs: dogs)),
-                      ],
-                    );
-                  }
-                });
+                      )
+                    ],
+                  ),
+                ),
+                Flexible(
+                    child: SfDataGridClass(
+                        statsDataSource: statsDataSource, dogs: dogs)),
+              ],
+            );
           },
           error: (e, s) {
             logger.error("Couldn't get teamgroups");
