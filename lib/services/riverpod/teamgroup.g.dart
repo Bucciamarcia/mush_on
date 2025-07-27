@@ -170,7 +170,7 @@ class _TeamGroupFromIdProviderElement
   String get id => (origin as TeamGroupFromIdProvider).id;
 }
 
-String _$teamsInTeamgroupHash() => r'9ef1975c0412a4f77ddf2053f1c82f79172bd0bf';
+String _$teamsInTeamgroupHash() => r'6db75d08a5cea992c43efcda42bfa8f2610c93b8';
 
 /// The list of teams in a teamgroup
 ///
