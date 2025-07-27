@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
-import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'teamgroup.g.dart';
@@ -25,15 +24,12 @@ Stream<TeamGroup> teamGroupFromId(Ref ref, String id) async* {
 Stream<List<Team>> teamsInTeamgroup(Ref ref, String teamgroupId) async* {
   String account = await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/teams/history/$teamgroupId/teams";
-  BasicLogger().debug("Fetching for path: $path");
   var db = FirebaseFirestore.instance;
   var snapshots = db.collection(path).orderBy("rank").snapshots();
   yield* snapshots.map(
     (snapshot) {
-      BasicLogger().debug("found snapshots: ${snapshot.docs.length}");
       return snapshot.docs.map(
         (doc) {
-          BasicLogger().debug("aerg ${doc.data()}");
           return Team.fromJson(
             doc.data(),
           );
