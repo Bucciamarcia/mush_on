@@ -10,7 +10,8 @@ _TeamGroupWorkspace _$TeamGroupWorkspaceFromJson(Map<String, dynamic> json) =>
     _TeamGroupWorkspace(
       id: json['id'] as String? ?? "",
       name: json['name'] as String? ?? "",
-      date: DateTime.parse(json['date'] as String),
+      date: const NonNullableTimestampConverter()
+          .fromJson(json['date'] as Timestamp),
       distance: (json['distance'] as num?)?.toDouble() ?? 0,
       notes: json['notes'] as String? ?? "",
       teams: (json['teams'] as List<dynamic>?)
@@ -23,7 +24,7 @@ Map<String, dynamic> _$TeamGroupWorkspaceToJson(_TeamGroupWorkspace instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'date': instance.date.toIso8601String(),
+      'date': const NonNullableTimestampConverter().toJson(instance.date),
       'distance': instance.distance,
       'notes': instance.notes,
       'teams': instance.teams,
@@ -398,7 +399,25 @@ final canPopTeamGroupProvider =
 );
 
 typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
-String _$createTeamGroupHash() => r'2aa4767c2dc0e92048d71b365f6125ac32b19c60';
+String _$hasOldteamBeenSetHash() => r'3451bbc5807ff4d3b68dee81b2bbec1e81801af2';
+
+/// Simply checks if the original team has already been set. Workaround, ugly.
+///
+/// Copied from [HasOldteamBeenSet].
+@ProviderFor(HasOldteamBeenSet)
+final hasOldteamBeenSetProvider =
+    AutoDisposeNotifierProvider<HasOldteamBeenSet, bool>.internal(
+  HasOldteamBeenSet.new,
+  name: r'hasOldteamBeenSetProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$hasOldteamBeenSetHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$HasOldteamBeenSet = AutoDisposeNotifier<bool>;
+String _$createTeamGroupHash() => r'0cb236384e3a67400bab7d332a5197f5bfed7f9c';
 
 abstract class _$CreateTeamGroup
     extends BuildlessAutoDisposeAsyncNotifier<TeamGroupWorkspace> {

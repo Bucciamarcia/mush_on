@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/riverpod/teamgroup.dart';
 import 'package:mush_on/services/storage.dart';
@@ -92,12 +93,26 @@ Stream<List<DogTotal>> dogTotal(
 
     List<Team> teams =
         await ref.watch(teamsInTeamgroupProvider(teamGroup.id).future);
-    final isDogInTeam = teams.any((team) {
-      List<DogPair> dogPairs =
-          ref.watch(dogPairsInTeamProvider(teamGroup.id, team.id)).value ?? [];
-      return dogPairs
-          .any((pair) => pair.firstDogId == dogId || pair.secondDogId == dogId);
-    });
+    bool isDogInTeam = false;
+    for (final team in teams) {
+      try {
+        // Now you can safely await inside the loop
+        List<DogPair> dogPairs = await ref
+            .watch(dogPairsInTeamProvider(teamGroup.id, team.id).future);
+
+        if (dogPairs.any(
+            (pair) => pair.firstDogId == dogId || pair.secondDogId == dogId)) {
+          isDogInTeam = true;
+          // Exit the loop early since we found the dog, mimicking .any() behavior
+          break;
+        }
+      } catch (e, s) {
+        BasicLogger()
+            .error("Couldn't get dogpairs in dog", error: e, stackTrace: s);
+        // Continue to the next team if this one fails
+        continue;
+      }
+    }
 
     if (isDogInTeam) {
       distance = teamGroup.distance;
