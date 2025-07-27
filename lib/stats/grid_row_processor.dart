@@ -21,11 +21,11 @@ class GridRowProcessor {
       required this.startDate,
       required this.finishDate,
       required this.ref});
-  Future<GridRowProcessorResult> run() async {
+  GridRowProcessorResult run() {
     Map<String, Dog> dogsMap = _generateDogsMap();
     // Get daily aggregated data
     List<DailyDogStats> aggregatedStats =
-        await _aggregateData(dogsMap, startDate, finishDate);
+        _aggregateData(dogsMap, startDate, finishDate);
 
     // Calculate monthly summary data
     List<MonthSummary> monthlySummariesList =
@@ -60,8 +60,8 @@ class GridRowProcessor {
     return toReturn;
   }
 
-  Future<List<DailyDogStats>> _aggregateData(
-      Map<String, Dog> dogsMap, DateTime startDate, DateTime finishDate) async {
+  List<DailyDogStats> _aggregateData(
+      Map<String, Dog> dogsMap, DateTime startDate, DateTime finishDate) {
     List<DailyDogStats> toReturn = [];
     Map<String, List<TeamGroup>> teamsByDay = getTeamsByDay();
     DateTime startDateOrBeginning = findOldestDate(startDate);
@@ -89,10 +89,12 @@ class GridRowProcessor {
           // Add try-catch to catch potential errors in inner loops
           for (TeamGroup dayTeam in dayTeams) {
             List<Team> teams =
-                await ref.watch(teamsInTeamgroupProvider(dayTeam.id).future);
+                ref.watch(teamsInTeamgroupProvider(dayTeam.id)).value ?? [];
             for (Team team in teams) {
-              List<DogPair> dogPairs = await ref
-                  .watch(dogPairsInTeamProvider(dayTeam.id, team.id).future);
+              List<DogPair> dogPairs = ref
+                      .watch(dogPairsInTeamProvider(dayTeam.id, team.id))
+                      .value ??
+                  [];
               for (DogPair dogPair in dogPairs) {
                 if (dogPair.firstDogId != null) {
                   dogDistances[dogPair.firstDogId!] =
