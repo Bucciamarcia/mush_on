@@ -22,7 +22,7 @@ class StatsMain extends ConsumerWidget {
         var dates = ref.watch(statsDatesProvider);
         var teamGroupsAsync = ref.watch(teamGroupsProvider(
             earliestDate: DateTimeUtils.today().subtract(Duration(days: 360)),
-            finalDate: DateTimeUtils.today()));
+            finalDate: DateTimeUtils.endOfToday()));
         return teamGroupsAsync.when(
           data: (teams) {
             GridRowProcessor dataManipulator = GridRowProcessor(
