@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/riverpod/teamgroup.dart';
 
@@ -20,7 +21,11 @@ class FormatObject extends ConsumerWidget {
   }
 
   String formatMap(WidgetRef ref) {
-    List<Team> teams = ref.watch(teamsInTeamgroupProvider(item.id)).value ?? [];
+    BasicLogger().debug("Fetching team for group: ${item.id}");
+    List<Team> teams = ref.watch(teamsInTeamgroupProvider(item.id)).value ??
+        [Team(id: "adfkshbg", rank: 0)];
+    BasicLogger().debug("AAAAAAAAAAAAA");
+    BasicLogger().debug(teams);
     String toReturn = item.name;
     for (Team teamItem in teams) {
       toReturn = "$toReturn\n\n${processTeam(teamItem, ref)}";

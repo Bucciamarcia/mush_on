@@ -21,7 +21,6 @@ part 'teamgroup.freezed.dart';
 ///   date: DateTime.now(),
 ///   distance: 10,
 ///   notes: "Competitive teams from the eastern region",
-///   teams: [team1, team2, team3],
 /// );
 /// ```
 sealed class TeamGroup with _$TeamGroup {
