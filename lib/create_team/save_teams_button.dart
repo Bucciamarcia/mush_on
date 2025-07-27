@@ -81,14 +81,14 @@ class SaveTeamsButton extends ConsumerWidget {
     var oldteamsObject = [];
     for (var (i, team) in oldtg.teams.indexed) {
       var tempobj = team.toJson();
-      tempobj.addAll({"index": i});
+      tempobj.addAll({"rank": i});
       oldteamsObject.add(tempobj);
     }
     var newteamsObject = [];
     for (var (i, team) in newtg.teams.indexed) {
       var tempobj = team.toJson();
       tempobj.remove("dogPairs");
-      tempobj.addAll({"index": i});
+      tempobj.addAll({"rank": i});
       newteamsObject.add(tempobj);
     }
     if (oldteamsObject != newteamsObject) {
