@@ -22,7 +22,7 @@ class SaveTeamsButton extends ConsumerWidget {
       onPressed: () async {
         try {
           String account = await ref.watch(accountProvider.future);
-          saveToDb(newtg, oldtg, account);
+          await saveToDb(newtg, oldtg, account);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -56,6 +56,10 @@ class SaveTeamsButton extends ConsumerWidget {
     if (newtg == oldtg) {
       logger.info("New tg equals old tg, no update necessary");
       return;
+    } else {
+      logger.info("Starting save");
+      logger.debug(newtg);
+      logger.debug(oldtg);
     }
     if (newtg.date != oldtg.date) {
       _removeCustomerGroups(newtg.id, account, newtg.date);
@@ -83,6 +87,7 @@ class SaveTeamsButton extends ConsumerWidget {
     var newteamsObject = [];
     for (var (i, team) in newtg.teams.indexed) {
       var tempobj = team.toJson();
+      tempobj.remove("dogPairs");
       tempobj.addAll({"index": i});
       newteamsObject.add(tempobj);
     }
@@ -114,7 +119,12 @@ class SaveTeamsButton extends ConsumerWidget {
         }
       }
     }
-    batch.commit();
+    try {
+      await batch.commit();
+    } catch (e, s) {
+      logger.error("Error while saving team group", error: e, stackTrace: s);
+      rethrow;
+    }
   }
 
   Future<void> _removeCustomerGroups(

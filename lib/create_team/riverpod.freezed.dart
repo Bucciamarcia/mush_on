@@ -19,6 +19,7 @@ mixin _$TeamGroupWorkspace {
 
   /// The name of the entire group.
   String get name;
+  @NonNullableTimestampConverter()
   DateTime get date;
 
   /// The distance ran in km.
@@ -72,7 +73,7 @@ abstract mixin class $TeamGroupWorkspaceCopyWith<$Res> {
   $Res call(
       {String id,
       String name,
-      DateTime date,
+      @NonNullableTimestampConverter() DateTime date,
       double distance,
       String notes,
       List<TeamWorkspace> teams});
@@ -133,7 +134,7 @@ class _TeamGroupWorkspace implements TeamGroupWorkspace {
   const _TeamGroupWorkspace(
       {this.id = "",
       this.name = "",
-      required this.date,
+      @NonNullableTimestampConverter() required this.date,
       this.distance = 0,
       this.notes = "",
       final List<TeamWorkspace> teams = const []})
@@ -150,6 +151,7 @@ class _TeamGroupWorkspace implements TeamGroupWorkspace {
   @JsonKey()
   final String name;
   @override
+  @NonNullableTimestampConverter()
   final DateTime date;
 
   /// The distance ran in km.
@@ -220,7 +222,7 @@ abstract mixin class _$TeamGroupWorkspaceCopyWith<$Res>
   $Res call(
       {String id,
       String name,
-      DateTime date,
+      @NonNullableTimestampConverter() DateTime date,
       double distance,
       String notes,
       List<TeamWorkspace> teams});

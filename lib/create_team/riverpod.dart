@@ -6,6 +6,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/custom_converters.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
@@ -18,7 +19,7 @@ sealed class TeamGroupWorkspace with _$TeamGroupWorkspace {
 
     /// The name of the entire group.
     @Default("") String name,
-    required DateTime date,
+    @NonNullableTimestampConverter() required DateTime date,
 
     /// The distance ran in km.
     /// Used for stats.
@@ -66,14 +67,40 @@ class CanPopTeamGroup extends _$CanPopTeamGroup {
 
 @riverpod
 
+/// Simply checks if the original team has already been set. Workaround, ugly.
+class HasOldteamBeenSet extends _$HasOldteamBeenSet {
+  @override
+  bool build() {
+    return false;
+  }
+
+  void changeValue(bool v) {
+    state = v;
+  }
+}
+
+@riverpod
+
 /// The teamgroup that is being built.
 class CreateTeamGroup extends _$CreateTeamGroup {
   @override
   Future<TeamGroupWorkspace> build(TeamGroup? teamGroup) async {
     if (teamGroup == null) {
       return TeamGroupWorkspace(
-        date: DateTime.now(),
+        date: DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          DateTime.now().hour,
+          DateTime.now().minute,
+        ),
         id: Uuid().v4(),
+        teams: [
+          TeamWorkspace(id: Uuid().v4(), dogPairs: [
+            DogPairWorkspace(id: Uuid().v4()),
+            DogPairWorkspace(id: Uuid().v4()),
+          ]),
+        ],
       );
     } else {
       String account = await ref.watch(accountProvider.future);
