@@ -100,8 +100,10 @@ class ClientManagementMainScreen extends ConsumerWidget {
         // Warnings Section
         if (warnings.isNotEmpty) ...[
           Card(
-            color:
-                Theme.of(context).colorScheme.errorContainer.withOpacity(0.5),
+            color: Theme.of(context)
+                .colorScheme
+                .errorContainer
+                .withValues(alpha: 0.5),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -344,7 +346,7 @@ class _BookingCardInGroup extends ConsumerWidget {
               ref.invalidate(futureBookingsProvider);
             },
             onCustomersEdited: (ncs) {
-              customerRepo.setCustomers(ncs);
+              customerRepo.setCustomers(ncs, booking.id);
               ref.invalidate(bookingsByDayProvider);
               ref.invalidate(bookingsByCustomerGroupIdProvider);
               ref.invalidate(futureBookingsProvider);
@@ -429,7 +431,7 @@ class ListBookings extends ConsumerWidget {
                   ref.invalidate(futureBookingsProvider);
                 },
                 onCustomersEdited: (ncs) {
-                  customerRepo.setCustomers(ncs);
+                  customerRepo.setCustomers(ncs, b.id);
                   ref.invalidate(bookingsByDayProvider);
                   ref.invalidate(bookingsByCustomerGroupIdProvider);
                   ref.invalidate(futureBookingsProvider);
