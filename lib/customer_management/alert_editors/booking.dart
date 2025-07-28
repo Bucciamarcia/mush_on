@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_management/alert_editors/customer.dart';
+import 'package:mush_on/customer_management/repository.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:uuid/uuid.dart';
@@ -456,6 +458,17 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                         },
                         loading: () =>
                             const Center(child: CircularProgressIndicator())),
+                    ElevatedButton.icon(
+                      onPressed: () => _addCustomerGroup().catchError(
+                        (e) => ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "Couldn't add customer group"),
+                        ),
+                      ),
+                      icon: Icon(Icons.add),
+                      label: Center(
+                        child: Text("Add new"),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -508,6 +521,89 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
               : null,
           icon: const Icon(Icons.save),
           label: const Text("Save Booking"),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _addCustomerGroup() async {
+    String groupName = "";
+    await showDialog(
+      context: context,
+      builder: (_) => AddCustomerGroupName(
+        onNameAdded: (n) => groupName = n,
+      ),
+    );
+    if (groupName.isNotEmpty) {
+      final createdCg = CustomerGroup(
+        id: Uuid().v4(),
+        datetime: dateTime,
+        name: groupName,
+      );
+      final repo = CustomerManagementRepository(
+        account: await ref.watch(accountProvider.future),
+      );
+      try {
+        await repo.setCustomerGroup(createdCg);
+        setState(() {
+          selectedCustomerGroup = createdCg;
+        });
+      } catch (e, s) {
+        logger.error("Couldn't create customer group in booking manager",
+            error: e, stackTrace: s);
+        rethrow;
+      }
+    }
+  }
+}
+
+class AddCustomerGroupName extends StatefulWidget {
+  final Function(String) onNameAdded;
+  const AddCustomerGroupName({super.key, required this.onNameAdded});
+
+  @override
+  State<AddCustomerGroupName> createState() => _AddCustomerGroupNameState();
+}
+
+class _AddCustomerGroupNameState extends State<AddCustomerGroupName> {
+  late TextEditingController controller;
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog.adaptive(
+      scrollable: true,
+      title: Text("Add booking"),
+      content: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          hint: Text("Name of the booking"),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            "Cancel",
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            widget.onNameAdded(controller.text);
+            Navigator.of(context).pop();
+          },
+          child: Text("Confirm"),
         ),
       ],
     );
