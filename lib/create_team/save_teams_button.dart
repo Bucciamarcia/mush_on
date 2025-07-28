@@ -95,18 +95,18 @@ class SaveTeamsButton extends ConsumerWidget {
       // First, delete all teams and their dogpairs.
       for (var team in oldtg.teams) {
         batch.delete(db.doc(
-            "accounts/$account/data/teams/history/${oldtg.id}/teams/${team.id}"));
+            "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}"));
         // Delete all dogpairs for this team
         for (var dogPair in team.dogPairs) {
           batch.delete(db.doc(
-              "accounts/$account/data/teams/history/${oldtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"));
+              "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"));
         }
       }
       // Then re-set them all.
       for (var team in newtg.teams) {
         batch.set(
             db.doc(
-                "accounts/$account/data/teams/history/${oldtg.id}/teams/${team.id}"),
+                "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}"),
             newteamsObject.firstWhere((o) => o["id"] == team.id));
         // Re-set all dogpairs for this team
         for (var (i, dogPair) in team.dogPairs.indexed) {
@@ -114,7 +114,7 @@ class SaveTeamsButton extends ConsumerWidget {
           dogPairData.addAll({"rank": i});
           batch.set(
               db.doc(
-                  "accounts/$account/data/teams/history/${oldtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"),
+                  "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"),
               dogPairData);
         }
       }
