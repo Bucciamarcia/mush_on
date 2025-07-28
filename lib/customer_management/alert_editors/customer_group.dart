@@ -2,8 +2,12 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/create_team/riverpod.dart';
+import 'package:mush_on/create_team/save_teams_button.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:uuid/uuid.dart';
@@ -270,11 +274,59 @@ class _CustomerGroupEditorAlertState
                                     value: tg, label: tg.name))
                                 .toList(),
                             onSelected: (v) {
-                              setState(() {
-                                selectedTeamGroupId = v?.id;
-                              });
+                              setState(
+                                () {
+                                  selectedTeamGroupId = v?.id;
+                                },
+                              );
                             },
                           ),
+                    Center(
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          String tgName = "";
+                          await showDialog(
+                            context: context,
+                            builder: (_) => AddTeamGroupInCg(
+                              onTgAdded: (v) => tgName = v,
+                            ),
+                          );
+                          if (tgName.isNotEmpty) {
+                            String uid = Uuid().v4();
+                            final tg = TeamGroupWorkspace(
+                              name: tgName,
+                              date: dateTime,
+                              id: uid,
+                              teams: [
+                                TeamWorkspace(
+                                  id: Uuid().v4(),
+                                  dogPairs: [
+                                    DogPairWorkspace(id: Uuid().v4()),
+                                    DogPairWorkspace(id: Uuid().v4()),
+                                  ],
+                                ),
+                              ],
+                            );
+                            await saveToDb(
+                              tg,
+                              TeamGroupWorkspace(date: DateTime.now()),
+                              await ref.watch(accountProvider.future),
+                            ).catchError(
+                              (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  errorSnackBar(context, "Error!"),
+                                );
+                              },
+                            );
+                            setState(() {
+                              selectedTeamGroupId = uid;
+                            });
+                          }
+                        },
+                        label: Text("Add new"),
+                        icon: Icon(Icons.add),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -350,6 +402,56 @@ class _CustomerGroupEditorAlertState
           icon: const Icon(Icons.save),
           label:
               Text(widget.customerGroup == null ? "Add Group" : "Save Changes"),
+        ),
+      ],
+    );
+  }
+}
+
+class AddTeamGroupInCg extends StatefulWidget {
+  final Function(String) onTgAdded;
+  const AddTeamGroupInCg({super.key, required this.onTgAdded});
+
+  @override
+  State<AddTeamGroupInCg> createState() => _AddTeamGroupInCgState();
+}
+
+class _AddTeamGroupInCgState extends State<AddTeamGroupInCg> {
+  late TextEditingController controller;
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog.adaptive(
+      scrollable: true,
+      title: Text("Add Team Group"),
+      content: Column(
+        children: [
+          Text("Create a new Team Group and assign this Customer Group to it."),
+          TextField(
+            controller: controller,
+            decoration: InputDecoration(hint: Text("Name of the Team Group")),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            "Cancel",
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ),
+        FilledButton(
+          onPressed: () {
+            widget.onTgAdded(controller.text);
+            Navigator.of(context).pop();
+          },
+          child: Text("Create"),
         ),
       ],
     );

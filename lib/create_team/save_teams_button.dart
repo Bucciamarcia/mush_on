@@ -51,111 +51,6 @@ class SaveTeamsButton extends ConsumerWidget {
     );
   }
 
-  Future<void> saveToDb(TeamGroupWorkspace newtg, TeamGroupWorkspace oldtg,
-      String account) async {
-    if (newtg == oldtg) {
-      logger.info("New tg equals old tg, no update necessary");
-      return;
-    } else {
-      logger.info("Starting save");
-      logger.debug(newtg);
-      logger.debug(oldtg);
-    }
-    if (newtg.date != oldtg.date) {
-      _removeCustomerGroups(newtg.id, account, newtg.date);
-    }
-
-    final db = FirebaseFirestore.instance;
-    var batch = db.batch();
-    var newtgObject = newtg.toJson();
-    newtgObject.remove("teams");
-    var oldtgObject = oldtg.toJson();
-    oldtgObject.remove("teams");
-
-    // Updates teamgroup
-    if (newtgObject != oldtgObject) {
-      batch.set(db.doc("accounts/$account/data/teams/history/${newtg.id}"),
-          newtgObject);
-    }
-
-    var oldteamsObject = [];
-    for (var (i, team) in oldtg.teams.indexed) {
-      var tempobj = team.toJson();
-      tempobj.addAll({"rank": i});
-      oldteamsObject.add(tempobj);
-    }
-    var newteamsObject = [];
-    for (var (i, team) in newtg.teams.indexed) {
-      var tempobj = team.toJson();
-      tempobj.remove("dogPairs");
-      tempobj.addAll({"rank": i});
-      newteamsObject.add(tempobj);
-    }
-    if (oldteamsObject != newteamsObject) {
-      // First, delete all teams and their dogpairs.
-      for (var team in oldtg.teams) {
-        batch.delete(db.doc(
-            "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}"));
-        // Delete all dogpairs for this team
-        for (var dogPair in team.dogPairs) {
-          batch.delete(db.doc(
-              "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"));
-        }
-      }
-      // Then re-set them all.
-      for (var team in newtg.teams) {
-        batch.set(
-            db.doc(
-                "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}"),
-            newteamsObject.firstWhere((o) => o["id"] == team.id));
-        // Re-set all dogpairs for this team
-        for (var (i, dogPair) in team.dogPairs.indexed) {
-          var dogPairData = dogPair.toJson();
-          dogPairData.addAll({"rank": i});
-          batch.set(
-              db.doc(
-                  "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"),
-              dogPairData);
-        }
-      }
-    }
-    try {
-      await batch.commit();
-    } catch (e, s) {
-      logger.error("Error while saving team group", error: e, stackTrace: s);
-      rethrow;
-    }
-  }
-
-  Future<void> _removeCustomerGroups(
-      String teamId, String account, DateTime newTeamDate) async {
-    logger.debug("Checking remove cg");
-    String path = "accounts/$account/data/bookingManager/customerGroups";
-    final db = FirebaseFirestore.instance;
-    var collection =
-        db.collection(path).where("teamGroupId", isEqualTo: teamId);
-    var data = await collection.get();
-    List<CustomerGroup> cgs =
-        data.docs.map((doc) => CustomerGroup.fromJson(doc.data())).toList();
-    logger.debug("Cgs in this tg: ${cgs.length}");
-    if (cgs.isEmpty) {
-      logger.debug("None to remove");
-      return;
-    }
-    var batch = db.batch();
-    for (var cg in cgs) {
-      logger.debug("Checing for for id: ${cg.id}");
-      logger.debug("cg datetime: ${cg.datetime.toUtc()}");
-      logger.debug("New teamdate: $newTeamDate");
-      if (cg.datetime.toUtc() != newTeamDate) {
-        logger.debug("Need to remove!");
-        var newCg = cg.copyWith(teamGroupId: null);
-        batch.set(db.doc("$path/${cg.id}"), newCg.toJson());
-      }
-    }
-    await batch.commit();
-  }
-
   Future<QuerySnapshot<Object?>> doesTeamExist(DateTime newDate) async {
     try {
       var db = FirebaseFirestore.instance;
@@ -172,4 +67,109 @@ class SaveTeamsButton extends ConsumerWidget {
       rethrow;
     }
   }
+}
+
+Future<void> saveToDb(
+    TeamGroupWorkspace newtg, TeamGroupWorkspace oldtg, String account) async {
+  final logger = BasicLogger();
+  if (newtg == oldtg) {
+    return;
+  } else {
+    logger.info("Starting save");
+    logger.debug(newtg);
+    logger.debug(oldtg);
+  }
+  if (newtg.date != oldtg.date) {
+    _removeCustomerGroups(newtg.id, account, newtg.date);
+  }
+
+  final db = FirebaseFirestore.instance;
+  var batch = db.batch();
+  var newtgObject = newtg.toJson();
+  newtgObject.remove("teams");
+  var oldtgObject = oldtg.toJson();
+  oldtgObject.remove("teams");
+
+  // Updates teamgroup
+  if (newtgObject != oldtgObject) {
+    batch.set(db.doc("accounts/$account/data/teams/history/${newtg.id}"),
+        newtgObject);
+  }
+
+  var oldteamsObject = [];
+  for (var (i, team) in oldtg.teams.indexed) {
+    var tempobj = team.toJson();
+    tempobj.addAll({"rank": i});
+    oldteamsObject.add(tempobj);
+  }
+  var newteamsObject = [];
+  for (var (i, team) in newtg.teams.indexed) {
+    var tempobj = team.toJson();
+    tempobj.remove("dogPairs");
+    tempobj.addAll({"rank": i});
+    newteamsObject.add(tempobj);
+  }
+  if (oldteamsObject != newteamsObject) {
+    // First, delete all teams and their dogpairs.
+    for (var team in oldtg.teams) {
+      batch.delete(db.doc(
+          "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}"));
+      // Delete all dogpairs for this team
+      for (var dogPair in team.dogPairs) {
+        batch.delete(db.doc(
+            "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"));
+      }
+    }
+    // Then re-set them all.
+    for (var team in newtg.teams) {
+      batch.set(
+          db.doc(
+              "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}"),
+          newteamsObject.firstWhere((o) => o["id"] == team.id));
+      // Re-set all dogpairs for this team
+      for (var (i, dogPair) in team.dogPairs.indexed) {
+        var dogPairData = dogPair.toJson();
+        dogPairData.addAll({"rank": i});
+        batch.set(
+            db.doc(
+                "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"),
+            dogPairData);
+      }
+    }
+  }
+  try {
+    await batch.commit();
+  } catch (e, s) {
+    logger.error("Error while saving team group", error: e, stackTrace: s);
+    rethrow;
+  }
+}
+
+Future<void> _removeCustomerGroups(
+    String teamId, String account, DateTime newTeamDate) async {
+  final logger = BasicLogger();
+  logger.debug("Checking remove cg");
+  String path = "accounts/$account/data/bookingManager/customerGroups";
+  final db = FirebaseFirestore.instance;
+  var collection = db.collection(path).where("teamGroupId", isEqualTo: teamId);
+  var data = await collection.get();
+  List<CustomerGroup> cgs =
+      data.docs.map((doc) => CustomerGroup.fromJson(doc.data())).toList();
+  logger.debug("Cgs in this tg: ${cgs.length}");
+  if (cgs.isEmpty) {
+    logger.debug("None to remove");
+    return;
+  }
+  var batch = db.batch();
+  for (var cg in cgs) {
+    logger.debug("Checing for for id: ${cg.id}");
+    logger.debug("cg datetime: ${cg.datetime.toUtc()}");
+    logger.debug("New teamdate: $newTeamDate");
+    if (cg.datetime.toUtc() != newTeamDate) {
+      logger.debug("Need to remove!");
+      var newCg = cg.copyWith(teamGroupId: null);
+      batch.set(db.doc("$path/${cg.id}"), newCg.toJson());
+    }
+  }
+  await batch.commit();
 }
