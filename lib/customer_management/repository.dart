@@ -89,6 +89,28 @@ class CustomerManagementRepository {
     batch.commit();
   }
 
+  Future<void> deleteCustomerGroup(String id) async {
+    logger.debug("Called deleteCustomerGroup for id: $id");
+    String path = "accounts/$account/data/bookingManager/customerGroups/$id";
+    var doc = _db.doc(path);
+    var batch = _db.batch();
+    batch.delete(doc);
+    String bookingPath = "accounts/$account/data/bookingManager/bookings";
+    var col = await _db
+        .collection(bookingPath)
+        .where("customerGroupId", isEqualTo: id)
+        .get();
+    for (var c in col.docs) {
+      batch.update(_db.doc("$bookingPath/${c.id}"), {"customerGroupId": null});
+    }
+    try {
+      await batch.commit();
+    } catch (e, s) {
+      logger.error("Couldn't delete customer group.", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   /// Sets all the customers for this group in a batch operation.
   Future<void> setCustomers(List<Customer> customers, String bookingId) async {
     var batch = _db.batch();

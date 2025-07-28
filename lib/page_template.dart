@@ -110,22 +110,24 @@ class TemplateScreen extends ConsumerWidget {
               onTap: () => showDialog(
                     context: context,
                     builder: (_) => CustomerGroupEditorAlert(
+                        onCustomerGroupDeleted: () {},
                         onCgEdited: (newCustomerGroup) async {
-                      try {
-                        await customerRepo.setCustomerGroup(newCustomerGroup);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              confirmationSnackbar(context,
-                                  "Customer group added successfully"));
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              errorSnackBar(
-                                  context, "Couldn't add customer group"));
-                        }
-                      }
-                    }),
+                          try {
+                            await customerRepo
+                                .setCustomerGroup(newCustomerGroup);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  confirmationSnackbar(context,
+                                      "Customer group added successfully"));
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  errorSnackBar(
+                                      context, "Couldn't add customer group"));
+                            }
+                          }
+                        }),
                   ))
         ],
       );
