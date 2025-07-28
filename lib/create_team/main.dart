@@ -233,6 +233,15 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                   },
                   child: Text("Copy team group"),
                 ),
+                ElevatedButton(
+                  onPressed: () {
+                    ref.invalidate(hasOldteamBeenSetProvider);
+                    ref.invalidate(canPopTeamGroupProvider);
+                    ref.invalidate(createTeamGroupProvider);
+                    Navigator.of(context).popAndPushNamed("/createteam");
+                  },
+                  child: Text("Create new team group"),
+                ),
                 SaveTeamsButton(
                   newtg: teamGroup,
                   oldtg: oldTeamGroup,
