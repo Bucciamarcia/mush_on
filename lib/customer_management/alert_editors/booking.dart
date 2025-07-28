@@ -513,8 +513,9 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                 TextButton(
                   onPressed: () {
                     widget.onBookingDeleted();
-                    Navigator.of(context)
-                        .popUntil(ModalRoute.withName("/client_management"));
+                    Navigator.of(context).popUntil(
+                      ModalRoute.withName("/client_management"),
+                    );
                   },
                   child: Text("Proceed"),
                 ),

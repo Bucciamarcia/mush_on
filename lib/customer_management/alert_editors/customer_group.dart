@@ -10,10 +10,12 @@ import 'package:uuid/uuid.dart';
 
 class CustomerGroupEditorAlert extends ConsumerStatefulWidget {
   final Function(CustomerGroup) onCgEdited;
+  final Function() onCustomerGroupDeleted;
   final CustomerGroup? customerGroup;
   const CustomerGroupEditorAlert({
     super.key,
     required this.onCgEdited,
+    required this.onCustomerGroupDeleted,
     this.customerGroup,
   });
 
@@ -294,6 +296,36 @@ class _CustomerGroupEditorAlertState
             "Cancel",
             style: TextStyle(color: colorScheme.error),
           ),
+        ),
+        TextButton(
+          onPressed: () => showDialog(
+            context: context,
+            builder: (_) => AlertDialog.adaptive(
+              title: Text("Are you sure?"),
+              content:
+                  Text("Are you sure you want to delete this customer group?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    "Nevermind",
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.error),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    widget.onCustomerGroupDeleted();
+                    Navigator.of(context).popUntil(
+                      ModalRoute.withName("/client_management"),
+                    );
+                  },
+                  child: Text("Delete"),
+                ),
+              ],
+            ),
+          ),
+          child: Text("Delete"),
         ),
         FilledButton.icon(
           style: FilledButton.styleFrom(

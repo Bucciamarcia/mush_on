@@ -243,6 +243,13 @@ class ListCustomerGroups extends ConsumerWidget {
               onTap: () => showDialog(
                 context: context,
                 builder: (_) => CustomerGroupEditorAlert(
+                  onCustomerGroupDeleted: () =>
+                      customerRepo.deleteCustomerGroup(cg.id).catchError(
+                            (e) => ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(
+                                  context, "Failed to delete customer group."),
+                            ),
+                          ),
                   customerGroup: cg,
                   onCgEdited: (ncg) async {
                     customerRepo.setCustomerGroup(ncg);
