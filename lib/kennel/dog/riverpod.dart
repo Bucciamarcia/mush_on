@@ -6,6 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/riverpod/teamgroup.dart';
 import 'package:mush_on/services/storage.dart';
@@ -71,7 +72,6 @@ class SingleDogImage extends _$SingleDogImage {
 /// Gets the run totals for a single dog in the specified period.
 ///
 /// Defaults to 30 days.
-@riverpod
 Stream<List<DogTotal>> dogTotal(
   Ref ref, {
   required String dogId,
@@ -85,6 +85,13 @@ Stream<List<DogTotal>> dogTotal(
   );
 
   final Map<DateTime, double> ranByDay = {};
+  DateTime dateTicker = DateTimeUtils.removeTime(effectiveCutoff);
+  final endDate = DateTimeUtils.endOfToday();
+
+  while (dateTicker.isBefore(endDate)) {
+    ranByDay[dateTicker] = 0.0;
+    dateTicker = dateTicker.add(const Duration(days: 1));
+  }
 
   for (final teamGroup in teamGroups) {
     final date = DateTime.utc(
@@ -118,7 +125,7 @@ Stream<List<DogTotal>> dogTotal(
       distance = teamGroup.distance;
     }
 
-    ranByDay.update(date, (value) => value + distance,
+    ranByDay.update(DateTimeUtils.removeTime(date), (value) => value + distance,
         ifAbsent: () => distance);
   }
 

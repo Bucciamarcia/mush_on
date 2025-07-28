@@ -156,7 +156,7 @@ class _SingleDogProviderElement extends AutoDisposeStreamProviderElement<Dog>
   String get dogId => (origin as SingleDogProvider).dogId;
 }
 
-String _$dogTotalHash() => r'dc1630e52e3afe4c8353c43c4376b79a8198883f';
+String _$dogTotalHash() => r'750f43ddb2cac233dc097496687ac9dcb82a58fd';
 
 /// Gets the run totals for a single dog in the specified period.
 ///
