@@ -12,4 +12,9 @@ class DateTimeUtils {
   static DateTime endOfDay(DateTime date) {
     return DateTime(date.year, date.month, date.day, 23, 59, 59, 999);
   }
+
+  /// Returns the start of the day for the given date.
+  static DateTime removeTime(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
+  }
 }
