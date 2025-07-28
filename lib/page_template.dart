@@ -8,6 +8,7 @@ import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/kennel/main.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:uuid/uuid.dart';
 
 import 'customer_management/alert_editors/customer_group.dart';
 import 'customer_management/main.dart';
@@ -62,38 +63,42 @@ class TemplateScreen extends ConsumerWidget {
             label: "Add booking",
             onTap: () => showDialog(
               context: context,
-              builder: (_) => BookingEditorAlert(
-                onCustomersEdited: (customers) async {
-                  try {
-                    await customerRepo.setCustomers(customers);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          confirmationSnackbar(
-                              context, "Customers added successfully"));
+              builder: (_) {
+                String uid = Uuid().v4();
+                return BookingEditorAlert(
+                  id: uid,
+                  onCustomersEdited: (customers) async {
+                    try {
+                      await customerRepo.setCustomers(customers, uid);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            confirmationSnackbar(
+                                context, "Customers added successfully"));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(context, "Couldn't add customers"));
+                      }
                     }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          errorSnackBar(context, "Couldn't add customers"));
+                  },
+                  onBookingEdited: (newBooking) async {
+                    try {
+                      await customerRepo.setBooking(newBooking);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            confirmationSnackbar(
+                                context, "Booking added successfully"));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(context, "Couldn't add booking"));
+                      }
                     }
-                  }
-                },
-                onBookingEdited: (newBooking) async {
-                  try {
-                    await customerRepo.setBooking(newBooking);
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          confirmationSnackbar(
-                              context, "Booking added successfully"));
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          errorSnackBar(context, "Couldn't add booking"));
-                    }
-                  }
-                },
-              ),
+                  },
+                );
+              },
             ),
           ),
           SpeedDialChild(

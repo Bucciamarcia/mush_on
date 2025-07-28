@@ -14,10 +14,12 @@ class BookingEditorAlert extends ConsumerStatefulWidget {
   final Function(Booking) onBookingEdited;
   final Function(List<Customer>) onCustomersEdited;
   final Booking? booking;
+  final String? id;
   const BookingEditorAlert({
     super.key,
     required this.onBookingEdited,
     this.booking,
+    this.id,
     required this.onCustomersEdited,
   });
 
@@ -40,7 +42,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   void initState() {
     super.initState();
     isNewBooking = widget.booking == null;
-    id = widget.booking?.id ?? Uuid().v4();
+    id = widget.booking?.id ?? widget.id ?? Uuid().v4();
     nameController = TextEditingController(text: widget.booking?.name);
     priceController =
         TextEditingController(text: widget.booking?.price.toString());
@@ -300,10 +302,14 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                         runSpacing: 8,
                         children: customers
                             .map(
-                              (customer) => ActionChip(
+                              (customer) => FilterChip(
                                 avatar: const Icon(Icons.person, size: 16),
                                 label: Text(customer.name),
-                                onPressed: () => showDialog(
+                                onDeleted: () => setState(() {
+                                  customers
+                                      .removeWhere((c) => c.id == customer.id);
+                                }),
+                                onSelected: (_) => showDialog(
                                     context: context,
                                     builder: (_) => CustomerEditorAlert(
                                           customer: customer,
@@ -482,6 +488,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
           ),
           onPressed: nameController.text.isNotEmpty
               ? () {
+                  logger.debug("Customers: $customers");
                   widget.onCustomersEdited(customers);
                   widget.onBookingEdited(
                     Booking(
