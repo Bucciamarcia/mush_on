@@ -15,15 +15,16 @@ import '../riverpod.dart';
 class BookingEditorAlert extends ConsumerStatefulWidget {
   final Function(Booking) onBookingEdited;
   final Function(List<Customer>) onCustomersEdited;
+  final Function() onBookingDeleted;
   final Booking? booking;
   final String? id;
-  const BookingEditorAlert({
-    super.key,
-    required this.onBookingEdited,
-    this.booking,
-    this.id,
-    required this.onCustomersEdited,
-  });
+  const BookingEditorAlert(
+      {super.key,
+      required this.onBookingEdited,
+      this.booking,
+      this.id,
+      required this.onCustomersEdited,
+      required this.onBookingDeleted});
 
   @override
   ConsumerState<BookingEditorAlert> createState() => _BookingEditorAlertState();
@@ -491,6 +492,36 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
             "Cancel",
             style: TextStyle(color: colorScheme.error),
           ),
+        ),
+        TextButton(
+          onPressed: () async => await showDialog(
+            context: context,
+            builder: (_) => AlertDialog.adaptive(
+              title: Text("Are you sure?"),
+              content: Text(
+                "Are you sure you want to delete this booking? It will be gone forever. All customers will be deleted too!",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    "Nevermind",
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.error),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    widget.onBookingDeleted();
+                    Navigator.of(context)
+                        .popUntil(ModalRoute.withName("/client_management"));
+                  },
+                  child: Text("Proceed"),
+                ),
+              ],
+            ),
+          ),
+          child: Text("Delete this booking"),
         ),
         FilledButton.icon(
           style: FilledButton.styleFrom(
