@@ -31,7 +31,7 @@ class HealthMain extends ConsumerWidget {
         ref.watch(vaccinationsProvider(null)).valueOrNull ?? [];
     List<HeatCycle> heatCycles =
         ref.watch(heatCyclesProvider(null)).valueOrNull ?? [];
-    final dogNotes = ref.watch(dogNotesProvider);
+    final dogNotes = ref.watch(dogNotesProvider(latestDate: null));
 
     // Dialog listeners
     ref.listen(
