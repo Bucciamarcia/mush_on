@@ -339,14 +339,20 @@ class _BookingCardInGroup extends ConsumerWidget {
           context: context,
           builder: (_) => BookingEditorAlert(
             booking: booking,
-            onBookingEdited: (nb) {
-              customerRepo.setBooking(nb);
+            onBookingDeleted: () async =>
+                await customerRepo.deleteBooking(booking.id).catchError(
+                      (e) => ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Failed to delete booking."),
+                      ),
+                    ),
+            onBookingEdited: (nb) async {
+              await customerRepo.setBooking(nb);
               ref.invalidate(bookingsByDayProvider);
               ref.invalidate(bookingsByCustomerGroupIdProvider);
               ref.invalidate(futureBookingsProvider);
             },
-            onCustomersEdited: (ncs) {
-              customerRepo.setCustomers(ncs, booking.id);
+            onCustomersEdited: (ncs) async {
+              await customerRepo.setCustomers(ncs, booking.id);
               ref.invalidate(bookingsByDayProvider);
               ref.invalidate(bookingsByCustomerGroupIdProvider);
               ref.invalidate(futureBookingsProvider);
@@ -423,15 +429,21 @@ class ListBookings extends ConsumerWidget {
             onTap: () => showDialog(
               context: context,
               builder: (_) => BookingEditorAlert(
+                onBookingDeleted: () async =>
+                    await customerRepo.deleteBooking(b.id).catchError(
+                          (e) => ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(context, "Failed to delete booking."),
+                          ),
+                        ),
                 booking: b,
-                onBookingEdited: (nb) {
-                  customerRepo.setBooking(nb);
+                onBookingEdited: (nb) async {
+                  await customerRepo.setBooking(nb);
                   ref.invalidate(bookingsByDayProvider);
                   ref.invalidate(bookingsByCustomerGroupIdProvider);
                   ref.invalidate(futureBookingsProvider);
                 },
-                onCustomersEdited: (ncs) {
-                  customerRepo.setCustomers(ncs, b.id);
+                onCustomersEdited: (ncs) async {
+                  await customerRepo.setCustomers(ncs, b.id);
                   ref.invalidate(bookingsByDayProvider);
                   ref.invalidate(bookingsByCustomerGroupIdProvider);
                   ref.invalidate(futureBookingsProvider);

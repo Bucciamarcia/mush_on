@@ -34,6 +34,27 @@ class CustomerManagementRepository {
     }
   }
 
+  /// Deletes a booking
+  Future<void> deleteBooking(String id) async {
+    logger.debug("Called deleteBooking for id: $id");
+    String path = "accounts/$account/data/bookingManager/bookings/$id";
+    var doc = _db.doc(path);
+    var batch = _db.batch();
+    batch.delete(doc);
+    String cusPath = "accounts/$account/data/bookingManager/customers";
+    var col =
+        await _db.collection(cusPath).where("bookingId", isEqualTo: id).get();
+    for (var c in col.docs) {
+      batch.delete(_db.doc("$cusPath/${c.id}"));
+    }
+    try {
+      batch.commit();
+    } catch (e, s) {
+      logger.error("Couldn't delete booking.", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   Future<void> setCustomerGroup(CustomerGroup cg) async {
     String path =
         "accounts/$account/data/bookingManager/customerGroups/${cg.id}";

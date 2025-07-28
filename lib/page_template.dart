@@ -66,6 +66,9 @@ class TemplateScreen extends ConsumerWidget {
               builder: (_) {
                 String uid = Uuid().v4();
                 return BookingEditorAlert(
+                  onBookingDeleted: () {
+                    if (context.mounted) Navigator.of(context).pop();
+                  },
                   id: uid,
                   onCustomersEdited: (customers) async {
                     try {
