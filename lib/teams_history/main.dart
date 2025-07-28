@@ -183,10 +183,22 @@ class TeamViewer extends ConsumerWidget {
   Future<bool> deleteGroup(String account) async {
     try {
       var db = FirebaseFirestore.instance;
+      var batch = db.batch();
 
-      String path = "accounts/$account/data/teams/history";
-      var ref = db.collection(path);
-      await ref.doc(item.id).delete();
+      String path = "accounts/$account/data/teams/history/${item.id}";
+      var teamGroupDoc = db.doc(path);
+      batch.delete(teamGroupDoc);
+      var teamsCollection = teamGroupDoc.collection(("teams"));
+      var tcdocs = await teamsCollection.get();
+      for (var doc in tcdocs.docs) {
+        batch.delete(db.doc("$path/teams/${doc.id}"));
+        var dpcollection = teamsCollection.doc(doc.id).collection("dogPairs");
+        var dpdocs = await dpcollection.get();
+        for (var dpdoc in dpdocs.docs) {
+          batch.delete(db.doc("$path/teams/${doc.id}/dogPairs/${dpdoc.id}"));
+        }
+      }
+      await batch.commit();
       return true;
     } catch (e) {
       return false;
