@@ -12,10 +12,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'dog_notes.g.dart';
 
 @riverpod
-List<DogNote> dogNotes(Ref ref) {
+List<DogNote> dogNotes(
+  Ref ref, {
+  /// The latest date to consider. Useful for team builder when building in the future.
+  required DateTime? latestDate,
+}) {
   final dogs = ref.watch(dogsProvider).value ?? [];
   final distanceWarnings =
-      ref.watch(distanceWarningsProvider(latestDate: null)).value ?? [];
+      ref.watch(distanceWarningsProvider(latestDate: latestDate)).value ?? [];
   final duplicateDogs = ref.watch(duplicateDogsProvider);
 
   final dogNotesMap = <String, DogNote>{};

@@ -28,7 +28,7 @@ class HomePageScreenContent extends ConsumerWidget {
       data: (riverpod) {
         String? account = ref.watch(accountProvider).value;
         List<Dog> dogs = riverpod.dogs;
-        List<DogNote> dogNotes = ref.watch(dogNotesProvider);
+        List<DogNote> dogNotes = ref.watch(dogNotesProvider(latestDate: null));
         TasksInMemory tasks = riverpod.tasks;
         int canRun = dogs.length - dogNotes.typeFatal().length;
         List<WhiteboardElement> whiteboardElements = riverpod.whiteboardElements

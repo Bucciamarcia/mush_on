@@ -107,7 +107,8 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                 [];
           }
           var runningDogs = ref.watch(runningDogsProvider(teamGroup));
-          var dogNotes = ref.watch(dogNotesProvider);
+          var dogNotes =
+              ref.watch(dogNotesProvider(latestDate: teamGroup.date));
           bool canPopProvider = ref.watch(canPopTeamGroupProvider);
           var notifier =
               ref.read(createTeamGroupProvider(widget.loadedTeam).notifier);
