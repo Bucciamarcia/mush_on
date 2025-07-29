@@ -7,7 +7,7 @@ part 'riverpod.g.dart';
 class DogsDisplayList extends _$DogsDisplayList {
   @override
   List<Dog> build() {
-    var initialDogs = ref.read(dogsProvider).valueOrNull ?? [];
+    var initialDogs = ref.watch(dogsProvider).valueOrNull ?? [];
     var dogsCopy = List<Dog>.from(initialDogs);
     dogsCopy.sort((a, b) => a.name.compareTo(b.name));
     return dogsCopy;

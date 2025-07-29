@@ -309,8 +309,8 @@ class _CustomerGroupEditorAlertState
                             );
                             await saveToDb(
                               tg,
-                              TeamGroupWorkspace(date: DateTime.now()),
                               await ref.watch(accountProvider.future),
+                              ref,
                             ).catchError(
                               (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(

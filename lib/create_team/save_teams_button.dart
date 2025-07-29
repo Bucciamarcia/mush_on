@@ -7,13 +7,11 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 
 class SaveTeamsButton extends ConsumerWidget {
-  final TeamGroupWorkspace newtg;
-  final TeamGroupWorkspace oldtg;
+  final TeamGroupWorkspace teamGroup;
   static final BasicLogger logger = BasicLogger();
   const SaveTeamsButton({
     super.key,
-    required this.oldtg,
-    required this.newtg,
+    required this.teamGroup,
   });
 
   @override
@@ -22,7 +20,7 @@ class SaveTeamsButton extends ConsumerWidget {
       onPressed: () async {
         try {
           String account = await ref.watch(accountProvider.future);
-          await saveToDb(newtg, oldtg, account);
+          await saveToDb(teamGroup, account, ref);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -70,8 +68,9 @@ class SaveTeamsButton extends ConsumerWidget {
 }
 
 Future<void> saveToDb(
-    TeamGroupWorkspace newtg, TeamGroupWorkspace oldtg, String account) async {
+    TeamGroupWorkspace newtg, String account, WidgetRef ref) async {
   final logger = BasicLogger();
+  var oldtg = await ref.watch(createTeamGroupProvider(newtg.id).future);
   if (newtg == oldtg) {
     return;
   } else {
@@ -80,6 +79,9 @@ Future<void> saveToDb(
     logger.debug(oldtg);
   }
   if (newtg.date != oldtg.date) {
+    logger.info("Removing customer gorup");
+    logger.debug("Oldtg date: ${oldtg.date}");
+    logger.debug("Newtg date: ${newtg.date}");
     _removeCustomerGroups(newtg.id, account, newtg.date);
   }
 
