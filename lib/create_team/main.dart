@@ -11,7 +11,6 @@ import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/riverpod/dog_notes.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
-import 'package:uuid/uuid.dart';
 import 'save_teams_button.dart';
 import 'select_datetime.dart';
 
@@ -26,7 +25,6 @@ class CreateTeamMain extends ConsumerStatefulWidget {
 class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
   late TextEditingController groupNameController;
   late TextEditingController groupNotesController;
-  late TeamGroupWorkspace oldTeamGroup;
 
   /// The list of customer groups assigned to this teamgroup
   late List<CustomerGroup> customerGroups;
@@ -38,16 +36,6 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
     groupNotesController =
         TextEditingController(text: widget.loadedTeam?.notes ?? "");
     customerGroups = [];
-    oldTeamGroup = TeamGroupWorkspace(
-      date: DateTime.now(),
-      id: Uuid().v4(),
-      teams: [
-        TeamWorkspace(id: Uuid().v4(), dogPairs: [
-          DogPairWorkspace(id: Uuid().v4()),
-          DogPairWorkspace(id: Uuid().v4()),
-        ]),
-      ],
-    );
   }
 
   @override
@@ -90,16 +78,11 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
 
   @override
   Widget build(BuildContext context) {
-    var teamGroupAsync = ref.watch(createTeamGroupProvider(widget.loadedTeam));
+    var teamGroupAsync =
+        ref.watch(createTeamGroupProvider(widget.loadedTeam?.id));
     return teamGroupAsync.when(
         data: (teamGroup) {
           /// Original teamgroup, used to check if db needs updating.
-          if (ref.watch(hasOldteamBeenSetProvider) == false) {
-            oldTeamGroup = teamGroup.copyWith();
-            Future(() {
-              ref.read(hasOldteamBeenSetProvider.notifier).changeValue(true);
-            });
-          }
           if (customerGroups.isEmpty) {
             customerGroups = ref
                     .watch(customerGroupsForTeamgroupProvider(teamGroup.id))
@@ -111,7 +94,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
               ref.watch(dogNotesProvider(latestDate: teamGroup.date));
           bool canPopProvider = ref.watch(canPopTeamGroupProvider);
           var notifier =
-              ref.read(createTeamGroupProvider(widget.loadedTeam).notifier);
+              ref.read(createTeamGroupProvider(widget.loadedTeam?.id).notifier);
           List<Dog>? allDogs = ref.watch(dogsProvider).value;
           SettingsModel? settings = ref.watch(settingsProvider).value;
 
@@ -244,8 +227,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                   child: Text("Create new team group"),
                 ),
                 SaveTeamsButton(
-                  newtg: teamGroup,
-                  oldtg: oldTeamGroup,
+                  teamGroup: teamGroup,
                 ),
               ],
             ),

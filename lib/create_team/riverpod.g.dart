@@ -417,14 +417,14 @@ final hasOldteamBeenSetProvider =
 );
 
 typedef _$HasOldteamBeenSet = AutoDisposeNotifier<bool>;
-String _$createTeamGroupHash() => r'0cb236384e3a67400bab7d332a5197f5bfed7f9c';
+String _$createTeamGroupHash() => r'b07ad98195210efe06a1f7c4d05a577037f8d87f';
 
 abstract class _$CreateTeamGroup
     extends BuildlessAutoDisposeAsyncNotifier<TeamGroupWorkspace> {
-  late final TeamGroup? teamGroup;
+  late final String? teamGroupId;
 
   FutureOr<TeamGroupWorkspace> build(
-    TeamGroup? teamGroup,
+    String? teamGroupId,
   );
 }
 
@@ -447,10 +447,10 @@ class CreateTeamGroupFamily extends Family<AsyncValue<TeamGroupWorkspace>> {
   ///
   /// Copied from [CreateTeamGroup].
   CreateTeamGroupProvider call(
-    TeamGroup? teamGroup,
+    String? teamGroupId,
   ) {
     return CreateTeamGroupProvider(
-      teamGroup,
+      teamGroupId,
     );
   }
 
@@ -459,7 +459,7 @@ class CreateTeamGroupFamily extends Family<AsyncValue<TeamGroupWorkspace>> {
     covariant CreateTeamGroupProvider provider,
   ) {
     return call(
-      provider.teamGroup,
+      provider.teamGroupId,
     );
   }
 
@@ -487,9 +487,9 @@ class CreateTeamGroupProvider extends AutoDisposeAsyncNotifierProviderImpl<
   ///
   /// Copied from [CreateTeamGroup].
   CreateTeamGroupProvider(
-    TeamGroup? teamGroup,
+    String? teamGroupId,
   ) : this._internal(
-          () => CreateTeamGroup()..teamGroup = teamGroup,
+          () => CreateTeamGroup()..teamGroupId = teamGroupId,
           from: createTeamGroupProvider,
           name: r'createTeamGroupProvider',
           debugGetCreateSourceHash:
@@ -499,7 +499,7 @@ class CreateTeamGroupProvider extends AutoDisposeAsyncNotifierProviderImpl<
           dependencies: CreateTeamGroupFamily._dependencies,
           allTransitiveDependencies:
               CreateTeamGroupFamily._allTransitiveDependencies,
-          teamGroup: teamGroup,
+          teamGroupId: teamGroupId,
         );
 
   CreateTeamGroupProvider._internal(
@@ -509,17 +509,17 @@ class CreateTeamGroupProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.teamGroup,
+    required this.teamGroupId,
   }) : super.internal();
 
-  final TeamGroup? teamGroup;
+  final String? teamGroupId;
 
   @override
   FutureOr<TeamGroupWorkspace> runNotifierBuild(
     covariant CreateTeamGroup notifier,
   ) {
     return notifier.build(
-      teamGroup,
+      teamGroupId,
     );
   }
 
@@ -528,13 +528,13 @@ class CreateTeamGroupProvider extends AutoDisposeAsyncNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: CreateTeamGroupProvider._internal(
-        () => create()..teamGroup = teamGroup,
+        () => create()..teamGroupId = teamGroupId,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        teamGroup: teamGroup,
+        teamGroupId: teamGroupId,
       ),
     );
   }
@@ -547,13 +547,13 @@ class CreateTeamGroupProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   bool operator ==(Object other) {
-    return other is CreateTeamGroupProvider && other.teamGroup == teamGroup;
+    return other is CreateTeamGroupProvider && other.teamGroupId == teamGroupId;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, teamGroup.hashCode);
+    hash = _SystemHash.combine(hash, teamGroupId.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -563,8 +563,8 @@ class CreateTeamGroupProvider extends AutoDisposeAsyncNotifierProviderImpl<
 // ignore: unused_element
 mixin CreateTeamGroupRef
     on AutoDisposeAsyncNotifierProviderRef<TeamGroupWorkspace> {
-  /// The parameter `teamGroup` of this provider.
-  TeamGroup? get teamGroup;
+  /// The parameter `teamGroupId` of this provider.
+  String? get teamGroupId;
 }
 
 class _CreateTeamGroupProviderElement
@@ -573,7 +573,7 @@ class _CreateTeamGroupProviderElement
   _CreateTeamGroupProviderElement(super.provider);
 
   @override
-  TeamGroup? get teamGroup => (origin as CreateTeamGroupProvider).teamGroup;
+  String? get teamGroupId => (origin as CreateTeamGroupProvider).teamGroupId;
 }
 
 String _$runningDogsHash() => r'db264451cef793ff4d560ea8e34df898aae17e5e';

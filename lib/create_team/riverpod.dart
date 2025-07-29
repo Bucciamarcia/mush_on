@@ -84,8 +84,8 @@ class HasOldteamBeenSet extends _$HasOldteamBeenSet {
 /// The teamgroup that is being built.
 class CreateTeamGroup extends _$CreateTeamGroup {
   @override
-  Future<TeamGroupWorkspace> build(TeamGroup? teamGroup) async {
-    if (teamGroup == null) {
+  Future<TeamGroupWorkspace> build(String? teamGroupId) async {
+    if (teamGroupId == null) {
       return TeamGroupWorkspace(
         date: DateTime(
           DateTime.now().year,
@@ -105,7 +105,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
     } else {
       String account = await ref.watch(accountProvider.future);
       return await DogsDbOperations()
-          .getTeamGroupWorkspace(account: account, id: teamGroup.id);
+          .getTeamGroupWorkspace(account: account, id: teamGroupId);
     }
   }
 
