@@ -70,40 +70,29 @@ class SaveTeamsButton extends ConsumerWidget {
 Future<void> saveToDb(
     TeamGroupWorkspace newtg, String account, WidgetRef ref) async {
   final logger = BasicLogger();
-  var oldtg = await ref.watch(createTeamGroupProvider(newtg.id).future);
-  if (newtg == oldtg) {
-    return;
-  } else {
-    logger.info("Starting save");
-    logger.debug(newtg);
-    logger.debug(oldtg);
-  }
-  if (newtg.date != oldtg.date) {
-    logger.info("Removing customer gorup");
-    logger.debug("Oldtg date: ${oldtg.date}");
-    logger.debug("Newtg date: ${newtg.date}");
-    _removeCustomerGroups(newtg.id, account, newtg.date);
+  var db = FirebaseFirestore.instance;
+  var batch = db.batch();
+  String path = "accounts/$account/data/teams/history/${newtg.id}";
+  var tgdoc = db.doc(path);
+  batch.delete(tgdoc);
+  var collectionToDelete = await db.collection("$path/teams").get();
+  for (var team in collectionToDelete.docs) {
+    batch.delete(db.doc("$path/teams/${team.id}"));
+    var dppath = "$path/teams/${team.id}/dogPairs";
+    var snapshot = await db.collection(dppath).get();
+    for (var dp in snapshot.docs) {
+      batch.delete(db.doc("$dppath/${dp.id}"));
+    }
   }
 
-  final db = FirebaseFirestore.instance;
-  var batch = db.batch();
+  _removeCustomerGroups(newtg.id, account, newtg.date);
+
   var newtgObject = newtg.toJson();
   newtgObject.remove("teams");
-  var oldtgObject = oldtg.toJson();
-  oldtgObject.remove("teams");
 
-  // Updates teamgroup
-  if (newtgObject != oldtgObject) {
-    batch.set(db.doc("accounts/$account/data/teams/history/${newtg.id}"),
-        newtgObject);
-  }
+  batch.set(
+      db.doc("accounts/$account/data/teams/history/${newtg.id}"), newtgObject);
 
-  var oldteamsObject = [];
-  for (var (i, team) in oldtg.teams.indexed) {
-    var tempobj = team.toJson();
-    tempobj.addAll({"rank": i});
-    oldteamsObject.add(tempobj);
-  }
   var newteamsObject = [];
   for (var (i, team) in newtg.teams.indexed) {
     var tempobj = team.toJson();
@@ -111,32 +100,21 @@ Future<void> saveToDb(
     tempobj.addAll({"rank": i});
     newteamsObject.add(tempobj);
   }
-  if (oldteamsObject != newteamsObject) {
-    // First, delete all teams and their dogpairs.
-    for (var team in oldtg.teams) {
-      batch.delete(db.doc(
-          "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}"));
-      // Delete all dogpairs for this team
-      for (var dogPair in team.dogPairs) {
-        batch.delete(db.doc(
-            "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"));
-      }
-    }
-    // Then re-set them all.
-    for (var team in newtg.teams) {
+  // First, delete all teams and their dogpairs.
+  // Then re-set them all.
+  for (var team in newtg.teams) {
+    batch.set(
+        db.doc(
+            "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}"),
+        newteamsObject.firstWhere((o) => o["id"] == team.id));
+    // Re-set all dogpairs for this team
+    for (var (i, dogPair) in team.dogPairs.indexed) {
+      var dogPairData = dogPair.toJson();
+      dogPairData.addAll({"rank": i});
       batch.set(
           db.doc(
-              "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}"),
-          newteamsObject.firstWhere((o) => o["id"] == team.id));
-      // Re-set all dogpairs for this team
-      for (var (i, dogPair) in team.dogPairs.indexed) {
-        var dogPairData = dogPair.toJson();
-        dogPairData.addAll({"rank": i});
-        batch.set(
-            db.doc(
-                "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"),
-            dogPairData);
-      }
+              "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"),
+          dogPairData);
     }
   }
   try {
@@ -165,9 +143,9 @@ Future<void> _removeCustomerGroups(
   var batch = db.batch();
   for (var cg in cgs) {
     logger.debug("Checing for for id: ${cg.id}");
-    logger.debug("cg datetime: ${cg.datetime.toUtc()}");
-    logger.debug("New teamdate: $newTeamDate");
-    if (cg.datetime.toUtc() != newTeamDate) {
+    logger.debug("cg datetime: ${cg.datetime.toIso8601String()}");
+    logger.debug("New teamdate: ${newTeamDate.toIso8601String()}");
+    if (cg.datetime.toIso8601String() != newTeamDate.toIso8601String()) {
       logger.debug("Need to remove!");
       var newCg = cg.copyWith(teamGroupId: null);
       batch.set(db.doc("$path/${cg.id}"), newCg.toJson());
