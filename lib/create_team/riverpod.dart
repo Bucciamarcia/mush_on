@@ -85,14 +85,14 @@ class CustomerAssign extends _$CustomerAssign {
       return CustomerGroupWorkspace();
     }
     List<CustomerGroup> customerGroups =
-        await ref.read(customerGroupsForTeamgroupProvider(teamGroupId).future);
+        await ref.watch(customerGroupsForTeamgroupProvider(teamGroupId).future);
     List<Booking> bookings = [];
     List<Customer> customers = [];
     for (var cg in customerGroups) {
-      var b = await ref.read(bookingsByCustomerGroupIdProvider(cg.id).future);
+      var b = await ref.watch(bookingsByCustomerGroupIdProvider(cg.id).future);
       bookings.addAll(b);
       customers.addAll(
-          await ref.read(customersByCustomerGroupIdProvider(cg.id).future));
+          await ref.watch(customersByCustomerGroupIdProvider(cg.id).future));
     }
     return CustomerGroupWorkspace(
       customerGroups: customerGroups,

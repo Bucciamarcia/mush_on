@@ -5,7 +5,6 @@ import 'package:mush_on/create_team/customer_groups_card.dart';
 import 'package:mush_on/create_team/dog_selector.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/riverpod.dart';
-import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
@@ -80,7 +79,9 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
         ref.watch(createTeamGroupProvider(widget.loadedTeam?.id));
     return teamGroupAsync.when(
         data: (teamGroup) {
-          final customerGroup = ref.watch(customerAssignProvider(teamGroup.id));
+          final customerGroupWorkspace =
+              ref.watch(customerAssignProvider(teamGroup.id)).value ??
+                  CustomerGroupWorkspace();
           var runningDogs = ref.watch(runningDogsProvider(teamGroup));
           var dogNotes =
               ref.watch(dogNotesProvider(latestDate: teamGroup.date));
@@ -151,7 +152,9 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  child: CustomerGroupsCard(customerGroups: customerGroups),
+                  child: CustomerGroupsCard(
+                    customerGroupWorkspace: customerGroupWorkspace,
+                  ),
                 ),
                 ...teamGroup.teams.asMap().entries.map(
                   (entry) {

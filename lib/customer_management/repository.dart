@@ -113,6 +113,8 @@ class CustomerManagementRepository {
 
   /// Sets all the customers for this group in a batch operation.
   Future<void> setCustomers(List<Customer> customers, String bookingId) async {
+    logger.info("Called setCustomers");
+    logger.debug("Customers in setCustomers: $customers");
     var batch = _db.batch();
     String path = "accounts/$account/data/bookingManager/customers";
     var snapshot = await _db
@@ -120,11 +122,13 @@ class CustomerManagementRepository {
         .where("bookingId", isEqualTo: bookingId)
         .get();
     for (var c in snapshot.docs) {
-      batch.delete(_db.doc("path/${c.id}"));
+      logger.debug("Deleting customer name: ${c.data()["name"]}");
+      batch.delete(_db.doc("$path/${c.id}"));
     }
 
     for (Customer customer in customers) {
       var docRef = _db.doc("$path/${customer.id}");
+      logger.debug("Setting customer: ${customer.name}");
       batch.set(docRef, customer.toJson());
     }
     try {
