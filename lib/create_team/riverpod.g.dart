@@ -399,24 +399,153 @@ final canPopTeamGroupProvider =
 );
 
 typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
-String _$hasOldteamBeenSetHash() => r'3451bbc5807ff4d3b68dee81b2bbec1e81801af2';
+String _$customerAssignHash() => r'219b5505f7814d5ddc688e549774ce1819b474f2';
 
-/// Simply checks if the original team has already been set. Workaround, ugly.
-///
-/// Copied from [HasOldteamBeenSet].
-@ProviderFor(HasOldteamBeenSet)
-final hasOldteamBeenSetProvider =
-    AutoDisposeNotifierProvider<HasOldteamBeenSet, bool>.internal(
-  HasOldteamBeenSet.new,
-  name: r'hasOldteamBeenSetProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$hasOldteamBeenSetHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+abstract class _$CustomerAssign
+    extends BuildlessAutoDisposeAsyncNotifier<CustomerGroupWorkspace> {
+  late final String? teamGroupId;
 
-typedef _$HasOldteamBeenSet = AutoDisposeNotifier<bool>;
+  FutureOr<CustomerGroupWorkspace> build(
+    String? teamGroupId,
+  );
+}
+
+/// See also [CustomerAssign].
+@ProviderFor(CustomerAssign)
+const customerAssignProvider = CustomerAssignFamily();
+
+/// See also [CustomerAssign].
+class CustomerAssignFamily extends Family<AsyncValue<CustomerGroupWorkspace>> {
+  /// See also [CustomerAssign].
+  const CustomerAssignFamily();
+
+  /// See also [CustomerAssign].
+  CustomerAssignProvider call(
+    String? teamGroupId,
+  ) {
+    return CustomerAssignProvider(
+      teamGroupId,
+    );
+  }
+
+  @override
+  CustomerAssignProvider getProviderOverride(
+    covariant CustomerAssignProvider provider,
+  ) {
+    return call(
+      provider.teamGroupId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'customerAssignProvider';
+}
+
+/// See also [CustomerAssign].
+class CustomerAssignProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    CustomerAssign, CustomerGroupWorkspace> {
+  /// See also [CustomerAssign].
+  CustomerAssignProvider(
+    String? teamGroupId,
+  ) : this._internal(
+          () => CustomerAssign()..teamGroupId = teamGroupId,
+          from: customerAssignProvider,
+          name: r'customerAssignProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$customerAssignHash,
+          dependencies: CustomerAssignFamily._dependencies,
+          allTransitiveDependencies:
+              CustomerAssignFamily._allTransitiveDependencies,
+          teamGroupId: teamGroupId,
+        );
+
+  CustomerAssignProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.teamGroupId,
+  }) : super.internal();
+
+  final String? teamGroupId;
+
+  @override
+  FutureOr<CustomerGroupWorkspace> runNotifierBuild(
+    covariant CustomerAssign notifier,
+  ) {
+    return notifier.build(
+      teamGroupId,
+    );
+  }
+
+  @override
+  Override overrideWith(CustomerAssign Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: CustomerAssignProvider._internal(
+        () => create()..teamGroupId = teamGroupId,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        teamGroupId: teamGroupId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<CustomerAssign,
+      CustomerGroupWorkspace> createElement() {
+    return _CustomerAssignProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CustomerAssignProvider && other.teamGroupId == teamGroupId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, teamGroupId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin CustomerAssignRef
+    on AutoDisposeAsyncNotifierProviderRef<CustomerGroupWorkspace> {
+  /// The parameter `teamGroupId` of this provider.
+  String? get teamGroupId;
+}
+
+class _CustomerAssignProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<CustomerAssign,
+        CustomerGroupWorkspace> with CustomerAssignRef {
+  _CustomerAssignProviderElement(super.provider);
+
+  @override
+  String? get teamGroupId => (origin as CustomerAssignProvider).teamGroupId;
+}
+
 String _$createTeamGroupHash() => r'b07ad98195210efe06a1f7c4d05a577037f8d87f';
 
 abstract class _$CreateTeamGroup

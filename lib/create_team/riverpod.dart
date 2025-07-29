@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
@@ -65,17 +66,39 @@ class CanPopTeamGroup extends _$CanPopTeamGroup {
   }
 }
 
+@freezed
+
+/// Incldues all the customer groups, bookings and customers involved in this teamgroup.
+sealed class CustomerGroupWorkspace with _$CustomerGroupWorkspace {
+  const factory CustomerGroupWorkspace({
+    @Default([]) List<CustomerGroup> customerGroups,
+    @Default([]) List<Booking> bookings,
+    @Default([]) List<Customer> customers,
+  }) = _CustomerGroupWorkspace;
+}
+
 @riverpod
-
-/// Simply checks if the original team has already been set. Workaround, ugly.
-class HasOldteamBeenSet extends _$HasOldteamBeenSet {
+class CustomerAssign extends _$CustomerAssign {
   @override
-  bool build() {
-    return false;
-  }
-
-  void changeValue(bool v) {
-    state = v;
+  Future<CustomerGroupWorkspace> build(String? teamGroupId) async {
+    if (teamGroupId == null) {
+      return CustomerGroupWorkspace();
+    }
+    List<CustomerGroup> customerGroups =
+        await ref.read(customerGroupsForTeamgroupProvider(teamGroupId).future);
+    List<Booking> bookings = [];
+    List<Customer> customers = [];
+    for (var cg in customerGroups) {
+      var b = await ref.read(bookingsByCustomerGroupIdProvider(cg.id).future);
+      bookings.addAll(b);
+      customers.addAll(
+          await ref.read(customersByCustomerGroupIdProvider(cg.id).future));
+    }
+    return CustomerGroupWorkspace(
+      customerGroups: customerGroups,
+      bookings: bookings,
+      customers: customers,
+    );
   }
 }
 
