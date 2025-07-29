@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/create_team/customer_groups_card.dart';
 import 'package:mush_on/create_team/dog_selector.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/riverpod.dart';
@@ -26,8 +27,6 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
   late TextEditingController groupNameController;
   late TextEditingController groupNotesController;
 
-  /// The list of customer groups assigned to this teamgroup
-  late List<CustomerGroup> customerGroups;
   @override
   void initState() {
     super.initState();
@@ -35,7 +34,6 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
         TextEditingController(text: widget.loadedTeam?.name ?? "");
     groupNotesController =
         TextEditingController(text: widget.loadedTeam?.notes ?? "");
-    customerGroups = [];
   }
 
   @override
@@ -82,13 +80,6 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
         ref.watch(createTeamGroupProvider(widget.loadedTeam?.id));
     return teamGroupAsync.when(
         data: (teamGroup) {
-          /// Original teamgroup, used to check if db needs updating.
-          if (customerGroups.isEmpty) {
-            customerGroups = ref
-                    .watch(customerGroupsForTeamgroupProvider(teamGroup.id))
-                    .value ??
-                [];
-          }
           var runningDogs = ref.watch(runningDogsProvider(teamGroup));
           var dogNotes =
               ref.watch(dogNotesProvider(latestDate: teamGroup.date));
@@ -159,9 +150,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  child: Card(
-                    child: Text("Assigned customer groups: $customerGroups"),
-                  ),
+                  child: CustomerGroupsCard(teamGroupId: teamGroup.id),
                 ),
                 ...teamGroup.teams.asMap().entries.map(
                   (entry) {
