@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'riverpod.dart';
+import 'package:mush_on/customer_management/models.dart';
 
 class CustomerGroupsCard extends ConsumerWidget {
-  final String teamGroupId;
-  const CustomerGroupsCard({super.key, required this.teamGroupId});
+  final List<CustomerGroup> customerGroups;
+  const CustomerGroupsCard({super.key, required this.customerGroups});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final customerGroups =
-        ref.watch(customerGroupsForTeamgroupProvider(teamGroupId)).value ?? [];
     return Card(
       child: Text("Assigned customer groups: $customerGroups"),
     );

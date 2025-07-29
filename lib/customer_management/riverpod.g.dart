@@ -745,6 +745,156 @@ class _CustomersByBookingIdProviderElement
   String get bookingId => (origin as CustomersByBookingIdProvider).bookingId;
 }
 
+String _$customersByCustomerGroupIdHash() =>
+    r'442c33a10b385abdf0f323c62e376a7909200c78';
+
+/// Gets all the customers assigned to a customer group
+///
+/// Copied from [customersByCustomerGroupId].
+@ProviderFor(customersByCustomerGroupId)
+const customersByCustomerGroupIdProvider = CustomersByCustomerGroupIdFamily();
+
+/// Gets all the customers assigned to a customer group
+///
+/// Copied from [customersByCustomerGroupId].
+class CustomersByCustomerGroupIdFamily
+    extends Family<AsyncValue<List<Customer>>> {
+  /// Gets all the customers assigned to a customer group
+  ///
+  /// Copied from [customersByCustomerGroupId].
+  const CustomersByCustomerGroupIdFamily();
+
+  /// Gets all the customers assigned to a customer group
+  ///
+  /// Copied from [customersByCustomerGroupId].
+  CustomersByCustomerGroupIdProvider call(
+    String customerGroupId,
+  ) {
+    return CustomersByCustomerGroupIdProvider(
+      customerGroupId,
+    );
+  }
+
+  @override
+  CustomersByCustomerGroupIdProvider getProviderOverride(
+    covariant CustomersByCustomerGroupIdProvider provider,
+  ) {
+    return call(
+      provider.customerGroupId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'customersByCustomerGroupIdProvider';
+}
+
+/// Gets all the customers assigned to a customer group
+///
+/// Copied from [customersByCustomerGroupId].
+class CustomersByCustomerGroupIdProvider
+    extends AutoDisposeStreamProvider<List<Customer>> {
+  /// Gets all the customers assigned to a customer group
+  ///
+  /// Copied from [customersByCustomerGroupId].
+  CustomersByCustomerGroupIdProvider(
+    String customerGroupId,
+  ) : this._internal(
+          (ref) => customersByCustomerGroupId(
+            ref as CustomersByCustomerGroupIdRef,
+            customerGroupId,
+          ),
+          from: customersByCustomerGroupIdProvider,
+          name: r'customersByCustomerGroupIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$customersByCustomerGroupIdHash,
+          dependencies: CustomersByCustomerGroupIdFamily._dependencies,
+          allTransitiveDependencies:
+              CustomersByCustomerGroupIdFamily._allTransitiveDependencies,
+          customerGroupId: customerGroupId,
+        );
+
+  CustomersByCustomerGroupIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.customerGroupId,
+  }) : super.internal();
+
+  final String customerGroupId;
+
+  @override
+  Override overrideWith(
+    Stream<List<Customer>> Function(CustomersByCustomerGroupIdRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: CustomersByCustomerGroupIdProvider._internal(
+        (ref) => create(ref as CustomersByCustomerGroupIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        customerGroupId: customerGroupId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<Customer>> createElement() {
+    return _CustomersByCustomerGroupIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CustomersByCustomerGroupIdProvider &&
+        other.customerGroupId == customerGroupId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, customerGroupId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin CustomersByCustomerGroupIdRef
+    on AutoDisposeStreamProviderRef<List<Customer>> {
+  /// The parameter `customerGroupId` of this provider.
+  String get customerGroupId;
+}
+
+class _CustomersByCustomerGroupIdProviderElement
+    extends AutoDisposeStreamProviderElement<List<Customer>>
+    with CustomersByCustomerGroupIdRef {
+  _CustomersByCustomerGroupIdProviderElement(super.provider);
+
+  @override
+  String get customerGroupId =>
+      (origin as CustomersByCustomerGroupIdProvider).customerGroupId;
+}
+
 String _$bookingsByDayHash() => r'8f3e7b09e50a0fdf5c0d81f266c42ec770b8ffe1';
 
 /// Gets all the bookings for a certain day

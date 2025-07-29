@@ -80,6 +80,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
         ref.watch(createTeamGroupProvider(widget.loadedTeam?.id));
     return teamGroupAsync.when(
         data: (teamGroup) {
+          final customerGroup = ref.watch(customerAssignProvider(teamGroup.id));
           var runningDogs = ref.watch(runningDogsProvider(teamGroup));
           var dogNotes =
               ref.watch(dogNotesProvider(latestDate: teamGroup.date));
@@ -150,7 +151,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  child: CustomerGroupsCard(teamGroupId: teamGroup.id),
+                  child: CustomerGroupsCard(customerGroups: customerGroups),
                 ),
                 ...teamGroup.teams.asMap().entries.map(
                   (entry) {
@@ -208,7 +209,6 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    ref.invalidate(hasOldteamBeenSetProvider);
                     ref.invalidate(canPopTeamGroupProvider);
                     ref.invalidate(createTeamGroupProvider);
                     Navigator.of(context).popAndPushNamed("/createteam");

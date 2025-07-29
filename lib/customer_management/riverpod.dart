@@ -6,6 +6,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:rxdart/rxdart.dart';
 part 'riverpod.g.dart';
 
 @riverpod
@@ -114,6 +115,30 @@ Stream<List<Customer>> customersByBookingId(Ref ref, String bookingId) async* {
             )
             .toList(),
       );
+}
+
+@riverpod
+
+/// Gets all the customers assigned to a customer group
+Stream<List<Customer>> customersByCustomerGroupId(
+    Ref ref, String customerGroupId) async* {
+  final List<Booking> bookings = await ref
+      .watch(BookingsByCustomerGroupIdProvider(customerGroupId).future);
+
+  if (bookings.isEmpty) {
+    yield [];
+    return;
+  }
+
+  // Create a stream for each booking's customers
+  final List<Stream<List<Customer>>> customerStreams =
+      bookings.map((booking) => customersByBookingId(ref, booking.id)).toList();
+
+  // Merge all streams and combine their results
+  yield* Rx.combineLatestList(customerStreams).map((listOfLists) {
+    // Flatten the list of lists into a single list
+    return listOfLists.expand((customerList) => customerList).toList();
+  });
 }
 
 @riverpod

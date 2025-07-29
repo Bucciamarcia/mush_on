@@ -643,4 +643,208 @@ class __$DogPairWorkspaceCopyWithImpl<$Res>
   }
 }
 
+/// @nodoc
+mixin _$CustomerGroupWorkspace {
+  List<CustomerGroup> get customerGroups;
+  List<Booking> get bookings;
+  List<Customer> get customers;
+
+  /// Create a copy of CustomerGroupWorkspace
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $CustomerGroupWorkspaceCopyWith<CustomerGroupWorkspace> get copyWith =>
+      _$CustomerGroupWorkspaceCopyWithImpl<CustomerGroupWorkspace>(
+          this as CustomerGroupWorkspace, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is CustomerGroupWorkspace &&
+            const DeepCollectionEquality()
+                .equals(other.customerGroups, customerGroups) &&
+            const DeepCollectionEquality().equals(other.bookings, bookings) &&
+            const DeepCollectionEquality().equals(other.customers, customers));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(customerGroups),
+      const DeepCollectionEquality().hash(bookings),
+      const DeepCollectionEquality().hash(customers));
+
+  @override
+  String toString() {
+    return 'CustomerGroupWorkspace(customerGroups: $customerGroups, bookings: $bookings, customers: $customers)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $CustomerGroupWorkspaceCopyWith<$Res> {
+  factory $CustomerGroupWorkspaceCopyWith(CustomerGroupWorkspace value,
+          $Res Function(CustomerGroupWorkspace) _then) =
+      _$CustomerGroupWorkspaceCopyWithImpl;
+  @useResult
+  $Res call(
+      {List<CustomerGroup> customerGroups,
+      List<Booking> bookings,
+      List<Customer> customers});
+}
+
+/// @nodoc
+class _$CustomerGroupWorkspaceCopyWithImpl<$Res>
+    implements $CustomerGroupWorkspaceCopyWith<$Res> {
+  _$CustomerGroupWorkspaceCopyWithImpl(this._self, this._then);
+
+  final CustomerGroupWorkspace _self;
+  final $Res Function(CustomerGroupWorkspace) _then;
+
+  /// Create a copy of CustomerGroupWorkspace
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? customerGroups = null,
+    Object? bookings = null,
+    Object? customers = null,
+  }) {
+    return _then(_self.copyWith(
+      customerGroups: null == customerGroups
+          ? _self.customerGroups
+          : customerGroups // ignore: cast_nullable_to_non_nullable
+              as List<CustomerGroup>,
+      bookings: null == bookings
+          ? _self.bookings
+          : bookings // ignore: cast_nullable_to_non_nullable
+              as List<Booking>,
+      customers: null == customers
+          ? _self.customers
+          : customers // ignore: cast_nullable_to_non_nullable
+              as List<Customer>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _CustomerGroupWorkspace implements CustomerGroupWorkspace {
+  const _CustomerGroupWorkspace(
+      {final List<CustomerGroup> customerGroups = const [],
+      final List<Booking> bookings = const [],
+      final List<Customer> customers = const []})
+      : _customerGroups = customerGroups,
+        _bookings = bookings,
+        _customers = customers;
+
+  final List<CustomerGroup> _customerGroups;
+  @override
+  @JsonKey()
+  List<CustomerGroup> get customerGroups {
+    if (_customerGroups is EqualUnmodifiableListView) return _customerGroups;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_customerGroups);
+  }
+
+  final List<Booking> _bookings;
+  @override
+  @JsonKey()
+  List<Booking> get bookings {
+    if (_bookings is EqualUnmodifiableListView) return _bookings;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_bookings);
+  }
+
+  final List<Customer> _customers;
+  @override
+  @JsonKey()
+  List<Customer> get customers {
+    if (_customers is EqualUnmodifiableListView) return _customers;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_customers);
+  }
+
+  /// Create a copy of CustomerGroupWorkspace
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$CustomerGroupWorkspaceCopyWith<_CustomerGroupWorkspace> get copyWith =>
+      __$CustomerGroupWorkspaceCopyWithImpl<_CustomerGroupWorkspace>(
+          this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _CustomerGroupWorkspace &&
+            const DeepCollectionEquality()
+                .equals(other._customerGroups, _customerGroups) &&
+            const DeepCollectionEquality().equals(other._bookings, _bookings) &&
+            const DeepCollectionEquality()
+                .equals(other._customers, _customers));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(_customerGroups),
+      const DeepCollectionEquality().hash(_bookings),
+      const DeepCollectionEquality().hash(_customers));
+
+  @override
+  String toString() {
+    return 'CustomerGroupWorkspace(customerGroups: $customerGroups, bookings: $bookings, customers: $customers)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$CustomerGroupWorkspaceCopyWith<$Res>
+    implements $CustomerGroupWorkspaceCopyWith<$Res> {
+  factory _$CustomerGroupWorkspaceCopyWith(_CustomerGroupWorkspace value,
+          $Res Function(_CustomerGroupWorkspace) _then) =
+      __$CustomerGroupWorkspaceCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {List<CustomerGroup> customerGroups,
+      List<Booking> bookings,
+      List<Customer> customers});
+}
+
+/// @nodoc
+class __$CustomerGroupWorkspaceCopyWithImpl<$Res>
+    implements _$CustomerGroupWorkspaceCopyWith<$Res> {
+  __$CustomerGroupWorkspaceCopyWithImpl(this._self, this._then);
+
+  final _CustomerGroupWorkspace _self;
+  final $Res Function(_CustomerGroupWorkspace) _then;
+
+  /// Create a copy of CustomerGroupWorkspace
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? customerGroups = null,
+    Object? bookings = null,
+    Object? customers = null,
+  }) {
+    return _then(_CustomerGroupWorkspace(
+      customerGroups: null == customerGroups
+          ? _self._customerGroups
+          : customerGroups // ignore: cast_nullable_to_non_nullable
+              as List<CustomerGroup>,
+      bookings: null == bookings
+          ? _self._bookings
+          : bookings // ignore: cast_nullable_to_non_nullable
+              as List<Booking>,
+      customers: null == customers
+          ? _self._customers
+          : customers // ignore: cast_nullable_to_non_nullable
+              as List<Customer>,
+    ));
+  }
+}
+
 // dart format on
