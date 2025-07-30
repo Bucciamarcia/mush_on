@@ -119,6 +119,7 @@ class AssignCustomersAlert extends ConsumerWidget {
           ...customerGroup.bookings.map(
             (booking) => BookingDisplay(
               booking: booking,
+              teamId: team.id,
               teamGroupId: teamGroupId,
               onCustomerSelected: (customer) =>
                   onCustomerSelected(customer, booking),
@@ -134,12 +135,14 @@ class AssignCustomersAlert extends ConsumerWidget {
 
 class BookingDisplay extends ConsumerWidget {
   final Booking booking;
+  final String teamId;
   final String teamGroupId;
   final Function(Customer) onCustomerSelected;
   final Function(Customer) onCustomerDeselected;
   const BookingDisplay(
       {super.key,
       required this.booking,
+      required this.teamId,
       required this.teamGroupId,
       required this.onCustomerSelected,
       required this.onCustomerDeselected});
@@ -149,8 +152,7 @@ class BookingDisplay extends ConsumerWidget {
     final customerGroup =
         ref.watch(customerAssignProvider(teamGroupId)).value ??
             CustomerGroupWorkspace();
-    var customers = List<Customer>.from(customerGroup.customers);
-    customers.sort((a, b) => a.name.compareTo(b.name));
+    var customers = _sortCustomers(customerGroup.customers, teamId);
     return SizedBox(
       width: double.infinity,
       child: Card(
@@ -167,6 +169,7 @@ class BookingDisplay extends ConsumerWidget {
                     .map(
                       (c) => CustomerActionChip(
                         customer: c,
+                        teamId: teamId,
                         onCustomerSelected: () => onCustomerSelected(c),
                         onCustomerDeselected: () => onCustomerDeselected(c),
                       ),
@@ -179,15 +182,39 @@ class BookingDisplay extends ConsumerWidget {
       ),
     );
   }
+
+  /// Sort customers with available on top, then available, then unavailable. Finally, by name.
+  List<Customer> _sortCustomers(List<Customer> customers, String teamId) {
+    List<Customer> toReturn = [];
+
+    List<Customer> selectedCustomers =
+        customers.where((c) => c.teamId != null && c.teamId == teamId).toList();
+    selectedCustomers.sort((a, b) => a.name.compareTo(b.name));
+    toReturn.addAll(selectedCustomers);
+
+    List<Customer> availableCustomers =
+        customers.where((c) => c.teamId == null).toList();
+    availableCustomers.sort((a, b) => a.name.compareTo(b.name));
+    toReturn.addAll(availableCustomers);
+
+    List<Customer> unavailableCustomers =
+        customers.where((c) => c.teamId != null && c.teamId != teamId).toList();
+    unavailableCustomers.sort((a, b) => a.name.compareTo(b.name));
+    toReturn.addAll(unavailableCustomers);
+
+    return toReturn;
+  }
 }
 
 class CustomerActionChip extends ConsumerWidget {
   final Customer customer;
+  final String teamId;
   final Function() onCustomerSelected;
   final Function() onCustomerDeselected;
   const CustomerActionChip(
       {super.key,
       required this.customer,
+      required this.teamId,
       required this.onCustomerSelected,
       required this.onCustomerDeselected});
 
@@ -195,12 +222,20 @@ class CustomerActionChip extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return InputChip(
       label: Text(customer.name),
-      backgroundColor: customer.teamId == null || customer.teamId!.isEmpty
-          ? Colors.red
-          : Colors.green,
+      backgroundColor: _getBackgroundColor(),
       onPressed: () => onCustomerSelected(),
       onDeleted: () => onCustomerDeselected(),
       deleteIcon: Icon(Icons.cancel),
     );
+  }
+
+  Color _getBackgroundColor() {
+    if (customer.teamId == null) {
+      return Colors.red;
+    } else if (customer.teamId != teamId) {
+      return Colors.grey;
+    } else {
+      return Colors.green;
+    }
   }
 }
