@@ -8,15 +8,14 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models.dart';
 
 class CustomersCreateTeam extends ConsumerWidget {
-  final CustomerGroupWorkspace customerGroupWorkspace;
   final TeamGroupWorkspace teamGroup;
-  const CustomersCreateTeam(
-      {super.key,
-      required this.customerGroupWorkspace,
-      required this.teamGroup});
+  const CustomersCreateTeam({super.key, required this.teamGroup});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final customerGroupWorkspace =
+        ref.watch(customerAssignProvider(teamGroup.id)).value ??
+            CustomerGroupWorkspace();
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -28,8 +27,8 @@ class CustomersCreateTeam extends ConsumerWidget {
           ),
           ...teamGroup.teams.map(
             (team) => SingleTeamAssign(
+              teamGroupId: teamGroup.id,
               team: team,
-              customerGroup: customerGroupWorkspace,
               onCustomerSelected: (customer, booking) => ref
                   .read(customerAssignProvider(teamGroup.id).notifier)
                   .editCustomer(
@@ -50,15 +49,15 @@ class CustomersCreateTeam extends ConsumerWidget {
 
 class SingleTeamAssign extends ConsumerWidget {
   final TeamWorkspace team;
-  final CustomerGroupWorkspace customerGroup;
+  final String teamGroupId;
   final Function(Customer, Booking) onCustomerSelected;
   final Function(Customer, Booking) onCustomerDeselected;
   const SingleTeamAssign(
       {super.key,
       required this.team,
-      required this.customerGroup,
       required this.onCustomerSelected,
-      required this.onCustomerDeselected});
+      required this.onCustomerDeselected,
+      required this.teamGroupId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -77,7 +76,7 @@ class SingleTeamAssign extends ConsumerWidget {
                   context: context,
                   builder: (_) => AssignCustomersAlert(
                     team: team,
-                    customerGroup: customerGroup,
+                    teamGroupId: teamGroupId,
                     onCustomerSelected: (customer, booking) =>
                         onCustomerSelected(customer, booking),
                     onCustomerDeselected: (customer, booking) =>
@@ -94,20 +93,23 @@ class SingleTeamAssign extends ConsumerWidget {
   }
 }
 
-class AssignCustomersAlert extends StatelessWidget {
+class AssignCustomersAlert extends ConsumerWidget {
   final TeamWorkspace team;
-  final CustomerGroupWorkspace customerGroup;
+  final String teamGroupId;
   final Function(Customer, Booking) onCustomerSelected;
   final Function(Customer, Booking) onCustomerDeselected;
   const AssignCustomersAlert(
       {super.key,
       required this.team,
-      required this.customerGroup,
+      required this.teamGroupId,
       required this.onCustomerSelected,
       required this.onCustomerDeselected});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final customerGroup =
+        ref.watch(customerAssignProvider(teamGroupId)).value ??
+            CustomerGroupWorkspace();
     return AlertDialog.adaptive(
       scrollable: true,
       title: Text("Assign customers"),
@@ -117,7 +119,7 @@ class AssignCustomersAlert extends StatelessWidget {
           ...customerGroup.bookings.map(
             (booking) => BookingDisplay(
               booking: booking,
-              customers: customerGroup.customers,
+              teamGroupId: teamGroupId,
               onCustomerSelected: (customer) =>
                   onCustomerSelected(customer, booking),
               onCustomerDeselected: (customer) =>
@@ -130,20 +132,23 @@ class AssignCustomersAlert extends StatelessWidget {
   }
 }
 
-class BookingDisplay extends StatelessWidget {
+class BookingDisplay extends ConsumerWidget {
   final Booking booking;
-  final List<Customer> customers;
+  final String teamGroupId;
   final Function(Customer) onCustomerSelected;
   final Function(Customer) onCustomerDeselected;
   const BookingDisplay(
       {super.key,
       required this.booking,
-      required this.customers,
+      required this.teamGroupId,
       required this.onCustomerSelected,
       required this.onCustomerDeselected});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final customerGroup =
+        ref.watch(customerAssignProvider(teamGroupId)).value ??
+            CustomerGroupWorkspace();
     return SizedBox(
       width: double.infinity,
       child: Card(
@@ -155,7 +160,7 @@ class BookingDisplay extends StatelessWidget {
               Text("Booking: ${booking.name}"),
               Wrap(
                 spacing: 10,
-                children: customers
+                children: customerGroup.customers
                     .where((customer) => customer.bookingId == booking.id)
                     .map(
                       (c) => CustomerActionChip(
