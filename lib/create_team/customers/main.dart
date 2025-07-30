@@ -115,6 +115,8 @@ class AssignCustomersAlert extends ConsumerWidget {
         ref.watch(customerAssignProvider(teamGroupId)).value ??
             CustomerGroupWorkspace();
     return AlertDialog.adaptive(
+      insetPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+      contentPadding: EdgeInsets.all(10),
       scrollable: true,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -240,12 +242,29 @@ class CustomerActionChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return InputChip(
-      label: Text(customer.name),
-      backgroundColor: _getBackgroundColor(),
-      onPressed: () => onCustomerSelected(),
-      onDeleted: () => onCustomerDeselected(),
-      deleteIcon: Icon(Icons.cancel),
+    return InkWell(
+      onTap: () => onCustomerSelected(),
+      child: Card(
+        color: _getBackgroundColor(),
+        child: IntrinsicWidth(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Row(
+              children: [
+                Column(
+                  children: [
+                    Text(customer.name),
+                  ],
+                ),
+                IconButton(
+                  onPressed: () => onCustomerDeselected(),
+                  icon: Icon(Icons.cancel_outlined),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
