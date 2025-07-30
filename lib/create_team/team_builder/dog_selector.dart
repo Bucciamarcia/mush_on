@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:mush_on/create_team/autocomplete_dogs.dart';
-import 'package:mush_on/create_team/dog_chip_interface.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
+
+import 'autocomplete_dogs.dart';
+import 'dog_chip_interface.dart';
 
 class DogSelector extends StatefulWidget {
   const DogSelector({
