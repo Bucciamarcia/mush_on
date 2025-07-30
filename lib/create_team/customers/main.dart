@@ -149,6 +149,8 @@ class BookingDisplay extends ConsumerWidget {
     final customerGroup =
         ref.watch(customerAssignProvider(teamGroupId)).value ??
             CustomerGroupWorkspace();
+    var customers = List<Customer>.from(customerGroup.customers);
+    customers.sort((a, b) => a.name.compareTo(b.name));
     return SizedBox(
       width: double.infinity,
       child: Card(
@@ -160,7 +162,7 @@ class BookingDisplay extends ConsumerWidget {
               Text("Booking: ${booking.name}"),
               Wrap(
                 spacing: 10,
-                children: customerGroup.customers
+                children: customers
                     .where((customer) => customer.bookingId == booking.id)
                     .map(
                       (c) => CustomerActionChip(
