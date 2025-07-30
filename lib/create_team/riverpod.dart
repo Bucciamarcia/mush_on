@@ -73,6 +73,8 @@ sealed class CustomerGroupWorkspace with _$CustomerGroupWorkspace {
   const factory CustomerGroupWorkspace({
     @Default([]) List<CustomerGroup> customerGroups,
     @Default([]) List<Booking> bookings,
+
+    /// All customers by customer group ID.
     @Default([]) List<Customer> customers,
   }) = _CustomerGroupWorkspace;
 }
@@ -98,6 +100,20 @@ class CustomerAssign extends _$CustomerAssign {
       customerGroups: customerGroups,
       bookings: bookings,
       customers: customers,
+    );
+  }
+
+  /// Edits a customer by removing it and adding it again via id.
+  ///
+  /// Note: will always put the new customer at the bottom.
+  void editCustomer(Customer customer) {
+    state = state.whenData(
+      (data) => data.copyWith(
+        customers: [
+          ...data.customers.where((c) => c.id != customer.id),
+          customer,
+        ],
+      ),
     );
   }
 }
