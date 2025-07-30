@@ -12,9 +12,6 @@ class CustomerGroupsCard extends ConsumerWidget {
       child: Column(
         children: [
           Text(
-            "Customer groups: ${customerGroupWorkspace.customerGroups.length}",
-          ),
-          Text(
             "Bookings: ${customerGroupWorkspace.bookings.length}",
           ),
           Text(

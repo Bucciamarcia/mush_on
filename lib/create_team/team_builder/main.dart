@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mush_on/create_team/customer_groups_card.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
@@ -17,8 +16,12 @@ import 'team_retriever.dart';
 
 class TeamBuilderWidget extends ConsumerStatefulWidget {
   final TeamGroupWorkspace teamGroup;
+  final CustomerGroupWorkspace customerGroupWorkspace;
 
-  const TeamBuilderWidget({super.key, required this.teamGroup});
+  const TeamBuilderWidget(
+      {super.key,
+      required this.teamGroup,
+      required this.customerGroupWorkspace});
 
   @override
   ConsumerState<TeamBuilderWidget> createState() => _TeamBuilderWidgetState();
@@ -44,15 +47,12 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final customerGroupWorkspace =
-        ref.watch(customerAssignProvider(widget.teamGroup.id)).value ??
-            CustomerGroupWorkspace();
     var runningDogs = ref.watch(runningDogsProvider(widget.teamGroup));
     var dogNotes =
         ref.watch(dogNotesProvider(latestDate: widget.teamGroup.date));
     var notifier =
         ref.read(createTeamGroupProvider(widget.teamGroup.id).notifier);
-    List<Dog>? allDogs = ref.watch(dogsProvider).value;
+    List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
     SettingsModel? settings = ref.watch(settingsProvider).value;
     return SingleChildScrollView(
       child: Column(
@@ -63,7 +63,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
               title: Center(child: Text("Filter dogs")),
               children: [
                 DogFilterWidget(
-                    dogs: allDogs ?? [],
+                    dogs: allDogs,
                     templates: settings?.customFieldTemplates ?? [],
                     onResult: (dogs) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,9 +103,6 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
           ),
           SizedBox(
             width: double.infinity,
-            child: CustomerGroupsCard(
-              customerGroupWorkspace: customerGroupWorkspace,
-            ),
           ),
           ...widget.teamGroup.teams.asMap().entries.map(
             (entry) {
@@ -114,7 +111,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                   Divider(),
                   TeamRetriever(
                     teamNumber: entry.key,
-                    dogs: allDogs ?? [],
+                    dogs: allDogs,
                     runningDogs: runningDogs,
                     teams: widget.teamGroup.teams,
                     notes: dogNotes,
@@ -152,7 +149,9 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
           SizedBox(height: 10),
           ElevatedButton(
             onPressed: () async {
-              String teamString = createTeamsString(widget.teamGroup);
+              String teamString = CreateTeamsString(
+                allDogs: allDogs,
+              ).teamGroup(widget.teamGroup);
               await Clipboard.setData(ClipboardData(text: teamString));
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -176,26 +175,31 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
       ),
     );
   }
+}
 
-  String createTeamsString(TeamGroupWorkspace group) {
-    String stringTeams = "${group.name}\n\n";
-    stringTeams = "$stringTeams${group.notes}\n\n";
-    for (TeamWorkspace team in group.teams) {
-      stringTeams = stringTeams + _stringifyTeam(team);
+class CreateTeamsString {
+  final List<Dog> allDogs;
+
+  CreateTeamsString({required this.allDogs});
+
+  String teamGroup(TeamGroupWorkspace teamGroup) {
+    String stringTeams = "${teamGroup.name}\n\n";
+    stringTeams = "$stringTeams${teamGroup.notes}\n\n";
+    for (TeamWorkspace team in teamGroup.teams) {
+      stringTeams = stringTeams + stringifyTeam(team);
       stringTeams = "$stringTeams\n";
     }
     stringTeams = stringTeams.substring(0, stringTeams.length - 2);
     return stringTeams;
   }
 
-  String _stringifyTeam(TeamWorkspace team) {
+  String stringifyTeam(TeamWorkspace team) {
     String streamTeam = team.name;
     String dogPairs = _stringifyDogPairs(team.dogPairs);
     return "$streamTeam$dogPairs\n";
   }
 
   String _stringifyDogPairs(List<DogPairWorkspace> teamDogs) {
-    List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
     String dogList = "";
     for (DogPairWorkspace dogPair in teamDogs) {
       dogList =
