@@ -112,7 +112,19 @@ class AssignCustomersAlert extends ConsumerWidget {
             CustomerGroupWorkspace();
     return AlertDialog.adaptive(
       scrollable: true,
-      title: Text("Assign customers"),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text("Assign customers"),
+          Tooltip(
+            showDuration: Duration(seconds: 5),
+            triggerMode: TooltipTriggerMode.tap,
+            message:
+                "Assign customers to this sled.\nGreen: assigned to this sled.\nBlue: available.\nGrey: Assigned to another sled.",
+            child: Icon(Icons.question_mark),
+          ),
+        ],
+      ),
       content: Column(
         children: [
           Text("Assign customers to team: ${team.name}"),
@@ -129,6 +141,10 @@ class AssignCustomersAlert extends ConsumerWidget {
           ),
         ],
       ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(), child: Text("Close"))
+      ],
     );
   }
 }
@@ -231,7 +247,7 @@ class CustomerActionChip extends ConsumerWidget {
 
   Color _getBackgroundColor() {
     if (customer.teamId == null) {
-      return Colors.red;
+      return Colors.blue;
     } else if (customer.teamId != teamId) {
       return Colors.grey;
     } else {
