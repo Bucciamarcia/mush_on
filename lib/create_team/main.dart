@@ -86,10 +86,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                           teamGroup: teamGroup,
                           customerGroupWorkspace: customerGroupWorkspace,
                         ),
-                        CustomersCreateTeam(
-                          teamGroup: teamGroup,
-                          customerGroupWorkspace: customerGroupWorkspace,
-                        ),
+                        CustomersCreateTeam(teamGroup: teamGroup),
                       ],
                     ),
                   ),
