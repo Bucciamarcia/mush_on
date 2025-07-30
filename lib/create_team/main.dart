@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/create_team/customers/main.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/team_builder/main.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -51,6 +52,9 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
         ref.watch(createTeamGroupProvider(widget.loadedTeam?.id));
     return teamGroupAsync.when(
         data: (teamGroup) {
+          final customerGroupWorkspace =
+              ref.watch(customerAssignProvider(teamGroup.id)).value ??
+                  CustomerGroupWorkspace();
           bool canPopProvider = ref.watch(canPopTeamGroupProvider);
           return PopScope(
             canPop: canPopProvider,
@@ -78,8 +82,14 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                   Expanded(
                     child: TabBarView(
                       children: [
-                        TeamBuilderWidget(teamGroup: teamGroup),
-                        Text("moi"),
+                        TeamBuilderWidget(
+                          teamGroup: teamGroup,
+                          customerGroupWorkspace: customerGroupWorkspace,
+                        ),
+                        CustomersCreateTeam(
+                          teamGroup: teamGroup,
+                          customerGroupWorkspace: customerGroupWorkspace,
+                        ),
                       ],
                     ),
                   ),
