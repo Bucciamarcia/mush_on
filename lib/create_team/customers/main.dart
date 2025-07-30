@@ -13,7 +13,7 @@ class CustomersCreateTeam extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final customerGroupWorkspace =
+    final customerGroup =
         ref.watch(customerAssignProvider(teamGroup.id)).value ??
             CustomerGroupWorkspace();
     return SingleChildScrollView(
@@ -22,8 +22,7 @@ class CustomersCreateTeam extends ConsumerWidget {
           SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
-            child: CustomerGroupsCard(
-                customerGroupWorkspace: customerGroupWorkspace),
+            child: CustomerGroupsCard(customerGroupWorkspace: customerGroup),
           ),
           ...teamGroup.teams.map(
             (team) => SingleTeamAssign(
@@ -61,6 +60,9 @@ class SingleTeamAssign extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final customerGroup =
+        ref.watch(customerAssignProvider(teamGroupId)).value ??
+            CustomerGroupWorkspace();
     List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
     return SizedBox(
       width: double.infinity,
@@ -70,6 +72,8 @@ class SingleTeamAssign extends ConsumerWidget {
             Text(
               "Team: ${CreateTeamsString(allDogs: allDogs).stringifyTeam(team).trim()}",
             ),
+            Text(
+                "Customers assigned: ${customerGroup.customers.where((c) => c.teamId == team.id).length}"),
             ElevatedButton(
               onPressed: () {
                 showDialog(
