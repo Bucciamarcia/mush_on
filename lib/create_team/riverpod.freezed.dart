@@ -647,6 +647,8 @@ class __$DogPairWorkspaceCopyWithImpl<$Res>
 mixin _$CustomerGroupWorkspace {
   List<CustomerGroup> get customerGroups;
   List<Booking> get bookings;
+
+  /// All customers by customer group ID.
   List<Customer> get customers;
 
   /// Create a copy of CustomerGroupWorkspace
@@ -756,7 +758,10 @@ class _CustomerGroupWorkspace implements CustomerGroupWorkspace {
     return EqualUnmodifiableListView(_bookings);
   }
 
+  /// All customers by customer group ID.
   final List<Customer> _customers;
+
+  /// All customers by customer group ID.
   @override
   @JsonKey()
   List<Customer> get customers {
