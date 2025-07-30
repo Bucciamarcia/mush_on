@@ -70,57 +70,65 @@ class _TeamRetrieverState extends State<TeamRetriever> {
       return const Text("Invalid team number");
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextField(
-            controller: textController,
-            decoration: InputDecoration(labelText: "Team name"),
-            onChanged: (String text) {
-              widget.onTeamNameChanged(widget.teamNumber, text);
-            }),
-        SizedBox(height: 10),
-        ...widget.teams[widget.teamNumber].dogPairs.asMap().entries.map(
-              (entry) => PairRetriever(
-                teamNumber: widget.teamNumber,
-                rowNumber: entry.key,
-                teams: widget.teams,
-                notes: widget.notes,
-                onDogSelected: (newDog) => widget.onDogSelected(newDog),
-                dogs: widget.dogs,
-                runningDogs: widget.runningDogs,
-                onRowRemoved: (teamNumber, rowNumber) =>
-                    widget.onRowRemoved(teamNumber, rowNumber),
-                onDogRemoved: (teamNumber, rowNumber, positionNumber) =>
-                    widget.onDogRemoved(teamNumber, rowNumber, positionNumber),
-              ),
-            ),
-        SizedBox(
-          height: 10,
-        ),
-        ElevatedButton(
-          onPressed: () {
-            widget.onAddRow(widget.teamNumber);
-          },
-          child: Text("Add new row"),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Row(
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AddTeamWidget(
-              teamNumber: widget.teamNumber,
-              onAddTeam: (newTeamNumber) => widget.onAddTeam(newTeamNumber),
+            TextField(
+                controller: textController,
+                decoration: InputDecoration(labelText: "Team name"),
+                onChanged: (String text) {
+                  widget.onTeamNameChanged(widget.teamNumber, text);
+                }),
+            SizedBox(height: 10),
+            ...widget.teams[widget.teamNumber].dogPairs.asMap().entries.map(
+                  (entry) => PairRetriever(
+                    teamNumber: widget.teamNumber,
+                    rowNumber: entry.key,
+                    teams: widget.teams,
+                    notes: widget.notes,
+                    onDogSelected: (newDog) => widget.onDogSelected(newDog),
+                    dogs: widget.dogs,
+                    runningDogs: widget.runningDogs,
+                    onRowRemoved: (teamNumber, rowNumber) =>
+                        widget.onRowRemoved(teamNumber, rowNumber),
+                    onDogRemoved: (teamNumber, rowNumber, positionNumber) =>
+                        widget.onDogRemoved(
+                            teamNumber, rowNumber, positionNumber),
+                  ),
+                ),
+            SizedBox(
+              height: 10,
             ),
-            RemoveTeamWidget(
-              teamNumber: widget.teamNumber,
-              onRemoveTeam: (teamNumber) => widget.onRemoveTeam(teamNumber),
-              totalTeams: widget.teams.length,
+            ElevatedButton(
+              onPressed: () {
+                widget.onAddRow(widget.teamNumber);
+              },
+              child: Text("Add new row"),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Row(
+              spacing: 10,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AddTeamWidget(
+                  teamNumber: widget.teamNumber,
+                  onAddTeam: (newTeamNumber) => widget.onAddTeam(newTeamNumber),
+                ),
+                RemoveTeamWidget(
+                  teamNumber: widget.teamNumber,
+                  onRemoveTeam: (teamNumber) => widget.onRemoveTeam(teamNumber),
+                  totalTeams: widget.teams.length,
+                ),
+              ],
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 }
