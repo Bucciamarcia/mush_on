@@ -17,8 +17,31 @@ class CustomerGroupsCard extends ConsumerWidget {
           Text(
             "Customers: ${customerGroupWorkspace.customers.length}",
           ),
+          Text(
+            "Assigned customers: ${_assignedCustomers()}/${customerGroupWorkspace.customers.length}",
+            style: TextStyle(
+              color: _areAllAssigned() ? Colors.green : Colors.red,
+              fontWeight: FontWeight.w600,
+            ),
+          )
         ],
       ),
     );
+  }
+
+  int _assignedCustomers() {
+    return customerGroupWorkspace.customers
+        .where((c) => c.teamId != null)
+        .length;
+  }
+
+  bool _areAllAssigned() {
+    final int assigned = _assignedCustomers();
+    final int total = customerGroupWorkspace.customers.length;
+    if (total == assigned) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
