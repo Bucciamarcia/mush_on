@@ -5,7 +5,6 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/custom_converters.dart';
@@ -83,17 +82,15 @@ sealed class CustomerGroupWorkspace with _$CustomerGroupWorkspace {
 @riverpod
 class CustomerAssign extends _$CustomerAssign {
   @override
-  Future<CustomerGroupWorkspace> build(String? teamGroupId) async {
+  Future<CustomerGroupWorkspace?> build(String? teamGroupId) async {
     if (teamGroupId == null) {
-      return CustomerGroupWorkspace(
-        customerGroup: CustomerGroup(
-          id: Uuid().v4(),
-          datetime: DateTime.now(),
-        ),
-      );
+      return null;
     }
-    CustomerGroup customerGroup =
+    CustomerGroup? customerGroup =
         await ref.watch(customerGroupForTeamgroupProvider(teamGroupId).future);
+    if (customerGroup == null) {
+      return null;
+    }
     List<Booking> bookings = [];
     List<Customer> customers = [];
     var b = await ref
@@ -113,7 +110,7 @@ class CustomerAssign extends _$CustomerAssign {
   /// Note: will always put the new customer at the bottom.
   void editCustomer(Customer customer) {
     state = state.whenData(
-      (data) => data.copyWith(
+      (data) => data!.copyWith(
         customers: [
           ...data.customers.where((c) => c.id != customer.id),
           customer,
@@ -365,7 +362,7 @@ Future<TeamGroup?> teamGroupById(Ref ref, String id) async {
 @riverpod
 
 /// Gets all the customer groups assigned to this teamgroup.
-Stream<CustomerGroup> customerGroupForTeamgroup(
+Stream<CustomerGroup?> customerGroupForTeamgroup(
     Ref ref, String teamGroupId) async* {
   final db = FirebaseFirestore.instance;
   String account = await ref.watch(accountProvider.future);
@@ -378,5 +375,5 @@ Stream<CustomerGroup> customerGroupForTeamgroup(
           doc.data(),
         ),
       )
-      .first);
+      .firstOrNull);
 }
