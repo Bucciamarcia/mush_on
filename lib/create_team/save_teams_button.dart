@@ -21,6 +21,7 @@ class SaveTeamsButton extends ConsumerWidget {
         try {
           String account = await ref.watch(accountProvider.future);
           await saveToDb(teamGroup, account, ref);
+          await saveCustomersToDb(teamGroup, account, ref);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -64,6 +65,12 @@ class SaveTeamsButton extends ConsumerWidget {
       logger.error("Couldn't check if teams exist", error: e, stackTrace: s);
       rethrow;
     }
+  }
+
+  Future<void> saveCustomersToDb(
+      TeamGroupWorkspace newtg, String account, WidgetRef ref) async {
+    CustomerGroupWorkspace? customerGroup =
+        await ref.watch(customerAssignProvider(newtg.id).future);
   }
 }
 

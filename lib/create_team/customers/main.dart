@@ -17,14 +17,10 @@ class CustomersCreateTeam extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final customerGroup =
-        ref.watch(customerAssignProvider(teamGroup.id)).value ??
-            CustomerGroupWorkspace(
-              customerGroup: CustomerGroup(
-                id: Uuid().v4(),
-                datetime: DateTime.now(),
-              ),
-            );
+    final customerGroup = ref.watch(customerAssignProvider(teamGroup.id)).value;
+    if (customerGroup == null) {
+      return Text("No customer group assigned.");
+    }
     return SingleChildScrollView(
       child: Column(
         children: [

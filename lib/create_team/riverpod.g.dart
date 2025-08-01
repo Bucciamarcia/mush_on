@@ -234,7 +234,7 @@ class _TeamGroupByIdProviderElement
 }
 
 String _$customerGroupForTeamgroupHash() =>
-    r'05ee040047f7b4173b546dc6a8ea833df2e87790';
+    r'73745e23e140788cfc2d350ecd4a305f6d63a752';
 
 /// Gets all the customer groups assigned to this teamgroup.
 ///
@@ -246,7 +246,7 @@ const customerGroupForTeamgroupProvider = CustomerGroupForTeamgroupFamily();
 ///
 /// Copied from [customerGroupForTeamgroup].
 class CustomerGroupForTeamgroupFamily
-    extends Family<AsyncValue<CustomerGroup>> {
+    extends Family<AsyncValue<CustomerGroup?>> {
   /// Gets all the customer groups assigned to this teamgroup.
   ///
   /// Copied from [customerGroupForTeamgroup].
@@ -291,7 +291,7 @@ class CustomerGroupForTeamgroupFamily
 ///
 /// Copied from [customerGroupForTeamgroup].
 class CustomerGroupForTeamgroupProvider
-    extends AutoDisposeStreamProvider<CustomerGroup> {
+    extends AutoDisposeStreamProvider<CustomerGroup?> {
   /// Gets all the customer groups assigned to this teamgroup.
   ///
   /// Copied from [customerGroupForTeamgroup].
@@ -328,7 +328,7 @@ class CustomerGroupForTeamgroupProvider
 
   @override
   Override overrideWith(
-    Stream<CustomerGroup> Function(CustomerGroupForTeamgroupRef provider)
+    Stream<CustomerGroup?> Function(CustomerGroupForTeamgroupRef provider)
         create,
   ) {
     return ProviderOverride(
@@ -346,7 +346,7 @@ class CustomerGroupForTeamgroupProvider
   }
 
   @override
-  AutoDisposeStreamProviderElement<CustomerGroup> createElement() {
+  AutoDisposeStreamProviderElement<CustomerGroup?> createElement() {
     return _CustomerGroupForTeamgroupProviderElement(this);
   }
 
@@ -368,13 +368,13 @@ class CustomerGroupForTeamgroupProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin CustomerGroupForTeamgroupRef
-    on AutoDisposeStreamProviderRef<CustomerGroup> {
+    on AutoDisposeStreamProviderRef<CustomerGroup?> {
   /// The parameter `teamGroupId` of this provider.
   String get teamGroupId;
 }
 
 class _CustomerGroupForTeamgroupProviderElement
-    extends AutoDisposeStreamProviderElement<CustomerGroup>
+    extends AutoDisposeStreamProviderElement<CustomerGroup?>
     with CustomerGroupForTeamgroupRef {
   _CustomerGroupForTeamgroupProviderElement(super.provider);
 
@@ -399,13 +399,13 @@ final canPopTeamGroupProvider =
 );
 
 typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
-String _$customerAssignHash() => r'db8a1c053606d0cf1b2e6b01db731e9ef202afcf';
+String _$customerAssignHash() => r'd2d862c365996edf29419bf14c9df4c53cc66483';
 
 abstract class _$CustomerAssign
-    extends BuildlessAutoDisposeAsyncNotifier<CustomerGroupWorkspace> {
+    extends BuildlessAutoDisposeAsyncNotifier<CustomerGroupWorkspace?> {
   late final String? teamGroupId;
 
-  FutureOr<CustomerGroupWorkspace> build(
+  FutureOr<CustomerGroupWorkspace?> build(
     String? teamGroupId,
   );
 }
@@ -415,7 +415,7 @@ abstract class _$CustomerAssign
 const customerAssignProvider = CustomerAssignFamily();
 
 /// See also [CustomerAssign].
-class CustomerAssignFamily extends Family<AsyncValue<CustomerGroupWorkspace>> {
+class CustomerAssignFamily extends Family<AsyncValue<CustomerGroupWorkspace?>> {
   /// See also [CustomerAssign].
   const CustomerAssignFamily();
 
@@ -454,7 +454,7 @@ class CustomerAssignFamily extends Family<AsyncValue<CustomerGroupWorkspace>> {
 
 /// See also [CustomerAssign].
 class CustomerAssignProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    CustomerAssign, CustomerGroupWorkspace> {
+    CustomerAssign, CustomerGroupWorkspace?> {
   /// See also [CustomerAssign].
   CustomerAssignProvider(
     String? teamGroupId,
@@ -485,7 +485,7 @@ class CustomerAssignProvider extends AutoDisposeAsyncNotifierProviderImpl<
   final String? teamGroupId;
 
   @override
-  FutureOr<CustomerGroupWorkspace> runNotifierBuild(
+  FutureOr<CustomerGroupWorkspace?> runNotifierBuild(
     covariant CustomerAssign notifier,
   ) {
     return notifier.build(
@@ -511,7 +511,7 @@ class CustomerAssignProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   AutoDisposeAsyncNotifierProviderElement<CustomerAssign,
-      CustomerGroupWorkspace> createElement() {
+      CustomerGroupWorkspace?> createElement() {
     return _CustomerAssignProviderElement(this);
   }
 
@@ -532,14 +532,14 @@ class CustomerAssignProvider extends AutoDisposeAsyncNotifierProviderImpl<
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin CustomerAssignRef
-    on AutoDisposeAsyncNotifierProviderRef<CustomerGroupWorkspace> {
+    on AutoDisposeAsyncNotifierProviderRef<CustomerGroupWorkspace?> {
   /// The parameter `teamGroupId` of this provider.
   String? get teamGroupId;
 }
 
 class _CustomerAssignProviderElement
     extends AutoDisposeAsyncNotifierProviderElement<CustomerAssign,
-        CustomerGroupWorkspace> with CustomerAssignRef {
+        CustomerGroupWorkspace?> with CustomerAssignRef {
   _CustomerAssignProviderElement(super.provider);
 
   @override
