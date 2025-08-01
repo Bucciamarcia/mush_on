@@ -105,6 +105,19 @@ class CustomerAssign extends _$CustomerAssign {
     );
   }
 
+  void createCustomerGroup(
+      {required DateTime dateTime, required String teamGroupId}) {
+    state = state.whenData(
+      (data) => CustomerGroupWorkspace(
+        customerGroup: CustomerGroup(
+          teamGroupId: teamGroupId,
+          datetime: dateTime,
+          id: Uuid().v4(),
+        ),
+      ),
+    );
+  }
+
   /// Edits a customer by removing it and adding it again via id.
   ///
   /// Note: will always put the new customer at the bottom.

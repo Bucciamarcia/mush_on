@@ -4,8 +4,10 @@ import 'package:mush_on/create_team/customers/customer_groups_card.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/team_builder/main.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/shared/text_title.dart';
 import 'package:uuid/uuid.dart';
 
 class CustomersCreateTeam extends ConsumerWidget {
@@ -18,8 +20,23 @@ class CustomersCreateTeam extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup = ref.watch(customerAssignProvider(teamGroup.id)).value;
+    final notifier = ref.read(CustomerAssignProvider(teamGroup.id).notifier);
+    final allCustomerGroups =
+        ref.watch(customerGroupsByDateProvider(teamGroup.date)).value;
     if (customerGroup == null) {
-      return Text("No customer group assigned.");
+      return SingleChildScrollView(
+        child: Column(
+          spacing: 20,
+          children: [
+            TextTitle("No customer group assigned"),
+            ElevatedButton(
+              onPressed: () => notifier.createCustomerGroup(
+                  dateTime: teamGroup.date, teamGroupId: teamGroup.id),
+              child: Text("Create customer group"),
+            ),
+          ],
+        ),
+      );
     }
     return SingleChildScrollView(
       child: Column(
