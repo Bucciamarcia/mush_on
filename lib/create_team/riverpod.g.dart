@@ -233,39 +233,39 @@ class _TeamGroupByIdProviderElement
   String get id => (origin as TeamGroupByIdProvider).id;
 }
 
-String _$customerGroupsForTeamgroupHash() =>
-    r'893734f32ff66d9de8320d9a24ed8d97ae1b640d';
+String _$customerGroupForTeamgroupHash() =>
+    r'05ee040047f7b4173b546dc6a8ea833df2e87790';
 
 /// Gets all the customer groups assigned to this teamgroup.
 ///
-/// Copied from [customerGroupsForTeamgroup].
-@ProviderFor(customerGroupsForTeamgroup)
-const customerGroupsForTeamgroupProvider = CustomerGroupsForTeamgroupFamily();
+/// Copied from [customerGroupForTeamgroup].
+@ProviderFor(customerGroupForTeamgroup)
+const customerGroupForTeamgroupProvider = CustomerGroupForTeamgroupFamily();
 
 /// Gets all the customer groups assigned to this teamgroup.
 ///
-/// Copied from [customerGroupsForTeamgroup].
-class CustomerGroupsForTeamgroupFamily
-    extends Family<AsyncValue<List<CustomerGroup>>> {
+/// Copied from [customerGroupForTeamgroup].
+class CustomerGroupForTeamgroupFamily
+    extends Family<AsyncValue<CustomerGroup>> {
   /// Gets all the customer groups assigned to this teamgroup.
   ///
-  /// Copied from [customerGroupsForTeamgroup].
-  const CustomerGroupsForTeamgroupFamily();
+  /// Copied from [customerGroupForTeamgroup].
+  const CustomerGroupForTeamgroupFamily();
 
   /// Gets all the customer groups assigned to this teamgroup.
   ///
-  /// Copied from [customerGroupsForTeamgroup].
-  CustomerGroupsForTeamgroupProvider call(
+  /// Copied from [customerGroupForTeamgroup].
+  CustomerGroupForTeamgroupProvider call(
     String teamGroupId,
   ) {
-    return CustomerGroupsForTeamgroupProvider(
+    return CustomerGroupForTeamgroupProvider(
       teamGroupId,
     );
   }
 
   @override
-  CustomerGroupsForTeamgroupProvider getProviderOverride(
-    covariant CustomerGroupsForTeamgroupProvider provider,
+  CustomerGroupForTeamgroupProvider getProviderOverride(
+    covariant CustomerGroupForTeamgroupProvider provider,
   ) {
     return call(
       provider.teamGroupId,
@@ -284,37 +284,37 @@ class CustomerGroupsForTeamgroupFamily
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'customerGroupsForTeamgroupProvider';
+  String? get name => r'customerGroupForTeamgroupProvider';
 }
 
 /// Gets all the customer groups assigned to this teamgroup.
 ///
-/// Copied from [customerGroupsForTeamgroup].
-class CustomerGroupsForTeamgroupProvider
-    extends AutoDisposeStreamProvider<List<CustomerGroup>> {
+/// Copied from [customerGroupForTeamgroup].
+class CustomerGroupForTeamgroupProvider
+    extends AutoDisposeStreamProvider<CustomerGroup> {
   /// Gets all the customer groups assigned to this teamgroup.
   ///
-  /// Copied from [customerGroupsForTeamgroup].
-  CustomerGroupsForTeamgroupProvider(
+  /// Copied from [customerGroupForTeamgroup].
+  CustomerGroupForTeamgroupProvider(
     String teamGroupId,
   ) : this._internal(
-          (ref) => customerGroupsForTeamgroup(
-            ref as CustomerGroupsForTeamgroupRef,
+          (ref) => customerGroupForTeamgroup(
+            ref as CustomerGroupForTeamgroupRef,
             teamGroupId,
           ),
-          from: customerGroupsForTeamgroupProvider,
-          name: r'customerGroupsForTeamgroupProvider',
+          from: customerGroupForTeamgroupProvider,
+          name: r'customerGroupForTeamgroupProvider',
           debugGetCreateSourceHash:
               const bool.fromEnvironment('dart.vm.product')
                   ? null
-                  : _$customerGroupsForTeamgroupHash,
-          dependencies: CustomerGroupsForTeamgroupFamily._dependencies,
+                  : _$customerGroupForTeamgroupHash,
+          dependencies: CustomerGroupForTeamgroupFamily._dependencies,
           allTransitiveDependencies:
-              CustomerGroupsForTeamgroupFamily._allTransitiveDependencies,
+              CustomerGroupForTeamgroupFamily._allTransitiveDependencies,
           teamGroupId: teamGroupId,
         );
 
-  CustomerGroupsForTeamgroupProvider._internal(
+  CustomerGroupForTeamgroupProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -328,13 +328,13 @@ class CustomerGroupsForTeamgroupProvider
 
   @override
   Override overrideWith(
-    Stream<List<CustomerGroup>> Function(CustomerGroupsForTeamgroupRef provider)
+    Stream<CustomerGroup> Function(CustomerGroupForTeamgroupRef provider)
         create,
   ) {
     return ProviderOverride(
       origin: this,
-      override: CustomerGroupsForTeamgroupProvider._internal(
-        (ref) => create(ref as CustomerGroupsForTeamgroupRef),
+      override: CustomerGroupForTeamgroupProvider._internal(
+        (ref) => create(ref as CustomerGroupForTeamgroupRef),
         from: from,
         name: null,
         dependencies: null,
@@ -346,13 +346,13 @@ class CustomerGroupsForTeamgroupProvider
   }
 
   @override
-  AutoDisposeStreamProviderElement<List<CustomerGroup>> createElement() {
-    return _CustomerGroupsForTeamgroupProviderElement(this);
+  AutoDisposeStreamProviderElement<CustomerGroup> createElement() {
+    return _CustomerGroupForTeamgroupProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is CustomerGroupsForTeamgroupProvider &&
+    return other is CustomerGroupForTeamgroupProvider &&
         other.teamGroupId == teamGroupId;
   }
 
@@ -367,20 +367,20 @@ class CustomerGroupsForTeamgroupProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin CustomerGroupsForTeamgroupRef
-    on AutoDisposeStreamProviderRef<List<CustomerGroup>> {
+mixin CustomerGroupForTeamgroupRef
+    on AutoDisposeStreamProviderRef<CustomerGroup> {
   /// The parameter `teamGroupId` of this provider.
   String get teamGroupId;
 }
 
-class _CustomerGroupsForTeamgroupProviderElement
-    extends AutoDisposeStreamProviderElement<List<CustomerGroup>>
-    with CustomerGroupsForTeamgroupRef {
-  _CustomerGroupsForTeamgroupProviderElement(super.provider);
+class _CustomerGroupForTeamgroupProviderElement
+    extends AutoDisposeStreamProviderElement<CustomerGroup>
+    with CustomerGroupForTeamgroupRef {
+  _CustomerGroupForTeamgroupProviderElement(super.provider);
 
   @override
   String get teamGroupId =>
-      (origin as CustomerGroupsForTeamgroupProvider).teamGroupId;
+      (origin as CustomerGroupForTeamgroupProvider).teamGroupId;
 }
 
 String _$canPopTeamGroupHash() => r'c9af7216c65b52eed3154435651dc810e0585519';
@@ -399,7 +399,7 @@ final canPopTeamGroupProvider =
 );
 
 typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
-String _$customerAssignHash() => r'0863672163c67942d8d604d18fa9ab37f4c026f4';
+String _$customerAssignHash() => r'db8a1c053606d0cf1b2e6b01db731e9ef202afcf';
 
 abstract class _$CustomerAssign
     extends BuildlessAutoDisposeAsyncNotifier<CustomerGroupWorkspace> {

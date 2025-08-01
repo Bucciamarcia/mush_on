@@ -6,16 +6,25 @@ import 'package:mush_on/create_team/team_builder/main.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:uuid/uuid.dart';
 
 class CustomersCreateTeam extends ConsumerWidget {
   final TeamGroupWorkspace teamGroup;
-  const CustomersCreateTeam({super.key, required this.teamGroup});
+  const CustomersCreateTeam({
+    super.key,
+    required this.teamGroup,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup =
         ref.watch(customerAssignProvider(teamGroup.id)).value ??
-            CustomerGroupWorkspace();
+            CustomerGroupWorkspace(
+              customerGroup: CustomerGroup(
+                id: Uuid().v4(),
+                datetime: DateTime.now(),
+              ),
+            );
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -62,7 +71,12 @@ class SingleTeamAssign extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup =
         ref.watch(customerAssignProvider(teamGroupId)).value ??
-            CustomerGroupWorkspace();
+            CustomerGroupWorkspace(
+              customerGroup: CustomerGroup(
+                id: Uuid().v4(),
+                datetime: DateTime.now(),
+              ),
+            );
     List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
     return SizedBox(
       width: double.infinity,
@@ -124,7 +138,12 @@ class AssignCustomersAlert extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup =
         ref.watch(customerAssignProvider(teamGroupId)).value ??
-            CustomerGroupWorkspace();
+            CustomerGroupWorkspace(
+              customerGroup: CustomerGroup(
+                id: Uuid().v4(),
+                datetime: DateTime.now(),
+              ),
+            );
     return AlertDialog.adaptive(
       insetPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
       contentPadding: EdgeInsets.all(10),
@@ -184,7 +203,12 @@ class BookingDisplay extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup =
         ref.watch(customerAssignProvider(teamGroupId)).value ??
-            CustomerGroupWorkspace();
+            CustomerGroupWorkspace(
+              customerGroup: CustomerGroup(
+                id: Uuid().v4(),
+                datetime: DateTime.now(),
+              ),
+            );
     var customers = _sortCustomers(customerGroup.customers, teamId);
     return SizedBox(
       width: double.infinity,

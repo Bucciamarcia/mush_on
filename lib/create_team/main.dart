@@ -3,8 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/customers/main.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/team_builder/main.dart';
+import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:uuid/uuid.dart';
+
+import 'save_teams_button.dart';
 
 class CreateTeamMain extends ConsumerStatefulWidget {
   final TeamGroup? loadedTeam;
@@ -54,7 +58,12 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
         data: (teamGroup) {
           final customerGroupWorkspace =
               ref.watch(customerAssignProvider(teamGroup.id)).value ??
-                  CustomerGroupWorkspace();
+                  CustomerGroupWorkspace(
+                    customerGroup: CustomerGroup(
+                      id: Uuid().v4(),
+                      datetime: DateTime.now(),
+                    ),
+                  );
           bool canPopProvider = ref.watch(canPopTeamGroupProvider);
           return PopScope(
             canPop: canPopProvider,
@@ -86,9 +95,14 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                           teamGroup: teamGroup,
                           customerGroupWorkspace: customerGroupWorkspace,
                         ),
-                        CustomersCreateTeam(teamGroup: teamGroup),
+                        CustomersCreateTeam(
+                          teamGroup: teamGroup,
+                        ),
                       ],
                     ),
+                  ),
+                  SaveTeamsButton(
+                    teamGroup: teamGroup,
                   ),
                 ],
               ),

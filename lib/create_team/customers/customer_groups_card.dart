@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/riverpod.dart';
+import 'package:mush_on/shared/text_title.dart';
 
 class CustomerGroupsCard extends ConsumerWidget {
   final CustomerGroupWorkspace customerGroupWorkspace;
@@ -11,6 +12,7 @@ class CustomerGroupsCard extends ConsumerWidget {
     return Card(
       child: Column(
         children: [
+          TextTitle("Customer Group"),
           Text(
             "Bookings: ${customerGroupWorkspace.bookings.length}",
           ),
