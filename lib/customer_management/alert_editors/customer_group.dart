@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
-import 'package:mush_on/create_team/team_builder/save_teams_button.dart';
+import 'package:mush_on/create_team/save_teams_button.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/riverpod.dart';

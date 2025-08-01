@@ -645,7 +645,7 @@ class __$DogPairWorkspaceCopyWithImpl<$Res>
 
 /// @nodoc
 mixin _$CustomerGroupWorkspace {
-  List<CustomerGroup> get customerGroups;
+  CustomerGroup get customerGroup;
   List<Booking> get bookings;
 
   /// All customers by customer group ID.
@@ -664,8 +664,8 @@ mixin _$CustomerGroupWorkspace {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is CustomerGroupWorkspace &&
-            const DeepCollectionEquality()
-                .equals(other.customerGroups, customerGroups) &&
+            (identical(other.customerGroup, customerGroup) ||
+                other.customerGroup == customerGroup) &&
             const DeepCollectionEquality().equals(other.bookings, bookings) &&
             const DeepCollectionEquality().equals(other.customers, customers));
   }
@@ -673,13 +673,13 @@ mixin _$CustomerGroupWorkspace {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(customerGroups),
+      customerGroup,
       const DeepCollectionEquality().hash(bookings),
       const DeepCollectionEquality().hash(customers));
 
   @override
   String toString() {
-    return 'CustomerGroupWorkspace(customerGroups: $customerGroups, bookings: $bookings, customers: $customers)';
+    return 'CustomerGroupWorkspace(customerGroup: $customerGroup, bookings: $bookings, customers: $customers)';
   }
 }
 
@@ -690,9 +690,11 @@ abstract mixin class $CustomerGroupWorkspaceCopyWith<$Res> {
       _$CustomerGroupWorkspaceCopyWithImpl;
   @useResult
   $Res call(
-      {List<CustomerGroup> customerGroups,
+      {CustomerGroup customerGroup,
       List<Booking> bookings,
       List<Customer> customers});
+
+  $CustomerGroupCopyWith<$Res> get customerGroup;
 }
 
 /// @nodoc
@@ -708,15 +710,15 @@ class _$CustomerGroupWorkspaceCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? customerGroups = null,
+    Object? customerGroup = null,
     Object? bookings = null,
     Object? customers = null,
   }) {
     return _then(_self.copyWith(
-      customerGroups: null == customerGroups
-          ? _self.customerGroups
-          : customerGroups // ignore: cast_nullable_to_non_nullable
-              as List<CustomerGroup>,
+      customerGroup: null == customerGroup
+          ? _self.customerGroup
+          : customerGroup // ignore: cast_nullable_to_non_nullable
+              as CustomerGroup,
       bookings: null == bookings
           ? _self.bookings
           : bookings // ignore: cast_nullable_to_non_nullable
@@ -727,28 +729,30 @@ class _$CustomerGroupWorkspaceCopyWithImpl<$Res>
               as List<Customer>,
     ));
   }
+
+  /// Create a copy of CustomerGroupWorkspace
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CustomerGroupCopyWith<$Res> get customerGroup {
+    return $CustomerGroupCopyWith<$Res>(_self.customerGroup, (value) {
+      return _then(_self.copyWith(customerGroup: value));
+    });
+  }
 }
 
 /// @nodoc
 
 class _CustomerGroupWorkspace implements CustomerGroupWorkspace {
   const _CustomerGroupWorkspace(
-      {final List<CustomerGroup> customerGroups = const [],
+      {required this.customerGroup,
       final List<Booking> bookings = const [],
       final List<Customer> customers = const []})
-      : _customerGroups = customerGroups,
-        _bookings = bookings,
+      : _bookings = bookings,
         _customers = customers;
 
-  final List<CustomerGroup> _customerGroups;
   @override
-  @JsonKey()
-  List<CustomerGroup> get customerGroups {
-    if (_customerGroups is EqualUnmodifiableListView) return _customerGroups;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_customerGroups);
-  }
-
+  final CustomerGroup customerGroup;
   final List<Booking> _bookings;
   @override
   @JsonKey()
@@ -784,8 +788,8 @@ class _CustomerGroupWorkspace implements CustomerGroupWorkspace {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _CustomerGroupWorkspace &&
-            const DeepCollectionEquality()
-                .equals(other._customerGroups, _customerGroups) &&
+            (identical(other.customerGroup, customerGroup) ||
+                other.customerGroup == customerGroup) &&
             const DeepCollectionEquality().equals(other._bookings, _bookings) &&
             const DeepCollectionEquality()
                 .equals(other._customers, _customers));
@@ -794,13 +798,13 @@ class _CustomerGroupWorkspace implements CustomerGroupWorkspace {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(_customerGroups),
+      customerGroup,
       const DeepCollectionEquality().hash(_bookings),
       const DeepCollectionEquality().hash(_customers));
 
   @override
   String toString() {
-    return 'CustomerGroupWorkspace(customerGroups: $customerGroups, bookings: $bookings, customers: $customers)';
+    return 'CustomerGroupWorkspace(customerGroup: $customerGroup, bookings: $bookings, customers: $customers)';
   }
 }
 
@@ -813,9 +817,12 @@ abstract mixin class _$CustomerGroupWorkspaceCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {List<CustomerGroup> customerGroups,
+      {CustomerGroup customerGroup,
       List<Booking> bookings,
       List<Customer> customers});
+
+  @override
+  $CustomerGroupCopyWith<$Res> get customerGroup;
 }
 
 /// @nodoc
@@ -831,15 +838,15 @@ class __$CustomerGroupWorkspaceCopyWithImpl<$Res>
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? customerGroups = null,
+    Object? customerGroup = null,
     Object? bookings = null,
     Object? customers = null,
   }) {
     return _then(_CustomerGroupWorkspace(
-      customerGroups: null == customerGroups
-          ? _self._customerGroups
-          : customerGroups // ignore: cast_nullable_to_non_nullable
-              as List<CustomerGroup>,
+      customerGroup: null == customerGroup
+          ? _self.customerGroup
+          : customerGroup // ignore: cast_nullable_to_non_nullable
+              as CustomerGroup,
       bookings: null == bookings
           ? _self._bookings
           : bookings // ignore: cast_nullable_to_non_nullable
@@ -849,6 +856,16 @@ class __$CustomerGroupWorkspaceCopyWithImpl<$Res>
           : customers // ignore: cast_nullable_to_non_nullable
               as List<Customer>,
     ));
+  }
+
+  /// Create a copy of CustomerGroupWorkspace
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CustomerGroupCopyWith<$Res> get customerGroup {
+    return $CustomerGroupCopyWith<$Res>(_self.customerGroup, (value) {
+      return _then(_self.copyWith(customerGroup: value));
+    });
   }
 }
 

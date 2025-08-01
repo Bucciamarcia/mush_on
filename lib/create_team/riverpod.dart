@@ -5,6 +5,7 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/custom_converters.dart';
@@ -71,7 +72,7 @@ class CanPopTeamGroup extends _$CanPopTeamGroup {
 /// Incldues all the customer groups, bookings and customers involved in this teamgroup.
 sealed class CustomerGroupWorkspace with _$CustomerGroupWorkspace {
   const factory CustomerGroupWorkspace({
-    @Default([]) List<CustomerGroup> customerGroups,
+    required CustomerGroup customerGroup,
     @Default([]) List<Booking> bookings,
 
     /// All customers by customer group ID.
@@ -84,20 +85,24 @@ class CustomerAssign extends _$CustomerAssign {
   @override
   Future<CustomerGroupWorkspace> build(String? teamGroupId) async {
     if (teamGroupId == null) {
-      return CustomerGroupWorkspace();
+      return CustomerGroupWorkspace(
+        customerGroup: CustomerGroup(
+          id: Uuid().v4(),
+          datetime: DateTime.now(),
+        ),
+      );
     }
-    List<CustomerGroup> customerGroups =
-        await ref.watch(customerGroupsForTeamgroupProvider(teamGroupId).future);
+    CustomerGroup customerGroup =
+        await ref.watch(customerGroupForTeamgroupProvider(teamGroupId).future);
     List<Booking> bookings = [];
     List<Customer> customers = [];
-    for (var cg in customerGroups) {
-      var b = await ref.watch(bookingsByCustomerGroupIdProvider(cg.id).future);
-      bookings.addAll(b);
-      customers.addAll(
-          await ref.watch(customersByCustomerGroupIdProvider(cg.id).future));
-    }
+    var b = await ref
+        .watch(bookingsByCustomerGroupIdProvider(customerGroup.id).future);
+    bookings.addAll(b);
+    customers.addAll(await ref
+        .watch(customersByCustomerGroupIdProvider(customerGroup.id).future));
     return CustomerGroupWorkspace(
-      customerGroups: customerGroups,
+      customerGroup: customerGroup,
       bookings: bookings,
       customers: customers,
     );
@@ -360,20 +365,18 @@ Future<TeamGroup?> teamGroupById(Ref ref, String id) async {
 @riverpod
 
 /// Gets all the customer groups assigned to this teamgroup.
-Stream<List<CustomerGroup>> customerGroupsForTeamgroup(
+Stream<CustomerGroup> customerGroupForTeamgroup(
     Ref ref, String teamGroupId) async* {
   final db = FirebaseFirestore.instance;
   String account = await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/bookingManager/customerGroups";
   final collection =
       db.collection(path).where("teamGroupId", isEqualTo: teamGroupId);
-  yield* collection.snapshots().map(
-        (snapshot) => snapshot.docs
-            .map(
-              (doc) => CustomerGroup.fromJson(
-                doc.data(),
-              ),
-            )
-            .toList(),
-      );
+  yield* collection.snapshots().map((snapshot) => snapshot.docs
+      .map(
+        (doc) => CustomerGroup.fromJson(
+          doc.data(),
+        ),
+      )
+      .first);
 }
