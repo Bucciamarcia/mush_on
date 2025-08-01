@@ -74,6 +74,9 @@ class SingleTeamAssign extends ConsumerWidget {
             ),
             Text(
                 "Customers assigned: ${customerGroup.customers.where((c) => c.teamId == team.id).length}"),
+            Text(_displayCustomerNames(customerGroup.customers
+                .where((c) => c.teamId == team.id)
+                .toList())),
             ElevatedButton(
               onPressed: () {
                 showDialog(
@@ -94,6 +97,14 @@ class SingleTeamAssign extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  String _displayCustomerNames(List<Customer> customers) {
+    List<String> cc = [];
+    for (Customer customer in customers) {
+      cc.add(customer.name);
+    }
+    return cc.join(" - ");
   }
 }
 
