@@ -6,7 +6,6 @@ import 'package:mush_on/kennel/dog/dog.dart';
 import 'package:mush_on/kennel/kennel.dart';
 import 'package:mush_on/main.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/settings/settings.dart';
 import 'package:mush_on/stats/insights/insights.dart';
 import 'package:mush_on/tasks/tasks.dart';
@@ -33,11 +32,11 @@ var appRoutes = {
   "/adddog": (context) => const AddDogScreen(),
   "/createteam": (context) {
     final args = ModalRoute.of(context)?.settings.arguments;
-    TeamGroup? teamGroup;
-    if (args is TeamGroup) {
+    String? teamGroup;
+    if (args is String) {
       teamGroup = args;
     }
-    return CreateTeamScreen(loadedTeam: teamGroup);
+    return CreateTeamScreen(loadedTeamId: teamGroup);
   },
   "/teamshistory": (context) => const TeamsHistoryScreen(),
   "/stats": (context) => const StatsScreen(),

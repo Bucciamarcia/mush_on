@@ -93,6 +93,7 @@ class SaveTeamsButton extends ConsumerWidget {
 Future<void> saveToDb(
     TeamGroupWorkspace newtg, String account, WidgetRef ref) async {
   final logger = BasicLogger();
+  logger.info("Saving to db the teamgroup workspace");
   var db = FirebaseFirestore.instance;
   var batch = db.batch();
   String path = "accounts/$account/data/teams/history/${newtg.id}";
@@ -113,6 +114,7 @@ Future<void> saveToDb(
   var newtgObject = newtg.toJson();
   newtgObject.remove("teams");
 
+  logger.info("starting the save with id: ${newtg.id}");
   batch.set(
       db.doc("accounts/$account/data/teams/history/${newtg.id}"), newtgObject);
 

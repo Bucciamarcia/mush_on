@@ -1,12 +1,18 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/create_team/riverpod.dart';
+import 'package:mush_on/create_team/save_teams_button.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/riverpod/teamgroup.dart';
 import 'package:mush_on/teams_history/riverpod.dart';
+import 'package:uuid/uuid.dart';
 import 'format_exp_card_content.dart';
 
 class TeamsHistoryMain extends ConsumerWidget {
@@ -85,7 +91,7 @@ class TeamViewer extends ConsumerWidget {
                       ElevatedButton(
                         onPressed: () => Navigator.pushNamed(
                             context, "/createteam",
-                            arguments: item),
+                            arguments: item.id),
                         child: Text("Load"),
                       ),
                       IconButton(
@@ -113,7 +119,51 @@ class TeamViewer extends ConsumerWidget {
               children: [
                 // Conditionally build the child here
                 FormatObject(
-                    item, dogs.getAllDogsById()), // Show content if loaded
+                  item,
+                  dogs.getAllDogsById(),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    try {
+                      var teamGroupJson = item.toJson();
+                      TeamGroupWorkspace newTgs =
+                          TeamGroupWorkspace.fromJson(teamGroupJson);
+                      List<Team> teams = await ref
+                          .watch(teamsInTeamgroupProvider(item.id).future);
+                      List<TeamWorkspace> tw = [];
+                      for (Team team in teams) {
+                        var tjs = team.toJson();
+                        tjs.remove("rank");
+                        List<DogPairWorkspace> dpw = [];
+                        List<DogPair> dps = await ref.watch(
+                            dogPairsInTeamProvider(item.id, team.id).future);
+                        for (DogPair dp in dps) {
+                          var dpjs = dp.toJson();
+                          dpjs.remove("rank");
+                          dpw.add(DogPairWorkspace.fromJson(dpjs));
+                        }
+                        var finalTeam = TeamWorkspace.fromJson(tjs);
+                        finalTeam = finalTeam.copyWith(dogPairs: dpw);
+                        tw.add(finalTeam);
+                      }
+                      newTgs = newTgs.copyWith(
+                          teams: tw,
+                          id: Uuid().v4(),
+                          date: DateTimeUtils.today());
+                      await saveToDb(
+                          newTgs, await ref.watch(accountProvider.future), ref);
+                    } catch (e, s) {
+                      BasicLogger().error("Couldn't copy team group",
+                          error: e, stackTrace: s);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(
+                                context, "Couldn't duplicate the team group"));
+                      }
+                    }
+                  },
+                  label: Text("Copy team group"),
+                ),
               ],
             ),
           ),
