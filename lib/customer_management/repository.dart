@@ -10,7 +10,7 @@ class CustomerManagementRepository {
 
   Future<void> setCustomer(Customer customer) async {
     String path =
-        "accounts/$account/data/customerManagement/customers/${customer.id}";
+        "accounts/$account/data/bookingManager/customers/${customer.id}";
     var doc = _db.doc(path);
     try {
       await doc.set(customer.toJson());

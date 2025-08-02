@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/repository.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 
@@ -69,8 +70,23 @@ class SaveTeamsButton extends ConsumerWidget {
 
   Future<void> saveCustomersToDb(
       TeamGroupWorkspace newtg, String account, WidgetRef ref) async {
+    logger.info("Starting sctdb");
     CustomerGroupWorkspace? customerGroup =
         await ref.watch(customerAssignProvider(newtg.id).future);
+    if (customerGroup == null) {
+      return;
+    }
+    var repo = CustomerManagementRepository(account: account);
+    for (Customer customer in customerGroup.customers) {
+      logger.debug("Saving customer:\n\n$customer\n\n");
+      try {
+        await repo.setCustomer(customer);
+      } catch (e, s) {
+        logger.error("Error while saving customer ${customer.id} to db",
+            error: e, stackTrace: s);
+        rethrow;
+      }
+    }
   }
 }
 
