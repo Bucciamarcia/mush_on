@@ -5,14 +5,13 @@ import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/team_builder/main.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/models.dart';
 import 'package:uuid/uuid.dart';
 
 import 'save_teams_button.dart';
 
 class CreateTeamMain extends ConsumerStatefulWidget {
-  final TeamGroup? loadedTeam;
-  const CreateTeamMain({super.key, this.loadedTeam});
+  final String? loadedTeamId;
+  const CreateTeamMain({super.key, this.loadedTeamId});
 
   @override
   ConsumerState<CreateTeamMain> createState() => _CreateTeamMainState();
@@ -53,7 +52,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
   @override
   Widget build(BuildContext context) {
     var teamGroupAsync =
-        ref.watch(createTeamGroupProvider(widget.loadedTeam?.id));
+        ref.watch(createTeamGroupProvider(widget.loadedTeamId));
     return teamGroupAsync.when(
         data: (teamGroup) {
           final customerGroupWorkspace =
