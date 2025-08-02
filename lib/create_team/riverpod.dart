@@ -131,6 +131,28 @@ class CustomerAssign extends _$CustomerAssign {
       ),
     );
   }
+
+  void removeCustomersFromTeam(String teamId) {
+    var logger = BasicLogger();
+    logger.info("Removing customers from team: $teamId");
+    state = state.whenData(
+      (data) {
+        if (data == null) {
+          return null;
+        }
+        List<Customer> customers = data.customers;
+        List<Customer> newCustomers = [];
+        for (var customer in customers) {
+          if (customer.teamId == teamId) {
+            newCustomers.add(customer.copyWith(teamId: null));
+          } else {
+            newCustomers.add(customer);
+          }
+        }
+        return data.copyWith(customers: newCustomers);
+      },
+    );
+  }
 }
 
 @riverpod
@@ -286,6 +308,10 @@ class CreateTeamGroup extends _$CreateTeamGroup {
   void removeTeam({required int teamNumber}) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     state = state.whenData((data) {
+      String teamId = data.teams[teamNumber].id;
+      ref
+          .read(customerAssignProvider(data.id).notifier)
+          .removeCustomersFromTeam(teamId);
       var newTeams = List<TeamWorkspace>.from(data.teams);
       newTeams.removeAt(teamNumber);
       return data.copyWith(teams: newTeams);

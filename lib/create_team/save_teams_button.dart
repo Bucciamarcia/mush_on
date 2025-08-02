@@ -77,8 +77,8 @@ class SaveTeamsButton extends ConsumerWidget {
       return;
     }
     var repo = CustomerManagementRepository(account: account);
+    repo.setAll(customerGroup.customers);
     for (Customer customer in customerGroup.customers) {
-      logger.debug("Saving customer:\n\n$customer\n\n");
       try {
         await repo.setCustomer(customer);
       } catch (e, s) {
@@ -158,16 +158,12 @@ Future<void> _removeCustomerGroups(
   var data = await collection.get();
   List<CustomerGroup> cgs =
       data.docs.map((doc) => CustomerGroup.fromJson(doc.data())).toList();
-  logger.debug("Cgs in this tg: ${cgs.length}");
   if (cgs.isEmpty) {
     logger.debug("None to remove");
     return;
   }
   var batch = db.batch();
   for (var cg in cgs) {
-    logger.debug("Checing for for id: ${cg.id}");
-    logger.debug("cg datetime: ${cg.datetime.toIso8601String()}");
-    logger.debug("New teamdate: ${newTeamDate.toIso8601String()}");
     if (cg.datetime.toIso8601String() != newTeamDate.toIso8601String()) {
       logger.debug("Need to remove!");
       var newCg = cg.copyWith(teamGroupId: null);

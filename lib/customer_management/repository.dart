@@ -8,6 +8,9 @@ class CustomerManagementRepository {
   final String account;
   CustomerManagementRepository({required this.account});
 
+  /// Sets a single customer replacing the old version or creating a new customer.
+  ///
+  /// For batch, use setAll().
   Future<void> setCustomer(Customer customer) async {
     String path =
         "accounts/$account/data/bookingManager/customers/${customer.id}";
@@ -16,6 +19,23 @@ class CustomerManagementRepository {
       await doc.set(customer.toJson());
     } catch (e, s) {
       logger.error("Couldn't set customer.", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  /// Sets a list of customers, replacing the old version or creating new customers.
+  Future<void> setAll(List<Customer> customers) async {
+    var batch = _db.batch();
+    for (var customer in customers) {
+      String path =
+          "accounts/$account/data/bookingManager/customers/${customer.id}";
+      var doc = _db.doc(path);
+      batch.set(doc, customer.toJson());
+    }
+    try {
+      await batch.commit();
+    } catch (e, s) {
+      logger.error("Couldn't set customers.", error: e, stackTrace: s);
       rethrow;
     }
   }

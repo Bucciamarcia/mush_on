@@ -399,7 +399,7 @@ final canPopTeamGroupProvider =
 );
 
 typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
-String _$customerAssignHash() => r'3f57dc4b3b914b1f6ae39b265c5557eff655e570';
+String _$customerAssignHash() => r'7bac4b06a00238dcb37fa7a550dd7198b25288c4';
 
 abstract class _$CustomerAssign
     extends BuildlessAutoDisposeAsyncNotifier<CustomerGroupWorkspace?> {
@@ -546,7 +546,7 @@ class _CustomerAssignProviderElement
   String? get teamGroupId => (origin as CustomerAssignProvider).teamGroupId;
 }
 
-String _$createTeamGroupHash() => r'b07ad98195210efe06a1f7c4d05a577037f8d87f';
+String _$createTeamGroupHash() => r'3afc2a409eeb96ab45f64732b4b9159eb9849be1';
 
 abstract class _$CreateTeamGroup
     extends BuildlessAutoDisposeAsyncNotifier<TeamGroupWorkspace> {
