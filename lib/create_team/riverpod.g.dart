@@ -34,6 +34,7 @@ _TeamWorkspace _$TeamWorkspaceFromJson(Map<String, dynamic> json) =>
     _TeamWorkspace(
       name: json['name'] as String? ?? "",
       id: json['id'] as String,
+      capacity: (json['capacity'] as num?)?.toInt() ?? 0,
       dogPairs: (json['dogPairs'] as List<dynamic>?)
               ?.map((e) => DogPairWorkspace.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -44,6 +45,7 @@ Map<String, dynamic> _$TeamWorkspaceToJson(_TeamWorkspace instance) =>
     <String, dynamic>{
       'name': instance.name,
       'id': instance.id,
+      'capacity': instance.capacity,
       'dogPairs': instance.dogPairs,
     };
 
@@ -546,7 +548,7 @@ class _CustomerAssignProviderElement
   String? get teamGroupId => (origin as CustomerAssignProvider).teamGroupId;
 }
 
-String _$createTeamGroupHash() => r'3afc2a409eeb96ab45f64732b4b9159eb9849be1';
+String _$createTeamGroupHash() => r'f08ca5724d7f9ce1683e34af2819e6206baec306';
 
 abstract class _$CreateTeamGroup
     extends BuildlessAutoDisposeAsyncNotifier<TeamGroupWorkspace> {

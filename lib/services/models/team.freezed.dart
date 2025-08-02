@@ -17,6 +17,7 @@ T _$identity<T>(T value) => value;
 mixin _$Team {
   String get name;
   String get id;
+  int get capacity;
   int get rank;
 
   /// Create a copy of Team
@@ -36,16 +37,18 @@ mixin _$Team {
             other is Team &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.capacity, capacity) ||
+                other.capacity == capacity) &&
             (identical(other.rank, rank) || other.rank == rank));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, id, rank);
+  int get hashCode => Object.hash(runtimeType, name, id, capacity, rank);
 
   @override
   String toString() {
-    return 'Team(name: $name, id: $id, rank: $rank)';
+    return 'Team(name: $name, id: $id, capacity: $capacity, rank: $rank)';
   }
 }
 
@@ -54,7 +57,7 @@ abstract mixin class $TeamCopyWith<$Res> {
   factory $TeamCopyWith(Team value, $Res Function(Team) _then) =
       _$TeamCopyWithImpl;
   @useResult
-  $Res call({String name, String id, int rank});
+  $Res call({String name, String id, int capacity, int rank});
 }
 
 /// @nodoc
@@ -71,6 +74,7 @@ class _$TeamCopyWithImpl<$Res> implements $TeamCopyWith<$Res> {
   $Res call({
     Object? name = null,
     Object? id = null,
+    Object? capacity = null,
     Object? rank = null,
   }) {
     return _then(_self.copyWith(
@@ -82,6 +86,10 @@ class _$TeamCopyWithImpl<$Res> implements $TeamCopyWith<$Res> {
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      capacity: null == capacity
+          ? _self.capacity
+          : capacity // ignore: cast_nullable_to_non_nullable
+              as int,
       rank: null == rank
           ? _self.rank
           : rank // ignore: cast_nullable_to_non_nullable
@@ -93,7 +101,8 @@ class _$TeamCopyWithImpl<$Res> implements $TeamCopyWith<$Res> {
 /// @nodoc
 @JsonSerializable()
 class _Team extends Team {
-  const _Team({this.name = "", required this.id, required this.rank})
+  const _Team(
+      {this.name = "", required this.id, this.capacity = 0, required this.rank})
       : super._();
   factory _Team.fromJson(Map<String, dynamic> json) => _$TeamFromJson(json);
 
@@ -102,6 +111,9 @@ class _Team extends Team {
   final String name;
   @override
   final String id;
+  @override
+  @JsonKey()
+  final int capacity;
   @override
   final int rank;
 
@@ -127,16 +139,18 @@ class _Team extends Team {
             other is _Team &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.capacity, capacity) ||
+                other.capacity == capacity) &&
             (identical(other.rank, rank) || other.rank == rank));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, id, rank);
+  int get hashCode => Object.hash(runtimeType, name, id, capacity, rank);
 
   @override
   String toString() {
-    return 'Team(name: $name, id: $id, rank: $rank)';
+    return 'Team(name: $name, id: $id, capacity: $capacity, rank: $rank)';
   }
 }
 
@@ -146,7 +160,7 @@ abstract mixin class _$TeamCopyWith<$Res> implements $TeamCopyWith<$Res> {
       __$TeamCopyWithImpl;
   @override
   @useResult
-  $Res call({String name, String id, int rank});
+  $Res call({String name, String id, int capacity, int rank});
 }
 
 /// @nodoc
@@ -163,6 +177,7 @@ class __$TeamCopyWithImpl<$Res> implements _$TeamCopyWith<$Res> {
   $Res call({
     Object? name = null,
     Object? id = null,
+    Object? capacity = null,
     Object? rank = null,
   }) {
     return _then(_Team(
@@ -174,6 +189,10 @@ class __$TeamCopyWithImpl<$Res> implements _$TeamCopyWith<$Res> {
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      capacity: null == capacity
+          ? _self.capacity
+          : capacity // ignore: cast_nullable_to_non_nullable
+              as int,
       rank: null == rank
           ? _self.rank
           : rank // ignore: cast_nullable_to_non_nullable

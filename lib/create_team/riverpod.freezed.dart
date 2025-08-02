@@ -279,8 +279,14 @@ class __$TeamGroupWorkspaceCopyWithImpl<$Res>
 
 /// @nodoc
 mixin _$TeamWorkspace {
+  /// Internal name of the team
   String get name;
+
+  /// Uuid
   String get id;
+
+  /// How many customers this team can carry
+  int get capacity;
   List<DogPairWorkspace> get dogPairs;
 
   /// Create a copy of TeamWorkspace
@@ -301,17 +307,19 @@ mixin _$TeamWorkspace {
             other is TeamWorkspace &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.capacity, capacity) ||
+                other.capacity == capacity) &&
             const DeepCollectionEquality().equals(other.dogPairs, dogPairs));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, name, id, const DeepCollectionEquality().hash(dogPairs));
+  int get hashCode => Object.hash(runtimeType, name, id, capacity,
+      const DeepCollectionEquality().hash(dogPairs));
 
   @override
   String toString() {
-    return 'TeamWorkspace(name: $name, id: $id, dogPairs: $dogPairs)';
+    return 'TeamWorkspace(name: $name, id: $id, capacity: $capacity, dogPairs: $dogPairs)';
   }
 }
 
@@ -321,7 +329,8 @@ abstract mixin class $TeamWorkspaceCopyWith<$Res> {
           TeamWorkspace value, $Res Function(TeamWorkspace) _then) =
       _$TeamWorkspaceCopyWithImpl;
   @useResult
-  $Res call({String name, String id, List<DogPairWorkspace> dogPairs});
+  $Res call(
+      {String name, String id, int capacity, List<DogPairWorkspace> dogPairs});
 }
 
 /// @nodoc
@@ -339,6 +348,7 @@ class _$TeamWorkspaceCopyWithImpl<$Res>
   $Res call({
     Object? name = null,
     Object? id = null,
+    Object? capacity = null,
     Object? dogPairs = null,
   }) {
     return _then(_self.copyWith(
@@ -350,6 +360,10 @@ class _$TeamWorkspaceCopyWithImpl<$Res>
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      capacity: null == capacity
+          ? _self.capacity
+          : capacity // ignore: cast_nullable_to_non_nullable
+              as int,
       dogPairs: null == dogPairs
           ? _self.dogPairs
           : dogPairs // ignore: cast_nullable_to_non_nullable
@@ -364,16 +378,25 @@ class _TeamWorkspace implements TeamWorkspace {
   const _TeamWorkspace(
       {this.name = "",
       required this.id,
+      this.capacity = 0,
       final List<DogPairWorkspace> dogPairs = const []})
       : _dogPairs = dogPairs;
   factory _TeamWorkspace.fromJson(Map<String, dynamic> json) =>
       _$TeamWorkspaceFromJson(json);
 
+  /// Internal name of the team
   @override
   @JsonKey()
   final String name;
+
+  /// Uuid
   @override
   final String id;
+
+  /// How many customers this team can carry
+  @override
+  @JsonKey()
+  final int capacity;
   final List<DogPairWorkspace> _dogPairs;
   @override
   @JsonKey()
@@ -405,17 +428,19 @@ class _TeamWorkspace implements TeamWorkspace {
             other is _TeamWorkspace &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.capacity, capacity) ||
+                other.capacity == capacity) &&
             const DeepCollectionEquality().equals(other._dogPairs, _dogPairs));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, name, id, const DeepCollectionEquality().hash(_dogPairs));
+  int get hashCode => Object.hash(runtimeType, name, id, capacity,
+      const DeepCollectionEquality().hash(_dogPairs));
 
   @override
   String toString() {
-    return 'TeamWorkspace(name: $name, id: $id, dogPairs: $dogPairs)';
+    return 'TeamWorkspace(name: $name, id: $id, capacity: $capacity, dogPairs: $dogPairs)';
   }
 }
 
@@ -427,7 +452,8 @@ abstract mixin class _$TeamWorkspaceCopyWith<$Res>
       __$TeamWorkspaceCopyWithImpl;
   @override
   @useResult
-  $Res call({String name, String id, List<DogPairWorkspace> dogPairs});
+  $Res call(
+      {String name, String id, int capacity, List<DogPairWorkspace> dogPairs});
 }
 
 /// @nodoc
@@ -445,6 +471,7 @@ class __$TeamWorkspaceCopyWithImpl<$Res>
   $Res call({
     Object? name = null,
     Object? id = null,
+    Object? capacity = null,
     Object? dogPairs = null,
   }) {
     return _then(_TeamWorkspace(
@@ -456,6 +483,10 @@ class __$TeamWorkspaceCopyWithImpl<$Res>
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
+      capacity: null == capacity
+          ? _self.capacity
+          : capacity // ignore: cast_nullable_to_non_nullable
+              as int,
       dogPairs: null == dogPairs
           ? _self._dogPairs
           : dogPairs // ignore: cast_nullable_to_non_nullable
