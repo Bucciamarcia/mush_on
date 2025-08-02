@@ -24,6 +24,7 @@ abstract class Team with _$Team {
   const factory Team({
     @Default("") String name,
     required String id,
+    @Default(0) int capacity,
     required int rank,
   }) = _Team;
 

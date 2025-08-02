@@ -35,8 +35,14 @@ sealed class TeamGroupWorkspace with _$TeamGroupWorkspace {
 @freezed
 sealed class TeamWorkspace with _$TeamWorkspace {
   const factory TeamWorkspace({
+    /// Internal name of the team
     @Default("") String name,
+
+    /// Uuid
     required String id,
+
+    /// How many customers this team can carry
+    @Default(0) int capacity,
     @Default([]) List<DogPairWorkspace> dogPairs,
   }) = _TeamWorkspace;
   factory TeamWorkspace.fromJson(Map<String, dynamic> json) =>
@@ -301,6 +307,16 @@ class CreateTeamGroup extends _$CreateTeamGroup {
           DogPairWorkspace(id: Uuid().v4()),
         ], id: Uuid().v4()),
       );
+      return data.copyWith(teams: newTeams);
+    });
+  }
+
+  void changeTeamCapacity({required int teamNumber, required int capacity}) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
+    state = state.whenData((data) {
+      var newTeams = List<TeamWorkspace>.from(data.teams);
+      var teamToEdit = newTeams[teamNumber];
+      newTeams[teamNumber] = teamToEdit.copyWith(capacity: capacity);
       return data.copyWith(teams: newTeams);
     });
   }

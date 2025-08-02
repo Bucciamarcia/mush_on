@@ -9,8 +9,6 @@ import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/riverpod/dog_notes.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
-
-import '../save_teams_button.dart';
 import 'select_datetime.dart';
 import 'team_retriever.dart';
 
@@ -111,6 +109,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                   Divider(),
                   TeamRetriever(
                     teamNumber: entry.key,
+                    teamGroupId: widget.teamGroup.id,
                     dogs: allDogs,
                     runningDogs: runningDogs,
                     teams: widget.teamGroup.teams,

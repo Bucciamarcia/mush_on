@@ -4,7 +4,6 @@ import 'package:mush_on/create_team/customers/customer_groups_card.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/team_builder/main.dart';
 import 'package:mush_on/customer_management/models.dart';
-import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/text_title.dart';
@@ -21,8 +20,6 @@ class CustomersCreateTeam extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup = ref.watch(customerAssignProvider(teamGroup.id)).value;
     final notifier = ref.read(CustomerAssignProvider(teamGroup.id).notifier);
-    final allCustomerGroups =
-        ref.watch(customerGroupsByDateProvider(teamGroup.date)).value;
     if (customerGroup == null) {
       return SingleChildScrollView(
         child: Column(
@@ -100,7 +97,9 @@ class SingleTeamAssign extends ConsumerWidget {
               "Team: ${CreateTeamsString(allDogs: allDogs).stringifyTeam(team).trim()}",
             ),
             Text(
-                "Customers assigned: ${customerGroup.customers.where((c) => c.teamId == team.id).length}"),
+              "Sled capacity: ${customerGroup.customers.where((c) => c.teamId == team.id).length} / ${team.capacity}",
+              style: TextStyle(color: _buildTeamColor(customerGroup, team)),
+            ),
             Text(_displayCustomerNames(customerGroup.customers
                 .where((c) => c.teamId == team.id)
                 .toList())),
@@ -124,6 +123,21 @@ class SingleTeamAssign extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Color _buildTeamColor(
+      CustomerGroupWorkspace? customerGroup, TeamWorkspace team) {
+    int assigned =
+        customerGroup?.customers.where((c) => c.teamId == team.id).length ?? 0;
+    int capacity = team.capacity;
+    if (assigned == capacity) {
+      return Colors.green;
+    } else if (assigned > capacity) {
+      return Colors.red;
+    } else if (assigned < capacity) {
+      return Colors.orange;
+    }
+    return Colors.black;
   }
 
   String _displayCustomerNames(List<Customer> customers) {

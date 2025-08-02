@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import '../models.dart';
 import '../riverpod.dart';
 import 'pair_retriever.dart';
 
-class TeamRetriever extends StatefulWidget {
+class TeamRetriever extends ConsumerStatefulWidget {
   final int teamNumber;
+  final String teamGroupId;
   final List<Dog> dogs;
   final List<String> runningDogs;
   final List<TeamWorkspace> teams;
@@ -22,6 +24,7 @@ class TeamRetriever extends StatefulWidget {
       {super.key,
       required this.teamNumber,
       required this.dogs,
+      required this.teamGroupId,
       required this.runningDogs,
       required this.notes,
       required this.teams,
@@ -34,10 +37,10 @@ class TeamRetriever extends StatefulWidget {
       required this.onRemoveTeam});
 
   @override
-  State<TeamRetriever> createState() => _TeamRetrieverState();
+  ConsumerState<TeamRetriever> createState() => _TeamRetrieverState();
 }
 
-class _TeamRetrieverState extends State<TeamRetriever> {
+class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
   late BasicLogger logger;
   late TextEditingController textController;
   @override
@@ -66,10 +69,13 @@ class _TeamRetrieverState extends State<TeamRetriever> {
 
   @override
   Widget build(BuildContext context) {
+    TeamWorkspace team = widget.teams[widget.teamNumber];
     if (widget.teamNumber >= widget.teams.length) {
       return const Text("Invalid team number");
     }
 
+    var customerGroup =
+        ref.watch(customerAssignProvider(widget.teamGroupId)).value;
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
@@ -77,13 +83,51 @@ class _TeamRetrieverState extends State<TeamRetriever> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-                controller: textController,
-                decoration: InputDecoration(labelText: "Team name"),
-                onChanged: (String text) {
-                  widget.onTeamNameChanged(widget.teamNumber, text);
-                }),
+              controller: textController,
+              decoration: InputDecoration(labelText: "Team name"),
+              onChanged: (String text) {
+                widget.onTeamNameChanged(widget.teamNumber, text);
+              },
+            ),
             SizedBox(height: 10),
-            ...widget.teams[widget.teamNumber].dogPairs.asMap().entries.map(
+            Row(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Text(
+                      "Capacity: ${_buildTeamCapacity(customerGroup, team)}",
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: _buildTeamColor(customerGroup, team),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                IconButton(
+                    onPressed: () => ref
+                        .read(createTeamGroupProvider(widget.teamGroupId)
+                            .notifier)
+                        .changeTeamCapacity(
+                          teamNumber: widget.teamNumber,
+                          capacity: team.capacity + 1,
+                        ),
+                    icon: Icon(Icons.add_box)),
+                IconButton(
+                    onPressed: () => ref
+                        .read(createTeamGroupProvider(widget.teamGroupId)
+                            .notifier)
+                        .changeTeamCapacity(
+                            teamNumber: widget.teamNumber,
+                            capacity:
+                                team.capacity == 0 ? 0 : team.capacity - 1),
+                    icon: Icon(Icons.remove)),
+              ],
+            ),
+            SizedBox(height: 10),
+            SizedBox(height: 10),
+            ...team.dogPairs.asMap().entries.map(
                   (entry) => PairRetriever(
                     teamNumber: widget.teamNumber,
                     rowNumber: entry.key,
@@ -130,6 +174,29 @@ class _TeamRetrieverState extends State<TeamRetriever> {
         ),
       ),
     );
+  }
+
+  String _buildTeamCapacity(
+      CustomerGroupWorkspace? customerGroup, TeamWorkspace team) {
+    int assigned =
+        customerGroup?.customers.where((c) => c.teamId == team.id).length ?? 0;
+    int capacity = team.capacity;
+    return "$assigned/$capacity";
+  }
+
+  Color _buildTeamColor(
+      CustomerGroupWorkspace? customerGroup, TeamWorkspace team) {
+    int assigned =
+        customerGroup?.customers.where((c) => c.teamId == team.id).length ?? 0;
+    int capacity = team.capacity;
+    if (assigned == capacity) {
+      return Colors.green;
+    } else if (assigned > capacity) {
+      return Colors.red;
+    } else if (assigned < capacity) {
+      return Colors.orange;
+    }
+    return Colors.black;
   }
 }
 
