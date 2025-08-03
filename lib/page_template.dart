@@ -7,6 +7,7 @@ import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/health/main.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/kennel/main.dart';
+import 'package:mush_on/login_screen/login_screen.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:uuid/uuid.dart';
@@ -147,136 +148,153 @@ class TemplateScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      floatingActionButton: _getFab(context, ref),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer),
-              child: Text("Menu",
-                  style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer)),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              onTap: () => context.go("/"),
-              title: const Text("Home"),
-            ),
-            ListTile(
-              leading: Icon(Icons.group_add),
-              onTap: () => context.pushNamed("/createteam"),
-              title: const Text(
-                "Create Team",
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.pets),
-              onTap: () => context.pushNamed("/editkennel"),
-              title: const Text(
-                "Kennel",
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.history),
-              onTap: () => context.pushNamed("/teamshistory"),
-              title: const Text(
-                "Teams history",
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.person_2),
-              onTap: () => context.pushNamed("/client_management"),
-              title: const Text(
-                "Manage clients",
-              ),
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-              child: Text(
-                "Data",
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
+    var authState = ref.watch(authStateChangesProvider);
+    return authState.when(
+      error: (e, s) {
+        BasicLogger().error("Couldn't get auth state in template",
+            error: e, stackTrace: s);
+        return Scaffold(
+          body: Text(
+              "Error in getting user. This shouldn't happen: contact an admin."),
+        );
+      },
+      loading: () => CircularProgressIndicator.adaptive(),
+      data: (data) {
+        if (data == null) {
+          return LoginScreen();
+        } else {
+          return Scaffold(
+            floatingActionButton: _getFab(context, ref),
+            drawer: Drawer(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  DrawerHeader(
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer),
+                    child: Text("Menu",
+                        style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer)),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.home),
+                    onTap: () => context.pushNamed("/"),
+                    title: const Text("Home"),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.group_add),
+                    onTap: () => context.pushNamed("/createteam"),
+                    title: const Text(
+                      "Create Team",
                     ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.query_stats),
-              onTap: () => context.pushNamed("/stats"),
-              title: const Text(
-                "Stats",
-              ),
-            ),
-            ListTile(
-              leading: FaIcon(FontAwesomeIcons.magnifyingGlassChart),
-              onTap: () => context.pushNamed("/insights"),
-              title: const Text(
-                "Insights",
-              ),
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-              child: Text(
-                "Data",
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.pets),
+                    onTap: () => context.pushNamed("/editkennel"),
+                    title: const Text(
+                      "Kennel",
                     ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.history),
+                    onTap: () => context.pushNamed("/teamshistory"),
+                    title: const Text(
+                      "Teams history",
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.person_2),
+                    onTap: () => context.pushNamed("/client_management"),
+                    title: const Text(
+                      "Manage clients",
+                    ),
+                  ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                    child: Text(
+                      "Data",
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.query_stats),
+                    onTap: () => context.pushNamed("/stats"),
+                    title: const Text(
+                      "Stats",
+                    ),
+                  ),
+                  ListTile(
+                    leading: FaIcon(FontAwesomeIcons.magnifyingGlassChart),
+                    onTap: () => context.pushNamed("/insights"),
+                    title: const Text(
+                      "Insights",
+                    ),
+                  ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                    child: Text(
+                      "Data",
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.task),
+                    onTap: () => context.pushNamed("/tasks"),
+                    title: const Text(
+                      "Tasks",
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.settings),
+                    onTap: () => context.pushNamed("/settings"),
+                    title: const Text(
+                      "Settings",
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.health_and_safety),
+                    onTap: () => context.pushNamed("/health_dashboard"),
+                    title: const Text(
+                      "Health dashboard",
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.logout),
+                    onTap: () async {
+                      await AuthService().signOut();
+                    },
+                    title: const Text(
+                      "Log out",
+                    ),
+                  ),
+                  SizedBox(height: 100),
+                ],
               ),
             ),
-            ListTile(
-              leading: Icon(Icons.task),
-              onTap: () => context.pushNamed("/tasks"),
-              title: const Text(
-                "Tasks",
-              ),
+            appBar: AppBar(
+              title: Text(title),
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              onTap: () => context.pushNamed("/settings"),
-              title: const Text(
-                "Settings",
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.health_and_safety),
-              onTap: () => context.pushNamed("/health_dashboard"),
-              title: const Text(
-                "Health dashboard",
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              onTap: () async {
-                await AuthService().signOut();
-                if (context.mounted) {
-                  context.go('/');
-                }
-              },
-              title: const Text(
-                "Log out",
-              ),
-            ),
-            SizedBox(height: 100),
-          ],
-        ),
-      ),
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: SafeArea(
-          child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: child,
-      )),
+            body: SafeArea(
+                child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: child,
+            )),
+          );
+        }
+      },
     );
   }
 }

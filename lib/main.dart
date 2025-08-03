@@ -91,6 +91,7 @@ class HomeScreen extends rp.ConsumerWidget {
   const HomeScreen({super.key});
 
   Future<void> _performLoginActions(User? user) async {
+    logger.info("Performing login actions");
     final db = FirebaseFirestore.instance;
     try {
       if (user != null) {
