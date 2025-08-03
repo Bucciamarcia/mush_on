@@ -93,6 +93,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                         TeamBuilderWidget(
                           teamGroup: teamGroup,
                           customerGroupWorkspace: customerGroupWorkspace,
+                          providerKey: widget.loadedTeamId,
                         ),
                         CustomersCreateTeam(
                           teamGroup: teamGroup,
