@@ -548,7 +548,7 @@ class _CustomerAssignProviderElement
   String? get teamGroupId => (origin as CustomerAssignProvider).teamGroupId;
 }
 
-String _$createTeamGroupHash() => r'f08ca5724d7f9ce1683e34af2819e6206baec306';
+String _$createTeamGroupHash() => r'41b60657bbcea941dee4ed8f884d16d04aec9cf0';
 
 abstract class _$CreateTeamGroup
     extends BuildlessAutoDisposeAsyncNotifier<TeamGroupWorkspace> {

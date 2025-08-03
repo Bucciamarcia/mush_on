@@ -178,10 +178,13 @@ class CreateTeamGroup extends _$CreateTeamGroup {
         ),
         id: Uuid().v4(),
         teams: [
-          TeamWorkspace(id: Uuid().v4(), dogPairs: [
-            DogPairWorkspace(id: Uuid().v4()),
-            DogPairWorkspace(id: Uuid().v4()),
-          ]),
+          TeamWorkspace(
+            id: Uuid().v4(),
+            dogPairs: [
+              DogPairWorkspace(id: Uuid().v4()),
+              DogPairWorkspace(id: Uuid().v4()),
+            ],
+          ),
         ],
       );
     } else {
@@ -312,6 +315,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
   }
 
   void changeTeamCapacity({required int teamNumber, required int capacity}) {
+    BasicLogger().debug("Changing team capacity: $teamNumber to $capacity");
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     state = state.whenData((data) {
       var newTeams = List<TeamWorkspace>.from(data.teams);

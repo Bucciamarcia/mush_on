@@ -15,11 +15,13 @@ import 'team_retriever.dart';
 class TeamBuilderWidget extends ConsumerStatefulWidget {
   final TeamGroupWorkspace teamGroup;
   final CustomerGroupWorkspace customerGroupWorkspace;
+  final String? providerKey;
 
   const TeamBuilderWidget(
       {super.key,
       required this.teamGroup,
-      required this.customerGroupWorkspace});
+      required this.customerGroupWorkspace,
+      required this.providerKey});
 
   @override
   ConsumerState<TeamBuilderWidget> createState() => _TeamBuilderWidgetState();
@@ -49,7 +51,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
     var dogNotes =
         ref.watch(dogNotesProvider(latestDate: widget.teamGroup.date));
     var notifier =
-        ref.read(createTeamGroupProvider(widget.teamGroup.id).notifier);
+        ref.read(createTeamGroupProvider(widget.providerKey).notifier);
     List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
     SettingsModel? settings = ref.watch(settingsProvider).value;
     return SingleChildScrollView(
@@ -109,7 +111,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                   Divider(),
                   TeamRetriever(
                     teamNumber: entry.key,
-                    teamGroupId: widget.teamGroup.id,
+                    teamGroupId: widget.providerKey,
                     dogs: allDogs,
                     runningDogs: runningDogs,
                     teams: widget.teamGroup.teams,

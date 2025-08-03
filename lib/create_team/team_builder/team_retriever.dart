@@ -8,7 +8,7 @@ import 'pair_retriever.dart';
 
 class TeamRetriever extends ConsumerStatefulWidget {
   final int teamNumber;
-  final String teamGroupId;
+  final String? teamGroupId;
   final List<Dog> dogs;
   final List<String> runningDogs;
   final List<TeamWorkspace> teams;
