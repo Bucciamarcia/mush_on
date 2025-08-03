@@ -35,7 +35,7 @@ Stream<List<DogDistanceWarning>> distanceWarnings(Ref ref,
   // Watch the providers to get automatic updates
   final dogsAsync = await ref.watch(dogsProvider.future);
   final settingsAsync = await ref.watch(settingsProvider.future);
-  final finalDate = latestDate ?? DateTimeUtils.today();
+  final finalDate = latestDate ?? DateTimeUtils.endOfToday();
 
   // Calculate earliest date needed
   final earliestDate = _calculateEarliestDate(dogsAsync, settingsAsync);
