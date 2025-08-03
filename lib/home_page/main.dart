@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/health/models.dart';
 import 'package:mush_on/home_page/repository.dart';
@@ -274,8 +275,7 @@ class HomePageScreenContent extends ConsumerWidget {
                     ),
                   ),
                   ElevatedButton.icon(
-                    onPressed: () =>
-                        Navigator.pushNamed(context, "/createteam"),
+                    onPressed: () => context.pushNamed("/createteam"),
                     label: Text("Build team"),
                     icon: Icon(Icons.pets),
                   ),

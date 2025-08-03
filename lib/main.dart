@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 // ignore: depend_on_referenced_packages
 import 'package:timezone/data/latest.dart' as tz;
 // ignore: unused_import, depend_on_referenced_packages
@@ -74,9 +75,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Mush On!',
-      routes: appRoutes,
+      routerConfig: goRoutes,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
         useMaterial3: true,
@@ -86,6 +87,7 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeScreen extends rp.ConsumerWidget {
+  static final BasicLogger logger = BasicLogger();
   const HomeScreen({super.key});
 
   Future<void> _performLoginActions(User? user) async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mush_on/kennel/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -73,8 +74,10 @@ class DogCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-        onPressed: () =>
-            Navigator.pushNamed(context, "/dog", arguments: dog.id),
+        onPressed: () => context.pushNamed(
+              "/dog",
+              queryParameters: {"dogId": dog.id},
+            ),
         child: Text(dog.name));
   }
 }

@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/save_teams_button.dart';
@@ -89,9 +88,10 @@ class TeamViewer extends ConsumerWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ElevatedButton(
-                        onPressed: () => Navigator.pushNamed(
-                            context, "/createteam",
-                            arguments: item.id),
+                        onPressed: () => context.pushNamed(
+                          "/createteam",
+                          queryParameters: {"teamGroupId": item.id},
+                        ),
                         child: Text("Load"),
                       ),
                       IconButton(
