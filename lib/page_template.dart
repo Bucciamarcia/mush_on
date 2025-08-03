@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/health/main.dart';
 import 'package:mush_on/health/provider.dart';
@@ -137,7 +138,7 @@ class TemplateScreen extends ConsumerWidget {
         child: Icon(Icons.add),
         onPressed: () {
           BasicLogger().trace("awoo");
-          Navigator.pushNamed(context, "/adddog");
+          context.pushNamed("/adddog");
         },
       );
     }
@@ -163,34 +164,33 @@ class TemplateScreen extends ConsumerWidget {
             ),
             ListTile(
               leading: Icon(Icons.home),
-              onTap: () => Navigator.pushNamedAndRemoveUntil(
-                  context, '/', (route) => false),
+              onTap: () => context.go("/"),
               title: const Text("Home"),
             ),
             ListTile(
               leading: Icon(Icons.group_add),
-              onTap: () => Navigator.pushNamed(context, "/createteam"),
+              onTap: () => context.pushNamed("/createteam"),
               title: const Text(
                 "Create Team",
               ),
             ),
             ListTile(
               leading: Icon(Icons.pets),
-              onTap: () => Navigator.pushNamed(context, "/editkennel"),
+              onTap: () => context.pushNamed("/editkennel"),
               title: const Text(
                 "Kennel",
               ),
             ),
             ListTile(
               leading: Icon(Icons.history),
-              onTap: () => Navigator.pushNamed(context, "/teamshistory"),
+              onTap: () => context.pushNamed("/teamshistory"),
               title: const Text(
                 "Teams history",
               ),
             ),
             ListTile(
               leading: Icon(Icons.person_2),
-              onTap: () => Navigator.pushNamed(context, "/client_management"),
+              onTap: () => context.pushNamed("/client_management"),
               title: const Text(
                 "Manage clients",
               ),
@@ -208,14 +208,14 @@ class TemplateScreen extends ConsumerWidget {
             ),
             ListTile(
               leading: Icon(Icons.query_stats),
-              onTap: () => Navigator.pushNamed(context, "/stats"),
+              onTap: () => context.pushNamed("/stats"),
               title: const Text(
                 "Stats",
               ),
             ),
             ListTile(
               leading: FaIcon(FontAwesomeIcons.magnifyingGlassChart),
-              onTap: () => Navigator.pushNamed(context, "/insights"),
+              onTap: () => context.pushNamed("/insights"),
               title: const Text(
                 "Insights",
               ),
@@ -233,21 +233,21 @@ class TemplateScreen extends ConsumerWidget {
             ),
             ListTile(
               leading: Icon(Icons.task),
-              onTap: () => Navigator.pushNamed(context, "/tasks"),
+              onTap: () => context.pushNamed("/tasks"),
               title: const Text(
                 "Tasks",
               ),
             ),
             ListTile(
               leading: Icon(Icons.settings),
-              onTap: () => Navigator.pushNamed(context, "/settings"),
+              onTap: () => context.pushNamed("/settings"),
               title: const Text(
                 "Settings",
               ),
             ),
             ListTile(
               leading: Icon(Icons.health_and_safety),
-              onTap: () => Navigator.pushNamed(context, "/health_dashboard"),
+              onTap: () => context.pushNamed("/health_dashboard"),
               title: const Text(
                 "Health dashboard",
               ),
@@ -257,8 +257,7 @@ class TemplateScreen extends ConsumerWidget {
               onTap: () async {
                 await AuthService().signOut();
                 if (context.mounted) {
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/', (route) => false);
+                  context.go('/');
                 }
               },
               title: const Text(

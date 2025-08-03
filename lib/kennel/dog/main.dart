@@ -25,13 +25,16 @@ import '../../services/models/dog.dart';
 import 'name_widget.dart';
 
 class DogMain extends ConsumerWidget {
-  final String dogId;
+  final String? dogId;
   static BasicLogger logger = BasicLogger();
   const DogMain({super.key, required this.dogId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var dogAsync = ref.watch(singleDogProvider(dogId));
+    if (dogId == null) {
+      return Text("No dog ID provided: can't fetch dog.");
+    }
+    var dogAsync = ref.watch(singleDogProvider(dogId!));
     return dogAsync.when(
         data: (dog) {
           var accountAsync = ref.watch(accountProvider);
@@ -244,7 +247,7 @@ class DogMain extends ConsumerWidget {
                               List<DistanceWarning>.from(dog.distanceWarnings);
                           newW = [...newW, w];
                           DogsDbOperations().updateDistanceWarnings(
-                              warnings: newW, dogId: dogId);
+                              warnings: newW, dogId: dogId!);
                         },
                         onWarningEdited: (w) {
                           var newW =
@@ -252,14 +255,14 @@ class DogMain extends ConsumerWidget {
                           newW.removeWhere((oldW) => oldW.id == w.id);
                           newW = [...newW, w];
                           DogsDbOperations().updateDistanceWarnings(
-                              warnings: newW, dogId: dogId);
+                              warnings: newW, dogId: dogId!);
                         },
                         onWarningRemoved: (id) {
                           var newW =
                               List<DistanceWarning>.from(dog.distanceWarnings);
                           newW.removeWhere((oldW) => oldW.id == id);
                           DogsDbOperations().updateDistanceWarnings(
-                              warnings: newW, dogId: dogId);
+                              warnings: newW, dogId: dogId!);
                         }),
                     Divider(),
                     CustomFieldArea(
@@ -278,7 +281,7 @@ class DogMain extends ConsumerWidget {
                               .removeWhere((t) => t.templateId == r.templateId);
                           updatedCf.add(r);
                           DogsDbOperations().updateCustomFields(
-                              dogId: dogId, customFields: updatedCf);
+                              dogId: dogId!, customFields: updatedCf);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -311,7 +314,7 @@ class DogMain extends ConsumerWidget {
                           updatedCf
                               .removeWhere((t) => t.templateId == templateId);
                           DogsDbOperations().updateCustomFields(
-                              dogId: dogId, customFields: updatedCf);
+                              dogId: dogId!, customFields: updatedCf);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(

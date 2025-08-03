@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mush_on/services/models/dog.dart';
 
 /// Returns an alert dialog of a list of dogs, which can be clicked to go to the dog card.
@@ -18,8 +19,10 @@ class DogListAlertDialog extends StatelessWidget {
             .map(
               (dog) => ActionChip(
                 label: Text(dog.name),
-                onPressed: () =>
-                    Navigator.of(context).pushNamed("/dog", arguments: dog.id),
+                onPressed: () => context.pushNamed(
+                  "/dog",
+                  queryParameters: {"dogId": dog.id},
+                ),
               ),
             )
             .toList(),
