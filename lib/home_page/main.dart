@@ -31,7 +31,28 @@ class HomePageScreenContent extends ConsumerWidget {
         List<Dog> dogs = riverpod.dogs;
         List<DogNote> dogNotes = ref.watch(dogNotesProvider(latestDate: null));
         TasksInMemory tasks = riverpod.tasks;
-        int canRun = dogs.length - dogNotes.typeFatal().length;
+        int unavailable = 0;
+        int warningOnly = 0;
+        int ok = 0;
+
+        for (final dog in dogs) {
+          final notes = dogNotes.where((n) => n.dogId == dog.id);
+
+          final hasFatal = notes.any((n) =>
+              n.dogNoteMessage.any((m) => m.type.noteType == NoteType.fatal));
+          final hasWarning = notes.any((n) =>
+              n.dogNoteMessage.any((m) => m.type.noteType == NoteType.warning));
+
+          if (hasFatal) {
+            unavailable++;
+          } else if (hasWarning) {
+            warningOnly++;
+          } else {
+            ok++;
+          }
+        }
+
+        final canRun = ok + warningOnly; // ready-to-run number
         List<WhiteboardElement> whiteboardElements = riverpod.whiteboardElements
             .toList()
           ..sort((a, b) => a.date.compareTo(b.date));
@@ -169,13 +190,20 @@ class HomePageScreenContent extends ConsumerWidget {
                       PieSeries<ReadyDogData, String>(
                         dataSource: <ReadyDogData>[
                           ReadyDogData(
-                              "OK",
-                              canRun - dogNotes.typeWarning().length,
-                              Colors.green),
-                          ReadyDogData("Warning", dogNotes.typeWarning().length,
-                              Colors.orange),
+                            "OK",
+                            ok,
+                            Colors.green,
+                          ),
                           ReadyDogData(
-                              "Unavailable", dogs.length - canRun, Colors.red),
+                            "Warning",
+                            warningOnly,
+                            Colors.orange,
+                          ),
+                          ReadyDogData(
+                            "Unavailable",
+                            unavailable,
+                            Colors.red,
+                          ),
                         ],
                         xValueMapper: (ReadyDogData data, _) => data.x,
                         yValueMapper: (ReadyDogData data, _) => data.y,
@@ -203,8 +231,7 @@ class HomePageScreenContent extends ConsumerWidget {
                       spacing: 8,
                       children: [
                         ActionChip(
-                          label:
-                              Text("${dogNotes.typeFatal().length} cannot run"),
+                          label: Text("$unavailable cannot run"),
                           backgroundColor: Colors.red[100],
                           onPressed: () {
                             List<String> dogIds = dogNotes
@@ -305,6 +332,36 @@ class HomePageScreenContent extends ConsumerWidget {
     } else {
       return Colors.green;
     }
+  }
+
+  int _getOkdogs(List<Dog> dogs, List<DogNote> dogNotes) {
+    int toReturn = dogs.length;
+    for (DogNote dn in dogNotes) {
+      for (DogNoteMessage m in dn.dogNoteMessage) {
+        if (m.type.noteType == NoteType.fatal ||
+            m.type.noteType == NoteType.warning) {
+          toReturn = toReturn - 1;
+          break;
+        }
+      }
+    }
+    return toReturn;
+  }
+
+  int _getOnlyWarningDogs(List<Dog> dogs, List<DogNote> dogNotes) {
+    int toReturn = 0;
+    for (DogNote dogNote in dogNotes) {
+      if (dogNote.dogNoteMessage
+          .any((m) => m.type.noteType == NoteType.warning)) {
+        if (dogNote.dogNoteMessage
+            .any((m) => m.type.noteType == NoteType.fatal)) {
+          break;
+        } else {
+          toReturn = toReturn + 1;
+        }
+      }
+    }
+    return toReturn;
   }
 }
 
