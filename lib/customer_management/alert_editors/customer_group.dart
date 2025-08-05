@@ -48,6 +48,16 @@ class _CustomerGroupEditorAlertState
   Widget build(BuildContext context) {
     List<TeamGroup> possibleTeamGroups =
         ref.watch(teamGroupsByDateProvider(dateTime)).value ?? [];
+    List<CustomerGroup> customerGroupsThisDay =
+        ref.watch(customerGroupsByDateProvider(dateTime)).value ?? [];
+    possibleTeamGroups.removeWhere((tg) {
+      for (var cg in customerGroupsThisDay) {
+        if (cg.teamGroupId != null && cg.teamGroupId == tg.id) {
+          return true;
+        }
+      }
+      return false;
+    });
     var colorScheme = Theme.of(context).colorScheme;
     return AlertDialog.adaptive(
       shape: RoundedRectangleBorder(
