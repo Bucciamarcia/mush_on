@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_management/alert_editors/customer.dart';
 import 'package:mush_on/customer_management/repository.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
+import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
@@ -560,15 +562,20 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
 
   Future<void> _addCustomerGroup() async {
     String groupName = "";
+    late TourType tourType;
     await showDialog(
       context: context,
       builder: (_) => AddCustomerGroupName(
-        onNameAdded: (n) => groupName = n,
+        onNameAdded: (name, tour) {
+          groupName = name;
+          tourType = tour;
+        },
       ),
     );
     if (groupName.isNotEmpty) {
       final createdCg = CustomerGroup(
         id: Uuid().v4(),
+        tourTypeId: tourType.id,
         datetime: dateTime,
         name: groupName,
       );
@@ -589,38 +596,65 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   }
 }
 
-class AddCustomerGroupName extends StatefulWidget {
-  final Function(String) onNameAdded;
+class AddCustomerGroupName extends ConsumerStatefulWidget {
+  final Function(String, TourType) onNameAdded;
   const AddCustomerGroupName({super.key, required this.onNameAdded});
 
   @override
-  State<AddCustomerGroupName> createState() => _AddCustomerGroupNameState();
+  ConsumerState<AddCustomerGroupName> createState() =>
+      _AddCustomerGroupNameState();
 }
 
-class _AddCustomerGroupNameState extends State<AddCustomerGroupName> {
+class _AddCustomerGroupNameState extends ConsumerState<AddCustomerGroupName> {
   late TextEditingController controller;
+  late TextEditingController tourNameController;
+  TourType? selectedTour;
+
   @override
   void initState() {
     super.initState();
     controller = TextEditingController();
+    tourNameController = TextEditingController();
   }
 
   @override
   void dispose() {
     controller.dispose();
+    tourNameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    List<TourType> tours = ref.watch(allTourTypesProvider).value ?? [];
     return AlertDialog.adaptive(
       scrollable: true,
-      title: Text("Add booking"),
-      content: TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          hint: Text("Name of the booking"),
-        ),
+      title: Text("Add customer group"),
+      content: Column(
+        children: [
+          TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hint: Text("Name of the customer group"),
+            ),
+          ),
+          DropdownMenu<TourType>(
+            onSelected: (s) {
+              if (s != null) {
+                setState(() {
+                  selectedTour = s;
+                  tourNameController.text = s.name;
+                });
+              }
+            },
+            dropdownMenuEntries: tours
+                .map(
+                  (tour) => DropdownMenuEntry(
+                      value: tour, label: "${tour.name} - ${tour.distance} km"),
+                )
+                .toList(),
+          ),
+        ],
       ),
       actions: [
         TextButton(
@@ -631,10 +665,12 @@ class _AddCustomerGroupNameState extends State<AddCustomerGroupName> {
           ),
         ),
         TextButton(
-          onPressed: () {
-            widget.onNameAdded(controller.text);
-            Navigator.of(context).pop();
-          },
+          onPressed: selectedTour == null
+              ? null
+              : () {
+                  widget.onNameAdded(controller.text, selectedTour!);
+                  Navigator.of(context).pop();
+                },
           child: Text("Confirm"),
         ),
       ],

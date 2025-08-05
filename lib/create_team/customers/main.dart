@@ -19,18 +19,12 @@ class CustomersCreateTeam extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup = ref.watch(customerAssignProvider(teamGroup.id)).value;
-    final notifier = ref.read(CustomerAssignProvider(teamGroup.id).notifier);
     if (customerGroup == null) {
       return SingleChildScrollView(
         child: Column(
           spacing: 20,
           children: [
             TextTitle("No customer group assigned"),
-            ElevatedButton(
-              onPressed: () => notifier.createCustomerGroup(
-                  dateTime: teamGroup.date, teamGroupId: teamGroup.id),
-              child: Text("Create customer group"),
-            ),
           ],
         ),
       );
@@ -83,6 +77,7 @@ class SingleTeamAssign extends ConsumerWidget {
         ref.watch(customerAssignProvider(teamGroupId)).value ??
             CustomerGroupWorkspace(
               customerGroup: CustomerGroup(
+                tourTypeId: "",
                 id: Uuid().v4(),
                 datetime: DateTime.now(),
               ),
@@ -167,6 +162,7 @@ class AssignCustomersAlert extends ConsumerWidget {
         ref.watch(customerAssignProvider(teamGroupId)).value ??
             CustomerGroupWorkspace(
               customerGroup: CustomerGroup(
+                tourTypeId: "",
                 id: Uuid().v4(),
                 datetime: DateTime.now(),
               ),
@@ -232,6 +228,7 @@ class BookingDisplay extends ConsumerWidget {
         ref.watch(customerAssignProvider(teamGroupId)).value ??
             CustomerGroupWorkspace(
               customerGroup: CustomerGroup(
+                tourTypeId: "",
                 id: Uuid().v4(),
                 datetime: DateTime.now(),
               ),

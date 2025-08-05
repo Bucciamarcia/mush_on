@@ -6,6 +6,8 @@ import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/save_teams_button.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
+import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
@@ -33,6 +35,8 @@ class _CustomerGroupEditorAlertState
   late String id;
   late TextEditingController nameController;
   late DateTime dateTime;
+  late TextEditingController tourNameController;
+  TourType? selectedTour;
   String? selectedTeamGroupId;
 
   @override
@@ -40,12 +44,25 @@ class _CustomerGroupEditorAlertState
     super.initState();
     id = widget.customerGroup?.id ?? Uuid().v4();
     nameController = TextEditingController(text: widget.customerGroup?.name);
+    tourNameController = TextEditingController();
     dateTime = widget.customerGroup?.datetime ?? DateTimeUtils.today();
     selectedTeamGroupId = widget.customerGroup?.teamGroupId;
   }
 
   @override
   Widget build(BuildContext context) {
+    List<TourType> tours = ref.watch(allTourTypesProvider).value ?? [];
+    
+    // Initialize selectedTour and tourNameController if editing existing customer group
+    if (widget.customerGroup != null && selectedTour == null && tours.isNotEmpty) {
+      selectedTour = tours.firstWhereOrNull(
+        (tour) => tour.id == widget.customerGroup!.tourTypeId,
+      );
+      if (selectedTour != null) {
+        tourNameController.text = selectedTour!.name;
+      }
+    }
+    
     List<TeamGroup> possibleTeamGroups =
         ref.watch(teamGroupsByDateProvider(dateTime)).value ?? [];
     List<CustomerGroup> customerGroupsThisDay =
@@ -219,6 +236,33 @@ class _CustomerGroupEditorAlertState
                     ),
                   ],
                 ),
+              ),
+              DropdownMenu<TourType>(
+                controller: tourNameController,
+                label: const Text("Select tour type"),
+                initialSelection: selectedTour,
+                expandedInsets: EdgeInsets.zero,
+                inputDecorationTheme: InputDecorationTheme(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                ),
+                onSelected: (s) {
+                  if (s != null) {
+                    setState(() {
+                      selectedTour = s;
+                      tourNameController.text = s.name;
+                    });
+                  }
+                },
+                dropdownMenuEntries: tours
+                    .map(
+                      (tour) => DropdownMenuEntry(
+                          value: tour,
+                          label: "${tour.name} - ${tour.distance} km"),
+                    )
+                    .toList(),
               ),
               Container(
                 padding: const EdgeInsets.all(16),
@@ -396,10 +440,11 @@ class _CustomerGroupEditorAlertState
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          onPressed: nameController.text.isNotEmpty
+          onPressed: nameController.text.isNotEmpty && selectedTour != null
               ? () {
                   widget.onCgEdited(
                     CustomerGroup(
+                      tourTypeId: selectedTour!.id,
                       id: id,
                       datetime: dateTime,
                       name: nameController.text,

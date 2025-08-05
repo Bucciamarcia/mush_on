@@ -4,6 +4,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
+import 'package:mush_on/customer_management/tours/main.dart';
 import 'package:mush_on/health/main.dart';
 import 'package:mush_on/health/provider.dart';
 import 'package:mush_on/kennel/main.dart';
@@ -138,9 +139,14 @@ class TemplateScreen extends ConsumerWidget {
       return FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          BasicLogger().trace("awoo");
           context.pushNamed("/adddog");
         },
+      );
+    }
+    if (child is ToursMainScreen) {
+      return FloatingActionButton(
+        onPressed: () => context.pushNamed("/tours_add"),
+        child: Icon(Icons.add),
       );
     }
     return null;
@@ -211,6 +217,13 @@ class TemplateScreen extends ConsumerWidget {
                     onTap: () => context.pushNamed("/client_management"),
                     title: const Text(
                       "Manage clients",
+                    ),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.person_2),
+                    onTap: () => context.pushNamed("/tours"),
+                    title: const Text(
+                      "Tours",
                     ),
                   ),
                   const Divider(),
