@@ -17,7 +17,6 @@ class ClientManagementMainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Data fetching remains the same
     final todaysCustomerGroups =
         ref.watch(customerGroupsByDayProvider(DateTimeUtils.today())).value ??
             [];
@@ -86,79 +85,106 @@ class ClientManagementMainScreen extends ConsumerWidget {
           ),
         ),
     ];
-
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: [
-        Text(
-          "Customer Management",
-          style: Theme.of(context).textTheme.headlineMedium,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 24),
-
-        // Warnings Section
-        if (warnings.isNotEmpty) ...[
-          Card(
-            color: Theme.of(context)
-                .colorScheme
-                .errorContainer
-                .withValues(alpha: 0.5),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Action Required",
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onErrorContainer,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...warnings,
-                ],
+    return DefaultTabController(
+      length: 2,
+      child: Column(
+        children: [
+          TabBar(
+            tabs: [
+              Tab(
+                child: Text("Overview"),
               ),
+              Tab(
+                child: Text("Calendar"),
+              ),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [
+                SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Warnings Section
+                      if (warnings.isNotEmpty) ...[
+                        Card(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .errorContainer
+                              .withValues(alpha: 0.5),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Action Required",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onErrorContainer,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                                const SizedBox(height: 8),
+                                ...warnings,
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
+
+                      // Today's Overview
+                      _buildSectionTitle(context, "Today's Overview"),
+                      if (todaysCustomerGroups.isNotEmpty)
+                        ListCustomerGroups(customerGroups: todaysCustomerGroups)
+                      else
+                        const Text("No customer groups for today."),
+                      const SizedBox(height: 16),
+                      if (todaysBookings.isNotEmpty)
+                        ListBookings(
+                          bookings: todaysBookings,
+                          customerGroups: todaysCustomerGroups,
+                        )
+                      else
+                        const Text("No bookings for today."),
+                      const SizedBox(height: 24),
+
+                      // Future
+                      _buildSectionTitle(context, "Upcoming"),
+                      _buildExpansionTileChild(
+                        context,
+                        "Tomorrow",
+                        tomorrowCustomerGroups.isNotEmpty
+                            ? ListCustomerGroups(
+                                customerGroups: tomorrowCustomerGroups)
+                            : const Text("No customer groups for tomorrow."),
+                      ),
+                      _buildExpansionTileChild(
+                        context,
+                        "Next 7 Days",
+                        next7DaysCustomerGroups.isNotEmpty
+                            ? ListCustomerGroups(
+                                customerGroups: next7DaysCustomerGroups)
+                            : const Text(
+                                "No customer groups for the next 7 days."),
+                      ),
+                    ],
+                  ),
+                ),
+                Text("o hei"),
+              ],
             ),
           ),
-          const SizedBox(height: 24),
         ],
-
-        // Today's Overview
-        _buildSectionTitle(context, "Today's Overview"),
-        if (todaysCustomerGroups.isNotEmpty)
-          ListCustomerGroups(customerGroups: todaysCustomerGroups)
-        else
-          const Text("No customer groups for today."),
-        const SizedBox(height: 16),
-        if (todaysBookings.isNotEmpty)
-          ListBookings(
-            bookings: todaysBookings,
-            customerGroups: todaysCustomerGroups,
-          )
-        else
-          const Text("No bookings for today."),
-        const SizedBox(height: 24),
-
-        // Future
-        _buildSectionTitle(context, "Upcoming"),
-        _buildExpansionTileChild(
-          context,
-          "Tomorrow",
-          tomorrowCustomerGroups.isNotEmpty
-              ? ListCustomerGroups(customerGroups: tomorrowCustomerGroups)
-              : const Text("No customer groups for tomorrow."),
-        ),
-        _buildExpansionTileChild(
-          context,
-          "Next 7 Days",
-          next7DaysCustomerGroups.isNotEmpty
-              ? ListCustomerGroups(customerGroups: next7DaysCustomerGroups)
-              : const Text("No customer groups for the next 7 days."),
-        ),
-      ],
+      ),
     );
+    // Data fetching remains the same
   }
 
   Widget _buildSectionTitle(BuildContext context, String title) {
