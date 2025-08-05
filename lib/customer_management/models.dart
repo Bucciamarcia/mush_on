@@ -90,6 +90,9 @@ sealed class CustomerGroup with _$CustomerGroup {
   const factory CustomerGroup({
     required String id,
 
+    /// The ID of the tour type this customergroup is assigned to.
+    required String tourTypeId,
+
     /// The internal user friendly name of the customer group
     @Default("") String name,
     @NonNullableTimestampConverter() required DateTime datetime,

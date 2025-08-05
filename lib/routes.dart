@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:mush_on/create_team/create_team.dart';
+import 'package:mush_on/customer_management/tours/tours.dart';
 import 'package:mush_on/health/health.dart';
 import 'package:mush_on/home_page/home_page.dart';
 import 'package:mush_on/kennel/add_dog/add_dog.dart';
@@ -11,6 +12,7 @@ import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
 import 'package:mush_on/stats/stats.dart';
 import 'customer_management/customer_management.dart';
+import 'customer_management/tours/add/add.dart';
 
 final goRoutes = GoRouter(
   routes: [
@@ -79,6 +81,16 @@ final goRoutes = GoRouter(
       name: "/client_management",
       path: "/client_management",
       builder: (context, state) => ClientManagementScreen(),
+    ),
+    GoRoute(
+      path: "/tours",
+      name: "/tours",
+      builder: (context, state) => ToursScreen(),
+    ),
+    GoRoute(
+      path: "/tours/add",
+      name: "/tours_add",
+      builder: (context, state) => AddTourScreen(),
     ),
   ],
 );

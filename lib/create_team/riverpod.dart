@@ -112,10 +112,13 @@ class CustomerAssign extends _$CustomerAssign {
   }
 
   void createCustomerGroup(
-      {required DateTime dateTime, required String teamGroupId}) {
+      {required DateTime dateTime,
+      required String teamGroupId,
+      required String tourTypeId}) {
     state = state.whenData(
       (data) => CustomerGroupWorkspace(
         customerGroup: CustomerGroup(
+          tourTypeId: tourTypeId,
           teamGroupId: teamGroupId,
           datetime: dateTime,
           id: Uuid().v4(),

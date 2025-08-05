@@ -59,6 +59,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
               ref.watch(customerAssignProvider(teamGroup.id)).value ??
                   CustomerGroupWorkspace(
                     customerGroup: CustomerGroup(
+                      tourTypeId: "",
                       id: Uuid().v4(),
                       datetime: DateTime.now(),
                     ),
