@@ -326,6 +326,486 @@ class _DogTotalProviderElement
   DateTime? get cutoff => (origin as DogTotalProvider).cutoff;
 }
 
+String _$dogHealthEventsHash() => r'd44f6be58f75d92a035ea448100e97d5926c39e5';
+
+/// All the health events related to a single dog. Cutoff default to 90 days.
+///
+/// Copied from [dogHealthEvents].
+@ProviderFor(dogHealthEvents)
+const dogHealthEventsProvider = DogHealthEventsFamily();
+
+/// All the health events related to a single dog. Cutoff default to 90 days.
+///
+/// Copied from [dogHealthEvents].
+class DogHealthEventsFamily extends Family<AsyncValue<List<HealthEvent>>> {
+  /// All the health events related to a single dog. Cutoff default to 90 days.
+  ///
+  /// Copied from [dogHealthEvents].
+  const DogHealthEventsFamily();
+
+  /// All the health events related to a single dog. Cutoff default to 90 days.
+  ///
+  /// Copied from [dogHealthEvents].
+  DogHealthEventsProvider call({
+    required String dogId,
+    DateTime? cutoff,
+  }) {
+    return DogHealthEventsProvider(
+      dogId: dogId,
+      cutoff: cutoff,
+    );
+  }
+
+  @override
+  DogHealthEventsProvider getProviderOverride(
+    covariant DogHealthEventsProvider provider,
+  ) {
+    return call(
+      dogId: provider.dogId,
+      cutoff: provider.cutoff,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'dogHealthEventsProvider';
+}
+
+/// All the health events related to a single dog. Cutoff default to 90 days.
+///
+/// Copied from [dogHealthEvents].
+class DogHealthEventsProvider
+    extends AutoDisposeStreamProvider<List<HealthEvent>> {
+  /// All the health events related to a single dog. Cutoff default to 90 days.
+  ///
+  /// Copied from [dogHealthEvents].
+  DogHealthEventsProvider({
+    required String dogId,
+    DateTime? cutoff,
+  }) : this._internal(
+          (ref) => dogHealthEvents(
+            ref as DogHealthEventsRef,
+            dogId: dogId,
+            cutoff: cutoff,
+          ),
+          from: dogHealthEventsProvider,
+          name: r'dogHealthEventsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$dogHealthEventsHash,
+          dependencies: DogHealthEventsFamily._dependencies,
+          allTransitiveDependencies:
+              DogHealthEventsFamily._allTransitiveDependencies,
+          dogId: dogId,
+          cutoff: cutoff,
+        );
+
+  DogHealthEventsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.dogId,
+    required this.cutoff,
+  }) : super.internal();
+
+  final String dogId;
+  final DateTime? cutoff;
+
+  @override
+  Override overrideWith(
+    Stream<List<HealthEvent>> Function(DogHealthEventsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: DogHealthEventsProvider._internal(
+        (ref) => create(ref as DogHealthEventsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        dogId: dogId,
+        cutoff: cutoff,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<HealthEvent>> createElement() {
+    return _DogHealthEventsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DogHealthEventsProvider &&
+        other.dogId == dogId &&
+        other.cutoff == cutoff;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, dogId.hashCode);
+    hash = _SystemHash.combine(hash, cutoff.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin DogHealthEventsRef on AutoDisposeStreamProviderRef<List<HealthEvent>> {
+  /// The parameter `dogId` of this provider.
+  String get dogId;
+
+  /// The parameter `cutoff` of this provider.
+  DateTime? get cutoff;
+}
+
+class _DogHealthEventsProviderElement
+    extends AutoDisposeStreamProviderElement<List<HealthEvent>>
+    with DogHealthEventsRef {
+  _DogHealthEventsProviderElement(super.provider);
+
+  @override
+  String get dogId => (origin as DogHealthEventsProvider).dogId;
+  @override
+  DateTime? get cutoff => (origin as DogHealthEventsProvider).cutoff;
+}
+
+String _$dogVaccinationsHash() => r'a44a983a25fd973a43cd390cae9d5df6fc89a1f6';
+
+/// All the vaccinations related to a single dog. Cutoff default to 90 days.
+///
+/// Copied from [dogVaccinations].
+@ProviderFor(dogVaccinations)
+const dogVaccinationsProvider = DogVaccinationsFamily();
+
+/// All the vaccinations related to a single dog. Cutoff default to 90 days.
+///
+/// Copied from [dogVaccinations].
+class DogVaccinationsFamily extends Family<AsyncValue<List<Vaccination>>> {
+  /// All the vaccinations related to a single dog. Cutoff default to 90 days.
+  ///
+  /// Copied from [dogVaccinations].
+  const DogVaccinationsFamily();
+
+  /// All the vaccinations related to a single dog. Cutoff default to 90 days.
+  ///
+  /// Copied from [dogVaccinations].
+  DogVaccinationsProvider call({
+    required String dogId,
+    DateTime? cutoff,
+  }) {
+    return DogVaccinationsProvider(
+      dogId: dogId,
+      cutoff: cutoff,
+    );
+  }
+
+  @override
+  DogVaccinationsProvider getProviderOverride(
+    covariant DogVaccinationsProvider provider,
+  ) {
+    return call(
+      dogId: provider.dogId,
+      cutoff: provider.cutoff,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'dogVaccinationsProvider';
+}
+
+/// All the vaccinations related to a single dog. Cutoff default to 90 days.
+///
+/// Copied from [dogVaccinations].
+class DogVaccinationsProvider
+    extends AutoDisposeStreamProvider<List<Vaccination>> {
+  /// All the vaccinations related to a single dog. Cutoff default to 90 days.
+  ///
+  /// Copied from [dogVaccinations].
+  DogVaccinationsProvider({
+    required String dogId,
+    DateTime? cutoff,
+  }) : this._internal(
+          (ref) => dogVaccinations(
+            ref as DogVaccinationsRef,
+            dogId: dogId,
+            cutoff: cutoff,
+          ),
+          from: dogVaccinationsProvider,
+          name: r'dogVaccinationsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$dogVaccinationsHash,
+          dependencies: DogVaccinationsFamily._dependencies,
+          allTransitiveDependencies:
+              DogVaccinationsFamily._allTransitiveDependencies,
+          dogId: dogId,
+          cutoff: cutoff,
+        );
+
+  DogVaccinationsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.dogId,
+    required this.cutoff,
+  }) : super.internal();
+
+  final String dogId;
+  final DateTime? cutoff;
+
+  @override
+  Override overrideWith(
+    Stream<List<Vaccination>> Function(DogVaccinationsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: DogVaccinationsProvider._internal(
+        (ref) => create(ref as DogVaccinationsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        dogId: dogId,
+        cutoff: cutoff,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<Vaccination>> createElement() {
+    return _DogVaccinationsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DogVaccinationsProvider &&
+        other.dogId == dogId &&
+        other.cutoff == cutoff;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, dogId.hashCode);
+    hash = _SystemHash.combine(hash, cutoff.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin DogVaccinationsRef on AutoDisposeStreamProviderRef<List<Vaccination>> {
+  /// The parameter `dogId` of this provider.
+  String get dogId;
+
+  /// The parameter `cutoff` of this provider.
+  DateTime? get cutoff;
+}
+
+class _DogVaccinationsProviderElement
+    extends AutoDisposeStreamProviderElement<List<Vaccination>>
+    with DogVaccinationsRef {
+  _DogVaccinationsProviderElement(super.provider);
+
+  @override
+  String get dogId => (origin as DogVaccinationsProvider).dogId;
+  @override
+  DateTime? get cutoff => (origin as DogVaccinationsProvider).cutoff;
+}
+
+String _$dogHeatsHash() => r'e0e879e97f757b77f20671f97a8748a5d908ffac';
+
+/// All the heats related to a single dog. Cutoff default to 90 days.
+///
+/// Copied from [dogHeats].
+@ProviderFor(dogHeats)
+const dogHeatsProvider = DogHeatsFamily();
+
+/// All the heats related to a single dog. Cutoff default to 90 days.
+///
+/// Copied from [dogHeats].
+class DogHeatsFamily extends Family<AsyncValue<List<HeatCycle>>> {
+  /// All the heats related to a single dog. Cutoff default to 90 days.
+  ///
+  /// Copied from [dogHeats].
+  const DogHeatsFamily();
+
+  /// All the heats related to a single dog. Cutoff default to 90 days.
+  ///
+  /// Copied from [dogHeats].
+  DogHeatsProvider call({
+    required String dogId,
+    DateTime? cutoff,
+  }) {
+    return DogHeatsProvider(
+      dogId: dogId,
+      cutoff: cutoff,
+    );
+  }
+
+  @override
+  DogHeatsProvider getProviderOverride(
+    covariant DogHeatsProvider provider,
+  ) {
+    return call(
+      dogId: provider.dogId,
+      cutoff: provider.cutoff,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'dogHeatsProvider';
+}
+
+/// All the heats related to a single dog. Cutoff default to 90 days.
+///
+/// Copied from [dogHeats].
+class DogHeatsProvider extends AutoDisposeStreamProvider<List<HeatCycle>> {
+  /// All the heats related to a single dog. Cutoff default to 90 days.
+  ///
+  /// Copied from [dogHeats].
+  DogHeatsProvider({
+    required String dogId,
+    DateTime? cutoff,
+  }) : this._internal(
+          (ref) => dogHeats(
+            ref as DogHeatsRef,
+            dogId: dogId,
+            cutoff: cutoff,
+          ),
+          from: dogHeatsProvider,
+          name: r'dogHeatsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$dogHeatsHash,
+          dependencies: DogHeatsFamily._dependencies,
+          allTransitiveDependencies: DogHeatsFamily._allTransitiveDependencies,
+          dogId: dogId,
+          cutoff: cutoff,
+        );
+
+  DogHeatsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.dogId,
+    required this.cutoff,
+  }) : super.internal();
+
+  final String dogId;
+  final DateTime? cutoff;
+
+  @override
+  Override overrideWith(
+    Stream<List<HeatCycle>> Function(DogHeatsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: DogHeatsProvider._internal(
+        (ref) => create(ref as DogHeatsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        dogId: dogId,
+        cutoff: cutoff,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<HeatCycle>> createElement() {
+    return _DogHeatsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DogHeatsProvider &&
+        other.dogId == dogId &&
+        other.cutoff == cutoff;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, dogId.hashCode);
+    hash = _SystemHash.combine(hash, cutoff.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin DogHeatsRef on AutoDisposeStreamProviderRef<List<HeatCycle>> {
+  /// The parameter `dogId` of this provider.
+  String get dogId;
+
+  /// The parameter `cutoff` of this provider.
+  DateTime? get cutoff;
+}
+
+class _DogHeatsProviderElement
+    extends AutoDisposeStreamProviderElement<List<HeatCycle>> with DogHeatsRef {
+  _DogHeatsProviderElement(super.provider);
+
+  @override
+  String get dogId => (origin as DogHeatsProvider).dogId;
+  @override
+  DateTime? get cutoff => (origin as DogHeatsProvider).cutoff;
+}
+
 String _$singleDogImageHash() => r'685d0275ff357bccd60b02c7a0061756c295e8a8';
 
 abstract class _$SingleDogImage

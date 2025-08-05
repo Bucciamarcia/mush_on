@@ -301,7 +301,7 @@ class _VaccinationEditorAlertState
           child: Text("Cancel"),
         ),
         FilledButton(
-          onPressed: _checkFields() && !_isSaving
+          onPressed: !_isSaving
               ? () async {
                   setState(() {
                     _isSaving = true;
@@ -401,16 +401,6 @@ class _VaccinationEditorAlertState
         });
     if (picked != null) {
       onDatePicked(picked);
-    }
-  }
-
-  bool _checkFields() {
-    if (_titleController.text.isNotEmpty &&
-        _vaccinationTypeController.text.isNotEmpty &&
-        _selectedDog != null) {
-      return true;
-    } else {
-      return false;
     }
   }
 }

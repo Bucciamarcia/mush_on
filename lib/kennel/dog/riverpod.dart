@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mush_on/health/models.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -136,4 +137,49 @@ Stream<List<DogTotal>> dogTotal(
   result.sort((a, b) => a.date.compareTo(b.date));
 
   yield result;
+}
+
+@riverpod
+
+/// All the health events related to a single dog. Cutoff default to 90 days.
+Stream<List<HealthEvent>> dogHealthEvents(Ref ref,
+    {required String dogId, DateTime? cutoff}) async* {
+  // Default cutoff to 90 days ago.
+  cutoff ??= DateTime.now().subtract(const Duration(days: 90));
+  String account = await ref.watch(accountProvider.future);
+  var db = FirebaseFirestore.instance;
+  var path = "accounts/$account/data/kennel/healthEvents/";
+  var collection = db.collection(path).where("dogId", isEqualTo: dogId);
+  yield* collection.snapshots().map((snapshot) =>
+      snapshot.docs.map((doc) => HealthEvent.fromJson(doc.data())).toList());
+}
+
+@riverpod
+
+/// All the vaccinations related to a single dog. Cutoff default to 90 days.
+Stream<List<Vaccination>> dogVaccinations(Ref ref,
+    {required String dogId, DateTime? cutoff}) async* {
+  // Default cutoff to 90 days ago.
+  cutoff ??= DateTime.now().subtract(const Duration(days: 90));
+  String account = await ref.watch(accountProvider.future);
+  var db = FirebaseFirestore.instance;
+  var path = "accounts/$account/data/kennel/vaccinations/";
+  var collection = db.collection(path).where("dogId", isEqualTo: dogId);
+  yield* collection.snapshots().map((snapshot) =>
+      snapshot.docs.map((doc) => Vaccination.fromJson(doc.data())).toList());
+}
+
+@riverpod
+
+/// All the heats related to a single dog. Cutoff default to 90 days.
+Stream<List<HeatCycle>> dogHeats(Ref ref,
+    {required String dogId, DateTime? cutoff}) async* {
+  // Default cutoff to 90 days ago.
+  cutoff ??= DateTime.now().subtract(const Duration(days: 90));
+  String account = await ref.watch(accountProvider.future);
+  var db = FirebaseFirestore.instance;
+  var path = "accounts/$account/data/kennel/heatCycles/";
+  var collection = db.collection(path).where("dogId", isEqualTo: dogId);
+  yield* collection.snapshots().map((snapshot) =>
+      snapshot.docs.map((doc) => HeatCycle.fromJson(doc.data())).toList());
 }

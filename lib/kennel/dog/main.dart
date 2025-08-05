@@ -23,6 +23,7 @@ import 'package:mush_on/shared/distance_warning_widget/main.dart';
 import 'package:mush_on/shared/text_title.dart';
 import '../../services/models/dog.dart';
 import 'name_widget.dart';
+import 'single_dog_health_events_widget.dart';
 
 class DogMain extends ConsumerWidget {
   final String? dogId;
@@ -351,80 +352,81 @@ class DogMain extends ConsumerWidget {
                             .value ??
                         []),
                     Divider(),
+                    SingleDogHealthEventsWidget(dogId: dog.id),
+                    Divider(),
                     SingleDogNotesWidget(
-                        dogNotes: dog.notes,
-                        onNoteAdded: (newNote) async {
-                          try {
-                            List<SingleDogNote> updatedNotes = [];
-                            for (SingleDogNote note in dog.notes) {
-                              updatedNotes.add(note);
-                            }
-                            updatedNotes
-                                .removeWhere((note) => note.id == newNote.id);
-                            updatedNotes.add(newNote);
-                            await DogsDbOperations().updateNotes(
-                                dogId: dog.id, notes: updatedNotes);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  content: Text(
-                                    "Note saved correctly",
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
+                      dogNotes: dog.notes,
+                      onNoteAdded: (newNote) async {
+                        try {
+                          List<SingleDogNote> updatedNotes = [];
+                          for (SingleDogNote note in dog.notes) {
+                            updatedNotes.add(note);
+                          }
+                          updatedNotes
+                              .removeWhere((note) => note.id == newNote.id);
+                          updatedNotes.add(newNote);
+                          await DogsDbOperations()
+                              .updateNotes(dogId: dog.id, notes: updatedNotes);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                content: Text(
+                                  "Note saved correctly",
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
                                   ),
                                 ),
-                              );
-                            }
-                          } catch (e, s) {
-                            logger.error("Couldn't save note",
-                                error: e, stackTrace: s);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(
-                                      context, "Error: couldn't save note"));
-                            }
+                              ),
+                            );
                           }
-                        },
-                        onNoteDeleted: (id) async {
-                          try {
-                            List<SingleDogNote> updatedNotes = [];
-                            for (SingleDogNote note in dog.notes) {
-                              updatedNotes.add(note);
-                            }
-                            updatedNotes.removeWhere((note) => note.id == id);
-                            await DogsDbOperations().updateNotes(
-                                dogId: dog.id, notes: updatedNotes);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary,
-                                  content: Text(
-                                    "Note deleted correctly",
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
+                        } catch (e, s) {
+                          logger.error("Couldn't save note",
+                              error: e, stackTrace: s);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                errorSnackBar(
+                                    context, "Error: couldn't save note"));
+                          }
+                        }
+                      },
+                      onNoteDeleted: (id) async {
+                        try {
+                          List<SingleDogNote> updatedNotes = [];
+                          for (SingleDogNote note in dog.notes) {
+                            updatedNotes.add(note);
+                          }
+                          updatedNotes.removeWhere((note) => note.id == id);
+                          await DogsDbOperations()
+                              .updateNotes(dogId: dog.id, notes: updatedNotes);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                content: Text(
+                                  "Note deleted correctly",
+                                  style: TextStyle(
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
                                   ),
                                 ),
-                              );
-                            }
-                          } catch (e, s) {
-                            logger.error("Couldn't delete note",
-                                error: e, stackTrace: s);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(
-                                      context, "Error: couldn't delete note"));
-                            }
+                              ),
+                            );
                           }
-                        }),
+                        } catch (e, s) {
+                          logger.error("Couldn't delete note",
+                              error: e, stackTrace: s);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                errorSnackBar(
+                                    context, "Error: couldn't delete note"));
+                          }
+                        }
+                      },
+                    ),
                     Divider(),
                     DeleteDogButton(
                       dog: dog,
