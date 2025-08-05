@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/models.dart';
+import 'package:mush_on/health/display_cards/health_event.dart';
+import 'package:mush_on/health/display_cards/heat_cycle.dart';
+import 'package:mush_on/health/display_cards/vaccination.dart';
 import 'package:mush_on/health/health_event_editor_alert.dart';
 import 'package:mush_on/health/heat_cycle_editor_alert.dart';
 import 'package:mush_on/health/models.dart';
@@ -234,232 +237,82 @@ class HealthMain extends ConsumerWidget {
           ),
 
         // Overdue vaccinations (HIGH PRIORITY)
-        if (vaccinations.overdue.isNotEmpty)
-          Card(
-            color: colorScheme.errorContainer,
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.error, color: colorScheme.error),
-                      SizedBox(width: 8),
-                      TextTitle("⚠️ Overdue Vaccinations"),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  ...vaccinations.overdue.map((v) => InkWell(
-                        onTap: () => showDialog(
-                            context: context,
-                            builder: (dialogContext) => VaccinationEditorAlert(
-                                  event: v,
-                                  dogs: dogs,
-                                )),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              Icon(Icons.pets, size: 16),
-                              SizedBox(width: 8),
-                              Text(
-                                dogs.getDogFromId(v.dogId)?.name ?? "Unknown",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Text(" - ${v.title}"),
-                              Spacer(),
-                              Text(
-                                "Expired ${DateFormat("MMM d").format(v.expirationDate!)}",
-                                style: TextStyle(color: colorScheme.error),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )),
-                ],
-              ),
+        if (vaccinations.overdue.isNotEmpty) ...[
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Row(
+              children: [
+                Icon(Icons.error, color: colorScheme.error),
+                SizedBox(width: 8),
+                TextTitle("⚠️ Overdue Vaccinations"),
+              ],
             ),
           ),
+          ...vaccinations.overdue.map((v) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: VaccinationDisplayCard(event: v),
+              )),
+        ],
 
         // Active health events
-        if (healthEvents.active.isNotEmpty)
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextTitle("Active Health Events"),
-                  SizedBox(height: 8),
-                  ...healthEvents.active.map((e) => ListTile(
-                        onTap: () => showDialog(
-                            context: context,
-                            builder: (context) {
-                              return HealthEventEditorAlert(
-                                event: e,
-                                dogs: dogs,
-                              );
-                            }),
-                        dense: true,
-                        leading: CircleAvatar(
-                          backgroundColor: e.preventFromRunning
-                              ? colorScheme.errorContainer
-                              : colorScheme.secondaryContainer,
-                          child: Icon(
-                            _getEventIcon(e.eventType),
-                            size: 20,
-                            color: e.preventFromRunning
-                                ? colorScheme.error
-                                : colorScheme.secondary,
-                          ),
-                        ),
-                        title:
-                            Text(dogs.getDogFromId(e.dogId)?.name ?? "Unknown"),
-                        subtitle: Text(
-                            "${e.title} • ${_formatEventType(e.eventType)}"),
-                        trailing: e.preventFromRunning
-                            ? Chip(
-                                label: Text("Can't run",
-                                    style: TextStyle(fontSize: 12)),
-                                backgroundColor: colorScheme.errorContainer,
-                              )
-                            : null,
-                      )),
-                ],
-              ),
-            ),
+        if (healthEvents.active.isNotEmpty) ...[
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: TextTitle("Active Health Events"),
           ),
+          ...healthEvents.active.map((e) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: HealthEventDisplayCard(event: e),
+              )),
+        ],
 
         // Dogs in heat
-        if (heatCycles.active.isNotEmpty)
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextTitle("Dogs in Heat"),
-                  SizedBox(height: 8),
-                  ...heatCycles.active.map((h) => ListTile(
-                        onTap: () => showDialog(
-                            context: context,
-                            builder: (context) {
-                              return HeatCycleEditorAlert(event: h, dogs: dogs);
-                            }),
-                        dense: true,
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.pink,
-                          child: Icon(Icons.favorite,
-                              size: 20, color: Colors.pink),
-                        ),
-                        title:
-                            Text(dogs.getDogFromId(h.dogId)?.name ?? "Unknown"),
-                        subtitle: Text(
-                            "Started ${DateFormat("MMM d").format(h.startDate)}"),
-                        trailing: h.preventFromRunning
-                            ? Chip(
-                                label: Text("Can't run",
-                                    style: TextStyle(fontSize: 12)),
-                                backgroundColor: colorScheme.errorContainer,
-                              )
-                            : null,
-                      )),
-                ],
-              ),
-            ),
+        if (heatCycles.active.isNotEmpty) ...[
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: TextTitle("Dogs in Heat"),
           ),
+          ...heatCycles.active.map((h) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: HeatCycleDisplayCard(event: h),
+              )),
+        ],
 
         //Upcoming health events
-        if (healthEvents.startingInNext(days: 30).isNotEmpty)
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextTitle("Upcoming health events"),
-                  SizedBox(height: 8),
-                  ...healthEvents.startingInNext(days: 30).map((v) => ListTile(
-                        onTap: () => showDialog(
-                            context: context,
-                            builder: (context) =>
-                                HealthEventEditorAlert(dogs: dogs, event: v)),
-                        dense: true,
-                        leading: Icon(_getEventIcon(v.eventType),
-                            color: Colors.amber),
-                        title:
-                            Text(dogs.getDogFromId(v.dogId)?.name ?? "Unknown"),
-                        subtitle: Text(v.title),
-                        trailing: Text(
-                          DateFormat("MMM d").format(v.date),
-                          style: TextStyle(color: Colors.amber[700]),
-                        ),
-                      )),
-                ],
-              ),
-            ),
+        if (healthEvents.startingInNext(days: 30).isNotEmpty) ...[
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: TextTitle("Upcoming Health Events"),
           ),
+          ...healthEvents.startingInNext(days: 30).map((v) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: HealthEventDisplayCard(event: v),
+              )),
+        ],
 
         // Upcoming vaccinations
-        if (vaccinations.expiringSoon(days: 30).isNotEmpty)
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextTitle("Vaccinations Expiring Soon"),
-                  SizedBox(height: 8),
-                  ...vaccinations.expiringSoon(days: 30).map((v) => ListTile(
-                        onTap: () => showDialog(
-                            context: context,
-                            builder: (context) =>
-                                VaccinationEditorAlert(dogs: dogs, event: v)),
-                        dense: true,
-                        leading: Icon(Icons.vaccines, color: Colors.amber),
-                        title:
-                            Text(dogs.getDogFromId(v.dogId)?.name ?? "Unknown"),
-                        subtitle: Text(v.title),
-                        trailing: Text(
-                          DateFormat("MMM d").format(v.expirationDate!),
-                          style: TextStyle(color: Colors.amber[700]),
-                        ),
-                      )),
-                ],
-              ),
-            ),
+        if (vaccinations.expiringSoon(days: 30).isNotEmpty) ...[
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: TextTitle("Vaccinations Expiring Soon"),
           ),
+          ...vaccinations.expiringSoon(days: 30).map((v) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: VaccinationDisplayCard(event: v),
+              )),
+        ],
 
         // Recent events
-        if (healthEvents.getRecentlySolved(days: 7).isNotEmpty)
-          Card(
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextTitle("Recently Resolved"),
-                  SizedBox(height: 8),
-                  ...healthEvents.getRecentlySolved(days: 7).map((e) =>
-                      ListTile(
-                        onTap: () => showDialog(
-                            context: context,
-                            builder: (context) => HealthEventEditorAlert(
-                                  dogs: dogs,
-                                  event: e,
-                                )),
-                        dense: true,
-                        leading: Icon(Icons.check_circle, color: Colors.green),
-                        title:
-                            Text(dogs.getDogFromId(e.dogId)?.name ?? "Unknown"),
-                        subtitle: Text(
-                            "${e.title} • Resolved ${DateFormat("MMM d").format(e.resolvedDate!)}"),
-                      )),
-                ],
-              ),
-            ),
+        if (healthEvents.getRecentlySolved(days: 7).isNotEmpty) ...[
+          Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: TextTitle("Recently Resolved"),
           ),
+          ...healthEvents.getRecentlySolved(days: 7).map((e) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: HealthEventDisplayCard(event: e),
+              )),
+        ],
 
         // Distance warnings
         distanceWarningsAsync.when(
@@ -519,24 +372,4 @@ class HealthMain extends ConsumerWidget {
     );
   }
 
-  IconData _getEventIcon(HealthEventType type) {
-    switch (type) {
-      case HealthEventType.injury:
-        return Icons.personal_injury;
-      case HealthEventType.illness:
-        return Icons.sick;
-      case HealthEventType.vetVisit:
-        return Icons.local_hospital;
-      case HealthEventType.procedure:
-        return Icons.medical_services;
-      case HealthEventType.observation:
-        return Icons.visibility;
-      case HealthEventType.other:
-        return Icons.more_horiz;
-    }
-  }
-
-  String _formatEventType(HealthEventType type) {
-    return type.name.substring(0, 1).toUpperCase() + type.name.substring(1);
-  }
 }
