@@ -93,6 +93,28 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               );
               Navigator.of(context).pop();
             }
+          }, onTourDeleted: () async {
+            var repo = ToursRepository(
+              account: await ref.watch(accountProvider.future),
+            );
+            try {
+              await repo.deleteTour(id);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  confirmationSnackbar(context, "Tour deleted"),
+                );
+                Navigator.of(context).pop();
+              }
+            } catch (e, s) {
+              BasicLogger().error("Failed to delete tour type $id",
+                  error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Failed to delete tour type"),
+                );
+              }
+              return;
+            }
           }),
         ],
       ),
@@ -268,7 +290,8 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
     );
   }
 
-  Widget _buildPricingSection(ColorScheme colorScheme, List<TourTypePricing> prices, dynamic priceNotifier) {
+  Widget _buildPricingSection(ColorScheme colorScheme,
+      List<TourTypePricing> prices, dynamic priceNotifier) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -335,7 +358,8 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primaryContainer,
                 foregroundColor: colorScheme.onPrimaryContainer,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
             ),
           ),
@@ -344,7 +368,8 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
     );
   }
 
-  Widget _buildSaveSection(ColorScheme colorScheme, {required Function() onTourSaved}) {
+  Widget _buildSaveSection(ColorScheme colorScheme,
+      {required Function() onTourSaved, required Function() onTourDeleted}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
@@ -356,6 +381,25 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
             child: Text(
               "Cancel",
               style: TextStyle(color: colorScheme.error),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => showDialog(
+              context: context,
+              builder: (_) => ConfirmDeleteAlert(
+                onConfirmed: () {
+                  onTourDeleted();
+                },
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.error,
+              foregroundColor: colorScheme.onError,
+            ),
+            icon: Icon(Icons.delete),
+            label: Text(
+              "Delete",
+              style: TextStyle(color: colorScheme.onError),
             ),
           ),
           ElevatedButton.icon(
@@ -598,6 +642,41 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
             foregroundColor: colorScheme.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class ConfirmDeleteAlert extends StatelessWidget {
+  final Function() onConfirmed;
+  const ConfirmDeleteAlert({super.key, required this.onConfirmed});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog.adaptive(
+      title: Text("Confirm Deletion"),
+      content: Text(
+        "Are you sure you want to delete this tour? This action cannot be undone.",
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text("Nevermind"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            onConfirmed();
+            Navigator.of(context).pop();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.error,
+            foregroundColor: Theme.of(context).colorScheme.onError,
+          ),
+          child: Text("Delete"),
         ),
       ],
     );

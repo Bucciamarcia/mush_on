@@ -34,4 +34,23 @@ class ToursRepository {
       rethrow;
     }
   }
+
+  /// Deletes a tour and all its pricings by the tour id.
+  Future<void> deleteTour(String tourId) async {
+    String path = "accounts/$account/data/bookingManager/tours";
+    var batch = _db.batch();
+    batch.delete(_db.doc("$path/$tourId"));
+    var coll = _db.collection("$path/$tourId/prices");
+    var snap = await coll.get();
+    for (var s in snap.docs) {
+      batch.delete(_db.doc("$path/$tourId/prices/${s.id}"));
+    }
+    try {
+      await batch.commit();
+    } catch (e, s) {
+      logger.error("Failed to delete tour type $tourId",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }
