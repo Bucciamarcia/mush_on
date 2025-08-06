@@ -47,7 +47,10 @@ class ToursMainScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       itemCount: tours.length,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (c, i) => TourTypeCard(tour: tours[i]),
+      itemBuilder: (c, i) => TourTypeCard(
+        tour: tours[i],
+        key: ValueKey(tours[i].id),
+      ),
     );
   }
 }
