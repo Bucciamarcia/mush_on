@@ -40,10 +40,38 @@ class ToursRepository {
     String path = "accounts/$account/data/bookingManager/tours";
     var batch = _db.batch();
     batch.delete(_db.doc("$path/$tourId"));
+
+    // Delete tourTypeId for assigned customer groups.
+    var cgscol = _db
+        .collection("accounts/$account/data/bookingManager/customerGroups")
+        .where("tourTypeId", isEqualTo: tourId);
+    var cgs = await cgscol.get();
+    for (var cg in cgs.docs) {
+      var data = cg.data();
+      data["tourTypeId"] = null;
+      batch.set(
+          _db.doc(
+              "accounts/$account/data/bookingManager/customerGroups/${cg.id}"),
+          data);
+    }
+
     var coll = _db.collection("$path/$tourId/prices");
     var snap = await coll.get();
     for (var s in snap.docs) {
       batch.delete(_db.doc("$path/$tourId/prices/${s.id}"));
+
+      // Delete pricing id in customers.
+      var ccol = _db
+          .collection("accounts/$account/data/bookingManager/customers")
+          .where("pricingId", isEqualTo: s.id);
+      var customers = await ccol.get();
+      for (var c in customers.docs) {
+        var data = c.data();
+        data["pricingId"] = null;
+        batch.set(
+            _db.doc("accounts/$account/data/bookingManager/customers/${c.id}"),
+            data);
+      }
     }
     try {
       await batch.commit();

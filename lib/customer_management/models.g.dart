@@ -50,7 +50,7 @@ Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
 _CustomerGroup _$CustomerGroupFromJson(Map<String, dynamic> json) =>
     _CustomerGroup(
       id: json['id'] as String,
-      tourTypeId: json['tourTypeId'] as String,
+      tourTypeId: json['tourTypeId'] as String?,
       name: json['name'] as String? ?? "",
       datetime: const NonNullableTimestampConverter()
           .fromJson(json['datetime'] as Timestamp),
