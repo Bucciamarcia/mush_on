@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/customer_management/alert_editors/customer_group.dart';
+import 'package:mush_on/customer_management/calendar/main.dart';
 import 'package:mush_on/customer_management/repository.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
@@ -168,7 +169,7 @@ class ClientManagementMainScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                Text("o hei"),
+                BookingCalendar(),
               ],
             ),
           ),
