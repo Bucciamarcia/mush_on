@@ -191,6 +191,17 @@ class TemplateScreen extends ConsumerWidget {
                     onTap: () => context.pushNamed("/"),
                     title: const Text("Home"),
                   ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                    child: Text(
+                      "Dogs and teams",
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
                   ListTile(
                     leading: Icon(Icons.group_add),
                     onTap: () => context.pushNamed("/createteam"),
@@ -212,11 +223,22 @@ class TemplateScreen extends ConsumerWidget {
                       "Teams history",
                     ),
                   ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
+                    child: Text(
+                      "Booking manager",
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  ),
                   ListTile(
                     leading: Icon(Icons.person_2),
                     onTap: () => context.pushNamed("/client_management"),
                     title: const Text(
-                      "Manage clients",
+                      "Manage bookings",
                     ),
                   ),
                   ListTile(
@@ -255,7 +277,7 @@ class TemplateScreen extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
                     child: Text(
-                      "Data",
+                      "Other",
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.bold,
