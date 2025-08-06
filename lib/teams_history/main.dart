@@ -31,7 +31,7 @@ class TeamsHistoryMain extends ConsumerWidget {
         .when(
           data: (groups) {
             groups.sort((a, b) => b.date.compareTo(a.date));
-            
+
             if (groups.isEmpty) {
               return Center(
                 child: Column(
@@ -75,18 +75,19 @@ class TeamsHistoryMain extends ConsumerWidget {
             List<Widget> items = [];
             groupedByDate.forEach((dateKey, dayGroups) {
               DateTime date = DateTime.parse(dateKey);
-              
+
               // Add date header
               items.add(_buildDateHeader(context, date, colorScheme));
-              
+
               // Add teams for this date
               for (int i = 0; i < dayGroups.length; i++) {
-                items.add(TeamViewer(item: dayGroups[i], key: ValueKey(dayGroups[i].id)));
+                items.add(TeamViewer(
+                    item: dayGroups[i], key: ValueKey(dayGroups[i].id)));
                 if (i < dayGroups.length - 1) {
                   items.add(const SizedBox(height: 4));
                 }
               }
-              
+
               // Add spacing after each day section
               items.add(const SizedBox(height: 16));
             });
@@ -119,12 +120,13 @@ class TeamsHistoryMain extends ConsumerWidget {
         );
   }
 
-  Widget _buildDateHeader(BuildContext context, DateTime date, ColorScheme colorScheme) {
+  Widget _buildDateHeader(
+      BuildContext context, DateTime date, ColorScheme colorScheme) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final dateOnly = DateTime(date.year, date.month, date.day);
-    
+
     String dateText;
     if (dateOnly == today) {
       dateText = "Today";
@@ -133,7 +135,7 @@ class TeamsHistoryMain extends ConsumerWidget {
     } else {
       dateText = DateFormat('EEEE, MMMM d, yyyy').format(date);
     }
-    
+
     return Container(
       margin: const EdgeInsets.only(top: 8, bottom: 12),
       child: Row(
@@ -190,7 +192,8 @@ class TeamViewer extends ConsumerWidget {
               ),
             ),
             child: ExpansionTile(
-              backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+              backgroundColor:
+                  colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
               collapsedBackgroundColor: Colors.transparent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -198,7 +201,8 @@ class TeamViewer extends ConsumerWidget {
               title: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(8),
@@ -234,7 +238,8 @@ class TeamViewer extends ConsumerWidget {
                       queryParameters: {"teamGroupId": item.id},
                     ),
                     style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       minimumSize: const Size(0, 32),
                     ),
                     child: const Text("Load", style: TextStyle(fontSize: 12)),
@@ -257,11 +262,13 @@ class TeamViewer extends ConsumerWidget {
                       color: colorScheme.error,
                     ),
                     tooltip: "Delete team group",
-                    constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    constraints:
+                        const BoxConstraints(minWidth: 32, minHeight: 32),
                   )
                 ],
               ),
-              tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              tilePadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               children: [
                 FormatObject(
@@ -299,12 +306,13 @@ class TeamViewer extends ConsumerWidget {
                             teams: tw,
                             id: Uuid().v4(),
                             date: DateTimeUtils.today());
-                        await saveToDb(
-                            newTgs, await ref.watch(accountProvider.future), ref);
+                        await saveToDb(newTgs,
+                            await ref.watch(accountProvider.future), ref);
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text("Team group copied successfully"),
+                              content:
+                                  const Text("Team group copied successfully"),
                               backgroundColor: colorScheme.primary,
                             ),
                           );
@@ -314,15 +322,16 @@ class TeamViewer extends ConsumerWidget {
                             error: e, stackTrace: s);
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                              errorSnackBar(
-                                  context, "Couldn't duplicate the team group"));
+                              errorSnackBar(context,
+                                  "Couldn't duplicate the team group"));
                         }
                       }
                     },
                     icon: const Icon(Icons.copy, size: 16),
                     label: const Text("Duplicate"),
                     style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                     ),
                   ),
                 ),
@@ -397,7 +406,8 @@ class TeamViewer extends ConsumerWidget {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(r ? "Team group deleted" : "Error deleting team group"),
+                  content: Text(
+                      r ? "Team group deleted" : "Error deleting team group"),
                   backgroundColor: r ? colorScheme.primary : colorScheme.error,
                 ),
               );
