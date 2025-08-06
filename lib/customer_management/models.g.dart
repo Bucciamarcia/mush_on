@@ -16,6 +16,7 @@ _Customer _$CustomerFromJson(Map<String, dynamic> json) => _Customer(
       weight: (json['weight'] as num?)?.toInt(),
       isDriving: json['isDriving'] as bool? ?? true,
       teamId: json['teamId'] as String?,
+      pricingId: json['pricingId'] as String?,
     );
 
 Map<String, dynamic> _$CustomerToJson(_Customer instance) => <String, dynamic>{
@@ -28,6 +29,7 @@ Map<String, dynamic> _$CustomerToJson(_Customer instance) => <String, dynamic>{
       'weight': instance.weight,
       'isDriving': instance.isDriving,
       'teamId': instance.teamId,
+      'pricingId': instance.pricingId,
     };
 
 _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
@@ -36,8 +38,6 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
       date: const NonNullableTimestampConverter()
           .fromJson(json['date'] as Timestamp),
       customerGroupId: json['customerGroupId'] as String?,
-      price: (json['price'] as num?)?.toDouble() ?? 0,
-      hasPaidAmount: (json['hasPaidAmount'] as num?)?.toDouble() ?? 0,
     );
 
 Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
@@ -45,8 +45,6 @@ Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
       'name': instance.name,
       'date': const NonNullableTimestampConverter().toJson(instance.date),
       'customerGroupId': instance.customerGroupId,
-      'price': instance.price,
-      'hasPaidAmount': instance.hasPaidAmount,
     };
 
 _CustomerGroup _$CustomerGroupFromJson(Map<String, dynamic> json) =>

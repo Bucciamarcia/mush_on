@@ -37,6 +37,9 @@ sealed class Customer with _$Customer {
 
     /// The team Id this customer will go on.
     String? teamId,
+
+    /// The ID of the pricing for this customer.
+    String? pricingId,
   }) = _Customer;
 
   factory Customer.fromJson(Map<String, dynamic> json) =>
@@ -62,21 +65,10 @@ sealed class Booking with _$Booking {
     ///
     /// Nullable because bookings when they're created they may not be assigned yet.
     String? customerGroupId,
-
-    /// The price for this group.
-    @Default(0) double price,
-
-    /// How much this group has paid.
-    @Default(0) double hasPaidAmount,
   }) = _Booking;
 
   factory Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
-}
-
-extension BookingExtension on Booking {
-  bool get isFullyPaid => price == hasPaidAmount;
-  double get leftToPay => price - hasPaidAmount;
 }
 
 @freezed

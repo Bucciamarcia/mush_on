@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_management/alert_editors/customer.dart';
@@ -37,7 +36,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   late bool isNewBooking;
   late String id;
   late TextEditingController nameController;
-  late TextEditingController priceController;
   late bool isPaid;
   late DateTime dateTime;
   CustomerGroup? selectedCustomerGroup;
@@ -49,9 +47,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
     isNewBooking = widget.booking == null;
     id = widget.booking?.id ?? widget.id ?? Uuid().v4();
     nameController = TextEditingController(text: widget.booking?.name);
-    priceController =
-        TextEditingController(text: widget.booking?.price.toString());
-    isPaid = widget.booking?.isFullyPaid ?? false;
     dateTime = widget.booking?.date ?? DateTimeUtils.today();
     possibleCustomerGroups = [];
     customers = [];
@@ -60,7 +55,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   @override
   void dispose() {
     nameController.dispose();
-    priceController.dispose();
     super.dispose();
   }
 
@@ -235,20 +229,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                       ],
                     ),
                   ],
-                ),
-              ),
-              TextField(
-                controller: priceController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  labelText: "Price",
-                  hintText: "Enter booking price",
-                  prefixIcon: const Icon(Icons.euro),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
                 ),
               ),
               Card(
@@ -542,10 +522,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                       id: id,
                       date: dateTime,
                       name: nameController.text,
-                      price: double.tryParse(priceController.text) ?? 0,
-                      hasPaidAmount: isPaid
-                          ? double.tryParse(priceController.text) ?? 0
-                          : 0,
                       customerGroupId: selectedCustomerGroup?.id,
                     ),
                   );

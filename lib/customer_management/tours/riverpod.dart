@@ -60,15 +60,6 @@ class TourTypePrices extends _$TourTypePrices {
         .toList();
   }
 
-  /// Replaces the prices in memory with the new ones.
-  void changePrices(List<TourTypePricing> newPrices) {
-    state = state.whenData(
-      (data) {
-        return newPrices;
-      },
-    );
-  }
-
   /// Add a new pricing option.
   void addPrice(TourTypePricing newPrice) {
     state = state.whenData(
