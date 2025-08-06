@@ -21,8 +21,10 @@ Stream<List<TeamGroup>> teamGroupsByDate(Ref ref, DateTime date) async* {
       .where("date", isEqualTo: date);
 
   yield* collection.snapshots().map(
-        (snapshot) =>
-            snapshot.docs.map((doc) => TeamGroup.fromJson(doc.data())).toList(),
+        (snapshot) => snapshot.docs.map((doc) {
+          BasicLogger().debug("TeamGroup: ${doc.data()}");
+          return TeamGroup.fromJson(doc.data());
+        }).toList(),
       );
 }
 

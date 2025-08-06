@@ -7,6 +7,7 @@ import 'package:mush_on/customer_management/alert_editors/customer_group.dart';
 import 'package:mush_on/customer_management/calendar/main.dart';
 import 'package:mush_on/customer_management/repository.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
+import 'package:mush_on/page_template.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
@@ -239,8 +240,6 @@ class ListCustomerGroups extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final account = ref.watch(accountProvider).value ?? "";
-    final customerRepo = CustomerManagementRepository(account: account);
     return Column(
       children: customerGroups.map(
         (cg) {
@@ -258,23 +257,11 @@ class ListCustomerGroups extends ConsumerWidget {
             ),
             child: InkWell(
               borderRadius: BorderRadius.circular(12),
-              onTap: () => showDialog(
-                context: context,
-                builder: (_) => CustomerGroupEditorAlert(
-                  onCustomerGroupDeleted: () =>
-                      customerRepo.deleteCustomerGroup(cg.id).catchError(
-                            (e) => ScaffoldMessenger.of(context).showSnackBar(
-                              errorSnackBar(
-                                  context, "Failed to delete customer group."),
-                            ),
-                          ),
-                  customerGroup: cg,
-                  onCgEdited: (ncg) async {
-                    customerRepo.setCustomerGroup(ncg);
-                    ref.invalidate(customerGroupsByDayProvider);
-                    ref.invalidate(futureCustomerGroupsProvider);
-                    ref.invalidate(teamGroupByIdProvider);
-                  },
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      CustomerGroupViewerScreen(customerGroup: cg),
                 ),
               ),
               child: Padding(
@@ -521,6 +508,52 @@ class ListBookings extends ConsumerWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+class CustomerGroupViewerScreen extends StatelessWidget {
+  final CustomerGroup customerGroup;
+  const CustomerGroupViewerScreen({super.key, required this.customerGroup});
+
+  @override
+  Widget build(BuildContext context) {
+    return TemplateScreen(
+      title: "View customer group",
+      child: CustomerGroupViewer(customerGroup: customerGroup),
+    );
+  }
+}
+
+class CustomerGroupViewer extends ConsumerWidget {
+  final CustomerGroup customerGroup;
+  const CustomerGroupViewer({super.key, required this.customerGroup});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final account = ref.watch(accountProvider).value ?? "";
+    final customerRepo = CustomerManagementRepository(account: account);
+    return ElevatedButton(
+      onPressed: () => showDialog(
+        context: context,
+        builder: (_) => CustomerGroupEditorAlert(
+          onCustomerGroupDeleted: () => customerRepo
+              .deleteCustomerGroup(customerGroup.id)
+              .catchError(
+                (e) => ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Failed to delete customer group."),
+                ),
+              ),
+          customerGroup: customerGroup,
+          onCgEdited: (ncg) async {
+            customerRepo.setCustomerGroup(ncg);
+            ref.invalidate(customerGroupsByDayProvider);
+            ref.invalidate(futureCustomerGroupsProvider);
+            ref.invalidate(teamGroupByIdProvider);
+          },
+        ),
+      ),
+      child: Text("edit"),
     );
   }
 }

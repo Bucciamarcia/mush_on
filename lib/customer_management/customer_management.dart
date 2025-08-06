@@ -9,6 +9,6 @@ class ClientManagementScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TemplateScreen(
-        title: "Manage Clients", child: ClientManagementMainScreen());
+        title: "Manage Bookings", child: ClientManagementMainScreen());
   }
 }

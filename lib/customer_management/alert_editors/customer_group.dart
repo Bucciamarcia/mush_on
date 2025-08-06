@@ -52,9 +52,11 @@ class _CustomerGroupEditorAlertState
   @override
   Widget build(BuildContext context) {
     List<TourType> tours = ref.watch(allTourTypesProvider).value ?? [];
-    
+
     // Initialize selectedTour and tourNameController if editing existing customer group
-    if (widget.customerGroup != null && selectedTour == null && tours.isNotEmpty) {
+    if (widget.customerGroup != null &&
+        selectedTour == null &&
+        tours.isNotEmpty) {
       selectedTour = tours.firstWhereOrNull(
         (tour) => tour.id == widget.customerGroup!.tourTypeId,
       );
@@ -62,13 +64,22 @@ class _CustomerGroupEditorAlertState
         tourNameController.text = selectedTour!.name;
       }
     }
-    
+
     List<TeamGroup> possibleTeamGroups =
         ref.watch(teamGroupsByDateProvider(dateTime)).value ?? [];
     List<CustomerGroup> customerGroupsThisDay =
         ref.watch(customerGroupsByDateProvider(dateTime)).value ?? [];
+
+// Filter out team groups that are already assigned to OTHER customer groups
+// (but keep the one assigned to the current customer group when editing)
     possibleTeamGroups.removeWhere((tg) {
       for (var cg in customerGroupsThisDay) {
+        // Skip filtering if this is the current customer group being edited
+        if (widget.customerGroup != null && cg.id == widget.customerGroup!.id) {
+          continue;
+        }
+
+        // Remove team group if it's assigned to another customer group
         if (cg.teamGroupId != null && cg.teamGroupId == tg.id) {
           return true;
         }
@@ -237,10 +248,15 @@ class _CustomerGroupEditorAlertState
                   ],
                 ),
               ),
-              DropdownMenu<TourType>(
-                controller: tourNameController,
-                label: const Text("Select tour type"),
-                initialSelection: selectedTour,
+              DropdownMenu<TeamGroup>(
+                controller: TextEditingController(
+                    text: possibleTeamGroups
+                        .firstWhereOrNull((t) => t.id == selectedTeamGroupId)
+                        ?.name),
+                label: const Text("Select team group"),
+                // Add initialSelection to properly show the selected value
+                initialSelection: possibleTeamGroups
+                    .firstWhereOrNull((t) => t.id == selectedTeamGroupId),
                 expandedInsets: EdgeInsets.zero,
                 inputDecorationTheme: InputDecorationTheme(
                   border: OutlineInputBorder(
@@ -248,21 +264,16 @@ class _CustomerGroupEditorAlertState
                   ),
                   filled: true,
                 ),
-                onSelected: (s) {
-                  if (s != null) {
-                    setState(() {
-                      selectedTour = s;
-                      tourNameController.text = s.name;
-                    });
-                  }
-                },
-                dropdownMenuEntries: tours
-                    .map(
-                      (tour) => DropdownMenuEntry(
-                          value: tour,
-                          label: "${tour.name} - ${tour.distance} km"),
-                    )
+                dropdownMenuEntries: possibleTeamGroups
+                    .map((tg) => DropdownMenuEntry(value: tg, label: tg.name))
                     .toList(),
+                onSelected: (v) {
+                  setState(
+                    () {
+                      selectedTeamGroupId = v?.id;
+                    },
+                  );
+                },
               ),
               Container(
                 padding: const EdgeInsets.all(16),
