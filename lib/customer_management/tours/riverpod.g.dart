@@ -186,5 +186,176 @@ class _TourTypeByIdProviderElement
   @override
   String get id => (origin as TourTypeByIdProvider).id;
 }
+
+String _$tourTypePricesHash() => r'04c428a771dde510930545333682e17ebac45c99';
+
+abstract class _$TourTypePrices
+    extends BuildlessAutoDisposeAsyncNotifier<List<TourTypePricing>> {
+  late final String tourId;
+
+  FutureOr<List<TourTypePricing>> build(
+    String tourId,
+  );
+}
+
+/// Gets the tour prices from the tour id.
+///
+/// Notice: it gets once, does NOT stream.
+///
+/// Copied from [TourTypePrices].
+@ProviderFor(TourTypePrices)
+const tourTypePricesProvider = TourTypePricesFamily();
+
+/// Gets the tour prices from the tour id.
+///
+/// Notice: it gets once, does NOT stream.
+///
+/// Copied from [TourTypePrices].
+class TourTypePricesFamily extends Family<AsyncValue<List<TourTypePricing>>> {
+  /// Gets the tour prices from the tour id.
+  ///
+  /// Notice: it gets once, does NOT stream.
+  ///
+  /// Copied from [TourTypePrices].
+  const TourTypePricesFamily();
+
+  /// Gets the tour prices from the tour id.
+  ///
+  /// Notice: it gets once, does NOT stream.
+  ///
+  /// Copied from [TourTypePrices].
+  TourTypePricesProvider call(
+    String tourId,
+  ) {
+    return TourTypePricesProvider(
+      tourId,
+    );
+  }
+
+  @override
+  TourTypePricesProvider getProviderOverride(
+    covariant TourTypePricesProvider provider,
+  ) {
+    return call(
+      provider.tourId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'tourTypePricesProvider';
+}
+
+/// Gets the tour prices from the tour id.
+///
+/// Notice: it gets once, does NOT stream.
+///
+/// Copied from [TourTypePrices].
+class TourTypePricesProvider extends AutoDisposeAsyncNotifierProviderImpl<
+    TourTypePrices, List<TourTypePricing>> {
+  /// Gets the tour prices from the tour id.
+  ///
+  /// Notice: it gets once, does NOT stream.
+  ///
+  /// Copied from [TourTypePrices].
+  TourTypePricesProvider(
+    String tourId,
+  ) : this._internal(
+          () => TourTypePrices()..tourId = tourId,
+          from: tourTypePricesProvider,
+          name: r'tourTypePricesProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$tourTypePricesHash,
+          dependencies: TourTypePricesFamily._dependencies,
+          allTransitiveDependencies:
+              TourTypePricesFamily._allTransitiveDependencies,
+          tourId: tourId,
+        );
+
+  TourTypePricesProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.tourId,
+  }) : super.internal();
+
+  final String tourId;
+
+  @override
+  FutureOr<List<TourTypePricing>> runNotifierBuild(
+    covariant TourTypePrices notifier,
+  ) {
+    return notifier.build(
+      tourId,
+    );
+  }
+
+  @override
+  Override overrideWith(TourTypePrices Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: TourTypePricesProvider._internal(
+        () => create()..tourId = tourId,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        tourId: tourId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<TourTypePrices, List<TourTypePricing>>
+      createElement() {
+    return _TourTypePricesProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TourTypePricesProvider && other.tourId == tourId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, tourId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin TourTypePricesRef
+    on AutoDisposeAsyncNotifierProviderRef<List<TourTypePricing>> {
+  /// The parameter `tourId` of this provider.
+  String get tourId;
+}
+
+class _TourTypePricesProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<TourTypePrices,
+        List<TourTypePricing>> with TourTypePricesRef {
+  _TourTypePricesProviderElement(super.provider);
+
+  @override
+  String get tourId => (origin as TourTypePricesProvider).tourId;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
