@@ -121,19 +121,17 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
             orElse: () => null as dynamic,
           );
 
-          if (matchingPricing != null) {
-            logger.debug(
-                "Found matching pricing in prices list: ${matchingPricing.name}");
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted && !pricingLoaded) {
-                setState(() {
-                  selectedPricing = matchingPricing;
-                  pricingController.text = matchingPricing.name;
-                  pricingLoaded = true;
-                });
-              }
-            });
-          }
+          logger.debug(
+              "Found matching pricing in prices list: ${matchingPricing.name}");
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && !pricingLoaded) {
+              setState(() {
+                selectedPricing = matchingPricing;
+                pricingController.text = matchingPricing.name;
+                pricingLoaded = true;
+              });
+            }
+          });
         }
       }
     }
