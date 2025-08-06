@@ -36,7 +36,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   late bool isNewBooking;
   late String id;
   late TextEditingController nameController;
-  late bool isPaid;
   late DateTime dateTime;
   CustomerGroup? selectedCustomerGroup;
   late List<CustomerGroup> possibleCustomerGroups;
@@ -229,28 +228,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                       ],
                     ),
                   ],
-                ),
-              ),
-              Card(
-                elevation: 0,
-                color:
-                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                child: SwitchListTile(
-                  title: const Text("Fully Paid",
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: Text(
-                      isPaid ? "Customer has paid in full" : "Payment pending"),
-                  secondary: Icon(isPaid ? Icons.paid : Icons.payment_outlined,
-                      color:
-                          isPaid ? colorScheme.primary : colorScheme.outline),
-                  value: isPaid,
-                  onChanged: (v) {
-                    setState(() {
-                      isPaid = v;
-                    });
-                  },
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 ),
               ),
               Container(
@@ -615,6 +592,8 @@ class _AddCustomerGroupNameState extends ConsumerState<AddCustomerGroupName> {
             ),
           ),
           DropdownMenu<TourType>(
+            width: double.infinity,
+            hintText: "Select tour type",
             onSelected: (s) {
               if (s != null) {
                 setState(() {
