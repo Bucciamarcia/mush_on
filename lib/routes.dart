@@ -88,9 +88,12 @@ final goRoutes = GoRouter(
       builder: (context, state) => ToursScreen(),
     ),
     GoRoute(
-      path: "/tours/add",
+      path: "/tours/editor",
       name: "/tours_add",
-      builder: (context, state) => AddTourScreen(),
+      builder: (context, state) {
+        String? tourId = state.uri.queryParameters["tourId"];
+        return AddTourScreen(tourId: tourId);
+      },
     ),
   ],
 );
