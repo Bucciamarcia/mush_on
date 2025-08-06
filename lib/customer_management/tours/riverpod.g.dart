@@ -187,7 +187,7 @@ class _TourTypeByIdProviderElement
   String get id => (origin as TourTypeByIdProvider).id;
 }
 
-String _$tourTypePricesHash() => r'04c428a771dde510930545333682e17ebac45c99';
+String _$tourTypePricesHash() => r'b69940c7b80560e02a24a3056fdafe8ec50f2634';
 
 abstract class _$TourTypePrices
     extends BuildlessAutoDisposeAsyncNotifier<List<TourTypePricing>> {

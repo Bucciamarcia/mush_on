@@ -28,7 +28,6 @@ class ClientManagementMainScreen extends ConsumerWidget {
         todaysBookings.where((b) => b.customerGroupId == null).toList();
     final futureBookings =
         ref.watch(futureBookingsProvider(untilDate: null)).value ?? [];
-    final unpaidBookings = futureBookings.where((b) => !b.isFullyPaid).toList();
     final futureCustomerGroups =
         ref.watch(futureCustomerGroupsProvider(untilDate: null)).value ?? [];
     final customerGroupsWithoutTeamgroup =
@@ -60,14 +59,6 @@ class ClientManagementMainScreen extends ConsumerWidget {
           child: ListBookings(
             bookings: todaysOrphanedBookings,
             customerGroups: todaysCustomerGroups,
-          ),
-        ),
-      if (unpaidBookings.isNotEmpty)
-        _WarningSection(
-          title: "Future Unpaid Bookings",
-          child: ListBookings(
-            bookings: unpaidBookings,
-            customerGroups: futureCustomerGroups,
           ),
         ),
       if (customerGroupsWithoutTeamgroup.isNotEmpty)
@@ -403,14 +394,6 @@ class _BookingCardInGroup extends ConsumerWidget {
                 spacing: 8,
                 children: [
                   Text("${customers.length} ppl"),
-                  Chip(
-                    label: Text(booking.isFullyPaid ? "Paid" : "Unpaid"),
-                    padding: EdgeInsets.zero,
-                    labelStyle: Theme.of(context).textTheme.labelSmall,
-                    backgroundColor: booking.isFullyPaid
-                        ? Colors.green.shade100
-                        : Colors.orange.shade100,
-                  ),
                 ],
               )
             ],
@@ -513,18 +496,6 @@ class ListBookings extends ConsumerWidget {
                     spacing: 8.0,
                     runSpacing: 4.0,
                     children: [
-                      Chip(
-                        avatar: Icon(
-                            b.isFullyPaid
-                                ? Icons.check_circle_outline_rounded
-                                : Icons.error_outline_rounded,
-                            size: 18),
-                        label: Text(
-                            b.isFullyPaid ? "Fully Paid" : "Not Fully Paid"),
-                        backgroundColor: b.isFullyPaid
-                            ? Colors.green.shade100
-                            : Colors.orange.shade100,
-                      ),
                       Chip(
                         avatar: Icon(Icons.people_outline_rounded, size: 18),
                         label: Text("${customers.length} Customers"),
