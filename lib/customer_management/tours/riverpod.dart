@@ -38,3 +38,72 @@ Future<TourType> tourTypeById(Ref ref, String id) async {
   }
   return TourType.fromJson(snapshot.data()!);
 }
+
+@riverpod
+
+/// Gets the tour prices from the tour id.
+///
+/// Notice: it gets once, does NOT stream.
+class TourTypePrices extends _$TourTypePrices {
+  @override
+  Future<List<TourTypePricing>> build(String tourId) async {
+    String account = await ref.watch(accountProvider.future);
+    String path = "accounts/$account/data/bookingManager/tours/$tourId/prices";
+    var db = FirebaseFirestore.instance;
+    var collection = await db.collection(path).get();
+    return collection.docs
+        .map(
+          (doc) => TourTypePricing.fromJson(
+            doc.data(),
+          ),
+        )
+        .toList();
+  }
+
+  /// Replaces the prices in memory with the new ones.
+  void changePrices(List<TourTypePricing> newPrices) {
+    state = state.whenData(
+      (data) {
+        return newPrices;
+      },
+    );
+  }
+
+  /// Add a new pricing option.
+  void addPrice(TourTypePricing newPrice) {
+    state = state.whenData(
+      (data) => [...data, newPrice],
+    );
+  }
+
+  /// Remove a pricing option by id.
+  void removePrice(String priceId) {
+    state = state.whenData(
+      (data) {
+        List<TourTypePricing> toReturn = [];
+        for (var d in data) {
+          if (d.id != priceId) {
+            toReturn.add(d);
+          }
+        }
+        return toReturn;
+      },
+    );
+  }
+
+  /// Edits a pricing, matches by id.
+  void editPricing(TourTypePricing price) {
+    state = state.whenData(
+      (data) {
+        List<TourTypePricing> toReturn = [];
+        for (var d in data) {
+          if (d.id != price.id) {
+            toReturn.add(d);
+          }
+        }
+        toReturn.add(price);
+        return toReturn;
+      },
+    );
+  }
+}
