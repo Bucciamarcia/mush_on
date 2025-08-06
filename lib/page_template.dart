@@ -220,7 +220,7 @@ class TemplateScreen extends ConsumerWidget {
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.person_2),
+                    leading: Icon(Icons.tour),
                     onTap: () => context.pushNamed("/tours"),
                     title: const Text(
                       "Tours",
