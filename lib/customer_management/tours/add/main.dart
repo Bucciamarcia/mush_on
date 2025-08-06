@@ -51,87 +51,17 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     List<TourTypePricing> prices =
         ref.watch(tourTypePricesProvider(id)).value ?? [];
     var priceNotifier = ref.read(tourTypePricesProvider(id).notifier);
     return SingleChildScrollView(
       child: Column(
+        spacing: 24,
         children: [
-          TextField(
-            controller: nameController,
-            decoration: InputDecoration(
-              label: Text("Internal name"),
-              hint: Text("Won't be shown to customers"),
-            ),
-          ),
-          TextField(
-            controller: displayNameController,
-            decoration: InputDecoration(
-              label: Text("Display name"),
-              hint: Text("Shown to customers"),
-            ),
-          ),
-          TextField(
-            controller: distanceController,
-            decoration: InputDecoration(
-              label: Text("Distance"),
-              hint: Text("In km"),
-            ),
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-            ],
-          ),
-          TextField(
-            controller: notesController,
-            decoration: InputDecoration(
-              label: Text("Notes"),
-              hint: Text("Internal notes for staff"),
-            ),
-            maxLines: 3,
-          ),
-          TextField(
-            controller: displayDescriptionController,
-            decoration: InputDecoration(
-              label: Text("Display description"),
-              hint: Text("Shown to customers"),
-            ),
-            maxLines: 3,
-          ),
-          Divider(),
-          Column(
-            spacing: 10,
-            children: [
-              Wrap(
-                children: prices
-                    .map(
-                      (price) => InputChip(
-                        label: Text(price.name),
-                        onDeleted: () => priceNotifier.removePrice(price.id),
-                        onPressed: () => showDialog(
-                          context: context,
-                          builder: (_) => PricingEditorAlert(
-                            pricing: price,
-                            onPricingSaved: (p) => priceNotifier.editPricing(p),
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-              ),
-              ElevatedButton(
-                onPressed: () => showDialog(
-                  context: context,
-                  builder: (_) => PricingEditorAlert(
-                    onPricingSaved: (p) => priceNotifier.addPrice(p),
-                  ),
-                ),
-                child: Text("Add pricing option"),
-              ),
-            ],
-          ),
-          Divider(),
-          _saveRow(onTourSaved: () async {
+          _buildBasicInfoSection(colorScheme),
+          _buildPricingSection(colorScheme, prices, priceNotifier),
+          _buildSaveSection(colorScheme, onTourSaved: () async {
             var repo = ToursRepository(
               account: await ref.watch(accountProvider.future),
             );
@@ -169,22 +99,277 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
     );
   }
 
-  Wrap _saveRow({required Function() onTourSaved}) {
-    return Wrap(
-      spacing: 15,
-      children: [
-        ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            "Cancel",
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+  Widget _buildBasicInfoSection(ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 16,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.tour, size: 20, color: colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                "Tour Information",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                  fontSize: 16,
+                ),
+              ),
+            ],
           ),
+          TextField(
+            controller: nameController,
+            decoration: InputDecoration(
+              labelText: "Internal Name",
+              hintText: "Won't be shown to customers",
+              filled: true,
+              fillColor: colorScheme.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.3),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+            ),
+          ),
+          TextField(
+            controller: displayNameController,
+            decoration: InputDecoration(
+              labelText: "Display Name",
+              hintText: "Shown to customers",
+              filled: true,
+              fillColor: colorScheme.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.3),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+            ),
+          ),
+          TextField(
+            controller: distanceController,
+            decoration: InputDecoration(
+              labelText: "Distance",
+              hintText: "In km",
+              filled: true,
+              fillColor: colorScheme.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.3),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+            ),
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+            ],
+          ),
+          TextField(
+            controller: notesController,
+            decoration: InputDecoration(
+              labelText: "Notes",
+              hintText: "Internal notes for staff",
+              filled: true,
+              fillColor: colorScheme.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.3),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+            ),
+            maxLines: 3,
+          ),
+          TextField(
+            controller: displayDescriptionController,
+            decoration: InputDecoration(
+              labelText: "Display Description",
+              hintText: "Shown to customers",
+              filled: true,
+              fillColor: colorScheme.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.3),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+            ),
+            maxLines: 3,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPricingSection(ColorScheme colorScheme, List<TourTypePricing> prices, dynamic priceNotifier) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
         ),
-        ElevatedButton(
-          onPressed: () => onTourSaved(),
-          child: Text("Save"),
-        ),
-      ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 16,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.euro, size: 20, color: colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                "Pricing Options",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          if (prices.isNotEmpty)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: prices
+                  .map(
+                    (price) => InputChip(
+                      label: Text(price.name),
+                      deleteIcon: Icon(Icons.close, size: 18),
+                      onDeleted: () => priceNotifier.removePrice(price.id),
+                      onPressed: () => showDialog(
+                        context: context,
+                        builder: (_) => PricingEditorAlert(
+                          pricing: price,
+                          onPricingSaved: (p) => priceNotifier.editPricing(p),
+                        ),
+                      ),
+                      backgroundColor: colorScheme.surfaceContainerHigh,
+                      selectedColor: colorScheme.primaryContainer,
+                      side: BorderSide(
+                        color: colorScheme.outline.withValues(alpha: 0.3),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: () => showDialog(
+                context: context,
+                builder: (_) => PricingEditorAlert(
+                  onPricingSaved: (p) => priceNotifier.addPrice(p),
+                ),
+              ),
+              icon: Icon(Icons.add),
+              label: Text("Add Pricing Option"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.primaryContainer,
+                foregroundColor: colorScheme.onPrimaryContainer,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaveSection(ColorScheme colorScheme, {required Function() onTourSaved}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        spacing: 12,
+        children: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: colorScheme.error),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => onTourSaved(),
+            icon: Icon(Icons.save),
+            label: Text("Save Tour"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -223,64 +408,176 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return AlertDialog.adaptive(
-      scrollable: true,
-      title: Text("Pricing editor"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      title: Row(
         children: [
-          TextField(
-            controller: nameController,
-            decoration: InputDecoration(
-              label: Text("Name"),
-              hint: Text("Name of the pricing option"),
-            ),
-          ),
-          TextField(
-            controller: displayNameController,
-            decoration: InputDecoration(
-              label: Text("Display name"),
-              hint: Text("Shown to customers"),
-            ),
-          ),
-          TextField(
-            controller: priceController,
-            decoration: InputDecoration(
-              label: Text("Price"),
-              hint: Text("Price in EUR"),
-            ),
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-            ],
-          ),
-          TextField(
-            controller: notes,
-            decoration: InputDecoration(
-              label: Text("Notes"),
-              hint: Text("Internal notes for staff"),
-            ),
-            maxLines: 3,
-          ),
-          TextField(
-            controller: displayDescription,
-            decoration: InputDecoration(
-              label: Text("Display description"),
-              hint: Text("Shown to customers"),
-            ),
-            maxLines: 3,
-          ),
+          Icon(Icons.euro, color: colorScheme.primary),
+          const SizedBox(width: 12),
+          Text("Pricing Editor"),
         ],
       ),
+      content: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 16,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: "Name",
+                  hintText: "Name of the pricing option",
+                  filled: true,
+                  fillColor: colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+              TextField(
+                controller: displayNameController,
+                decoration: InputDecoration(
+                  labelText: "Display Name",
+                  hintText: "Shown to customers",
+                  filled: true,
+                  fillColor: colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+              TextField(
+                controller: priceController,
+                decoration: InputDecoration(
+                  labelText: "Price",
+                  hintText: "Price in EUR",
+                  prefixIcon: Icon(Icons.euro, color: colorScheme.primary),
+                  filled: true,
+                  fillColor: colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                ],
+              ),
+              TextField(
+                controller: notes,
+                decoration: InputDecoration(
+                  labelText: "Notes",
+                  hintText: "Internal notes for staff",
+                  filled: true,
+                  fillColor: colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                maxLines: 3,
+              ),
+              TextField(
+                controller: displayDescription,
+                decoration: InputDecoration(
+                  labelText: "Display Description",
+                  hintText: "Shown to customers",
+                  filled: true,
+                  fillColor: colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
+        ),
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: Text(
             "Cancel",
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+            style: TextStyle(color: colorScheme.error),
           ),
         ),
-        TextButton(
+        ElevatedButton.icon(
           onPressed: () {
             widget.onPricingSaved(
               TourTypePricing(
@@ -294,8 +591,14 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
             );
             Navigator.of(context).pop();
           },
-          child: Text("Save"),
-        )
+          icon: Icon(Icons.save),
+          label: Text("Save"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          ),
+        ),
       ],
     );
   }
