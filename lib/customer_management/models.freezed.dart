@@ -592,7 +592,7 @@ mixin _$CustomerGroup {
   String get id;
 
   /// The ID of the tour type this customergroup is assigned to.
-  String get tourTypeId;
+  String? get tourTypeId;
 
   /// The internal user friendly name of the customer group
   String get name;
@@ -651,7 +651,7 @@ abstract mixin class $CustomerGroupCopyWith<$Res> {
   @useResult
   $Res call(
       {String id,
-      String tourTypeId,
+      String? tourTypeId,
       String name,
       @NonNullableTimestampConverter() DateTime datetime,
       String? teamGroupId});
@@ -671,7 +671,7 @@ class _$CustomerGroupCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? tourTypeId = null,
+    Object? tourTypeId = freezed,
     Object? name = null,
     Object? datetime = null,
     Object? teamGroupId = freezed,
@@ -681,10 +681,10 @@ class _$CustomerGroupCopyWithImpl<$Res>
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      tourTypeId: null == tourTypeId
+      tourTypeId: freezed == tourTypeId
           ? _self.tourTypeId
           : tourTypeId // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -707,7 +707,7 @@ class _$CustomerGroupCopyWithImpl<$Res>
 class _CustomerGroup implements CustomerGroup {
   const _CustomerGroup(
       {required this.id,
-      required this.tourTypeId,
+      this.tourTypeId,
       this.name = "",
       @NonNullableTimestampConverter() required this.datetime,
       this.teamGroupId});
@@ -719,7 +719,7 @@ class _CustomerGroup implements CustomerGroup {
 
   /// The ID of the tour type this customergroup is assigned to.
   @override
-  final String tourTypeId;
+  final String? tourTypeId;
 
   /// The internal user friendly name of the customer group
   @override
@@ -788,7 +788,7 @@ abstract mixin class _$CustomerGroupCopyWith<$Res>
   @useResult
   $Res call(
       {String id,
-      String tourTypeId,
+      String? tourTypeId,
       String name,
       @NonNullableTimestampConverter() DateTime datetime,
       String? teamGroupId});
@@ -808,7 +808,7 @@ class __$CustomerGroupCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
-    Object? tourTypeId = null,
+    Object? tourTypeId = freezed,
     Object? name = null,
     Object? datetime = null,
     Object? teamGroupId = freezed,
@@ -818,10 +818,10 @@ class __$CustomerGroupCopyWithImpl<$Res>
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      tourTypeId: null == tourTypeId
+      tourTypeId: freezed == tourTypeId
           ? _self.tourTypeId
           : tourTypeId // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
