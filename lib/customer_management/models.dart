@@ -26,14 +26,8 @@ sealed class Customer with _$Customer {
     /// The age of the customer (to check if child).
     int? age,
 
-    /// If the customer is going on a single sled. If false, double sled usually.
-    @Default(false) bool isSingleDriver,
-
     /// The weight of the individual. Useful for distributing weight or assigning strong dogs.
     int? weight,
-
-    /// Does this customer want to drive the sled? Must be false for minors.
-    @Default(true) bool isDriving,
 
     /// The team Id this customer will go on.
     String? teamId,

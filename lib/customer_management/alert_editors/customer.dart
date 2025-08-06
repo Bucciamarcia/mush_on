@@ -24,9 +24,7 @@ class _CustomerEditorAlertState extends State<CustomerEditorAlert> {
   late TextEditingController nameController;
   late TextEditingController emailController;
   late TextEditingController ageController;
-  late bool isSingleDriver;
   late TextEditingController weightController;
-  late bool isDriving;
 
   @override
   void initState() {
@@ -36,10 +34,8 @@ class _CustomerEditorAlertState extends State<CustomerEditorAlert> {
     emailController = TextEditingController(text: widget.customer?.email);
     ageController =
         TextEditingController(text: widget.customer?.age?.toString());
-    isSingleDriver = widget.customer?.isSingleDriver ?? false;
     weightController =
         TextEditingController(text: widget.customer?.weight?.toString());
-    isDriving = widget.customer?.isDriving ?? true;
   }
 
   @override
@@ -105,28 +101,6 @@ class _CustomerEditorAlertState extends State<CustomerEditorAlert> {
                   filled: true,
                 ),
               ),
-              Card(
-                elevation: 0,
-                color:
-                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                child: SwitchListTile(
-                  title: const Text("Single Driver",
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: const Text("Drives alone without passenger"),
-                  secondary: Icon(Icons.person_outline,
-                      color: isSingleDriver
-                          ? colorScheme.primary
-                          : colorScheme.outline),
-                  value: isSingleDriver,
-                  onChanged: (value) {
-                    setState(() {
-                      isSingleDriver = value;
-                    });
-                  },
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                ),
-              ),
               TextField(
                 controller: weightController,
                 keyboardType: TextInputType.number,
@@ -138,28 +112,6 @@ class _CustomerEditorAlertState extends State<CustomerEditorAlert> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   filled: true,
-                ),
-              ),
-              Card(
-                elevation: 0,
-                color:
-                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                child: SwitchListTile(
-                  title: const Text("Is Driving",
-                      style: TextStyle(fontWeight: FontWeight.w600)),
-                  subtitle: const Text("Will be driving the sled"),
-                  secondary: Icon(Icons.sledding,
-                      color: isDriving
-                          ? colorScheme.primary
-                          : colorScheme.outline),
-                  value: isDriving,
-                  onChanged: (value) {
-                    setState(() {
-                      isDriving = value;
-                    });
-                  },
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 ),
               ),
             ],
@@ -206,8 +158,6 @@ class _CustomerEditorAlertState extends State<CustomerEditorAlert> {
                       weight: weightController.text.isEmpty
                           ? null
                           : int.tryParse(weightController.text),
-                      isDriving: isDriving,
-                      isSingleDriver: isSingleDriver,
                     ),
                   );
                   Navigator.of(context).pop();

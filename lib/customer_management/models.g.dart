@@ -12,9 +12,7 @@ _Customer _$CustomerFromJson(Map<String, dynamic> json) => _Customer(
       name: json['name'] as String? ?? "",
       email: json['email'] as String?,
       age: (json['age'] as num?)?.toInt(),
-      isSingleDriver: json['isSingleDriver'] as bool? ?? false,
       weight: (json['weight'] as num?)?.toInt(),
-      isDriving: json['isDriving'] as bool? ?? true,
       teamId: json['teamId'] as String?,
       pricingId: json['pricingId'] as String?,
     );
@@ -25,9 +23,7 @@ Map<String, dynamic> _$CustomerToJson(_Customer instance) => <String, dynamic>{
       'name': instance.name,
       'email': instance.email,
       'age': instance.age,
-      'isSingleDriver': instance.isSingleDriver,
       'weight': instance.weight,
-      'isDriving': instance.isDriving,
       'teamId': instance.teamId,
       'pricingId': instance.pricingId,
     };

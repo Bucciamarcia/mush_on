@@ -31,14 +31,8 @@ mixin _$Customer {
   /// The age of the customer (to check if child).
   int? get age;
 
-  /// If the customer is going on a single sled. If false, double sled usually.
-  bool get isSingleDriver;
-
   /// The weight of the individual. Useful for distributing weight or assigning strong dogs.
   int? get weight;
-
-  /// Does this customer want to drive the sled? Must be false for minors.
-  bool get isDriving;
 
   /// The team Id this customer will go on.
   String? get teamId;
@@ -67,11 +61,7 @@ mixin _$Customer {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.age, age) || other.age == age) &&
-            (identical(other.isSingleDriver, isSingleDriver) ||
-                other.isSingleDriver == isSingleDriver) &&
             (identical(other.weight, weight) || other.weight == weight) &&
-            (identical(other.isDriving, isDriving) ||
-                other.isDriving == isDriving) &&
             (identical(other.teamId, teamId) || other.teamId == teamId) &&
             (identical(other.pricingId, pricingId) ||
                 other.pricingId == pricingId));
@@ -79,12 +69,12 @@ mixin _$Customer {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, bookingId, name, email, age,
-      isSingleDriver, weight, isDriving, teamId, pricingId);
+  int get hashCode => Object.hash(
+      runtimeType, id, bookingId, name, email, age, weight, teamId, pricingId);
 
   @override
   String toString() {
-    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, isSingleDriver: $isSingleDriver, weight: $weight, isDriving: $isDriving, teamId: $teamId, pricingId: $pricingId)';
+    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, weight: $weight, teamId: $teamId, pricingId: $pricingId)';
   }
 }
 
@@ -99,9 +89,7 @@ abstract mixin class $CustomerCopyWith<$Res> {
       String name,
       String? email,
       int? age,
-      bool isSingleDriver,
       int? weight,
-      bool isDriving,
       String? teamId,
       String? pricingId});
 }
@@ -123,9 +111,7 @@ class _$CustomerCopyWithImpl<$Res> implements $CustomerCopyWith<$Res> {
     Object? name = null,
     Object? email = freezed,
     Object? age = freezed,
-    Object? isSingleDriver = null,
     Object? weight = freezed,
-    Object? isDriving = null,
     Object? teamId = freezed,
     Object? pricingId = freezed,
   }) {
@@ -150,18 +136,10 @@ class _$CustomerCopyWithImpl<$Res> implements $CustomerCopyWith<$Res> {
           ? _self.age
           : age // ignore: cast_nullable_to_non_nullable
               as int?,
-      isSingleDriver: null == isSingleDriver
-          ? _self.isSingleDriver
-          : isSingleDriver // ignore: cast_nullable_to_non_nullable
-              as bool,
       weight: freezed == weight
           ? _self.weight
           : weight // ignore: cast_nullable_to_non_nullable
               as int?,
-      isDriving: null == isDriving
-          ? _self.isDriving
-          : isDriving // ignore: cast_nullable_to_non_nullable
-              as bool,
       teamId: freezed == teamId
           ? _self.teamId
           : teamId // ignore: cast_nullable_to_non_nullable
@@ -183,9 +161,7 @@ class _Customer implements Customer {
       this.name = "",
       this.email,
       this.age,
-      this.isSingleDriver = false,
       this.weight,
-      this.isDriving = true,
       this.teamId,
       this.pricingId});
   factory _Customer.fromJson(Map<String, dynamic> json) =>
@@ -213,19 +189,9 @@ class _Customer implements Customer {
   @override
   final int? age;
 
-  /// If the customer is going on a single sled. If false, double sled usually.
-  @override
-  @JsonKey()
-  final bool isSingleDriver;
-
   /// The weight of the individual. Useful for distributing weight or assigning strong dogs.
   @override
   final int? weight;
-
-  /// Does this customer want to drive the sled? Must be false for minors.
-  @override
-  @JsonKey()
-  final bool isDriving;
 
   /// The team Id this customer will go on.
   @override
@@ -261,11 +227,7 @@ class _Customer implements Customer {
             (identical(other.name, name) || other.name == name) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.age, age) || other.age == age) &&
-            (identical(other.isSingleDriver, isSingleDriver) ||
-                other.isSingleDriver == isSingleDriver) &&
             (identical(other.weight, weight) || other.weight == weight) &&
-            (identical(other.isDriving, isDriving) ||
-                other.isDriving == isDriving) &&
             (identical(other.teamId, teamId) || other.teamId == teamId) &&
             (identical(other.pricingId, pricingId) ||
                 other.pricingId == pricingId));
@@ -273,12 +235,12 @@ class _Customer implements Customer {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, bookingId, name, email, age,
-      isSingleDriver, weight, isDriving, teamId, pricingId);
+  int get hashCode => Object.hash(
+      runtimeType, id, bookingId, name, email, age, weight, teamId, pricingId);
 
   @override
   String toString() {
-    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, isSingleDriver: $isSingleDriver, weight: $weight, isDriving: $isDriving, teamId: $teamId, pricingId: $pricingId)';
+    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, weight: $weight, teamId: $teamId, pricingId: $pricingId)';
   }
 }
 
@@ -295,9 +257,7 @@ abstract mixin class _$CustomerCopyWith<$Res>
       String name,
       String? email,
       int? age,
-      bool isSingleDriver,
       int? weight,
-      bool isDriving,
       String? teamId,
       String? pricingId});
 }
@@ -319,9 +279,7 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
     Object? name = null,
     Object? email = freezed,
     Object? age = freezed,
-    Object? isSingleDriver = null,
     Object? weight = freezed,
-    Object? isDriving = null,
     Object? teamId = freezed,
     Object? pricingId = freezed,
   }) {
@@ -346,18 +304,10 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
           ? _self.age
           : age // ignore: cast_nullable_to_non_nullable
               as int?,
-      isSingleDriver: null == isSingleDriver
-          ? _self.isSingleDriver
-          : isSingleDriver // ignore: cast_nullable_to_non_nullable
-              as bool,
       weight: freezed == weight
           ? _self.weight
           : weight // ignore: cast_nullable_to_non_nullable
               as int?,
-      isDriving: null == isDriving
-          ? _self.isDriving
-          : isDriving // ignore: cast_nullable_to_non_nullable
-              as bool,
       teamId: freezed == teamId
           ? _self.teamId
           : teamId // ignore: cast_nullable_to_non_nullable
