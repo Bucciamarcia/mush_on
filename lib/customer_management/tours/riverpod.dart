@@ -98,3 +98,23 @@ class TourTypePrices extends _$TourTypePrices {
     );
   }
 }
+
+@riverpod
+
+/// Returns the pricing model for a specific id
+Stream<TourTypePricing?> tourTypePricingById(
+    Ref ref, String pricingId, String tourId) async* {
+  String account = FirebaseFirestore.instance.app.options.projectId;
+  String path =
+      "accounts/$account/data/bookingManager/tours/$tourId/prices/$pricingId";
+  var db = FirebaseFirestore.instance;
+  var doc = db.doc(path);
+  yield* doc.snapshots().map(
+    (snapshot) {
+      if (!snapshot.exists) {
+        return null;
+      }
+      return TourTypePricing.fromJson(snapshot.data()!);
+    },
+  );
+}

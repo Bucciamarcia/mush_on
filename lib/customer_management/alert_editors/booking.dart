@@ -246,92 +246,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.people,
-                            size: 20, color: colorScheme.primary),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Customers (${customers.length})",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (customers.isNotEmpty)
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: customers
-                            .map(
-                              (customer) => FilterChip(
-                                avatar: const Icon(Icons.person, size: 16),
-                                label: Text(customer.name),
-                                onDeleted: () => setState(() {
-                                  customers
-                                      .removeWhere((c) => c.id == customer.id);
-                                }),
-                                onSelected: (_) => showDialog(
-                                    context: context,
-                                    builder: (_) => CustomerEditorAlert(
-                                          customer: customer,
-                                          onCustomerEdited: (editedCustomer) {
-                                            setState(() {
-                                              customers.removeWhere((c) =>
-                                                  c.id == editedCustomer.id);
-                                              customers.add(editedCustomer);
-                                            });
-                                          },
-                                          bookingId: id,
-                                        )),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    Center(
-                      child: FilledButton.tonalIcon(
-                        onPressed: () async {
-                          showDialog(
-                              context: context,
-                              builder: (_) {
-                                return CustomerEditorAlert(
-                                  bookingId: id,
-                                  onCustomerEdited: (customer) => setState(
-                                    () {
-                                      logger.debug(
-                                          "Existing customers: $customers");
-                                      logger.debug(
-                                          "New customer: ${customer.name}");
-                                      customers = [...customers, customer];
-                                      logger.debug("New customers: $customers");
-                                    },
-                                  ),
-                                );
-                              });
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text("Add Customer"),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: colorScheme.outline.withValues(alpha: 0.2),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 12,
-                  children: [
-                    Row(
-                      children: [
                         Icon(Icons.group, size: 20, color: colorScheme.primary),
                         const SizedBox(width: 8),
                         Text(
@@ -427,6 +341,97 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                       icon: Icon(Icons.add),
                       label: Center(
                         child: Text("Add new"),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: colorScheme.outline.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 12,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.people,
+                            size: 20, color: colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Customers (${customers.length})",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (customers.isNotEmpty)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: customers
+                            .map(
+                              (customer) => FilterChip(
+                                avatar: const Icon(Icons.person, size: 16),
+                                label: Text(customer.name),
+                                onDeleted: () => setState(() {
+                                  customers
+                                      .removeWhere((c) => c.id == customer.id);
+                                }),
+                                onSelected: (_) => showDialog(
+                                  context: context,
+                                  builder: (_) => CustomerEditorAlert(
+                                    customerGroup: selectedCustomerGroup,
+                                    customer: customer,
+                                    onCustomerEdited: (editedCustomer) {
+                                      setState(
+                                        () {
+                                          customers.removeWhere(
+                                              (c) => c.id == editedCustomer.id);
+                                          customers.add(editedCustomer);
+                                        },
+                                      );
+                                    },
+                                    bookingId: id,
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    Center(
+                      child: FilledButton.tonalIcon(
+                        onPressed: () async {
+                          showDialog(
+                              context: context,
+                              builder: (_) {
+                                return CustomerEditorAlert(
+                                  customerGroup: selectedCustomerGroup,
+                                  bookingId: id,
+                                  onCustomerEdited: (customer) => setState(
+                                    () {
+                                      logger.debug(
+                                          "Existing customers: $customers");
+                                      logger.debug(
+                                          "New customer: ${customer.name}");
+                                      customers = [...customers, customer];
+                                      logger.debug("New customers: $customers");
+                                    },
+                                  ),
+                                );
+                              });
+                        },
+                        icon: const Icon(Icons.add),
+                        label: const Text("Add Customer"),
                       ),
                     ),
                   ],

@@ -187,6 +187,168 @@ class _TourTypeByIdProviderElement
   String get id => (origin as TourTypeByIdProvider).id;
 }
 
+String _$tourTypePricingByIdHash() =>
+    r'e14ac0923e988fdd2057a02158a064a39c224e09';
+
+/// Returns the pricing model for a specific id
+///
+/// Copied from [tourTypePricingById].
+@ProviderFor(tourTypePricingById)
+const tourTypePricingByIdProvider = TourTypePricingByIdFamily();
+
+/// Returns the pricing model for a specific id
+///
+/// Copied from [tourTypePricingById].
+class TourTypePricingByIdFamily extends Family<AsyncValue<TourTypePricing?>> {
+  /// Returns the pricing model for a specific id
+  ///
+  /// Copied from [tourTypePricingById].
+  const TourTypePricingByIdFamily();
+
+  /// Returns the pricing model for a specific id
+  ///
+  /// Copied from [tourTypePricingById].
+  TourTypePricingByIdProvider call(
+    String pricingId,
+    String tourId,
+  ) {
+    return TourTypePricingByIdProvider(
+      pricingId,
+      tourId,
+    );
+  }
+
+  @override
+  TourTypePricingByIdProvider getProviderOverride(
+    covariant TourTypePricingByIdProvider provider,
+  ) {
+    return call(
+      provider.pricingId,
+      provider.tourId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'tourTypePricingByIdProvider';
+}
+
+/// Returns the pricing model for a specific id
+///
+/// Copied from [tourTypePricingById].
+class TourTypePricingByIdProvider
+    extends AutoDisposeStreamProvider<TourTypePricing?> {
+  /// Returns the pricing model for a specific id
+  ///
+  /// Copied from [tourTypePricingById].
+  TourTypePricingByIdProvider(
+    String pricingId,
+    String tourId,
+  ) : this._internal(
+          (ref) => tourTypePricingById(
+            ref as TourTypePricingByIdRef,
+            pricingId,
+            tourId,
+          ),
+          from: tourTypePricingByIdProvider,
+          name: r'tourTypePricingByIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$tourTypePricingByIdHash,
+          dependencies: TourTypePricingByIdFamily._dependencies,
+          allTransitiveDependencies:
+              TourTypePricingByIdFamily._allTransitiveDependencies,
+          pricingId: pricingId,
+          tourId: tourId,
+        );
+
+  TourTypePricingByIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.pricingId,
+    required this.tourId,
+  }) : super.internal();
+
+  final String pricingId;
+  final String tourId;
+
+  @override
+  Override overrideWith(
+    Stream<TourTypePricing?> Function(TourTypePricingByIdRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: TourTypePricingByIdProvider._internal(
+        (ref) => create(ref as TourTypePricingByIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        pricingId: pricingId,
+        tourId: tourId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<TourTypePricing?> createElement() {
+    return _TourTypePricingByIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TourTypePricingByIdProvider &&
+        other.pricingId == pricingId &&
+        other.tourId == tourId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, pricingId.hashCode);
+    hash = _SystemHash.combine(hash, tourId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin TourTypePricingByIdRef on AutoDisposeStreamProviderRef<TourTypePricing?> {
+  /// The parameter `pricingId` of this provider.
+  String get pricingId;
+
+  /// The parameter `tourId` of this provider.
+  String get tourId;
+}
+
+class _TourTypePricingByIdProviderElement
+    extends AutoDisposeStreamProviderElement<TourTypePricing?>
+    with TourTypePricingByIdRef {
+  _TourTypePricingByIdProviderElement(super.provider);
+
+  @override
+  String get pricingId => (origin as TourTypePricingByIdProvider).pricingId;
+  @override
+  String get tourId => (origin as TourTypePricingByIdProvider).tourId;
+}
+
 String _$tourTypePricesHash() => r'b69940c7b80560e02a24a3056fdafe8ec50f2634';
 
 abstract class _$TourTypePrices
