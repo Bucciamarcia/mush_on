@@ -47,16 +47,22 @@ Stream<List<CustomerGroup>> customerGroupsByDateRange(
 }
 
 @riverpod
-Future<CustomerGroup> customerGroupById(Ref ref, String id) async {
+
+/// Streams the Customer Group object associated with the ID provided.
+Stream<CustomerGroup?> customerGroupById(Ref ref, String id) async* {
   String account = await ref.watch(accountProvider.future);
   var db = FirebaseFirestore.instance;
   var collection =
       db.collection("accounts/$account/data/bookingManager/customerGroups");
   var doc = collection.doc(id);
   try {
-    var snapshot = await doc.get();
-    var data = snapshot.data();
-    return CustomerGroup.fromJson(data ?? {});
+    var snapshots = doc.snapshots();
+    yield* snapshots.map((snapshot) {
+      if (snapshot.data() == null) {
+        return null;
+      }
+      return CustomerGroup.fromJson(snapshot.data()!);
+    });
   } catch (e, s) {
     BasicLogger().error(
       "Error getting customer group by id: $id",
