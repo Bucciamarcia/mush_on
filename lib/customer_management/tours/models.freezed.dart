@@ -26,6 +26,9 @@ mixin _$TourType {
   /// How many km this tour will do.
   double get distance;
 
+  /// Duration of the tour in minutes.
+  int get duration;
+
   /// Internal notes regarding the tour.
   String? get notes;
 
@@ -53,6 +56,8 @@ mixin _$TourType {
                 other.displayName == displayName) &&
             (identical(other.distance, distance) ||
                 other.distance == distance) &&
+            (identical(other.duration, duration) ||
+                other.duration == duration) &&
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.displayDescription, displayDescription) ||
                 other.displayDescription == displayDescription));
@@ -60,12 +65,12 @@ mixin _$TourType {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, name, displayName, distance, notes, displayDescription);
+  int get hashCode => Object.hash(runtimeType, id, name, displayName, distance,
+      duration, notes, displayDescription);
 
   @override
   String toString() {
-    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, notes: $notes, displayDescription: $displayDescription)';
+    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, duration: $duration, notes: $notes, displayDescription: $displayDescription)';
   }
 }
 
@@ -79,6 +84,7 @@ abstract mixin class $TourTypeCopyWith<$Res> {
       String name,
       String displayName,
       double distance,
+      int duration,
       String? notes,
       String? displayDescription});
 }
@@ -99,6 +105,7 @@ class _$TourTypeCopyWithImpl<$Res> implements $TourTypeCopyWith<$Res> {
     Object? name = null,
     Object? displayName = null,
     Object? distance = null,
+    Object? duration = null,
     Object? notes = freezed,
     Object? displayDescription = freezed,
   }) {
@@ -119,6 +126,10 @@ class _$TourTypeCopyWithImpl<$Res> implements $TourTypeCopyWith<$Res> {
           ? _self.distance
           : distance // ignore: cast_nullable_to_non_nullable
               as double,
+      duration: null == duration
+          ? _self.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as int,
       notes: freezed == notes
           ? _self.notes
           : notes // ignore: cast_nullable_to_non_nullable
@@ -139,6 +150,7 @@ class _TourType implements TourType {
       this.name = "",
       this.displayName = "",
       this.distance = 0,
+      required this.duration,
       this.notes,
       this.displayDescription});
   factory _TourType.fromJson(Map<String, dynamic> json) =>
@@ -161,6 +173,10 @@ class _TourType implements TourType {
   @override
   @JsonKey()
   final double distance;
+
+  /// Duration of the tour in minutes.
+  @override
+  final int duration;
 
   /// Internal notes regarding the tour.
   @override
@@ -196,6 +212,8 @@ class _TourType implements TourType {
                 other.displayName == displayName) &&
             (identical(other.distance, distance) ||
                 other.distance == distance) &&
+            (identical(other.duration, duration) ||
+                other.duration == duration) &&
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.displayDescription, displayDescription) ||
                 other.displayDescription == displayDescription));
@@ -203,12 +221,12 @@ class _TourType implements TourType {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, name, displayName, distance, notes, displayDescription);
+  int get hashCode => Object.hash(runtimeType, id, name, displayName, distance,
+      duration, notes, displayDescription);
 
   @override
   String toString() {
-    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, notes: $notes, displayDescription: $displayDescription)';
+    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, duration: $duration, notes: $notes, displayDescription: $displayDescription)';
   }
 }
 
@@ -224,6 +242,7 @@ abstract mixin class _$TourTypeCopyWith<$Res>
       String name,
       String displayName,
       double distance,
+      int duration,
       String? notes,
       String? displayDescription});
 }
@@ -244,6 +263,7 @@ class __$TourTypeCopyWithImpl<$Res> implements _$TourTypeCopyWith<$Res> {
     Object? name = null,
     Object? displayName = null,
     Object? distance = null,
+    Object? duration = null,
     Object? notes = freezed,
     Object? displayDescription = freezed,
   }) {
@@ -264,6 +284,10 @@ class __$TourTypeCopyWithImpl<$Res> implements _$TourTypeCopyWith<$Res> {
           ? _self.distance
           : distance // ignore: cast_nullable_to_non_nullable
               as double,
+      duration: null == duration
+          ? _self.duration
+          : duration // ignore: cast_nullable_to_non_nullable
+              as int,
       notes: freezed == notes
           ? _self.notes
           : notes // ignore: cast_nullable_to_non_nullable

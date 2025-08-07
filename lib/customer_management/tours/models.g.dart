@@ -11,6 +11,7 @@ _TourType _$TourTypeFromJson(Map<String, dynamic> json) => _TourType(
       name: json['name'] as String? ?? "",
       displayName: json['displayName'] as String? ?? "",
       distance: (json['distance'] as num?)?.toDouble() ?? 0,
+      duration: (json['duration'] as num).toInt(),
       notes: json['notes'] as String?,
       displayDescription: json['displayDescription'] as String?,
     );
@@ -20,6 +21,7 @@ Map<String, dynamic> _$TourTypeToJson(_TourType instance) => <String, dynamic>{
       'name': instance.name,
       'displayName': instance.displayName,
       'distance': instance.distance,
+      'duration': instance.duration,
       'notes': instance.notes,
       'displayDescription': instance.displayDescription,
     };

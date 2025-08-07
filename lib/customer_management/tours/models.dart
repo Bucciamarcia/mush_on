@@ -21,6 +21,9 @@ sealed class TourType with _$TourType {
     /// How many km this tour will do.
     @Default(0) double distance,
 
+    /// Duration of the tour in minutes.
+    required int duration,
+
     /// Internal notes regarding the tour.
     String? notes,
 

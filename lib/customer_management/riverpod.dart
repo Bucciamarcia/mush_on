@@ -29,6 +29,24 @@ Stream<List<TeamGroup>> teamGroupsByDate(Ref ref, DateTime date) async* {
 }
 
 @riverpod
+Stream<List<CustomerGroup>> customerGroupsByDateRange(
+    Ref ref, List<DateTime> visibleDates) async* {
+  if (visibleDates.isEmpty) yield [];
+  String account = await ref.watch(accountProvider.future);
+  DateTime firstDate = visibleDates[0];
+  DateTime lastDate = visibleDates[visibleDates.length - 1];
+  lastDate = DateTimeUtils.endOfDay(lastDate);
+  String path = "accounts/$account/data/bookingManager/customerGroups";
+  var db = FirebaseFirestore.instance;
+  var collection = db
+      .collection(path)
+      .where("datetime", isGreaterThanOrEqualTo: firstDate)
+      .where("datetime", isLessThanOrEqualTo: lastDate);
+  yield* collection.snapshots().map((snapshot) =>
+      snapshot.docs.map((doc) => CustomerGroup.fromJson(doc.data())).toList());
+}
+
+@riverpod
 Future<CustomerGroup> customerGroupById(Ref ref, String id) async {
   String account = await ref.watch(accountProvider.future);
   var db = FirebaseFirestore.instance;
