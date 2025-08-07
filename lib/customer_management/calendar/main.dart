@@ -279,7 +279,7 @@ class BookingsDataSource extends CalendarDataSource<CustomerGroup> {
     List<TourTypePricing>? pricings =
         ref.watch(tourTypePricesProvider(tour.id)).value;
     if (pricings == null) return null;
-    String toReturn = "${customers.length}/${cg.maxCapacity.toString()}\n";
+    String toReturn = "${customers.length}/${cg.maxCapacity}\n";
     for (var price in pricings) {
       List<Customer> customerWithPrice = customers
           .where((c) => c.pricingId != null && c.pricingId == price.id)

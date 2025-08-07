@@ -248,15 +248,10 @@ class _CustomerGroupEditorAlertState
                   ],
                 ),
               ),
-              DropdownMenu<TeamGroup>(
-                controller: TextEditingController(
-                    text: possibleTeamGroups
-                        .firstWhereOrNull((t) => t.id == selectedTeamGroupId)
-                        ?.name),
-                label: const Text("Select team group"),
-                // Add initialSelection to properly show the selected value
-                initialSelection: possibleTeamGroups
-                    .firstWhereOrNull((t) => t.id == selectedTeamGroupId),
+              DropdownMenu<TourType>(
+                controller: tourNameController,
+                label: const Text("Select tour type"),
+                initialSelection: selectedTour,
                 expandedInsets: EdgeInsets.zero,
                 inputDecorationTheme: InputDecorationTheme(
                   border: OutlineInputBorder(
@@ -264,16 +259,21 @@ class _CustomerGroupEditorAlertState
                   ),
                   filled: true,
                 ),
-                dropdownMenuEntries: possibleTeamGroups
-                    .map((tg) => DropdownMenuEntry(value: tg, label: tg.name))
-                    .toList(),
-                onSelected: (v) {
-                  setState(
-                    () {
-                      selectedTeamGroupId = v?.id;
-                    },
-                  );
+                onSelected: (s) {
+                  if (s != null) {
+                    setState(() {
+                      selectedTour = s;
+                      tourNameController.text = s.name;
+                    });
+                  }
                 },
+                dropdownMenuEntries: tours
+                    .map(
+                      (tour) => DropdownMenuEntry(
+                          value: tour,
+                          label: "${tour.name} - ${tour.distance} km"),
+                    )
+                    .toList(),
               ),
               Container(
                 padding: const EdgeInsets.all(16),
