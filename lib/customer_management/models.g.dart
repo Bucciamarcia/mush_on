@@ -47,6 +47,7 @@ _CustomerGroup _$CustomerGroupFromJson(Map<String, dynamic> json) =>
     _CustomerGroup(
       id: json['id'] as String,
       tourTypeId: json['tourTypeId'] as String?,
+      maxCapacity: (json['maxCapacity'] as num?)?.toInt() ?? 0,
       name: json['name'] as String? ?? "",
       datetime: const NonNullableTimestampConverter()
           .fromJson(json['datetime'] as Timestamp),
@@ -57,6 +58,7 @@ Map<String, dynamic> _$CustomerGroupToJson(_CustomerGroup instance) =>
     <String, dynamic>{
       'id': instance.id,
       'tourTypeId': instance.tourTypeId,
+      'maxCapacity': instance.maxCapacity,
       'name': instance.name,
       'datetime':
           const NonNullableTimestampConverter().toJson(instance.datetime),

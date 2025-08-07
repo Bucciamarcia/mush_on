@@ -172,12 +172,37 @@ class TourTypeCard extends ConsumerWidget {
   Widget _buildDetailsRow(ColorScheme colorScheme) {
     if (tour.distance <= 0) return const SizedBox.shrink();
 
-    return _buildDetailChip(
-      icon: Icons.straighten,
-      label:
-          "${tour.distance.toStringAsFixed(tour.distance % 1 == 0 ? 0 : 1)} km",
-      colorScheme: colorScheme,
+    return Row(
+      children: [
+        _buildDetailChip(
+          icon: Icons.straighten,
+          label:
+              "${tour.distance.toStringAsFixed(tour.distance % 1 == 0 ? 0 : 1)} km",
+          colorScheme: colorScheme,
+        ),
+        _buildDetailChip(
+            icon: Icons.timer,
+            label: _minutesToHoursMinutes(tour.duration),
+            colorScheme: colorScheme)
+      ],
     );
+  }
+
+  String _minutesToHoursMinutes(int totalMinutes) {
+    if (totalMinutes == 0) {
+      return "0m";
+    }
+
+    int hours = totalMinutes ~/ 60;
+    int minutes = totalMinutes % 60;
+
+    if (hours == 0) {
+      return "${minutes}m";
+    } else if (minutes == 0) {
+      return "${hours}h";
+    } else {
+      return "${hours}h ${minutes}m";
+    }
   }
 
   Widget _buildDetailChip({

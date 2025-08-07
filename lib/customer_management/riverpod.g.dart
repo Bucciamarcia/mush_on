@@ -171,6 +171,144 @@ class _TeamGroupsByDateProviderElement
   DateTime get date => (origin as TeamGroupsByDateProvider).date;
 }
 
+String _$customerGroupsByDateRangeHash() =>
+    r'b0fb30e2596ddfff8ec95ea41f35936a3f615a30';
+
+/// See also [customerGroupsByDateRange].
+@ProviderFor(customerGroupsByDateRange)
+const customerGroupsByDateRangeProvider = CustomerGroupsByDateRangeFamily();
+
+/// See also [customerGroupsByDateRange].
+class CustomerGroupsByDateRangeFamily
+    extends Family<AsyncValue<List<CustomerGroup>>> {
+  /// See also [customerGroupsByDateRange].
+  const CustomerGroupsByDateRangeFamily();
+
+  /// See also [customerGroupsByDateRange].
+  CustomerGroupsByDateRangeProvider call(
+    List<DateTime> visibleDates,
+  ) {
+    return CustomerGroupsByDateRangeProvider(
+      visibleDates,
+    );
+  }
+
+  @override
+  CustomerGroupsByDateRangeProvider getProviderOverride(
+    covariant CustomerGroupsByDateRangeProvider provider,
+  ) {
+    return call(
+      provider.visibleDates,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'customerGroupsByDateRangeProvider';
+}
+
+/// See also [customerGroupsByDateRange].
+class CustomerGroupsByDateRangeProvider
+    extends AutoDisposeStreamProvider<List<CustomerGroup>> {
+  /// See also [customerGroupsByDateRange].
+  CustomerGroupsByDateRangeProvider(
+    List<DateTime> visibleDates,
+  ) : this._internal(
+          (ref) => customerGroupsByDateRange(
+            ref as CustomerGroupsByDateRangeRef,
+            visibleDates,
+          ),
+          from: customerGroupsByDateRangeProvider,
+          name: r'customerGroupsByDateRangeProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$customerGroupsByDateRangeHash,
+          dependencies: CustomerGroupsByDateRangeFamily._dependencies,
+          allTransitiveDependencies:
+              CustomerGroupsByDateRangeFamily._allTransitiveDependencies,
+          visibleDates: visibleDates,
+        );
+
+  CustomerGroupsByDateRangeProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.visibleDates,
+  }) : super.internal();
+
+  final List<DateTime> visibleDates;
+
+  @override
+  Override overrideWith(
+    Stream<List<CustomerGroup>> Function(CustomerGroupsByDateRangeRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: CustomerGroupsByDateRangeProvider._internal(
+        (ref) => create(ref as CustomerGroupsByDateRangeRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        visibleDates: visibleDates,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<CustomerGroup>> createElement() {
+    return _CustomerGroupsByDateRangeProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CustomerGroupsByDateRangeProvider &&
+        other.visibleDates == visibleDates;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, visibleDates.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin CustomerGroupsByDateRangeRef
+    on AutoDisposeStreamProviderRef<List<CustomerGroup>> {
+  /// The parameter `visibleDates` of this provider.
+  List<DateTime> get visibleDates;
+}
+
+class _CustomerGroupsByDateRangeProviderElement
+    extends AutoDisposeStreamProviderElement<List<CustomerGroup>>
+    with CustomerGroupsByDateRangeRef {
+  _CustomerGroupsByDateRangeProviderElement(super.provider);
+
+  @override
+  List<DateTime> get visibleDates =>
+      (origin as CustomerGroupsByDateRangeProvider).visibleDates;
+}
+
 String _$customerGroupByIdHash() => r'b486518a67dd59456d6cc3bcf5939677945e9dfb';
 
 /// See also [customerGroupById].

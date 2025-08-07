@@ -79,8 +79,13 @@ sealed class CustomerGroup with _$CustomerGroup {
     /// The ID of the tour type this customergroup is assigned to.
     String? tourTypeId,
 
+    /// The maximum capacity to limit the number of people.
+    @Default(0) int maxCapacity,
+
     /// The internal user friendly name of the customer group
     @Default("") String name,
+
+    /// Start date and time
     @NonNullableTimestampConverter() required DateTime datetime,
 
     /// The ID of the teamGroup this customerGroup is assigned to.

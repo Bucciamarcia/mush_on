@@ -544,8 +544,13 @@ mixin _$CustomerGroup {
   /// The ID of the tour type this customergroup is assigned to.
   String? get tourTypeId;
 
+  /// The maximum capacity to limit the number of people.
+  int get maxCapacity;
+
   /// The internal user friendly name of the customer group
   String get name;
+
+  /// Start date and time
   @NonNullableTimestampConverter()
   DateTime get datetime;
 
@@ -575,6 +580,8 @@ mixin _$CustomerGroup {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.tourTypeId, tourTypeId) ||
                 other.tourTypeId == tourTypeId) &&
+            (identical(other.maxCapacity, maxCapacity) ||
+                other.maxCapacity == maxCapacity) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.datetime, datetime) ||
                 other.datetime == datetime) &&
@@ -584,12 +591,12 @@ mixin _$CustomerGroup {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, tourTypeId, name, datetime, teamGroupId);
+  int get hashCode => Object.hash(
+      runtimeType, id, tourTypeId, maxCapacity, name, datetime, teamGroupId);
 
   @override
   String toString() {
-    return 'CustomerGroup(id: $id, tourTypeId: $tourTypeId, name: $name, datetime: $datetime, teamGroupId: $teamGroupId)';
+    return 'CustomerGroup(id: $id, tourTypeId: $tourTypeId, maxCapacity: $maxCapacity, name: $name, datetime: $datetime, teamGroupId: $teamGroupId)';
   }
 }
 
@@ -602,6 +609,7 @@ abstract mixin class $CustomerGroupCopyWith<$Res> {
   $Res call(
       {String id,
       String? tourTypeId,
+      int maxCapacity,
       String name,
       @NonNullableTimestampConverter() DateTime datetime,
       String? teamGroupId});
@@ -622,6 +630,7 @@ class _$CustomerGroupCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? tourTypeId = freezed,
+    Object? maxCapacity = null,
     Object? name = null,
     Object? datetime = null,
     Object? teamGroupId = freezed,
@@ -635,6 +644,10 @@ class _$CustomerGroupCopyWithImpl<$Res>
           ? _self.tourTypeId
           : tourTypeId // ignore: cast_nullable_to_non_nullable
               as String?,
+      maxCapacity: null == maxCapacity
+          ? _self.maxCapacity
+          : maxCapacity // ignore: cast_nullable_to_non_nullable
+              as int,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -658,6 +671,7 @@ class _CustomerGroup implements CustomerGroup {
   const _CustomerGroup(
       {required this.id,
       this.tourTypeId,
+      this.maxCapacity = 0,
       this.name = "",
       @NonNullableTimestampConverter() required this.datetime,
       this.teamGroupId});
@@ -671,10 +685,17 @@ class _CustomerGroup implements CustomerGroup {
   @override
   final String? tourTypeId;
 
+  /// The maximum capacity to limit the number of people.
+  @override
+  @JsonKey()
+  final int maxCapacity;
+
   /// The internal user friendly name of the customer group
   @override
   @JsonKey()
   final String name;
+
+  /// Start date and time
   @override
   @NonNullableTimestampConverter()
   final DateTime datetime;
@@ -710,6 +731,8 @@ class _CustomerGroup implements CustomerGroup {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.tourTypeId, tourTypeId) ||
                 other.tourTypeId == tourTypeId) &&
+            (identical(other.maxCapacity, maxCapacity) ||
+                other.maxCapacity == maxCapacity) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.datetime, datetime) ||
                 other.datetime == datetime) &&
@@ -719,12 +742,12 @@ class _CustomerGroup implements CustomerGroup {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, tourTypeId, name, datetime, teamGroupId);
+  int get hashCode => Object.hash(
+      runtimeType, id, tourTypeId, maxCapacity, name, datetime, teamGroupId);
 
   @override
   String toString() {
-    return 'CustomerGroup(id: $id, tourTypeId: $tourTypeId, name: $name, datetime: $datetime, teamGroupId: $teamGroupId)';
+    return 'CustomerGroup(id: $id, tourTypeId: $tourTypeId, maxCapacity: $maxCapacity, name: $name, datetime: $datetime, teamGroupId: $teamGroupId)';
   }
 }
 
@@ -739,6 +762,7 @@ abstract mixin class _$CustomerGroupCopyWith<$Res>
   $Res call(
       {String id,
       String? tourTypeId,
+      int maxCapacity,
       String name,
       @NonNullableTimestampConverter() DateTime datetime,
       String? teamGroupId});
@@ -759,6 +783,7 @@ class __$CustomerGroupCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? tourTypeId = freezed,
+    Object? maxCapacity = null,
     Object? name = null,
     Object? datetime = null,
     Object? teamGroupId = freezed,
@@ -772,6 +797,10 @@ class __$CustomerGroupCopyWithImpl<$Res>
           ? _self.tourTypeId
           : tourTypeId // ignore: cast_nullable_to_non_nullable
               as String?,
+      maxCapacity: null == maxCapacity
+          ? _self.maxCapacity
+          : maxCapacity // ignore: cast_nullable_to_non_nullable
+              as int,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable

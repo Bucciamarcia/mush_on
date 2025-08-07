@@ -23,6 +23,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
   late TextEditingController distanceController;
   late TextEditingController notesController;
   late TextEditingController displayDescriptionController;
+  late TextEditingController durationController;
   late String id;
 
   @override
@@ -37,6 +38,8 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
     notesController = TextEditingController(text: widget.tour?.notes);
     displayDescriptionController =
         TextEditingController(text: widget.tour?.displayDescription);
+    durationController =
+        TextEditingController(text: widget.tour?.duration.toString());
   }
 
   @override
@@ -46,6 +49,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
     distanceController.dispose();
     notesController.dispose();
     displayDescriptionController.dispose();
+    durationController.dispose();
     super.dispose();
   }
 
@@ -70,6 +74,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
                 tour: TourType(
                   id: id,
                   name: nameController.text,
+                  duration: int.tryParse(durationController.text) ?? 0,
                   displayName: displayNameController.text,
                   distance: double.tryParse(distanceController.text) ?? 0.0,
                   notes: notesController.text,
@@ -285,6 +290,36 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
             ),
             maxLines: 3,
           ),
+          TextField(
+            controller: durationController,
+            decoration: InputDecoration(
+              labelText: "Duration",
+              hintText: "In minutes",
+              filled: true,
+              fillColor: colorScheme.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.outline.withValues(alpha: 0.3),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+            ),
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+            ],
+          )
         ],
       ),
     );
