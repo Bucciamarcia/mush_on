@@ -48,8 +48,9 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
               requestFocusOnTap: false,
               initialSelection: CalendarView.week,
               dropdownMenuEntries: [
-                DropdownMenuEntry(value: CalendarView.week, label: "Week"),
                 DropdownMenuEntry(value: CalendarView.day, label: "Day"),
+                DropdownMenuEntry(value: CalendarView.week, label: "Week"),
+                DropdownMenuEntry(value: CalendarView.month, label: "Month"),
               ],
               onSelected: (view) {
                 if (view != null) {
@@ -65,59 +66,142 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
           child: SfCalendar(
             key: ValueKey(viewLength),
             view: viewLength,
-            appointmentBuilder:
-                (BuildContext context, CalendarAppointmentDetails details) {
-              final CustomerGroup customerGroup =
-                  details.appointments.first as CustomerGroup;
+            showNavigationArrow: true,
+            monthViewSettings:
+                MonthViewSettings(appointmentDisplayCount: 3, showAgenda: true),
+            monthCellBuilder: viewLength == CalendarView.month
+                ? (BuildContext context, MonthCellDetails details) {
+                    final List<CustomerGroup> dayAppointments = customerGroups
+                        .where((cg) =>
+                            cg.datetime.year == details.date.year &&
+                            cg.datetime.month == details.date.month &&
+                            cg.datetime.day == details.date.day)
+                        .toList();
 
-              if (customerGroup.name.isEmpty) {
-                return Container();
-              }
-
-              // Get notes using the data source method
-              final dataSource =
-                  BookingsDataSource(source: customerGroups, ref: ref);
-              final int index = customerGroups.indexOf(customerGroup);
-              final String? notes =
-                  index >= 0 ? dataSource.getNotes(index) : null;
-
-              return Container(
-                padding: EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      customerGroup.name,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                    return Container(
+                      decoration: BoxDecoration(
+                        border:
+                            Border.all(color: Colors.grey.shade300, width: 0.5),
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (notes != null && notes.isNotEmpty) ...[
-                      SizedBox(height: 2),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Text(
-                            notes,
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 10,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Date number
+                          Padding(
+                            padding: EdgeInsets.all(2),
+                            child: Text(
+                              details.date.day.toString(),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: details.date.month ==
+                                        details.visibleDates.first.month
+                                    ? Colors.black
+                                    : Colors.grey,
+                              ),
                             ),
                           ),
-                        ),
+                          // Appointments
+                          Expanded(
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: dayAppointments.length,
+                              itemBuilder: (context, index) {
+                                final cg = dayAppointments[index];
+                                return Container(
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: 1, vertical: 1),
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        cg.name,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        "${cg.datetime.hour.toString().padLeft(2, '0')}:${cg.datetime.minute.toString().padLeft(2, '0')}",
+                                        style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 8,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ],
-                ),
-              );
-            },
+                    );
+                  }
+                : null,
+            appointmentBuilder: viewLength != CalendarView.month
+                ? (BuildContext context, CalendarAppointmentDetails details) {
+                    final CustomerGroup customerGroup =
+                        details.appointments.first as CustomerGroup;
+
+                    if (customerGroup.name.isEmpty) {
+                      return Container();
+                    }
+
+                    // Get notes using the data source method
+                    final dataSource =
+                        BookingsDataSource(source: customerGroups, ref: ref);
+                    final int index = customerGroups.indexOf(customerGroup);
+                    final String? notes =
+                        index >= 0 ? dataSource.getNotes(index) : null;
+
+                    // Day/Week view - show title and notes
+                    return Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            customerGroup.name,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (notes != null && notes.isNotEmpty) ...[
+                            SizedBox(height: 2),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Text(
+                                  notes,
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  }
+                : null,
             onViewChanged: (details) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 setState(() {
