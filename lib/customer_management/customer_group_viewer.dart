@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/shared/text_title.dart';
 
 import '../create_team/riverpod.dart';
 import '../riverpod.dart';
@@ -31,27 +32,50 @@ class CustomerGroupViewer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final account = ref.watch(accountProvider).value ?? "";
     final customerRepo = CustomerManagementRepository(account: account);
-    return ElevatedButton(
-      onPressed: () => showDialog(
-        context: context,
-        builder: (_) => CustomerGroupEditorAlert(
-          onCustomerGroupDeleted: () => customerRepo
-              .deleteCustomerGroup(customerGroup.id)
-              .catchError(
-                (e) => ScaffoldMessenger.of(context).showSnackBar(
-                  errorSnackBar(context, "Failed to delete customer group."),
-                ),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Row(
+            spacing: 10,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                customerGroup.name,
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                maxLines: 2,
+                overflow: TextOverflow.fade,
               ),
-          customerGroup: customerGroup,
-          onCgEdited: (ncg) async {
-            customerRepo.setCustomerGroup(ncg);
-            ref.invalidate(customerGroupsByDayProvider);
-            ref.invalidate(futureCustomerGroupsProvider);
-            ref.invalidate(teamGroupByIdProvider);
-          },
-        ),
+              ElevatedButton(
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (_) => CustomerGroupEditorAlert(
+                    onCustomerGroupDeleted: () => customerRepo
+                        .deleteCustomerGroup(customerGroup.id)
+                        .catchError(
+                      (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(
+                                context, "Failed to delete customer group."),
+                          );
+                        }
+                      },
+                    ),
+                    customerGroup: customerGroup,
+                    onCgEdited: (ncg) async {
+                      customerRepo.setCustomerGroup(ncg);
+                      ref.invalidate(customerGroupsByDayProvider);
+                      ref.invalidate(futureCustomerGroupsProvider);
+                      ref.invalidate(teamGroupByIdProvider);
+                    },
+                  ),
+                ),
+                child: Text("edit"),
+              ),
+            ],
+          ),
+        ],
       ),
-      child: Text("edit"),
     );
   }
 }
