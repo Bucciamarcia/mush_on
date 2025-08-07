@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/customer_management/customer_group_viewer.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
@@ -67,6 +68,20 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
             key: ValueKey(viewLength),
             view: viewLength,
             showNavigationArrow: true,
+            onTap: (details) {
+              if (details.appointments == null) return;
+              if (details.appointments!.isEmpty) return;
+              if (details.appointments!.length == 1) {
+                CustomerGroup cg = details.appointments!.first;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CustomerGroupViewerScreen(customerGroup: cg),
+                  ),
+                );
+              }
+            },
             monthViewSettings:
                 MonthViewSettings(appointmentDisplayCount: 3, showAgenda: true),
             monthCellBuilder: viewLength == CalendarView.month
