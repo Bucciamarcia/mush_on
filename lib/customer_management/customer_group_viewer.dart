@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/shared/text_title.dart';
 
 import '../create_team/riverpod.dart';
 import '../riverpod.dart';
@@ -12,32 +10,37 @@ import 'repository.dart';
 import 'riverpod.dart';
 
 class CustomerGroupViewerScreen extends StatelessWidget {
-  final CustomerGroup customerGroup;
-  const CustomerGroupViewerScreen({super.key, required this.customerGroup});
+  final String customerGroupId;
+  const CustomerGroupViewerScreen({super.key, required this.customerGroupId});
 
   @override
   Widget build(BuildContext context) {
     return TemplateScreen(
       title: "View customer group",
-      child: CustomerGroupViewer(customerGroup: customerGroup),
+      child: CustomerGroupViewer(customerGroupId: customerGroupId),
     );
   }
 }
 
 class CustomerGroupViewer extends ConsumerWidget {
-  final CustomerGroup customerGroup;
-  const CustomerGroupViewer({super.key, required this.customerGroup});
+  final String customerGroupId;
+  const CustomerGroupViewer({super.key, required this.customerGroupId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final account = ref.watch(accountProvider).value ?? "";
-    final customerRepo = CustomerManagementRepository(account: account);
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Row(
-            spacing: 10,
-            mainAxisAlignment: MainAxisAlignment.center,
+    final customerGroupAsync = ref.watch(
+      CustomerGroupByIdProvider(customerGroupId),
+    );
+    return customerGroupAsync.when(
+      data: (customerGroup) {
+        if (customerGroup == null) {
+          BasicLogger().error("Couldn't load teamgroup: $customerGroupId");
+          return Text("Couldn't load teamgroup: null");
+        }
+        final customerRepo = CustomerManagementRepository(account: account);
+        return SingleChildScrollView(
+          child: Column(
             children: [
               Text(
                 customerGroup.name,
@@ -70,11 +73,22 @@ class CustomerGroupViewer extends ConsumerWidget {
                     },
                   ),
                 ),
-                child: Text("edit"),
+                child: Text("Edit Customer Group"),
               ),
             ],
           ),
-        ],
+        );
+      },
+      error: (e, s) {
+        BasicLogger().error("Error loading customer group: $customerGroupId",
+            error: e, stackTrace: s);
+        return Center(child: Text("Error: couldn't load the customer group."));
+      },
+      loading: () => Center(
+        child: SizedBox.square(
+          dimension: 150,
+          child: CircularProgressIndicator.adaptive(),
+        ),
       ),
     );
   }

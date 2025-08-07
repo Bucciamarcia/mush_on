@@ -309,18 +309,26 @@ class _CustomerGroupsByDateRangeProviderElement
       (origin as CustomerGroupsByDateRangeProvider).visibleDates;
 }
 
-String _$customerGroupByIdHash() => r'b486518a67dd59456d6cc3bcf5939677945e9dfb';
+String _$customerGroupByIdHash() => r'7f9741a1a7216b1d8cb682b06373903ef6e5f74e';
 
-/// See also [customerGroupById].
+/// Streams the Customer Group object associated with the ID provided.
+///
+/// Copied from [customerGroupById].
 @ProviderFor(customerGroupById)
 const customerGroupByIdProvider = CustomerGroupByIdFamily();
 
-/// See also [customerGroupById].
-class CustomerGroupByIdFamily extends Family<AsyncValue<CustomerGroup>> {
-  /// See also [customerGroupById].
+/// Streams the Customer Group object associated with the ID provided.
+///
+/// Copied from [customerGroupById].
+class CustomerGroupByIdFamily extends Family<AsyncValue<CustomerGroup?>> {
+  /// Streams the Customer Group object associated with the ID provided.
+  ///
+  /// Copied from [customerGroupById].
   const CustomerGroupByIdFamily();
 
-  /// See also [customerGroupById].
+  /// Streams the Customer Group object associated with the ID provided.
+  ///
+  /// Copied from [customerGroupById].
   CustomerGroupByIdProvider call(
     String id,
   ) {
@@ -353,10 +361,14 @@ class CustomerGroupByIdFamily extends Family<AsyncValue<CustomerGroup>> {
   String? get name => r'customerGroupByIdProvider';
 }
 
-/// See also [customerGroupById].
+/// Streams the Customer Group object associated with the ID provided.
+///
+/// Copied from [customerGroupById].
 class CustomerGroupByIdProvider
-    extends AutoDisposeFutureProvider<CustomerGroup> {
-  /// See also [customerGroupById].
+    extends AutoDisposeStreamProvider<CustomerGroup?> {
+  /// Streams the Customer Group object associated with the ID provided.
+  ///
+  /// Copied from [customerGroupById].
   CustomerGroupByIdProvider(
     String id,
   ) : this._internal(
@@ -390,7 +402,7 @@ class CustomerGroupByIdProvider
 
   @override
   Override overrideWith(
-    FutureOr<CustomerGroup> Function(CustomerGroupByIdRef provider) create,
+    Stream<CustomerGroup?> Function(CustomerGroupByIdRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -407,7 +419,7 @@ class CustomerGroupByIdProvider
   }
 
   @override
-  AutoDisposeFutureProviderElement<CustomerGroup> createElement() {
+  AutoDisposeStreamProviderElement<CustomerGroup?> createElement() {
     return _CustomerGroupByIdProviderElement(this);
   }
 
@@ -427,13 +439,13 @@ class CustomerGroupByIdProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin CustomerGroupByIdRef on AutoDisposeFutureProviderRef<CustomerGroup> {
+mixin CustomerGroupByIdRef on AutoDisposeStreamProviderRef<CustomerGroup?> {
   /// The parameter `id` of this provider.
   String get id;
 }
 
 class _CustomerGroupByIdProviderElement
-    extends AutoDisposeFutureProviderElement<CustomerGroup>
+    extends AutoDisposeStreamProviderElement<CustomerGroup?>
     with CustomerGroupByIdRef {
   _CustomerGroupByIdProviderElement(super.provider);
 

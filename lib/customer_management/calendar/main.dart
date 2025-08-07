@@ -77,7 +77,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        CustomerGroupViewerScreen(customerGroup: cg),
+                        CustomerGroupViewerScreen(customerGroupId: cg.id),
                   ),
                 );
               }

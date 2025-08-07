@@ -260,7 +260,7 @@ class ListCustomerGroups extends ConsumerWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      CustomerGroupViewerScreen(customerGroup: cg),
+                      CustomerGroupViewerScreen(customerGroupId: cg.id),
                 ),
               ),
               child: Padding(
