@@ -450,8 +450,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          onPressed: () => Navigator.of(context)
-              .popUntil(ModalRoute.withName("/client_management")),
+          onPressed: () => Navigator.of(context).pop(),
           child: Text(
             "Cancel",
             style: TextStyle(color: colorScheme.error),
@@ -477,9 +476,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                 TextButton(
                   onPressed: () {
                     widget.onBookingDeleted();
-                    Navigator.of(context).popUntil(
-                      ModalRoute.withName("/client_management"),
-                    );
+                    Navigator.of(context).pop();
                   },
                   child: Text("Proceed"),
                 ),
@@ -507,8 +504,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                       customerGroupId: selectedCustomerGroup?.id,
                     ),
                   );
-                  Navigator.of(context)
-                      .popUntil(ModalRoute.withName("/client_management"));
+                  Navigator.of(context).pop();
                 }
               : null,
           icon: const Icon(Icons.save),
