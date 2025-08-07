@@ -61,135 +61,297 @@ class CustomerGroupViewer extends ConsumerWidget {
           pricings = ref.watch(tourTypePricesProvider(tour.id)).value;
         }
         final customerRepo = CustomerManagementRepository(account: account);
+        final colorScheme = Theme.of(context).colorScheme;
         return SingleChildScrollView(
-          child: Center(
-            child: Column(
-              children: [
-                Text(
-                  customerGroup.name,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-                  maxLines: 2,
-                  overflow: TextOverflow.fade,
-                ),
-                ElevatedButton(
-                  onPressed: () => showDialog(
-                    context: context,
-                    builder: (_) => CustomerGroupEditorAlert(
-                      onCustomerGroupDeleted: () => customerRepo
-                          .deleteCustomerGroup(customerGroup.id)
-                          .catchError(
-                        (e) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              errorSnackBar(
-                                  context, "Failed to delete customer group."),
-                            );
-                          }
-                        },
-                      ),
-                      customerGroup: customerGroup,
-                      onCgEdited: (ncg) async {
-                        customerRepo.setCustomerGroup(ncg);
-                        ref.invalidate(customerGroupsByDayProvider);
-                        ref.invalidate(futureCustomerGroupsProvider);
-                        ref.invalidate(teamGroupByIdProvider);
-                      },
-                    ),
-                  ),
-                  child: Text("Edit Customer Group"),
-                ),
-                Divider(),
-
-                // Overview
-                SizedBox(
-                  width: double.infinity,
-                  child: Card(
-                    child: Column(
-                      children: [
-                        Text(
-                          "Overview",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.w500),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Card(
+                elevation: 0,
+                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(Icons.group, color: colorScheme.primary, size: 28),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          customerGroup.name,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onPrimaryContainer,
+                              ),
                           maxLines: 2,
-                          overflow: TextOverflow.fade,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        Text(
-                            "Customers: ${customers.length}/${customerGroup.maxCapacity}"),
-                        pricings != null
-                            ? getPricings(customers, pricings)
-                            : SizedBox.shrink(),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () => showDialog(
+                          context: context,
+                          builder: (_) => CustomerGroupEditorAlert(
+                            onCustomerGroupDeleted: () => customerRepo
+                                .deleteCustomerGroup(customerGroup.id)
+                                .catchError(
+                              (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    errorSnackBar(context,
+                                        "Failed to delete customer group."),
+                                  );
+                                }
+                              },
+                            ),
+                            customerGroup: customerGroup,
+                            onCgEdited: (ncg) async {
+                              customerRepo.setCustomerGroup(ncg);
+                              ref.invalidate(customerGroupsByDayProvider);
+                              ref.invalidate(futureCustomerGroupsProvider);
+                              ref.invalidate(teamGroupByIdProvider);
+                            },
+                          ),
+                        ),
+                        icon: const Icon(Icons.edit, size: 18),
+                        label: const Text("Edit"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.secondary,
+                          foregroundColor: colorScheme.onSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Overview
+              Card(
+                elevation: 0,
+                color:
+                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.analytics, color: colorScheme.primary),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Overview",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Icon(Icons.people,
+                              color: colorScheme.onSurfaceVariant, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Customers: ${customers.length}/${customerGroup.maxCapacity}",
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                      if (pricings != null) ...[
+                        const SizedBox(height: 8),
+                        getPricings(customers, pricings),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Tour
+              tour == null
+                  ? Card(
+                      elevation: 0,
+                      color: colorScheme.errorContainer.withValues(alpha: 0.3),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Icon(Icons.warning, color: colorScheme.error),
+                            const SizedBox(width: 8),
+                            Text(
+                              "No tour selected",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: colorScheme.onErrorContainer,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Card(
+                      elevation: 0,
+                      color: colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.3),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.route, color: colorScheme.primary),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Tour: ${tour.name}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Icon(Icons.straighten,
+                                    color: colorScheme.onSurfaceVariant,
+                                    size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Distance: ${tour.distance} km",
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(Icons.schedule,
+                                    color: colorScheme.onSurfaceVariant,
+                                    size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Duration: ${minutesToHoursMinutes(tour.duration)}",
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                            if (tour.notes != null &&
+                                tour.notes!.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(Icons.notes,
+                                      color: colorScheme.onSurfaceVariant,
+                                      size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      tour.notes!,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+              const SizedBox(height: 16),
+
+              // Bookings
+              bookings.isEmpty
+                  ? Card(
+                      elevation: 0,
+                      color: colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.2),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Icon(Icons.event_busy,
+                                color: colorScheme.onSurfaceVariant),
+                            const SizedBox(width: 8),
+                            Text(
+                              "No bookings for this group",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Card(
+                          elevation: 0,
+                          color: colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.3),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Icon(Icons.event, color: colorScheme.primary),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "Bookings (${bookings.length})",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        ...bookings.map(
+                          (booking) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: BookingCard(
+                              pricings: pricings,
+                              booking: booking,
+                              customers: ref
+                                      .watch(customersByBookingIdProvider(
+                                          booking.id))
+                                      .value ??
+                                  [],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                ),
-
-                // Tour
-                tour == null
-                    ? Text(
-                        "No tour selected.",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500),
-                        maxLines: 2,
-                        overflow: TextOverflow.fade,
-                      )
-                    : SizedBox(
-                        width: double.infinity,
-                        child: Card(
-                          child: Column(
-                            children: [
-                              Text(
-                                "Tour: ${tour.name}",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                                maxLines: 2,
-                                overflow: TextOverflow.fade,
-                              ),
-                              Text("Distance: ${tour.distance}"),
-                              Text("Duration: ${tour.duration}"),
-                              Text("${tour.notes}", maxLines: 5),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                // Bookings
-                bookings.isEmpty
-                    ? Text(
-                        "No bookings for this group",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500),
-                        maxLines: 2,
-                        overflow: TextOverflow.fade,
-                      )
-                    : SizedBox(
-                        width: double.infinity,
-                        child: Card(
-                          child: Column(
-                            children: [
-                              Text(
-                                "Bookings",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
-                                maxLines: 2,
-                                overflow: TextOverflow.fade,
-                              ),
-                              ...bookings.map(
-                                (booking) => BookingCard(
-                                  pricings: pricings,
-                                  booking: booking,
-                                  customers: ref
-                                          .watch(customersByBookingIdProvider(
-                                              booking.id))
-                                          .value ??
-                                      [],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-              ],
-            ),
+            ],
           ),
         );
       },
@@ -220,6 +382,7 @@ class BookingCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
     return InkWell(
       onTap: () => showDialog(
         context: context,
@@ -252,17 +415,57 @@ class BookingCard extends ConsumerWidget {
           },
         ),
       ),
+      borderRadius: BorderRadius.circular(12),
       child: Card(
-        color: Theme.of(context).colorScheme.secondaryContainer,
-        child: Column(
-          children: [
-            Text(booking.name),
-            Text("People: ${customers.length}"),
-            Text("Details:"),
-            pricings == null
-                ? SizedBox.shrink()
-                : getPricings(customers, pricings!),
-          ],
+        elevation: 2,
+        color: colorScheme.secondaryContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.bookmark,
+                      color: colorScheme.onSecondaryContainer, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      booking.name,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onSecondaryContainer,
+                          ),
+                    ),
+                  ),
+                  Icon(Icons.edit,
+                      color: colorScheme.onSecondaryContainer
+                          .withValues(alpha: 0.7),
+                      size: 16),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.people_outline,
+                      color: colorScheme.onSecondaryContainer
+                          .withValues(alpha: 0.8),
+                      size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    "People: ${customers.length}",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSecondaryContainer,
+                        ),
+                  ),
+                ],
+              ),
+              if (pricings != null) ...[
+                const SizedBox(height: 8),
+                getPricings(customers, pricings!),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -270,18 +473,61 @@ class BookingCard extends ConsumerWidget {
 }
 
 Widget getPricings(List<Customer> customers, List<TourTypePricing> pricings) {
-  String toReturn = "";
+  List<Widget> pricingWidgets = [];
+
   for (var price in pricings) {
     List<Customer> customerWithPrice = customers
         .where((c) => c.pricingId != null && c.pricingId == price.id)
         .toList();
     if (customerWithPrice.isNotEmpty) {
-      toReturn = "$toReturn\n${price.name}: ${customerWithPrice.length}";
+      pricingWidgets.add(
+        Builder(builder: (context) {
+          final colorScheme = Theme.of(context).colorScheme;
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(
+              children: [
+                Icon(Icons.local_offer,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    size: 16),
+                const SizedBox(width: 8),
+                Text(
+                  "${price.name}: ${customerWithPrice.length}",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurface.withValues(alpha: 0.8),
+                      ),
+                ),
+              ],
+            ),
+          );
+        }),
+      );
     }
   }
-  toReturn = toReturn.trim();
-  if (toReturn.isEmpty) {
-    return SizedBox.shrink();
+
+  if (pricingWidgets.isEmpty) {
+    return const SizedBox.shrink();
   }
-  return Text(toReturn);
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: pricingWidgets,
+  );
+}
+
+String minutesToHoursMinutes(int totalMinutes) {
+  if (totalMinutes == 0) {
+    return "0m";
+  }
+
+  int hours = totalMinutes ~/ 60;
+  int minutes = totalMinutes % 60;
+
+  if (hours == 0) {
+    return "${minutes}m";
+  } else if (minutes == 0) {
+    return "${hours}h";
+  } else {
+    return "${hours}h ${minutes}m";
+  }
 }
