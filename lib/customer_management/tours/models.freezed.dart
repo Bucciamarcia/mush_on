@@ -307,6 +307,9 @@ mixin _$TourTypePricing {
   /// The internal name of this pricing.
   String get name;
 
+  /// Is the price archived? Can't be deleted or edited bc continuity.
+  bool get isArchived;
+
   /// The display name of this pricing, to show to customers.
   String get displayName;
 
@@ -337,6 +340,8 @@ mixin _$TourTypePricing {
             other is TourTypePricing &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.isArchived, isArchived) ||
+                other.isArchived == isArchived) &&
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
             (identical(other.notes, notes) || other.notes == notes) &&
@@ -348,12 +353,12 @@ mixin _$TourTypePricing {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, displayName, notes,
-      displayDescription, priceCents);
+  int get hashCode => Object.hash(runtimeType, id, name, isArchived,
+      displayName, notes, displayDescription, priceCents);
 
   @override
   String toString() {
-    return 'TourTypePricing(id: $id, name: $name, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents)';
+    return 'TourTypePricing(id: $id, name: $name, isArchived: $isArchived, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents)';
   }
 }
 
@@ -366,6 +371,7 @@ abstract mixin class $TourTypePricingCopyWith<$Res> {
   $Res call(
       {String id,
       String name,
+      bool isArchived,
       String displayName,
       String? notes,
       String? displayDescription,
@@ -387,6 +393,7 @@ class _$TourTypePricingCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? isArchived = null,
     Object? displayName = null,
     Object? notes = freezed,
     Object? displayDescription = freezed,
@@ -401,6 +408,10 @@ class _$TourTypePricingCopyWithImpl<$Res>
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      isArchived: null == isArchived
+          ? _self.isArchived
+          : isArchived // ignore: cast_nullable_to_non_nullable
+              as bool,
       displayName: null == displayName
           ? _self.displayName
           : displayName // ignore: cast_nullable_to_non_nullable
@@ -427,6 +438,7 @@ class _TourTypePricing implements TourTypePricing {
   const _TourTypePricing(
       {required this.id,
       this.name = "",
+      this.isArchived = false,
       this.displayName = "",
       this.notes,
       this.displayDescription,
@@ -441,6 +453,11 @@ class _TourTypePricing implements TourTypePricing {
   @override
   @JsonKey()
   final String name;
+
+  /// Is the price archived? Can't be deleted or edited bc continuity.
+  @override
+  @JsonKey()
+  final bool isArchived;
 
   /// The display name of this pricing, to show to customers.
   @override
@@ -482,6 +499,8 @@ class _TourTypePricing implements TourTypePricing {
             other is _TourTypePricing &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.isArchived, isArchived) ||
+                other.isArchived == isArchived) &&
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
             (identical(other.notes, notes) || other.notes == notes) &&
@@ -493,12 +512,12 @@ class _TourTypePricing implements TourTypePricing {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, displayName, notes,
-      displayDescription, priceCents);
+  int get hashCode => Object.hash(runtimeType, id, name, isArchived,
+      displayName, notes, displayDescription, priceCents);
 
   @override
   String toString() {
-    return 'TourTypePricing(id: $id, name: $name, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents)';
+    return 'TourTypePricing(id: $id, name: $name, isArchived: $isArchived, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents)';
   }
 }
 
@@ -513,6 +532,7 @@ abstract mixin class _$TourTypePricingCopyWith<$Res>
   $Res call(
       {String id,
       String name,
+      bool isArchived,
       String displayName,
       String? notes,
       String? displayDescription,
@@ -534,6 +554,7 @@ class __$TourTypePricingCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? isArchived = null,
     Object? displayName = null,
     Object? notes = freezed,
     Object? displayDescription = freezed,
@@ -548,6 +569,10 @@ class __$TourTypePricingCopyWithImpl<$Res>
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      isArchived: null == isArchived
+          ? _self.isArchived
+          : isArchived // ignore: cast_nullable_to_non_nullable
+              as bool,
       displayName: null == displayName
           ? _self.displayName
           : displayName // ignore: cast_nullable_to_non_nullable

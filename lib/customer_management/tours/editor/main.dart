@@ -359,6 +359,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               spacing: 8,
               runSpacing: 8,
               children: prices
+                  .where((price) => !price.isArchived)
                   .map(
                     (price) => InputChip(
                       label: Text(price.name),
@@ -488,6 +489,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final bool isViewOnly = widget.pricing != null;
     return AlertDialog.adaptive(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -496,7 +498,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
         children: [
           Icon(Icons.euro, color: colorScheme.primary),
           const SizedBox(width: 12),
-          Text("Pricing Editor"),
+          Text(isViewOnly ? "Pricing Details" : "New Pricing"),
         ],
       ),
       content: Container(
@@ -506,8 +508,12 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
             mainAxisSize: MainAxisSize.min,
             spacing: 16,
             children: [
+              if (isViewOnly)
+                Text(
+                    "For safety, a pricing can't be edited or deleted, only archived"),
               TextField(
                 controller: nameController,
+                readOnly: isViewOnly,
                 decoration: InputDecoration(
                   labelText: "Name",
                   hintText: "Name of the pricing option",
@@ -534,6 +540,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
               ),
               TextField(
                 controller: displayNameController,
+                readOnly: isViewOnly,
                 decoration: InputDecoration(
                   labelText: "Display Name",
                   hintText: "Shown to customers",
@@ -560,6 +567,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
               ),
               TextField(
                 controller: priceController,
+                readOnly: isViewOnly,
                 decoration: InputDecoration(
                   labelText: "Price",
                   hintText: "Price in EUR",
@@ -584,13 +592,17 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
                     ),
                   ),
                 ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-                ],
+                keyboardType: isViewOnly ? null : TextInputType.number,
+                inputFormatters: isViewOnly
+                    ? null
+                    : [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d*')),
+                      ],
               ),
               TextField(
                 controller: notes,
+                readOnly: isViewOnly,
                 decoration: InputDecoration(
                   labelText: "Notes",
                   hintText: "Internal notes for staff",
@@ -618,6 +630,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
               ),
               TextField(
                 controller: displayDescription,
+                readOnly: isViewOnly,
                 decoration: InputDecoration(
                   labelText: "Display Description",
                   hintText: "Shown to customers",
@@ -656,30 +669,31 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
             style: TextStyle(color: colorScheme.error),
           ),
         ),
-        ElevatedButton.icon(
-          onPressed: () {
-            widget.onPricingSaved(
-              TourTypePricing(
-                id: id,
-                name: nameController.text,
-                displayName: displayNameController.text,
-                priceCents:
-                    ((double.tryParse(priceController.text) ?? 0.0) * 100)
-                        .round(),
-                notes: notes.text,
-                displayDescription: displayDescription.text,
-              ),
-            );
-            Navigator.of(context).pop();
-          },
-          icon: Icon(Icons.save),
-          label: Text("Save"),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: colorScheme.primary,
-            foregroundColor: colorScheme.onPrimary,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        if (!isViewOnly)
+          ElevatedButton.icon(
+            onPressed: () {
+              widget.onPricingSaved(
+                TourTypePricing(
+                  id: id,
+                  name: nameController.text,
+                  displayName: displayNameController.text,
+                  priceCents:
+                      ((double.tryParse(priceController.text) ?? 0.0) * 100)
+                          .round(),
+                  notes: notes.text,
+                  displayDescription: displayDescription.text,
+                ),
+              );
+              Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.save),
+            label: Text("Save"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
           ),
-        ),
       ],
     );
   }
