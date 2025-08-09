@@ -30,6 +30,7 @@ _TourTypePricing _$TourTypePricingFromJson(Map<String, dynamic> json) =>
     _TourTypePricing(
       id: json['id'] as String,
       name: json['name'] as String? ?? "",
+      isArchived: json['isArchived'] as bool? ?? false,
       displayName: json['displayName'] as String? ?? "",
       notes: json['notes'] as String?,
       displayDescription: json['displayDescription'] as String?,
@@ -40,6 +41,7 @@ Map<String, dynamic> _$TourTypePricingToJson(_TourTypePricing instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'isArchived': instance.isArchived,
       'displayName': instance.displayName,
       'notes': instance.notes,
       'displayDescription': instance.displayDescription,

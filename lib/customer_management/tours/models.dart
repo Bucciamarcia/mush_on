@@ -48,6 +48,9 @@ sealed class TourTypePricing with _$TourTypePricing {
     /// The internal name of this pricing.
     @Default("") String name,
 
+    /// Is the price archived? Can't be deleted or edited bc continuity.
+    @Default(false) bool isArchived,
+
     /// The display name of this pricing, to show to customers.
     @Default("") String displayName,
 
