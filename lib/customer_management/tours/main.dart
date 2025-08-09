@@ -253,16 +253,15 @@ class TourTypeCard extends ConsumerWidget {
     if (prices.isEmpty) return const SizedBox.shrink();
 
     final sortedPrices = prices.toList()
-      ..sort((a, b) => a.price.compareTo(b.price));
-    final minPrice = sortedPrices.first.price;
-    final maxPrice = sortedPrices.last.price;
-
+      ..sort((a, b) => a.priceCents.compareTo(b.priceCents));
+    final minPrice = sortedPrices.first.priceCents / 100;
+    final maxPrice = sortedPrices.last.priceCents / 100;
     String priceText;
     if (minPrice == maxPrice) {
       priceText = "€${minPrice.toStringAsFixed(0)}";
     } else {
       priceText =
-          "€${minPrice.toStringAsFixed(0)} - €${maxPrice.toStringAsFixed(0)}";
+          "€${minPrice.toStringAsFixed(2)} - €${maxPrice.toStringAsFixed(2)}";
     }
 
     return Container(

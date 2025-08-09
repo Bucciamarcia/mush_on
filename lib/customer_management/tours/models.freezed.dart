@@ -317,7 +317,7 @@ mixin _$TourTypePricing {
   String? get displayDescription;
 
   /// The price of this tour.
-  double get price;
+  int get priceCents;
 
   /// Create a copy of TourTypePricing
   /// with the given fields replaced by the non-null parameter values.
@@ -342,17 +342,18 @@ mixin _$TourTypePricing {
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.displayDescription, displayDescription) ||
                 other.displayDescription == displayDescription) &&
-            (identical(other.price, price) || other.price == price));
+            (identical(other.priceCents, priceCents) ||
+                other.priceCents == priceCents));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, name, displayName, notes, displayDescription, price);
+  int get hashCode => Object.hash(runtimeType, id, name, displayName, notes,
+      displayDescription, priceCents);
 
   @override
   String toString() {
-    return 'TourTypePricing(id: $id, name: $name, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, price: $price)';
+    return 'TourTypePricing(id: $id, name: $name, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents)';
   }
 }
 
@@ -368,7 +369,7 @@ abstract mixin class $TourTypePricingCopyWith<$Res> {
       String displayName,
       String? notes,
       String? displayDescription,
-      double price});
+      int priceCents});
 }
 
 /// @nodoc
@@ -389,7 +390,7 @@ class _$TourTypePricingCopyWithImpl<$Res>
     Object? displayName = null,
     Object? notes = freezed,
     Object? displayDescription = freezed,
-    Object? price = null,
+    Object? priceCents = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -412,10 +413,10 @@ class _$TourTypePricingCopyWithImpl<$Res>
           ? _self.displayDescription
           : displayDescription // ignore: cast_nullable_to_non_nullable
               as String?,
-      price: null == price
-          ? _self.price
-          : price // ignore: cast_nullable_to_non_nullable
-              as double,
+      priceCents: null == priceCents
+          ? _self.priceCents
+          : priceCents // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }
@@ -429,7 +430,7 @@ class _TourTypePricing implements TourTypePricing {
       this.displayName = "",
       this.notes,
       this.displayDescription,
-      this.price = 0});
+      this.priceCents = 0});
   factory _TourTypePricing.fromJson(Map<String, dynamic> json) =>
       _$TourTypePricingFromJson(json);
 
@@ -457,7 +458,7 @@ class _TourTypePricing implements TourTypePricing {
   /// The price of this tour.
   @override
   @JsonKey()
-  final double price;
+  final int priceCents;
 
   /// Create a copy of TourTypePricing
   /// with the given fields replaced by the non-null parameter values.
@@ -486,17 +487,18 @@ class _TourTypePricing implements TourTypePricing {
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.displayDescription, displayDescription) ||
                 other.displayDescription == displayDescription) &&
-            (identical(other.price, price) || other.price == price));
+            (identical(other.priceCents, priceCents) ||
+                other.priceCents == priceCents));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, name, displayName, notes, displayDescription, price);
+  int get hashCode => Object.hash(runtimeType, id, name, displayName, notes,
+      displayDescription, priceCents);
 
   @override
   String toString() {
-    return 'TourTypePricing(id: $id, name: $name, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, price: $price)';
+    return 'TourTypePricing(id: $id, name: $name, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents)';
   }
 }
 
@@ -514,7 +516,7 @@ abstract mixin class _$TourTypePricingCopyWith<$Res>
       String displayName,
       String? notes,
       String? displayDescription,
-      double price});
+      int priceCents});
 }
 
 /// @nodoc
@@ -535,7 +537,7 @@ class __$TourTypePricingCopyWithImpl<$Res>
     Object? displayName = null,
     Object? notes = freezed,
     Object? displayDescription = freezed,
-    Object? price = null,
+    Object? priceCents = null,
   }) {
     return _then(_TourTypePricing(
       id: null == id
@@ -558,10 +560,10 @@ class __$TourTypePricingCopyWithImpl<$Res>
           ? _self.displayDescription
           : displayDescription // ignore: cast_nullable_to_non_nullable
               as String?,
-      price: null == price
-          ? _self.price
-          : price // ignore: cast_nullable_to_non_nullable
-              as double,
+      priceCents: null == priceCents
+          ? _self.priceCents
+          : priceCents // ignore: cast_nullable_to_non_nullable
+              as int,
     ));
   }
 }

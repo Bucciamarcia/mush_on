@@ -85,28 +85,6 @@ class CustomerManagementRepository {
       logger.error("Couldn't set customer group.", error: e, stackTrace: s);
       rethrow;
     }
-
-    // If the date has changed, we need to remove the bookings frm this customer group.
-    var collection = _db
-        .collection("accounts/$account/data/bookingManager/bookings")
-        .where("customerGroupId", isEqualTo: cg.id);
-    var snapshot = await collection.get();
-    var docs = snapshot.docs;
-    List<Booking> bookings =
-        docs.map((doc) => Booking.fromJson(doc.data())).toList();
-    List<Booking> wrongBookings =
-        bookings.where((booking) => booking.date != cg.datetime).toList();
-    if (wrongBookings.isEmpty) {
-      return;
-    }
-    var batch = _db.batch();
-    for (var wb in wrongBookings) {
-      wb = wb.copyWith(customerGroupId: null);
-      batch.set(
-          _db.doc("accounts/$account/data/bookingManager/bookings/${wb.id}"),
-          wb.toJson());
-    }
-    batch.commit();
   }
 
   Future<void> deleteCustomerGroup(String id) async {
@@ -121,7 +99,7 @@ class CustomerManagementRepository {
         .where("customerGroupId", isEqualTo: id)
         .get();
     for (var c in col.docs) {
-      batch.update(_db.doc("$bookingPath/${c.id}"), {"customerGroupId": null});
+      batch.delete(_db.doc("$bookingPath/${c.id}"));
     }
     try {
       await batch.commit();

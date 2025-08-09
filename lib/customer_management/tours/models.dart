@@ -58,7 +58,7 @@ sealed class TourTypePricing with _$TourTypePricing {
     String? displayDescription,
 
     /// The price of this tour.
-    @Default(0) double price,
+    @Default(0) int priceCents,
   }) = _TourTypePricing;
 
   factory TourTypePricing.fromJson(Map<String, dynamic> json) =>

@@ -327,14 +327,10 @@ mixin _$Booking {
   /// The internal user friendly name of this group.
   String get name;
 
-  /// The date and time of the booking
-  @NonNullableTimestampConverter()
-  DateTime get date;
-
   /// The ID of the CustomerGroup this booking is part of.
   ///
-  /// Nullable because bookings when they're created they may not be assigned yet.
-  String? get customerGroupId;
+  /// Required because CustomerGroup is where date time is.
+  String get customerGroupId;
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -353,18 +349,17 @@ mixin _$Booking {
             other is Booking &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.date, date) || other.date == date) &&
             (identical(other.customerGroupId, customerGroupId) ||
                 other.customerGroupId == customerGroupId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, date, customerGroupId);
+  int get hashCode => Object.hash(runtimeType, id, name, customerGroupId);
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, date: $date, customerGroupId: $customerGroupId)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId)';
   }
 }
 
@@ -373,11 +368,7 @@ abstract mixin class $BookingCopyWith<$Res> {
   factory $BookingCopyWith(Booking value, $Res Function(Booking) _then) =
       _$BookingCopyWithImpl;
   @useResult
-  $Res call(
-      {String id,
-      String name,
-      @NonNullableTimestampConverter() DateTime date,
-      String? customerGroupId});
+  $Res call({String id, String name, String customerGroupId});
 }
 
 /// @nodoc
@@ -394,8 +385,7 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? date = null,
-    Object? customerGroupId = freezed,
+    Object? customerGroupId = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -406,14 +396,10 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      date: null == date
-          ? _self.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      customerGroupId: freezed == customerGroupId
+      customerGroupId: null == customerGroupId
           ? _self.customerGroupId
           : customerGroupId // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
     ));
   }
 }
@@ -423,10 +409,7 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
 @JsonSerializable(explicitToJson: true)
 class _Booking implements Booking {
   const _Booking(
-      {required this.id,
-      this.name = "",
-      @NonNullableTimestampConverter() required this.date,
-      this.customerGroupId});
+      {required this.id, this.name = "", required this.customerGroupId});
   factory _Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
 
@@ -438,16 +421,11 @@ class _Booking implements Booking {
   @JsonKey()
   final String name;
 
-  /// The date and time of the booking
-  @override
-  @NonNullableTimestampConverter()
-  final DateTime date;
-
   /// The ID of the CustomerGroup this booking is part of.
   ///
-  /// Nullable because bookings when they're created they may not be assigned yet.
+  /// Required because CustomerGroup is where date time is.
   @override
-  final String? customerGroupId;
+  final String customerGroupId;
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -471,18 +449,17 @@ class _Booking implements Booking {
             other is _Booking &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.date, date) || other.date == date) &&
             (identical(other.customerGroupId, customerGroupId) ||
                 other.customerGroupId == customerGroupId));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, date, customerGroupId);
+  int get hashCode => Object.hash(runtimeType, id, name, customerGroupId);
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, date: $date, customerGroupId: $customerGroupId)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId)';
   }
 }
 
@@ -492,11 +469,7 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
       __$BookingCopyWithImpl;
   @override
   @useResult
-  $Res call(
-      {String id,
-      String name,
-      @NonNullableTimestampConverter() DateTime date,
-      String? customerGroupId});
+  $Res call({String id, String name, String customerGroupId});
 }
 
 /// @nodoc
@@ -513,8 +486,7 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? name = null,
-    Object? date = null,
-    Object? customerGroupId = freezed,
+    Object? customerGroupId = null,
   }) {
     return _then(_Booking(
       id: null == id
@@ -525,14 +497,10 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
-      date: null == date
-          ? _self.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      customerGroupId: freezed == customerGroupId
+      customerGroupId: null == customerGroupId
           ? _self.customerGroupId
           : customerGroupId // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as String,
     ));
   }
 }

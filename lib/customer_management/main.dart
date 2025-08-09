@@ -23,18 +23,10 @@ class ClientManagementMainScreen extends ConsumerWidget {
             [];
     final todaysOrphanedCustomerGroups =
         todaysCustomerGroups.where((cg) => cg.teamGroupId == null).toList();
-    final todaysBookings =
-        ref.watch(bookingsByDayProvider(DateTimeUtils.today())).value ?? [];
-    final todaysOrphanedBookings =
-        todaysBookings.where((b) => b.customerGroupId == null).toList();
-    final futureBookings =
-        ref.watch(futureBookingsProvider(untilDate: null)).value ?? [];
     final futureCustomerGroups =
         ref.watch(futureCustomerGroupsProvider(untilDate: null)).value ?? [];
     final customerGroupsWithoutTeamgroup =
         futureCustomerGroups.where((c) => c.teamGroupId == null).toList();
-    final bookingsWithoutCustomerGroup =
-        futureBookings.where((b) => b.customerGroupId == null).toList();
 
     final tomorrowCustomerGroups = ref
             .watch(futureCustomerGroupsProvider(
@@ -54,27 +46,11 @@ class ClientManagementMainScreen extends ConsumerWidget {
           child:
               ListCustomerGroups(customerGroups: todaysOrphanedCustomerGroups),
         ),
-      if (todaysOrphanedBookings.isNotEmpty)
-        _WarningSection(
-          title: "Today's Orphaned Bookings",
-          child: ListBookings(
-            bookings: todaysOrphanedBookings,
-            customerGroups: todaysCustomerGroups,
-          ),
-        ),
       if (customerGroupsWithoutTeamgroup.isNotEmpty)
         _WarningSection(
           title: "Future Customer Groups Without a Team",
           child: ListCustomerGroups(
               customerGroups: customerGroupsWithoutTeamgroup),
-        ),
-      if (bookingsWithoutCustomerGroup.isNotEmpty)
-        _WarningSection(
-          title: "Future Bookings Without a Customer Group",
-          child: ListBookings(
-            bookings: bookingsWithoutCustomerGroup,
-            customerGroups: futureCustomerGroups,
-          ),
         ),
     ];
     return DefaultTabController(
@@ -138,14 +114,6 @@ class ClientManagementMainScreen extends ConsumerWidget {
                       else
                         const Text("No customer groups for today."),
                       const SizedBox(height: 16),
-                      if (todaysBookings.isNotEmpty)
-                        ListBookings(
-                          bookings: todaysBookings,
-                          customerGroups: todaysCustomerGroups,
-                        )
-                      else
-                        const Text("No bookings for today."),
-                      const SizedBox(height: 24),
 
                       // Future
                       _buildSectionTitle(context, "Upcoming"),
@@ -316,7 +284,10 @@ class ListCustomerGroups extends ConsumerWidget {
                       Text("Bookings:",
                           style: Theme.of(context).textTheme.labelLarge),
                       const SizedBox(height: 8),
-                      ...bookings.map((b) => _BookingCardInGroup(booking: b)),
+                      ...bookings.map((b) => _BookingCardInGroup(
+                            booking: b,
+                            selectedCustomerGroup: cg,
+                          )),
                     ],
                   ],
                 ),
@@ -331,8 +302,10 @@ class ListCustomerGroups extends ConsumerWidget {
 
 class _BookingCardInGroup extends ConsumerWidget {
   final Booking booking;
+  final CustomerGroup selectedCustomerGroup;
 
-  const _BookingCardInGroup({required this.booking});
+  const _BookingCardInGroup(
+      {required this.booking, required this.selectedCustomerGroup});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -349,6 +322,7 @@ class _BookingCardInGroup extends ConsumerWidget {
         onTap: () => showDialog(
           context: context,
           builder: (_) => BookingEditorAlert(
+            selectedCustomerGroup: selectedCustomerGroup,
             booking: booking,
             onBookingDeleted: () async =>
                 await customerRepo.deleteBooking(booking.id).catchError(
@@ -358,15 +332,11 @@ class _BookingCardInGroup extends ConsumerWidget {
                     ),
             onBookingEdited: (nb) async {
               await customerRepo.setBooking(nb);
-              ref.invalidate(bookingsByDayProvider);
               ref.invalidate(bookingsByCustomerGroupIdProvider);
-              ref.invalidate(futureBookingsProvider);
             },
             onCustomersEdited: (ncs) async {
               await customerRepo.setCustomers(ncs, booking.id);
-              ref.invalidate(bookingsByDayProvider);
               ref.invalidate(bookingsByCustomerGroupIdProvider);
-              ref.invalidate(futureBookingsProvider);
             },
           ),
         ),
@@ -387,126 +357,6 @@ class _BookingCardInGroup extends ConsumerWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// A list of the bookings that can be clicked. In Column() form.
-class ListBookings extends ConsumerWidget {
-  final List<Booking> bookings;
-  final List<CustomerGroup> customerGroups;
-
-  const ListBookings({
-    super.key,
-    required this.bookings,
-    required this.customerGroups,
-  });
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final account = ref.watch(accountProvider).value ?? "";
-    final customerRepo = CustomerManagementRepository(account: account);
-
-    return Column(
-      children: bookings.map((b) {
-        final customers =
-            ref.watch(customersByBookingIdProvider(b.id)).value ?? [];
-        CustomerGroup? customerGroup;
-        if (b.customerGroupId != null) {
-          try {
-            customerGroup =
-                customerGroups.firstWhere((cg) => cg.id == b.customerGroupId);
-          } catch (e) {
-            customerGroup = null;
-          }
-        }
-
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8.0),
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) => BookingEditorAlert(
-                onBookingDeleted: () async =>
-                    await customerRepo.deleteBooking(b.id).catchError(
-                          (e) => ScaffoldMessenger.of(context).showSnackBar(
-                            errorSnackBar(context, "Failed to delete booking."),
-                          ),
-                        ),
-                booking: b,
-                onBookingEdited: (nb) async {
-                  await customerRepo.setBooking(nb);
-                  ref.invalidate(bookingsByDayProvider);
-                  ref.invalidate(bookingsByCustomerGroupIdProvider);
-                  ref.invalidate(futureBookingsProvider);
-                },
-                onCustomersEdited: (ncs) async {
-                  await customerRepo.setCustomers(ncs, b.id);
-                  ref.invalidate(bookingsByDayProvider);
-                  ref.invalidate(bookingsByCustomerGroupIdProvider);
-                  ref.invalidate(futureBookingsProvider);
-                },
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    b.name,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.calendar_today,
-                          size: 14,
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant),
-                      const SizedBox(width: 8),
-                      Text(
-                        DateFormat("dd-MM-yyyy 'at' hh:mm").format(b.date),
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 4.0,
-                    children: [
-                      Chip(
-                        avatar: Icon(Icons.people_outline_rounded, size: 18),
-                        label: Text("${customers.length} Customers"),
-                      ),
-                      if (customerGroup != null)
-                        Chip(
-                          avatar: Icon(Icons.group_work_outlined, size: 18),
-                          label: Text(customerGroup.name),
-                        )
-                      else
-                        Chip(
-                          avatar: Icon(Icons.warning_amber_rounded, size: 18),
-                          label: const Text("No Customer Group"),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.errorContainer,
-                        ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
-        );
-      }).toList(),
     );
   }
 }
