@@ -476,8 +476,8 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
     super.initState();
     id = widget.pricing?.id ?? Uuid().v4();
     nameController = TextEditingController(text: widget.pricing?.name);
-    priceController =
-        TextEditingController(text: widget.pricing?.price.toStringAsFixed(2));
+    priceController = TextEditingController(
+        text: ((widget.pricing?.priceCents ?? 0) / 100).toStringAsFixed(2));
     notes = TextEditingController(text: widget.pricing?.notes);
     displayNameController =
         TextEditingController(text: widget.pricing?.displayName);
@@ -663,7 +663,9 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
                 id: id,
                 name: nameController.text,
                 displayName: displayNameController.text,
-                price: double.tryParse(priceController.text) ?? 0.0,
+                priceCents:
+                    ((double.tryParse(priceController.text) ?? 0.0) * 100)
+                        .round(),
                 notes: notes.text,
                 displayDescription: displayDescription.text,
               ),

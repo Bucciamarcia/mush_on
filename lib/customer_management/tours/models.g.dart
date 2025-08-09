@@ -33,7 +33,7 @@ _TourTypePricing _$TourTypePricingFromJson(Map<String, dynamic> json) =>
       displayName: json['displayName'] as String? ?? "",
       notes: json['notes'] as String?,
       displayDescription: json['displayDescription'] as String?,
-      price: (json['price'] as num?)?.toDouble() ?? 0,
+      priceCents: (json['priceCents'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$TourTypePricingToJson(_TourTypePricing instance) =>
@@ -43,5 +43,5 @@ Map<String, dynamic> _$TourTypePricingToJson(_TourTypePricing instance) =>
       'displayName': instance.displayName,
       'notes': instance.notes,
       'displayDescription': instance.displayDescription,
-      'price': instance.price,
+      'priceCents': instance.priceCents,
     };

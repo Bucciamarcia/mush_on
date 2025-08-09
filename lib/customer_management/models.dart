@@ -52,13 +52,10 @@ sealed class Booking with _$Booking {
     /// The internal user friendly name of this group.
     @Default("") String name,
 
-    /// The date and time of the booking
-    @NonNullableTimestampConverter() required DateTime date,
-
     /// The ID of the CustomerGroup this booking is part of.
     ///
-    /// Nullable because bookings when they're created they may not be assigned yet.
-    String? customerGroupId,
+    /// Required because CustomerGroup is where date time is.
+    required String customerGroupId,
   }) = _Booking;
 
   factory Booking.fromJson(Map<String, dynamic> json) =>

@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mush_on/customer_management/alert_editors/booking.dart';
-import 'package:mush_on/customer_management/customer_group_viewer.dart';
 import 'package:mush_on/customer_management/tours/main.dart';
 import 'package:mush_on/health/main.dart';
 import 'package:mush_on/health/provider.dart';
@@ -12,8 +10,6 @@ import 'package:mush_on/kennel/main.dart';
 import 'package:mush_on/login_screen/login_screen.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:uuid/uuid.dart';
-
 import 'customer_management/alert_editors/customer_group.dart';
 import 'customer_management/main.dart';
 import 'customer_management/repository.dart';
@@ -62,52 +58,6 @@ class TemplateScreen extends ConsumerWidget {
         animatedIcon: AnimatedIcons.menu_close,
         backgroundColor: Colors.blue,
         children: [
-          SpeedDialChild(
-            child: FaIcon(FontAwesomeIcons.bookOpen),
-            label: "Add booking",
-            onTap: () => showDialog(
-              context: context,
-              builder: (_) {
-                String uid = Uuid().v4();
-                return BookingEditorAlert(
-                  onBookingDeleted: () {
-                    if (context.mounted) Navigator.of(context).pop();
-                  },
-                  id: uid,
-                  onCustomersEdited: (customers) async {
-                    try {
-                      await customerRepo.setCustomers(customers, uid);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            confirmationSnackbar(
-                                context, "Customers added successfully"));
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            errorSnackBar(context, "Couldn't add customers"));
-                      }
-                    }
-                  },
-                  onBookingEdited: (newBooking) async {
-                    try {
-                      await customerRepo.setBooking(newBooking);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            confirmationSnackbar(
-                                context, "Booking added successfully"));
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            errorSnackBar(context, "Couldn't add booking"));
-                      }
-                    }
-                  },
-                );
-              },
-            ),
-          ),
           SpeedDialChild(
               child: Icon(Icons.people_alt),
               label: "Add Customer Group",

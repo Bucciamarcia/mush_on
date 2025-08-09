@@ -339,6 +339,7 @@ class CustomerGroupViewer extends ConsumerWidget {
                           (booking) => Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: BookingCard(
+                              selectedCustomerGroup: customerGroup,
                               pricings: pricings,
                               booking: booking,
                               customers: ref
@@ -374,11 +375,13 @@ class BookingCard extends ConsumerWidget {
   final Booking booking;
   final List<Customer> customers;
   final List<TourTypePricing>? pricings;
+  final CustomerGroup selectedCustomerGroup;
   const BookingCard(
       {super.key,
       required this.booking,
       required this.customers,
-      required this.pricings});
+      required this.pricings,
+      required this.selectedCustomerGroup});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -387,6 +390,7 @@ class BookingCard extends ConsumerWidget {
       onTap: () => showDialog(
         context: context,
         builder: (_) => BookingEditorAlert(
+          selectedCustomerGroup: selectedCustomerGroup,
           onBookingDeleted: () async {
             final String account = await ref.watch(accountProvider.future);
             final customerRepo = CustomerManagementRepository(account: account);
@@ -401,17 +405,13 @@ class BookingCard extends ConsumerWidget {
             final String account = await ref.watch(accountProvider.future);
             final customerRepo = CustomerManagementRepository(account: account);
             await customerRepo.setBooking(nb);
-            ref.invalidate(bookingsByDayProvider);
             ref.invalidate(bookingsByCustomerGroupIdProvider);
-            ref.invalidate(futureBookingsProvider);
           },
           onCustomersEdited: (ncs) async {
             final String account = await ref.watch(accountProvider.future);
             final customerRepo = CustomerManagementRepository(account: account);
             await customerRepo.setCustomers(ncs, booking.id);
-            ref.invalidate(bookingsByDayProvider);
             ref.invalidate(bookingsByCustomerGroupIdProvider);
-            ref.invalidate(futureBookingsProvider);
           },
         ),
       ),
