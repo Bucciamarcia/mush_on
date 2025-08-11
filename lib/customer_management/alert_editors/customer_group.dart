@@ -51,7 +51,8 @@ class _CustomerGroupEditorAlertState
 
   @override
   Widget build(BuildContext context) {
-    List<TourType> tours = ref.watch(allTourTypesProvider).value ?? [];
+    List<TourType> tours =
+        ref.watch(allTourTypesProvider(showArchived: false)).value ?? [];
 
     // Initialize selectedTour and tourNameController if editing existing customer group
     if (widget.customerGroup != null &&

@@ -35,6 +35,9 @@ mixin _$TourType {
   /// Description to show to the customer of this tour.
   String? get displayDescription;
 
+  /// Archives the tour (can't delete for stats).
+  bool get isArchived;
+
   /// Create a copy of TourType
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -60,17 +63,19 @@ mixin _$TourType {
                 other.duration == duration) &&
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.displayDescription, displayDescription) ||
-                other.displayDescription == displayDescription));
+                other.displayDescription == displayDescription) &&
+            (identical(other.isArchived, isArchived) ||
+                other.isArchived == isArchived));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, displayName, distance,
-      duration, notes, displayDescription);
+      duration, notes, displayDescription, isArchived);
 
   @override
   String toString() {
-    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, duration: $duration, notes: $notes, displayDescription: $displayDescription)';
+    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, duration: $duration, notes: $notes, displayDescription: $displayDescription, isArchived: $isArchived)';
   }
 }
 
@@ -86,7 +91,8 @@ abstract mixin class $TourTypeCopyWith<$Res> {
       double distance,
       int duration,
       String? notes,
-      String? displayDescription});
+      String? displayDescription,
+      bool isArchived});
 }
 
 /// @nodoc
@@ -108,6 +114,7 @@ class _$TourTypeCopyWithImpl<$Res> implements $TourTypeCopyWith<$Res> {
     Object? duration = null,
     Object? notes = freezed,
     Object? displayDescription = freezed,
+    Object? isArchived = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -138,6 +145,10 @@ class _$TourTypeCopyWithImpl<$Res> implements $TourTypeCopyWith<$Res> {
           ? _self.displayDescription
           : displayDescription // ignore: cast_nullable_to_non_nullable
               as String?,
+      isArchived: null == isArchived
+          ? _self.isArchived
+          : isArchived // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -152,7 +163,8 @@ class _TourType implements TourType {
       this.distance = 0,
       required this.duration,
       this.notes,
-      this.displayDescription});
+      this.displayDescription,
+      this.isArchived = false});
   factory _TourType.fromJson(Map<String, dynamic> json) =>
       _$TourTypeFromJson(json);
 
@@ -186,6 +198,11 @@ class _TourType implements TourType {
   @override
   final String? displayDescription;
 
+  /// Archives the tour (can't delete for stats).
+  @override
+  @JsonKey()
+  final bool isArchived;
+
   /// Create a copy of TourType
   /// with the given fields replaced by the non-null parameter values.
   @override
@@ -216,17 +233,19 @@ class _TourType implements TourType {
                 other.duration == duration) &&
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.displayDescription, displayDescription) ||
-                other.displayDescription == displayDescription));
+                other.displayDescription == displayDescription) &&
+            (identical(other.isArchived, isArchived) ||
+                other.isArchived == isArchived));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, displayName, distance,
-      duration, notes, displayDescription);
+      duration, notes, displayDescription, isArchived);
 
   @override
   String toString() {
-    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, duration: $duration, notes: $notes, displayDescription: $displayDescription)';
+    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, duration: $duration, notes: $notes, displayDescription: $displayDescription, isArchived: $isArchived)';
   }
 }
 
@@ -244,7 +263,8 @@ abstract mixin class _$TourTypeCopyWith<$Res>
       double distance,
       int duration,
       String? notes,
-      String? displayDescription});
+      String? displayDescription,
+      bool isArchived});
 }
 
 /// @nodoc
@@ -266,6 +286,7 @@ class __$TourTypeCopyWithImpl<$Res> implements _$TourTypeCopyWith<$Res> {
     Object? duration = null,
     Object? notes = freezed,
     Object? displayDescription = freezed,
+    Object? isArchived = null,
   }) {
     return _then(_TourType(
       id: null == id
@@ -296,6 +317,10 @@ class __$TourTypeCopyWithImpl<$Res> implements _$TourTypeCopyWith<$Res> {
           ? _self.displayDescription
           : displayDescription // ignore: cast_nullable_to_non_nullable
               as String?,
+      isArchived: null == isArchived
+          ? _self.isArchived
+          : isArchived // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }

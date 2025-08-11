@@ -8,20 +8,27 @@ part 'riverpod.g.dart';
 @riverpod
 
 /// A list of every tour type.
-Stream<List<TourType>> allTourTypes(Ref ref) async* {
+Stream<List<TourType>> allTourTypes(Ref ref,
+    {bool showArchived = false}) async* {
   String account = await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/bookingManager/tours";
   var db = FirebaseFirestore.instance;
-  var collection = db.collection(path);
-  yield* collection.snapshots().map(
-        (snapshot) => snapshot.docs
-            .map(
-              (doc) => TourType.fromJson(
-                doc.data(),
-              ),
-            )
-            .toList(),
-      );
+  late Stream<QuerySnapshot<Map<String, dynamic>>> collection;
+  if (showArchived) {
+    collection = db.collection(path).snapshots();
+  } else {
+    collection =
+        db.collection(path).where("isArchived", isEqualTo: false).snapshots();
+  }
+  yield* collection.map(
+    (snapshot) => snapshot.docs
+        .map(
+          (doc) => TourType.fromJson(
+            doc.data(),
+          ),
+        )
+        .toList(),
+  );
 }
 
 @riverpod

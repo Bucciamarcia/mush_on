@@ -6,25 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$allTourTypesHash() => r'dae7b58e328ca93039e201a773d55d665abea6d2';
-
-/// A list of every tour type.
-///
-/// Copied from [allTourTypes].
-@ProviderFor(allTourTypes)
-final allTourTypesProvider = AutoDisposeStreamProvider<List<TourType>>.internal(
-  allTourTypes,
-  name: r'allTourTypesProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$allTourTypesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef AllTourTypesRef = AutoDisposeStreamProviderRef<List<TourType>>;
-String _$tourTypeByIdHash() => r'b1f3612be40fef2775982b058a6912a61695d15d';
+String _$allTourTypesHash() => r'16bbea89af812bf1df4bb512faedb029c5e07868';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -46,6 +28,149 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+/// A list of every tour type.
+///
+/// Copied from [allTourTypes].
+@ProviderFor(allTourTypes)
+const allTourTypesProvider = AllTourTypesFamily();
+
+/// A list of every tour type.
+///
+/// Copied from [allTourTypes].
+class AllTourTypesFamily extends Family<AsyncValue<List<TourType>>> {
+  /// A list of every tour type.
+  ///
+  /// Copied from [allTourTypes].
+  const AllTourTypesFamily();
+
+  /// A list of every tour type.
+  ///
+  /// Copied from [allTourTypes].
+  AllTourTypesProvider call({
+    bool showArchived = false,
+  }) {
+    return AllTourTypesProvider(
+      showArchived: showArchived,
+    );
+  }
+
+  @override
+  AllTourTypesProvider getProviderOverride(
+    covariant AllTourTypesProvider provider,
+  ) {
+    return call(
+      showArchived: provider.showArchived,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'allTourTypesProvider';
+}
+
+/// A list of every tour type.
+///
+/// Copied from [allTourTypes].
+class AllTourTypesProvider extends AutoDisposeStreamProvider<List<TourType>> {
+  /// A list of every tour type.
+  ///
+  /// Copied from [allTourTypes].
+  AllTourTypesProvider({
+    bool showArchived = false,
+  }) : this._internal(
+          (ref) => allTourTypes(
+            ref as AllTourTypesRef,
+            showArchived: showArchived,
+          ),
+          from: allTourTypesProvider,
+          name: r'allTourTypesProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$allTourTypesHash,
+          dependencies: AllTourTypesFamily._dependencies,
+          allTransitiveDependencies:
+              AllTourTypesFamily._allTransitiveDependencies,
+          showArchived: showArchived,
+        );
+
+  AllTourTypesProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.showArchived,
+  }) : super.internal();
+
+  final bool showArchived;
+
+  @override
+  Override overrideWith(
+    Stream<List<TourType>> Function(AllTourTypesRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: AllTourTypesProvider._internal(
+        (ref) => create(ref as AllTourTypesRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        showArchived: showArchived,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<TourType>> createElement() {
+    return _AllTourTypesProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is AllTourTypesProvider && other.showArchived == showArchived;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, showArchived.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin AllTourTypesRef on AutoDisposeStreamProviderRef<List<TourType>> {
+  /// The parameter `showArchived` of this provider.
+  bool get showArchived;
+}
+
+class _AllTourTypesProviderElement
+    extends AutoDisposeStreamProviderElement<List<TourType>>
+    with AllTourTypesRef {
+  _AllTourTypesProviderElement(super.provider);
+
+  @override
+  bool get showArchived => (origin as AllTourTypesProvider).showArchived;
+}
+
+String _$tourTypeByIdHash() => r'b1f3612be40fef2775982b058a6912a61695d15d';
 
 /// Gets the tour type object from its id.
 ///
