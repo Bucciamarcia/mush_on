@@ -14,6 +14,8 @@ _TourType _$TourTypeFromJson(Map<String, dynamic> json) => _TourType(
       duration: (json['duration'] as num).toInt(),
       notes: json['notes'] as String?,
       displayDescription: json['displayDescription'] as String?,
+      backgroundColor: const ColorConverter()
+          .fromJson((json['backgroundColor'] as num).toInt()),
       isArchived: json['isArchived'] as bool? ?? false,
     );
 
@@ -25,6 +27,8 @@ Map<String, dynamic> _$TourTypeToJson(_TourType instance) => <String, dynamic>{
       'duration': instance.duration,
       'notes': instance.notes,
       'displayDescription': instance.displayDescription,
+      'backgroundColor':
+          const ColorConverter().toJson(instance.backgroundColor),
       'isArchived': instance.isArchived,
     };
 
