@@ -10,7 +10,8 @@ class ToursMainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<TourType> tours = ref.watch(allTourTypesProvider).value ?? [];
+    List<TourType> tours =
+        ref.watch(allTourTypesProvider(showArchived: false)).value ?? [];
     tours.sort((a, b) => a.distance.compareTo(b.distance));
     final colorScheme = Theme.of(context).colorScheme;
 

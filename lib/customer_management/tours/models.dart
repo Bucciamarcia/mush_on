@@ -29,6 +29,9 @@ sealed class TourType with _$TourType {
 
     /// Description to show to the customer of this tour.
     String? displayDescription,
+
+    /// Archives the tour (can't delete for stats).
+    @Default(false) bool isArchived,
   }) = _TourType;
 
   factory TourType.fromJson(Map<String, dynamic> json) =>

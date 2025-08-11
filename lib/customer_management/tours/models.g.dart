@@ -14,6 +14,7 @@ _TourType _$TourTypeFromJson(Map<String, dynamic> json) => _TourType(
       duration: (json['duration'] as num).toInt(),
       notes: json['notes'] as String?,
       displayDescription: json['displayDescription'] as String?,
+      isArchived: json['isArchived'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$TourTypeToJson(_TourType instance) => <String, dynamic>{
@@ -24,6 +25,7 @@ Map<String, dynamic> _$TourTypeToJson(_TourType instance) => <String, dynamic>{
       'duration': instance.duration,
       'notes': instance.notes,
       'displayDescription': instance.displayDescription,
+      'isArchived': instance.isArchived,
     };
 
 _TourTypePricing _$TourTypePricingFromJson(Map<String, dynamic> json) =>

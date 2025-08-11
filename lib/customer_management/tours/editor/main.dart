@@ -103,7 +103,18 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               account: await ref.watch(accountProvider.future),
             );
             try {
-              await repo.deleteTour(id);
+              await repo.setTour(
+                tour: TourType(
+                  isArchived: true,
+                  id: id,
+                  name: nameController.text,
+                  duration: int.tryParse(durationController.text) ?? 0,
+                  displayName: displayNameController.text,
+                  distance: double.tryParse(distanceController.text) ?? 0.0,
+                  notes: notesController.text,
+                  displayDescription: displayDescriptionController.text,
+                ),
+              );
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   confirmationSnackbar(context, "Tour deleted"),
@@ -443,7 +454,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
             ),
             icon: Icon(Icons.delete),
             label: Text(
-              "Delete",
+              "Archive",
               style: TextStyle(color: colorScheme.onError),
             ),
           ),
@@ -715,9 +726,9 @@ class ConfirmDeleteAlert extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog.adaptive(
-      title: Text("Confirm Deletion"),
+      title: Text("Confirm archive"),
       content: Text(
-        "Are you sure you want to delete this tour? This action cannot be undone.",
+        "Tours can't be deleted, only archived for safety. Are you sure?",
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -736,7 +747,7 @@ class ConfirmDeleteAlert extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.error,
             foregroundColor: Theme.of(context).colorScheme.onError,
           ),
-          child: Text("Delete"),
+          child: Text("Archive"),
         ),
       ],
     );
