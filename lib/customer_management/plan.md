@@ -29,8 +29,8 @@ Customer -> Booking -> CustomerGroup -> TeamGroup (1:1)
 #### Calendar View
 - Month/week/day calendar interface DONE!
 - Visual representation of bookings by date/time DONE!
-- Color coding by route/distance
-- Capacity indicators per time slot
+- Color coding by route/distance DONE!
+- Capacity indicators per time slot DONE!
 
 #### Availability System
 - Kennel configures available time slots

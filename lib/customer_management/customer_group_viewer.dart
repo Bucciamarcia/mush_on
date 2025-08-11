@@ -4,6 +4,7 @@ import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:intl/intl.dart';
 
 import '../create_team/riverpod.dart';
 import '../riverpod.dart';
@@ -154,6 +155,32 @@ class CustomerGroupViewer extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 12),
+                      // Date & Time
+                      Row(
+                        children: [
+                          Icon(Icons.event,
+                              color: colorScheme.onSurfaceVariant, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            DateFormat("EEEE, MMMM d, yyyy").format(
+                                customerGroup.datetime),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.schedule,
+                              color: colorScheme.onSurfaceVariant, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            DateFormat("HH:mm").format(customerGroup.datetime),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Icon(Icons.people,
