@@ -26,8 +26,6 @@ Customer -> Booking -> CustomerGroup -> TeamGroup (1:1)
 ### 1. Calendar & Availability Management
 **Priority: Critical**
 
-- In Customer Group editor, add possibility to add bookings.
-
 #### Calendar View
 - Month/week/day calendar interface DONE!
 - Visual representation of bookings by date/time DONE!
