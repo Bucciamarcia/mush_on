@@ -216,6 +216,9 @@ class ListCustomerGroups extends ConsumerWidget {
               ? ref.watch(teamGroupByIdProvider(cg.teamGroupId!)).value
               : null;
 
+          final customers =
+              ref.watch(customersByCustomerGroupIdProvider(cg.id)).value ?? [];
+
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8.0),
             elevation: 2,
@@ -253,6 +256,21 @@ class ListCustomerGroups extends ConsumerWidget {
                         Text(
                           DateFormat("dd-MM-yyyy 'at' hh:mm")
                               .format(cg.datetime),
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.people,
+                            size: 14,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        Text(
+                          "${customers.length}/${cg.maxCapacity}",
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ],
