@@ -2,8 +2,26 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
+    function isSignedIn() { return request.auth != null; }
+    // NOTE: get()/exists() require a path literal, not a string.
+    function userAccount() {
+      return isSignedIn() &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.account
+        : null;
     }
+
+    // Users can fully manage their own user doc
+    match /users/{uid} {
+      allow read, write: if isSignedIn() && uid == request.auth.uid;
+    }
+
+    // Restrict account data to the user's assigned account
+    match /accounts/{account}/{document=**} {
+      allow read, write: if isSignedIn() && userAccount() == account;
+    }
+
+    // Default deny for everything else
+    match /{document=**} { allow read, write: if false; }
   }
 }
