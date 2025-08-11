@@ -34,29 +34,29 @@ Customer -> Booking -> CustomerGroup -> TeamGroup (1:1)
 
 #### Availability System
 - Kennel configures available time slots
-- Set total capacity per slot (based on dog pool)
-- Multiple routes can run simultaneously at same time
-- Real-time capacity tracking (16 total, 4 booked = 12 remaining)
+- Set total capacity per slot (based on dog pool) DONE!
+- Multiple routes can run simultaneously at same time DONE!
+- Real-time capacity tracking (16 total, 4 booked = 12 remaining) DONE!
 
 #### Capacity Logic
-- **Single drivers count as 2 capacity units** (need own sled)
-- **Children count as 1 capacity unit**
-- Total kennel capacity shared across all routes at same time
-- Kennel decides capacity allocation per route
+- **Single drivers count as 2 capacity units** (need own sled) FEATURE REMOVED
+- **Children count as 1 capacity unit** FEATURE REMOVED
+- Total kennel capacity shared across all routes at same time CHANGED: NOW TEAMGROUP-BASED
+- Kennel decides capacity allocation per route CHANGED: NOW TEAMGROUP-BASED
 
 ### 2. Slot = CustomerGroup Logic
 **Priority: Critical**
 
 #### Auto-Creation Rules
-- First booking at DateTime + Route → Creates CustomerGroup automatically
-- Subsequent bookings at same DateTime + Route → Added to existing CustomerGroup
+- First booking at DateTime + Route → Creates CustomerGroup automatically CHANGED: NOW TEAMGROUP MANDATORY
+- Subsequent bookings at same DateTime + Route → Added to existing CustomerGroup DONE!
 - CustomerGroup.name auto-generated from DateTime + Route
-- 1:1 CustomerGroup ↔ TeamGroup maintained
+- 1:1 CustomerGroup ↔ TeamGroup maintained DONE!
 
 #### Route Handling
-- TeamGroup.distance (double, km) determines route
-- Multiple CustomerGroups can exist at same DateTime for different routes
-- Each CustomerGroup gets its own TeamGroup with specific distance
+- TeamGroup.distance (double, km) determines route DONE!
+- Multiple CustomerGroups can exist at same DateTime for different routes DONE!
+- Each CustomerGroup gets its own TeamGroup with specific distance DONE!
 
 ### 3. Enhanced Booking Flow
 **Priority: High**
@@ -69,10 +69,9 @@ Customer -> Booking -> CustomerGroup -> TeamGroup (1:1)
 - Real-time availability updates
 
 #### Kennel Management
-- Drag & drop booking management
-- Move bookings between time slots
-- Bulk operations (cancel all bookings for a day)
-- Override capacity limits when needed
+- Move bookings between time slots FOR NOW CAN ONLY DELETE AND RECREATE
+- Bulk operations (cancel all bookings for a day) NOT NOW
+- Override capacity limits when needed CHANGED: NOW TEAMGROUP-BASED
 
 ### 4. Payment Integration
 **Priority: High**
@@ -100,7 +99,6 @@ Customer -> Booking -> CustomerGroup -> TeamGroup (1:1)
 #### Enhanced Customer Tab
 - Display customer preferences (single driver, weight, driving ability)
 - Visual indicators for special requirements
-- Automatic sled assignment suggestions based on customer data
 
 ## Phase 2: Professional Features
 
