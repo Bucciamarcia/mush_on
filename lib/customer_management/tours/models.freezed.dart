@@ -35,6 +35,10 @@ mixin _$TourType {
   /// Description to show to the customer of this tour.
   String? get displayDescription;
 
+  /// Internal color for easy visual identification of the tour.
+  @ColorConverter()
+  Color get backgroundColor;
+
   /// Archives the tour (can't delete for stats).
   bool get isArchived;
 
@@ -64,6 +68,8 @@ mixin _$TourType {
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.displayDescription, displayDescription) ||
                 other.displayDescription == displayDescription) &&
+            (identical(other.backgroundColor, backgroundColor) ||
+                other.backgroundColor == backgroundColor) &&
             (identical(other.isArchived, isArchived) ||
                 other.isArchived == isArchived));
   }
@@ -71,11 +77,11 @@ mixin _$TourType {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, displayName, distance,
-      duration, notes, displayDescription, isArchived);
+      duration, notes, displayDescription, backgroundColor, isArchived);
 
   @override
   String toString() {
-    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, duration: $duration, notes: $notes, displayDescription: $displayDescription, isArchived: $isArchived)';
+    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, duration: $duration, notes: $notes, displayDescription: $displayDescription, backgroundColor: $backgroundColor, isArchived: $isArchived)';
   }
 }
 
@@ -92,6 +98,7 @@ abstract mixin class $TourTypeCopyWith<$Res> {
       int duration,
       String? notes,
       String? displayDescription,
+      @ColorConverter() Color backgroundColor,
       bool isArchived});
 }
 
@@ -114,6 +121,7 @@ class _$TourTypeCopyWithImpl<$Res> implements $TourTypeCopyWith<$Res> {
     Object? duration = null,
     Object? notes = freezed,
     Object? displayDescription = freezed,
+    Object? backgroundColor = null,
     Object? isArchived = null,
   }) {
     return _then(_self.copyWith(
@@ -145,6 +153,10 @@ class _$TourTypeCopyWithImpl<$Res> implements $TourTypeCopyWith<$Res> {
           ? _self.displayDescription
           : displayDescription // ignore: cast_nullable_to_non_nullable
               as String?,
+      backgroundColor: null == backgroundColor
+          ? _self.backgroundColor
+          : backgroundColor // ignore: cast_nullable_to_non_nullable
+              as Color,
       isArchived: null == isArchived
           ? _self.isArchived
           : isArchived // ignore: cast_nullable_to_non_nullable
@@ -164,6 +176,7 @@ class _TourType implements TourType {
       required this.duration,
       this.notes,
       this.displayDescription,
+      @ColorConverter() required this.backgroundColor,
       this.isArchived = false});
   factory _TourType.fromJson(Map<String, dynamic> json) =>
       _$TourTypeFromJson(json);
@@ -197,6 +210,11 @@ class _TourType implements TourType {
   /// Description to show to the customer of this tour.
   @override
   final String? displayDescription;
+
+  /// Internal color for easy visual identification of the tour.
+  @override
+  @ColorConverter()
+  final Color backgroundColor;
 
   /// Archives the tour (can't delete for stats).
   @override
@@ -234,6 +252,8 @@ class _TourType implements TourType {
             (identical(other.notes, notes) || other.notes == notes) &&
             (identical(other.displayDescription, displayDescription) ||
                 other.displayDescription == displayDescription) &&
+            (identical(other.backgroundColor, backgroundColor) ||
+                other.backgroundColor == backgroundColor) &&
             (identical(other.isArchived, isArchived) ||
                 other.isArchived == isArchived));
   }
@@ -241,11 +261,11 @@ class _TourType implements TourType {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, displayName, distance,
-      duration, notes, displayDescription, isArchived);
+      duration, notes, displayDescription, backgroundColor, isArchived);
 
   @override
   String toString() {
-    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, duration: $duration, notes: $notes, displayDescription: $displayDescription, isArchived: $isArchived)';
+    return 'TourType(id: $id, name: $name, displayName: $displayName, distance: $distance, duration: $duration, notes: $notes, displayDescription: $displayDescription, backgroundColor: $backgroundColor, isArchived: $isArchived)';
   }
 }
 
@@ -264,6 +284,7 @@ abstract mixin class _$TourTypeCopyWith<$Res>
       int duration,
       String? notes,
       String? displayDescription,
+      @ColorConverter() Color backgroundColor,
       bool isArchived});
 }
 
@@ -286,6 +307,7 @@ class __$TourTypeCopyWithImpl<$Res> implements _$TourTypeCopyWith<$Res> {
     Object? duration = null,
     Object? notes = freezed,
     Object? displayDescription = freezed,
+    Object? backgroundColor = null,
     Object? isArchived = null,
   }) {
     return _then(_TourType(
@@ -317,6 +339,10 @@ class __$TourTypeCopyWithImpl<$Res> implements _$TourTypeCopyWith<$Res> {
           ? _self.displayDescription
           : displayDescription // ignore: cast_nullable_to_non_nullable
               as String?,
+      backgroundColor: null == backgroundColor
+          ? _self.backgroundColor
+          : backgroundColor // ignore: cast_nullable_to_non_nullable
+              as Color,
       isArchived: null == isArchived
           ? _self.isArchived
           : isArchived // ignore: cast_nullable_to_non_nullable

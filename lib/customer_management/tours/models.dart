@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mush_on/services/models/dog.dart';
 part 'models.freezed.dart';
 part 'models.g.dart';
 
@@ -29,6 +32,9 @@ sealed class TourType with _$TourType {
 
     /// Description to show to the customer of this tour.
     String? displayDescription,
+
+    /// Internal color for easy visual identification of the tour.
+    @ColorConverter() required Color backgroundColor,
 
     /// Archives the tour (can't delete for stats).
     @Default(false) bool isArchived,

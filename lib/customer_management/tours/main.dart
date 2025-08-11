@@ -102,12 +102,12 @@ class TourTypeCard extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: colorScheme.primaryContainer,
+            color: tour.backgroundColor,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
             Icons.tour,
-            color: colorScheme.onPrimaryContainer,
+            color: Colors.black,
             size: 24,
           ),
         ),

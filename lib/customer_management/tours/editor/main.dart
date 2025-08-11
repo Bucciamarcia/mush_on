@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/tours/repository.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
@@ -25,6 +26,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
   late TextEditingController displayDescriptionController;
   late TextEditingController durationController;
   late String id;
+  late Color backgroundColor;
 
   @override
   void initState() {
@@ -40,6 +42,13 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
         TextEditingController(text: widget.tour?.displayDescription);
     durationController =
         TextEditingController(text: widget.tour?.duration.toString());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    backgroundColor =
+        widget.tour?.backgroundColor ?? Theme.of(context).colorScheme.primary;
   }
 
   @override
@@ -72,6 +81,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
             try {
               await repo.setTour(
                 tour: TourType(
+                  backgroundColor: backgroundColor,
                   id: id,
                   name: nameController.text,
                   duration: int.tryParse(durationController.text) ?? 0,
@@ -105,6 +115,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
             try {
               await repo.setTour(
                 tour: TourType(
+                  backgroundColor: backgroundColor,
                   isArchived: true,
                   id: id,
                   name: nameController.text,
@@ -329,6 +340,30 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+            ],
+          ),
+          ExpansionTile(
+            title: Row(
+              spacing: 25,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: backgroundColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                Text("Pick color"),
+              ],
+            ),
+            children: [
+              ColorPicker(
+                pickerColor: backgroundColor,
+                onColorChanged: (c) => setState(() {
+                  backgroundColor = c;
+                }),
+              )
             ],
           )
         ],
