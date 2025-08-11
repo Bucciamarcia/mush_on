@@ -9,7 +9,7 @@ import '../riverpod.dart';
 
 class BookingEditorAlert extends ConsumerStatefulWidget {
   final Function(Booking) onBookingEdited;
-  final Function(List<Customer>) onCustomersEdited;
+  final Function(List<Customer>, String) onCustomersEdited;
   final Function() onBookingDeleted;
   final Booking? booking;
   final String? id;
@@ -52,6 +52,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
 
   @override
   Widget build(BuildContext context) {
+    logger.debug("initial scg: ${widget.selectedCustomerGroup}");
     if (widget.booking != null && customers.isEmpty) {
       customers =
           ref.watch(customersByBookingIdProvider(widget.booking!.id)).value ??
@@ -157,9 +158,12 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                     Center(
                       child: FilledButton.tonalIcon(
                         onPressed: () async {
+                          logger.debug("Adding new customer to booking $id");
                           showDialog(
                               context: context,
                               builder: (_) {
+                                logger.debug(
+                                    "cg: ${widget.selectedCustomerGroup.toString()}");
                                 return CustomerEditorAlert(
                                   customerGroup: widget.selectedCustomerGroup,
                                   bookingId: id,
@@ -223,6 +227,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                   onPressed: () {
                     widget.onBookingDeleted();
                     Navigator.of(context).pop();
+                    Navigator.of(context).pop();
                   },
                   child: Text("Proceed"),
                 ),
@@ -241,7 +246,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
           onPressed: nameController.text.isNotEmpty
               ? () {
                   logger.debug("Customers: $customers");
-                  widget.onCustomersEdited(customers);
+                  widget.onCustomersEdited(customers, id);
                   widget.onBookingEdited(
                     Booking(
                       id: id,
