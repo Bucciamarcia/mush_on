@@ -364,7 +364,16 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
                     (price) => InputChip(
                       label: Text(price.name),
                       deleteIcon: Icon(Icons.close, size: 18),
-                      onDeleted: () => priceNotifier.removePrice(price.id),
+                      onDeleted: () => showDialog(
+                        context: context,
+                        builder: (_) => DeletePricingAlert(
+                            onPricingDeleted: () {
+                              priceNotifier.editPricing(
+                                price.copyWith(isArchived: true),
+                              );
+                            },
+                            pricing: price),
+                      ),
                       onPressed: () => showDialog(
                         context: context,
                         builder: (_) => PricingEditorAlert(
@@ -729,6 +738,36 @@ class ConfirmDeleteAlert extends StatelessWidget {
           ),
           child: Text("Delete"),
         ),
+      ],
+    );
+  }
+}
+
+class DeletePricingAlert extends StatelessWidget {
+  final TourTypePricing pricing;
+  final Function() onPricingDeleted;
+  const DeletePricingAlert(
+      {super.key, required this.onPricingDeleted, required this.pricing});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Archive pricing"),
+      content: Text(
+        "Are you sure you want to archive pricing: ${pricing.name}\n\nFor safety reasons pricing options can't be deleted, only archived.",
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text("Nevermind"),
+        ),
+        TextButton(
+          onPressed: () {
+            onPricingDeleted();
+            Navigator.of(context).pop();
+          },
+          child: Text("Archive pricing"),
+        )
       ],
     );
   }

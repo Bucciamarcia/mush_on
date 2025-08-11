@@ -349,20 +349,20 @@ class _TourTypePricingByIdProviderElement
   String get tourId => (origin as TourTypePricingByIdProvider).tourId;
 }
 
-String _$tourTypePricesHash() => r'b69940c7b80560e02a24a3056fdafe8ec50f2634';
+String _$tourTypePricesHash() => r'98d3bcd53daf98544c56d704ef6b94a4be7b4fc8';
 
 abstract class _$TourTypePrices
-    extends BuildlessAutoDisposeAsyncNotifier<List<TourTypePricing>> {
+    extends BuildlessAutoDisposeStreamNotifier<List<TourTypePricing>> {
   late final String tourId;
+  late final bool getArchived;
 
-  FutureOr<List<TourTypePricing>> build(
-    String tourId,
-  );
+  Stream<List<TourTypePricing>> build(
+    String tourId, {
+    bool getArchived = false,
+  });
 }
 
 /// Gets the tour prices from the tour id.
-///
-/// Notice: it gets once, does NOT stream.
 ///
 /// Copied from [TourTypePrices].
 @ProviderFor(TourTypePrices)
@@ -370,27 +370,23 @@ const tourTypePricesProvider = TourTypePricesFamily();
 
 /// Gets the tour prices from the tour id.
 ///
-/// Notice: it gets once, does NOT stream.
-///
 /// Copied from [TourTypePrices].
 class TourTypePricesFamily extends Family<AsyncValue<List<TourTypePricing>>> {
   /// Gets the tour prices from the tour id.
-  ///
-  /// Notice: it gets once, does NOT stream.
   ///
   /// Copied from [TourTypePrices].
   const TourTypePricesFamily();
 
   /// Gets the tour prices from the tour id.
   ///
-  /// Notice: it gets once, does NOT stream.
-  ///
   /// Copied from [TourTypePrices].
   TourTypePricesProvider call(
-    String tourId,
-  ) {
+    String tourId, {
+    bool getArchived = false,
+  }) {
     return TourTypePricesProvider(
       tourId,
+      getArchived: getArchived,
     );
   }
 
@@ -400,6 +396,7 @@ class TourTypePricesFamily extends Family<AsyncValue<List<TourTypePricing>>> {
   ) {
     return call(
       provider.tourId,
+      getArchived: provider.getArchived,
     );
   }
 
@@ -420,20 +417,19 @@ class TourTypePricesFamily extends Family<AsyncValue<List<TourTypePricing>>> {
 
 /// Gets the tour prices from the tour id.
 ///
-/// Notice: it gets once, does NOT stream.
-///
 /// Copied from [TourTypePrices].
-class TourTypePricesProvider extends AutoDisposeAsyncNotifierProviderImpl<
+class TourTypePricesProvider extends AutoDisposeStreamNotifierProviderImpl<
     TourTypePrices, List<TourTypePricing>> {
   /// Gets the tour prices from the tour id.
   ///
-  /// Notice: it gets once, does NOT stream.
-  ///
   /// Copied from [TourTypePrices].
   TourTypePricesProvider(
-    String tourId,
-  ) : this._internal(
-          () => TourTypePrices()..tourId = tourId,
+    String tourId, {
+    bool getArchived = false,
+  }) : this._internal(
+          () => TourTypePrices()
+            ..tourId = tourId
+            ..getArchived = getArchived,
           from: tourTypePricesProvider,
           name: r'tourTypePricesProvider',
           debugGetCreateSourceHash:
@@ -444,6 +440,7 @@ class TourTypePricesProvider extends AutoDisposeAsyncNotifierProviderImpl<
           allTransitiveDependencies:
               TourTypePricesFamily._allTransitiveDependencies,
           tourId: tourId,
+          getArchived: getArchived,
         );
 
   TourTypePricesProvider._internal(
@@ -454,16 +451,19 @@ class TourTypePricesProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.tourId,
+    required this.getArchived,
   }) : super.internal();
 
   final String tourId;
+  final bool getArchived;
 
   @override
-  FutureOr<List<TourTypePricing>> runNotifierBuild(
+  Stream<List<TourTypePricing>> runNotifierBuild(
     covariant TourTypePrices notifier,
   ) {
     return notifier.build(
       tourId,
+      getArchived: getArchived,
     );
   }
 
@@ -472,32 +472,38 @@ class TourTypePricesProvider extends AutoDisposeAsyncNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: TourTypePricesProvider._internal(
-        () => create()..tourId = tourId,
+        () => create()
+          ..tourId = tourId
+          ..getArchived = getArchived,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         tourId: tourId,
+        getArchived: getArchived,
       ),
     );
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<TourTypePrices, List<TourTypePricing>>
-      createElement() {
+  AutoDisposeStreamNotifierProviderElement<TourTypePrices,
+      List<TourTypePricing>> createElement() {
     return _TourTypePricesProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is TourTypePricesProvider && other.tourId == tourId;
+    return other is TourTypePricesProvider &&
+        other.tourId == tourId &&
+        other.getArchived == getArchived;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, tourId.hashCode);
+    hash = _SystemHash.combine(hash, getArchived.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -506,18 +512,23 @@ class TourTypePricesProvider extends AutoDisposeAsyncNotifierProviderImpl<
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin TourTypePricesRef
-    on AutoDisposeAsyncNotifierProviderRef<List<TourTypePricing>> {
+    on AutoDisposeStreamNotifierProviderRef<List<TourTypePricing>> {
   /// The parameter `tourId` of this provider.
   String get tourId;
+
+  /// The parameter `getArchived` of this provider.
+  bool get getArchived;
 }
 
 class _TourTypePricesProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<TourTypePrices,
+    extends AutoDisposeStreamNotifierProviderElement<TourTypePrices,
         List<TourTypePricing>> with TourTypePricesRef {
   _TourTypePricesProviderElement(super.provider);
 
   @override
   String get tourId => (origin as TourTypePricesProvider).tourId;
+  @override
+  bool get getArchived => (origin as TourTypePricesProvider).getArchived;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
