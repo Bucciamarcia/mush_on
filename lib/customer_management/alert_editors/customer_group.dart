@@ -1,10 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/save_teams_button.dart';
+import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/repository.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
@@ -36,8 +39,10 @@ class _CustomerGroupEditorAlertState
   late TextEditingController nameController;
   late DateTime dateTime;
   late TextEditingController tourNameController;
+  late TextEditingController maxCapacityController;
   TourType? selectedTour;
   String? selectedTeamGroupId;
+  late List<Booking> bookings;
 
   @override
   void initState() {
@@ -47,6 +52,15 @@ class _CustomerGroupEditorAlertState
     tourNameController = TextEditingController();
     dateTime = widget.customerGroup?.datetime ?? DateTimeUtils.today();
     selectedTeamGroupId = widget.customerGroup?.teamGroupId;
+    maxCapacityController = TextEditingController(
+      text: widget.customerGroup?.maxCapacity.toString() ?? "0",
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    bookings = ref.watch(bookingsByCustomerGroupIdProvider(id)).value ?? [];
   }
 
   @override
@@ -249,6 +263,22 @@ class _CustomerGroupEditorAlertState
                   ],
                 ),
               ),
+              TextField(
+                controller: maxCapacityController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                decoration: InputDecoration(
+                  labelText: "Max Capacity",
+                  hintText: "Maximum number of people in this group",
+                  prefixIcon: const Icon(Icons.people),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                ),
+              ),
               DropdownMenu<TourType>(
                 controller: tourNameController,
                 label: const Text("Select tour type"),
@@ -396,6 +426,116 @@ class _CustomerGroupEditorAlertState
                   ],
                 ),
               ),
+              Text("Manage bookings"),
+              if (bookings.isEmpty)
+                Text("No bookings for this customer group")
+              else
+                ...bookings.map(
+                  (booking) {
+                    List<Customer> customers = ref
+                            .watch(customersByBookingIdProvider(booking.id))
+                            .value ??
+                        [];
+                    return InkWell(
+                      onTap: () => showDialog(
+                          context: context,
+                          builder: (_) {
+                            final accountAsync = ref.watch(accountProvider);
+                            return accountAsync.when(
+                              data: (account) {
+                                final repo = CustomerManagementRepository(
+                                    account: account);
+                                return BookingEditorAlert(
+                                  booking: booking,
+                                  onBookingEdited: (b) async {
+                                    await repo.setBooking(b);
+                                    setState(() {
+                                      bookings
+                                          .removeWhere((bb) => bb.id == b.id);
+                                      bookings.add(b);
+                                    });
+                                  },
+                                  onCustomersEdited: (cs, id) async =>
+                                      await repo.setCustomers(cs, booking.id),
+                                  onBookingDeleted: () {
+                                    repo.deleteBooking(booking.id);
+                                    setState(() {
+                                      bookings.removeWhere(
+                                          (bb) => bb.id == booking.id);
+                                    });
+                                  },
+                                  selectedCustomerGroup: widget.customerGroup ??
+                                      CustomerGroup(
+                                        id: id,
+                                        datetime: dateTime,
+                                        name: nameController.text,
+                                        tourTypeId: selectedTour?.id,
+                                        maxCapacity: int.tryParse(
+                                                maxCapacityController.text) ??
+                                            0,
+                                        teamGroupId: selectedTeamGroupId,
+                                      ),
+                                );
+                              },
+                              error: (e, s) {
+                                return Text("error");
+                              },
+                              loading: () =>
+                                  CircularProgressIndicator.adaptive(),
+                            );
+                          }),
+                      child: Card(
+                        child: Column(
+                          children: [
+                            Text(booking.name),
+                            Text("${customers.length} people"),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ElevatedButton(
+                onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) {
+                      final accountAsync = ref.watch(accountProvider);
+                      return accountAsync.when(
+                        data: (account) {
+                          final repo =
+                              CustomerManagementRepository(account: account);
+                          return BookingEditorAlert(
+                            onBookingEdited: (b) async {
+                              await repo.setBooking(b);
+                              setState(() {
+                                bookings.removeWhere((bb) => bb.id == b.id);
+                                bookings.add(b);
+                              });
+                            },
+                            onCustomersEdited: (cs, id) async =>
+                                await repo.setCustomers(cs, id),
+                            onBookingDeleted: () => null,
+                            selectedCustomerGroup: widget.customerGroup ??
+                                CustomerGroup(
+                                  id: id,
+                                  datetime: dateTime,
+                                  name: nameController.text,
+                                  tourTypeId: selectedTour?.id,
+                                  maxCapacity: int.tryParse(
+                                          maxCapacityController.text) ??
+                                      0,
+                                  teamGroupId: selectedTeamGroupId,
+                                ),
+                          );
+                        },
+                        error: (e, s) {
+                          return Text("error");
+                        },
+                        loading: () => CircularProgressIndicator.adaptive(),
+                      );
+                    }),
+                child: Text("Add booking"),
+              ),
             ],
           ),
         ),
@@ -461,6 +601,8 @@ class _CustomerGroupEditorAlertState
                       datetime: dateTime,
                       name: nameController.text,
                       teamGroupId: selectedTeamGroupId,
+                      maxCapacity:
+                          int.tryParse(maxCapacityController.text) ?? 0,
                     ),
                   );
                   Navigator.of(context).pop();

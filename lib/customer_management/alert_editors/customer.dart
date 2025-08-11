@@ -55,6 +55,8 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
   @override
   Widget build(BuildContext context) {
     // Fetch tour type if we have a customer group with a tour type ID
+    logger.debug("customer group: ${widget.customerGroup?.id}");
+    logger.debug("tour type id: ${widget.customerGroup?.tourTypeId}");
     if (widget.customerGroup != null &&
         widget.customerGroup!.tourTypeId != null &&
         tourType == null) {
@@ -107,8 +109,10 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
     // Fetch all available prices for the tour type
     var prices = <TourTypePricing>[];
     if (tourType != null) {
+      logger.debug("Getting prices");
       var pricesAsync = ref.watch(tourTypePricesProvider(tourType!.id));
       if (pricesAsync.hasValue && pricesAsync.value != null) {
+        logger.debug("Prices loaded successfully");
         prices = pricesAsync.value!;
         logger.debug("Available prices loaded: ${prices.length} options");
 
@@ -134,6 +138,8 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
           });
         }
       }
+    } else {
+      logger.warning("Tour type is null, cannot load prices.");
     }
 
     var colorScheme = Theme.of(context).colorScheme;

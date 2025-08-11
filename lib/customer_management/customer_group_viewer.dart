@@ -162,8 +162,8 @@ class CustomerGroupViewer extends ConsumerWidget {
                               color: colorScheme.onSurfaceVariant, size: 20),
                           const SizedBox(width: 8),
                           Text(
-                            DateFormat("EEEE, MMMM d, yyyy").format(
-                                customerGroup.datetime),
+                            DateFormat("EEEE, MMMM d, yyyy")
+                                .format(customerGroup.datetime),
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ],
@@ -434,7 +434,7 @@ class BookingCard extends ConsumerWidget {
             await customerRepo.setBooking(nb);
             ref.invalidate(bookingsByCustomerGroupIdProvider);
           },
-          onCustomersEdited: (ncs) async {
+          onCustomersEdited: (ncs, id) async {
             final String account = await ref.watch(accountProvider.future);
             final customerRepo = CustomerManagementRepository(account: account);
             await customerRepo.setCustomers(ncs, booking.id);

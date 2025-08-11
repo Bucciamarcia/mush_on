@@ -352,7 +352,7 @@ class _BookingCardInGroup extends ConsumerWidget {
               await customerRepo.setBooking(nb);
               ref.invalidate(bookingsByCustomerGroupIdProvider);
             },
-            onCustomersEdited: (ncs) async {
+            onCustomersEdited: (ncs, id) async {
               await customerRepo.setCustomers(ncs, booking.id);
               ref.invalidate(bookingsByCustomerGroupIdProvider);
             },
