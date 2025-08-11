@@ -122,12 +122,27 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                               itemCount: dayAppointments.length,
                               itemBuilder: (context, index) {
                                 final cg = dayAppointments[index];
+                                TourType? tourType;
+                                if (cg.tourTypeId != null) {
+                                  tourType = ref
+                                      .watch(
+                                        tourTypeByIdProvider(cg.tourTypeId!),
+                                      )
+                                      .value;
+                                }
+                                List<Customer> customers = ref
+                                        .watch(
+                                            customersByCustomerGroupIdProvider(
+                                                cg.id))
+                                        .value ??
+                                    [];
                                 return Container(
                                   margin: EdgeInsets.symmetric(
                                       horizontal: 1, vertical: 1),
                                   padding: EdgeInsets.all(2),
                                   decoration: BoxDecoration(
-                                    color: Colors.blue,
+                                    color: tourType?.backgroundColor ??
+                                        Theme.of(context).colorScheme.primary,
                                     borderRadius: BorderRadius.circular(2),
                                   ),
                                   child: Column(
@@ -135,7 +150,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        cg.name,
+                                        "${cg.name} ${customers.length}/${cg.maxCapacity}",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 9,
@@ -177,19 +192,32 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                     final int index = customerGroups.indexOf(customerGroup);
                     final String? notes =
                         index >= 0 ? dataSource.getNotes(index) : null;
+                    TourType? tourType;
+                    if (customerGroup.tourTypeId != null) {
+                      tourType = ref
+                          .watch(
+                              tourTypeByIdProvider(customerGroup.tourTypeId!))
+                          .value;
+                    }
+                    List<Customer> customers = ref
+                            .watch(customersByCustomerGroupIdProvider(
+                                customerGroup.id))
+                            .value ??
+                        [];
 
                     // Day/Week view - show title and notes
                     return Container(
                       padding: EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.blue,
+                        color: tourType?.backgroundColor ??
+                            Theme.of(context).colorScheme.primary,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            customerGroup.name,
+                            "${customerGroup.name} ${customers.length}/${customerGroup.maxCapacity}",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,
@@ -260,7 +288,25 @@ class BookingsDataSource extends CalendarDataSource<CustomerGroup> {
 
   @override
   String getSubject(int index) {
-    return appointments![index].name;
+    List<Customer> customers = ref
+            .watch(customersByCustomerGroupIdProvider(appointments![index].id))
+            .value ??
+        [];
+    return appointments![index].name +
+        " " +
+        "${customers.length}/${appointments![index].maxCapacity}";
+  }
+
+  @override
+  Color getColor(int index) {
+    final cg = appointments![index];
+    if (cg.tourTypeId != null) {
+      final tourType = ref.watch(tourTypeByIdProvider(cg.tourTypeId!)).value;
+      if (tourType?.backgroundColor != null) {
+        return tourType!.backgroundColor;
+      }
+    }
+    return Theme.of(ref.context).colorScheme.primary; // fallback
   }
 
   @override
