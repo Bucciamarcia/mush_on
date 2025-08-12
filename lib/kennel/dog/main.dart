@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:mush_on/kennel/dog/customer_facing_notes.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
@@ -353,6 +354,8 @@ class DogMain extends ConsumerWidget {
                         []),
                     Divider(),
                     SingleDogHealthEventsWidget(dogId: dog.id),
+                    Divider(),
+                    CustomerFacingNotesWidget(),
                     Divider(),
                     SingleDogNotesWidget(
                       dogNotes: dog.notes,
