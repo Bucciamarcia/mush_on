@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,33 +6,52 @@ import 'package:mush_on/customer_facing/repository.dart';
 import 'package:mush_on/customer_facing/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
 
-class CustomerFacingNotesWidget extends ConsumerWidget {
+class CustomerFacingNotesWidget extends ConsumerStatefulWidget {
   final Dog dog;
   const CustomerFacingNotesWidget({super.key, required this.dog});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    List<DogPhoto> pics = ref
-            .watch(
-                customerDogPhotosProvider(dogId: dog.id, includeAvatar: false))
+  ConsumerState<CustomerFacingNotesWidget> createState() =>
+      _CustomerFacingNotesWidgetState();
+}
+
+class _CustomerFacingNotesWidgetState
+    extends ConsumerState<CustomerFacingNotesWidget> {
+  late TextEditingController customerFacingDogDescription;
+  @override
+  void initState() {
+    super.initState();
+    customerFacingDogDescription = TextEditingController(
+      text: widget.dog.customerFacingDescription,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pics = ref
+            .watch(customerDogPhotosProvider(
+                dogId: widget.dog.id, includeAvatar: false))
             .value ??
         [];
+
     final picsNotifier = ref.read(
-        customerDogPhotosProvider(dogId: dog.id, includeAvatar: false)
+        customerDogPhotosProvider(dogId: widget.dog.id, includeAvatar: false)
             .notifier);
+
     return ExpansionTile(
-      title: Text("Customer facing data"),
+      title: const Text("Customer facing data"),
       children: [
-        Text(
+        const Text(
           "Pictures",
           style: TextStyle(fontSize: 18),
         ),
-        SizedBox(height: 15),
+        const SizedBox(height: 15),
         GridView.builder(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 8,
@@ -51,34 +68,37 @@ class CustomerFacingNotesWidget extends ConsumerWidget {
                     showDialog(
                       context: context,
                       builder: (alertContext) => AlertDialog.adaptive(
-                        title: Text("Confirm deletion"),
+                        title: const Text("Confirm deletion"),
                         content: Text(
-                            "Are you sure you want to delete picture: ${pic.fileName} ?\nIt will be gone forever."),
+                          "Are you sure you want to delete picture: ${pic.fileName} ?\nIt will be gone forever.",
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            child: Text("Nevermind"),
+                            child: const Text("Nevermind"),
                           ),
                           TextButton(
                             onPressed: () async {
                               final repo = CustomerFacingRepository(
-                                account:
-                                    await ref.watch(accountProvider.future),
+                                account: await ref.read(accountProvider.future),
                               );
                               repo
                                   .deleteCustomerFacingDogPic(
-                                      fileName: pic.fileName, dogId: dog.id)
-                                  .onError(
-                                (e, s) {
-                                  BasicLogger().error("Error deleting pic",
-                                      error: e, stackTrace: s);
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                        errorSnackBar(context,
-                                            "Error deleting picture: $e"));
-                                  }
-                                },
-                              );
+                                fileName: pic.fileName,
+                                dogId: widget.dog.id,
+                              )
+                                  .onError((e, s) {
+                                BasicLogger().error("Error deleting pic",
+                                    error: e, stackTrace: s);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    errorSnackBar(
+                                      context,
+                                      "Error deleting picture: $e",
+                                    ),
+                                  );
+                                }
+                              });
                               picsNotifier.removePicture(pic.fileName);
                               if (alertContext.mounted) {
                                 Navigator.of(alertContext).pop();
@@ -104,7 +124,7 @@ class CustomerFacingNotesWidget extends ConsumerWidget {
             );
           },
         ),
-        SizedBox(height: 15),
+        const SizedBox(height: 15),
         ElevatedButton.icon(
           onPressed: () async {
             FilePickerResult? result;
@@ -114,14 +134,15 @@ class CustomerFacingNotesWidget extends ConsumerWidget {
               if (result != null && result.files.single.path != null) {
                 final file = File(result.files.single.path!);
                 final repo = CustomerFacingRepository(
-                  account: await ref.watch(accountProvider.future),
+                  account: await ref.read(accountProvider.future),
                 );
 
                 // Not awaiting the add to make UI more responsive.
                 repo.addCustomerFacingDogPic(
-                    fileName: result.files.single.name,
-                    file: file,
-                    dogId: dog.id);
+                  fileName: result.files.single.name,
+                  file: file,
+                  dogId: widget.dog.id,
+                );
 
                 // Now update the UI
                 picsNotifier.addPicture(file);
@@ -137,8 +158,44 @@ class CustomerFacingNotesWidget extends ConsumerWidget {
               return;
             }
           },
-          label: Text("Add picture"),
-          icon: Icon(Icons.add),
+          label: const Text("Add picture"),
+          icon: const Icon(Icons.add),
+        ),
+        const SizedBox(height: 15),
+        TextField(
+          maxLines: 5,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: "Customer facing description",
+            hintText: "Shown in tour page for customers",
+          ),
+          controller: customerFacingDogDescription,
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            final account = await ref.watch(accountProvider.future);
+            try {
+              await DogsDbOperations().changeDogCustomerFacingDescription(
+                  newDescription: customerFacingDogDescription.text,
+                  id: widget.dog.id,
+                  account: account);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  confirmationSnackbar(context, "Description updated"),
+                );
+              }
+            } catch (e, s) {
+              BasicLogger()
+                  .error("Error updating description", error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Error updating description: $e"),
+                );
+              }
+              return;
+            }
+          },
+          child: Text("Update description"),
         ),
       ],
     );
