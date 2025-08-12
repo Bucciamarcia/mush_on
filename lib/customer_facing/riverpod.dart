@@ -10,55 +10,72 @@ part 'riverpod.g.dart';
 class CustomerDogPhotos extends _$CustomerDogPhotos {
   @override
   Future<List<Uint8List>> build(String dogId) async {
-    List<Uint8List> toReturn = [];
-    String account = await ref.watch(accountProvider.future);
-    final i = FirebaseStorage.instance;
-    final dogRef = i.ref("accounts/$account/dogs/$dogId");
-    ListResult result;
-    try {
-      result = await dogRef.listAll();
-    } catch (e, s) {
-      BasicLogger().error("Couldn't get avatar", error: e, stackTrace: s);
-      return toReturn;
-    }
-    List<Reference> items = result.items;
+    final toReturn = <Uint8List>[];
+    final account = await ref.watch(accountProvider.future);
+    final storage = FirebaseStorage.instance;
 
-    // There is only one pic in the folder, the dog's avatar
-    Reference dogAvatarReference = items[0];
-    Uint8List? dogAvatar;
+    // ---- Avatar ----
     try {
-      dogAvatar = await dogAvatarReference.getData();
-    } catch (e, s) {
-      BasicLogger().error("Couldn't get dog avatar", error: e, stackTrace: s);
-      return toReturn;
-    }
-    if (dogAvatar != null) {
-      toReturn.add(dogAvatar);
-    }
+      final dogRef = storage.ref("accounts/$account/dogs/$dogId");
+      final result = await dogRef.listAll();
 
-    // Now process all the pics in the customer_facing_pics subfolder
-    final cRef = i.ref("accounts/$account/dogs/$dogId/customer_facing_pics");
-    ListResult cResult;
-    try {
-      cResult = await cRef.listAll();
+      if (result.items.isEmpty) {
+        BasicLogger().error("No avatar found in $dogId root folder");
+      } else {
+        final avatarRef = result.items.first;
+
+        try {
+          final bytes = await avatarRef.getData();
+          if (bytes != null) toReturn.add(bytes);
+        } catch (e, s) {
+          BasicLogger()
+              .error("Couldn't get dog avatar", error: e, stackTrace: s);
+        }
+      }
     } catch (e, s) {
       BasicLogger()
-          .error("Couldn't get customer facing pics", error: e, stackTrace: s);
-      return toReturn;
+          .error("Couldn't list avatar folder", error: e, stackTrace: s);
     }
-    for (var p in cResult.items) {
-      try {
-        final cData = await p.getData();
-        if (cData != null) {
-          toReturn.add(cData);
-        } else {
-          BasicLogger().error("Received null data for pic ${p.fullPath}");
-        }
-      } catch (e, s) {
-        BasicLogger().error("Couldn't get customer facing pic ${p.fullPath}",
-            error: e, stackTrace: s);
+
+    // ---- Customer-facing pics (parallel, throttled) ----
+    try {
+      final cRef =
+          storage.ref("accounts/$account/dogs/$dogId/customer_facing_pics");
+      final cResult = await cRef.listAll();
+
+      final pics = cResult.items;
+
+      const concurrency = 6;
+      for (var i = 0; i < pics.length; i += concurrency) {
+        final slice = pics.skip(i).take(concurrency).toList();
+        final futures = slice.map((p) async {
+          try {
+            final data = await p.getData();
+            if (data == null) {
+              BasicLogger().error("Received null data for ${p.fullPath}");
+            }
+            return data;
+          } catch (e, s) {
+            BasicLogger().error(
+              "Couldn't get customer pic ${p.fullPath}",
+              error: e,
+              stackTrace: s,
+            );
+            return null;
+          }
+        }).toList();
+
+        final batch = await Future.wait(futures, eagerError: false);
+        toReturn.addAll(batch.whereType<Uint8List>());
       }
+    } catch (e, s) {
+      BasicLogger().error(
+        "Couldn't list customer-facing pics",
+        error: e,
+        stackTrace: s,
+      );
     }
+
     return toReturn;
   }
 }
