@@ -19,9 +19,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'login_screen/login_screen.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Use clean path URLs on web (e.g., /stats instead of /#/stats)
 
   // 1. Initialize Firebase
   await Firebase.initializeApp(
@@ -67,6 +69,7 @@ Future<void> main() async {
     };
   }
   tz.initializeTimeZones();
+  setPathUrlStrategy();
   runApp(rp.ProviderScope(child: const MyApp()));
 }
 

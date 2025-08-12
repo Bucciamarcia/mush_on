@@ -69,6 +69,7 @@ dependencies:
   riverpod_annotation: ^2.6.1
   flutter_speed_dial: ^7.0.0
   go_router: ^16.0.0
+  url_strategy: ^0.3.0
 
 icons_launcher:
   image_path: "assets/icon/icon.png"
