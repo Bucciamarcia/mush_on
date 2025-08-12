@@ -355,7 +355,7 @@ class DogMain extends ConsumerWidget {
                     Divider(),
                     SingleDogHealthEventsWidget(dogId: dog.id),
                     Divider(),
-                    CustomerFacingNotesWidget(),
+                    CustomerFacingNotesWidget(dog: dog),
                     Divider(),
                     SingleDogNotesWidget(
                       dogNotes: dog.notes,
