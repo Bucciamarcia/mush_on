@@ -236,17 +236,27 @@ class DogsDbOperations {
       {required String newName,
       required String id,
       required String account}) async {
-    try {} catch (e, s) {
-      logger.error("Couldn't fetch account in changeDogName",
-          error: e, stackTrace: s);
-      rethrow;
-    }
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
     try {
       await doc.update({"name": newName});
     } catch (e, s) {
       logger.error("Couldn't update dog name in db", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> changeDogCustomerFacingDescription(
+      {required String newDescription,
+      required String id,
+      required String account}) async {
+    try {
+      String path = "accounts/$account/data/kennel/dogs/$id";
+      var doc = db.doc(path);
+      await doc.update({"customerFacingDescription": newDescription});
+    } catch (e, s) {
+      logger.error("Couldn't update dog customer facing description in db",
+          error: e, stackTrace: s);
       rethrow;
     }
   }
