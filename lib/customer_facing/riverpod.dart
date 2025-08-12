@@ -1,40 +1,66 @@
+import 'dart:io';
+import 'package:path/path.dart' as path;
 import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
+part 'riverpod.freezed.dart';
+
+@freezed
+
+/// Simple utility dataclass that holds the dog photo and its filename
+sealed class DogPhoto with _$DogPhoto {
+  const factory DogPhoto({
+    required String fileName,
+    required Uint8List data,
+    required bool isAvatar,
+  }) = _DogPhoto;
+}
 
 @riverpod
 class CustomerDogPhotos extends _$CustomerDogPhotos {
   @override
-  Future<List<Uint8List>> build(String dogId) async {
-    final toReturn = <Uint8List>[];
+  Future<List<DogPhoto>> build(
+      {required String dogId, required bool includeAvatar}) async {
+    final toReturn = <DogPhoto>[];
     final account = await ref.watch(accountProvider.future);
     final storage = FirebaseStorage.instance;
 
     // ---- Avatar ----
-    try {
-      final dogRef = storage.ref("accounts/$account/dogs/$dogId");
-      final result = await dogRef.listAll();
+    if (includeAvatar) {
+      try {
+        final dogRef = storage.ref("accounts/$account/dogs/$dogId");
+        final result = await dogRef.listAll();
 
-      if (result.items.isEmpty) {
-        BasicLogger().error("No avatar found in $dogId root folder");
-      } else {
-        final avatarRef = result.items.first;
+        if (result.items.isEmpty) {
+          BasicLogger().error("No avatar found in $dogId root folder");
+        } else {
+          final avatarRef = result.items.first;
 
-        try {
-          final bytes = await avatarRef.getData();
-          if (bytes != null) toReturn.add(bytes);
-        } catch (e, s) {
-          BasicLogger()
-              .error("Couldn't get dog avatar", error: e, stackTrace: s);
+          try {
+            final bytes = await avatarRef.getData();
+            if (bytes != null) {
+              toReturn.add(
+                DogPhoto(
+                  fileName: avatarRef.name,
+                  data: bytes,
+                  isAvatar: true,
+                ),
+              );
+            }
+          } catch (e, s) {
+            BasicLogger()
+                .error("Couldn't get dog avatar", error: e, stackTrace: s);
+          }
         }
+      } catch (e, s) {
+        BasicLogger()
+            .error("Couldn't list avatar folder", error: e, stackTrace: s);
       }
-    } catch (e, s) {
-      BasicLogger()
-          .error("Couldn't list avatar folder", error: e, stackTrace: s);
     }
 
     // ---- Customer-facing pics (parallel, throttled) ----
@@ -54,7 +80,7 @@ class CustomerDogPhotos extends _$CustomerDogPhotos {
             if (data == null) {
               BasicLogger().error("Received null data for ${p.fullPath}");
             }
-            return data;
+            return DogPhoto(fileName: p.name, data: data!, isAvatar: false);
           } catch (e, s) {
             BasicLogger().error(
               "Couldn't get customer pic ${p.fullPath}",
@@ -66,7 +92,7 @@ class CustomerDogPhotos extends _$CustomerDogPhotos {
         }).toList();
 
         final batch = await Future.wait(futures, eagerError: false);
-        toReturn.addAll(batch.whereType<Uint8List>());
+        toReturn.addAll(batch.whereType<DogPhoto>());
       }
     } catch (e, s) {
       BasicLogger().error(
@@ -77,5 +103,31 @@ class CustomerDogPhotos extends _$CustomerDogPhotos {
     }
 
     return toReturn;
+  }
+
+  void addPicture(File pic) {
+    state = state.whenData(
+      (data) => data = [
+        ...data,
+        DogPhoto(
+            fileName: path.basename(pic.path),
+            data: pic.readAsBytesSync(),
+            isAvatar: false)
+      ],
+    );
+  }
+
+  void removePicture(String fileName) {
+    state = state.whenData(
+      (data) {
+        List<DogPhoto> newData = [];
+        for (var d in data) {
+          if (d.fileName != fileName) {
+            newData.add(d);
+          }
+        }
+        return newData;
+      },
+    );
   }
 }

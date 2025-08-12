@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$customerDogPhotosHash() => r'03e7f71106fafe047a5faf0f95f9ad9c081f8198';
+String _$customerDogPhotosHash() => r'e7af1698f6fbb4446159188144a26d85b9141050';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,12 +30,14 @@ class _SystemHash {
 }
 
 abstract class _$CustomerDogPhotos
-    extends BuildlessAutoDisposeAsyncNotifier<List<Uint8List>> {
+    extends BuildlessAutoDisposeAsyncNotifier<List<DogPhoto>> {
   late final String dogId;
+  late final bool includeAvatar;
 
-  FutureOr<List<Uint8List>> build(
-    String dogId,
-  );
+  FutureOr<List<DogPhoto>> build({
+    required String dogId,
+    required bool includeAvatar,
+  });
 }
 
 /// See also [CustomerDogPhotos].
@@ -43,16 +45,18 @@ abstract class _$CustomerDogPhotos
 const customerDogPhotosProvider = CustomerDogPhotosFamily();
 
 /// See also [CustomerDogPhotos].
-class CustomerDogPhotosFamily extends Family<AsyncValue<List<Uint8List>>> {
+class CustomerDogPhotosFamily extends Family<AsyncValue<List<DogPhoto>>> {
   /// See also [CustomerDogPhotos].
   const CustomerDogPhotosFamily();
 
   /// See also [CustomerDogPhotos].
-  CustomerDogPhotosProvider call(
-    String dogId,
-  ) {
+  CustomerDogPhotosProvider call({
+    required String dogId,
+    required bool includeAvatar,
+  }) {
     return CustomerDogPhotosProvider(
-      dogId,
+      dogId: dogId,
+      includeAvatar: includeAvatar,
     );
   }
 
@@ -61,7 +65,8 @@ class CustomerDogPhotosFamily extends Family<AsyncValue<List<Uint8List>>> {
     covariant CustomerDogPhotosProvider provider,
   ) {
     return call(
-      provider.dogId,
+      dogId: provider.dogId,
+      includeAvatar: provider.includeAvatar,
     );
   }
 
@@ -82,12 +87,15 @@ class CustomerDogPhotosFamily extends Family<AsyncValue<List<Uint8List>>> {
 
 /// See also [CustomerDogPhotos].
 class CustomerDogPhotosProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    CustomerDogPhotos, List<Uint8List>> {
+    CustomerDogPhotos, List<DogPhoto>> {
   /// See also [CustomerDogPhotos].
-  CustomerDogPhotosProvider(
-    String dogId,
-  ) : this._internal(
-          () => CustomerDogPhotos()..dogId = dogId,
+  CustomerDogPhotosProvider({
+    required String dogId,
+    required bool includeAvatar,
+  }) : this._internal(
+          () => CustomerDogPhotos()
+            ..dogId = dogId
+            ..includeAvatar = includeAvatar,
           from: customerDogPhotosProvider,
           name: r'customerDogPhotosProvider',
           debugGetCreateSourceHash:
@@ -98,6 +106,7 @@ class CustomerDogPhotosProvider extends AutoDisposeAsyncNotifierProviderImpl<
           allTransitiveDependencies:
               CustomerDogPhotosFamily._allTransitiveDependencies,
           dogId: dogId,
+          includeAvatar: includeAvatar,
         );
 
   CustomerDogPhotosProvider._internal(
@@ -108,16 +117,19 @@ class CustomerDogPhotosProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.dogId,
+    required this.includeAvatar,
   }) : super.internal();
 
   final String dogId;
+  final bool includeAvatar;
 
   @override
-  FutureOr<List<Uint8List>> runNotifierBuild(
+  FutureOr<List<DogPhoto>> runNotifierBuild(
     covariant CustomerDogPhotos notifier,
   ) {
     return notifier.build(
-      dogId,
+      dogId: dogId,
+      includeAvatar: includeAvatar,
     );
   }
 
@@ -126,32 +138,38 @@ class CustomerDogPhotosProvider extends AutoDisposeAsyncNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: CustomerDogPhotosProvider._internal(
-        () => create()..dogId = dogId,
+        () => create()
+          ..dogId = dogId
+          ..includeAvatar = includeAvatar,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         dogId: dogId,
+        includeAvatar: includeAvatar,
       ),
     );
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<CustomerDogPhotos, List<Uint8List>>
+  AutoDisposeAsyncNotifierProviderElement<CustomerDogPhotos, List<DogPhoto>>
       createElement() {
     return _CustomerDogPhotosProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is CustomerDogPhotosProvider && other.dogId == dogId;
+    return other is CustomerDogPhotosProvider &&
+        other.dogId == dogId &&
+        other.includeAvatar == includeAvatar;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, dogId.hashCode);
+    hash = _SystemHash.combine(hash, includeAvatar.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -160,18 +178,23 @@ class CustomerDogPhotosProvider extends AutoDisposeAsyncNotifierProviderImpl<
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin CustomerDogPhotosRef
-    on AutoDisposeAsyncNotifierProviderRef<List<Uint8List>> {
+    on AutoDisposeAsyncNotifierProviderRef<List<DogPhoto>> {
   /// The parameter `dogId` of this provider.
   String get dogId;
+
+  /// The parameter `includeAvatar` of this provider.
+  bool get includeAvatar;
 }
 
 class _CustomerDogPhotosProviderElement
     extends AutoDisposeAsyncNotifierProviderElement<CustomerDogPhotos,
-        List<Uint8List>> with CustomerDogPhotosRef {
+        List<DogPhoto>> with CustomerDogPhotosRef {
   _CustomerDogPhotosProviderElement(super.provider);
 
   @override
   String get dogId => (origin as CustomerDogPhotosProvider).dogId;
+  @override
+  bool get includeAvatar => (origin as CustomerDogPhotosProvider).includeAvatar;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
