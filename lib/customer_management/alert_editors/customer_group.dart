@@ -426,116 +426,210 @@ class _CustomerGroupEditorAlertState
                   ],
                 ),
               ),
-              Text("Manage bookings"),
-              if (bookings.isEmpty)
-                Text("No bookings for this customer group")
-              else
-                ...bookings.map(
-                  (booking) {
-                    List<Customer> customers = ref
-                            .watch(customersByBookingIdProvider(booking.id))
-                            .value ??
-                        [];
-                    return InkWell(
-                      onTap: () => showDialog(
-                          context: context,
-                          builder: (_) {
-                            final accountAsync = ref.watch(accountProvider);
-                            return accountAsync.when(
-                              data: (account) {
-                                final repo = CustomerManagementRepository(
-                                    account: account);
-                                return BookingEditorAlert(
-                                  booking: booking,
-                                  onBookingEdited: (b) async {
-                                    await repo.setBooking(b);
-                                    setState(() {
-                                      bookings
-                                          .removeWhere((bb) => bb.id == b.id);
-                                      bookings.add(b);
-                                    });
+              // Manage Bookings section
+              Builder(builder: (context) {
+                final scheme = Theme.of(context).colorScheme;
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHighest
+                        .withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: scheme.outline.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 12,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.book_online,
+                              size: 20, color: scheme.primary),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Manage Bookings",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: scheme.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (bookings.isEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: scheme.surface,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline,
+                                  size: 18,
+                                  color: scheme.onSurfaceVariant),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  "No bookings for this customer group",
+                                  style: TextStyle(
+                                      color: scheme.onSurfaceVariant),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Column(
+                          children: bookings.map((booking) {
+                            List<Customer> customers = ref
+                                    .watch(customersByBookingIdProvider(
+                                        booking.id))
+                                    .value ??
+                                [];
+                            return Card(
+                              elevation: 0,
+                              clipBehavior: Clip.antiAlias,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                side: BorderSide(
+                                  color: scheme.outline
+                                      .withValues(alpha: 0.2),
+                                ),
+                              ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 4),
+                                leading: CircleAvatar(
+                                  backgroundColor: scheme.primaryContainer,
+                                  foregroundColor:
+                                      scheme.onPrimaryContainer,
+                                  child: const Icon(Icons.event),
+                                ),
+                                title: Text(
+                                  booking.name,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                subtitle:
+                                    Text("${customers.length} people"),
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () => showDialog(
+                                  context: context,
+                                  builder: (_) {
+                                    final accountAsync =
+                                        ref.watch(accountProvider);
+                                    return accountAsync.when(
+                                      data: (account) {
+                                        final repo =
+                                            CustomerManagementRepository(
+                                                account: account);
+                                        return BookingEditorAlert(
+                                          booking: booking,
+                                          onBookingEdited: (b) async {
+                                            await repo.setBooking(b);
+                                            setState(() {
+                                              bookings.removeWhere(
+                                                  (bb) => bb.id == b.id);
+                                              bookings.add(b);
+                                            });
+                                          },
+                                          onCustomersEdited: (cs, id) async =>
+                                              await repo.setCustomers(
+                                                  cs, booking.id),
+                                          onBookingDeleted: () {
+                                            repo.deleteBooking(booking.id);
+                                            setState(() {
+                                              bookings.removeWhere((bb) =>
+                                                  bb.id == booking.id);
+                                            });
+                                          },
+                                          selectedCustomerGroup:
+                                              widget.customerGroup ??
+                                                  CustomerGroup(
+                                                    id: id,
+                                                    datetime: dateTime,
+                                                    name: nameController.text,
+                                                    tourTypeId:
+                                                        selectedTour?.id,
+                                                    maxCapacity: int.tryParse(
+                                                            maxCapacityController
+                                                                .text) ??
+                                                        0,
+                                                    teamGroupId:
+                                                        selectedTeamGroupId,
+                                                  ),
+                                        );
+                                      },
+                                      error: (e, s) {
+                                        return const Text("error");
+                                      },
+                                      loading: () =>
+                                          const CircularProgressIndicator
+                                              .adaptive(),
+                                    );
                                   },
-                                  onCustomersEdited: (cs, id) async =>
-                                      await repo.setCustomers(cs, booking.id),
-                                  onBookingDeleted: () {
-                                    repo.deleteBooking(booking.id);
-                                    setState(() {
-                                      bookings.removeWhere(
-                                          (bb) => bb.id == booking.id);
-                                    });
-                                  },
-                                  selectedCustomerGroup: widget.customerGroup ??
-                                      CustomerGroup(
-                                        id: id,
-                                        datetime: dateTime,
-                                        name: nameController.text,
-                                        tourTypeId: selectedTour?.id,
-                                        maxCapacity: int.tryParse(
-                                                maxCapacityController.text) ??
-                                            0,
-                                        teamGroupId: selectedTeamGroupId,
-                                      ),
-                                );
-                              },
-                              error: (e, s) {
-                                return Text("error");
-                              },
-                              loading: () =>
-                                  CircularProgressIndicator.adaptive(),
+                                ),
+                              ),
                             );
-                          }),
-                      child: Card(
-                        child: Column(
-                          children: [
-                            Text(booking.name),
-                            Text("${customers.length} people"),
-                          ],
+                          }).toList(),
+                        ),
+                      Center(
+                        child: FilledButton.tonalIcon(
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (_) {
+                              final accountAsync = ref.watch(accountProvider);
+                              return accountAsync.when(
+                                data: (account) {
+                                  final repo = CustomerManagementRepository(
+                                      account: account);
+                                  return BookingEditorAlert(
+                                    onBookingEdited: (b) async {
+                                      await repo.setBooking(b);
+                                      setState(() {
+                                        bookings.removeWhere(
+                                            (bb) => bb.id == b.id);
+                                        bookings.add(b);
+                                      });
+                                    },
+                                    onCustomersEdited: (cs, id) async =>
+                                        await repo.setCustomers(cs, id),
+                                    onBookingDeleted: () => null,
+                                    selectedCustomerGroup:
+                                        widget.customerGroup ??
+                                            CustomerGroup(
+                                              id: id,
+                                              datetime: dateTime,
+                                              name: nameController.text,
+                                              tourTypeId: selectedTour?.id,
+                                              maxCapacity: int.tryParse(
+                                                      maxCapacityController
+                                                          .text) ??
+                                                  0,
+                                              teamGroupId:
+                                                  selectedTeamGroupId,
+                                            ),
+                                  );
+                                },
+                                error: (e, s) {
+                                  return const Text("error");
+                                },
+                                loading: () =>
+                                    const CircularProgressIndicator.adaptive(),
+                              );
+                            },
+                          ),
+                          icon: const Icon(Icons.add),
+                          label: const Text("Add Booking"),
                         ),
                       ),
-                    );
-                  },
-                ),
-              ElevatedButton(
-                onPressed: () => showDialog(
-                    context: context,
-                    builder: (_) {
-                      final accountAsync = ref.watch(accountProvider);
-                      return accountAsync.when(
-                        data: (account) {
-                          final repo =
-                              CustomerManagementRepository(account: account);
-                          return BookingEditorAlert(
-                            onBookingEdited: (b) async {
-                              await repo.setBooking(b);
-                              setState(() {
-                                bookings.removeWhere((bb) => bb.id == b.id);
-                                bookings.add(b);
-                              });
-                            },
-                            onCustomersEdited: (cs, id) async =>
-                                await repo.setCustomers(cs, id),
-                            onBookingDeleted: () => null,
-                            selectedCustomerGroup: widget.customerGroup ??
-                                CustomerGroup(
-                                  id: id,
-                                  datetime: dateTime,
-                                  name: nameController.text,
-                                  tourTypeId: selectedTour?.id,
-                                  maxCapacity: int.tryParse(
-                                          maxCapacityController.text) ??
-                                      0,
-                                  teamGroupId: selectedTeamGroupId,
-                                ),
-                          );
-                        },
-                        error: (e, s) {
-                          return Text("error");
-                        },
-                        loading: () => CircularProgressIndicator.adaptive(),
-                      );
-                    }),
-                child: Text("Add booking"),
-              ),
+                    ],
+                  ),
+                );
+              }),
             ],
           ),
         ),
