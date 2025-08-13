@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:multi_image_capture/multi_image_capture.dart';
 import 'package:mush_on/create_team/customers/customer_groups_card.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/team_builder/main.dart';
@@ -7,6 +8,7 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/text_title.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 
 class CustomersCreateTeam extends ConsumerWidget {
@@ -15,6 +17,30 @@ class CustomersCreateTeam extends ConsumerWidget {
     super.key,
     required this.teamGroup,
   });
+  Future<void> _openMultiCapture(BuildContext context) async {
+    var status = await Permission.camera.status;
+    if (status.isDenied || status.isRestricted) {
+      status = await Permission.camera.request();
+    }
+
+    if (status.isGranted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => MultiImageCapture(
+            title: "Camera",
+            onRemoveImage: (file) async => true,
+            onAddImage: (file) async {/* per-shot work */},
+            onComplete: (files) {/* batch processing */},
+          ),
+        ),
+      );
+    } else if (status.isPermanentlyDenied) {
+      // Send user to Settings
+      await openAppSettings();
+    } else {
+      // Optionally show a snackbar/dialog explaining why the permission is needed
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,6 +63,9 @@ class CustomersCreateTeam extends ConsumerWidget {
             width: double.infinity,
             child: CustomerGroupsCard(customerGroupWorkspace: customerGroup),
           ),
+          ElevatedButton(
+              onPressed: () => _openMultiCapture(context),
+              child: Text("Take pics")),
           ...teamGroup.teams.map(
             (team) => SingleTeamAssign(
               teamGroupId: teamGroup.id,
