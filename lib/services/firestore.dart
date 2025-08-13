@@ -246,21 +246,6 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> changeDogCustomerFacingDescription(
-      {required String newDescription,
-      required String id,
-      required String account}) async {
-    try {
-      String path = "accounts/$account/data/kennel/dogs/$id";
-      var doc = db.doc(path);
-      await doc.update({"customerFacingDescription": newDescription});
-    } catch (e, s) {
-      logger.error("Couldn't update dog customer facing description in db",
-          error: e, stackTrace: s);
-      rethrow;
-    }
-  }
-
   Future<void> changeDogTags(
       {required List<Tag> tags,
       required String id,

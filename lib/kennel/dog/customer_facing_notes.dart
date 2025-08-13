@@ -2,12 +2,13 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/customer_facing/models.dart';
 import 'package:mush_on/customer_facing/repository.dart';
 import 'package:mush_on/customer_facing/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:uuid/uuid.dart';
 
 class CustomerFacingNotesWidget extends ConsumerStatefulWidget {
   final Dog dog;
@@ -21,12 +22,25 @@ class CustomerFacingNotesWidget extends ConsumerStatefulWidget {
 class _CustomerFacingNotesWidgetState
     extends ConsumerState<CustomerFacingNotesWidget> {
   late TextEditingController customerFacingDogDescription;
+  late DogCustomerFacingInfo? dogCustomerFacingInfo;
   @override
   void initState() {
     super.initState();
-    customerFacingDogDescription = TextEditingController(
-      text: widget.dog.customerFacingDescription,
-    );
+    customerFacingDogDescription = TextEditingController();
+  }
+
+  @override
+  Future<void> didChangeDependencies() async {
+    super.didChangeDependencies();
+    dogCustomerFacingInfo = await ref.read(dogCustomerFacingInfoProvider(
+            dogId: widget.dog.id, account: ref.watch(accountProvider).value!)
+        .future);
+    setState(() {
+      BasicLogger().debug("DEscription: ${dogCustomerFacingInfo?.description}");
+      customerFacingDogDescription = TextEditingController(
+        text: dogCustomerFacingInfo?.description,
+      );
+    });
   }
 
   @override
@@ -175,10 +189,15 @@ class _CustomerFacingNotesWidgetState
           onPressed: () async {
             final account = await ref.watch(accountProvider.future);
             try {
-              await DogsDbOperations().changeDogCustomerFacingDescription(
-                  newDescription: customerFacingDogDescription.text,
-                  id: widget.dog.id,
-                  account: account);
+              await CustomerFacingRepository(account: account)
+                  .setCustomerFacingDogInfo(
+                dogInfo: dogCustomerFacingInfo?.copyWith(
+                        description: customerFacingDogDescription.text) ??
+                    DogCustomerFacingInfo(
+                        id: Uuid().v4(),
+                        dogId: widget.dog.id,
+                        description: customerFacingDogDescription.text),
+              );
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   confirmationSnackbar(context, "Description updated"),

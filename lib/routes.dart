@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:mush_on/create_team/create_team.dart';
+import 'package:mush_on/customer_facing/customer_facing.dart';
 import 'package:mush_on/customer_management/tours/tours.dart';
 import 'package:mush_on/health/health.dart';
 import 'package:mush_on/home_page/home_page.dart';
@@ -95,5 +96,12 @@ final goRoutes = GoRouter(
         return AddTourScreen(tourId: tourId);
       },
     ),
+    GoRoute(
+        path: "/:account/groups/:cgId",
+        builder: (context, state) {
+          final account = state.pathParameters["account"]!;
+          final cgId = state.pathParameters["cgId"]!;
+          return CustomerFacingPage(account: account, cgId: cgId);
+        })
   ],
 );
