@@ -29,8 +29,6 @@ _Dog _$DogFromJson(Map<String, dynamic> json) => _Dog(
               ?.map((e) => DistanceWarning.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
-      customerFacingDescription:
-          json['customerFacingDescription'] as String? ?? "",
       birth: const TimestampConverter().fromJson(json['birth'] as Timestamp?),
     );
 
@@ -44,7 +42,6 @@ Map<String, dynamic> _$DogToJson(_Dog instance) => <String, dynamic>{
       'notes': instance.notes.map((e) => e.toJson()).toList(),
       'distanceWarnings':
           instance.distanceWarnings.map((e) => e.toJson()).toList(),
-      'customerFacingDescription': instance.customerFacingDescription,
       'birth': const TimestampConverter().toJson(instance.birth),
     };
 

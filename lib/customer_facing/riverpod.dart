@@ -1,25 +1,15 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as path;
-import 'dart:typed_data';
-
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'models.dart';
 part 'riverpod.g.dart';
-part 'riverpod.freezed.dart';
-
-@freezed
-
-/// Simple utility dataclass that holds the dog photo and its filename
-sealed class DogPhoto with _$DogPhoto {
-  const factory DogPhoto({
-    required String fileName,
-    required Uint8List data,
-    required bool isAvatar,
-  }) = _DogPhoto;
-}
 
 @riverpod
 class CustomerDogPhotos extends _$CustomerDogPhotos {
@@ -130,4 +120,26 @@ class CustomerDogPhotos extends _$CustomerDogPhotos {
       },
     );
   }
+}
+
+@riverpod
+Stream<DogCustomerFacingInfo?> dogCustomerFacingInfo(Ref ref,
+    {required String dogId, required String account}) async* {
+  String path = "customerFacing/$account/dogInfo/$dogId";
+  final db = FirebaseFirestore.instance;
+  final doc = db.doc(path);
+  yield* doc.snapshots().map(
+    (snapshot) {
+      if (snapshot.data() != null) {
+        BasicLogger().debug("Received dog customer info for $dogId");
+        BasicLogger().debug("Description: ${snapshot.data()?['description']}");
+        return DogCustomerFacingInfo.fromJson(
+          snapshot.data()!,
+        );
+      } else {
+        BasicLogger().debug("No dog customer info found for $dogId");
+        return null;
+      }
+    },
+  );
 }

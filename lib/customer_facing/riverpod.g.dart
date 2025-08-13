@@ -6,7 +6,8 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$customerDogPhotosHash() => r'e7af1698f6fbb4446159188144a26d85b9141050';
+String _$dogCustomerFacingInfoHash() =>
+    r'95aa5f3115000d793edce0787ff91c2adeb0b285';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -28,6 +29,158 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+/// See also [dogCustomerFacingInfo].
+@ProviderFor(dogCustomerFacingInfo)
+const dogCustomerFacingInfoProvider = DogCustomerFacingInfoFamily();
+
+/// See also [dogCustomerFacingInfo].
+class DogCustomerFacingInfoFamily
+    extends Family<AsyncValue<DogCustomerFacingInfo?>> {
+  /// See also [dogCustomerFacingInfo].
+  const DogCustomerFacingInfoFamily();
+
+  /// See also [dogCustomerFacingInfo].
+  DogCustomerFacingInfoProvider call({
+    required String dogId,
+    required String account,
+  }) {
+    return DogCustomerFacingInfoProvider(
+      dogId: dogId,
+      account: account,
+    );
+  }
+
+  @override
+  DogCustomerFacingInfoProvider getProviderOverride(
+    covariant DogCustomerFacingInfoProvider provider,
+  ) {
+    return call(
+      dogId: provider.dogId,
+      account: provider.account,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'dogCustomerFacingInfoProvider';
+}
+
+/// See also [dogCustomerFacingInfo].
+class DogCustomerFacingInfoProvider
+    extends AutoDisposeStreamProvider<DogCustomerFacingInfo?> {
+  /// See also [dogCustomerFacingInfo].
+  DogCustomerFacingInfoProvider({
+    required String dogId,
+    required String account,
+  }) : this._internal(
+          (ref) => dogCustomerFacingInfo(
+            ref as DogCustomerFacingInfoRef,
+            dogId: dogId,
+            account: account,
+          ),
+          from: dogCustomerFacingInfoProvider,
+          name: r'dogCustomerFacingInfoProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$dogCustomerFacingInfoHash,
+          dependencies: DogCustomerFacingInfoFamily._dependencies,
+          allTransitiveDependencies:
+              DogCustomerFacingInfoFamily._allTransitiveDependencies,
+          dogId: dogId,
+          account: account,
+        );
+
+  DogCustomerFacingInfoProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.dogId,
+    required this.account,
+  }) : super.internal();
+
+  final String dogId;
+  final String account;
+
+  @override
+  Override overrideWith(
+    Stream<DogCustomerFacingInfo?> Function(DogCustomerFacingInfoRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: DogCustomerFacingInfoProvider._internal(
+        (ref) => create(ref as DogCustomerFacingInfoRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        dogId: dogId,
+        account: account,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<DogCustomerFacingInfo?> createElement() {
+    return _DogCustomerFacingInfoProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DogCustomerFacingInfoProvider &&
+        other.dogId == dogId &&
+        other.account == account;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, dogId.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin DogCustomerFacingInfoRef
+    on AutoDisposeStreamProviderRef<DogCustomerFacingInfo?> {
+  /// The parameter `dogId` of this provider.
+  String get dogId;
+
+  /// The parameter `account` of this provider.
+  String get account;
+}
+
+class _DogCustomerFacingInfoProviderElement
+    extends AutoDisposeStreamProviderElement<DogCustomerFacingInfo?>
+    with DogCustomerFacingInfoRef {
+  _DogCustomerFacingInfoProviderElement(super.provider);
+
+  @override
+  String get dogId => (origin as DogCustomerFacingInfoProvider).dogId;
+  @override
+  String get account => (origin as DogCustomerFacingInfoProvider).account;
+}
+
+String _$customerDogPhotosHash() => r'e7af1698f6fbb4446159188144a26d85b9141050';
 
 abstract class _$CustomerDogPhotos
     extends BuildlessAutoDisposeAsyncNotifier<List<DogPhoto>> {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/page_template.dart';
@@ -199,6 +200,12 @@ class CustomerGroupViewer extends ConsumerWidget {
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () =>
+                    context.go("/$account/groups/${customerGroup.id}"),
+                child: Text("Go to customer page"),
               ),
               const SizedBox(height: 16),
 
