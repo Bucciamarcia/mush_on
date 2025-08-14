@@ -55,8 +55,6 @@ class CustomersCreateTeam extends ConsumerWidget {
             width: double.infinity,
             child: CustomerGroupsCard(customerGroupWorkspace: customerGroup),
           ),
-          ElevatedButton(
-              onPressed: () => _openCamera(context), child: Text("Take pics")),
           ...teamGroup.teams.map(
             (team) => SingleTeamAssign(
               teamGroupId: teamGroup.id,
