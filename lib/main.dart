@@ -103,7 +103,8 @@ class HomeScreen extends rp.ConsumerWidget {
           var data = {
             "lastLogin": DateTime.now().toUtc(),
             "email": user.email,
-            "uid": user.uid
+            "uid": user.uid,
+            "account": null,
           };
 
           // Use a timeout to avoid hanging when offline
@@ -115,16 +116,20 @@ class HomeScreen extends rp.ConsumerWidget {
           );
         } catch (e, s) {
           if (e is TimeoutException) {
-            logger.info("Login update timed out - continuing offline");
+            logger
+                .info("User document creation timed out - continuing offline");
             // Don't rethrow - we can continue offline
           } else {
-            logger.error("Couldn't log in", error: e, stackTrace: s);
+            logger.error("Failed to create/update user document",
+                error: e, stackTrace: s);
             // Don't rethrow for offline-related errors
             if (e.toString().contains('offline') ||
                 e.toString().contains('network') ||
                 e.toString().contains('UNAVAILABLE')) {
-              logger.info("Offline - skipping login update");
+              logger.info("Offline - skipping user document creation");
             } else {
+              // This is a real error that should be investigated
+              logger.error("Non-network error during user creation: $e");
               rethrow;
             }
           }
