@@ -13,6 +13,7 @@ _WhiteboardElement _$WhiteboardElementFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String? ?? "",
       date: const NonNullableTimestampConverter()
           .fromJson(json['date'] as Timestamp),
+      author: json['author'] as String?,
       comments: (json['comments'] as List<dynamic>?)
               ?.map((e) =>
                   WhiteboardElementComment.fromJson(e as Map<String, dynamic>))
@@ -26,6 +27,7 @@ Map<String, dynamic> _$WhiteboardElementToJson(_WhiteboardElement instance) =>
       'title': instance.title,
       'description': instance.description,
       'date': const NonNullableTimestampConverter().toJson(instance.date),
+      'author': instance.author,
       'comments': instance.comments.map((e) => e.toJson()).toList(),
     };
 
@@ -33,6 +35,7 @@ _WhiteboardElementComment _$WhiteboardElementCommentFromJson(
         Map<String, dynamic> json) =>
     _WhiteboardElementComment(
       comment: json['comment'] as String? ?? "",
+      author: json['author'] as String?,
       date: const NonNullableTimestampConverter()
           .fromJson(json['date'] as Timestamp),
     );
@@ -41,5 +44,6 @@ Map<String, dynamic> _$WhiteboardElementCommentToJson(
         _WhiteboardElementComment instance) =>
     <String, dynamic>{
       'comment': instance.comment,
+      'author': instance.author,
       'date': const NonNullableTimestampConverter().toJson(instance.date),
     };

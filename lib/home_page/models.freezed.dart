@@ -297,6 +297,9 @@ mixin _$WhiteboardElement {
   String get description;
   @NonNullableTimestampConverter()
   DateTime get date;
+
+  /// The user ID of the author
+  String? get author;
   List<WhiteboardElementComment> get comments;
 
   /// Create a copy of WhiteboardElement
@@ -320,17 +323,18 @@ mixin _$WhiteboardElement {
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.date, date) || other.date == date) &&
+            (identical(other.author, author) || other.author == author) &&
             const DeepCollectionEquality().equals(other.comments, comments));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, title, description, date,
-      const DeepCollectionEquality().hash(comments));
+      author, const DeepCollectionEquality().hash(comments));
 
   @override
   String toString() {
-    return 'WhiteboardElement(id: $id, title: $title, description: $description, date: $date, comments: $comments)';
+    return 'WhiteboardElement(id: $id, title: $title, description: $description, date: $date, author: $author, comments: $comments)';
   }
 }
 
@@ -345,6 +349,7 @@ abstract mixin class $WhiteboardElementCopyWith<$Res> {
       String title,
       String description,
       @NonNullableTimestampConverter() DateTime date,
+      String? author,
       List<WhiteboardElementComment> comments});
 }
 
@@ -365,6 +370,7 @@ class _$WhiteboardElementCopyWithImpl<$Res>
     Object? title = null,
     Object? description = null,
     Object? date = null,
+    Object? author = freezed,
     Object? comments = null,
   }) {
     return _then(_self.copyWith(
@@ -384,6 +390,10 @@ class _$WhiteboardElementCopyWithImpl<$Res>
           ? _self.date
           : date // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      author: freezed == author
+          ? _self.author
+          : author // ignore: cast_nullable_to_non_nullable
+              as String?,
       comments: null == comments
           ? _self.comments
           : comments // ignore: cast_nullable_to_non_nullable
@@ -401,6 +411,7 @@ class _WhiteboardElement implements WhiteboardElement {
       this.title = "",
       this.description = "",
       @NonNullableTimestampConverter() required this.date,
+      this.author,
       final List<WhiteboardElementComment> comments =
           const <WhiteboardElementComment>[]})
       : _comments = comments;
@@ -418,6 +429,10 @@ class _WhiteboardElement implements WhiteboardElement {
   @override
   @NonNullableTimestampConverter()
   final DateTime date;
+
+  /// The user ID of the author
+  @override
+  final String? author;
   final List<WhiteboardElementComment> _comments;
   @override
   @JsonKey()
@@ -452,17 +467,18 @@ class _WhiteboardElement implements WhiteboardElement {
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.date, date) || other.date == date) &&
+            (identical(other.author, author) || other.author == author) &&
             const DeepCollectionEquality().equals(other._comments, _comments));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, title, description, date,
-      const DeepCollectionEquality().hash(_comments));
+      author, const DeepCollectionEquality().hash(_comments));
 
   @override
   String toString() {
-    return 'WhiteboardElement(id: $id, title: $title, description: $description, date: $date, comments: $comments)';
+    return 'WhiteboardElement(id: $id, title: $title, description: $description, date: $date, author: $author, comments: $comments)';
   }
 }
 
@@ -479,6 +495,7 @@ abstract mixin class _$WhiteboardElementCopyWith<$Res>
       String title,
       String description,
       @NonNullableTimestampConverter() DateTime date,
+      String? author,
       List<WhiteboardElementComment> comments});
 }
 
@@ -499,6 +516,7 @@ class __$WhiteboardElementCopyWithImpl<$Res>
     Object? title = null,
     Object? description = null,
     Object? date = null,
+    Object? author = freezed,
     Object? comments = null,
   }) {
     return _then(_WhiteboardElement(
@@ -518,6 +536,10 @@ class __$WhiteboardElementCopyWithImpl<$Res>
           ? _self.date
           : date // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      author: freezed == author
+          ? _self.author
+          : author // ignore: cast_nullable_to_non_nullable
+              as String?,
       comments: null == comments
           ? _self._comments
           : comments // ignore: cast_nullable_to_non_nullable
@@ -529,6 +551,9 @@ class __$WhiteboardElementCopyWithImpl<$Res>
 /// @nodoc
 mixin _$WhiteboardElementComment {
   String get comment;
+
+  /// The user ID of the author
+  String? get author;
   @NonNullableTimestampConverter()
   DateTime get date;
 
@@ -549,16 +574,17 @@ mixin _$WhiteboardElementComment {
         (other.runtimeType == runtimeType &&
             other is WhiteboardElementComment &&
             (identical(other.comment, comment) || other.comment == comment) &&
+            (identical(other.author, author) || other.author == author) &&
             (identical(other.date, date) || other.date == date));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, comment, date);
+  int get hashCode => Object.hash(runtimeType, comment, author, date);
 
   @override
   String toString() {
-    return 'WhiteboardElementComment(comment: $comment, date: $date)';
+    return 'WhiteboardElementComment(comment: $comment, author: $author, date: $date)';
   }
 }
 
@@ -568,7 +594,10 @@ abstract mixin class $WhiteboardElementCommentCopyWith<$Res> {
           $Res Function(WhiteboardElementComment) _then) =
       _$WhiteboardElementCommentCopyWithImpl;
   @useResult
-  $Res call({String comment, @NonNullableTimestampConverter() DateTime date});
+  $Res call(
+      {String comment,
+      String? author,
+      @NonNullableTimestampConverter() DateTime date});
 }
 
 /// @nodoc
@@ -585,6 +614,7 @@ class _$WhiteboardElementCommentCopyWithImpl<$Res>
   @override
   $Res call({
     Object? comment = null,
+    Object? author = freezed,
     Object? date = null,
   }) {
     return _then(_self.copyWith(
@@ -592,6 +622,10 @@ class _$WhiteboardElementCommentCopyWithImpl<$Res>
           ? _self.comment
           : comment // ignore: cast_nullable_to_non_nullable
               as String,
+      author: freezed == author
+          ? _self.author
+          : author // ignore: cast_nullable_to_non_nullable
+              as String?,
       date: null == date
           ? _self.date
           : date // ignore: cast_nullable_to_non_nullable
@@ -604,13 +638,19 @@ class _$WhiteboardElementCommentCopyWithImpl<$Res>
 @JsonSerializable()
 class _WhiteboardElementComment implements WhiteboardElementComment {
   const _WhiteboardElementComment(
-      {this.comment = "", @NonNullableTimestampConverter() required this.date});
+      {this.comment = "",
+      this.author,
+      @NonNullableTimestampConverter() required this.date});
   factory _WhiteboardElementComment.fromJson(Map<String, dynamic> json) =>
       _$WhiteboardElementCommentFromJson(json);
 
   @override
   @JsonKey()
   final String comment;
+
+  /// The user ID of the author
+  @override
+  final String? author;
   @override
   @NonNullableTimestampConverter()
   final DateTime date;
@@ -637,16 +677,17 @@ class _WhiteboardElementComment implements WhiteboardElementComment {
         (other.runtimeType == runtimeType &&
             other is _WhiteboardElementComment &&
             (identical(other.comment, comment) || other.comment == comment) &&
+            (identical(other.author, author) || other.author == author) &&
             (identical(other.date, date) || other.date == date));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, comment, date);
+  int get hashCode => Object.hash(runtimeType, comment, author, date);
 
   @override
   String toString() {
-    return 'WhiteboardElementComment(comment: $comment, date: $date)';
+    return 'WhiteboardElementComment(comment: $comment, author: $author, date: $date)';
   }
 }
 
@@ -658,7 +699,10 @@ abstract mixin class _$WhiteboardElementCommentCopyWith<$Res>
       __$WhiteboardElementCommentCopyWithImpl;
   @override
   @useResult
-  $Res call({String comment, @NonNullableTimestampConverter() DateTime date});
+  $Res call(
+      {String comment,
+      String? author,
+      @NonNullableTimestampConverter() DateTime date});
 }
 
 /// @nodoc
@@ -675,6 +719,7 @@ class __$WhiteboardElementCommentCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? comment = null,
+    Object? author = freezed,
     Object? date = null,
   }) {
     return _then(_WhiteboardElementComment(
@@ -682,6 +727,10 @@ class __$WhiteboardElementCommentCopyWithImpl<$Res>
           ? _self.comment
           : comment // ignore: cast_nullable_to_non_nullable
               as String,
+      author: freezed == author
+          ? _self.author
+          : author // ignore: cast_nullable_to_non_nullable
+              as String?,
       date: null == date
           ? _self.date
           : date // ignore: cast_nullable_to_non_nullable

@@ -333,36 +333,6 @@ class HomePageScreenContent extends ConsumerWidget {
       return Colors.green;
     }
   }
-
-  int _getOkdogs(List<Dog> dogs, List<DogNote> dogNotes) {
-    int toReturn = dogs.length;
-    for (DogNote dn in dogNotes) {
-      for (DogNoteMessage m in dn.dogNoteMessage) {
-        if (m.type.noteType == NoteType.fatal ||
-            m.type.noteType == NoteType.warning) {
-          toReturn = toReturn - 1;
-          break;
-        }
-      }
-    }
-    return toReturn;
-  }
-
-  int _getOnlyWarningDogs(List<Dog> dogs, List<DogNote> dogNotes) {
-    int toReturn = 0;
-    for (DogNote dogNote in dogNotes) {
-      if (dogNote.dogNoteMessage
-          .any((m) => m.type.noteType == NoteType.warning)) {
-        if (dogNote.dogNoteMessage
-            .any((m) => m.type.noteType == NoteType.fatal)) {
-          break;
-        } else {
-          toReturn = toReturn + 1;
-        }
-      }
-    }
-    return toReturn;
-  }
 }
 
 class ReadyDogData {
