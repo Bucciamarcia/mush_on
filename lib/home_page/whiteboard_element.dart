@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/home_page/models.dart';
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/models/username.dart';
 import 'package:uuid/uuid.dart';
 
 class WhiteboardElementDisplayWidget extends StatelessWidget {
@@ -171,7 +174,7 @@ class AddWhiteboardElementDisplayWidget extends StatelessWidget {
   }
 }
 
-class WhiteboardElementEditor extends StatefulWidget {
+class WhiteboardElementEditor extends ConsumerStatefulWidget {
   final WhiteboardElement? element;
   final Function(WhiteboardElement) onSaved;
   final Function(String) onDeleted;
@@ -182,11 +185,12 @@ class WhiteboardElementEditor extends StatefulWidget {
       required this.onDeleted});
 
   @override
-  State<WhiteboardElementEditor> createState() =>
+  ConsumerState<WhiteboardElementEditor> createState() =>
       _WhiteboardElementEditorState();
 }
 
-class _WhiteboardElementEditorState extends State<WhiteboardElementEditor> {
+class _WhiteboardElementEditorState
+    extends ConsumerState<WhiteboardElementEditor> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late TextEditingController _addCommentController;
@@ -288,7 +292,8 @@ class _WhiteboardElementEditorState extends State<WhiteboardElementEditor> {
         ),
         SizedBox(width: 8),
         FilledButton.icon(
-          onPressed: () {
+          onPressed: () async {
+            UserName? user = await ref.watch(userNameProvider.future);
             if (_formKey.currentState!.validate()) {
               List<WhiteboardElementComment> constComments = [];
               constComments.addAll(
@@ -297,6 +302,7 @@ class _WhiteboardElementEditorState extends State<WhiteboardElementEditor> {
                 constComments.add(
                   WhiteboardElementComment(
                     comment: _addCommentController.text.trim(),
+                    author: user?.uid,
                     date: DateTime.now(),
                   ),
                 );
@@ -306,6 +312,7 @@ class _WhiteboardElementEditorState extends State<WhiteboardElementEditor> {
                   id: widget.element?.id ?? Uuid().v4(),
                   title: _titleController.text.trim(),
                   date: widget.element?.date ?? DateTime.now(),
+                  author: user?.uid,
                   comments: constComments,
                   description: _descriptionController.text.trim(),
                 ),

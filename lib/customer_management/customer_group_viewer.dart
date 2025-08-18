@@ -202,12 +202,6 @@ class CustomerGroupViewer extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () =>
-                    context.go("/$account/groups/${customerGroup.id}"),
-                child: Text("Go to customer page"),
-              ),
-              const SizedBox(height: 16),
 
               // Tour
               tour == null

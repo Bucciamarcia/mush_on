@@ -30,6 +30,9 @@ abstract class WhiteboardElement with _$WhiteboardElement {
     @Default("") String title,
     @Default("") String description,
     @NonNullableTimestampConverter() required DateTime date,
+
+    /// The user ID of the author
+    String? author,
     @Default(<WhiteboardElementComment>[])
     List<WhiteboardElementComment> comments,
   }) = _WhiteboardElement;
@@ -42,6 +45,9 @@ abstract class WhiteboardElement with _$WhiteboardElement {
 abstract class WhiteboardElementComment with _$WhiteboardElementComment {
   const factory WhiteboardElementComment({
     @Default("") String comment,
+
+    /// The user ID of the author
+    String? author,
     @NonNullableTimestampConverter() required DateTime date,
   }) = _WhiteboardElementComment;
   factory WhiteboardElementComment.fromJson(Map<String, dynamic> json) =>
