@@ -54,7 +54,7 @@ class UserSettings extends ConsumerWidget {
               String? extension = file.extension;
               if (data != null && extension != null) {
                 String fileName = "avatar.$extension";
-                final u = await ref.watch(authStateChangesProvider.future);
+                final u = await ref.watch(userProvider.future);
                 String uid = u!.uid;
                 try {
                   await UserNameRepository().writeAvatar(
@@ -78,7 +78,7 @@ class UserSettings extends ConsumerWidget {
         ),
         ElevatedButton(
           onPressed: () async {
-            final u = await ref.watch(authStateChangesProvider.future);
+            final u = await ref.watch(userProvider.future);
             String uid = u!.uid;
             try {
               await UserNameRepository().deleteAvatar(uid);

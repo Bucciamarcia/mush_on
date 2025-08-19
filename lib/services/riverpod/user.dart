@@ -9,7 +9,7 @@ part 'user.g.dart';
 class UserProfilePic extends _$UserProfilePic {
   @override
   Future<Uint8List?> build() async {
-    final u = await ref.watch(authStateChangesProvider.future);
+    final u = await ref.watch(userProvider.future);
     if (u == null) {
       BasicLogger().warning("Uid is null");
       return null;

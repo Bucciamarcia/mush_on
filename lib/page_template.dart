@@ -105,7 +105,7 @@ class TemplateScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var authState = ref.watch(authStateChangesProvider);
+    var authState = ref.watch(userProvider);
     return authState.when(
       error: (e, s) {
         BasicLogger().error("Couldn't get auth state in template",

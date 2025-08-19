@@ -96,7 +96,7 @@ class HomeScreen extends rp.ConsumerWidget {
 
   @override
   Widget build(BuildContext context, rp.WidgetRef ref) {
-    rp.AsyncValue<User?> userAsync = ref.watch(authStateChangesProvider);
+    rp.AsyncValue<User?> userAsync = ref.watch(userProvider);
     return userAsync.when(
         data: (user) {
           if (user == null) {

@@ -12,7 +12,7 @@ import 'package:rxdart/rxdart.dart';
 part 'riverpod.g.dart';
 
 @Riverpod(keepAlive: true)
-Stream<User?> authStateChanges(Ref ref) {
+Stream<User?> user(Ref ref) {
   return FirebaseAuth.instance.authStateChanges();
 }
 
@@ -21,7 +21,7 @@ Stream<User?> authStateChanges(Ref ref) {
 /// This provider streams the current user from Firestore.
 /// If it returns null, the user is not logged in.
 Stream<UserName?> userName(Ref ref) async* {
-  User? user = ref.watch(authStateChangesProvider).value;
+  User? user = ref.watch(userProvider).value;
   if (user == null) {
     yield null;
   } else {

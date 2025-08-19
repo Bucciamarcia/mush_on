@@ -6,24 +6,23 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$authStateChangesHash() => r'f896fd5aefa8abd341dd1aa93cff43efff57e9a1';
+String _$userHash() => r'c3161ce3d6b5f77a6ddf8bfcc8411ef3237e22ac';
 
-/// See also [authStateChanges].
-@ProviderFor(authStateChanges)
-final authStateChangesProvider = StreamProvider<User?>.internal(
-  authStateChanges,
-  name: r'authStateChangesProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$authStateChangesHash,
+/// See also [user].
+@ProviderFor(user)
+final userProvider = StreamProvider<User?>.internal(
+  user,
+  name: r'userProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$userHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef AuthStateChangesRef = StreamProviderRef<User?>;
-String _$userNameHash() => r'd39921f93ebd48e40503072014b934b2c59657a5';
+typedef UserRef = StreamProviderRef<User?>;
+String _$userNameHash() => r'6fd54cbcb61c9a5af9cf72db924978c1533d85c0';
 
 /// This provider streams the current user from Firestore.
 /// If it returns null, the user is not logged in.

@@ -6,7 +6,7 @@ part of 'user.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$userProfilePicHash() => r'b4151679839490d3a4b6bf6498e107ba06da8418';
+String _$userProfilePicHash() => r'149cea84b302d10a87c9b07dd18c53ce29b12b6f';
 
 /// See also [UserProfilePic].
 @ProviderFor(UserProfilePic)
