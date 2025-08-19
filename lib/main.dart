@@ -6,6 +6,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models/username.dart';
 // ignore: depend_on_referenced_packages
 import 'package:timezone/data/latest.dart' as tz;
 // ignore: unused_import, depend_on_referenced_packages
@@ -93,97 +94,53 @@ class HomeScreen extends rp.ConsumerWidget {
   static final BasicLogger logger = BasicLogger();
   const HomeScreen({super.key});
 
-  Future<void> _performLoginActions(User? user) async {
-    logger.info("Performing login actions");
-    final db = FirebaseFirestore.instance;
-    try {
-      if (user != null) {
-        try {
-          var ref = db.collection("users").doc(user.uid);
-          var data = {
-            "lastLogin": DateTime.now().toUtc(),
-            "email": user.email,
-            "uid": user.uid
-          };
-
-          // Use a timeout to avoid hanging when offline
-          await ref.set(data, SetOptions(merge: true)).timeout(
-            const Duration(seconds: 5),
-            onTimeout: () {
-              throw TimeoutException('Login update timed out - likely offline');
-            },
-          );
-        } catch (e, s) {
-          if (e is TimeoutException) {
-            logger.info("Login update timed out - continuing offline");
-            // Don't rethrow - we can continue offline
-          } else {
-            logger.error("Couldn't log in", error: e, stackTrace: s);
-            // Don't rethrow for offline-related errors
-            if (e.toString().contains('offline') ||
-                e.toString().contains('network') ||
-                e.toString().contains('UNAVAILABLE')) {
-              logger.info("Offline - skipping login update");
-            } else {
-              rethrow;
-            }
-          }
-        }
-      }
-    } catch (e) {
-      // Log but don't throw - we can continue offline
-      logger.info('Login actions failed (likely offline): $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context, rp.WidgetRef ref) {
     rp.AsyncValue<User?> userAsync = ref.watch(authStateChangesProvider);
-    switch (userAsync) {
-      case rp.AsyncData(:final value):
-        if (value == null) {
-          logger.info("Value of user is null: not logged in");
-          return LoginScreen();
-        } else {
-          logger.info("Logging in!");
-          ref.listen<rp.AsyncValue<User?>>(authStateChangesProvider,
-              (previous, next) {
-            final user = next.value;
-            if (previous?.value == null && user != null) {
-              logger.info("User logged in, performing login actions.");
-              _performLoginActions(user);
-            }
-          });
-          final userNameAsync = ref.watch(userNameProvider);
-          switch (userNameAsync) {
-            case rp.AsyncData(:final value):
-              if (value == null) {
-                logger.warning("Couldn't find an account for the user");
-                return Text("Error: couldn't find an account");
-              } else if (value.account == null) {
-                return Text(
-                    "You are not assigned to any account. This is normal for new accounts, get in touch with admin to fix.");
-              } else {
-                return const HomePageScreen();
-              }
-            case rp.AsyncError(:final error, :final stackTrace):
-              logger.error("Error in fetching username",
-                  error: error, stackTrace: stackTrace);
-              return Text("Error: couldn't fetch the username");
-            default:
-              return Center(
-                child: CircularProgressIndicator(),
-              );
+    return userAsync.when(
+        data: (user) {
+          if (user == null) {
+            return LoginScreen();
+          } else {
+            logger.info("Logging in!");
+            final userNameAsync = ref.watch(userNameProvider);
+            return userNameAsync.when(
+              data: (userName) {
+                if (userName == null) {
+                  final ref =
+                      FirebaseFirestore.instance.doc("users/${user.uid}");
+                  ref.set(
+                    UserName(
+                      uid: user.uid,
+                      email: user.email ?? "",
+                      account: null,
+                      lastLogin: DateTime.now(),
+                    ).toJson(),
+                  );
+                  return Text("Creating user");
+                } else if (userName.account == null) {
+                  return Text(
+                      "You are not assigned to any account. This is normal for new accounts, get in touch with admin to fix.");
+                } else {
+                  return const HomePageScreen();
+                }
+              },
+              error: (e, s) {
+                logger.error("Error in fetching username",
+                    error: e, stackTrace: s);
+                return Text("Error: $e");
+              },
+              loading: () => CircularProgressIndicator.adaptive(),
+            );
           }
-        }
-      case rp.AsyncError(:final error, :final stackTrace):
-        logger.error("Error in fetching user.",
-            error: error, stackTrace: stackTrace);
-        return Text("Unknown error occurred");
-      default:
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-    }
+        },
+        error: (e, s) {
+          logger.error("Error in authStateChangesProvider",
+              error: e, stackTrace: s);
+          return Center(
+            child: Text("Error: $e"),
+          );
+        },
+        loading: () => CircularProgressIndicator.adaptive());
   }
 }
