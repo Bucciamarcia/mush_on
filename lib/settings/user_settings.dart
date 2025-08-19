@@ -122,6 +122,12 @@ class _UsernameNameWidgetState extends ConsumerState<UsernameNameWidget> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
