@@ -1,0 +1,40 @@
+import 'dart:typed_data';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+part 'user.g.dart';
+
+@riverpod
+class UserProfilePic extends _$UserProfilePic {
+  @override
+  Future<Uint8List?> build() async {
+    final u = await ref.watch(authStateChangesProvider.future);
+    if (u == null) {
+      BasicLogger().warning("Uid is null");
+      return null;
+    }
+    String path = "users/${u.uid}/avatar";
+    final storageRef = FirebaseStorage.instance.ref(path);
+    final result = await storageRef.listAll();
+    final items = result.items;
+    if (items.isEmpty) {
+      BasicLogger().warning("empty");
+      return null;
+    }
+    final avatarPath = result.items.first;
+    return await avatarPath.getData();
+  }
+
+  void changeProfilePic(Uint8List newData) {
+    state = state.whenData((data) {
+      return newData;
+    });
+  }
+
+  void removeProfilePic() {
+    state = state.whenData((data) {
+      return null;
+    });
+  }
+}
