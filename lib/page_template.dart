@@ -142,6 +142,11 @@ class TemplateScreen extends ConsumerWidget {
                     onTap: () => context.pushNamed("/"),
                     title: const Text("Home"),
                   ),
+                  ListTile(
+                    leading: const Icon(Icons.calendar_today),
+                    onTap: () => context.pushNamed("/whiteboard"),
+                    title: const Text("Whiteboard"),
+                  ),
                   const Divider(),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
@@ -218,7 +223,8 @@ class TemplateScreen extends ConsumerWidget {
                     ),
                   ),
                   ListTile(
-                    leading: const FaIcon(FontAwesomeIcons.magnifyingGlassChart),
+                    leading:
+                        const FaIcon(FontAwesomeIcons.magnifyingGlassChart),
                     onTap: () => context.pushNamed("/insights"),
                     title: const Text(
                       "Insights",

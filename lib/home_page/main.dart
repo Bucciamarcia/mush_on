@@ -71,7 +71,7 @@ class HomePageScreenContent extends ConsumerWidget {
                             "A quick whiteboard that refreshes every day. For easy communication.",
                         child: Icon(Icons.question_mark),
                       ),
-                      TextTitle("Whiteboard"),
+                      TextTitle("Daily whiteboard"),
                     ],
                   ),
                   children: [
@@ -207,7 +207,8 @@ class HomePageScreenContent extends ConsumerWidget {
                         ],
                         xValueMapper: (ReadyDogData data, _) => data.x,
                         yValueMapper: (ReadyDogData data, _) => data.y,
-                        dataLabelSettings: const DataLabelSettings(isVisible: true),
+                        dataLabelSettings:
+                            const DataLabelSettings(isVisible: true),
                         pointColorMapper: (ReadyDogData data, _) => data.color,
                       )
                     ],
