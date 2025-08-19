@@ -4,9 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:mush_on/home_page/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models/username.dart';
+import 'package:mush_on/shared/circle_avatar/circle_avatar.dart';
 import 'package:uuid/uuid.dart';
 
-class WhiteboardElementDisplayWidget extends StatelessWidget {
+class WhiteboardElementDisplayWidget extends ConsumerWidget {
   final WhiteboardElement element;
   final Function(WhiteboardElement) onSaved;
   final Function(String) onDeleted;
@@ -17,7 +18,7 @@ class WhiteboardElementDisplayWidget extends StatelessWidget {
       required this.onDeleted});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     List<WhiteboardElementComment> comments = List.from(element.comments);
     comments.sort((a, b) => a.date.compareTo(b.date));
     return InkWell(
@@ -43,11 +44,9 @@ class WhiteboardElementDisplayWidget extends StatelessWidget {
               // Title
               Row(
                 children: [
-                  Icon(
-                    Icons.title,
-                    size: 20,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                  CircleAvatarWidget(radius: 20, uid: element.author),
+                  SizedBox(width: 8),
+                  Text(ref.watch(userNameProvider).value?.name ?? ""),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -105,44 +104,38 @@ class WhiteboardElementDisplayWidget extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 8),
-                ...comments.map((comment) => Padding(
-                      padding: const EdgeInsets.only(left: 22, bottom: 8),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(top: 6),
-                            width: 4,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.outline,
-                              shape: BoxShape.circle,
-                            ),
+                ...comments.map(
+                  (comment) => Padding(
+                    padding: const EdgeInsets.only(left: 22, bottom: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatarWidget(radius: 10, uid: comment.author),
+                        SizedBox(width: 8),
+                        Text(ref.watch(userNameProvider).value?.name ?? ""),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            comment.comment,
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
                           ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              comment.comment,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                            ),
+                        ),
+                        Text(
+                          DateFormat("hh:mm:ss").format(comment.date),
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w300,
                           ),
-                          Text(
-                            DateFormat("hh:mm:ss").format(comment.date),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ],
           ),

@@ -8,13 +8,18 @@ part 'user.g.dart';
 @riverpod
 class UserProfilePic extends _$UserProfilePic {
   @override
-  Future<Uint8List?> build() async {
-    final u = await ref.watch(userProvider.future);
-    if (u == null) {
-      BasicLogger().warning("Uid is null");
-      return null;
+  Future<Uint8List?> build(String? uid) async {
+    late String path;
+    if (uid == null) {
+      final u = await ref.watch(userProvider.future);
+      if (u == null) {
+        BasicLogger().warning("Uid is null");
+        return null;
+      }
+      path = "users/${u.uid}/avatar";
+    } else {
+      path = "users/$uid/avatar";
     }
-    String path = "users/${u.uid}/avatar";
     final storageRef = FirebaseStorage.instance.ref(path);
     final result = await storageRef.listAll();
     final items = result.items;

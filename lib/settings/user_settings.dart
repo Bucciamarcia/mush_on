@@ -8,6 +8,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/riverpod/user.dart';
 import 'package:mush_on/services/storage/username.dart';
+import 'package:mush_on/shared/circle_avatar/circle_avatar.dart';
 import 'package:mush_on/shared/text_title.dart';
 
 class UserSettings extends ConsumerWidget {
@@ -16,16 +17,11 @@ class UserSettings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Uint8List? profilePic = ref.watch(userProfilePicProvider).value;
     return Column(
       children: [
         TextTitle("User settings"),
         TextTitle("Profile picture"),
-        CircleAvatar(
-          radius: 50,
-          backgroundImage: profilePic != null ? MemoryImage(profilePic) : null,
-          child: profilePic == null ? Icon(Icons.person, size: 50) : null,
-        ),
+        CircleAvatarWidget(radius: 50),
         ElevatedButton(
           onPressed: () async {
             FilePickerResult? result = await FilePicker.platform
@@ -63,7 +59,7 @@ class UserSettings extends ConsumerWidget {
                     uid,
                   );
                   ref
-                      .read(userProfilePicProvider.notifier)
+                      .read(userProfilePicProvider(null).notifier)
                       .changeProfilePic(data);
                 } catch (e, s) {
                   logger.error("Error writing avatar", error: e, stackTrace: s);
@@ -82,7 +78,9 @@ class UserSettings extends ConsumerWidget {
             String uid = u!.uid;
             try {
               await UserNameRepository().deleteAvatar(uid);
-              ref.read(userProfilePicProvider.notifier).removeProfilePic();
+              ref
+                  .read(userProfilePicProvider(null).notifier)
+                  .removeProfilePic();
             } catch (e, s) {
               logger.error("Error deleting avatar", error: e, stackTrace: s);
               ScaffoldMessenger.of(context).showSnackBar(

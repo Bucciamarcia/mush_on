@@ -13,6 +13,7 @@ sealed class UserName with _$UserName {
     String? account,
     required String uid,
     required String email,
+    @Default("") String name,
   }) = _UserName;
 
   const UserName._();

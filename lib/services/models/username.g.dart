@@ -12,6 +12,7 @@ _UserName _$UserNameFromJson(Map<String, dynamic> json) => _UserName(
       account: json['account'] as String?,
       uid: json['uid'] as String,
       email: json['email'] as String,
+      name: json['name'] as String? ?? "",
     );
 
 Map<String, dynamic> _$UserNameToJson(_UserName instance) => <String, dynamic>{
@@ -19,4 +20,5 @@ Map<String, dynamic> _$UserNameToJson(_UserName instance) => <String, dynamic>{
       'account': instance.account,
       'uid': instance.uid,
       'email': instance.email,
+      'name': instance.name,
     };
