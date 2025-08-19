@@ -3,10 +3,10 @@ import 'package:mush_on/create_team/create_team.dart';
 import 'package:mush_on/customer_facing/customer_facing.dart';
 import 'package:mush_on/customer_management/tours/tours.dart';
 import 'package:mush_on/health/health.dart';
-import 'package:mush_on/home_page/home_page.dart';
 import 'package:mush_on/kennel/add_dog/add_dog.dart';
 import 'package:mush_on/kennel/dog/dog.dart';
 import 'package:mush_on/kennel/kennel.dart';
+import 'package:mush_on/main.dart';
 import 'package:mush_on/settings/settings.dart';
 import 'package:mush_on/stats/insights/insights.dart';
 import 'package:mush_on/tasks/tasks.dart';
@@ -20,7 +20,7 @@ final goRoutes = GoRouter(
     GoRoute(
       name: "/",
       path: "/",
-      builder: (context, state) => HomePageScreen(),
+      builder: (context, state) => HomeScreen(),
     ),
     GoRoute(
       name: "/editkennel",
