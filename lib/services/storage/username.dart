@@ -1,7 +1,9 @@
 // Repository for things related to the UserName class
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models/username.dart';
 
 class UserNameRepository {
   final logger = BasicLogger();
@@ -60,6 +62,19 @@ class UserNameRepository {
       await child.putData(data);
     } catch (e, s) {
       logger.error("Error uploading avatar for user $uid:",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> setUsername(UserName username) async {
+    String uid = username.uid;
+    String path = "users/$uid";
+    final db = FirebaseFirestore.instance;
+    try {
+      await db.doc(path).set(username.toJson());
+    } catch (e, s) {
+      logger.error("Error setting username for user $uid:",
           error: e, stackTrace: s);
       rethrow;
     }
