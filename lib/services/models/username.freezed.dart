@@ -20,6 +20,7 @@ mixin _$UserName {
   String? get account;
   String get uid;
   String get email;
+  String get name;
 
   /// Create a copy of UserName
   /// with the given fields replaced by the non-null parameter values.
@@ -40,16 +41,18 @@ mixin _$UserName {
                 other.lastLogin == lastLogin) &&
             (identical(other.account, account) || other.account == account) &&
             (identical(other.uid, uid) || other.uid == uid) &&
-            (identical(other.email, email) || other.email == email));
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.name, name) || other.name == name));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, lastLogin, account, uid, email);
+  int get hashCode =>
+      Object.hash(runtimeType, lastLogin, account, uid, email, name);
 
   @override
   String toString() {
-    return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email)';
+    return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email, name: $name)';
   }
 }
 
@@ -62,7 +65,8 @@ abstract mixin class $UserNameCopyWith<$Res> {
       {@TimestampConverter() DateTime? lastLogin,
       String? account,
       String uid,
-      String email});
+      String email,
+      String name});
 }
 
 /// @nodoc
@@ -81,6 +85,7 @@ class _$UserNameCopyWithImpl<$Res> implements $UserNameCopyWith<$Res> {
     Object? account = freezed,
     Object? uid = null,
     Object? email = null,
+    Object? name = null,
   }) {
     return _then(_self.copyWith(
       lastLogin: freezed == lastLogin
@@ -99,6 +104,10 @@ class _$UserNameCopyWithImpl<$Res> implements $UserNameCopyWith<$Res> {
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -110,7 +119,8 @@ class _UserName extends UserName {
       {@TimestampConverter() this.lastLogin,
       this.account,
       required this.uid,
-      required this.email})
+      required this.email,
+      this.name = ""})
       : super._();
   factory _UserName.fromJson(Map<String, dynamic> json) =>
       _$UserNameFromJson(json);
@@ -124,6 +134,9 @@ class _UserName extends UserName {
   final String uid;
   @override
   final String email;
+  @override
+  @JsonKey()
+  final String name;
 
   /// Create a copy of UserName
   /// with the given fields replaced by the non-null parameter values.
@@ -149,16 +162,18 @@ class _UserName extends UserName {
                 other.lastLogin == lastLogin) &&
             (identical(other.account, account) || other.account == account) &&
             (identical(other.uid, uid) || other.uid == uid) &&
-            (identical(other.email, email) || other.email == email));
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.name, name) || other.name == name));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, lastLogin, account, uid, email);
+  int get hashCode =>
+      Object.hash(runtimeType, lastLogin, account, uid, email, name);
 
   @override
   String toString() {
-    return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email)';
+    return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email, name: $name)';
   }
 }
 
@@ -173,7 +188,8 @@ abstract mixin class _$UserNameCopyWith<$Res>
       {@TimestampConverter() DateTime? lastLogin,
       String? account,
       String uid,
-      String email});
+      String email,
+      String name});
 }
 
 /// @nodoc
@@ -192,6 +208,7 @@ class __$UserNameCopyWithImpl<$Res> implements _$UserNameCopyWith<$Res> {
     Object? account = freezed,
     Object? uid = null,
     Object? email = null,
+    Object? name = null,
   }) {
     return _then(_UserName(
       lastLogin: freezed == lastLogin
@@ -209,6 +226,10 @@ class __$UserNameCopyWithImpl<$Res> implements _$UserNameCopyWith<$Res> {
       email: null == email
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
