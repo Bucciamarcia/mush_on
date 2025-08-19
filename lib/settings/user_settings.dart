@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models/username.dart';
 import 'package:mush_on/services/riverpod/user.dart';
 import 'package:mush_on/services/storage/username.dart';
 import 'package:mush_on/shared/circle_avatar/circle_avatar.dart';
@@ -89,6 +90,68 @@ class UserSettings extends ConsumerWidget {
             }
           },
           child: Text("Delete profile picture"),
+        ),
+        TextTitle("Your name"),
+        UsernameNameWidget(),
+      ],
+    );
+  }
+}
+
+class UsernameNameWidget extends ConsumerStatefulWidget {
+  const UsernameNameWidget({super.key});
+
+  @override
+  ConsumerState<UsernameNameWidget> createState() => _UsernameNameWidgetState();
+}
+
+class _UsernameNameWidgetState extends ConsumerState<UsernameNameWidget> {
+  late TextEditingController controller;
+  late UserName? username;
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+  }
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+    username = await ref.read(userNameProvider.future);
+    controller.text = username?.name ?? "";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        TextField(
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: "Name",
+            hintText: "Enter your name",
+          ),
+          controller: controller,
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            final repo = UserNameRepository();
+            try {
+              if (username == null) {
+                return;
+              }
+              await repo.setUsername(
+                username!.copyWith(name: controller.text),
+              );
+            } catch (e, s) {
+              UserSettings.logger
+                  .error("Error setting username", error: e, stackTrace: s);
+              ScaffoldMessenger.of(context).showSnackBar(
+                errorSnackBar(context, "Couldn't change name"),
+              );
+            }
+          },
+          child: Text("Change name"),
         ),
       ],
     );

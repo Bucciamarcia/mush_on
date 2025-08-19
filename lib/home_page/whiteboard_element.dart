@@ -45,9 +45,9 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
               Row(
                 children: [
                   CircleAvatarWidget(radius: 20, uid: element.author),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(ref.watch(userNameProvider).value?.name ?? ""),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       element.title,
@@ -60,7 +60,7 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                   ),
                   Text(
                     DateFormat("hh:mm:ss").format(element.date),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w300,
                     ),
@@ -70,7 +70,7 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
 
               // Description
               if (element.description.isNotEmpty) ...[
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
                   element.description,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -83,9 +83,9 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
 
               // Comments section
               if (comments.isNotEmpty) ...[
-                SizedBox(height: 16),
-                Divider(height: 1),
-                SizedBox(height: 12),
+                const SizedBox(height: 16),
+                const Divider(height: 1),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Icon(
@@ -93,7 +93,7 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                       size: 16,
                       color: Theme.of(context).colorScheme.secondary,
                     ),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Text(
                       "Comments (${comments.length})",
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -103,7 +103,7 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 ...comments.map(
                   (comment) => Padding(
                     padding: const EdgeInsets.only(left: 22, bottom: 8),
@@ -111,9 +111,9 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CircleAvatarWidget(radius: 10, uid: comment.author),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(ref.watch(userNameProvider).value?.name ?? ""),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             comment.comment,
@@ -127,7 +127,7 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                         ),
                         Text(
                           DateFormat("hh:mm:ss").format(comment.date),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w300,
                           ),
@@ -161,8 +161,8 @@ class AddWhiteboardElementDisplayWidget extends StatelessWidget {
           onDeleted: (id) => onDeleted(id),
         ),
       ),
-      label: Text("Add element"),
-      icon: Icon(Icons.add),
+      label: const Text("Add element"),
+      icon: const Icon(Icons.add),
     );
   }
 }
@@ -204,9 +204,9 @@ class _WhiteboardElementEditorState
       scrollable: true,
       title: Text(
         widget.element == null ? "Add Element" : "Edit Element",
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      contentPadding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+      contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
       content: Form(
         key: _formKey,
         child: Column(
@@ -221,7 +221,7 @@ class _WhiteboardElementEditorState
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                prefixIcon: Icon(Icons.title),
+                prefixIcon: const Icon(Icons.title),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -231,7 +231,7 @@ class _WhiteboardElementEditorState
               },
               textInputAction: TextInputAction.next,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _descriptionController,
               decoration: InputDecoration(
@@ -240,13 +240,13 @@ class _WhiteboardElementEditorState
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                prefixIcon: Icon(Icons.description),
+                prefixIcon: const Icon(Icons.description),
                 alignLabelWithHint: true,
               ),
               maxLines: 3,
               textInputAction: TextInputAction.next,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _addCommentController,
               decoration: InputDecoration(
@@ -255,17 +255,17 @@ class _WhiteboardElementEditorState
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                prefixIcon: Icon(Icons.comment),
+                prefixIcon: const Icon(Icons.comment),
                 alignLabelWithHint: true,
               ),
               maxLines: 3,
               textInputAction: TextInputAction.done,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
           ],
         ),
       ),
-      actionsPadding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       actions: [
         if (widget.element != null)
           TextButton.icon(
@@ -273,17 +273,17 @@ class _WhiteboardElementEditorState
               widget.onDeleted(widget.element!.id);
               Navigator.of(context).pop();
             },
-            icon: Icon(Icons.delete),
-            label: Text("Delete"),
+            icon: const Icon(Icons.delete),
+            label: const Text("Delete"),
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
           ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         FilledButton.icon(
           onPressed: () async {
             UserName? user = await ref.watch(userNameProvider.future);
@@ -302,7 +302,7 @@ class _WhiteboardElementEditorState
               }
               widget.onSaved(
                 WhiteboardElement(
-                  id: widget.element?.id ?? Uuid().v4(),
+                  id: widget.element?.id ?? const Uuid().v4(),
                   title: _titleController.text.trim(),
                   date: widget.element?.date ?? DateTime.now(),
                   author: user?.uid,
@@ -313,8 +313,8 @@ class _WhiteboardElementEditorState
               Navigator.of(context).pop();
             }
           },
-          icon: Icon(Icons.save),
-          label: Text("Save"),
+          icon: const Icon(Icons.save),
+          label: const Text("Save"),
         ),
       ],
     );
