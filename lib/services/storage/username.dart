@@ -23,6 +23,7 @@ class UserNameRepository {
     return data;
   }
 
+  /// Updates the avatar of the user
   Future<void> writeAvatar(File file, String uid) async {
     String path = "users/$uid/avatar";
     String extension = file.path.split('.').last;
