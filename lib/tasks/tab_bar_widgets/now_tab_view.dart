@@ -26,7 +26,7 @@ class NowTabView extends StatelessWidget {
     List<Task> overdueTasks = tasksInMemory.tasks.overdueTasks;
     overdueTasks.sort((a, b) => a.expiration!.compareTo(b.expiration!));
     DateTime? firstOverdueTask = overdueTasks.firstOrNull?.expiration;
-    Duration daysToDisplay = Duration();
+    Duration daysToDisplay = const Duration();
     if (firstOverdueTask != null) {
       daysToDisplay = DateTime.now().difference(firstOverdueTask);
     }
@@ -34,11 +34,11 @@ class NowTabView extends StatelessWidget {
         tasksInMemory.copyWith(tasks: overdueTasks);
     return SingleChildScrollView(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 500),
+        constraints: const BoxConstraints(maxWidth: 500),
         child: Column(
           children: [
             firstOverdueTask == null
-                ? SizedBox.shrink()
+                ? const SizedBox.shrink()
                 : Card(
                     child: ExpansionTile(
                       initiallyExpanded: true,
@@ -52,7 +52,7 @@ class NowTabView extends StatelessWidget {
                             onFetchOlderTasks: onFetchOlderTasks,
                             dogs: dogs,
                             onTaskDeleted: (tid) => onTaskDeleted(tid),
-                            date: firstOverdueTask.subtract(Duration(
+                            date: firstOverdueTask.subtract(const Duration(
                                 days:
                                     1)), // Use the actual first overdue task date
                             onTaskEdited: onTaskEdited)

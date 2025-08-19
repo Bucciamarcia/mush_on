@@ -68,7 +68,7 @@ class TaskRepository {
     var collection = db.collection(path);
     Task taskToSave = task;
     if (task.id.isEmpty) {
-      taskToSave = task.copyWith(id: Uuid().v4());
+      taskToSave = task.copyWith(id: const Uuid().v4());
     }
     var doc = collection.doc(taskToSave.id);
     var payload = taskToSave.toJson();
@@ -202,7 +202,7 @@ extension TaskListExtension on List<Task> {
   List<Task> nextDays(int n) {
     DateTime now = DateTime.now();
     DateTime today = DateTime(now.year, now.month, now.day);
-    DateTime tomorrow = today.add(Duration(days: 1));
+    DateTime tomorrow = today.add(const Duration(days: 1));
     DateTime endDate = tomorrow.add(Duration(days: n));
 
     return where((t) {

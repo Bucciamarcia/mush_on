@@ -48,7 +48,7 @@ class TagsWidget extends StatelessWidget {
             spacing: 5,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextTitle("Tags"),
+              const TextTitle("Tags"),
               IconButton.outlined(
                   onPressed: () {
                     showDialog(
@@ -58,7 +58,7 @@ class TagsWidget extends StatelessWidget {
                               allTags: allTags,
                             ));
                   },
-                  icon: Icon(Icons.add)),
+                  icon: const Icon(Icons.add)),
             ],
           ),
           Wrap(
@@ -116,7 +116,7 @@ class _TagEditorState extends State<TagEditor> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog.adaptive(
-      title: Text("Add a new tag"),
+      title: const Text("Add a new tag"),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -125,7 +125,7 @@ class _TagEditorState extends State<TagEditor> {
             SearchField<Tag>(
               controller: _controller,
               searchInputDecoration:
-                  SearchInputDecoration(hint: Text("Tag name")),
+                  SearchInputDecoration(hint: const Text("Tag name")),
               suggestions: widget.allTags
                   .map(
                     (e) => SearchFieldListItem<Tag>(e.name, item: e),
@@ -147,7 +147,7 @@ class _TagEditorState extends State<TagEditor> {
                     height: 25,
                     width: 25,
                   ),
-                  Text("Pick a color"),
+                  const Text("Pick a color"),
                 ],
               ),
               children: [
@@ -160,7 +160,7 @@ class _TagEditorState extends State<TagEditor> {
                     })
               ],
             ),
-            Text(
+            const Text(
               "Expiration date",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -171,7 +171,7 @@ class _TagEditorState extends State<TagEditor> {
               children: [
                 ElevatedButton(
                   onPressed: () => selectDate(),
-                  child: Text("Select expiration"),
+                  child: const Text("Select expiration"),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -179,12 +179,12 @@ class _TagEditorState extends State<TagEditor> {
                       expiration = null;
                     });
                   },
-                  child: Text("Remove expiration"),
+                  child: const Text("Remove expiration"),
                 )
               ],
             ),
             CheckboxListTile.adaptive(
-              title: Text("Prevents running"),
+              title: const Text("Prevents running"),
               value: preventsRunning,
               onChanged: (v) => {
                 setState(() {
@@ -195,7 +195,7 @@ class _TagEditorState extends State<TagEditor> {
               },
             ),
             CheckboxListTile.adaptive(
-                title: Text("Show in builder"),
+                title: const Text("Show in builder"),
                 value: showInTeamBuilder,
                 onChanged: (v) {
                   setState(() {
@@ -210,7 +210,7 @@ class _TagEditorState extends State<TagEditor> {
       actions: [
         TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Cancel")),
+            child: const Text("Cancel")),
         TextButton(
             onPressed: () {
               widget.onTagSaved(
@@ -222,7 +222,7 @@ class _TagEditorState extends State<TagEditor> {
                       : widget.tagToEdit!.created,
                   expired: expiration,
                   id: (widget.tagToEdit == null)
-                      ? Uuid().v4()
+                      ? const Uuid().v4()
                       : widget.tagToEdit!.id,
                   preventFromRun: preventsRunning,
                   showInTeamBuilder: showInTeamBuilder,
@@ -230,7 +230,7 @@ class _TagEditorState extends State<TagEditor> {
               );
               Navigator.of(context).pop();
             },
-            child: Text("OK")),
+            child: const Text("OK")),
       ],
     );
   }

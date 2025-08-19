@@ -20,9 +20,9 @@ class UserSettings extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
-        TextTitle("User settings"),
-        TextTitle("Profile picture"),
-        CircleAvatarWidget(radius: 50),
+        const TextTitle("User settings"),
+        const TextTitle("Profile picture"),
+        const CircleAvatarWidget(radius: 50),
         ElevatedButton(
           onPressed: () async {
             FilePickerResult? result = await FilePicker.platform
@@ -71,7 +71,7 @@ class UserSettings extends ConsumerWidget {
               }
             }
           },
-          child: Text("Change profile picture"),
+          child: const Text("Change profile picture"),
         ),
         ElevatedButton(
           onPressed: () async {
@@ -89,10 +89,10 @@ class UserSettings extends ConsumerWidget {
               );
             }
           },
-          child: Text("Delete profile picture"),
+          child: const Text("Delete profile picture"),
         ),
-        TextTitle("Your name"),
-        UsernameNameWidget(),
+        const TextTitle("Your name"),
+        const UsernameNameWidget(),
       ],
     );
   }
@@ -117,7 +117,7 @@ class _UsernameNameWidgetState extends ConsumerState<UsernameNameWidget> {
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-    username = await ref.read(userNameProvider.future);
+    username = await ref.read(userNameProvider(null).future);
     controller.text = username?.name ?? "";
   }
 
@@ -151,7 +151,7 @@ class _UsernameNameWidgetState extends ConsumerState<UsernameNameWidget> {
               );
             }
           },
-          child: Text("Change name"),
+          child: const Text("Change name"),
         ),
       ],
     );

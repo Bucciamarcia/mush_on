@@ -53,7 +53,7 @@ class FirestoreService {
 
   Future<void> addDogToDb(Dog dog, File? imageFile, String account) async {
     if (dog.id == "") {
-      dog = dog.copyWith(id: Uuid().v4());
+      dog = dog.copyWith(id: const Uuid().v4());
     }
     try {
       if (imageFile != null) {

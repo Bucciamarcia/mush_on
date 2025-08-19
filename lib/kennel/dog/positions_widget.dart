@@ -22,7 +22,7 @@ class PositionsWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 5,
           children: [
-            TextTitle("Positions"),
+            const TextTitle("Positions"),
             IconButton.outlined(
                 onPressed: () {
                   showAdaptiveDialog(
@@ -33,7 +33,7 @@ class PositionsWidget extends StatelessWidget {
                                 onPositionsChanged(newPositions),
                           ));
                 },
-                icon: Icon(Icons.edit)),
+                icon: const Icon(Icons.edit)),
           ],
         ),
         Wrap(
@@ -55,7 +55,7 @@ class EditPositionsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     DogPositions newPositions = positions;
     return AlertDialog.adaptive(
-      title: Text("Edit positions"),
+      title: const Text("Edit positions"),
       content: PositionToggleWidget(
         positions: positions,
         onPositionToggled: (DogPositions toggledPositions) {
@@ -65,13 +65,13 @@ class EditPositionsWidget extends StatelessWidget {
       actions: [
         TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Cancel")),
+            child: const Text("Cancel")),
         TextButton(
           onPressed: () {
             onPositionsChanged(newPositions);
             Navigator.of(context).pop();
           },
-          child: Text("OK"),
+          child: const Text("OK"),
         )
       ],
     );
@@ -112,9 +112,9 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Lead"),
+              const Text("Lead"),
               Switch(
-                key: Key("Lead toggle"),
+                key: const Key("Lead toggle"),
                 value: isLead,
                 onChanged: (newValue) {
                   setState(() {
@@ -130,13 +130,13 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
               )
             ],
           ),
-          Divider(),
+          const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Swing"),
+              const Text("Swing"),
               Switch(
-                key: Key("Swing toggle"),
+                key: const Key("Swing toggle"),
                 value: isSwing,
                 onChanged: (newValue) {
                   setState(() {
@@ -152,13 +152,13 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
               )
             ],
           ),
-          Divider(),
+          const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Team"),
+              const Text("Team"),
               Switch(
-                key: Key("Team toggle"),
+                key: const Key("Team toggle"),
                 value: isTeam,
                 onChanged: (newValue) {
                   setState(() {
@@ -174,13 +174,13 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
               )
             ],
           ),
-          Divider(),
+          const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Wheel"),
+              const Text("Wheel"),
               Switch(
-                key: Key("Wheel toggle"),
+                key: const Key("Wheel toggle"),
                 value: isWheel,
                 onChanged: (newValue) {
                   setState(() {
@@ -218,10 +218,10 @@ class PositionCard extends StatelessWidget {
             children: [
               Text(
                 position,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
-              SizedBox(width: 5),
-              (canRun) ? Icon(Icons.check) : Icon(Icons.cancel_outlined),
+              const SizedBox(width: 5),
+              (canRun) ? const Icon(Icons.check) : const Icon(Icons.cancel_outlined),
             ],
           ),
         ),

@@ -36,10 +36,10 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 10,
           children: [
-            Text("Select view:"),
+            const Text("Select view:"),
             DropdownMenu<CalendarView>(
-              textStyle: TextStyle(fontSize: 12.0),
-              inputDecorationTheme: InputDecorationTheme(
+              textStyle: const TextStyle(fontSize: 12.0),
+              inputDecorationTheme: const InputDecorationTheme(
                 isCollapsed: true,
                 isDense: true,
                 contentPadding:
@@ -48,7 +48,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
               ),
               requestFocusOnTap: false,
               initialSelection: CalendarView.week,
-              dropdownMenuEntries: [
+              dropdownMenuEntries: const [
                 DropdownMenuEntry(value: CalendarView.day, label: "Day"),
                 DropdownMenuEntry(value: CalendarView.week, label: "Week"),
                 DropdownMenuEntry(value: CalendarView.month, label: "Month"),
@@ -83,7 +83,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
               }
             },
             monthViewSettings:
-                MonthViewSettings(appointmentDisplayCount: 3, showAgenda: true),
+                const MonthViewSettings(appointmentDisplayCount: 3, showAgenda: true),
             monthCellBuilder: viewLength == CalendarView.month
                 ? (BuildContext context, MonthCellDetails details) {
                     final List<CustomerGroup> dayAppointments = customerGroups
@@ -103,7 +103,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                         children: [
                           // Date number
                           Padding(
-                            padding: EdgeInsets.all(2),
+                            padding: const EdgeInsets.all(2),
                             child: Text(
                               details.date.day.toString(),
                               style: TextStyle(
@@ -137,9 +137,9 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                                         .value ??
                                     [];
                                 return Container(
-                                  margin: EdgeInsets.symmetric(
+                                  margin: const EdgeInsets.symmetric(
                                       horizontal: 1, vertical: 1),
-                                  padding: EdgeInsets.all(2),
+                                  padding: const EdgeInsets.all(2),
                                   decoration: BoxDecoration(
                                     color: tourType?.backgroundColor ??
                                         Theme.of(context).colorScheme.primary,
@@ -151,7 +151,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                                     children: [
                                       Text(
                                         "${cg.name} ${customers.length}/${cg.maxCapacity}",
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 9,
                                           fontWeight: FontWeight.w500,
@@ -161,7 +161,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                                       ),
                                       Text(
                                         "${cg.datetime.hour.toString().padLeft(2, '0')}:${cg.datetime.minute.toString().padLeft(2, '0')}",
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           color: Colors.white70,
                                           fontSize: 8,
                                         ),
@@ -207,7 +207,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
 
                     // Day/Week view - show title and notes
                     return Container(
-                      padding: EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: tourType?.backgroundColor ??
                             Theme.of(context).colorScheme.primary,
@@ -218,7 +218,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                         children: [
                           Text(
                             "${customerGroup.name} ${customers.length}/${customerGroup.maxCapacity}",
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -227,12 +227,12 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (notes != null && notes.isNotEmpty) ...[
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Expanded(
                               child: SingleChildScrollView(
                                 child: Text(
                                   notes,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white70,
                                     fontSize: 10,
                                   ),
@@ -277,11 +277,11 @@ class BookingsDataSource extends CalendarDataSource<CustomerGroup> {
   DateTime getEndTime(int index) {
     CustomerGroup cg = appointments![index];
     if (cg.tourTypeId == null) {
-      return cg.datetime.add(Duration(minutes: 60));
+      return cg.datetime.add(const Duration(minutes: 60));
     }
     TourType? tour = ref.watch(tourTypeByIdProvider(cg.tourTypeId!)).value;
     if (tour == null) {
-      return cg.datetime.add(Duration(minutes: 60));
+      return cg.datetime.add(const Duration(minutes: 60));
     }
     return cg.datetime.add(Duration(minutes: tour.duration));
   }

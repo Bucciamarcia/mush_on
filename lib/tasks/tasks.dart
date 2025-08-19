@@ -7,6 +7,6 @@ class TasksScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TemplateScreen(title: "Tasks", child: TasksMainWidget());
+    return const TemplateScreen(title: "Tasks", child: TasksMainWidget());
   }
 }

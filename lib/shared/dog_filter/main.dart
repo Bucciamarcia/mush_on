@@ -54,7 +54,7 @@ class DogFilterWidget extends ConsumerWidget {
               onResult: (result) => onResult(result),
             ),
             ElevatedButton(
-                child: Text("Reset"),
+                child: const Text("Reset"),
                 onPressed: () {
                   filterConditionsNotifier.resetConditions();
                   onResult(dogs);
@@ -151,8 +151,8 @@ class ConditionSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownMenu<ConditionSelection>(
-      key: Key("Select condition"),
-      label: Text("Select condition"),
+      key: const Key("Select condition"),
+      label: const Text("Select condition"),
       onSelected: (v) => onConditionSelected(v),
       dropdownMenuEntries: ConditionSelection.values
           .map((v) => DropdownMenuEntry(value: v, label: v.name))
@@ -179,7 +179,7 @@ class OperatorSelector extends StatelessWidget {
     return DropdownMenu<OperationSelection>(
         key: Key("Operator Selector DropDown - $operationSelected"),
         initialSelection: operationSelected,
-        label: Text("Operator"),
+        label: const Text("Operator"),
         onSelected: (v) => onOperatorSelected(v),
         dropdownMenuEntries: allowedOperations
             .map((v) => DropdownMenuEntry(value: v, label: v.symbol))
@@ -239,7 +239,7 @@ class FilterField extends StatelessWidget {
     return Flexible(
       key: Key("Filter key - $conditionSelected"),
       child: TextField(
-        decoration: InputDecoration(labelText: "Filter"),
+        decoration: const InputDecoration(labelText: "Filter"),
         onChanged: (v) => onFilterFieldChanged(v),
       ),
     );
@@ -248,11 +248,11 @@ class FilterField extends StatelessWidget {
   Flexible intWidgetField() {
     return Flexible(
       child: TextField(
-        keyboardType: TextInputType.numberWithOptions(),
+        keyboardType: const TextInputType.numberWithOptions(),
         inputFormatters: [
           FilteringTextInputFormatter.digitsOnly,
         ],
-        decoration: InputDecoration(labelText: "Filter"),
+        decoration: const InputDecoration(labelText: "Filter"),
         onChanged: (v) => onFilterFieldChanged(int.parse(v)),
       ),
     );
@@ -347,7 +347,7 @@ class SubmitButton extends StatelessWidget {
         foregroundColor:
             WidgetStateProperty.all(Theme.of(context).colorScheme.onPrimary),
       ),
-      child: Text("Search"),
+      child: const Text("Search"),
     );
   }
 }

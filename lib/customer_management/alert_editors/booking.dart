@@ -38,7 +38,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   void initState() {
     super.initState();
     isNewBooking = widget.booking == null;
-    id = widget.booking?.id ?? widget.id ?? Uuid().v4();
+    id = widget.booking?.id ?? widget.id ?? const Uuid().v4();
     nameController = TextEditingController(text: widget.booking?.name);
     possibleCustomerGroups = [];
     customers = [];
@@ -68,7 +68,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
         children: [
           Icon(Icons.event_note, color: colorScheme.primary),
           const SizedBox(width: 12),
-          Text("Booking Editor"),
+          const Text("Booking Editor"),
         ],
       ),
       content: Container(
@@ -210,8 +210,8 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
           onPressed: () async => await showDialog(
             context: context,
             builder: (_) => AlertDialog.adaptive(
-              title: Text("Are you sure?"),
-              content: Text(
+              title: const Text("Are you sure?"),
+              content: const Text(
                 "Are you sure you want to delete this booking? It will be gone forever. All customers will be deleted too!",
               ),
               actions: [
@@ -229,12 +229,12 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
                   },
-                  child: Text("Proceed"),
+                  child: const Text("Proceed"),
                 ),
               ],
             ),
           ),
-          child: Text("Delete this booking"),
+          child: const Text("Delete this booking"),
         ),
         FilledButton.icon(
           style: FilledButton.styleFrom(

@@ -7,6 +7,6 @@ class EditKennelScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TemplateScreen(title: "Kennel", child: EditKennelMain());
+    return const TemplateScreen(title: "Kennel", child: EditKennelMain());
   }
 }

@@ -21,7 +21,7 @@ class SingleDogHealthEventsWidget extends ConsumerWidget {
 
     return Column(
       children: [
-        Align(
+        const Align(
           alignment: Alignment.topCenter,
           child: TextTitle("Health events"),
         ),

@@ -127,7 +127,7 @@ class HeatCycleDisplayCard extends ConsumerWidget {
                         color: Colors.pink,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
+                      child: const Text(
                         "ACTIVE",
                         style: TextStyle(
                           fontSize: 11,

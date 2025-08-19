@@ -131,7 +131,7 @@ double reliability(Ref ref, String id, List<HealthEvent> healthEvents,
       DateTime current = effectiveStartDate;
       while (current.isBefore(effectiveEndDate)) {
         injuryDates.add(DateTime(current.year, current.month, current.day));
-        current = current.add(Duration(days: 1));
+        current = current.add(const Duration(days: 1));
       }
     }
   }

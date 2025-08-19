@@ -38,7 +38,7 @@ class SfScheduleView extends StatelessWidget {
     return SfCalendar(
       headerHeight: 0,
       viewHeaderHeight: 0,
-      scheduleViewSettings: ScheduleViewSettings(
+      scheduleViewSettings: const ScheduleViewSettings(
         appointmentItemHeight: 70,
         monthHeaderSettings: MonthHeaderSettings(height: 0),
         weekHeaderSettings: WeekHeaderSettings(height: 0),
@@ -48,7 +48,7 @@ class SfScheduleView extends StatelessWidget {
       minDate: date,
       maxDate: date
           ?.add(Duration(days: daysToDisplay ?? 1))
-          .subtract(Duration(minutes: 1)),
+          .subtract(const Duration(minutes: 1)),
       view: CalendarView.schedule,
       appointmentBuilder: (context, calendarAppointmentDetails) {
         final Task task = calendarAppointmentDetails.appointments.first as Task;
@@ -71,7 +71,7 @@ class SfScheduleView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(6),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -112,20 +112,20 @@ class SfScheduleView extends StatelessWidget {
 
   TextStyle _getTaskTextStyle(Task task) {
     if (task.isDone) {
-      return TextStyle(
+      return const TextStyle(
         color: Colors.white,
         decoration: TextDecoration.lineThrough,
         fontStyle: FontStyle.italic,
         fontSize: 14,
       );
     } else if (task.isUrgent) {
-      return TextStyle(
+      return const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.bold,
         fontSize: 16,
       );
     } else {
-      return TextStyle(
+      return const TextStyle(
         color: Colors.white,
         fontSize: 14,
       );

@@ -22,59 +22,7 @@ final userProvider = StreamProvider<User?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef UserRef = StreamProviderRef<User?>;
-String _$userNameHash() => r'6fd54cbcb61c9a5af9cf72db924978c1533d85c0';
-
-/// This provider streams the current user from Firestore.
-/// If it returns null, the user is not logged in.
-///
-/// Copied from [userName].
-@ProviderFor(userName)
-final userNameProvider = StreamProvider<UserName?>.internal(
-  userName,
-  name: r'userNameProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$userNameHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef UserNameRef = StreamProviderRef<UserName?>;
-String _$accountHash() => r'8d319a714f0da21e029f1ba56b5d16819e08622e';
-
-/// See also [account].
-@ProviderFor(account)
-final accountProvider = StreamProvider<String>.internal(
-  account,
-  name: r'accountProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$accountHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef AccountRef = StreamProviderRef<String>;
-String _$settingsHash() => r'f3b3253278e100e7614d882468c2b2e23a7650b5';
-
-/// See also [settings].
-@ProviderFor(settings)
-final settingsProvider = StreamProvider<SettingsModel>.internal(
-  settings,
-  name: r'settingsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$settingsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SettingsRef = StreamProviderRef<SettingsModel>;
-String _$tasksWithExpirationHash() =>
-    r'7faa6cebf3795a161779280152a97f01996c98c1';
+String _$userNameHash() => r'29ccca110cd8ab43c873cfbef4889881ea945f2d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -96,6 +44,186 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+/// This provider streams a user from firestore. Use UID to determine which, or null for self.
+/// If it returns null, it couldn't find it.
+///
+/// Copied from [userName].
+@ProviderFor(userName)
+const userNameProvider = UserNameFamily();
+
+/// This provider streams a user from firestore. Use UID to determine which, or null for self.
+/// If it returns null, it couldn't find it.
+///
+/// Copied from [userName].
+class UserNameFamily extends Family<AsyncValue<UserName?>> {
+  /// This provider streams a user from firestore. Use UID to determine which, or null for self.
+  /// If it returns null, it couldn't find it.
+  ///
+  /// Copied from [userName].
+  const UserNameFamily();
+
+  /// This provider streams a user from firestore. Use UID to determine which, or null for self.
+  /// If it returns null, it couldn't find it.
+  ///
+  /// Copied from [userName].
+  UserNameProvider call(
+    String? uid,
+  ) {
+    return UserNameProvider(
+      uid,
+    );
+  }
+
+  @override
+  UserNameProvider getProviderOverride(
+    covariant UserNameProvider provider,
+  ) {
+    return call(
+      provider.uid,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'userNameProvider';
+}
+
+/// This provider streams a user from firestore. Use UID to determine which, or null for self.
+/// If it returns null, it couldn't find it.
+///
+/// Copied from [userName].
+class UserNameProvider extends StreamProvider<UserName?> {
+  /// This provider streams a user from firestore. Use UID to determine which, or null for self.
+  /// If it returns null, it couldn't find it.
+  ///
+  /// Copied from [userName].
+  UserNameProvider(
+    String? uid,
+  ) : this._internal(
+          (ref) => userName(
+            ref as UserNameRef,
+            uid,
+          ),
+          from: userNameProvider,
+          name: r'userNameProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$userNameHash,
+          dependencies: UserNameFamily._dependencies,
+          allTransitiveDependencies: UserNameFamily._allTransitiveDependencies,
+          uid: uid,
+        );
+
+  UserNameProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.uid,
+  }) : super.internal();
+
+  final String? uid;
+
+  @override
+  Override overrideWith(
+    Stream<UserName?> Function(UserNameRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: UserNameProvider._internal(
+        (ref) => create(ref as UserNameRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        uid: uid,
+      ),
+    );
+  }
+
+  @override
+  StreamProviderElement<UserName?> createElement() {
+    return _UserNameProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is UserNameProvider && other.uid == uid;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, uid.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin UserNameRef on StreamProviderRef<UserName?> {
+  /// The parameter `uid` of this provider.
+  String? get uid;
+}
+
+class _UserNameProviderElement extends StreamProviderElement<UserName?>
+    with UserNameRef {
+  _UserNameProviderElement(super.provider);
+
+  @override
+  String? get uid => (origin as UserNameProvider).uid;
+}
+
+String _$accountHash() => r'20726188d6b9c3448024fa63c59930995e7e12da';
+
+/// See also [account].
+@ProviderFor(account)
+final accountProvider = StreamProvider<String>.internal(
+  account,
+  name: r'accountProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$accountHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AccountRef = StreamProviderRef<String>;
+String _$settingsHash() => r'725d6da6cc18eb62f275849c1566665f8836e397';
+
+/// See also [settings].
+@ProviderFor(settings)
+final settingsProvider = StreamProvider<SettingsModel>.internal(
+  settings,
+  name: r'settingsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$settingsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef SettingsRef = StreamProviderRef<SettingsModel>;
+String _$tasksWithExpirationHash() =>
+    r'7faa6cebf3795a161779280152a97f01996c98c1';
 
 /// See also [tasksWithExpiration].
 @ProviderFor(tasksWithExpiration)

@@ -31,7 +31,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
   @override
   void initState() {
     super.initState();
-    id = widget.tour?.id ?? Uuid().v4();
+    id = widget.tour?.id ?? const Uuid().v4();
     nameController = TextEditingController(text: widget.tour?.name);
     displayNameController =
         TextEditingController(text: widget.tour?.displayName);
@@ -354,7 +354,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
                     shape: BoxShape.circle,
                   ),
                 ),
-                Text("Pick color"),
+                const Text("Pick color"),
               ],
             ),
             children: [
@@ -409,7 +409,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
                   .map(
                     (price) => InputChip(
                       label: Text(price.name),
-                      deleteIcon: Icon(Icons.close, size: 18),
+                      deleteIcon: const Icon(Icons.close, size: 18),
                       onDeleted: () => showDialog(
                         context: context,
                         builder: (_) => DeletePricingAlert(
@@ -444,8 +444,8 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
                   onPricingSaved: (p) => priceNotifier.addPrice(p),
                 ),
               ),
-              icon: Icon(Icons.add),
-              label: Text("Add Pricing Option"),
+              icon: const Icon(Icons.add),
+              label: const Text("Add Pricing Option"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primaryContainer,
                 foregroundColor: colorScheme.onPrimaryContainer,
@@ -487,7 +487,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               backgroundColor: colorScheme.error,
               foregroundColor: colorScheme.onError,
             ),
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             label: Text(
               "Archive",
               style: TextStyle(color: colorScheme.onError),
@@ -495,8 +495,8 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
           ),
           ElevatedButton.icon(
             onPressed: () => onTourSaved(),
-            icon: Icon(Icons.save),
-            label: Text("Save Tour"),
+            icon: const Icon(Icons.save),
+            label: const Text("Save Tour"),
             style: ElevatedButton.styleFrom(
               backgroundColor: colorScheme.primary,
               foregroundColor: colorScheme.onPrimary,
@@ -530,7 +530,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
   @override
   void initState() {
     super.initState();
-    id = widget.pricing?.id ?? Uuid().v4();
+    id = widget.pricing?.id ?? const Uuid().v4();
     nameController = TextEditingController(text: widget.pricing?.name);
     priceController = TextEditingController(
         text: ((widget.pricing?.priceCents ?? 0) / 100).toStringAsFixed(2));
@@ -564,7 +564,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
             spacing: 16,
             children: [
               if (isViewOnly)
-                Text(
+                const Text(
                     "For safety, a pricing can't be edited or deleted, only archived"),
               TextField(
                 controller: nameController,
@@ -741,8 +741,8 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
               );
               Navigator.of(context).pop();
             },
-            icon: Icon(Icons.save),
-            label: Text("Save"),
+            icon: const Icon(Icons.save),
+            label: const Text("Save"),
             style: ElevatedButton.styleFrom(
               backgroundColor: colorScheme.primary,
               foregroundColor: colorScheme.onPrimary,
@@ -761,8 +761,8 @@ class ConfirmDeleteAlert extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog.adaptive(
-      title: Text("Confirm archive"),
-      content: Text(
+      title: const Text("Confirm archive"),
+      content: const Text(
         "Tours can't be deleted, only archived for safety. Are you sure?",
       ),
       shape: RoundedRectangleBorder(
@@ -771,7 +771,7 @@ class ConfirmDeleteAlert extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text("Nevermind"),
+          child: const Text("Nevermind"),
         ),
         ElevatedButton(
           onPressed: () {
@@ -782,7 +782,7 @@ class ConfirmDeleteAlert extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.error,
             foregroundColor: Theme.of(context).colorScheme.onError,
           ),
-          child: Text("Archive"),
+          child: const Text("Archive"),
         ),
       ],
     );
@@ -798,21 +798,21 @@ class DeletePricingAlert extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Archive pricing"),
+      title: const Text("Archive pricing"),
       content: Text(
         "Are you sure you want to archive pricing: ${pricing.name}\n\nFor safety reasons pricing options can't be deleted, only archived.",
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text("Nevermind"),
+          child: const Text("Nevermind"),
         ),
         TextButton(
           onPressed: () {
             onPricingDeleted();
             Navigator.of(context).pop();
           },
-          child: Text("Archive pricing"),
+          child: const Text("Archive pricing"),
         )
       ],
     );

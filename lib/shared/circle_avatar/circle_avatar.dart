@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/riverpod/user.dart';
 
 class CircleAvatarWidget extends ConsumerWidget {
@@ -13,10 +15,30 @@ class CircleAvatarWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Uint8List? profilePic;
     profilePic = ref.watch(userProfilePicProvider(uid)).value;
+    UserName? userName = ref.watch(userNameProvider(uid)).value;
+    String? nameFirstLetter;
+    if (userName != null) {
+      if (userName.name.isNotEmpty) {
+        nameFirstLetter = userName.name[0];
+      }
+    }
+
+    late Widget noAvatarPlaceholder;
+    if (nameFirstLetter != null) {
+      noAvatarPlaceholder = Text(
+        nameFirstLetter,
+        style: TextStyle(
+          fontSize: radius * 0.6, // Scale with radius
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    } else {
+      noAvatarPlaceholder = Icon(Icons.person, size: radius);
+    }
     return CircleAvatar(
       radius: radius,
       backgroundImage: profilePic != null ? MemoryImage(profilePic) : null,
-      child: profilePic == null ? Icon(Icons.person, size: radius) : null,
+      child: profilePic == null ? noAvatarPlaceholder : null,
     );
   }
 }

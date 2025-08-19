@@ -40,14 +40,14 @@ class _DateTimeDistancePickerState extends State<DateTimeDistancePicker> {
       children: [
         Flexible(
           child: TextField(
-            decoration: InputDecoration(hint: Text("Date")),
+            decoration: const InputDecoration(hint: Text("Date")),
             readOnly: true,
             onTap: () async {
               DateTime? pickedDate = await showDatePicker(
                 context: context,
                 initialDate: widget.teamGroup.date,
-                firstDate: DateTime.now().subtract(Duration(days: 365)),
-                lastDate: DateTime.now().add(Duration(days: 365)),
+                firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                lastDate: DateTime.now().add(const Duration(days: 365)),
               );
               if (pickedDate != null) {
                 widget.onDateChanged(
@@ -63,7 +63,7 @@ class _DateTimeDistancePickerState extends State<DateTimeDistancePicker> {
         ),
         Flexible(
           child: TextField(
-            decoration: InputDecoration(hint: Text("Time")),
+            decoration: const InputDecoration(hint: Text("Time")),
             readOnly: true,
             onTap: () async {
               TimeOfDay? pickedTime = await showTimePicker(
@@ -91,7 +91,7 @@ class _DateTimeDistancePickerState extends State<DateTimeDistancePicker> {
         ),
         Flexible(
           child: TextField(
-            decoration: InputDecoration(label: Text("Distance")),
+            decoration: const InputDecoration(label: Text("Distance")),
             keyboardType: TextInputType.number,
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),

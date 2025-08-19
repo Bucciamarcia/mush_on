@@ -7,6 +7,6 @@ class ToursScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TemplateScreen(title: "Tours", child: ToursMainScreen());
+    return const TemplateScreen(title: "Tours", child: ToursMainScreen());
   }
 }

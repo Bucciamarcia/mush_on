@@ -70,27 +70,27 @@ class _VaccinationEditorAlertState
     var colorScheme = Theme.of(context).colorScheme;
     return AlertDialog.adaptive(
       scrollable: true,
-      title: Text("Add Vaccination"),
+      title: const Text("Add Vaccination"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Vaccination name
           TextField(
             controller: _titleController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: "Vaccination name",
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.vaccines),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Dog selection
           SearchField<Dog>(
             searchInputDecoration: SearchInputDecoration(
               hintText: "Select dog",
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.pets),
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.pets),
             ),
             controller: _selectedDogNameController,
             suggestions: dogs
@@ -105,24 +105,24 @@ class _VaccinationEditorAlertState
               }
             },
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Vaccination type
           TextField(
             controller: _vaccinationTypeController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: "Vaccination type",
               hintText: "e.g., Rabies, DHPP, Bordetella",
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.medical_services),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Date cards
           Card(
             child: Padding(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 children: [
                   // Administration date
@@ -154,11 +154,11 @@ class _VaccinationEditorAlertState
                             },
                           );
                         },
-                        icon: Icon(Icons.calendar_today),
+                        icon: const Icon(Icons.calendar_today),
                       ),
                     ],
                   ),
-                  Divider(height: 24),
+                  const Divider(height: 24),
 
                   // Expiration date
                   Row(
@@ -214,7 +214,7 @@ class _VaccinationEditorAlertState
                                 },
                               );
                             },
-                            icon: Icon(Icons.calendar_today),
+                            icon: const Icon(Icons.calendar_today),
                           ),
                         ],
                       ),
@@ -226,7 +226,7 @@ class _VaccinationEditorAlertState
           ),
 
           if (_expirationDate != null) ...[
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Card(
               color: _addReminderCheckboxValue
                   ? colorScheme.primaryContainer
@@ -234,9 +234,9 @@ class _VaccinationEditorAlertState
               child: Column(
                 children: [
                   CheckboxListTile(
-                    title: Text("Add reminder task"),
-                    subtitle: Text("Create a task before expiration"),
-                    secondary: Icon(Icons.notification_add),
+                    title: const Text("Add reminder task"),
+                    subtitle: const Text("Create a task before expiration"),
+                    secondary: const Icon(Icons.notification_add),
                     value: _addReminderCheckboxValue,
                     onChanged: (v) {
                       setState(() {
@@ -253,7 +253,7 @@ class _VaccinationEditorAlertState
                   ),
                   if (_addReminderCheckboxValue)
                     Padding(
-                      padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                       child: TextField(
                         controller: _daysBeforeExpirationReminderController,
                         keyboardType: TextInputType.number,
@@ -261,7 +261,7 @@ class _VaccinationEditorAlertState
                           FilteringTextInputFormatter.digitsOnly,
                           LengthLimitingTextInputFormatter(3),
                         ],
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: "Days before expiration",
                           helperText: "When to remind about renewal",
                           border: OutlineInputBorder(),
@@ -275,12 +275,12 @@ class _VaccinationEditorAlertState
             ),
           ],
 
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Notes field
           TextField(
             controller: _notesController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: "Notes (optional)",
               hintText: "Batch number, veterinarian, etc.",
               border: OutlineInputBorder(),
@@ -298,7 +298,7 @@ class _VaccinationEditorAlertState
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
         ),
         FilledButton(
           onPressed: !_isSaving
@@ -313,7 +313,7 @@ class _VaccinationEditorAlertState
                         dateAdministered: _dateAdministered,
                         vaccinationType: _vaccinationTypeController.text,
                         expirationDate: _expirationDate,
-                        id: _id ?? Uuid().v4(),
+                        id: _id ?? const Uuid().v4(),
                         dogId: _selectedDog!.id,
                         notes: _notesController.text,
                         createdAt:
@@ -323,7 +323,7 @@ class _VaccinationEditorAlertState
                         _addReminderCheckboxValue == true) {
                       await TaskRepository.addOrUpdate(
                           Task(
-                              id: Uuid().v4(),
+                              id: const Uuid().v4(),
                               title: "Vaccination expiration",
                               dogId: _selectedDog!.id,
                               isDone: false,
@@ -373,7 +373,7 @@ class _VaccinationEditorAlertState
                     color: colorScheme.onPrimary,
                   ),
                 )
-              : Text("Add Vaccination"),
+              : const Text("Add Vaccination"),
         ),
       ],
     );
@@ -387,7 +387,7 @@ class _VaccinationEditorAlertState
         initialDate: minDate,
         context: context,
         firstDate:
-            minDate ?? DateTimeUtils.today().subtract(Duration(days: 900)),
+            minDate ?? DateTimeUtils.today().subtract(const Duration(days: 900)),
         lastDate: DateTimeUtils.today().add(const Duration(days: 900)),
         builder: (context, child) {
           return Theme(

@@ -60,7 +60,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
           Card(
             color: Theme.of(context).colorScheme.primaryContainer,
             child: ExpansionTile(
-              title: Center(child: Text("Filter dogs")),
+              title: const Center(child: Text("Filter dogs")),
               children: [
                 DogFilterWidget(
                     dogs: allDogs,
@@ -89,26 +89,26 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
           ),
           TextField(
             controller: groupNameController,
-            decoration: InputDecoration(labelText: "Group name"),
+            decoration: const InputDecoration(labelText: "Group name"),
             onChanged: (String text) {
               notifier.changeName(text);
             },
           ),
           TextField(
             controller: groupNotesController,
-            decoration: InputDecoration(labelText: "Group notes"),
+            decoration: const InputDecoration(labelText: "Group notes"),
             onChanged: (String text) {
               notifier.changeNotes(text);
             },
           ),
-          SizedBox(
+          const SizedBox(
             width: double.infinity,
           ),
           ...widget.teamGroup.teams.asMap().entries.map(
             (entry) {
               return Column(
                 children: [
-                  Divider(),
+                  const Divider(),
                   TeamRetriever(
                     teamNumber: entry.key,
                     teamGroupId: widget.providerKey,
@@ -147,7 +147,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
               );
             },
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () async {
               String teamString = CreateTeamsString(
@@ -159,7 +159,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                     confirmationSnackbar(context, "Teams copied"));
               }
             },
-            child: Text("Copy team group"),
+            child: const Text("Copy team group"),
           ),
           ElevatedButton(
             onPressed: () {
@@ -167,7 +167,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
               ref.invalidate(createTeamGroupProvider);
               Navigator.of(context).popAndPushNamed("/createteam");
             },
-            child: Text("Create new team group"),
+            child: const Text("Create new team group"),
           ),
         ],
       ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/page_template.dart';
@@ -49,7 +48,7 @@ class CustomerGroupViewer extends ConsumerWidget {
         //Handle unknown errors.
         if (customerGroup == null) {
           BasicLogger().error("Couldn't load teamgroup: $customerGroupId");
-          return Text("Couldn't load teamgroup: null");
+          return const Text("Couldn't load teamgroup: null");
         }
 
         // Define the customers.
@@ -387,9 +386,9 @@ class CustomerGroupViewer extends ConsumerWidget {
       error: (e, s) {
         BasicLogger().error("Error loading customer group: $customerGroupId",
             error: e, stackTrace: s);
-        return Center(child: Text("Error: couldn't load the customer group."));
+        return const Center(child: Text("Error: couldn't load the customer group."));
       },
-      loading: () => Center(
+      loading: () => const Center(
         child: SizedBox.square(
           dimension: 150,
           child: CircularProgressIndicator.adaptive(),

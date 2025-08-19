@@ -1182,7 +1182,7 @@ class _BookingsByCustomerGroupIdProviderElement
 }
 
 String _$futureCustomerGroupsHash() =>
-    r'eff8d56ab9ee433ef4a475a9319aefc8acecb22d';
+    r'af0e53be4b01b05f77ce7dfbd43d91ed8bed558e';
 
 /// See also [futureCustomerGroups].
 @ProviderFor(futureCustomerGroups)

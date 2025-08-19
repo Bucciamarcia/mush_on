@@ -23,7 +23,7 @@ class DogTasksWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      title: TextTitle("Tasks"),
+      title: const TextTitle("Tasks"),
       children: [
         SfScheduleView(
           tasks: _fetchTasks(),

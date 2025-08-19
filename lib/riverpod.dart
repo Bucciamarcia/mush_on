@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/models/tasks.dart';
@@ -18,32 +17,36 @@ Stream<User?> user(Ref ref) {
 
 @Riverpod(keepAlive: true)
 
-/// This provider streams the current user from Firestore.
-/// If it returns null, the user is not logged in.
-Stream<UserName?> userName(Ref ref) async* {
-  User? user = ref.watch(userProvider).value;
-  if (user == null) {
-    yield null;
+/// This provider streams a user from firestore. Use UID to determine which, or null for self.
+/// If it returns null, it couldn't find it.
+Stream<UserName?> userName(Ref ref, String? uid) async* {
+  late String path;
+  if (uid == null) {
+    User? user = ref.watch(userProvider).value;
+    if (user == null) {
+      yield null;
+    } else {
+      path = "users/${user.uid}";
+    }
   } else {
-    final path = "users/${user.uid}";
-    BasicLogger().info("path: $path");
-    var doc = FirebaseFirestore.instance.doc(path);
-    yield* doc.snapshots().map(
-      (snapshot) {
-        if (snapshot.data() != null) {
-          return UserName.fromJson(snapshot.data()!);
-        } else {
-          return null;
-        }
-      },
-    );
+    path = "users/$uid";
   }
+  var doc = FirebaseFirestore.instance.doc(path);
+  yield* doc.snapshots().map(
+    (snapshot) {
+      if (snapshot.data() != null) {
+        return UserName.fromJson(snapshot.data()!);
+      } else {
+        return null;
+      }
+    },
+  );
 }
 
 @Riverpod(keepAlive: true)
 Stream<String> account(Ref ref) async* {
   // Wait for the auth state to produce a valid, non-null user
-  UserName? userName = await ref.watch(userNameProvider.future);
+  UserName? userName = await ref.watch(userNameProvider(null).future);
   yield userName?.account ?? "";
 }
 
@@ -56,7 +59,7 @@ Stream<SettingsModel> settings(Ref ref) async* {
     if (snapshot.data() != null) {
       return SettingsModel.fromJson(snapshot.data()!);
     } else {
-      return SettingsModel();
+      return const SettingsModel();
     }
   });
 }

@@ -9,7 +9,7 @@ class TextTitle extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(text,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
     );
   }
 }

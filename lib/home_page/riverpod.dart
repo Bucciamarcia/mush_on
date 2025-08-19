@@ -40,7 +40,7 @@ Stream<List<WhiteboardElement>> todayWhiteboard(Ref ref) async* {
       .where(
         "date",
         isLessThan: DateTimeUtils.today().add(
-          Duration(days: 1),
+          const Duration(days: 1),
         ),
       );
   yield* dbRef.snapshots().map(

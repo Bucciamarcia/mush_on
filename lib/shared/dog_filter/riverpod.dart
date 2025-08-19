@@ -8,7 +8,7 @@ part 'riverpod.freezed.dart';
 class FilterConditions extends _$FilterConditions {
   @override
   ConditionsGroup build() {
-    return ConditionsGroup();
+    return const ConditionsGroup();
   }
 
   void setCondition(

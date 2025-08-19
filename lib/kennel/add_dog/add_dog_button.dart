@@ -56,8 +56,8 @@ class AddDogButton extends ConsumerWidget {
         onDogAdded();
         if (context.mounted) Navigator.of(context).pop();
       },
-      icon: Icon(Icons.add),
-      label: Text("Add dog"),
+      icon: const Icon(Icons.add),
+      label: const Text("Add dog"),
     );
   }
 }

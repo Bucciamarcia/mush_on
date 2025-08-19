@@ -38,7 +38,7 @@ class CustomersCreateTeam extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup = ref.watch(customerAssignProvider(teamGroup.id)).value;
     if (customerGroup == null) {
-      return SingleChildScrollView(
+      return const SingleChildScrollView(
         child: Column(
           spacing: 20,
           children: [
@@ -50,7 +50,7 @@ class CustomersCreateTeam extends ConsumerWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
             child: CustomerGroupsCard(customerGroupWorkspace: customerGroup),
@@ -96,7 +96,7 @@ class SingleTeamAssign extends ConsumerWidget {
             CustomerGroupWorkspace(
               customerGroup: CustomerGroup(
                 tourTypeId: "",
-                id: Uuid().v4(),
+                id: const Uuid().v4(),
                 datetime: DateTime.now(),
               ),
             );
@@ -130,7 +130,7 @@ class SingleTeamAssign extends ConsumerWidget {
                   ),
                 );
               },
-              child: Text("Assign customers"),
+              child: const Text("Assign customers"),
             ),
           ],
         ),
@@ -181,15 +181,15 @@ class AssignCustomersAlert extends ConsumerWidget {
             CustomerGroupWorkspace(
               customerGroup: CustomerGroup(
                 tourTypeId: "",
-                id: Uuid().v4(),
+                id: const Uuid().v4(),
                 datetime: DateTime.now(),
               ),
             );
     return AlertDialog.adaptive(
-      insetPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-      contentPadding: EdgeInsets.all(10),
+      insetPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+      contentPadding: const EdgeInsets.all(10),
       scrollable: true,
-      title: Row(
+      title: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text("Assign customers"),
@@ -220,7 +220,7 @@ class AssignCustomersAlert extends ConsumerWidget {
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.of(context).pop(), child: Text("Close"))
+            onPressed: () => Navigator.of(context).pop(), child: const Text("Close"))
       ],
     );
   }
@@ -247,7 +247,7 @@ class BookingDisplay extends ConsumerWidget {
             CustomerGroupWorkspace(
               customerGroup: CustomerGroup(
                 tourTypeId: "",
-                id: Uuid().v4(),
+                id: const Uuid().v4(),
                 datetime: DateTime.now(),
               ),
             );
@@ -335,7 +335,7 @@ class CustomerActionChip extends ConsumerWidget {
                 ),
                 IconButton(
                   onPressed: () => onCustomerDeselected(),
-                  icon: Icon(Icons.cancel_outlined),
+                  icon: const Icon(Icons.cancel_outlined),
                 ),
               ],
             ),

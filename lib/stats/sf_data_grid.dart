@@ -91,14 +91,14 @@ class StatsDataSource extends DataGridSource {
   Widget? buildGroupCaptionCellWidget(
       RowColumnIndex rowColumnIndex, String summaryValue) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 15),
+      padding: const EdgeInsets.symmetric(vertical: 15),
       // Put in a row because I want it to start at column 2.
       child: Row(
         children: [
-          SizedBox(width: 100),
+          const SizedBox(width: 100),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(summaryValue),
             ),
           ),
@@ -129,10 +129,10 @@ class StatsDataSource extends DataGridSource {
       String summaryValue) {
     return Center(
       child: Container(
-        padding: EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(15.0),
         child: Text(
           summaryValue,
-          style: TextStyle(fontWeight: FontWeight.w700),
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
     );

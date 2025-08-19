@@ -47,7 +47,7 @@ class _CustomerGroupEditorAlertState
   @override
   void initState() {
     super.initState();
-    id = widget.customerGroup?.id ?? Uuid().v4();
+    id = widget.customerGroup?.id ?? const Uuid().v4();
     nameController = TextEditingController(text: widget.customerGroup?.name);
     tourNameController = TextEditingController();
     dateTime = widget.customerGroup?.datetime ?? DateTimeUtils.today();
@@ -218,10 +218,10 @@ class _CustomerGroupEditorAlertState
                               initialDate: dateTime,
                               context: context,
                               firstDate: DateTimeUtils.today().subtract(
-                                Duration(days: 365),
+                                const Duration(days: 365),
                               ),
                               lastDate: DateTimeUtils.today().add(
-                                Duration(days: 365),
+                                const Duration(days: 365),
                               ),
                             );
                             if (newDate != null) {
@@ -388,17 +388,17 @@ class _CustomerGroupEditorAlertState
                             ),
                           );
                           if (tgName.isNotEmpty) {
-                            String uid = Uuid().v4();
+                            String uid = const Uuid().v4();
                             final tg = TeamGroupWorkspace(
                               name: tgName,
                               date: dateTime,
                               id: uid,
                               teams: [
                                 TeamWorkspace(
-                                  id: Uuid().v4(),
+                                  id: const Uuid().v4(),
                                   dogPairs: [
-                                    DogPairWorkspace(id: Uuid().v4()),
-                                    DogPairWorkspace(id: Uuid().v4()),
+                                    DogPairWorkspace(id: const Uuid().v4()),
+                                    DogPairWorkspace(id: const Uuid().v4()),
                                   ],
                                 ),
                               ],
@@ -419,8 +419,8 @@ class _CustomerGroupEditorAlertState
                             });
                           }
                         },
-                        label: Text("Add new"),
-                        icon: Icon(Icons.add),
+                        label: const Text("Add new"),
+                        icon: const Icon(Icons.add),
                       ),
                     ),
                   ],
@@ -653,9 +653,9 @@ class _CustomerGroupEditorAlertState
           onPressed: () => showDialog(
             context: context,
             builder: (_) => AlertDialog.adaptive(
-              title: Text("Are you sure?"),
+              title: const Text("Are you sure?"),
               content:
-                  Text("Are you sure you want to delete this customer group?"),
+                  const Text("Are you sure you want to delete this customer group?"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -672,12 +672,12 @@ class _CustomerGroupEditorAlertState
                       ModalRoute.withName("/client_management"),
                     );
                   },
-                  child: Text("Delete"),
+                  child: const Text("Delete"),
                 ),
               ],
             ),
           ),
-          child: Text("Delete"),
+          child: const Text("Delete"),
         ),
         FilledButton.icon(
           style: FilledButton.styleFrom(
@@ -731,13 +731,13 @@ class _AddTeamGroupInCgState extends State<AddTeamGroupInCg> {
   Widget build(BuildContext context) {
     return AlertDialog.adaptive(
       scrollable: true,
-      title: Text("Add Team Group"),
+      title: const Text("Add Team Group"),
       content: Column(
         children: [
-          Text("Create a new Team Group and assign this Customer Group to it."),
+          const Text("Create a new Team Group and assign this Customer Group to it."),
           TextField(
             controller: controller,
-            decoration: InputDecoration(hint: Text("Name of the Team Group")),
+            decoration: const InputDecoration(hint: Text("Name of the Team Group")),
           ),
         ],
       ),
@@ -754,7 +754,7 @@ class _AddTeamGroupInCgState extends State<AddTeamGroupInCg> {
             widget.onTgAdded(controller.text);
             Navigator.of(context).pop();
           },
-          child: Text("Create"),
+          child: const Text("Create"),
         ),
       ],
     );

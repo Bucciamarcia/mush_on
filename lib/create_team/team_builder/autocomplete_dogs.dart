@@ -37,7 +37,7 @@ class AutocompleteDogs extends StatelessWidget {
         SearchField<Dog>(
           key: autoCompleteKey,
           searchInputDecoration:
-              SearchInputDecoration(hint: Text("Select dog")),
+              SearchInputDecoration(hint: const Text("Select dog")),
           suggestions: sortedDogs
               .map((dog) => SearchFieldListItem<Dog>(dog.name,
                   key: ValueKey(dog.id),

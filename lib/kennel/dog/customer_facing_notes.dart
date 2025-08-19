@@ -194,7 +194,7 @@ class _CustomerFacingNotesWidgetState
                 dogInfo: dogCustomerFacingInfo?.copyWith(
                         description: customerFacingDogDescription.text) ??
                     DogCustomerFacingInfo(
-                        id: Uuid().v4(),
+                        id: const Uuid().v4(),
                         dogId: widget.dog.id,
                         description: customerFacingDogDescription.text),
               );
@@ -214,7 +214,7 @@ class _CustomerFacingNotesWidgetState
               return;
             }
           },
-          child: Text("Update description"),
+          child: const Text("Update description"),
         ),
       ],
     );

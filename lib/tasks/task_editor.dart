@@ -19,7 +19,7 @@ class AddTaskElevatedButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Center(
       child: ElevatedButton.icon(
-        style: ButtonStyle(alignment: Alignment.topCenter),
+        style: const ButtonStyle(alignment: Alignment.topCenter),
         onPressed: () async {
           await showDialog(
             context: context,
@@ -95,8 +95,8 @@ class AddTaskElevatedButton extends ConsumerWidget {
             ),
           );
         },
-        label: Text("Add a task"),
-        icon: Icon(Icons.add),
+        label: const Text("Add a task"),
+        icon: const Icon(Icons.add),
       ),
     );
   }
@@ -202,7 +202,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
             ? _buildDeleteTaskButton(
                 onTaskDeleted: () => widget.onTaskDeleted(widget.task!.id),
               )
-            : SizedBox.shrink(),
+            : const SizedBox.shrink(),
         _buildConfirmButton(colorScheme, context),
       ],
     );
@@ -211,7 +211,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
   Widget _buildIsdoneCheckmark() {
     return CheckboxListTile.adaptive(
       value: _isDone,
-      title: Text("Mark as done"),
+      title: const Text("Mark as done"),
       onChanged: (v) {
         if (v != null) {
           setState(() {
@@ -613,7 +613,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
           onTaskDeleted();
           Navigator.of(context).pop();
         },
-        child: Text("Delete task"));
+        child: const Text("Delete task"));
   }
 }
 

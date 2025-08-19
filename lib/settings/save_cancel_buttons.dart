@@ -21,14 +21,14 @@ class SaveCancelButtons extends StatelessWidget {
           style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
               foregroundColor: Theme.of(context).colorScheme.onError),
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
         ),
         ElevatedButton(
           onPressed: () => didSomethingChange ? onSavePressed() : null,
           style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Theme.of(context).colorScheme.onPrimary),
-          child: Text("Save"),
+          child: const Text("Save"),
         ),
       ],
     );

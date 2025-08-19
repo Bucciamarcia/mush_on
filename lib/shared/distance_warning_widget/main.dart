@@ -22,8 +22,8 @@ class DistanceWarningWidget extends StatelessWidget {
     return Column(
       children: [
         ElevatedButton.icon(
-          icon: Icon(Icons.add),
-          label: Text("Add new warning"),
+          icon: const Icon(Icons.add),
+          label: const Text("Add new warning"),
           onPressed: () {
             showDialog(
                 context: context,

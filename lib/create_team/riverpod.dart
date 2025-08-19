@@ -121,7 +121,7 @@ class CustomerAssign extends _$CustomerAssign {
           tourTypeId: tourTypeId,
           teamGroupId: teamGroupId,
           datetime: dateTime,
-          id: Uuid().v4(),
+          id: const Uuid().v4(),
         ),
       ),
     );
@@ -179,13 +179,13 @@ class CreateTeamGroup extends _$CreateTeamGroup {
           DateTime.now().hour,
           DateTime.now().minute,
         ),
-        id: Uuid().v4(),
+        id: const Uuid().v4(),
         teams: [
           TeamWorkspace(
-            id: Uuid().v4(),
+            id: const Uuid().v4(),
             dogPairs: [
-              DogPairWorkspace(id: Uuid().v4()),
-              DogPairWorkspace(id: Uuid().v4()),
+              DogPairWorkspace(id: const Uuid().v4()),
+              DogPairWorkspace(id: const Uuid().v4()),
             ],
           ),
         ],
@@ -292,7 +292,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
       var teamToEdit = data.teams[teamNumber];
       var newRows =
           List<DogPairWorkspace>.from(data.teams[teamNumber].dogPairs);
-      newRows.add(DogPairWorkspace(id: Uuid().v4()));
+      newRows.add(DogPairWorkspace(id: const Uuid().v4()));
       var editedTeam = teamToEdit.copyWith(dogPairs: newRows);
       var newTeams = List<TeamWorkspace>.from(data.teams);
       newTeams.removeAt(teamNumber);
@@ -308,10 +308,10 @@ class CreateTeamGroup extends _$CreateTeamGroup {
       newTeams.insert(
         teamNumber,
         TeamWorkspace(dogPairs: [
-          DogPairWorkspace(id: Uuid().v4()),
-          DogPairWorkspace(id: Uuid().v4()),
-          DogPairWorkspace(id: Uuid().v4()),
-        ], id: Uuid().v4()),
+          DogPairWorkspace(id: const Uuid().v4()),
+          DogPairWorkspace(id: const Uuid().v4()),
+          DogPairWorkspace(id: const Uuid().v4()),
+        ], id: const Uuid().v4()),
       );
       return data.copyWith(teams: newTeams);
     });

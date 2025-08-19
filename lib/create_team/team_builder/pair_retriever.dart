@@ -51,7 +51,7 @@ class PairRetriever extends StatelessWidget {
           onDogRemoved: (teamNumber, rowNumber) =>
               onDogRemoved(teamNumber, rowNumber, 0),
         ),
-        Text(" - "),
+        const Text(" - "),
         DogSelector(
           teamNumber: teamNumber,
           rowNumber: rowNumber,

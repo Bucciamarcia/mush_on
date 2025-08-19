@@ -51,7 +51,7 @@ class _AddDistanceWarningAlertDialogState
         spacing: 5,
         children: [
           Icon(Icons.warning_amber_rounded, color: theme.colorScheme.primary),
-          Text("Add Warning"),
+          const Text("Add Warning"),
         ],
       ),
       content: SizedBox(
@@ -68,13 +68,13 @@ class _AddDistanceWarningAlertDialogState
                 labelText: "Maximum distance",
                 hintText: "e.g., 100",
                 suffixText: "km",
-                prefixIcon: Icon(Icons.straighten),
+                prefixIcon: const Icon(Icons.straighten),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -83,17 +83,17 @@ class _AddDistanceWarningAlertDialogState
                 labelText: "Time period",
                 hintText: "e.g., 7",
                 suffixText: "days",
-                prefixIcon: Icon(Icons.calendar_today),
+                prefixIcon: const Icon(Icons.calendar_today),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             // Warning type selector with visual indicators
             Container(
               alignment: Alignment.topCenter,
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surfaceContainerHighest
                     .withValues(alpha: 0.3),
@@ -106,9 +106,9 @@ class _AddDistanceWarningAlertDialogState
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text("Warning type", style: theme.textTheme.labelMedium),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   SegmentedButton<DistanceWarningType>(
-                    segments: [
+                    segments: const [
                       ButtonSegment(
                         value: DistanceWarningType.soft,
                         label: Text("Soft"),
@@ -133,10 +133,10 @@ class _AddDistanceWarningAlertDialogState
               ),
             ),
             if (_isButtonActive()) ...[
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               // Preview of what will be created
               Container(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color:
                       theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -146,11 +146,11 @@ class _AddDistanceWarningAlertDialogState
                   children: [
                     Icon(Icons.check_circle_outline,
                         size: 16, color: theme.colorScheme.primary),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         "${_selectedType == DistanceWarningType.soft ? 'Warn' : 'Block'} if dog runs more than ${_distanceController.text}km in ${_daysIntervalController.text} days",
-                        style: TextStyle(fontSize: 12),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ),
                   ],
@@ -163,13 +163,13 @@ class _AddDistanceWarningAlertDialogState
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
         ),
         FilledButton(
           onPressed: _isButtonActive()
               ? () {
                   widget.onDistanceWarningAdded(DistanceWarning(
-                    id: Uuid().v4(),
+                    id: const Uuid().v4(),
                     distance: int.parse(_distanceController.text),
                     daysInterval: int.parse(_daysIntervalController.text),
                     distanceWarningType: _selectedType,
@@ -177,7 +177,7 @@ class _AddDistanceWarningAlertDialogState
                   Navigator.of(context).pop();
                 }
               : null,
-          child: Text("Add Warning"),
+          child: const Text("Add Warning"),
         ),
       ],
     );

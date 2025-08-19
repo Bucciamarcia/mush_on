@@ -17,8 +17,8 @@ class DeleteDogButton extends StatelessWidget {
             WidgetStateProperty.all(Theme.of(context).colorScheme.error),
       ),
       onPressed: () => onDogDeleted(),
-      label: Text("Delete dog"),
-      icon: Icon(Icons.delete),
+      label: const Text("Delete dog"),
+      icon: const Icon(Icons.delete),
     );
   }
 }
