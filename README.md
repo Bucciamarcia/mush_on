@@ -99,3 +99,5 @@ A cool and open source CRM for sled dog kennels.
 - Fix bug: team building text fields now function correctly.
 - Added customer management.
 - Teams history looks better.
+- Added  tours.
+- Added user avatar in profile.
