@@ -4,6 +4,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/custom_fields.dart';
 import 'package:mush_on/settings/riverpod.dart';
+import 'package:mush_on/settings/user_settings.dart';
 import 'package:mush_on/shared/distance_warning_widget/main.dart';
 import 'package:mush_on/shared/text_title.dart';
 
@@ -40,55 +41,57 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
                     ),
                     TextTitle("Global distance warnings"),
                     DistanceWarningWidget(
-                        warnings: settings.globalDistanceWarnings,
-                        onWarningAdded: (warning) async {
-                          try {
-                            await settingsRepo.addDistanceWarning(
-                                warning, settings);
-                          } catch (e, s) {
-                            SettingsMain.logger.error(
-                                "Couldn't add distance warning",
-                                error: e,
-                                stackTrace: s);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(context,
-                                      "Couldn't add distance warning"));
-                            }
+                      warnings: settings.globalDistanceWarnings,
+                      onWarningAdded: (warning) async {
+                        try {
+                          await settingsRepo.addDistanceWarning(
+                              warning, settings);
+                        } catch (e, s) {
+                          SettingsMain.logger.error(
+                              "Couldn't add distance warning",
+                              error: e,
+                              stackTrace: s);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                errorSnackBar(
+                                    context, "Couldn't add distance warning"));
                           }
-                        },
-                        onWarningEdited: (warning) async {
-                          try {
-                            await settingsRepo.editDistanceWarning(
-                                warning, settings);
-                          } catch (e, s) {
-                            SettingsMain.logger.error(
-                                "Couldn't edit distance warning",
-                                error: e,
-                                stackTrace: s);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(context,
-                                      "Couldn't edit distance warning"));
-                            }
+                        }
+                      },
+                      onWarningEdited: (warning) async {
+                        try {
+                          await settingsRepo.editDistanceWarning(
+                              warning, settings);
+                        } catch (e, s) {
+                          SettingsMain.logger.error(
+                              "Couldn't edit distance warning",
+                              error: e,
+                              stackTrace: s);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                errorSnackBar(
+                                    context, "Couldn't edit distance warning"));
                           }
-                        },
-                        onWarningRemoved: (id) async {
-                          try {
-                            await settingsRepo.removeDistanceWarning(
-                                id, settings);
-                          } catch (e, s) {
-                            SettingsMain.logger.error(
-                                "Couldn't remove distance warning",
-                                error: e,
-                                stackTrace: s);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(context,
-                                      "Couldn't remove distance warning"));
-                            }
+                        }
+                      },
+                      onWarningRemoved: (id) async {
+                        try {
+                          await settingsRepo.removeDistanceWarning(
+                              id, settings);
+                        } catch (e, s) {
+                          SettingsMain.logger.error(
+                              "Couldn't remove distance warning",
+                              error: e,
+                              stackTrace: s);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                errorSnackBar(context,
+                                    "Couldn't remove distance warning"));
                           }
-                        }),
+                        }
+                      },
+                    ),
+                    UserSettings(),
                   ],
                 ),
               ),
