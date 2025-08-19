@@ -101,3 +101,4 @@ A cool and open source CRM for sled dog kennels.
 - Teams history looks better.
 - Added  tours.
 - Added user avatar in profile.
+- Added permanent whiteboard.
