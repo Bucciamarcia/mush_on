@@ -30,51 +30,68 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
           element: element,
         ),
       ),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Card(
-        elevation: 2,
+        elevation: 1,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+        child: Container(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
+              // Header with avatar, name, and timestamp
               Row(
                 children: [
-                  CircleAvatarWidget(radius: 20, uid: element.author),
-                  const SizedBox(width: 8),
-                  Text(ref.watch(userNameProvider).value?.name ?? ""),
-                  const SizedBox(width: 8),
+                  CircleAvatarWidget(radius: 18, uid: element.author),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      element.title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          ref.watch(userNameProvider).value?.name ?? "Unknown",
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          DateFormat("MMM d, HH:mm").format(element.date),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    DateFormat("hh:mm:ss").format(element.date),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  )
                 ],
+              ),
+
+              const SizedBox(height: 12),
+
+              // Title
+              Text(
+                element.title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
 
               // Description
               if (element.description.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 Text(
                   element.description,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        height: 1.4,
                       ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
@@ -84,56 +101,80 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
               // Comments section
               if (comments.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                const Divider(height: 1),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.comment,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      "Comments (${comments.length})",
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.secondary,
-                            fontWeight: FontWeight.w600,
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ...comments.map(
-                  (comment) => Padding(
-                    padding: const EdgeInsets.only(left: 22, bottom: 8),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CircleAvatarWidget(radius: 10, uid: comment.author),
-                        const SizedBox(width: 8),
-                        Text(ref.watch(userNameProvider).value?.name ?? ""),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            comment.comment,
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
+                          const SizedBox(width: 6),
+                          Text(
+                            "${comments.length} ${comments.length == 1 ? 'comment' : 'comments'}",
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ...comments.map(
+                        (comment) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatarWidget(radius: 12, uid: comment.author),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          ref.watch(userNameProvider).value?.name ?? "Unknown",
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                                color: Theme.of(context).colorScheme.onSurface,
+                                              ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          DateFormat("HH:mm").format(comment.date),
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                                fontSize: 11,
+                                              ),
+                                        ),
+                                      ],
                                     ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      comment.comment,
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            height: 1.3,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          DateFormat("hh:mm:ss").format(comment.date),
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -153,16 +194,42 @@ class AddWhiteboardElementDisplayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: () => showDialog(
-        context: context,
-        builder: (dialogContext) => WhiteboardElementEditor(
-          onSaved: (e) => onSaved(e),
-          onDeleted: (id) => onDeleted(id),
+    return Card(
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: () => showDialog(
+          context: context,
+          builder: (dialogContext) => WhiteboardElementEditor(
+            onSaved: (e) => onSaved(e),
+            onDeleted: (id) => onDeleted(id),
+          ),
+        ),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.add_circle_outline,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Add new note",
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
         ),
       ),
-      label: const Text("Add element"),
-      icon: const Icon(Icons.add),
     );
   }
 }
