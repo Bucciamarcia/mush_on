@@ -17,7 +17,7 @@ class HealthScreen extends ConsumerWidget {
     final heatCycles = ref.watch(heatCyclesProvider(null));
     if (healthEvents.hasError) {
       BasicLogger().error("Health events error: ${healthEvents.error}");
-      return TemplateScreen(
+      return const TemplateScreen(
         title: "Health dashboard",
         child: Align(
           alignment: Alignment.center,
@@ -27,7 +27,7 @@ class HealthScreen extends ConsumerWidget {
     }
     if (vaccinations.hasError) {
       BasicLogger().error("Vaccinations error: ${vaccinations.error}");
-      return TemplateScreen(
+      return const TemplateScreen(
         title: "Health dashboard",
         child: Align(
           alignment: Alignment.center,
@@ -37,7 +37,7 @@ class HealthScreen extends ConsumerWidget {
     }
     if (heatCycles.hasError) {
       BasicLogger().error("Heat cycles error: ${heatCycles.error}");
-      return TemplateScreen(
+      return const TemplateScreen(
         title: "Health dashboard",
         child: Align(
           alignment: Alignment.center,
@@ -45,6 +45,6 @@ class HealthScreen extends ConsumerWidget {
         ),
       );
     }
-    return TemplateScreen(title: "Health dashboard", child: HealthMain());
+    return const TemplateScreen(title: "Health dashboard", child: HealthMain());
   }
 }

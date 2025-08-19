@@ -7,6 +7,6 @@ class InsightsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TemplateScreen(title: "Insights", child: InsightsMain());
+    return const TemplateScreen(title: "Insights", child: InsightsMain());
   }
 }

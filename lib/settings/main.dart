@@ -30,7 +30,7 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
             child: Column(
               spacing: 20,
               children: [
-                TextTitle("Custom fields"),
+                const TextTitle("Custom fields"),
                 CustomFieldsOptions(
                   customFieldTemplates: settings.customFieldTemplates,
                   onCustomFieldAdded: (newCustomField) =>
@@ -38,7 +38,7 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
                   onCustomFieldDeleted: (id) =>
                       settingsRepo.deleteCustomField(id, settings),
                 ),
-                TextTitle("Global distance warnings"),
+                const TextTitle("Global distance warnings"),
                 DistanceWarningWidget(
                   warnings: settings.globalDistanceWarnings,
                   onWarningAdded: (warning) async {
@@ -85,7 +85,7 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
                     }
                   },
                 ),
-                UserSettings(),
+                const UserSettings(),
               ],
             ),
           ),
@@ -93,9 +93,9 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
       },
       error: (e, s) {
         BasicLogger().error("Couldn't load settings repo");
-        return Text("Error: couldn't load settings");
+        return const Text("Error: couldn't load settings");
       },
-      loading: () => Center(child: CircularProgressIndicator.adaptive()),
+      loading: () => const Center(child: CircularProgressIndicator.adaptive()),
     );
   }
 }

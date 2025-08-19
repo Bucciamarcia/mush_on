@@ -67,27 +67,27 @@ class HealtheventEditorAlertState
     List<Dog>? dogs = ref.watch(dogsProvider).valueOrNull;
     final colorScheme = Theme.of(context).colorScheme;
     if (dogs == null) {
-      return AlertDialog.adaptive(
+      return const AlertDialog.adaptive(
         title: Text("Add health event"),
         content: CircularProgressIndicator(),
       );
     }
     return AlertDialog.adaptive(
       scrollable: true,
-      title: Text("Add health event"),
+      title: const Text("Add health event"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Add spacing between elements
           TextField(
             controller: _nameController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: "Event name",
               border: OutlineInputBorder(),
               prefixIcon: Icon(Icons.event_note),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Better visual grouping
           Card(
@@ -102,21 +102,21 @@ class HealtheventEditorAlertState
                       });
                     }
                   },
-                  title: Text("Single day event"),
-                  subtitle: Text("Event happens on one day only"),
-                  secondary: Icon(Icons.today),
+                  title: const Text("Single day event"),
+                  subtitle: const Text("Event happens on one day only"),
+                  secondary: const Icon(Icons.today),
                 ),
               ],
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Better search field
           SearchField<Dog>(
             searchInputDecoration: SearchInputDecoration(
               hintText: "Select dog",
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.pets),
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.pets),
             ),
             controller: _selectedDogNameController,
             suggestions: dogs
@@ -131,12 +131,12 @@ class HealtheventEditorAlertState
               }
             },
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Date section with better layout
           Card(
             child: Padding(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 children: [
                   Row(
@@ -165,12 +165,12 @@ class HealtheventEditorAlertState
                                 });
                               });
                         },
-                        icon: Icon(Icons.calendar_today),
+                        icon: const Icon(Icons.calendar_today),
                       ),
                     ],
                   ),
                   if (!_isOneshot) ...[
-                    Divider(height: 24),
+                    const Divider(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -220,7 +220,7 @@ class HealtheventEditorAlertState
                                       });
                                     });
                               },
-                              icon: Icon(Icons.calendar_today),
+                              icon: const Icon(Icons.calendar_today),
                             ),
                           ],
                         ),
@@ -231,15 +231,15 @@ class HealtheventEditorAlertState
               ),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Better dropdown with width constraint
           SizedBox(
             width: double.infinity,
             child: DropdownMenu(
               controller: _hetController,
-              label: Text("Event type"),
-              leadingIcon: Icon(Icons.category),
+              label: const Text("Event type"),
+              leadingIcon: const Icon(Icons.category),
               width: double.infinity,
               onSelected: (v) {
                 if (v != null) {
@@ -258,12 +258,12 @@ class HealtheventEditorAlertState
                   .toList(),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Notes field
           TextField(
             controller: _notesController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: "Notes (optional)",
               border: OutlineInputBorder(),
               alignLabelWithHint: true,
@@ -275,7 +275,7 @@ class HealtheventEditorAlertState
             maxLines: 3,
             minLines: 2,
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
           // Prevents running checkbox with better styling
           Card(
@@ -289,9 +289,9 @@ class HealtheventEditorAlertState
                   });
                 }
               },
-              title: Text("Dog can't run"),
+              title: const Text("Dog can't run"),
               subtitle:
-                  Text("This condition prevents the dog from training/racing"),
+                  const Text("This condition prevents the dog from training/racing"),
               secondary: Icon(
                 Icons.block,
                 color: _preventsFromRunning ? colorScheme.error : null,
@@ -303,7 +303,7 @@ class HealtheventEditorAlertState
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
         ),
         FilledButton(
           onPressed: _checkFields() && !_isSaving
@@ -314,7 +314,7 @@ class HealtheventEditorAlertState
                   var repository = ref.read(healthEventRepositoryProvider);
                   try {
                     await repository.addEvent(HealthEvent(
-                        id: _id ?? Uuid().v4(),
+                        id: _id ?? const Uuid().v4(),
                         dogId: _selectedDog!.id,
                         title: _nameController.text,
                         date: _eventStartDate,
@@ -358,7 +358,7 @@ class HealtheventEditorAlertState
                     color: colorScheme.onPrimary,
                   ),
                 )
-              : Text("Add event"),
+              : const Text("Add event"),
         ),
       ],
     );
@@ -372,7 +372,7 @@ class HealtheventEditorAlertState
         initialDate: minDate,
         context: context,
         firstDate:
-            minDate ?? DateTimeUtils.today().subtract(Duration(days: 900)),
+            minDate ?? DateTimeUtils.today().subtract(const Duration(days: 900)),
         lastDate: DateTimeUtils.today().add(const Duration(days: 900)),
         builder: (context, child) {
           return Theme(

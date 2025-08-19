@@ -31,7 +31,7 @@ class EditKennelMain extends ConsumerWidget {
             children: [
               Card(
                 child: ExpansionTile(
-                  title: Text("Filter dogs"),
+                  title: const Text("Filter dogs"),
                   children: [
                     DogFilterWidget(
                       dogs: dogs,
@@ -61,9 +61,9 @@ class EditKennelMain extends ConsumerWidget {
         error: (e, s) {
           BasicLogger()
               .error("Error while loading dogs", error: e, stackTrace: s);
-          return Text("ERROR: couldn't load dogs");
+          return const Text("ERROR: couldn't load dogs");
         },
-        loading: () => CircularProgressIndicator.adaptive());
+        loading: () => const CircularProgressIndicator.adaptive());
   }
 }
 

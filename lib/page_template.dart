@@ -28,21 +28,21 @@ class TemplateScreen extends ConsumerWidget {
         backgroundColor: Colors.blue,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.local_hospital),
+            child: const Icon(Icons.local_hospital),
             label: 'Add health event',
             onTap: () {
               ref.read(triggerAddhealthEventProvider.notifier).setValue(true);
             },
           ),
           SpeedDialChild(
-            child: FaIcon(FontAwesomeIcons.syringe),
+            child: const FaIcon(FontAwesomeIcons.syringe),
             label: 'Add vaccination',
             onTap: () {
               ref.read(triggerAddVaccinationProvider.notifier).setValue(true);
             },
           ),
           SpeedDialChild(
-            child: FaIcon(FontAwesomeIcons.fire),
+            child: const FaIcon(FontAwesomeIcons.fire),
             label: 'Add heat',
             onTap: () {
               ref.read(triggerAddHeatCycleProvider.notifier).setValue(true);
@@ -59,7 +59,7 @@ class TemplateScreen extends ConsumerWidget {
         backgroundColor: Colors.blue,
         children: [
           SpeedDialChild(
-              child: Icon(Icons.people_alt),
+              child: const Icon(Icons.people_alt),
               label: "Add Customer Group",
               onTap: () => showDialog(
                     context: context,
@@ -88,7 +88,7 @@ class TemplateScreen extends ConsumerWidget {
     }
     if (child is EditKennelMain) {
       return FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () {
           context.pushNamed("/adddog");
         },
@@ -97,7 +97,7 @@ class TemplateScreen extends ConsumerWidget {
     if (child is ToursMainScreen) {
       return FloatingActionButton(
         onPressed: () => context.pushNamed("/tours_add"),
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       );
     }
     return null;
@@ -110,15 +110,15 @@ class TemplateScreen extends ConsumerWidget {
       error: (e, s) {
         BasicLogger().error("Couldn't get auth state in template",
             error: e, stackTrace: s);
-        return Scaffold(
+        return const Scaffold(
           body: Text(
               "Error in getting user. This shouldn't happen: contact an admin."),
         );
       },
-      loading: () => CircularProgressIndicator.adaptive(),
+      loading: () => const CircularProgressIndicator.adaptive(),
       data: (data) {
         if (data == null) {
-          return LoginScreen();
+          return const LoginScreen();
         } else {
           return Scaffold(
             floatingActionButton: _getFab(context, ref),
@@ -138,7 +138,7 @@ class TemplateScreen extends ConsumerWidget {
                                 .onPrimaryContainer)),
                   ),
                   ListTile(
-                    leading: Icon(Icons.home),
+                    leading: const Icon(Icons.home),
                     onTap: () => context.pushNamed("/"),
                     title: const Text("Home"),
                   ),
@@ -154,21 +154,21 @@ class TemplateScreen extends ConsumerWidget {
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.group_add),
+                    leading: const Icon(Icons.group_add),
                     onTap: () => context.pushNamed("/createteam"),
                     title: const Text(
                       "Create Team",
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.pets),
+                    leading: const Icon(Icons.pets),
                     onTap: () => context.pushNamed("/editkennel"),
                     title: const Text(
                       "Kennel",
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.history),
+                    leading: const Icon(Icons.history),
                     onTap: () => context.pushNamed("/teamshistory"),
                     title: const Text(
                       "Teams history",
@@ -186,14 +186,14 @@ class TemplateScreen extends ConsumerWidget {
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.person_2),
+                    leading: const Icon(Icons.person_2),
                     onTap: () => context.pushNamed("/client_management"),
                     title: const Text(
                       "Manage bookings",
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.tour),
+                    leading: const Icon(Icons.tour),
                     onTap: () => context.pushNamed("/tours"),
                     title: const Text(
                       "Tours",
@@ -211,14 +211,14 @@ class TemplateScreen extends ConsumerWidget {
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.query_stats),
+                    leading: const Icon(Icons.query_stats),
                     onTap: () => context.pushNamed("/stats"),
                     title: const Text(
                       "Stats",
                     ),
                   ),
                   ListTile(
-                    leading: FaIcon(FontAwesomeIcons.magnifyingGlassChart),
+                    leading: const FaIcon(FontAwesomeIcons.magnifyingGlassChart),
                     onTap: () => context.pushNamed("/insights"),
                     title: const Text(
                       "Insights",
@@ -236,28 +236,28 @@ class TemplateScreen extends ConsumerWidget {
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.task),
+                    leading: const Icon(Icons.task),
                     onTap: () => context.pushNamed("/tasks"),
                     title: const Text(
                       "Tasks",
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.settings),
+                    leading: const Icon(Icons.settings),
                     onTap: () => context.pushNamed("/settings"),
                     title: const Text(
                       "Settings",
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.health_and_safety),
+                    leading: const Icon(Icons.health_and_safety),
                     onTap: () => context.pushNamed("/health_dashboard"),
                     title: const Text(
                       "Health dashboard",
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.logout),
+                    leading: const Icon(Icons.logout),
                     onTap: () async {
                       await AuthService().signOut();
                     },
@@ -265,7 +265,7 @@ class TemplateScreen extends ConsumerWidget {
                       "Log out",
                     ),
                   ),
-                  SizedBox(height: 100),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),

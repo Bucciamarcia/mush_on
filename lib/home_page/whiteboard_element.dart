@@ -51,8 +51,12 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          ref.watch(userNameProvider).value?.name ?? "Unknown",
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          ref.watch(userNameProvider(null)).value?.name ??
+                              "Unknown",
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: Theme.of(context).colorScheme.onSurface,
                               ),
@@ -60,10 +64,13 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                         const SizedBox(height: 2),
                         Text(
                           DateFormat("MMM d, HH:mm").format(element.date),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                    fontSize: 12,
+                                  ),
                         ),
                       ],
                     ),
@@ -102,9 +109,13 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
               if (comments.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest
+                        .withOpacity(0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -120,7 +131,10 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                           const SizedBox(width: 6),
                           Text(
                             "${comments.length} ${comments.length == 1 ? 'comment' : 'comments'}",
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelMedium
+                                ?.copyWith(
                                   color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -134,7 +148,8 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              CircleAvatarWidget(radius: 12, uid: comment.author),
+                              CircleAvatarWidget(
+                                  radius: 12, uid: comment.author),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Column(
@@ -143,17 +158,32 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                                     Row(
                                       children: [
                                         Text(
-                                          ref.watch(userNameProvider).value?.name ?? "Unknown",
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          ref
+                                                  .watch(userNameProvider(null))
+                                                  .value
+                                                  ?.name ??
+                                              "Unknown",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
                                                 fontWeight: FontWeight.w600,
-                                                color: Theme.of(context).colorScheme.onSurface,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface,
                                               ),
                                         ),
                                         const SizedBox(width: 6),
                                         Text(
-                                          DateFormat("HH:mm").format(comment.date),
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          DateFormat("HH:mm")
+                                              .format(comment.date),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
                                                 fontSize: 11,
                                               ),
                                         ),
@@ -162,8 +192,13 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                                     const SizedBox(height: 2),
                                     Text(
                                       comment.comment,
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSurfaceVariant,
                                             height: 1.3,
                                           ),
                                     ),
@@ -353,7 +388,7 @@ class _WhiteboardElementEditorState
         const SizedBox(width: 8),
         FilledButton.icon(
           onPressed: () async {
-            UserName? user = await ref.watch(userNameProvider.future);
+            UserName? user = await ref.watch(userNameProvider(null).future);
             if (_formKey.currentState!.validate()) {
               List<WhiteboardElementComment> constComments = [];
               constComments.addAll(

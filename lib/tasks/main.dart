@@ -16,7 +16,7 @@ class TasksMainWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     TasksInMemory tasks =
-        ref.watch(tasksProvider(365)).value ?? TasksInMemory();
+        ref.watch(tasksProvider(365)).value ?? const TasksInMemory();
     List<Dog> dogs = ref.watch(dogsProvider).value ?? [];
     return DefaultTabController(
       length: 3,
@@ -24,15 +24,15 @@ class TasksMainWidget extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 10,
         children: [
-          SizedBox(height: 10),
-          AddTaskElevatedButton(),
-          TabBarWidget(),
+          const SizedBox(height: 10),
+          const AddTaskElevatedButton(),
+          const TabBarWidget(),
           Expanded(
             child: TabBarViewWidget(
               onFetchOlderTasks: (d) {
                 final daysToRemove = DateTimeUtils.today().difference(d);
                 tasks = ref.watch(tasksProvider(daysToRemove.inDays)).value ??
-                    TasksInMemory();
+                    const TasksInMemory();
               },
               tasks: tasks,
               dogs: dogs,
@@ -60,7 +60,7 @@ class TasksMainWidget extends ConsumerWidget {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          duration: Duration(seconds: 5),
+                          duration: const Duration(seconds: 5),
                           backgroundColor:
                               Theme.of(context).colorScheme.primary,
                           action: SnackBarAction(

@@ -26,20 +26,20 @@ class AddDogMain extends ConsumerWidget {
     return ListView(
       children: [
         DogNameWidget(onChanged: (name) => dogNotifier.changeName(name)),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         DogPhotoCard(
           onImageDeleted: () => dogNotifier.changeImage(null),
           onImageEdited: (File file) => dogNotifier.changeImage(file),
           isLoading: false,
           image: dogData.file?.readAsBytesSync(),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         PositionsWidget(
           positions: dogData.dog.positions,
           onPositionsChanged: (DogPositions newPositions) =>
               dogNotifier.changePositions(newPositions),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         TagsWidget(
           tags: dogData.dog.tags,
           allTags: TagRepository.getAllTagsFromDogs(
@@ -55,7 +55,7 @@ class AddDogMain extends ConsumerWidget {
             dogNotifier.deleteTag(tag);
           },
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         DogInfoWidget(
           name: dogData.dog.name,
           birthday:
@@ -69,7 +69,7 @@ class AddDogMain extends ConsumerWidget {
             dogNotifier.changeSex(newSex);
           },
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         DistanceWarningWidget(
             warnings: dogData.dog.distanceWarnings,
             onWarningAdded: (w) => dogNotifier.addDistanceWarning(w),
@@ -79,7 +79,7 @@ class AddDogMain extends ConsumerWidget {
             onWarningRemoved: (id) {
               dogNotifier.removeWarning(id);
             }),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         CustomFieldArea(
           customFieldTemplates:
               ref.watch(settingsProvider).value?.customFieldTemplates,
@@ -88,12 +88,12 @@ class AddDogMain extends ConsumerWidget {
           onCustomFieldDeleted: (templateId) =>
               dogNotifier.deleteCustomField(templateId),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         SingleDogNotesWidget(
             dogNotes: dogData.dog.notes,
             onNoteAdded: (newNote) => dogNotifier.addNote(newNote),
             onNoteDeleted: (id) => dogNotifier.deleteNote(id)),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         AddDogButton(
           dog: dogData.dog,
           imageData: dogData.file,

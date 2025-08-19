@@ -20,7 +20,7 @@ class CustomFieldArea extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TextTitle("Custom fields"),
+        const TextTitle("Custom fields"),
         CustomFieldsWidget(
           customFieldTemplates: customFieldTemplates,
           dogCustomFields: dogCustomFields,
@@ -61,7 +61,7 @@ class CustomFieldsWidget extends StatelessWidget {
             .toList(),
       );
     } else {
-      return CircularProgressIndicator.adaptive();
+      return const CircularProgressIndicator.adaptive();
     }
   }
 }
@@ -119,7 +119,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
       width: 250,
       child: Card(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        margin: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
@@ -132,7 +132,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   Flexible(
@@ -149,7 +149,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                               }
                             },
                             dropdownMenuEntries: [
-                              DropdownMenuEntry(value: "", label: ""),
+                              const DropdownMenuEntry(value: "", label: ""),
                               ...widget.customFieldTemplate.options!.map(
                                   (o) => DropdownMenuEntry(value: o, label: o))
                             ],
@@ -174,7 +174,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                             inputFormatters: _inputFormatters(),
                             keyboardType: _keyboardType(),
                             maxLines: 1,
-                            style: TextStyle(fontSize: 14),
+                            style: const TextStyle(fontSize: 14),
                             controller: _controller,
                             onChanged: (_) {
                               setState(() {
@@ -183,7 +183,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                             },
                           ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   IconButton(
                     onPressed: hasChanged
                         ? () {
@@ -197,7 +197,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                           }
                         : null,
                     tooltip: "Cancel changes",
-                    icon: Icon(Icons.remove),
+                    icon: const Icon(Icons.remove),
                     color: Theme.of(context).colorScheme.error,
                     iconSize: 18,
                     visualDensity: VisualDensity.compact,
@@ -230,7 +230,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                           }
                         : null,
                     tooltip: "Save changes",
-                    icon: Icon(Icons.save),
+                    icon: const Icon(Icons.save),
                     color: Theme.of(context).colorScheme.primary,
                     iconSize: 18,
                     visualDensity: VisualDensity.compact,

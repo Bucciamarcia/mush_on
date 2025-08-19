@@ -12,19 +12,19 @@ class DogrunTableWidget extends StatelessWidget {
     dogTotals.sort((a, b) => b.date.compareTo(a.date));
     var dataSource = DogTotalDataSource(dogTotals);
     return Card(
-      child: ExpansionTile(title: Text("View data"), children: [
+      child: ExpansionTile(title: const Text("View data"), children: [
         SfDataGrid(
           shrinkWrapRows: true,
           source: dataSource,
           columnWidthMode: ColumnWidthMode.fill,
           columns: [
-            GridColumn(columnName: "Date", label: Center(child: Text("Date"))),
-            GridColumn(columnName: "Run", label: Center(child: Text("Run"))),
+            GridColumn(columnName: "Date", label: const Center(child: Text("Date"))),
+            GridColumn(columnName: "Run", label: const Center(child: Text("Run"))),
           ],
           // These are correct for nested scrolling -
           // they tell the grid NOT to scroll itself.
-          verticalScrollPhysics: NeverScrollableScrollPhysics(),
-          horizontalScrollPhysics: NeverScrollableScrollPhysics(),
+          verticalScrollPhysics: const NeverScrollableScrollPhysics(),
+          horizontalScrollPhysics: const NeverScrollableScrollPhysics(),
         ),
       ]),
     );
@@ -57,7 +57,7 @@ class DogTotalDataSource extends DataGridSource {
         cells: row.getCells().map<Widget>((dataGridCell) {
       return Container(
           alignment: Alignment.center,
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             formatCell(dataGridCell.value.toString()),
             overflow: TextOverflow.ellipsis,

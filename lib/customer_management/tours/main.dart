@@ -105,7 +105,7 @@ class TourTypeCard extends ConsumerWidget {
             color: tour.backgroundColor,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.tour,
             color: Colors.black,
             size: 24,

@@ -84,12 +84,12 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
           children: [
             TextField(
               controller: textController,
-              decoration: InputDecoration(labelText: "Team name"),
+              decoration: const InputDecoration(labelText: "Team name"),
               onChanged: (String text) {
                 widget.onTeamNameChanged(widget.teamNumber, text);
               },
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
@@ -113,7 +113,7 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
                           teamNumber: widget.teamNumber,
                           capacity: team.capacity + 1,
                         ),
-                    icon: Icon(Icons.add_box)),
+                    icon: const Icon(Icons.add_box)),
                 IconButton(
                     onPressed: () => ref
                         .read(createTeamGroupProvider(widget.teamGroupId)
@@ -122,11 +122,11 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
                             teamNumber: widget.teamNumber,
                             capacity:
                                 team.capacity == 0 ? 0 : team.capacity - 1),
-                    icon: Icon(Icons.remove)),
+                    icon: const Icon(Icons.remove)),
               ],
             ),
-            SizedBox(height: 10),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
+            const SizedBox(height: 10),
             ...team.dogPairs.asMap().entries.map(
                   (entry) => PairRetriever(
                     teamNumber: widget.teamNumber,
@@ -143,16 +143,16 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
                             teamNumber, rowNumber, positionNumber),
                   ),
                 ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             ElevatedButton(
               onPressed: () {
                 widget.onAddRow(widget.teamNumber);
               },
-              child: Text("Add new row"),
+              child: const Text("Add new row"),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Row(
@@ -211,7 +211,7 @@ class AddTeamWidget extends StatelessWidget {
     return ElevatedButton(
       key: Key("Add team  - $teamNumber"),
       onPressed: () => onAddTeam(teamNumber + 1),
-      child: Text("Add team"),
+      child: const Text("Add team"),
     );
   }
 }
@@ -233,7 +233,7 @@ class RemoveTeamWidget extends StatelessWidget {
       onPressed: () {
         if (totalTeams > 1) onRemoveTeam(teamNumber);
       },
-      child: Text("Remove team"),
+      child: const Text("Remove team"),
     );
   }
 }

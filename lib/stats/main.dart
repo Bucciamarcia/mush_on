@@ -21,7 +21,7 @@ class StatsMain extends ConsumerWidget {
       data: (dogs) {
         var dates = ref.watch(statsDatesProvider);
         var teamGroupsAsync = ref.watch(teamGroupsProvider(
-            earliestDate: DateTimeUtils.today().subtract(Duration(days: 360)),
+            earliestDate: DateTimeUtils.today().subtract(const Duration(days: 360)),
             finalDate: DateTimeUtils.endOfToday()));
         return teamGroupsAsync.when(
           data: (teams) {
@@ -40,7 +40,7 @@ class StatsMain extends ConsumerWidget {
               children: [
                 Card(
                   child: ExpansionTile(
-                    title: Text("Filter date"),
+                    title: const Text("Filter date"),
                     children: [
                       DateRangePicker(
                         maxDate: DateTimeUtils.today(),
@@ -69,16 +69,16 @@ class StatsMain extends ConsumerWidget {
           },
           error: (e, s) {
             logger.error("Couldn't get teamgroups");
-            return Text("Couldn't fetch teams");
+            return const Text("Couldn't fetch teams");
           },
-          loading: () => Center(child: CircularProgressIndicator.adaptive()),
+          loading: () => const Center(child: CircularProgressIndicator.adaptive()),
         );
       },
       error: (e, s) {
         logger.error("couldn't load dogs.", error: e, stackTrace: s);
-        return Text("Couldn't load dogs");
+        return const Text("Couldn't load dogs");
       },
-      loading: () => Center(child: CircularProgressIndicator.adaptive()),
+      loading: () => const Center(child: CircularProgressIndicator.adaptive()),
     );
   }
 

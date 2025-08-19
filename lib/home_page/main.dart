@@ -62,7 +62,7 @@ class HomePageScreenContent extends ConsumerWidget {
               color: Theme.of(context).colorScheme.surfaceContainer,
               child: ExpansionTile(
                   initiallyExpanded: true,
-                  title: Row(
+                  title: const Row(
                     children: [
                       Tooltip(
                         showDuration: Duration(seconds: 5),
@@ -166,7 +166,7 @@ class HomePageScreenContent extends ConsumerWidget {
             Card(
               color: Theme.of(context).colorScheme.surfaceContainer,
               child: ExpansionTile(
-                title: TextTitle("Today's tasks"),
+                title: const TextTitle("Today's tasks"),
                 children: [
                   SfScheduleView(
                       tasks: tasks.dueToday,
@@ -207,15 +207,15 @@ class HomePageScreenContent extends ConsumerWidget {
                         ],
                         xValueMapper: (ReadyDogData data, _) => data.x,
                         yValueMapper: (ReadyDogData data, _) => data.y,
-                        dataLabelSettings: DataLabelSettings(isVisible: true),
+                        dataLabelSettings: const DataLabelSettings(isVisible: true),
                         pointColorMapper: (ReadyDogData data, _) => data.color,
                       )
                     ],
-                    legend: Legend(isVisible: true),
+                    legend: const Legend(isVisible: true),
                   ),
                   ListTile(
-                    leading: Icon(Icons.directions_run),
-                    title: Text(
+                    leading: const Icon(Icons.directions_run),
+                    title: const Text(
                       "Ready to Run",
                     ),
                     trailing: Text("$canRun/${dogs.length} dogs",
@@ -225,7 +225,7 @@ class HomePageScreenContent extends ConsumerWidget {
                             fontWeight: FontWeight.bold)),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Wrap(
                       alignment: WrapAlignment.center,
                       spacing: 8,
@@ -303,10 +303,10 @@ class HomePageScreenContent extends ConsumerWidget {
                   ),
                   ElevatedButton.icon(
                     onPressed: () => context.pushNamed("/createteam"),
-                    label: Text("Build team"),
-                    icon: Icon(Icons.pets),
+                    label: const Text("Build team"),
+                    icon: const Icon(Icons.pets),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
@@ -316,9 +316,9 @@ class HomePageScreenContent extends ConsumerWidget {
       error: (e, s) {
         BasicLogger().error("Couldn't load warning dogs async in home page",
             error: e, stackTrace: s);
-        return Text("Couldn't load the page!");
+        return const Text("Couldn't load the page!");
       },
-      loading: () => Center(
+      loading: () => const Center(
         child: CircularProgressIndicator.adaptive(),
       ),
     );

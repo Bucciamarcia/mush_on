@@ -52,7 +52,7 @@ class DogInfoWidget extends StatelessWidget {
                   onBirthdayChanged(selectedUtcDate);
                 }
               },
-              icon: Icon(Icons.edit),
+              icon: const Icon(Icons.edit),
             ),
             Expanded(
               child: DogInfoRow(
@@ -62,7 +62,7 @@ class DogInfoWidget extends StatelessWidget {
             ),
           ],
         ),
-        Divider(),
+        const Divider(),
         Row(
           spacing: 5,
           children: [
@@ -73,12 +73,12 @@ class DogInfoWidget extends StatelessWidget {
                         onSexChanged: (DogSex newSex) => onSexChanged(newSex),
                         currentSex: sex,
                       )),
-              icon: Icon(Icons.edit),
+              icon: const Icon(Icons.edit),
             ),
             Expanded(child: DogInfoRow("Sex", getDogSex())),
           ],
         ),
-        Divider(),
+        const Divider(),
         DogInfoRow("Age", age != null ? age! : "?"),
       ],
     );
@@ -127,8 +127,8 @@ class DogInfoRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: TextStyle(fontSize: 18)),
-        Text(content, style: TextStyle(fontSize: 18)),
+        Text(title, style: const TextStyle(fontSize: 18)),
+        Text(content, style: const TextStyle(fontSize: 18)),
       ],
     );
   }
@@ -156,11 +156,11 @@ class _SexChangeWidgetState extends State<SexChangeWidget> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog.adaptive(
-      title: Text("Change sex"),
+      title: const Text("Change sex"),
       content: Column(
         children: [
           RadioListTile.adaptive(
-              title: Text("Male"),
+              title: const Text("Male"),
               value: DogSex.male,
               groupValue: _newSex,
               onChanged: (n) {
@@ -169,7 +169,7 @@ class _SexChangeWidgetState extends State<SexChangeWidget> {
                 });
               }),
           RadioListTile.adaptive(
-              title: Text("Female"),
+              title: const Text("Female"),
               value: DogSex.female,
               groupValue: _newSex,
               onChanged: (n) {
@@ -178,7 +178,7 @@ class _SexChangeWidgetState extends State<SexChangeWidget> {
                 });
               }),
           RadioListTile.adaptive(
-              title: Text("None"),
+              title: const Text("None"),
               value: DogSex.none,
               groupValue: _newSex,
               onChanged: (n) {
@@ -191,7 +191,7 @@ class _SexChangeWidgetState extends State<SexChangeWidget> {
       actions: [
         TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Cancel")),
+            child: const Text("Cancel")),
         TextButton(
             onPressed: () {
               if (_newSex != null) {
@@ -199,7 +199,7 @@ class _SexChangeWidgetState extends State<SexChangeWidget> {
               }
               Navigator.of(context).pop();
             },
-            child: Text("OK")),
+            child: const Text("OK")),
       ],
     );
   }

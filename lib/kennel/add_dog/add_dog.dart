@@ -7,6 +7,6 @@ class AddDogScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TemplateScreen(title: "Add a Dog", child: AddDogMain());
+    return const TemplateScreen(title: "Add a Dog", child: AddDogMain());
   }
 }

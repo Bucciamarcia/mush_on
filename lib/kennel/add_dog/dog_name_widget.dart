@@ -19,7 +19,7 @@ class _DogNameWidgetState extends State<DogNameWidget> {
       onChanged: (value) {
         widget.onChanged(value);
       },
-      decoration: InputDecoration(labelText: "Name of the dog"),
+      decoration: const InputDecoration(labelText: "Name of the dog"),
     );
   }
 }

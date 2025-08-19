@@ -12,7 +12,7 @@ class CustomerGroupsCard extends ConsumerWidget {
     return Card(
       child: Column(
         children: [
-          TextTitle("Customer Group"),
+          const TextTitle("Customer Group"),
           Text(
             "Bookings: ${customerGroupWorkspace.bookings.length}",
           ),

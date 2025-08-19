@@ -71,7 +71,7 @@ Future<void> main() async {
   }
   tz.initializeTimeZones();
   setPathUrlStrategy();
-  runApp(rp.ProviderScope(child: const MyApp()));
+  runApp(const rp.ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -100,10 +100,10 @@ class HomeScreen extends rp.ConsumerWidget {
     return userAsync.when(
         data: (user) {
           if (user == null) {
-            return LoginScreen();
+            return const LoginScreen();
           } else {
             logger.info("Logging in!");
-            final userNameAsync = ref.watch(userNameProvider);
+            final userNameAsync = ref.watch(userNameProvider(null));
             return userNameAsync.when(
               data: (userName) {
                 if (userName == null) {
@@ -117,9 +117,9 @@ class HomeScreen extends rp.ConsumerWidget {
                       lastLogin: DateTime.now(),
                     ).toJson(),
                   );
-                  return Text("Creating user");
+                  return const Text("Creating user");
                 } else if (userName.account == null) {
-                  return Text(
+                  return const Text(
                       "You are not assigned to any account. This is normal for new accounts, get in touch with admin to fix.");
                 } else {
                   return const HomePageScreen();
@@ -130,7 +130,7 @@ class HomeScreen extends rp.ConsumerWidget {
                     error: e, stackTrace: s);
                 return Text("Error: $e");
               },
-              loading: () => CircularProgressIndicator.adaptive(),
+              loading: () => const CircularProgressIndicator.adaptive(),
             );
           }
         },
@@ -141,6 +141,6 @@ class HomeScreen extends rp.ConsumerWidget {
             child: Text("Error: $e"),
           );
         },
-        loading: () => CircularProgressIndicator.adaptive());
+        loading: () => const CircularProgressIndicator.adaptive());
   }
 }

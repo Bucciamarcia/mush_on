@@ -34,7 +34,7 @@ class DogMain extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (dogId == null) {
-      return Text("No dog ID provided: can't fetch dog.");
+      return const Text("No dog ID provided: can't fetch dog.");
     }
     var dogAsync = ref.watch(singleDogProvider(dogId!));
     return dogAsync.when(
@@ -61,7 +61,7 @@ class DogMain extends ConsumerWidget {
                             }
                           }
                         }),
-                    Divider(),
+                    const Divider(),
                     ref.watch(singleDogImageProvider(account, dog.id)).when(
                         data: (data) {
                           return DogPhotoCard(
@@ -80,9 +80,9 @@ class DogMain extends ConsumerWidget {
                         error: (e, s) {
                           logger.error("Can't load image",
                               error: e, stackTrace: s);
-                          return Text("Couldn't load image");
+                          return const Text("Couldn't load image");
                         },
-                        loading: () => CircularProgressIndicator.adaptive()),
+                        loading: () => const CircularProgressIndicator.adaptive()),
                     PositionsWidget(
                       positions: dog.positions,
                       onPositionsChanged: (DogPositions newPositions) async {
@@ -182,10 +182,10 @@ class DogMain extends ConsumerWidget {
                         }
                       },
                     ),
-                    Divider(),
+                    const Divider(),
                     DogTasksWidget(
                       tasksInMemory: ref.watch(tasksProvider(null)).value ??
-                          TasksInMemory(),
+                          const TasksInMemory(),
                       dog: dog,
                       onTaskEdited: (t) async {
                         try {
@@ -240,8 +240,8 @@ class DogMain extends ConsumerWidget {
                         }
                       },
                     ),
-                    Divider(),
-                    TextTitle("Custom distance warnings"),
+                    const Divider(),
+                    const TextTitle("Custom distance warnings"),
                     DistanceWarningWidget(
                         warnings: dog.distanceWarnings,
                         onWarningAdded: (w) {
@@ -266,7 +266,7 @@ class DogMain extends ConsumerWidget {
                           DogsDbOperations().updateDistanceWarnings(
                               warnings: newW, dogId: dogId!);
                         }),
-                    Divider(),
+                    const Divider(),
                     CustomFieldArea(
                       customFieldTemplates: ref
                           .watch(settingsProvider)
@@ -341,7 +341,7 @@ class DogMain extends ConsumerWidget {
                         }
                       },
                     ),
-                    Divider(),
+                    const Divider(),
                     DogRunDataWidget(ref
                             .watch(
                                 dogTotalProvider(dogId: dog.id, cutoff: null))
@@ -352,11 +352,11 @@ class DogMain extends ConsumerWidget {
                                 dogTotalProvider(dogId: dog.id, cutoff: null))
                             .value ??
                         []),
-                    Divider(),
+                    const Divider(),
                     SingleDogHealthEventsWidget(dogId: dog.id),
-                    Divider(),
+                    const Divider(),
                     CustomerFacingNotesWidget(dog: dog),
-                    Divider(),
+                    const Divider(),
                     SingleDogNotesWidget(
                       dogNotes: dog.notes,
                       onNoteAdded: (newNote) async {
@@ -430,7 +430,7 @@ class DogMain extends ConsumerWidget {
                         }
                       },
                     ),
-                    Divider(),
+                    const Divider(),
                     DeleteDogButton(
                       dog: dog,
                       onDogDeleted: () async {
@@ -482,15 +482,15 @@ class DogMain extends ConsumerWidget {
               },
               error: (e, s) {
                 logger.error("Couldn't fetch account", error: e, stackTrace: s);
-                return Text("Couldn't fetch account");
+                return const Text("Couldn't fetch account");
               },
-              loading: () => CircularProgressIndicator.adaptive());
+              loading: () => const CircularProgressIndicator.adaptive());
         },
         error: (e, s) {
           logger.error("Couldn't load single dog", error: e, stackTrace: s);
-          return Text("Couldn't load dog: error");
+          return const Text("Couldn't load dog: error");
         },
-        loading: () => CircularProgressIndicator.adaptive());
+        loading: () => const CircularProgressIndicator.adaptive());
   }
 }
 
@@ -503,13 +503,13 @@ class DeleteDogConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog.adaptive(
-      title: Text("Delete"),
+      title: const Text("Delete"),
       content: Text(
           "Are you sure you want to delete ${dog.name}? The action is irreversible, all data will be lost."),
       actions: [
         TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Cancel")),
+            child: const Text("Cancel")),
         TextButton(
           style: ButtonStyle(
             backgroundColor:

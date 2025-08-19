@@ -11,7 +11,7 @@ class LoadingOverlay {
 
     // Create the overlay entry with a dark background and a loading indicator
     _overlayEntry = OverlayEntry(
-      builder: (context) => Stack(
+      builder: (context) => const Stack(
         children: [
           // Semi-transparent black background to block interaction
           ModalBarrier(dismissible: false, color: Colors.black54),

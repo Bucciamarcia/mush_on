@@ -20,8 +20,8 @@ class _AddTemplateButtonState extends State<AddTemplateButton> {
           onCustomFieldAdded: (cf) => widget.onCustomFieldAdded(cf),
         ),
       ),
-      label: Text("Add new custom field"),
-      icon: Icon(Icons.add),
+      label: const Text("Add new custom field"),
+      icon: const Icon(Icons.add),
     );
   }
 }

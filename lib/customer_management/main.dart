@@ -57,7 +57,7 @@ class ClientManagementMainScreen extends ConsumerWidget {
       length: 2,
       child: Column(
         children: [
-          TabBar(
+          const TabBar(
             tabs: [
               Tab(
                 child: Text("Overview"),
@@ -137,7 +137,7 @@ class ClientManagementMainScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                BookingCalendar(),
+                const BookingCalendar(),
               ],
             ),
           ),

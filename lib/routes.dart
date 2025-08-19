@@ -20,12 +20,12 @@ final goRoutes = GoRouter(
     GoRoute(
       name: "/",
       path: "/",
-      builder: (context, state) => HomeScreen(),
+      builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
       name: "/editkennel",
       path: "/editkennel",
-      builder: (context, state) => EditKennelScreen(),
+      builder: (context, state) => const EditKennelScreen(),
     ),
     GoRoute(
       name: "/dog",
@@ -38,7 +38,7 @@ final goRoutes = GoRouter(
     GoRoute(
       name: "/adddog",
       path: "/adddog",
-      builder: (context, state) => AddDogScreen(),
+      builder: (context, state) => const AddDogScreen(),
     ),
     GoRoute(
       name: "/createteam",
@@ -51,42 +51,42 @@ final goRoutes = GoRouter(
     GoRoute(
       name: "/teamshistory",
       path: "/teamshistory",
-      builder: (context, state) => TeamsHistoryScreen(),
+      builder: (context, state) => const TeamsHistoryScreen(),
     ),
     GoRoute(
       name: "/stats",
       path: "/stats",
-      builder: (context, state) => StatsScreen(),
+      builder: (context, state) => const StatsScreen(),
     ),
     GoRoute(
       name: "/settings",
       path: "/settings",
-      builder: (context, state) => SettingsScreen(),
+      builder: (context, state) => const SettingsScreen(),
     ),
     GoRoute(
       name: "/tasks",
       path: "/tasks",
-      builder: (context, state) => TasksScreen(),
+      builder: (context, state) => const TasksScreen(),
     ),
     GoRoute(
       name: "/health_dashboard",
       path: "/health_dashboard",
-      builder: (context, state) => HealthScreen(),
+      builder: (context, state) => const HealthScreen(),
     ),
     GoRoute(
       name: "/insights",
       path: "/insights",
-      builder: (context, state) => InsightsScreen(),
+      builder: (context, state) => const InsightsScreen(),
     ),
     GoRoute(
       name: "/client_management",
       path: "/client_management",
-      builder: (context, state) => ClientManagementScreen(),
+      builder: (context, state) => const ClientManagementScreen(),
     ),
     GoRoute(
       path: "/tours",
       name: "/tours",
-      builder: (context, state) => ToursScreen(),
+      builder: (context, state) => const ToursScreen(),
     ),
     GoRoute(
       path: "/tours/editor",

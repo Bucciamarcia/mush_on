@@ -190,11 +190,11 @@ Stream<List<CustomerGroup>> futureCustomerGroups(Ref ref,
     {required DateTime? untilDate}) async* {
   String account = await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
-  untilDate = untilDate ?? DateTimeUtils.today().add(Duration(days: 30));
+  untilDate = untilDate ?? DateTimeUtils.today().add(const Duration(days: 30));
   var collection = db
       .collection("accounts/$account/data/bookingManager/customerGroups")
       .where("datetime",
-          isGreaterThanOrEqualTo: DateTimeUtils.today().add(Duration(days: 1)))
+          isGreaterThanOrEqualTo: DateTimeUtils.today().add(const Duration(days: 1)))
       .where("datetime", isLessThanOrEqualTo: untilDate);
   yield* collection.snapshots().map(
         (snapshot) => snapshot.docs

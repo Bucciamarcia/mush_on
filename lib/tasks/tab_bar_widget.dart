@@ -7,7 +7,7 @@ class TabBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TabBar(
+    return const TabBar(
       tabs: [
         Tab(
           child: Row(

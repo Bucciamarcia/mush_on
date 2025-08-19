@@ -12,10 +12,10 @@ class DogRunDataWidget extends StatelessWidget {
     return Column(
       spacing: 5,
       children: [
-        TextTitle("Past runs"),
+        const TextTitle("Past runs"),
         Card(
           child: ExpansionTile(
-            title: Text("View chart"),
+            title: const Text("View chart"),
             children: [
               DogRunDataChart(dogTotals),
             ],

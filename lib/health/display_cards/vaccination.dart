@@ -120,7 +120,7 @@ class VaccinationDisplayCard extends ConsumerWidget {
                         color: Colors.amber[700],
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
+                      child: const Text(
                         "EXPIRES SOON",
                         style: TextStyle(
                           fontSize: 11,

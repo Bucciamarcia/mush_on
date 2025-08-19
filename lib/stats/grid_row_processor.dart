@@ -307,7 +307,7 @@ class GridRowProcessor {
       allDates.add(currentDate); // Add the normalized date (e.g., 00:00:00)
 
       // Increment first, THEN normalize to avoid DST time shifts messing up the day
-      DateTime nextDayIncrement = currentDate.add(Duration(days: 1));
+      DateTime nextDayIncrement = currentDate.add(const Duration(days: 1));
       currentDate = DateTime(nextDayIncrement.year, nextDayIncrement.month,
           nextDayIncrement.day); // Re-normalize to midnight
     }

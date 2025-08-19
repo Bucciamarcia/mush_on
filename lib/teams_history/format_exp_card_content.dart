@@ -21,7 +21,7 @@ class FormatObject extends ConsumerWidget {
 
   String formatMap(WidgetRef ref) {
     List<Team> teams = ref.watch(teamsInTeamgroupProvider(item.id)).value ??
-        [Team(id: "adfkshbg", rank: 0)];
+        [const Team(id: "adfkshbg", rank: 0)];
     String toReturn = item.name;
     for (Team teamItem in teams) {
       toReturn = "$toReturn\n\n${processTeam(teamItem, ref)}";

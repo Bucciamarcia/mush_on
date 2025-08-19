@@ -31,10 +31,10 @@ class DogPhotoCard extends StatelessWidget {
               height: 150,
               width: 150,
               child: (isLoading)
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : (image != null)
                       ? Image.memory(image!, fit: BoxFit.cover)
-                      : Placeholder()),
+                      : const Placeholder()),
           Column(
             children: [
               IconButton.outlined(
@@ -61,9 +61,9 @@ class DogPhotoCard extends StatelessWidget {
                       }
                     }
                   },
-                  icon: Icon(Icons.edit)),
+                  icon: const Icon(Icons.edit)),
               IconButton.outlined(
-                  onPressed: () => onImageDeleted(), icon: Icon(Icons.delete))
+                  onPressed: () => onImageDeleted(), icon: const Icon(Icons.delete))
             ],
           ),
         ],

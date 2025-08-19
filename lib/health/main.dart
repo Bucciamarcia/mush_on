@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/health/display_cards/health_event.dart';
 import 'package:mush_on/health/display_cards/heat_cycle.dart';
@@ -44,7 +43,7 @@ class HealthMain extends ConsumerWidget {
           ref.read(triggerAddhealthEventProvider.notifier).setValue(false);
           await showDialog(
               context: context,
-              builder: (BuildContext context) => HealthEventEditorAlert());
+              builder: (BuildContext context) => const HealthEventEditorAlert());
         }
       },
     );
@@ -55,7 +54,7 @@ class HealthMain extends ConsumerWidget {
           ref.read(triggerAddVaccinationProvider.notifier).setValue(false);
           await showDialog(
               context: context,
-              builder: (BuildContext context) => VaccinationEditorAlert());
+              builder: (BuildContext context) => const VaccinationEditorAlert());
         }
       },
     );
@@ -64,12 +63,12 @@ class HealthMain extends ConsumerWidget {
         ref.read(triggerAddHeatCycleProvider.notifier).setValue(false);
         await showDialog(
             context: context,
-            builder: (BuildContext context) => HeatCycleEditorAlert());
+            builder: (BuildContext context) => const HeatCycleEditorAlert());
       }
     });
 
     if (dogs == null) {
-      return Center(child: CircularProgressIndicator.adaptive());
+      return const Center(child: CircularProgressIndicator.adaptive());
     }
 
     final distanceWarningsAsync =
@@ -90,27 +89,27 @@ class HealthMain extends ConsumerWidget {
       },
     );
     return ListView(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       children: [
         // Summary Card
         Card(
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextTitle("Health Status"),
-                SizedBox(height: 12),
+                const TextTitle("Health Status"),
+                const SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: [
                     ActionChip(
-                      shape: RoundedRectangleBorder(
+                      shape: const RoundedRectangleBorder(
                           borderRadius:
                               BorderRadiusGeometry.all(Radius.circular(20))),
                       label: Text("${canRun.length} can run"),
-                      avatar: Icon(Icons.check_circle, color: Colors.green),
+                      avatar: const Icon(Icons.check_circle, color: Colors.green),
                       backgroundColor: Colors.green[100],
                       onPressed: () => showDialog(
                         context: context,
@@ -118,14 +117,14 @@ class HealthMain extends ConsumerWidget {
                             title: "Dogs that can run", dogs: canRun),
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     if (cantRun.isNotEmpty)
                       ActionChip(
-                        shape: RoundedRectangleBorder(
+                        shape: const RoundedRectangleBorder(
                             borderRadius:
                                 BorderRadiusGeometry.all(Radius.circular(20))),
                         label: Text("${cantRun.length} can't run"),
-                        avatar: Icon(Icons.cancel, color: Colors.red),
+                        avatar: const Icon(Icons.cancel, color: Colors.red),
                         backgroundColor: Colors.red[100],
                         onPressed: () => showDialog(
                           context: context,
@@ -135,13 +134,13 @@ class HealthMain extends ConsumerWidget {
                       ),
                     if (healthEvents.active.isNotEmpty)
                       ActionChip(
-                          shape: RoundedRectangleBorder(
+                          shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadiusGeometry.all(
                                   Radius.circular(20))),
                           label: Text(
                               "${healthEvents.active.length} active health events"),
                           avatar:
-                              Icon(Icons.check_circle, color: Colors.orange),
+                              const Icon(Icons.check_circle, color: Colors.orange),
                           backgroundColor: Colors.orange[100],
                           onPressed: () {
                             var healthEventDogs = <Dog>[];
@@ -160,11 +159,11 @@ class HealthMain extends ConsumerWidget {
                           }),
                     if (heatCycles.active.isNotEmpty)
                       ActionChip(
-                          shape: RoundedRectangleBorder(
+                          shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadiusGeometry.all(
                                   Radius.circular(20))),
                           label: Text("${heatCycles.active.length} in heat"),
-                          avatar: Icon(Icons.check_circle, color: Colors.pink),
+                          avatar: const Icon(Icons.check_circle, color: Colors.pink),
                           backgroundColor: Colors.pink[100],
                           onPressed: () {
                             var dogsInHeat = <Dog>[];
@@ -182,12 +181,12 @@ class HealthMain extends ConsumerWidget {
                           }),
                     if (vaccinations.expiringSoon(days: 30).isNotEmpty)
                       ActionChip(
-                          shape: RoundedRectangleBorder(
+                          shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadiusGeometry.all(
                                   Radius.circular(20))),
                           label: Text(
                               "${vaccinations.expiringSoon(days: 30).length} vaccines expiring soon"),
-                          avatar: Icon(Icons.check_circle, color: Colors.amber),
+                          avatar: const Icon(Icons.check_circle, color: Colors.amber),
                           backgroundColor: Colors.amber[100],
                           onPressed: () {
                             var dogse = <Dog>[];
@@ -206,7 +205,7 @@ class HealthMain extends ConsumerWidget {
                           }),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
               ],
             ),
           ),
@@ -219,11 +218,11 @@ class HealthMain extends ConsumerWidget {
           Card(
             color: colorScheme.primaryContainer,
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
                   Icon(Icons.celebration, color: colorScheme.primary),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Text(
                     "All dogs are healthy! 🎉",
                     style: TextStyle(
@@ -239,77 +238,77 @@ class HealthMain extends ConsumerWidget {
         // Overdue vaccinations (HIGH PRIORITY)
         if (vaccinations.overdue.isNotEmpty) ...[
           Padding(
-            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: Row(
               children: [
                 Icon(Icons.error, color: colorScheme.error),
-                SizedBox(width: 8),
-                TextTitle("⚠️ Overdue Vaccinations"),
+                const SizedBox(width: 8),
+                const TextTitle("⚠️ Overdue Vaccinations"),
               ],
             ),
           ),
           ...vaccinations.overdue.map((v) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: VaccinationDisplayCard(event: v),
               )),
         ],
 
         // Active health events
         if (healthEvents.active.isNotEmpty) ...[
-          Padding(
+          const Padding(
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: TextTitle("Active Health Events"),
           ),
           ...healthEvents.active.map((e) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: HealthEventDisplayCard(event: e),
               )),
         ],
 
         // Dogs in heat
         if (heatCycles.active.isNotEmpty) ...[
-          Padding(
+          const Padding(
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: TextTitle("Dogs in Heat"),
           ),
           ...heatCycles.active.map((h) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: HeatCycleDisplayCard(event: h),
               )),
         ],
 
         //Upcoming health events
         if (healthEvents.startingInNext(days: 30).isNotEmpty) ...[
-          Padding(
+          const Padding(
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: TextTitle("Upcoming Health Events"),
           ),
           ...healthEvents.startingInNext(days: 30).map((v) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: HealthEventDisplayCard(event: v),
               )),
         ],
 
         // Upcoming vaccinations
         if (vaccinations.expiringSoon(days: 30).isNotEmpty) ...[
-          Padding(
+          const Padding(
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: TextTitle("Vaccinations Expiring Soon"),
           ),
           ...vaccinations.expiringSoon(days: 30).map((v) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: VaccinationDisplayCard(event: v),
               )),
         ],
 
         // Recent events
         if (healthEvents.getRecentlySolved(days: 7).isNotEmpty) ...[
-          Padding(
+          const Padding(
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: TextTitle("Recently Resolved"),
           ),
           ...healthEvents.getRecentlySolved(days: 7).map((e) => Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: HealthEventDisplayCard(event: e),
               )),
         ],
@@ -317,15 +316,15 @@ class HealthMain extends ConsumerWidget {
         // Distance warnings
         distanceWarningsAsync.when(
           data: (warnings) {
-            if (warnings.isEmpty) return SizedBox.shrink();
+            if (warnings.isEmpty) return const SizedBox.shrink();
             return Card(
               child: Padding(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextTitle("Distance Warnings"),
-                    SizedBox(height: 8),
+                    const TextTitle("Distance Warnings"),
+                    const SizedBox(height: 8),
                     ...warnings.map((w) => ListTile(
                           dense: true,
                           leading: CircleAvatar(
@@ -363,11 +362,11 @@ class HealthMain extends ConsumerWidget {
               ),
             );
           },
-          error: (e, s) => SizedBox.shrink(),
-          loading: () => LinearProgressIndicator(),
+          error: (e, s) => const SizedBox.shrink(),
+          loading: () => const LinearProgressIndicator(),
         ),
 
-        SizedBox(height: 80), // Space for FAB
+        const SizedBox(height: 80), // Space for FAB
       ],
     );
   }

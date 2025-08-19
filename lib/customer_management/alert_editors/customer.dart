@@ -42,7 +42,7 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
   @override
   void initState() {
     super.initState();
-    id = widget.customer?.id ?? Uuid().v4();
+    id = widget.customer?.id ?? const Uuid().v4();
     nameController = TextEditingController(text: widget.customer?.name);
     emailController = TextEditingController(text: widget.customer?.email);
     ageController =

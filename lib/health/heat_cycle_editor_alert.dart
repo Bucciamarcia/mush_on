@@ -60,7 +60,7 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
 
     return AlertDialog.adaptive(
       scrollable: true,
-      title: Text("Add Heat Cycle"),
+      title: const Text("Add Heat Cycle"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -68,8 +68,8 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
           SearchField<Dog>(
             searchInputDecoration: SearchInputDecoration(
               hintText: "Select dog",
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(Icons.pets),
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.pets),
             ),
             controller: _selectedDogNameController,
             suggestions: dogs
@@ -84,12 +84,12 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
               }
             },
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Date section
           Card(
             child: Padding(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 children: [
                   // Start date
@@ -125,11 +125,11 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                             },
                           );
                         },
-                        icon: Icon(Icons.calendar_today),
+                        icon: const Icon(Icons.calendar_today),
                       ),
                     ],
                   ),
-                  Divider(height: 24),
+                  const Divider(height: 24),
 
                   // End date
                   Row(
@@ -180,7 +180,7 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                                 },
                               );
                             },
-                            icon: Icon(Icons.calendar_today),
+                            icon: const Icon(Icons.calendar_today),
                           ),
                         ],
                       ),
@@ -190,7 +190,7 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                   // Duration info
                   if (_endDate != null)
                     Padding(
-                      padding: EdgeInsets.only(top: 8),
+                      padding: const EdgeInsets.only(top: 8),
                       child: Text(
                         "Duration: ${_endDate!.difference(_startDate).inDays} days",
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -202,7 +202,7 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
               ),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Prevent from running checkbox
           Card(
@@ -216,20 +216,20 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                   });
                 }
               },
-              title: Text("Prevent from running"),
-              subtitle: Text("Dog should not participate in training or races"),
+              title: const Text("Prevent from running"),
+              subtitle: const Text("Dog should not participate in training or races"),
               secondary: Icon(
                 Icons.block,
                 color: _preventFromRunning ? Colors.orange : null,
               ),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Notes field
           TextField(
             controller: _notesController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: "Notes (optional)",
               hintText: "Behavioral changes, observations, etc.",
               border: OutlineInputBorder(),
@@ -247,7 +247,7 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
         ),
         FilledButton(
           onPressed: _checkFields() && !_isSaving
@@ -258,7 +258,7 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                   var repository = ref.read(heatCycleRepositoryProvider);
                   try {
                     await repository.addHeatCycle(HeatCycle(
-                      id: _id ?? Uuid().v4(),
+                      id: _id ?? const Uuid().v4(),
                       dogId: _selectedDog!.id,
                       startDate: _startDate,
                       endDate: _endDate,
@@ -300,7 +300,7 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                     color: colorScheme.onPrimary,
                   ),
                 )
-              : Text("Add Heat Cycle"),
+              : const Text("Add Heat Cycle"),
         ),
       ],
     );
@@ -314,7 +314,7 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
     final DateTime? picked = await showDatePicker(
       initialDate: minDate ?? _startDate,
       context: context,
-      firstDate: minDate ?? DateTimeUtils.today().subtract(Duration(days: 900)),
+      firstDate: minDate ?? DateTimeUtils.today().subtract(const Duration(days: 900)),
       lastDate: DateTimeUtils.today().add(const Duration(days: 900)),
       builder: (context, child) {
         return Theme(

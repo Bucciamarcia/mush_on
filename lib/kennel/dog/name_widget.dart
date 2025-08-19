@@ -12,7 +12,7 @@ class NameWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       spacing: 20,
       children: [
-        Text(name, style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+        Text(name, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
         IconButton.outlined(
             onPressed: () {
               showAdaptiveDialog(
@@ -23,7 +23,7 @@ class NameWidget extends StatelessWidget {
                 ),
               );
             },
-            icon: Icon(Icons.edit)),
+            icon: const Icon(Icons.edit)),
       ],
     );
   }
@@ -51,17 +51,17 @@ class _DogNameEditorState extends State<DogNameEditor> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog.adaptive(
-      title: Text("Change dog name"),
+      title: const Text("Change dog name"),
       content: TextField(
         controller: _controller,
       ),
       actions: [
         TextButton(
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          child: Text("OK"),
+          child: const Text("OK"),
           onPressed: () {
             widget.onNameChanged(_controller.text);
             Navigator.of(context).pop();

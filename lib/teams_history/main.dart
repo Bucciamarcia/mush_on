@@ -23,7 +23,7 @@ class TeamsHistoryMain extends ConsumerWidget {
         .watch(
           teamGroupsProvider(
             earliestDate: DateTimeUtils.today().subtract(
-              Duration(days: 30),
+              const Duration(days: 30),
             ),
             finalDate: null,
           ),
@@ -114,7 +114,7 @@ class TeamsHistoryMain extends ConsumerWidget {
               ),
             );
           },
-          loading: () => Center(
+          loading: () => const Center(
             child: CircularProgressIndicator.adaptive(),
           ),
         );
@@ -304,7 +304,7 @@ class TeamViewer extends ConsumerWidget {
                         }
                         newTgs = newTgs.copyWith(
                             teams: tw,
-                            id: Uuid().v4(),
+                            id: const Uuid().v4(),
                             date: DateTimeUtils.today());
                         await saveToDb(newTgs,
                             await ref.watch(accountProvider.future), ref);
@@ -350,14 +350,14 @@ class TeamViewer extends ConsumerWidget {
           ),
         );
       },
-      loading: () => Card(
+      loading: () => const Card(
         child: ListTile(
           leading: SizedBox(
             width: 20,
             height: 20,
             child: CircularProgressIndicator.adaptive(strokeWidth: 2),
           ),
-          title: const Text("Loading..."),
+          title: Text("Loading..."),
         ),
       ),
     );

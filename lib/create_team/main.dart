@@ -60,7 +60,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                   CustomerGroupWorkspace(
                     customerGroup: CustomerGroup(
                       tourTypeId: "",
-                      id: Uuid().v4(),
+                      id: const Uuid().v4(),
                       datetime: DateTime.now(),
                     ),
                   );
@@ -80,7 +80,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
               length: 2,
               child: Column(
                 children: [
-                  TabBar(
+                  const TabBar(
                     tabs: [
                       Tab(text: "Team builder"),
                       Tab(
@@ -113,8 +113,8 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
         error: (e, s) {
           BasicLogger()
               .error("Couldn't get teamgroup", error: e, stackTrace: s);
-          return Text("Couldn't get teamgroup");
+          return const Text("Couldn't get teamgroup");
         },
-        loading: () => CircularProgressIndicator.adaptive());
+        loading: () => const CircularProgressIndicator.adaptive());
   }
 }

@@ -10,7 +10,7 @@ class DogRunDataChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SfCartesianChart(
-      primaryXAxis: CategoryAxis(),
+      primaryXAxis: const CategoryAxis(),
       series: <CartesianSeries<DogTotal, String>>[
         ColumnSeries(
           dataSource: totals,
@@ -19,7 +19,7 @@ class DogRunDataChart extends StatelessWidget {
           yValueMapper: (DogTotal total, _) => total.distance,
           sortFieldValueMapper: (DogTotal total, _) => total.fromtoday,
           sortingOrder: SortingOrder.descending,
-          dataLabelSettings: DataLabelSettings(isVisible: true),
+          dataLabelSettings: const DataLabelSettings(isVisible: true),
         )
       ],
     );

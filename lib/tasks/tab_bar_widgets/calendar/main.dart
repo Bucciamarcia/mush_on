@@ -46,7 +46,7 @@ class CalendarTabWidget extends StatelessWidget {
       },
       showWeekNumber: true,
       firstDayOfWeek: 1,
-      monthViewSettings: MonthViewSettings(
+      monthViewSettings: const MonthViewSettings(
           appointmentDisplayCount: 3,
           numberOfWeeksInView: 4,
           appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),

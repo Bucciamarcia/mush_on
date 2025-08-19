@@ -27,7 +27,7 @@ class DogSelectedInterface extends StatelessWidget {
           dogNote: dogNote,
           onDogRemoved: () => onDogRemoved(),
         ),
-        dogNote != null ? NotesList(notes: dogNote) : SizedBox.shrink(),
+        dogNote != null ? NotesList(notes: dogNote) : const SizedBox.shrink(),
       ],
     );
   }
@@ -50,7 +50,7 @@ class DogSelectedChip extends StatelessWidget {
     NoteType noteType = DogNoteRepository.worstNoteType(
         dogNote == null ? [] : dogNote!.dogNoteMessage);
     return InputChip(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       backgroundColor:
           _isOnlyFilteredOut(dogNote) ? NoteType.none.color : noteType.color,
       key: Key("DogSelectedChip - ${dog.id}"),
@@ -72,10 +72,10 @@ class NotesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (_isOnlyFilteredOut(notes)) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     } else {
       DogNoteRepository.removeNoteType(notes, DogNoteType.filteredOut);
-      if (notes.dogNoteMessage.isEmpty) return SizedBox.shrink();
+      if (notes.dogNoteMessage.isEmpty) return const SizedBox.shrink();
       return Column(
         children: notes.dogNoteMessage
             .map((e) => Text(

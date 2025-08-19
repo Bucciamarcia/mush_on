@@ -305,7 +305,7 @@ class _RunRateProviderElement extends AutoDisposeProviderElement<double>
   StatsDateRange get dateRange => (origin as RunRateProvider).dateRange;
 }
 
-String _$reliabilityHash() => r'970292fdd6571850c57cd9d047b065b21f4d0647';
+String _$reliabilityHash() => r'47f3b378edaf32d22b6556d293ea0f37193ae4e7';
 
 /// See also [reliability].
 @ProviderFor(reliability)

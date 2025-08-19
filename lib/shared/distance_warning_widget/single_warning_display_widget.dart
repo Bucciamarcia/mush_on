@@ -90,7 +90,7 @@ class _SingleWarningDisplayWidgetState
                         child: TextField(
                           controller: _distanceController,
                           keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Distance (km)',
                             isDense: true,
                             contentPadding: EdgeInsets.symmetric(
@@ -99,12 +99,12 @@ class _SingleWarningDisplayWidgetState
                           onChanged: (_) => setState(() => _isEditing = true),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: TextField(
                           controller: _daysController,
                           keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Days',
                             isDense: true,
                             contentPadding: EdgeInsets.symmetric(
@@ -115,10 +115,10 @@ class _SingleWarningDisplayWidgetState
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   DropdownButtonFormField<DistanceWarningType>(
                     value: _selectedType,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Type',
                       isDense: true,
                       contentPadding:
@@ -140,24 +140,24 @@ class _SingleWarningDisplayWidgetState
                 ],
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (_isEditing) ...[
                   IconButton(
-                    icon: Icon(Icons.check, color: Colors.green),
+                    icon: const Icon(Icons.check, color: Colors.green),
                     onPressed: _save,
                     tooltip: 'Save',
                   ),
                   IconButton(
-                    icon: Icon(Icons.undo, color: Colors.orange),
+                    icon: const Icon(Icons.undo, color: Colors.orange),
                     onPressed: _revert,
                     tooltip: 'Revert',
                   ),
                 ],
                 IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
+                  icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () =>
                       widget.onDistanceWarningRemoved(widget.warning.id),
                   tooltip: 'Remove',

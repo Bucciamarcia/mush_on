@@ -29,7 +29,7 @@ class InsightsMain extends ConsumerWidget {
     List<Dog> dogs = ref.watch(dogsProvider).value ?? [];
 // Calculate days from 90 days before start date to end date
     int daysToFetch = dateRange.endDate
-        .difference(dateRange.startDate.subtract(Duration(days: 90)))
+        .difference(dateRange.startDate.subtract(const Duration(days: 90)))
         .inDays;
 
     List<HealthEvent> healthEvents = ref
@@ -40,14 +40,14 @@ class InsightsMain extends ConsumerWidget {
         [];
     List<TeamGroup> teamGroups = ref
             .watch(teamGroupsProvider(
-                earliestDate: dateRange.startDate.subtract(Duration(days: 30)),
+                earliestDate: dateRange.startDate.subtract(const Duration(days: 30)),
                 finalDate: DateTimeUtils.today()))
             .value ??
         [];
     List<TeamGroup> filteredTeamGroups = teamGroups
         .where((teamGroup) =>
             teamGroup.date.isAfter(dateRange.startDate) &&
-            teamGroup.date.isBefore(dateRange.endDate.add(Duration(days: 1))))
+            teamGroup.date.isBefore(dateRange.endDate.add(const Duration(days: 1))))
         .toList();
     Map<String, List<DogDailyStats>> dogDailyStats =
         _getDogDailyStats(dogs, filteredTeamGroups, ref);
@@ -67,7 +67,7 @@ class InsightsMain extends ConsumerWidget {
       children: [
         Card(
           child: ExpansionTile(
-            title: Text("Filter date"),
+            title: const Text("Filter date"),
             children: [
               DateRangePicker(
                 maxDate: DateTimeUtils.today(),
@@ -94,7 +94,7 @@ class InsightsMain extends ConsumerWidget {
             length: 2,
             child: Column(
               children: [
-                TabBar(
+                const TabBar(
                   tabs: [
                     Tab(text: "Insights"),
                     Tab(text: "Reliability matrix"),
@@ -119,22 +119,22 @@ class InsightsMain extends ConsumerWidget {
                         columns: _getGridColumns(),
                       ),
                       SfCartesianChart(
-                        primaryXAxis: NumericAxis(
+                        primaryXAxis: const NumericAxis(
                           title: AxisTitle(text: "Km ran"),
                           plotOffset: 20,
                         ),
-                        primaryYAxis: NumericAxis(
+                        primaryYAxis: const NumericAxis(
                           title: AxisTitle(text: "Reliability %"),
                           plotOffset: 20,
                         ),
                         series: [
                           ScatterSeries<ReliabilityMatrixChartData, double>(
                             dataLabelSettings:
-                                DataLabelSettings(isVisible: true),
+                                const DataLabelSettings(isVisible: true),
                             dataLabelMapper: (data, _) =>
                                 dogs.getNameFromId(data.dogId),
                             markerSettings:
-                                MarkerSettings(width: 25, height: 25),
+                                const MarkerSettings(width: 25, height: 25),
                             dataSource: realiabilityData,
                             xValueMapper: (data, _) => data.x,
                             yValueMapper: (data, _) => data.y,
@@ -175,13 +175,13 @@ class InsightsMain extends ConsumerWidget {
     return <GridColumn>[
       GridColumn(
         columnName: "dog",
-        label: Center(
+        label: const Center(
           child: Text("Dog"),
         ),
       ),
       GridColumn(
         columnName: "totalRan",
-        label: Center(
+        label: const Center(
           child: Row(
             spacing: 3,
             children: [
@@ -199,7 +199,7 @@ class InsightsMain extends ConsumerWidget {
       ),
       GridColumn(
         columnName: "runRate",
-        label: Center(
+        label: const Center(
           child: Row(
             children: [
               Flexible(
@@ -219,7 +219,7 @@ class InsightsMain extends ConsumerWidget {
       ),
       GridColumn(
         columnName: "reliability",
-        label: Center(
+        label: const Center(
           child: Row(
             children: [
               Flexible(

@@ -176,7 +176,7 @@ class IconDeleteDog extends StatelessWidget {
           size: 25,
           color: Theme.of(context).colorScheme.error,
         ),
-        constraints: BoxConstraints(),
+        constraints: const BoxConstraints(),
         padding: EdgeInsets.zero,
       ),
     );
