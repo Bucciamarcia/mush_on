@@ -12,6 +12,7 @@ import 'package:mush_on/stats/insights/insights.dart';
 import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
 import 'package:mush_on/stats/stats.dart';
+import 'package:mush_on/whiteboard/whiteboard.dart';
 import 'customer_management/customer_management.dart';
 import 'customer_management/tours/editor/editor.dart';
 
@@ -97,11 +98,17 @@ final goRoutes = GoRouter(
       },
     ),
     GoRoute(
-        path: "/:account/groups/:cgId",
-        builder: (context, state) {
-          final account = state.pathParameters["account"]!;
-          final cgId = state.pathParameters["cgId"]!;
-          return CustomerFacingPage(account: account, cgId: cgId);
-        })
+      path: "/:account/groups/:cgId",
+      builder: (context, state) {
+        final account = state.pathParameters["account"]!;
+        final cgId = state.pathParameters["cgId"]!;
+        return CustomerFacingPage(account: account, cgId: cgId);
+      },
+    ),
+    GoRoute(
+      path: "/whiteboard",
+      name: "/whiteboard",
+      builder: (context, state) => const WhiteboardScreen(),
+    ),
   ],
 );
