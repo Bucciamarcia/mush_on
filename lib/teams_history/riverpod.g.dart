@@ -174,5 +174,148 @@ class _TeamGroupsProviderElement
   @override
   DateTime? get finalDate => (origin as TeamGroupsProvider).finalDate;
 }
+
+String _$hasCustomerGroupHash() => r'feb3ffd9640b33e3414c490e47a67bcfac560b8c';
+
+/// Returns whether the team group has a customer group assigned to it.
+///
+/// Copied from [hasCustomerGroup].
+@ProviderFor(hasCustomerGroup)
+const hasCustomerGroupProvider = HasCustomerGroupFamily();
+
+/// Returns whether the team group has a customer group assigned to it.
+///
+/// Copied from [hasCustomerGroup].
+class HasCustomerGroupFamily extends Family<AsyncValue<bool>> {
+  /// Returns whether the team group has a customer group assigned to it.
+  ///
+  /// Copied from [hasCustomerGroup].
+  const HasCustomerGroupFamily();
+
+  /// Returns whether the team group has a customer group assigned to it.
+  ///
+  /// Copied from [hasCustomerGroup].
+  HasCustomerGroupProvider call(
+    String teamGroupId,
+  ) {
+    return HasCustomerGroupProvider(
+      teamGroupId,
+    );
+  }
+
+  @override
+  HasCustomerGroupProvider getProviderOverride(
+    covariant HasCustomerGroupProvider provider,
+  ) {
+    return call(
+      provider.teamGroupId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'hasCustomerGroupProvider';
+}
+
+/// Returns whether the team group has a customer group assigned to it.
+///
+/// Copied from [hasCustomerGroup].
+class HasCustomerGroupProvider extends AutoDisposeStreamProvider<bool> {
+  /// Returns whether the team group has a customer group assigned to it.
+  ///
+  /// Copied from [hasCustomerGroup].
+  HasCustomerGroupProvider(
+    String teamGroupId,
+  ) : this._internal(
+          (ref) => hasCustomerGroup(
+            ref as HasCustomerGroupRef,
+            teamGroupId,
+          ),
+          from: hasCustomerGroupProvider,
+          name: r'hasCustomerGroupProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$hasCustomerGroupHash,
+          dependencies: HasCustomerGroupFamily._dependencies,
+          allTransitiveDependencies:
+              HasCustomerGroupFamily._allTransitiveDependencies,
+          teamGroupId: teamGroupId,
+        );
+
+  HasCustomerGroupProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.teamGroupId,
+  }) : super.internal();
+
+  final String teamGroupId;
+
+  @override
+  Override overrideWith(
+    Stream<bool> Function(HasCustomerGroupRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: HasCustomerGroupProvider._internal(
+        (ref) => create(ref as HasCustomerGroupRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        teamGroupId: teamGroupId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<bool> createElement() {
+    return _HasCustomerGroupProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is HasCustomerGroupProvider &&
+        other.teamGroupId == teamGroupId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, teamGroupId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin HasCustomerGroupRef on AutoDisposeStreamProviderRef<bool> {
+  /// The parameter `teamGroupId` of this provider.
+  String get teamGroupId;
+}
+
+class _HasCustomerGroupProviderElement
+    extends AutoDisposeStreamProviderElement<bool> with HasCustomerGroupRef {
+  _HasCustomerGroupProviderElement(super.provider);
+
+  @override
+  String get teamGroupId => (origin as HasCustomerGroupProvider).teamGroupId;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
