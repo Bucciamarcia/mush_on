@@ -21,14 +21,27 @@ class UserProfilePic extends _$UserProfilePic {
       path = "users/$uid/avatar";
     }
     final storageRef = FirebaseStorage.instance.ref(path);
-    final result = await storageRef.listAll();
+    late ListResult result;
+    try {
+      result = await storageRef.listAll();
+    } catch (e, s) {
+      BasicLogger().error("Failed to list items in storage at path: $path",
+          error: e, stackTrace: s);
+      return null;
+    }
     final items = result.items;
     if (items.isEmpty) {
       BasicLogger().warning("empty");
       return null;
     }
     final avatarPath = result.items.first;
-    return await avatarPath.getData();
+    try {
+      return await avatarPath.getData();
+    } catch (e, s) {
+      BasicLogger().error("Failed to get data from storage at path: $path",
+          error: e, stackTrace: s);
+      return null;
+    }
   }
 
   void changeProfilePic(Uint8List newData) {

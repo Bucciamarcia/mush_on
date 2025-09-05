@@ -63,7 +63,7 @@ dependencies:
   firebase_storage: ^12.4.5
   path: ^1.9.1
   flutter_colorpicker: ^1.1.0
-  searchfield: ^1.2.7
+  searchfield: ^1.3.5
   collection: ^1.19.1
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1

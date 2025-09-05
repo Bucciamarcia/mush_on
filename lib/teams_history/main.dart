@@ -175,6 +175,8 @@ class TeamViewer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     var dogsAsync = ref.watch(dogsProvider);
+    bool hasCustomerGroup =
+        ref.watch(hasCustomerGroupProvider(item.id)).value ?? false;
     return dogsAsync.when(
       data: (dogs) {
         return Card(
@@ -225,6 +227,16 @@ class TeamViewer extends ConsumerWidget {
                         color: colorScheme.onSurface,
                       ),
                       overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Tooltip(
+                    message: hasCustomerGroup
+                        ? "Customer Group assigned"
+                        : "Customer Group NOT assigned",
+                    triggerMode: TooltipTriggerMode.tap,
+                    child: Icon(
+                      Icons.people,
+                      color: hasCustomerGroup ? Colors.green : Colors.red,
                     ),
                   ),
                 ],

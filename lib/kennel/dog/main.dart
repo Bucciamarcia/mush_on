@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:mush_on/kennel/dog/customer_facing_notes.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
@@ -82,7 +81,8 @@ class DogMain extends ConsumerWidget {
                               error: e, stackTrace: s);
                           return const Text("Couldn't load image");
                         },
-                        loading: () => const CircularProgressIndicator.adaptive()),
+                        loading: () =>
+                            const CircularProgressIndicator.adaptive()),
                     PositionsWidget(
                       positions: dog.positions,
                       onPositionsChanged: (DogPositions newPositions) async {
@@ -355,7 +355,6 @@ class DogMain extends ConsumerWidget {
                     const Divider(),
                     SingleDogHealthEventsWidget(dogId: dog.id),
                     const Divider(),
-                    CustomerFacingNotesWidget(dog: dog),
                     const Divider(),
                     SingleDogNotesWidget(
                       dogNotes: dog.notes,
