@@ -29,16 +29,24 @@ class _SystemHash {
   }
 }
 
-/// See also [teamGroups].
+/// Returns a list of teamgroups to display based on the date range specified.
+///
+/// Copied from [teamGroups].
 @ProviderFor(teamGroups)
 const teamGroupsProvider = TeamGroupsFamily();
 
-/// See also [teamGroups].
+/// Returns a list of teamgroups to display based on the date range specified.
+///
+/// Copied from [teamGroups].
 class TeamGroupsFamily extends Family<AsyncValue<List<TeamGroup>>> {
-  /// See also [teamGroups].
+  /// Returns a list of teamgroups to display based on the date range specified.
+  ///
+  /// Copied from [teamGroups].
   const TeamGroupsFamily();
 
-  /// See also [teamGroups].
+  /// Returns a list of teamgroups to display based on the date range specified.
+  ///
+  /// Copied from [teamGroups].
   TeamGroupsProvider call({
     required DateTime earliestDate,
     DateTime? finalDate,
@@ -74,9 +82,13 @@ class TeamGroupsFamily extends Family<AsyncValue<List<TeamGroup>>> {
   String? get name => r'teamGroupsProvider';
 }
 
-/// See also [teamGroups].
+/// Returns a list of teamgroups to display based on the date range specified.
+///
+/// Copied from [teamGroups].
 class TeamGroupsProvider extends AutoDisposeStreamProvider<List<TeamGroup>> {
-  /// See also [teamGroups].
+  /// Returns a list of teamgroups to display based on the date range specified.
+  ///
+  /// Copied from [teamGroups].
   TeamGroupsProvider({
     required DateTime earliestDate,
     DateTime? finalDate,

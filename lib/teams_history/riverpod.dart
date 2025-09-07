@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
 
 @riverpod
+
+/// Returns a list of teamgroups to display based on the date range specified.
 Stream<List<TeamGroup>> teamGroups(Ref ref,
     {required DateTime earliestDate, DateTime? finalDate}) async* {
   String account = await ref.watch(accountProvider.future);
