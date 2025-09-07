@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:mush_on/kennel/dog/pedigree_info.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models/notes.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
@@ -182,6 +183,8 @@ class DogMain extends ConsumerWidget {
                         }
                       },
                     ),
+                    const Divider(),
+                    PedigreeInfo(dog: dog),
                     const Divider(),
                     DogTasksWidget(
                       tasksInMemory: ref.watch(tasksProvider(null)).value ??

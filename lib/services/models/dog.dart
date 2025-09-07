@@ -27,6 +27,8 @@ abstract class Dog with _$Dog {
     @Default([]) List<CustomField> customFields,
     @Default([]) List<SingleDogNote> notes,
     @Default([]) List<DistanceWarning> distanceWarnings,
+    String? fatherId,
+    String? motherId,
     @TimestampConverter() DateTime? birth,
   }) = _Dog;
 

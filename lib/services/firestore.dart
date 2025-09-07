@@ -211,11 +211,6 @@ class DogsDbOperations {
       {required DogPositions newPositions,
       required String id,
       required String account}) async {
-    try {} catch (e, s) {
-      logger.error("Couldn't fetch account in updateDogPositions",
-          error: e, stackTrace: s);
-      rethrow;
-    }
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
     Map<String, dynamic> positionsMap = newPositions.toJson();
@@ -228,6 +223,20 @@ class DogsDbOperations {
       logger.info("Successfully updated dog positions for $id");
     } catch (e, s) {
       logger.error("Couldn't update dog positions", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> updateMotherId(
+      {required String motherId,
+      required String id,
+      required String account}) async {
+    try {
+      String path = "accounts/$account/data/kennel/dogs/$id";
+      var doc = db.doc(path);
+      await doc.update({"motherId": motherId});
+    } catch (e, s) {
+      logger.error("Couldn't update mother id", error: e, stackTrace: s);
       rethrow;
     }
   }
