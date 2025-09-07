@@ -43,9 +43,11 @@ class StatsMain extends ConsumerWidget {
               children: [
                 Card(
                   child: ExpansionTile(
+                    maintainState: true,
                     title: const Text("Filter date"),
                     children: [
                       DateRangePicker(
+                        key: const PageStorageKey("daterangepicker stats"),
                         maxDate: DateTimeUtils.today(),
                         minDate: calculateOldestTeamGroup(teams)
                                 .isBefore(DateTimeUtils.today())
@@ -66,6 +68,7 @@ class StatsMain extends ConsumerWidget {
                 ),
                 Card(
                     child: ExpansionTile(
+                  maintainState: true,
                   title: const Text("Filter dogs"),
                   children: [
                     DogFilterWidget(
