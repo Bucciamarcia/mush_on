@@ -1,4 +1,3 @@
-import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/customers/customer_groups_card.dart';
@@ -18,21 +17,6 @@ class CustomersCreateTeam extends ConsumerWidget {
     super.key,
     required this.teamGroup,
   });
-
-  void _openCamera(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => SafeArea(
-          child: CameraAwesomeBuilder.awesome(
-            onMediaCaptureEvent: (capture) {
-              logger.debug("snap!");
-            },
-            saveConfig: SaveConfig.photoAndVideo(),
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -220,7 +204,8 @@ class AssignCustomersAlert extends ConsumerWidget {
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.of(context).pop(), child: const Text("Close"))
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Close"))
       ],
     );
   }

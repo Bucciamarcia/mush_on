@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/extensions.dart';
+import 'package:mush_on/services/models/dog.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.freezed.dart';
 part 'riverpod.g.dart';
@@ -32,5 +33,17 @@ class StatsDates extends _$StatsDates {
 
   void changeEndDate(DateTime date) {
     state = state.copyWith(endDate: date);
+  }
+}
+
+@riverpod
+class FilteredDogs extends _$FilteredDogs {
+  @override
+  List<Dog> build() {
+    return [];
+  }
+
+  void changeFilteredDogs(List<Dog> newDogs) {
+    state = newDogs;
   }
 }

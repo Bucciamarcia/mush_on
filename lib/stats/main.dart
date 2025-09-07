@@ -4,6 +4,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/shared/dog_filter/date_range_picker/main.dart';
+import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:mush_on/stats/riverpod.dart';
 import 'package:mush_on/teams_history/riverpod.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -18,7 +19,8 @@ class StatsMain extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dogsAsync = ref.watch(dogsProvider);
     return dogsAsync.when(
-      data: (dogs) {
+      data: (allDogs) {
+        final filteredDogs = ref.watch(filteredDogsProvider);
         var dates = ref.watch(statsDatesProvider);
         var teamGroupsAsync = ref.watch(teamGroupsProvider(
             earliestDate:
@@ -28,7 +30,7 @@ class StatsMain extends ConsumerWidget {
           data: (teams) {
             GridRowProcessor dataManipulator = GridRowProcessor(
                 teams: teams,
-                dogs: dogs,
+                dogs: filteredDogs.isEmpty ? allDogs : filteredDogs,
                 startDate: dates.startDate,
                 finishDate: dates.endDate,
                 ref: ref);
@@ -62,9 +64,22 @@ class StatsMain extends ConsumerWidget {
                     ],
                   ),
                 ),
+                Card(
+                    child: ExpansionTile(
+                  title: const Text("Filter dogs"),
+                  children: [
+                    DogFilterWidget(
+                        dogs: allDogs,
+                        onResult: (changedDogs) => ref
+                            .read(filteredDogsProvider.notifier)
+                            .changeFilteredDogs(changedDogs),
+                        templates: null)
+                  ],
+                )),
                 Flexible(
                     child: SfDataGridClass(
-                        statsDataSource: statsDataSource, dogs: dogs)),
+                        statsDataSource: statsDataSource,
+                        dogs: filteredDogs.isEmpty ? allDogs : filteredDogs)),
               ],
             );
           },
@@ -93,3 +108,5 @@ class StatsMain extends ConsumerWidget {
     if (range.endDate != null) onNewEndDate(range.endDate!);
   }
 }
+
+class Dog {}

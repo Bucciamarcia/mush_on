@@ -21,5 +21,20 @@ final statsDatesProvider =
 );
 
 typedef _$StatsDates = AutoDisposeNotifier<StatsDateRange>;
+String _$filteredDogsHash() => r'3b23d0a0f8386ff0530bc5b03cfcf098021b87f4';
+
+/// See also [FilteredDogs].
+@ProviderFor(FilteredDogs)
+final filteredDogsProvider =
+    AutoDisposeNotifierProvider<FilteredDogs, List<Dog>>.internal(
+  FilteredDogs.new,
+  name: r'filteredDogsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$filteredDogsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$FilteredDogs = AutoDisposeNotifier<List<Dog>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

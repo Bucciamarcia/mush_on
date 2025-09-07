@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
@@ -13,7 +14,7 @@ class DogFilterWidget extends ConsumerWidget {
 
   /// List of dogs to use for flitering
   final List<Dog> dogs;
-  final List<CustomFieldTemplate> templates;
+  final List<CustomFieldTemplate>? templates;
   const DogFilterWidget(
       {super.key,
       required this.dogs,
@@ -24,12 +25,19 @@ class DogFilterWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var filterConditions = ref.watch(filterConditionsProvider);
     var filterConditionsNotifier = ref.read(filterConditionsProvider.notifier);
+    late List<CustomFieldTemplate> finalTemplates;
+    if (templates != null) {
+      finalTemplates = templates!;
+    } else {
+      final settings = ref.watch(settingsProvider).value;
+      finalTemplates = settings?.customFieldTemplates ?? [];
+    }
     return Column(
       spacing: 10,
       children: [
         ConditionGroup(
           allDogs: dogs,
-          templates: templates,
+          templates: finalTemplates,
           conditionSelected: (filterConditions.conditions.isEmpty)
               ? null
               : filterConditions.conditions.firstOrNull?.conditionSelection,
