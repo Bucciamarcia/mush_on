@@ -10,114 +10,147 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/riverpod/teamgroup.dart';
+import 'package:mush_on/teams_history/date_picker.dart';
 import 'package:mush_on/teams_history/riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'format_exp_card_content.dart';
 
-class TeamsHistoryMain extends ConsumerWidget {
+class TeamsHistoryMain extends ConsumerStatefulWidget {
   const TeamsHistoryMain({super.key});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TeamsHistoryMain> createState() => _TeamsHistoryMainState();
+}
+
+class _TeamsHistoryMainState extends ConsumerState<TeamsHistoryMain> {
+  late DateTime earliestDate;
+  late DateTime? finalDate;
+  final logger = BasicLogger();
+  @override
+  void initState() {
+    super.initState();
+    earliestDate = DateTimeUtils.today().subtract(const Duration(days: 30));
+    finalDate = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return ref
-        .watch(
-          teamGroupsProvider(
-            earliestDate: DateTimeUtils.today().subtract(
-              const Duration(days: 30),
-            ),
-            finalDate: null,
-          ),
-        )
-        .when(
-          data: (groups) {
-            groups.sort((a, b) => b.date.compareTo(a.date));
-
-            if (groups.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.history,
-                      size: 48,
-                      color: colorScheme.outline,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      "No Team History",
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: colorScheme.outline,
-                          ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      "Create and save teams to see them here",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colorScheme.outline,
-                          ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            // Group teams by date
-            Map<String, List<TeamGroup>> groupedByDate = {};
-            for (var group in groups) {
-              String dateKey = DateFormat('yyyy-MM-dd').format(group.date);
-              if (!groupedByDate.containsKey(dateKey)) {
-                groupedByDate[dateKey] = [];
-              }
-              groupedByDate[dateKey]!.add(group);
-            }
-
-            // Create a flat list with headers and items
-            List<Widget> items = [];
-            groupedByDate.forEach((dateKey, dayGroups) {
-              DateTime date = DateTime.parse(dateKey);
-
-              // Add date header
-              items.add(_buildDateHeader(context, date, colorScheme));
-
-              // Add teams for this date
-              for (int i = 0; i < dayGroups.length; i++) {
-                items.add(TeamViewer(
-                    item: dayGroups[i], key: ValueKey(dayGroups[i].id)));
-                if (i < dayGroups.length - 1) {
-                  items.add(const SizedBox(height: 4));
-                }
-              }
-
-              // Add spacing after each day section
-              items.add(const SizedBox(height: 16));
+    return Column(
+      children: [
+        TeamsHistoryDateSelector(
+          onDateRangeSelected: (newEarliestDate, newFinalDate) {
+            setState(() {
+              earliestDate = newEarliestDate;
+              finalDate = newFinalDate;
             });
+          },
+        ),
+        Expanded(
+          child: ref
+              .watch(
+                teamGroupsProvider(
+                  earliestDate: earliestDate,
+                  finalDate: finalDate,
+                ),
+              )
+              .when(
+                data: (groups) {
+                  groups.sort((a, b) => b.date.compareTo(a.date));
 
-            return ListView(
-              padding: const EdgeInsets.all(12),
-              children: items,
-            );
-          },
-          error: (e, s) {
-            BasicLogger()
-                .error("Couldn't load teamgroups.", error: e, stackTrace: s);
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 48, color: colorScheme.error),
-                  const SizedBox(height: 12),
-                  Text(
-                    "Error loading team groups",
-                    style: TextStyle(color: colorScheme.error),
-                  ),
-                ],
+                  if (groups.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.history,
+                            size: 48,
+                            color: colorScheme.outline,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            "No Team History",
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: colorScheme.outline,
+                                ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "Create and save teams to see them here",
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.outline,
+                                    ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Group teams by date
+                  Map<String, List<TeamGroup>> groupedByDate = {};
+                  for (var group in groups) {
+                    String dateKey =
+                        DateFormat('yyyy-MM-dd').format(group.date);
+                    if (!groupedByDate.containsKey(dateKey)) {
+                      groupedByDate[dateKey] = [];
+                    }
+                    groupedByDate[dateKey]!.add(group);
+                  }
+
+                  // Create a flat list with headers and items
+                  List<Widget> items = [];
+                  groupedByDate.forEach((dateKey, dayGroups) {
+                    DateTime date = DateTime.parse(dateKey);
+
+                    // Add date header
+                    items.add(_buildDateHeader(context, date, colorScheme));
+
+                    // Add teams for this date
+                    for (int i = 0; i < dayGroups.length; i++) {
+                      items.add(TeamViewer(
+                          item: dayGroups[i], key: ValueKey(dayGroups[i].id)));
+                      if (i < dayGroups.length - 1) {
+                        items.add(const SizedBox(height: 4));
+                      }
+                    }
+
+                    // Add spacing after each day section
+                    items.add(const SizedBox(height: 16));
+                  });
+
+                  return ListView(
+                      padding: const EdgeInsets.all(12), children: items);
+                },
+                error: (e, s) {
+                  BasicLogger().error("Couldn't load teamgroups.",
+                      error: e, stackTrace: s);
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline,
+                            size: 48, color: colorScheme.error),
+                        const SizedBox(height: 12),
+                        Text(
+                          "Error loading team groups",
+                          style: TextStyle(color: colorScheme.error),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                loading: () => const Center(
+                  child: CircularProgressIndicator.adaptive(),
+                ),
               ),
-            );
-          },
-          loading: () => const Center(
-            child: CircularProgressIndicator.adaptive(),
-          ),
-        );
+        ),
+      ],
+    );
   }
 
   Widget _buildDateHeader(

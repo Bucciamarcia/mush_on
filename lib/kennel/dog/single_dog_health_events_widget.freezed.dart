@@ -1,6 +1,5 @@
-// dart format width=80
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -39,6 +38,195 @@ mixin _$SingleDogHealthEvent {
 class $SingleDogHealthEventCopyWith<$Res> {
   $SingleDogHealthEventCopyWith(
       SingleDogHealthEvent _, $Res Function(SingleDogHealthEvent) __);
+}
+
+/// Adds pattern-matching-related methods to [SingleDogHealthEvent].
+extension SingleDogHealthEventPatterns on SingleDogHealthEvent {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(HealthEventWrapper value)? healthEvent,
+    TResult Function(VaccinationWrapper value)? vaccination,
+    TResult Function(HeatCycleWrapper value)? heat,
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case HealthEventWrapper() when healthEvent != null:
+        return healthEvent(_that);
+      case VaccinationWrapper() when vaccination != null:
+        return vaccination(_that);
+      case HeatCycleWrapper() when heat != null:
+        return heat(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(HealthEventWrapper value) healthEvent,
+    required TResult Function(VaccinationWrapper value) vaccination,
+    required TResult Function(HeatCycleWrapper value) heat,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case HealthEventWrapper():
+        return healthEvent(_that);
+      case VaccinationWrapper():
+        return vaccination(_that);
+      case HeatCycleWrapper():
+        return heat(_that);
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(HealthEventWrapper value)? healthEvent,
+    TResult? Function(VaccinationWrapper value)? vaccination,
+    TResult? Function(HeatCycleWrapper value)? heat,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case HealthEventWrapper() when healthEvent != null:
+        return healthEvent(_that);
+      case VaccinationWrapper() when vaccination != null:
+        return vaccination(_that);
+      case HeatCycleWrapper() when heat != null:
+        return heat(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(HealthEvent event)? healthEvent,
+    TResult Function(Vaccination event)? vaccination,
+    TResult Function(HeatCycle event)? heat,
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case HealthEventWrapper() when healthEvent != null:
+        return healthEvent(_that.event);
+      case VaccinationWrapper() when vaccination != null:
+        return vaccination(_that.event);
+      case HeatCycleWrapper() when heat != null:
+        return heat(_that.event);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(HealthEvent event) healthEvent,
+    required TResult Function(Vaccination event) vaccination,
+    required TResult Function(HeatCycle event) heat,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case HealthEventWrapper():
+        return healthEvent(_that.event);
+      case VaccinationWrapper():
+        return vaccination(_that.event);
+      case HeatCycleWrapper():
+        return heat(_that.event);
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(HealthEvent event)? healthEvent,
+    TResult? Function(Vaccination event)? vaccination,
+    TResult? Function(HeatCycle event)? heat,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case HealthEventWrapper() when healthEvent != null:
+        return healthEvent(_that.event);
+      case VaccinationWrapper() when vaccination != null:
+        return vaccination(_that.event);
+      case HeatCycleWrapper() when heat != null:
+        return heat(_that.event);
+      case _:
+        return null;
+    }
+  }
 }
 
 /// @nodoc

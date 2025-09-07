@@ -21,7 +21,8 @@ class StatsMain extends ConsumerWidget {
       data: (dogs) {
         var dates = ref.watch(statsDatesProvider);
         var teamGroupsAsync = ref.watch(teamGroupsProvider(
-            earliestDate: DateTimeUtils.today().subtract(const Duration(days: 360)),
+            earliestDate:
+                DateTimeUtils.today().subtract(const Duration(days: 360)),
             finalDate: DateTimeUtils.endOfToday()));
         return teamGroupsAsync.when(
           data: (teams) {
@@ -71,7 +72,8 @@ class StatsMain extends ConsumerWidget {
             logger.error("Couldn't get teamgroups");
             return const Text("Couldn't fetch teams");
           },
-          loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+          loading: () =>
+              const Center(child: CircularProgressIndicator.adaptive()),
         );
       },
       error: (e, s) {
