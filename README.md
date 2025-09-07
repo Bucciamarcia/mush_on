@@ -107,3 +107,4 @@ A cool and open source CRM for sled dog kennels.
 
 - Teams history shows if a customer group is assigned
 - Can filter dates in teams history
+- Can filter dogs in stats page
