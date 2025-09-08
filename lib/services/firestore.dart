@@ -241,6 +241,20 @@ class DogsDbOperations {
     }
   }
 
+  Future<void> updateFatherId(
+      {required String fatherId,
+      required String id,
+      required String account}) async {
+    try {
+      String path = "accounts/$account/data/kennel/dogs/$id";
+      var doc = db.doc(path);
+      await doc.update({"fatherId": fatherId});
+    } catch (e, s) {
+      logger.error("Couldn't update father id", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   Future<void> changeDogName(
       {required String newName,
       required String id,
