@@ -105,7 +105,8 @@ A cool and open source CRM for sled dog kennels.
 
 ### 0.0.14
 
-- Teams history shows if a customer group is assigned
-- Can filter dates in teams history
-- Can filter dogs in stats page
-- Can add father and mother in dog page
+- Teams history shows if a customer group is assigned.
+- Can filter dates in teams history.
+- Can filter dogs in stats page.
+- Can add father and mother in dog page.
+- Pedigree view completed.
