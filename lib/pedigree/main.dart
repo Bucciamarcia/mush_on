@@ -61,7 +61,10 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
           children: rowDogs
               .map((lir) => Padding(
                     padding: const EdgeInsets.all(8),
-                    child: SingleDogDisplay(dog: lir.dog),
+                    child: SingleDogDisplay(
+                      dog: lir.dog,
+                      focusDog: widget.dog,
+                    ),
                   ))
               .toList(),
         ),
@@ -175,12 +178,18 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
 
 class SingleDogDisplay extends StatelessWidget {
   final Dog dog;
-  const SingleDogDisplay({super.key, required this.dog});
+  final Dog focusDog;
+  const SingleDogDisplay(
+      {super.key, required this.dog, required this.focusDog});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Text(dog.name),
+      color: dog.id == focusDog.id ? Colors.red[200] : null,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(dog.name),
+      ),
     );
   }
 }
