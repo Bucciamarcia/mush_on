@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/pedigree/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models.dart';
 
 class PedigreeCanvas extends ConsumerStatefulWidget {
-  const PedigreeCanvas({super.key});
+  final Dog dog;
+  const PedigreeCanvas({super.key, required this.dog});
 
   @override
   ConsumerState<PedigreeCanvas> createState() => _PedigreeCanvasState();
@@ -13,114 +15,98 @@ class PedigreeCanvas extends ConsumerStatefulWidget {
 class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
   @override
   Widget build(BuildContext context) {
-    final List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
+    /// The usual list of all dogs.
+    List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
 
-    /// Dogs with no known parents.
-    final List<Dog> rootDogs = _getRootDogs(allDogs);
+    /// A map containing the string of all dogs, associated with a list of all its children.
+    final dogsWithChildren = _getChildrenOfDogs(allDogs);
 
-    /// Map of dog id -> all its children.
-    final childrenByParent = _getChildrenByParent(allDogs);
+    /// A map containing the string of all dogs, associated with a list of its parents.
+    final dogswithParents = _getParentsOfDogs(allDogs);
 
-    /// Map of dog id -> its parents.
-    final parentsOfDogs = _getParentsOfDogs(allDogs);
-
-    /// Map of dogs by id for faster lookup.
-    final byId = {for (final d in allDogs) d.id: d};
+    /// The list of DogLayouts that include the rank.
+    final List<DogLayout> dogLayouts = [];
+    dogLayouts.add(DogLayout(dog: widget.dog, rank: 0));
+    final List<Dog> sibilings = _getSibilings(widget.dog, allDogs);
+    for (final sibiling in sibilings) {
+      dogLayouts.add(DogLayout(dog: sibiling, rank: 0));
+    }
+    dogLayouts.sort((a, b) => a.rank.compareTo(b.rank));
     return InteractiveViewer(
-        constrained: false,
-        scaleEnabled: true,
-        panEnabled: true,
-        minScale: 0.25,
-        maxScale: 4,
         boundaryMargin: const EdgeInsets.all(double.infinity),
-        child: Wrap(
-          children: allDogs.map((dog) => SingleDogCard(dog: dog)).toList(),
+        constrained: false,
+        child: Column(
+          children: [
+            Row(
+              children: dogLayouts
+                  .map((dogLayout) => SingleDogDisplay(dog: dogLayout.dog))
+                  .toList(),
+            )
+          ],
         ));
   }
 
-  List<Dog> _getRootDogs(List<Dog> allDogs) {
-    List<Dog> toReturn = [];
-    for (final dog in allDogs) {
-      if (dog.motherId == null && dog.fatherId == null) {
-        toReturn.add(dog);
-      }
+  Map<String, List<Dog>> _getChildrenOfDogs(List<Dog> allDogs) {
+    Map<String, List<Dog>> toReturn = {};
+    for (Dog dog in allDogs) {
+      Set<Dog> children = {};
+      children.addAll(allDogs.where((d) {
+        if (d.fatherId == dog.id || d.motherId == dog.id) return true;
+        return false;
+      }));
+      toReturn.addAll({dog.id: children.toList()});
     }
     return toReturn;
   }
 
-  Map<String, List<Dog>> _getChildrenByParent(List<Dog> all) {
-    final map = <String, List<Dog>>{};
-    for (final d in all) {
-      if (d.motherId != null) (map[d.motherId!] ??= []).add(d);
-      if (d.fatherId != null) (map[d.fatherId!] ??= []).add(d);
-    }
-    return map;
-  }
-
   Map<String, List<Dog>> _getParentsOfDogs(List<Dog> allDogs) {
-    final byId = {for (final d in allDogs) d.id: d};
-    final map = <String, List<Dog>>{};
-    for (final dog in allDogs) {
-      final parents = <Dog>[];
+    Map<String, List<Dog>> toReturn = {};
+    for (Dog dog in allDogs) {
+      List<Dog> parents = [];
       if (dog.fatherId != null) {
-        final f = byId[dog.fatherId!];
-        if (f != null) parents.add(f);
+        final father = allDogs.getDogFromId(dog.fatherId!);
+        if (father != null) {
+          parents.add(father);
+        }
       }
       if (dog.motherId != null) {
-        final m = byId[dog.motherId!];
-        if (m != null) parents.add(m);
+        final mother = allDogs.getDogFromId(dog.motherId!);
+        if (mother != null) {
+          parents.add(mother);
+        }
       }
-      map[dog.id] = parents;
+      toReturn.addAll({dog.id: parents});
     }
-    return map;
+    return toReturn;
   }
 
-  List<Dog> _getChildrenTwoDogs(
-    Dog a,
-    Dog b,
-    Map<String, List<Dog>> childrenByParent,
-  ) {
-    if (a.id == b.id) return const [];
+  List<Dog> _getSibilings(Dog dog, List<Dog> allDogs) {
+    final fatherId = dog.fatherId;
+    final motherId = dog.motherId;
+    if (motherId == null && fatherId == null) return [];
+    List<Dog> toReturn = [];
+    List<String> toCheck = [];
+    if (fatherId != null) toCheck.add(fatherId);
+    if (motherId != null) toCheck.add(motherId);
 
-    final aKids = childrenByParent[a.id] ?? const [];
-    final bKidIds = {
-      for (final d in (childrenByParent[b.id] ?? const [])) d.id
-    };
-
-    return [
-      for (final d in aKids)
-        if (bKidIds.contains(d.id)) d,
-    ];
-  }
-
-  Set<String> _parentIdsOf(Dog d) {
-    final s = <String>{};
-    if (d.motherId != null) s.add(d.motherId!);
-    if (d.fatherId != null) s.add(d.fatherId!);
-    return s;
-  }
-
-  List<Dog> _getMates(
-      Dog dog, List<Dog> allDogs, Map<String, List<Dog>> childrenByParent) {
-    final mates = <String>{};
-
-    final byId = {for (final d in allDogs) d.id: d};
-    for (final child in childrenByParent[dog.id] ?? const []) {
-      for (final pid in _parentIdsOf(child)) {
-        if (pid != dog.id) mates.add(pid);
+    for (Dog d in allDogs) {
+      if (d.motherId == null && d.fatherId == null) continue;
+      List<String> dParents = [];
+      if (d.fatherId != null) dParents.add(d.fatherId!);
+      if (d.motherId != null) dParents.add(d.motherId!);
+      for (final dParent in dParents) {
+        if (!toCheck.contains(dParent)) continue;
       }
+      toReturn.add(d);
     }
-
-    return [
-      for (final id in mates)
-        if (byId.containsKey(id)) byId[id]!,
-    ];
+    toReturn.removeWhere((res) => res.id == dog.id);
+    return toReturn;
   }
 }
 
-class SingleDogCard extends StatelessWidget {
+class SingleDogDisplay extends StatelessWidget {
   final Dog dog;
-  const SingleDogCard({super.key, required this.dog});
+  const SingleDogDisplay({super.key, required this.dog});
 
   @override
   Widget build(BuildContext context) {

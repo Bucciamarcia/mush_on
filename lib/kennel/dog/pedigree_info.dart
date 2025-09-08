@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mush_on/pedigree/pedigree.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
@@ -92,9 +94,14 @@ class _PedigreeinfoState extends ConsumerState<PedigreeInfo> {
                           .where((d) => d.id != widget.dog.id)
                           .map(
                               (d) => DropdownMenuEntry(value: d, label: d.name))
-                          .toList())
+                          .toList()),
                 ],
-              )
+              ),
+              ElevatedButton.icon(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => PedigreeScreen(dog: widget.dog))),
+                  label: const Text("View pedigree chart"),
+                  icon: const FaIcon(FontAwesomeIcons.dog)),
             ],
           );
         },
