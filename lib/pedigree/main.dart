@@ -27,80 +27,149 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
     /// The list of DogLayouts that include the rank.
     final List<DogLayout> dogLayouts = [];
     dogLayouts.add(DogLayout(dog: widget.dog, rank: 0));
-    final List<Dog> sibilings = _getSibilings(widget.dog, allDogs);
+    final List<Dog> sibilings = _getSiblings(widget.dog, allDogs);
     for (final sibiling in sibilings) {
       dogLayouts.add(DogLayout(dog: sibiling, rank: 0));
     }
+    _processDogDown(dogsWithChildren, DogLayout(dog: widget.dog, rank: 0),
+        (processedDog) {
+      dogLayouts.add(processedDog);
+    });
+    _processDogUp(dogswithParents, DogLayout(dog: widget.dog, rank: 0),
+        (processedDog) {
+      dogLayouts.add(processedDog);
+    });
     dogLayouts.sort((a, b) => a.rank.compareTo(b.rank));
+    final byRank = <int, List<DogLayout>>{};
+    for (final dl in dogLayouts) {
+      (byRank[dl.rank] ??= []).add(dl);
+    }
+    final minRank = byRank.keys.reduce((a, b) => a < b ? a : b);
+    final maxRank = byRank.keys.reduce((a, b) => a > b ? a : b);
+
+    final rows = <Widget>[];
+    for (int r = minRank; r <= maxRank; r++) {
+      final rowDogs = byRank[r] ?? const [];
+      if (rowDogs.isEmpty) {
+        rows.add(
+            const SizedBox(height: 40)); // optional spacer for empty generation
+        continue;
+      }
+      rows.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: rowDogs
+              .map((lir) => Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: SingleDogDisplay(dog: lir.dog),
+                  ))
+              .toList(),
+        ),
+      );
+    }
     return InteractiveViewer(
-        boundaryMargin: const EdgeInsets.all(double.infinity),
-        constrained: false,
+      boundaryMargin: const EdgeInsets.all(400),
+      constrained: false,
+      minScale: 0.5,
+      maxScale: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(200),
         child: Column(
-          children: [
-            Row(
-              children: dogLayouts
-                  .map((dogLayout) => SingleDogDisplay(dog: dogLayout.dog))
-                  .toList(),
-            )
-          ],
-        ));
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: rows,
+        ),
+      ),
+    );
+  }
+
+  void _processDogDown(
+    Map<String, List<Dog>> childrenByParent,
+    DogLayout dog,
+    void Function(DogLayout) onDogProcessed, {
+    Set<String>? visited,
+  }) {
+    visited ??= <String>{};
+    if (!visited.add(dog.dog.id)) return;
+
+    final kids = childrenByParent[dog.dog.id];
+    if (kids == null) return;
+
+    for (final child in kids) {
+      final childLayout = DogLayout(dog: child, rank: dog.rank + 1);
+      onDogProcessed(childLayout);
+      _processDogDown(childrenByParent, childLayout, onDogProcessed,
+          visited: visited);
+    }
+  }
+
+  void _processDogUp(
+    Map<String, List<Dog>> parentsOfDog,
+    DogLayout dog,
+    void Function(DogLayout) onDogProcessed, {
+    Set<String>? visited,
+  }) {
+    visited ??= <String>{};
+    if (!visited.add(dog.dog.id)) return;
+
+    final parents = parentsOfDog[dog.dog.id];
+    if (parents == null) return;
+
+    for (final parent in parents) {
+      final parentLayout = DogLayout(dog: parent, rank: dog.rank - 1);
+      onDogProcessed(parentLayout);
+      _processDogUp(parentsOfDog, parentLayout, onDogProcessed,
+          visited: visited);
+    }
   }
 
   Map<String, List<Dog>> _getChildrenOfDogs(List<Dog> allDogs) {
-    Map<String, List<Dog>> toReturn = {};
-    for (Dog dog in allDogs) {
-      Set<Dog> children = {};
-      children.addAll(allDogs.where((d) {
-        if (d.fatherId == dog.id || d.motherId == dog.id) return true;
-        return false;
-      }));
-      toReturn.addAll({dog.id: children.toList()});
+    final map = <String, List<Dog>>{};
+    for (final d in allDogs) {
+      if (d.motherId != null) (map[d.motherId!] ??= []).add(d);
+      if (d.fatherId != null) (map[d.fatherId!] ??= []).add(d);
     }
-    return toReturn;
+    return map;
   }
 
   Map<String, List<Dog>> _getParentsOfDogs(List<Dog> allDogs) {
-    Map<String, List<Dog>> toReturn = {};
-    for (Dog dog in allDogs) {
-      List<Dog> parents = [];
-      if (dog.fatherId != null) {
-        final father = allDogs.getDogFromId(dog.fatherId!);
-        if (father != null) {
-          parents.add(father);
-        }
+    final byId = {for (final d in allDogs) d.id: d};
+    final map = <String, List<Dog>>{};
+    for (final d in allDogs) {
+      final parents = <Dog>[];
+      if (d.fatherId != null && byId[d.fatherId!] != null) {
+        parents.add(byId[d.fatherId!]!);
       }
-      if (dog.motherId != null) {
-        final mother = allDogs.getDogFromId(dog.motherId!);
-        if (mother != null) {
-          parents.add(mother);
-        }
+      if (d.motherId != null && byId[d.motherId!] != null) {
+        parents.add(byId[d.motherId!]!);
       }
-      toReturn.addAll({dog.id: parents});
+      map[d.id] = parents;
     }
-    return toReturn;
+    return map;
   }
 
-  List<Dog> _getSibilings(Dog dog, List<Dog> allDogs) {
-    final fatherId = dog.fatherId;
-    final motherId = dog.motherId;
-    if (motherId == null && fatherId == null) return [];
-    List<Dog> toReturn = [];
-    List<String> toCheck = [];
-    if (fatherId != null) toCheck.add(fatherId);
-    if (motherId != null) toCheck.add(motherId);
+  List<Dog> _getSiblings(Dog dog, List<Dog> allDogs) {
+    final targetParents = <String>{
+      if (dog.fatherId != null) dog.fatherId!,
+      if (dog.motherId != null) dog.motherId!,
+    };
+    if (targetParents.isEmpty) return [];
 
-    for (Dog d in allDogs) {
-      if (d.motherId == null && d.fatherId == null) continue;
-      List<String> dParents = [];
-      if (d.fatherId != null) dParents.add(d.fatherId!);
-      if (d.motherId != null) dParents.add(d.motherId!);
-      for (final dParent in dParents) {
-        if (!toCheck.contains(dParent)) continue;
+    final seen = <String>{};
+    final out = <Dog>[];
+
+    for (final d in allDogs) {
+      if (d.id == dog.id) continue;
+      final p = <String>{
+        if (d.fatherId != null) d.fatherId!,
+        if (d.motherId != null) d.motherId!,
+      };
+      if (p.isEmpty) continue;
+      // share at least one parent?
+      if (p.intersection(targetParents).isNotEmpty && seen.add(d.id)) {
+        out.add(d);
       }
-      toReturn.add(d);
     }
-    toReturn.removeWhere((res) => res.id == dog.id);
-    return toReturn;
+    return out;
   }
 }
 
