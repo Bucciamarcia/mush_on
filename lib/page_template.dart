@@ -179,6 +179,13 @@ class TemplateScreen extends ConsumerWidget {
                       "Teams history",
                     ),
                   ),
+                  ListTile(
+                    leading: const FaIcon(FontAwesomeIcons.dog),
+                    onTap: () => context.pushNamed("/pedigree"),
+                    title: const Text(
+                      "Pedigree viewer",
+                    ),
+                  ),
                   const Divider(),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
