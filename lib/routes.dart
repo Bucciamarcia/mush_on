@@ -6,7 +6,6 @@ import 'package:mush_on/kennel/add_dog/add_dog.dart';
 import 'package:mush_on/kennel/dog/dog.dart';
 import 'package:mush_on/kennel/kennel.dart';
 import 'package:mush_on/main.dart';
-import 'package:mush_on/pedigree/pedigree.dart';
 import 'package:mush_on/settings/settings.dart';
 import 'package:mush_on/stats/insights/insights.dart';
 import 'package:mush_on/tasks/tasks.dart';
@@ -101,11 +100,6 @@ final goRoutes = GoRouter(
       path: "/whiteboard",
       name: "/whiteboard",
       builder: (context, state) => const WhiteboardScreen(),
-    ),
-    GoRoute(
-      path: "/pedigree",
-      name: "/pedigree",
-      builder: (context, state) => const PedigreeScreen(),
     ),
   ],
 );
