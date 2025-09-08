@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/pedigree/models.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/kennel/dog/riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class PedigreeCanvas extends ConsumerStatefulWidget {
   final Dog dog;
@@ -13,6 +15,33 @@ class PedigreeCanvas extends ConsumerStatefulWidget {
 }
 
 class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
+  final _transformationController = TransformationController();
+  final _viewerKey = GlobalKey();
+  final _focusKey = GlobalKey();
+  bool _didCenter = false;
+
+  void _centerOnFocus() {
+    if (_didCenter) return;
+    final focusContext = _focusKey.currentContext;
+    final viewerContext = _viewerKey.currentContext;
+    if (focusContext == null || viewerContext == null) return;
+
+    final box = focusContext.findRenderObject() as RenderBox?;
+    final viewerBox = viewerContext.findRenderObject() as RenderBox?;
+    if (box == null || viewerBox == null) return;
+
+    final childGlobal = box.localToGlobal(Offset.zero);
+    final parentGlobal = viewerBox.localToGlobal(Offset.zero);
+    final offsetInParent = childGlobal - parentGlobal;
+
+    final childCenter = offsetInParent + box.size.center(Offset.zero);
+    final parentCenter = viewerBox.size.center(Offset.zero);
+    final delta = parentCenter - childCenter;
+
+    _transformationController.value =
+        Matrix4.identity()..translate(delta.dx, delta.dy);
+    _didCenter = true;
+  }
   @override
   Widget build(BuildContext context) {
     /// The usual list of all dogs.
@@ -62,6 +91,7 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
               .map((lir) => Padding(
                     padding: const EdgeInsets.all(8),
                     child: SingleDogDisplay(
+                      key: lir.dog.id == widget.dog.id ? _focusKey : null,
                       dog: lir.dog,
                       focusDog: widget.dog,
                     ),
@@ -70,18 +100,32 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
         ),
       );
     }
-    return InteractiveViewer(
-      boundaryMargin: const EdgeInsets.all(400),
-      constrained: false,
-      minScale: 0.5,
-      maxScale: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(200),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: rows,
+    WidgetsBinding.instance.addPostFrameCallback((_) => _centerOnFocus());
+    return Column(
+      children: [
+        const Text(
+          "All the sibilings (including half sibilings), parents, grandparents, children, grandchildren of this dog.",
+          maxLines: 5,
+          textAlign: TextAlign.center,
         ),
-      ),
+        Expanded(
+          child: InteractiveViewer(
+            key: _viewerKey,
+            transformationController: _transformationController,
+            boundaryMargin: const EdgeInsets.all(400),
+            constrained: false,
+            minScale: 0.5,
+            maxScale: 3,
+            child: Padding(
+              padding: const EdgeInsets.all(200),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: rows,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -176,19 +220,89 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
   }
 }
 
-class SingleDogDisplay extends StatelessWidget {
+class SingleDogDisplay extends ConsumerWidget {
   final Dog dog;
   final Dog focusDog;
   const SingleDogDisplay(
       {super.key, required this.dog, required this.focusDog});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final accountAsync = ref.watch(accountProvider);
+
+    Widget avatar = const CircleAvatar(child: Icon(Icons.pets));
+    if (accountAsync.hasValue) {
+      final imgAsync =
+          ref.watch(singleDogImageProvider(accountAsync.value ?? "", dog.id));
+      avatar = imgAsync.when(
+        data: (bytes) => CircleAvatar(
+          radius: 24,
+          backgroundImage: (bytes != null) ? MemoryImage(bytes) : null,
+          child: (bytes == null) ? const Icon(Icons.pets) : null,
+        ),
+        loading: () => const CircleAvatar(child: CircularProgressIndicator()),
+        error: (_, __) => const CircleAvatar(child: Icon(Icons.pets)),
+      );
+    }
+
+    final sexIcon = switch (dog.sex) {
+      DogSex.male => const Icon(Icons.male, size: 16),
+      DogSex.female => const Icon(Icons.female, size: 16),
+      _ => const SizedBox.shrink(),
+    };
+
+    final positions = dog.positions.getTrue();
+
     return Card(
-      color: dog.id == focusDog.id ? Colors.red[200] : null,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(dog.name),
+      elevation: 2,
+      color: dog.id == focusDog.id ? Colors.red[100] : null,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => context.pushNamed(
+          "/dog",
+          queryParameters: {"dogId": dog.id},
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              avatar,
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        dog.name,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(width: 6),
+                      sexIcon,
+                    ],
+                  ),
+                  if (dog.age != null)
+                    Text(
+                      'Age: ${dog.age}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  if (positions.isNotEmpty)
+                    Text(
+                      'Positions: ${positions.join(", ")}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
