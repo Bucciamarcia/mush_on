@@ -134,7 +134,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                 },
               ),
               Text(
-                  "Total capacity: ${widget.teamGroup.teams.fold(0, (sum, e) => sum + e.capacity)}"),
+                  "Total capacity: ${widget.teamGroup.teams.fold(0, (sum, e) => sum + e.capacity)}/${widget.customerGroupWorkspace.customers.length}"),
             ],
           ),
           const SizedBox(
