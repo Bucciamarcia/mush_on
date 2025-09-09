@@ -111,3 +111,4 @@ A cool and open source CRM for sled dog kennels.
 - Can add father and mother in dog page.
 - Pedigree view completed.
 - Added export to CSV button on stats page.
+- Added run type and total capacity in team builder.
