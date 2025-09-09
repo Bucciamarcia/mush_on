@@ -13,6 +13,8 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'grid_row_processor.dart';
 import 'sf_data_grid.dart';
 import 'constants.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:mush_on/shared/save_file/save_file.dart';
 
 class StatsMain extends ConsumerWidget {
   const StatsMain({super.key});
@@ -98,15 +100,29 @@ class StatsMain extends ConsumerWidget {
                               gridData: gridData,
                               dogs: dogsToUse,
                             );
-                            await Clipboard.setData(
-                                ClipboardData(text: csv));
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'CSV copied to clipboard. Paste it into a file (e.g., stats.csv).'),
-                                ),
-                              );
+                            // Direct download on Web or Android. Otherwise, copy to clipboard.
+                            bool saved = await saveCsvIfSupported(
+                              filename: 'stats.csv',
+                              content: csv,
+                            );
+                            if (!saved) {
+                              await Clipboard.setData(ClipboardData(text: csv));
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                        'CSV copied to clipboard. Paste it into a file (e.g., stats.csv).'),
+                                  ),
+                                );
+                              }
+                            } else {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('CSV download started/saved.'),
+                                  ),
+                                );
+                              }
                             }
                           } catch (e, s) {
                             logger.error('CSV export failed',
