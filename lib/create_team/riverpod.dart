@@ -27,6 +27,7 @@ sealed class TeamGroupWorkspace with _$TeamGroupWorkspace {
     @Default(0) double distance,
     @Default("") String notes,
     @Default([]) List<TeamWorkspace> teams,
+    @Default(TeamGroupRunType.unknown) TeamGroupRunType runType,
   }) = _TeamGroupWorkspace;
   factory TeamGroupWorkspace.fromJson(Map<String, dynamic> json) =>
       _$TeamGroupWorkspaceFromJson(json);
@@ -206,6 +207,11 @@ class CreateTeamGroup extends _$CreateTeamGroup {
   void changeNotes(String newNotes) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     state = state.whenData((data) => data.copyWith(notes: newNotes));
+  }
+
+  void changeRunType(TeamGroupRunType newRunType) {
+    ref.read(canPopTeamGroupProvider.notifier).changeState(false);
+    state = state.whenData((data) => data.copyWith(runType: newRunType));
   }
 
   void changeDate(DateTime newDate) {

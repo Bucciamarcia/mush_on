@@ -25,6 +25,7 @@ mixin _$TeamGroup {
   /// Used for stats.
   double get distance;
   String get notes;
+  TeamGroupRunType get runType;
 
   /// Create a copy of TeamGroup
   /// with the given fields replaced by the non-null parameter values.
@@ -46,16 +47,18 @@ mixin _$TeamGroup {
             (identical(other.date, date) || other.date == date) &&
             (identical(other.distance, distance) ||
                 other.distance == distance) &&
-            (identical(other.notes, notes) || other.notes == notes));
+            (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.runType, runType) || other.runType == runType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes);
+  int get hashCode =>
+      Object.hash(runtimeType, id, name, date, distance, notes, runType);
 
   @override
   String toString() {
-    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes)';
+    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, runType: $runType)';
   }
 }
 
@@ -69,7 +72,8 @@ abstract mixin class $TeamGroupCopyWith<$Res> {
       String name,
       @NonNullableTimestampConverter() DateTime date,
       double distance,
-      String notes});
+      String notes,
+      TeamGroupRunType runType});
 }
 
 /// @nodoc
@@ -89,6 +93,7 @@ class _$TeamGroupCopyWithImpl<$Res> implements $TeamGroupCopyWith<$Res> {
     Object? date = null,
     Object? distance = null,
     Object? notes = null,
+    Object? runType = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -111,6 +116,10 @@ class _$TeamGroupCopyWithImpl<$Res> implements $TeamGroupCopyWith<$Res> {
           ? _self.notes
           : notes // ignore: cast_nullable_to_non_nullable
               as String,
+      runType: null == runType
+          ? _self.runType
+          : runType // ignore: cast_nullable_to_non_nullable
+              as TeamGroupRunType,
     ));
   }
 }
@@ -211,15 +220,16 @@ extension TeamGroupPatterns on TeamGroup {
             String name,
             @NonNullableTimestampConverter() DateTime date,
             double distance,
-            String notes)?
+            String notes,
+            TeamGroupRunType runType)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _TeamGroup() when $default != null:
-        return $default(
-            _that.id, _that.name, _that.date, _that.distance, _that.notes);
+        return $default(_that.id, _that.name, _that.date, _that.distance,
+            _that.notes, _that.runType);
       case _:
         return orElse();
     }
@@ -245,14 +255,15 @@ extension TeamGroupPatterns on TeamGroup {
             String name,
             @NonNullableTimestampConverter() DateTime date,
             double distance,
-            String notes)
+            String notes,
+            TeamGroupRunType runType)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _TeamGroup():
-        return $default(
-            _that.id, _that.name, _that.date, _that.distance, _that.notes);
+        return $default(_that.id, _that.name, _that.date, _that.distance,
+            _that.notes, _that.runType);
     }
   }
 
@@ -275,14 +286,15 @@ extension TeamGroupPatterns on TeamGroup {
             String name,
             @NonNullableTimestampConverter() DateTime date,
             double distance,
-            String notes)?
+            String notes,
+            TeamGroupRunType runType)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _TeamGroup() when $default != null:
-        return $default(
-            _that.id, _that.name, _that.date, _that.distance, _that.notes);
+        return $default(_that.id, _that.name, _that.date, _that.distance,
+            _that.notes, _that.runType);
       case _:
         return null;
     }
@@ -298,7 +310,8 @@ class _TeamGroup extends TeamGroup {
       this.name = "",
       @NonNullableTimestampConverter() required this.date,
       this.distance = 0,
-      this.notes = ""})
+      this.notes = "",
+      this.runType = TeamGroupRunType.unknown})
       : super._();
   factory _TeamGroup.fromJson(Map<String, dynamic> json) =>
       _$TeamGroupFromJson(json);
@@ -323,6 +336,9 @@ class _TeamGroup extends TeamGroup {
   @override
   @JsonKey()
   final String notes;
+  @override
+  @JsonKey()
+  final TeamGroupRunType runType;
 
   /// Create a copy of TeamGroup
   /// with the given fields replaced by the non-null parameter values.
@@ -349,16 +365,18 @@ class _TeamGroup extends TeamGroup {
             (identical(other.date, date) || other.date == date) &&
             (identical(other.distance, distance) ||
                 other.distance == distance) &&
-            (identical(other.notes, notes) || other.notes == notes));
+            (identical(other.notes, notes) || other.notes == notes) &&
+            (identical(other.runType, runType) || other.runType == runType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes);
+  int get hashCode =>
+      Object.hash(runtimeType, id, name, date, distance, notes, runType);
 
   @override
   String toString() {
-    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes)';
+    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, runType: $runType)';
   }
 }
 
@@ -375,7 +393,8 @@ abstract mixin class _$TeamGroupCopyWith<$Res>
       String name,
       @NonNullableTimestampConverter() DateTime date,
       double distance,
-      String notes});
+      String notes,
+      TeamGroupRunType runType});
 }
 
 /// @nodoc
@@ -395,6 +414,7 @@ class __$TeamGroupCopyWithImpl<$Res> implements _$TeamGroupCopyWith<$Res> {
     Object? date = null,
     Object? distance = null,
     Object? notes = null,
+    Object? runType = null,
   }) {
     return _then(_TeamGroup(
       id: null == id
@@ -417,6 +437,10 @@ class __$TeamGroupCopyWithImpl<$Res> implements _$TeamGroupCopyWith<$Res> {
           ? _self.notes
           : notes // ignore: cast_nullable_to_non_nullable
               as String,
+      runType: null == runType
+          ? _self.runType
+          : runType // ignore: cast_nullable_to_non_nullable
+              as TeamGroupRunType,
     ));
   }
 }

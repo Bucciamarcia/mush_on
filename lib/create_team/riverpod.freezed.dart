@@ -26,6 +26,7 @@ mixin _$TeamGroupWorkspace {
   double get distance;
   String get notes;
   List<TeamWorkspace> get teams;
+  TeamGroupRunType get runType;
 
   /// Create a copy of TeamGroupWorkspace
   /// with the given fields replaced by the non-null parameter values.
@@ -49,17 +50,18 @@ mixin _$TeamGroupWorkspace {
             (identical(other.distance, distance) ||
                 other.distance == distance) &&
             (identical(other.notes, notes) || other.notes == notes) &&
-            const DeepCollectionEquality().equals(other.teams, teams));
+            const DeepCollectionEquality().equals(other.teams, teams) &&
+            (identical(other.runType, runType) || other.runType == runType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes,
-      const DeepCollectionEquality().hash(teams));
+      const DeepCollectionEquality().hash(teams), runType);
 
   @override
   String toString() {
-    return 'TeamGroupWorkspace(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, teams: $teams)';
+    return 'TeamGroupWorkspace(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, teams: $teams, runType: $runType)';
   }
 }
 
@@ -75,7 +77,8 @@ abstract mixin class $TeamGroupWorkspaceCopyWith<$Res> {
       @NonNullableTimestampConverter() DateTime date,
       double distance,
       String notes,
-      List<TeamWorkspace> teams});
+      List<TeamWorkspace> teams,
+      TeamGroupRunType runType});
 }
 
 /// @nodoc
@@ -97,6 +100,7 @@ class _$TeamGroupWorkspaceCopyWithImpl<$Res>
     Object? distance = null,
     Object? notes = null,
     Object? teams = null,
+    Object? runType = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -123,6 +127,10 @@ class _$TeamGroupWorkspaceCopyWithImpl<$Res>
           ? _self.teams
           : teams // ignore: cast_nullable_to_non_nullable
               as List<TeamWorkspace>,
+      runType: null == runType
+          ? _self.runType
+          : runType // ignore: cast_nullable_to_non_nullable
+              as TeamGroupRunType,
     ));
   }
 }
@@ -224,7 +232,8 @@ extension TeamGroupWorkspacePatterns on TeamGroupWorkspace {
             @NonNullableTimestampConverter() DateTime date,
             double distance,
             String notes,
-            List<TeamWorkspace> teams)?
+            List<TeamWorkspace> teams,
+            TeamGroupRunType runType)?
         $default, {
     required TResult orElse(),
   }) {
@@ -232,7 +241,7 @@ extension TeamGroupWorkspacePatterns on TeamGroupWorkspace {
     switch (_that) {
       case _TeamGroupWorkspace() when $default != null:
         return $default(_that.id, _that.name, _that.date, _that.distance,
-            _that.notes, _that.teams);
+            _that.notes, _that.teams, _that.runType);
       case _:
         return orElse();
     }
@@ -259,14 +268,15 @@ extension TeamGroupWorkspacePatterns on TeamGroupWorkspace {
             @NonNullableTimestampConverter() DateTime date,
             double distance,
             String notes,
-            List<TeamWorkspace> teams)
+            List<TeamWorkspace> teams,
+            TeamGroupRunType runType)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _TeamGroupWorkspace():
         return $default(_that.id, _that.name, _that.date, _that.distance,
-            _that.notes, _that.teams);
+            _that.notes, _that.teams, _that.runType);
     }
   }
 
@@ -290,14 +300,15 @@ extension TeamGroupWorkspacePatterns on TeamGroupWorkspace {
             @NonNullableTimestampConverter() DateTime date,
             double distance,
             String notes,
-            List<TeamWorkspace> teams)?
+            List<TeamWorkspace> teams,
+            TeamGroupRunType runType)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _TeamGroupWorkspace() when $default != null:
         return $default(_that.id, _that.name, _that.date, _that.distance,
-            _that.notes, _that.teams);
+            _that.notes, _that.teams, _that.runType);
       case _:
         return null;
     }
@@ -313,7 +324,8 @@ class _TeamGroupWorkspace implements TeamGroupWorkspace {
       @NonNullableTimestampConverter() required this.date,
       this.distance = 0,
       this.notes = "",
-      final List<TeamWorkspace> teams = const []})
+      final List<TeamWorkspace> teams = const [],
+      this.runType = TeamGroupRunType.unknown})
       : _teams = teams;
   factory _TeamGroupWorkspace.fromJson(Map<String, dynamic> json) =>
       _$TeamGroupWorkspaceFromJson(json);
@@ -347,6 +359,10 @@ class _TeamGroupWorkspace implements TeamGroupWorkspace {
     return EqualUnmodifiableListView(_teams);
   }
 
+  @override
+  @JsonKey()
+  final TeamGroupRunType runType;
+
   /// Create a copy of TeamGroupWorkspace
   /// with the given fields replaced by the non-null parameter values.
   @override
@@ -373,17 +389,18 @@ class _TeamGroupWorkspace implements TeamGroupWorkspace {
             (identical(other.distance, distance) ||
                 other.distance == distance) &&
             (identical(other.notes, notes) || other.notes == notes) &&
-            const DeepCollectionEquality().equals(other._teams, _teams));
+            const DeepCollectionEquality().equals(other._teams, _teams) &&
+            (identical(other.runType, runType) || other.runType == runType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, date, distance, notes,
-      const DeepCollectionEquality().hash(_teams));
+      const DeepCollectionEquality().hash(_teams), runType);
 
   @override
   String toString() {
-    return 'TeamGroupWorkspace(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, teams: $teams)';
+    return 'TeamGroupWorkspace(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, teams: $teams, runType: $runType)';
   }
 }
 
@@ -401,7 +418,8 @@ abstract mixin class _$TeamGroupWorkspaceCopyWith<$Res>
       @NonNullableTimestampConverter() DateTime date,
       double distance,
       String notes,
-      List<TeamWorkspace> teams});
+      List<TeamWorkspace> teams,
+      TeamGroupRunType runType});
 }
 
 /// @nodoc
@@ -423,6 +441,7 @@ class __$TeamGroupWorkspaceCopyWithImpl<$Res>
     Object? distance = null,
     Object? notes = null,
     Object? teams = null,
+    Object? runType = null,
   }) {
     return _then(_TeamGroupWorkspace(
       id: null == id
@@ -449,6 +468,10 @@ class __$TeamGroupWorkspaceCopyWithImpl<$Res>
           ? _self._teams
           : teams // ignore: cast_nullable_to_non_nullable
               as List<TeamWorkspace>,
+      runType: null == runType
+          ? _self.runType
+          : runType // ignore: cast_nullable_to_non_nullable
+              as TeamGroupRunType,
     ));
   }
 }
