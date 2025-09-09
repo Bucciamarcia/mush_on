@@ -56,7 +56,7 @@ enum TeamGroupRunType {
   race(
       backgroundColor: Colors.red,
       label: "A race. Good luck!",
-      icon: FaIcon(FontAwesomeIcons.marker)),
+      icon: FaIcon(FontAwesomeIcons.exclamation)),
   tour(
       backgroundColor: Colors.green,
       label: "A tour with customers",
