@@ -40,7 +40,8 @@ class _DateTimeDistancePickerState extends State<DateTimeDistancePicker> {
       children: [
         Flexible(
           child: TextField(
-            decoration: const InputDecoration(hint: Text("Date")),
+            decoration:
+                const InputDecoration(hint: Text("Date"), label: Text("Date")),
             readOnly: true,
             onTap: () async {
               DateTime? pickedDate = await showDatePicker(
@@ -63,7 +64,8 @@ class _DateTimeDistancePickerState extends State<DateTimeDistancePicker> {
         ),
         Flexible(
           child: TextField(
-            decoration: const InputDecoration(hint: Text("Time")),
+            decoration:
+                const InputDecoration(hint: Text("Time"), label: Text("Time")),
             readOnly: true,
             onTap: () async {
               TimeOfDay? pickedTime = await showTimePicker(
