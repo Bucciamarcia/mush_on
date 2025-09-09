@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:mush_on/create_team/create_team.dart';
+import 'package:mush_on/customer_facing/booking_page.dart';
 import 'package:mush_on/customer_management/tours/tours.dart';
 import 'package:mush_on/health/health.dart';
 import 'package:mush_on/kennel/add_dog/add_dog.dart';
@@ -101,5 +102,13 @@ final goRoutes = GoRouter(
       name: "/whiteboard",
       builder: (context, state) => const WhiteboardScreen(),
     ),
+    GoRoute(
+        path: "/booking",
+        name: "/booking",
+        builder: (context, state) {
+          String? account = state.uri.queryParameters["kennel"];
+          String? tourId = state.uri.queryParameters["tourId"];
+          return BookingPage(account: account, tourId: tourId);
+        }),
   ],
 );
