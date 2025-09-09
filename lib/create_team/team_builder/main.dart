@@ -103,32 +103,39 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
             },
           ),
           const SizedBox(height: 10),
-          DropdownMenu<TeamGroupRunType>(
-            inputDecorationTheme: InputDecorationTheme(
-              filled: true,
-              fillColor: widget.teamGroup.runType.backgroundColor
-                  .withValues(alpha: 0.4),
-              border: const OutlineInputBorder(),
-            ),
-            label: const Text("Run type"),
-            dropdownMenuEntries: TeamGroupRunType.values
-                .map((v) => DropdownMenuEntry<TeamGroupRunType>(
-                    style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(
-                            v.backgroundColor.withValues(alpha: 0.5))),
-                    value: v,
-                    label: v.name,
-                    labelWidget: Row(
-                      spacing: 10,
-                      children: [v.icon, Text(v.name)],
-                    )))
-                .toList(),
-            initialSelection: widget.teamGroup.runType,
-            onSelected: (newRunType) {
-              if (newRunType != null) {
-                notifier.changeRunType(newRunType);
-              }
-            },
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              DropdownMenu<TeamGroupRunType>(
+                inputDecorationTheme: InputDecorationTheme(
+                  filled: true,
+                  fillColor: widget.teamGroup.runType.backgroundColor
+                      .withValues(alpha: 0.4),
+                  border: const OutlineInputBorder(),
+                ),
+                label: const Text("Run type"),
+                dropdownMenuEntries: TeamGroupRunType.values
+                    .map((v) => DropdownMenuEntry<TeamGroupRunType>(
+                        style: ButtonStyle(
+                            backgroundColor: WidgetStatePropertyAll(
+                                v.backgroundColor.withValues(alpha: 0.5))),
+                        value: v,
+                        label: v.name,
+                        labelWidget: Row(
+                          spacing: 10,
+                          children: [v.icon, Text(v.name)],
+                        )))
+                    .toList(),
+                initialSelection: widget.teamGroup.runType,
+                onSelected: (newRunType) {
+                  if (newRunType != null) {
+                    notifier.changeRunType(newRunType);
+                  }
+                },
+              ),
+              Text(
+                  "Total capacity: ${widget.teamGroup.teams.fold(0, (sum, e) => sum + e.capacity)}"),
+            ],
           ),
           const SizedBox(
             width: double.infinity,
