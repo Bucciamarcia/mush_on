@@ -50,15 +50,15 @@ dependencies:
   firebase_performance: ^0.10.1+4
   icons_launcher: ^3.0.1
   font_awesome_flutter: ^10.8.0
-  syncfusion_flutter_datagrid: ^29.2.9
+  syncfusion_flutter_datagrid: ^31.1.17
   uuid: ^4.5.1
   logger: ^2.5.0
   firebase_ui_auth: ^1.16.1
   firebase_ui_oauth_google: ^1.4.1
   freezed_annotation: ^3.0.0
-  syncfusion_flutter_charts: ^29.2.11
-  syncfusion_flutter_datepicker: ^29.2.9
-  syncfusion_flutter_calendar: ^29.2.11+1
+  syncfusion_flutter_charts: ^31.1.17
+  syncfusion_flutter_datepicker: ^31.1.17
+  syncfusion_flutter_calendar: ^31.1.17
   file_picker: ^10.1.2
   firebase_storage: ^12.4.5
   path: ^1.9.1
@@ -71,6 +71,8 @@ dependencies:
   go_router: ^16.0.0
   url_strategy: ^0.3.0
   multi_image_capture: ^1.0.2
+  syncfusion_flutter_datagrid_export: ^31.1.17
+  syncfusion_flutter_xlsio: ^31.1.17
 
 icons_launcher:
   image_path: "assets/icon/icon.png"

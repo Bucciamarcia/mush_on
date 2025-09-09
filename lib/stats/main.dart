@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
+import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/dog_filter/date_range_picker/main.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:mush_on/stats/riverpod.dart';
@@ -10,6 +12,7 @@ import 'package:mush_on/teams_history/riverpod.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'grid_row_processor.dart';
 import 'sf_data_grid.dart';
+import 'constants.dart';
 
 class StatsMain extends ConsumerWidget {
   const StatsMain({super.key});
@@ -79,6 +82,48 @@ class StatsMain extends ConsumerWidget {
                         templates: null)
                   ],
                 )),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.download),
+                        label: const Text('Export CSV'),
+                        onPressed: () async {
+                          try {
+                            final dogsToUse =
+                                filteredDogs.isEmpty ? allDogs : filteredDogs;
+                            final csv = _buildCsv(
+                              gridData: gridData,
+                              dogs: dogsToUse,
+                            );
+                            await Clipboard.setData(
+                                ClipboardData(text: csv));
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'CSV copied to clipboard. Paste it into a file (e.g., stats.csv).'),
+                                ),
+                              );
+                            }
+                          } catch (e, s) {
+                            logger.error('CSV export failed',
+                                error: e, stackTrace: s);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Failed to export CSV'),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
                 Flexible(
                     child: SfDataGridClass(
                         statsDataSource: statsDataSource,
@@ -112,4 +157,59 @@ class StatsMain extends ConsumerWidget {
   }
 }
 
-class Dog {}
+String _buildCsv({
+  required GridRowProcessorResult gridData,
+  required List<Dog> dogs,
+}) {
+  final buffer = StringBuffer();
+
+  // Header row: Date + each dog name in the same order used by the grid
+  final headers = <String>['Date', ...dogs.map((d) => d.name)];
+  buffer.writeln(headers.map(_csvEscape).join(','));
+
+  // Build an index from columnName to position for quick lookup per row
+  // We know the grid rows are created as: Date, Month-Year (hidden), then dog.id for each dog in order.
+  for (final row in gridData.dataGridRows) {
+    final cells = row.getCells();
+
+    // Map for quick lookup by columnName
+    final byColumn = {for (final c in cells) c.columnName: c.value};
+
+    final dateLabel = byColumn[dateColumnName]?.toString() ?? '';
+
+    final dogValues = dogs.map((dog) {
+      final value = byColumn[dog.id];
+      if (value is num) {
+        final v = value.toDouble();
+        if (v == 0) return '';
+        return _formatDouble(v);
+      } else if (value is String) {
+        return value; // Should not happen for dog columns, but safe.
+      }
+      return '';
+    }).toList();
+
+    final rowValues = <String>[dateLabel, ...dogValues];
+    buffer.writeln(rowValues.map(_csvEscape).join(','));
+  }
+
+  return buffer.toString();
+}
+
+String _formatDouble(double value) {
+  if (value == value.truncate()) {
+    return value.toInt().toString();
+  } else {
+    return value.toString();
+  }
+}
+
+String _csvEscape(String input) {
+  final needsQuoting =
+      input.contains(',') || input.contains('"') || input.contains('\n');
+  var out = input.replaceAll('"', '""');
+  if (needsQuoting) {
+    out = '"$out"';
+  }
+  return out;
+}
