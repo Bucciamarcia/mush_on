@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/custom_converters.dart';
@@ -36,10 +38,38 @@ sealed class TeamGroup with _$TeamGroup {
     /// Used for stats.
     @Default(0) double distance,
     @Default("") String notes,
+    @Default(TeamGroupRunType.unknown) TeamGroupRunType runType,
   }) = _TeamGroup;
 
   const TeamGroup._();
 
   factory TeamGroup.fromJson(Map<String, dynamic> json) =>
       _$TeamGroupFromJson(json);
+}
+
+@JsonEnum()
+enum TeamGroupRunType {
+  training(
+      backgroundColor: Colors.yellow,
+      label: "For training the dogs for the season or a race",
+      icon: FaIcon(FontAwesomeIcons.dog)),
+  race(
+      backgroundColor: Colors.red,
+      label: "A race. Good luck!",
+      icon: FaIcon(FontAwesomeIcons.marker)),
+  tour(
+      backgroundColor: Colors.green,
+      label: "A tour with customers",
+      icon: FaIcon(FontAwesomeIcons.peopleLine)),
+  unknown(
+      backgroundColor: Colors.grey,
+      label: "Unknown run type",
+      icon: FaIcon(FontAwesomeIcons.question));
+
+  final Color backgroundColor;
+  final String label;
+  final FaIcon icon;
+
+  const TeamGroupRunType(
+      {required this.backgroundColor, required this.label, required this.icon});
 }

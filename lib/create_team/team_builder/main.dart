@@ -7,6 +7,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
+import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:mush_on/services/riverpod/dog_notes.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'select_datetime.dart';
@@ -99,6 +100,34 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
             decoration: const InputDecoration(labelText: "Group notes"),
             onChanged: (String text) {
               notifier.changeNotes(text);
+            },
+          ),
+          const SizedBox(height: 10),
+          DropdownMenu<TeamGroupRunType>(
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: widget.teamGroup.runType.backgroundColor
+                  .withValues(alpha: 0.4),
+              border: const OutlineInputBorder(),
+            ),
+            label: const Text("Run type"),
+            dropdownMenuEntries: TeamGroupRunType.values
+                .map((v) => DropdownMenuEntry<TeamGroupRunType>(
+                    style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(
+                            v.backgroundColor.withValues(alpha: 0.5))),
+                    value: v,
+                    label: v.name,
+                    labelWidget: Row(
+                      spacing: 10,
+                      children: [v.icon, Text(v.name)],
+                    )))
+                .toList(),
+            initialSelection: widget.teamGroup.runType,
+            onSelected: (newRunType) {
+              if (newRunType != null) {
+                notifier.changeRunType(newRunType);
+              }
             },
           ),
           const SizedBox(

@@ -1,5 +1,4 @@
-// Only used on Web via conditional import.
-// ignore: avoid_web_libraries_in_flutter
+// ignore: deprecated_member_use, avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
 Future<bool> saveCsvImpl({

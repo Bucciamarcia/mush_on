@@ -18,6 +18,9 @@ _TeamGroupWorkspace _$TeamGroupWorkspaceFromJson(Map<String, dynamic> json) =>
               ?.map((e) => TeamWorkspace.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      runType:
+          $enumDecodeNullable(_$TeamGroupRunTypeEnumMap, json['runType']) ??
+              TeamGroupRunType.unknown,
     );
 
 Map<String, dynamic> _$TeamGroupWorkspaceToJson(_TeamGroupWorkspace instance) =>
@@ -28,7 +31,15 @@ Map<String, dynamic> _$TeamGroupWorkspaceToJson(_TeamGroupWorkspace instance) =>
       'distance': instance.distance,
       'notes': instance.notes,
       'teams': instance.teams,
+      'runType': _$TeamGroupRunTypeEnumMap[instance.runType]!,
     };
+
+const _$TeamGroupRunTypeEnumMap = {
+  TeamGroupRunType.training: 'training',
+  TeamGroupRunType.race: 'race',
+  TeamGroupRunType.tour: 'tour',
+  TeamGroupRunType.unknown: 'unknown',
+};
 
 _TeamWorkspace _$TeamWorkspaceFromJson(Map<String, dynamic> json) =>
     _TeamWorkspace(
@@ -548,7 +559,7 @@ class _CustomerAssignProviderElement
   String? get teamGroupId => (origin as CustomerAssignProvider).teamGroupId;
 }
 
-String _$createTeamGroupHash() => r'2602aa73ebb77b9f7d2bdd9f9cc0a5599a8a6d4d';
+String _$createTeamGroupHash() => r'5bd67e9dd0add4301e51e8dfd906e604813a9258';
 
 abstract class _$CreateTeamGroup
     extends BuildlessAutoDisposeAsyncNotifier<TeamGroupWorkspace> {
