@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/models.dart';
-import 'package:mush_on/services/extensions.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
@@ -27,7 +26,7 @@ class DaysOfWeekSelected extends _$DaysOfWeekSelected {
   /// Activates a day if inactive, deactivate if active.
   void flipday(DaysOfWeekSelection dayToFlip) {
     if (state.contains(dayToFlip)) {
-      state = state.where((d) => d.name != dayToFlip.name).toList();
+      state = state.where((d) => d != dayToFlip).toList();
     } else {
       state = [dayToFlip, ...state];
     }
@@ -37,8 +36,8 @@ class DaysOfWeekSelected extends _$DaysOfWeekSelected {
 @freezed
 sealed class DateRangeSelectedValues with _$DateRangeSelectedValues {
   const factory DateRangeSelectedValues({
-    required DateTime? initialDay,
-    required DateTime? finalDay,
+    DateTime? initialDay,
+    DateTime? finalDay,
   }) = _DateRangeSelectedValues;
 }
 
