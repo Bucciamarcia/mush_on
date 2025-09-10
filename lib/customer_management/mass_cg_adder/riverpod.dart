@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/models.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
@@ -63,5 +65,53 @@ class OnSelectedDaysSelected extends _$OnSelectedDaysSelected {
 
   void changeSelected(List<DateTime> newSelection) {
     state = newSelection;
+  }
+}
+
+@riverpod
+class MassCgEditorCgName extends _$MassCgEditorCgName {
+  @override
+  String build() {
+    return "";
+  }
+
+  void change(String n) {
+    state = n;
+  }
+}
+
+@riverpod
+class MassCgEditorCgTime extends _$MassCgEditorCgTime {
+  @override
+  TimeOfDay build() {
+    return TimeOfDay.now();
+  }
+
+  void change(TimeOfDay newTime) {
+    state = newTime;
+  }
+}
+
+@riverpod
+class MassCgEditorCgCapacity extends _$MassCgEditorCgCapacity {
+  @override
+  int? build() {
+    return null;
+  }
+
+  void change(int? newCapacity) {
+    state = newCapacity;
+  }
+}
+
+@riverpod
+class MassCgEditorTourType extends _$MassCgEditorTourType {
+  @override
+  TourType? build() {
+    return null;
+  }
+
+  void change(TourType n) {
+    state = n;
   }
 }
