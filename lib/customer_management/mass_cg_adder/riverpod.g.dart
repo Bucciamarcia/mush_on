@@ -39,5 +39,22 @@ final daysOfWeekSelectedProvider = AutoDisposeNotifierProvider<
 );
 
 typedef _$DaysOfWeekSelected = AutoDisposeNotifier<List<DaysOfWeekSelection>>;
+String _$onSelectedDaysSelectedHash() =>
+    r'a1ed8cca75e723a0559db9d03b17693f39ec25b2';
+
+/// See also [OnSelectedDaysSelected].
+@ProviderFor(OnSelectedDaysSelected)
+final onSelectedDaysSelectedProvider = AutoDisposeNotifierProvider<
+    OnSelectedDaysSelected, List<DateTime>>.internal(
+  OnSelectedDaysSelected.new,
+  name: r'onSelectedDaysSelectedProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$onSelectedDaysSelectedHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$OnSelectedDaysSelected = AutoDisposeNotifier<List<DateTime>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -1,6 +1,6 @@
 enum AddCgRuleType {
   weeklyOnDays(description: "repeat every week"),
-  monthlyOnDays(description: "repeat every month");
+  onSelectedDays(description: "apply to selected days");
 
   final String description;
   const AddCgRuleType({required this.description});
