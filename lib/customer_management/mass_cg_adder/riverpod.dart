@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
@@ -114,4 +115,37 @@ class MassCgEditorTourType extends _$MassCgEditorTourType {
   void change(TourType n) {
     state = n;
   }
+}
+
+@riverpod
+
+/// Checks whether all the data has been correctly set and the mass CG can be added.
+bool canAddCgs(Ref ref) {
+  AddCgRuleType ruletype = ref.watch(selectedRuleTypeProvider);
+  switch (ruletype) {
+    case AddCgRuleType.weeklyOnDays:
+      {
+        final daysOfWeekSelected = ref.watch(daysOfWeekSelectedProvider);
+        if (daysOfWeekSelected.isEmpty) return false;
+        final dateRangeSelectedValues =
+            ref.watch(dateRangeSelectedForWeekSelectionProvider);
+        if (dateRangeSelectedValues == null) return false;
+        if (dateRangeSelectedValues.initialDay == null ||
+            dateRangeSelectedValues.finalDay == null) {
+          return false;
+        }
+      }
+    case AddCgRuleType.onSelectedDays:
+      {
+        List<DateTime> datesSelected =
+            ref.watch(onSelectedDaysSelectedProvider);
+        if (datesSelected.isEmpty) return false;
+      }
+  }
+  if (ref.watch(massCgEditorCgNameProvider).isEmpty ||
+      ref.watch(massCgEditorCgCapacityProvider) == null ||
+      ref.watch(massCgEditorTourTypeProvider) == null) {
+    return false;
+  }
+  return true;
 }

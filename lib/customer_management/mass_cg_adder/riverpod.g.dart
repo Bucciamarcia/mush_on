@@ -6,6 +6,24 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
+String _$canAddCgsHash() => r'516195b8b6ddc96105a6f7ff39c6403a5d63136f';
+
+/// Checks whether all the data has been correctly set and the mass CG can be added.
+///
+/// Copied from [canAddCgs].
+@ProviderFor(canAddCgs)
+final canAddCgsProvider = AutoDisposeProvider<bool>.internal(
+  canAddCgs,
+  name: r'canAddCgsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$canAddCgsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CanAddCgsRef = AutoDisposeProviderRef<bool>;
 String _$selectedRuleTypeHash() => r'c3c663735b603a7372e21a5ce7c7b3eb961fbb5a';
 
 /// See also [SelectedRuleType].
