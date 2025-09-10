@@ -48,6 +48,7 @@ AGENTS.md
 /dev/integration_tests/**/xcuserdata
 /dev/integration_tests/**/Pods
 /packages/flutter/coverage/
+/android/app/google-services.json
 version
 analysis_benchmark.json
 

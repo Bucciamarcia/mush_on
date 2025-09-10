@@ -5,8 +5,6 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:intl/intl.dart';
-
-import '../create_team/riverpod.dart';
 import '../riverpod.dart';
 import 'alert_editors/customer_group.dart';
 import 'repository.dart';
@@ -33,7 +31,6 @@ class CustomerGroupViewer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final account = ref.watch(accountProvider).value ?? "";
     final customerGroupAsync = ref.watch(
       CustomerGroupByIdProvider(customerGroupId),
     );
@@ -61,7 +58,6 @@ class CustomerGroupViewer extends ConsumerWidget {
         if (tour != null) {
           pricings = ref.watch(tourTypePricesProvider(tour.id)).value;
         }
-        final customerRepo = CustomerManagementRepository(account: account);
         final colorScheme = Theme.of(context).colorScheme;
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -94,26 +90,8 @@ class CustomerGroupViewer extends ConsumerWidget {
                       ElevatedButton.icon(
                         onPressed: () => showDialog(
                           context: context,
-                          builder: (_) => CustomerGroupEditorAlert(
-                            onCustomerGroupDeleted: () => customerRepo
-                                .deleteCustomerGroup(customerGroup.id)
-                                .catchError(
-                              (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    errorSnackBar(context,
-                                        "Failed to delete customer group."),
-                                  );
-                                }
-                              },
-                            ),
+                          builder: (_) => CustomerGroupEditor(
                             customerGroup: customerGroup,
-                            onCgEdited: (ncg) async {
-                              customerRepo.setCustomerGroup(ncg);
-                              ref.invalidate(customerGroupsByDayProvider);
-                              ref.invalidate(futureCustomerGroupsProvider);
-                              ref.invalidate(teamGroupByIdProvider);
-                            },
                           ),
                         ),
                         icon: const Icon(Icons.edit, size: 18),
@@ -386,7 +364,8 @@ class CustomerGroupViewer extends ConsumerWidget {
       error: (e, s) {
         BasicLogger().error("Error loading customer group: $customerGroupId",
             error: e, stackTrace: s);
-        return const Center(child: Text("Error: couldn't load the customer group."));
+        return const Center(
+            child: Text("Error: couldn't load the customer group."));
       },
       loading: () => const Center(
         child: SizedBox.square(
