@@ -39,8 +39,8 @@ class MassAddCg extends ConsumerWidget {
     switch (rule) {
       case AddCgRuleType.weeklyOnDays:
         return const DayOfWeekSelector();
-      case AddCgRuleType.monthlyOnDays:
-        return const DaysOfMonthSelector();
+      case AddCgRuleType.onSelectedDays:
+        return const SelectedDaysSelector();
     }
   }
 }

@@ -30,3 +30,15 @@ class DaysOfWeekSelected extends _$DaysOfWeekSelected {
     }
   }
 }
+
+@riverpod
+class OnSelectedDaysSelected extends _$OnSelectedDaysSelected {
+  @override
+  List<DateTime> build() {
+    return [];
+  }
+
+  void changeSelected(List<DateTime> newSelection) {
+    state = newSelection;
+  }
+}
