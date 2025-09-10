@@ -239,8 +239,7 @@ extension DateRangeSelectedValuesPatterns on DateRangeSelectedValues {
 /// @nodoc
 
 class _DateRangeSelectedValues implements DateRangeSelectedValues {
-  const _DateRangeSelectedValues(
-      {required this.initialDay, required this.finalDay});
+  const _DateRangeSelectedValues({this.initialDay, this.finalDay});
 
   @override
   final DateTime? initialDay;

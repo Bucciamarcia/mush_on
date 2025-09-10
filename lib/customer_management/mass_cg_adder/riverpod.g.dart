@@ -23,7 +23,7 @@ final selectedRuleTypeProvider =
 
 typedef _$SelectedRuleType = AutoDisposeNotifier<AddCgRuleType>;
 String _$daysOfWeekSelectedHash() =>
-    r'29c9631d3b32e89abf5dbbd07f7c23a145852f13';
+    r'd0d574d8f98c234cb90b85286332500c4c6ec6a8';
 
 /// See also [DaysOfWeekSelected].
 @ProviderFor(DaysOfWeekSelected)

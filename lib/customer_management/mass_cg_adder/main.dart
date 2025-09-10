@@ -23,6 +23,7 @@ class MassAddCg extends ConsumerWidget {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         const Wrap(
+          alignment: WrapAlignment.center,
           crossAxisAlignment: WrapCrossAlignment.center,
           spacing: 15,
           children: [
