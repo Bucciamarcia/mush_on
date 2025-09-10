@@ -105,13 +105,19 @@ class MassAddCg extends ConsumerWidget {
         ElevatedButton(
           onPressed: canAddCgs ? () {} : null,
           style: ButtonStyle(
-            textStyle: WidgetStateProperty.all(TextStyle(
-                color: canAddCgs
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : Colors.black)),
-            backgroundColor: WidgetStateProperty.all(canAddCgs
-                ? Theme.of(context).colorScheme.primary
-                : Colors.grey[400]),
+            foregroundColor: WidgetStateProperty.all(
+              canAddCgs
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Colors.black,
+            ),
+            backgroundColor: WidgetStateProperty.all(
+              canAddCgs
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey[400],
+            ),
+            textStyle: WidgetStateProperty.all(
+              const TextStyle(fontSize: 16),
+            ),
           ),
           child: const Text("Add Customer Groups"),
         )

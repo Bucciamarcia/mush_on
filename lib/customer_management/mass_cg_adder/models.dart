@@ -7,14 +7,15 @@ enum AddCgRuleType {
 }
 
 enum DaysOfWeekSelection {
-  monday(letter: "Mo"),
-  tuesday(letter: "Tu"),
-  wednesday(letter: "We"),
-  thursday(letter: "Th"),
-  friday(letter: "Fr"),
-  saturday(letter: "Sa"),
-  sunday(letter: "Su");
+  monday(letter: "Mo", weekday: 1),
+  tuesday(letter: "Tu", weekday: 2),
+  wednesday(letter: "We", weekday: 3),
+  thursday(letter: "Th", weekday: 4),
+  friday(letter: "Fr", weekday: 5),
+  saturday(letter: "Sa", weekday: 6),
+  sunday(letter: "Su", weekday: 7);
 
   final String letter;
-  const DaysOfWeekSelection({required this.letter});
+  final int weekday;
+  const DaysOfWeekSelection({required this.letter, required this.weekday});
 }
