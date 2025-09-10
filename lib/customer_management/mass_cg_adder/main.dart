@@ -1,16 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/customer_management/mass_cg_adder/elements/days_of_month_selector.dart';
+import 'package:mush_on/customer_management/mass_cg_adder/models.dart';
+import 'package:mush_on/customer_management/mass_cg_adder/riverpod.dart';
 
-class MassAddCg extends ConsumerStatefulWidget {
+import 'elements/days_of_week_selector.dart';
+import 'elements/rule_type_dropdown_selector.dart';
+
+class MassAddCg extends ConsumerWidget {
   const MassAddCg({super.key});
 
   @override
-  ConsumerState<MassAddCg> createState() => _MassAddCgState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SingleChildScrollView(
+        child: Column(
+      spacing: 25,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          "Select the repeat rule",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        const Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 15,
+          children: [
+            Text("This rule should"),
+            RuleTypeDropdownSelector(),
+          ],
+        ),
+        _pickSelectorBasedOnRule(ref.watch(selectedRuleTypeProvider)),
+      ],
+    ));
+  }
 
-class _MassAddCgState extends ConsumerState<MassAddCg> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+  Widget _pickSelectorBasedOnRule(AddCgRuleType rule) {
+    switch (rule) {
+      case AddCgRuleType.weeklyOnDays:
+        return const DayOfWeekSelector();
+      case AddCgRuleType.monthlyOnDays:
+        return const DaysOfMonthSelector();
+    }
   }
 }
