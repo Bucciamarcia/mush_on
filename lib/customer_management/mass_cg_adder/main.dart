@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/elements/days_of_month_selector.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/models.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/riverpod.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
+import 'package:mush_on/customer_management/tours/riverpod.dart';
 
 import 'elements/days_of_week_selector.dart';
 import 'elements/rule_type_dropdown_selector.dart';
@@ -12,6 +15,8 @@ class MassAddCg extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    List<TourType> tours =
+        ref.watch(allTourTypesProvider(showArchived: false)).value ?? [];
     return SingleChildScrollView(
         child: Column(
       spacing: 25,
@@ -32,6 +37,70 @@ class MassAddCg extends ConsumerWidget {
           ],
         ),
         _pickSelectorBasedOnRule(ref.watch(selectedRuleTypeProvider)),
+        TextField(
+          onChanged: (s) {
+            ref.read(massCgEditorCgNameProvider.notifier).change(s);
+          },
+          decoration: InputDecoration(
+            labelText: "Customer Group Name",
+            hintText: "Internal name (not shown to customers)",
+            prefixIcon: const Icon(Icons.edit),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            filled: true,
+          ),
+        ),
+        Text("Selected time: ${ref.watch(massCgEditorCgTimeProvider)}"),
+        ElevatedButton(
+            onPressed: () async {
+              final TimeOfDay? newTime = await showTimePicker(
+                  context: context,
+                  initialTime: ref.read(massCgEditorCgTimeProvider));
+              if (newTime != null) {
+                ref.read(massCgEditorCgTimeProvider.notifier).change(newTime);
+              }
+            },
+            child: const Text("Pick time")),
+        TextField(
+          onChanged: (v) => ref
+              .read(massCgEditorCgCapacityProvider.notifier)
+              .change(int.tryParse(v)),
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+          decoration: InputDecoration(
+            labelText: "Max Capacity",
+            hintText: "Maximum number of people in this group",
+            prefixIcon: const Icon(Icons.people),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            filled: true,
+          ),
+        ),
+        DropdownMenu<TourType>(
+          label: const Text("Select tour type"),
+          expandedInsets: EdgeInsets.zero,
+          inputDecorationTheme: InputDecorationTheme(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            filled: true,
+          ),
+          onSelected: (s) {
+            if (s != null) {
+              ref.read(massCgEditorTourTypeProvider.notifier).change(s);
+            }
+          },
+          dropdownMenuEntries: tours
+              .map(
+                (tour) => DropdownMenuEntry(
+                    value: tour, label: "${tour.name} - ${tour.distance} km"),
+              )
+              .toList(),
+        ),
       ],
     ));
   }

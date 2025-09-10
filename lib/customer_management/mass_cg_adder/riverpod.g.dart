@@ -74,5 +74,73 @@ final onSelectedDaysSelectedProvider = AutoDisposeNotifierProvider<
 );
 
 typedef _$OnSelectedDaysSelected = AutoDisposeNotifier<List<DateTime>>;
+String _$massCgEditorCgNameHash() =>
+    r'8772832ef54967eb666aaac997d86aadb4138ebe';
+
+/// See also [MassCgEditorCgName].
+@ProviderFor(MassCgEditorCgName)
+final massCgEditorCgNameProvider =
+    AutoDisposeNotifierProvider<MassCgEditorCgName, String>.internal(
+  MassCgEditorCgName.new,
+  name: r'massCgEditorCgNameProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$massCgEditorCgNameHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$MassCgEditorCgName = AutoDisposeNotifier<String>;
+String _$massCgEditorCgTimeHash() =>
+    r'8ca8dbec9734347a02a9fd6f85ba87456492cf18';
+
+/// See also [MassCgEditorCgTime].
+@ProviderFor(MassCgEditorCgTime)
+final massCgEditorCgTimeProvider =
+    AutoDisposeNotifierProvider<MassCgEditorCgTime, TimeOfDay>.internal(
+  MassCgEditorCgTime.new,
+  name: r'massCgEditorCgTimeProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$massCgEditorCgTimeHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$MassCgEditorCgTime = AutoDisposeNotifier<TimeOfDay>;
+String _$massCgEditorCgCapacityHash() =>
+    r'0850edc72f81b53f87659a3f3bfa6550241447eb';
+
+/// See also [MassCgEditorCgCapacity].
+@ProviderFor(MassCgEditorCgCapacity)
+final massCgEditorCgCapacityProvider =
+    AutoDisposeNotifierProvider<MassCgEditorCgCapacity, int?>.internal(
+  MassCgEditorCgCapacity.new,
+  name: r'massCgEditorCgCapacityProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$massCgEditorCgCapacityHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$MassCgEditorCgCapacity = AutoDisposeNotifier<int?>;
+String _$massCgEditorTourTypeHash() =>
+    r'805a18b53fa12a5aa59bdc3de3a42424b8085e28';
+
+/// See also [MassCgEditorTourType].
+@ProviderFor(MassCgEditorTourType)
+final massCgEditorTourTypeProvider =
+    AutoDisposeNotifierProvider<MassCgEditorTourType, TourType?>.internal(
+  MassCgEditorTourType.new,
+  name: r'massCgEditorTourTypeProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$massCgEditorTourTypeHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$MassCgEditorTourType = AutoDisposeNotifier<TourType?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
