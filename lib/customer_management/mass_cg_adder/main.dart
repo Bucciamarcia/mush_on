@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/elements/days_of_month_selector.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/models.dart';
+import 'package:mush_on/customer_management/mass_cg_adder/repository.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/riverpod.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 
 import 'elements/days_of_week_selector.dart';
 import 'elements/rule_type_dropdown_selector.dart';
@@ -16,6 +19,7 @@ class MassAddCg extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     bool canAddCgs = ref.watch(canAddCgsProvider);
+    String account = ref.watch(accountProvider).value ?? "";
     List<TourType> tours =
         ref.watch(allTourTypesProvider(showArchived: false)).value ?? [];
     return SingleChildScrollView(
@@ -103,7 +107,42 @@ class MassAddCg extends ConsumerWidget {
               .toList(),
         ),
         ElevatedButton(
-          onPressed: canAddCgs ? () {} : null,
+          onPressed: canAddCgs
+              ? () async {
+                  final repo = MassCgAdderRepository(
+                    ruleType: ref.read(selectedRuleTypeProvider),
+                    daysOfWeekSelected: ref.read(daysOfWeekSelectedProvider),
+                    dateRangeSelection:
+                        ref.read(dateRangeSelectedForWeekSelectionProvider),
+                    onSelectedDaysSelected:
+                        ref.read(onSelectedDaysSelectedProvider),
+                    cgName: ref.read(massCgEditorCgNameProvider),
+                    time: ref.read(massCgEditorCgTimeProvider),
+                    maxCapacity: ref.read(massCgEditorCgCapacityProvider)!,
+                    tourType: ref.read(massCgEditorTourTypeProvider)!,
+                    account: account,
+                  );
+                  try {
+                    await repo.add();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(
+                              context, "All Customer Groups added"));
+                      Navigator.of(context).pop();
+                    }
+                  } on TooManyDatesException catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(errorSnackBar(context, e.toString()));
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "Error: couldn't add batch"));
+                    }
+                  }
+                }
+              : null,
           style: ButtonStyle(
             foregroundColor: WidgetStateProperty.all(
               canAddCgs
