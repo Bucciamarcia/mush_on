@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mush_on/general/loading_overlay.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
 import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/shared/loading_overlay.dart';
 
 // TODO: Possibilty to add multiple dogs.
 // TODO: Add other fields to add dog.

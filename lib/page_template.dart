@@ -58,6 +58,10 @@ class TemplateScreen extends ConsumerWidget {
               child: const Icon(Icons.people_alt),
               label: "Add Customer Group",
               onTap: () => context.pushNamed("/add_customer_group")),
+          SpeedDialChild(
+              child: const FaIcon(FontAwesomeIcons.calendarPlus),
+              label: "Mass add Customer Groups",
+              onTap: () => context.pushNamed("/mass_add_cg"))
         ],
       );
     }
