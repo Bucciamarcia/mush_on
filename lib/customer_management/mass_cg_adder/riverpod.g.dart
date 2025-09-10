@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$canAddCgsHash() => r'516195b8b6ddc96105a6f7ff39c6403a5d63136f';
+String _$canAddCgsHash() => r'2dac84deaaf66bcdb6f78d7a51132088e981acda';
 
 /// Checks whether all the data has been correctly set and the mass CG can be added.
 ///

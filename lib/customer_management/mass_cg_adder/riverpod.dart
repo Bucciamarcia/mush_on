@@ -121,27 +121,31 @@ class MassCgEditorTourType extends _$MassCgEditorTourType {
 
 /// Checks whether all the data has been correctly set and the mass CG can be added.
 bool canAddCgs(Ref ref) {
-  AddCgRuleType ruletype = ref.watch(selectedRuleTypeProvider);
+  final ruletype = ref.watch(selectedRuleTypeProvider);
+
   switch (ruletype) {
     case AddCgRuleType.weeklyOnDays:
       {
         final daysOfWeekSelected = ref.watch(daysOfWeekSelectedProvider);
         if (daysOfWeekSelected.isEmpty) return false;
-        final dateRangeSelectedValues =
-            ref.watch(dateRangeSelectedForWeekSelectionProvider);
-        if (dateRangeSelectedValues == null) return false;
-        if (dateRangeSelectedValues.initialDay == null ||
-            dateRangeSelectedValues.finalDay == null) {
+
+        final range = ref.watch(dateRangeSelectedForWeekSelectionProvider);
+        if (range == null ||
+            range.initialDay == null ||
+            range.finalDay == null) {
           return false;
         }
+        if (range.initialDay!.isAfter(range.finalDay!)) return false;
+        break;
       }
     case AddCgRuleType.onSelectedDays:
       {
-        List<DateTime> datesSelected =
-            ref.watch(onSelectedDaysSelectedProvider);
+        final datesSelected = ref.watch(onSelectedDaysSelectedProvider);
         if (datesSelected.isEmpty) return false;
+        break;
       }
   }
+
   if (ref.watch(massCgEditorCgNameProvider).isEmpty ||
       ref.watch(massCgEditorCgCapacityProvider) == null ||
       ref.watch(massCgEditorTourTypeProvider) == null) {
