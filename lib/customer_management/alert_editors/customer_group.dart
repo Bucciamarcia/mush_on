@@ -11,30 +11,27 @@ import 'package:mush_on/customer_management/repository.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
+import 'package:mush_on/page_template.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
 import 'package:mush_on/services/models/teamgroup.dart';
 import 'package:uuid/uuid.dart';
 
-class CustomerGroupEditorAlert extends ConsumerStatefulWidget {
-  final Function(CustomerGroup) onCgEdited;
-  final Function() onCustomerGroupDeleted;
+class CustomerGroupEditor extends ConsumerStatefulWidget {
   final CustomerGroup? customerGroup;
-  const CustomerGroupEditorAlert({
+  const CustomerGroupEditor({
     super.key,
-    required this.onCgEdited,
-    required this.onCustomerGroupDeleted,
     this.customerGroup,
   });
 
   @override
-  ConsumerState<CustomerGroupEditorAlert> createState() =>
+  ConsumerState<CustomerGroupEditor> createState() =>
       _CustomerGroupEditorAlertState();
 }
 
 class _CustomerGroupEditorAlertState
-    extends ConsumerState<CustomerGroupEditorAlert> {
+    extends ConsumerState<CustomerGroupEditor> {
   late String id;
   late TextEditingController nameController;
   late DateTime dateTime;
@@ -65,6 +62,8 @@ class _CustomerGroupEditorAlertState
 
   @override
   Widget build(BuildContext context) {
+    final account = ref.watch(accountProvider).value ?? "";
+    final customerRepo = CustomerManagementRepository(account: account);
     List<TourType> tours =
         ref.watch(allTourTypesProvider(showArchived: false)).value ?? [];
 
@@ -102,32 +101,13 @@ class _CustomerGroupEditorAlertState
       return false;
     });
     var colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog.adaptive(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      scrollable: true,
-      title: Row(
-        children: [
-          Icon(Icons.groups, color: colorScheme.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              widget.customerGroup == null
-                  ? "Add Customer Group"
-                  : "Edit Customer Group",
-              overflow: TextOverflow.visible,
-            ),
-          ),
-        ],
-      ),
-      content: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 24,
-            children: [
+    return TemplateScreen(
+      title: "Customer Group Editor",
+      child: Container(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            child:
+                Column(mainAxisSize: MainAxisSize.min, spacing: 24, children: [
               TextField(
                 controller: nameController,
                 onChanged: (s) {
@@ -383,7 +363,7 @@ class _CustomerGroupEditorAlertState
                           String tgName = "";
                           await showDialog(
                             context: context,
-                            builder: (_) => AddTeamGroupInCg(
+                            builder: (dialogContext) => AddTeamGroupInCg(
                               onTgAdded: (v) => tgName = v,
                             ),
                           );
@@ -409,9 +389,11 @@ class _CustomerGroupEditorAlertState
                               ref,
                             ).catchError(
                               (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(context, "Error!"),
-                                );
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    errorSnackBar(context, "Error!"),
+                                  );
+                                }
                               },
                             );
                             setState(() {
@@ -432,8 +414,8 @@ class _CustomerGroupEditorAlertState
                 return Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: scheme.surfaceContainerHighest
-                        .withValues(alpha: 0.3),
+                    color:
+                        scheme.surfaceContainerHighest.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: scheme.outline.withValues(alpha: 0.2),
@@ -468,14 +450,13 @@ class _CustomerGroupEditorAlertState
                           child: Row(
                             children: [
                               Icon(Icons.info_outline,
-                                  size: 18,
-                                  color: scheme.onSurfaceVariant),
+                                  size: 18, color: scheme.onSurfaceVariant),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   "No bookings for this customer group",
-                                  style: TextStyle(
-                                      color: scheme.onSurfaceVariant),
+                                  style:
+                                      TextStyle(color: scheme.onSurfaceVariant),
                                 ),
                               ),
                             ],
@@ -495,8 +476,7 @@ class _CustomerGroupEditorAlertState
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 side: BorderSide(
-                                  color: scheme.outline
-                                      .withValues(alpha: 0.2),
+                                  color: scheme.outline.withValues(alpha: 0.2),
                                 ),
                               ),
                               child: ListTile(
@@ -504,8 +484,7 @@ class _CustomerGroupEditorAlertState
                                     horizontal: 12, vertical: 4),
                                 leading: CircleAvatar(
                                   backgroundColor: scheme.primaryContainer,
-                                  foregroundColor:
-                                      scheme.onPrimaryContainer,
+                                  foregroundColor: scheme.onPrimaryContainer,
                                   child: const Icon(Icons.event),
                                 ),
                                 title: Text(
@@ -513,8 +492,7 @@ class _CustomerGroupEditorAlertState
                                   style: const TextStyle(
                                       fontWeight: FontWeight.w600),
                                 ),
-                                subtitle:
-                                    Text("${customers.length} people"),
+                                subtitle: Text("${customers.length} people"),
                                 trailing: const Icon(Icons.chevron_right),
                                 onTap: () => showDialog(
                                   context: context,
@@ -542,25 +520,24 @@ class _CustomerGroupEditorAlertState
                                           onBookingDeleted: () {
                                             repo.deleteBooking(booking.id);
                                             setState(() {
-                                              bookings.removeWhere((bb) =>
-                                                  bb.id == booking.id);
+                                              bookings.removeWhere(
+                                                  (bb) => bb.id == booking.id);
                                             });
                                           },
-                                          selectedCustomerGroup:
-                                              widget.customerGroup ??
-                                                  CustomerGroup(
-                                                    id: id,
-                                                    datetime: dateTime,
-                                                    name: nameController.text,
-                                                    tourTypeId:
-                                                        selectedTour?.id,
-                                                    maxCapacity: int.tryParse(
-                                                            maxCapacityController
-                                                                .text) ??
-                                                        0,
-                                                    teamGroupId:
-                                                        selectedTeamGroupId,
-                                                  ),
+                                          selectedCustomerGroup: widget
+                                                  .customerGroup ??
+                                              CustomerGroup(
+                                                id: id,
+                                                datetime: dateTime,
+                                                name: nameController.text,
+                                                tourTypeId: selectedTour?.id,
+                                                maxCapacity: int.tryParse(
+                                                        maxCapacityController
+                                                            .text) ??
+                                                    0,
+                                                teamGroupId:
+                                                    selectedTeamGroupId,
+                                              ),
                                         );
                                       },
                                       error: (e, s) {
@@ -590,28 +567,26 @@ class _CustomerGroupEditorAlertState
                                     onBookingEdited: (b) async {
                                       await repo.setBooking(b);
                                       setState(() {
-                                        bookings.removeWhere(
-                                            (bb) => bb.id == b.id);
+                                        bookings
+                                            .removeWhere((bb) => bb.id == b.id);
                                         bookings.add(b);
                                       });
                                     },
                                     onCustomersEdited: (cs, id) async =>
                                         await repo.setCustomers(cs, id),
                                     onBookingDeleted: () => null,
-                                    selectedCustomerGroup:
-                                        widget.customerGroup ??
-                                            CustomerGroup(
-                                              id: id,
-                                              datetime: dateTime,
-                                              name: nameController.text,
-                                              tourTypeId: selectedTour?.id,
-                                              maxCapacity: int.tryParse(
-                                                      maxCapacityController
-                                                          .text) ??
-                                                  0,
-                                              teamGroupId:
-                                                  selectedTeamGroupId,
-                                            ),
+                                    selectedCustomerGroup: widget
+                                            .customerGroup ??
+                                        CustomerGroup(
+                                          id: id,
+                                          datetime: dateTime,
+                                          name: nameController.text,
+                                          tourTypeId: selectedTour?.id,
+                                          maxCapacity: int.tryParse(
+                                                  maxCapacityController.text) ??
+                                              0,
+                                          teamGroupId: selectedTeamGroupId,
+                                        ),
                                   );
                                 },
                                 error: (e, s) {
@@ -630,83 +605,113 @@ class _CustomerGroupEditorAlertState
                   ),
                 );
               }),
-            ],
-          ),
-        ),
-      ),
-      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            "Cancel",
-            style: TextStyle(color: colorScheme.error),
-          ),
-        ),
-        TextButton(
-          onPressed: () => showDialog(
-            context: context,
-            builder: (_) => AlertDialog.adaptive(
-              title: const Text("Are you sure?"),
-              content:
-                  const Text("Are you sure you want to delete this customer group?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(
-                    "Nevermind",
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.error),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    widget.onCustomerGroupDeleted();
-                    Navigator.of(context).popUntil(
-                      ModalRoute.withName("/client_management"),
-                    );
-                  },
-                  child: const Text("Delete"),
-                ),
-              ],
-            ),
-          ),
-          child: const Text("Delete"),
-        ),
-        FilledButton.icon(
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          onPressed: nameController.text.isNotEmpty && selectedTour != null
-              ? () {
-                  widget.onCgEdited(
-                    CustomerGroup(
-                      tourTypeId: selectedTour!.id,
-                      id: id,
-                      datetime: dateTime,
-                      name: nameController.text,
-                      teamGroupId: selectedTeamGroupId,
-                      maxCapacity:
-                          int.tryParse(maxCapacityController.text) ?? 0,
+              Row(
+                children: [
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  );
-                  Navigator.of(context).pop();
-                }
-              : null,
-          icon: const Icon(Icons.save),
-          label:
-              Text(widget.customerGroup == null ? "Add Group" : "Save Changes"),
-        ),
-      ],
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(color: colorScheme.error),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog.adaptive(
+                        title: const Text("Are you sure?"),
+                        content: const Text(
+                            "Are you sure you want to delete this customer group?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text(
+                              "Nevermind",
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              if (widget.customerGroup != null) {
+                                try {
+                                  await customerRepo.deleteCustomerGroup(
+                                      widget.customerGroup!.id);
+                                } catch (e, s) {
+                                  BasicLogger().error("Couldn't delete cg.",
+                                      error: e, stackTrace: s);
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                        errorSnackBar(context,
+                                            "Couldn't delete customer group"));
+                                  }
+                                }
+                              }
+                              if (context.mounted) {
+                                Navigator.of(context).popUntil(
+                                  ModalRoute.withName("/client_management"),
+                                );
+                              }
+                            },
+                            child: const Text("Delete"),
+                          ),
+                        ],
+                      ),
+                    ),
+                    child: const Text("Delete"),
+                  ),
+                  FilledButton.icon(
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: nameController.text.isNotEmpty &&
+                            selectedTour != null
+                        ? () async {
+                            try {
+                              await customerRepo.setCustomerGroup(
+                                CustomerGroup(
+                                  tourTypeId: selectedTour!.id,
+                                  id: id,
+                                  datetime: dateTime,
+                                  name: nameController.text,
+                                  teamGroupId: selectedTeamGroupId,
+                                  maxCapacity: int.tryParse(
+                                          maxCapacityController.text) ??
+                                      0,
+                                ),
+                              );
+                            } catch (e, s) {
+                              BasicLogger().error("Couldn't save cg.",
+                                  error: e, stackTrace: s);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    errorSnackBar(context,
+                                        "Couldn't save customer group"));
+                              }
+                              return;
+                            }
+                            if (context.mounted) Navigator.of(context).pop();
+                          }
+                        : null,
+                    icon: const Icon(Icons.save),
+                    label: Text(widget.customerGroup == null
+                        ? "Add Group"
+                        : "Save Changes"),
+                  ),
+                ],
+              ),
+            ]),
+          )),
     );
   }
 }
@@ -734,10 +739,12 @@ class _AddTeamGroupInCgState extends State<AddTeamGroupInCg> {
       title: const Text("Add Team Group"),
       content: Column(
         children: [
-          const Text("Create a new Team Group and assign this Customer Group to it."),
+          const Text(
+              "Create a new Team Group and assign this Customer Group to it."),
           TextField(
             controller: controller,
-            decoration: const InputDecoration(hint: Text("Name of the Team Group")),
+            decoration:
+                const InputDecoration(hint: Text("Name of the Team Group")),
           ),
         ],
       ),

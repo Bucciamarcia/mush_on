@@ -10,9 +10,7 @@ import 'package:mush_on/kennel/main.dart';
 import 'package:mush_on/login_screen/login_screen.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'customer_management/alert_editors/customer_group.dart';
 import 'customer_management/main.dart';
-import 'customer_management/repository.dart';
 import 'riverpod.dart';
 
 class TemplateScreen extends ConsumerWidget {
@@ -52,8 +50,6 @@ class TemplateScreen extends ConsumerWidget {
       );
     }
     if (child is ClientManagementMainScreen) {
-      String account = ref.watch(accountProvider).value ?? "";
-      final customerRepo = CustomerManagementRepository(account: account);
       return SpeedDial(
         animatedIcon: AnimatedIcons.menu_close,
         backgroundColor: Colors.blue,
@@ -61,28 +57,7 @@ class TemplateScreen extends ConsumerWidget {
           SpeedDialChild(
               child: const Icon(Icons.people_alt),
               label: "Add Customer Group",
-              onTap: () => showDialog(
-                    context: context,
-                    builder: (_) => CustomerGroupEditorAlert(
-                        onCustomerGroupDeleted: () {},
-                        onCgEdited: (newCustomerGroup) async {
-                          try {
-                            await customerRepo
-                                .setCustomerGroup(newCustomerGroup);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  confirmationSnackbar(context,
-                                      "Customer group added successfully"));
-                            }
-                          } catch (e) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(
-                                      context, "Couldn't add customer group"));
-                            }
-                          }
-                        }),
-                  ))
+              onTap: () => context.pushNamed("/add_customer_group")),
         ],
       );
     }
