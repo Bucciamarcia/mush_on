@@ -1,6 +1,9 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/models.dart';
+import 'package:mush_on/services/extensions.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
+part 'riverpod.freezed.dart';
 
 @riverpod
 class SelectedRuleType extends _$SelectedRuleType {
@@ -28,6 +31,27 @@ class DaysOfWeekSelected extends _$DaysOfWeekSelected {
     } else {
       state = [dayToFlip, ...state];
     }
+  }
+}
+
+@freezed
+sealed class DateRangeSelectedValues with _$DateRangeSelectedValues {
+  const factory DateRangeSelectedValues({
+    required DateTime? initialDay,
+    required DateTime? finalDay,
+  }) = _DateRangeSelectedValues;
+}
+
+@riverpod
+class DateRangeSelectedForWeekSelection
+    extends _$DateRangeSelectedForWeekSelection {
+  @override
+  DateRangeSelectedValues? build() {
+    return null;
+  }
+
+  void change(DateRangeSelectedValues? newValue) {
+    state = newValue;
   }
 }
 
