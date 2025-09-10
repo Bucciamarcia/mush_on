@@ -39,6 +39,24 @@ final daysOfWeekSelectedProvider = AutoDisposeNotifierProvider<
 );
 
 typedef _$DaysOfWeekSelected = AutoDisposeNotifier<List<DaysOfWeekSelection>>;
+String _$dateRangeSelectedForWeekSelectionHash() =>
+    r'56b164a0e2e5e9c2e3096050fee384b9bfc49323';
+
+/// See also [DateRangeSelectedForWeekSelection].
+@ProviderFor(DateRangeSelectedForWeekSelection)
+final dateRangeSelectedForWeekSelectionProvider = AutoDisposeNotifierProvider<
+    DateRangeSelectedForWeekSelection, DateRangeSelectedValues?>.internal(
+  DateRangeSelectedForWeekSelection.new,
+  name: r'dateRangeSelectedForWeekSelectionProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$dateRangeSelectedForWeekSelectionHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$DateRangeSelectedForWeekSelection
+    = AutoDisposeNotifier<DateRangeSelectedValues?>;
 String _$onSelectedDaysSelectedHash() =>
     r'a1ed8cca75e723a0559db9d03b17693f39ec25b2';
 
