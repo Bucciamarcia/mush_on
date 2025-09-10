@@ -15,6 +15,7 @@ class MassAddCg extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    bool canAddCgs = ref.watch(canAddCgsProvider);
     List<TourType> tours =
         ref.watch(allTourTypesProvider(showArchived: false)).value ?? [];
     return SingleChildScrollView(
@@ -101,6 +102,19 @@ class MassAddCg extends ConsumerWidget {
               )
               .toList(),
         ),
+        ElevatedButton(
+          onPressed: canAddCgs ? () {} : null,
+          style: ButtonStyle(
+            textStyle: WidgetStateProperty.all(TextStyle(
+                color: canAddCgs
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Colors.black)),
+            backgroundColor: WidgetStateProperty.all(canAddCgs
+                ? Theme.of(context).colorScheme.primary
+                : Colors.grey[400]),
+          ),
+          child: const Text("Add Customer Groups"),
+        )
       ],
     ));
   }
