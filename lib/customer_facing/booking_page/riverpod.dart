@@ -1,11 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
-part 'riverpod.freezed.dart';
 
 @riverpod
 Stream<TourType?> tourType(Ref ref,
@@ -21,21 +18,13 @@ Stream<TourType?> tourType(Ref ref,
 }
 
 @riverpod
-class CustomerGroupsForTour extends _$CustomerGroupsForTour {
+class VisibleDates extends _$VisibleDates {
   @override
-  List<CustomerGroup> build() {
+  List<DateTime> build() {
     return [];
   }
 
-  void change(List<CustomerGroup> newCgs) {
-    state = newCgs;
+  void change(List<DateTime> newDates) {
+    state = newDates;
   }
-}
-
-@freezed
-sealed class FirstAndLastDateInCalendar with _$FirstAndLastDateInCalendar {
-  const factory FirstAndLastDateInCalendar({
-    required DateTime firstDate,
-    required DateTime lastDate,
-  }) = _FirstAndLastDateInCalendar;
 }

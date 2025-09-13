@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'calendar/main.dart';
 
@@ -37,8 +38,12 @@ class _BookingPageState extends ConsumerState<BookingPage> {
               child: Column(
                 children: [
                   BookingCalendar(tourType: tourType, account: widget.account!),
-                  ...ref
-                      .watch(customerGroupsForTourProvider)
+                  ...(ref
+                              .watch(customerGroupsByDateRangeProvider(
+                                  ref.watch(visibleDatesProvider),
+                                  account: widget.account))
+                              .value ??
+                          [])
                       .map((cg) => Text(cg.datetime.toString()))
                 ],
               ),

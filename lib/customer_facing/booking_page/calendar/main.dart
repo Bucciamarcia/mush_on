@@ -3,11 +3,10 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-
-import '../repository.dart';
 
 class BookingCalendar extends ConsumerWidget {
   /// The tour type for this booking.
@@ -19,13 +18,17 @@ class BookingCalendar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final repo = BookingPageRepository(account: account, tourId: tourType.id);
-    List<CustomerGroup> customerGroups =
-        ref.watch(customerGroupsForTourProvider);
+    List<DateTime> visibleDates = ref.watch(visibleDatesProvider);
+    List<CustomerGroup> customerGroups = ref
+            .watch(customerGroupsByDateRangeProvider(visibleDates,
+                account: account))
+            .value ??
+        [];
     return Expanded(
       child: SfCalendar(
         view: CalendarView.month,
-        monthViewSettings: MonthViewSettings(
+        monthViewSettings: const MonthViewSettings(
+            appointmentDisplayCount: 1,
             appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
         dataSource:
             CustomerGroupDataSource(cgs: customerGroups, tourType: tourType),
@@ -35,11 +38,7 @@ class BookingCalendar extends ConsumerWidget {
             List<DateTime> visibleDates = details.visibleDates;
             visibleDates.sort((a, b) => a.compareTo(b));
             if (visibleDates.isNotEmpty) {
-              final firstAndLastDate = FirstAndLastDateInCalendar(
-                  firstDate: visibleDates.first, lastDate: visibleDates.last);
-              final newCgs = await repo.customerGroupsForTour(
-                  firstAndLastDate, tourType.id);
-              ref.read(customerGroupsForTourProvider.notifier).change(newCgs);
+              ref.read(visibleDatesProvider.notifier).change(visibleDates);
             }
           });
         },
@@ -68,6 +67,6 @@ class CustomerGroupDataSource extends CalendarDataSource<CustomerGroup> {
 
   @override
   String getSubject(int index) {
-    return appointments[index].name;
+    return "";
   }
 }

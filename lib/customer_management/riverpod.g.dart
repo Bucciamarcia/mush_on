@@ -172,7 +172,7 @@ class _TeamGroupsByDateProviderElement
 }
 
 String _$customerGroupsByDateRangeHash() =>
-    r'b0fb30e2596ddfff8ec95ea41f35936a3f615a30';
+    r'e74c04b0814784888ff27cb5f884a5f6df1b0496';
 
 /// See also [customerGroupsByDateRange].
 @ProviderFor(customerGroupsByDateRange)
@@ -186,10 +186,12 @@ class CustomerGroupsByDateRangeFamily
 
   /// See also [customerGroupsByDateRange].
   CustomerGroupsByDateRangeProvider call(
-    List<DateTime> visibleDates,
-  ) {
+    List<DateTime> visibleDates, {
+    String? account,
+  }) {
     return CustomerGroupsByDateRangeProvider(
       visibleDates,
+      account: account,
     );
   }
 
@@ -199,6 +201,7 @@ class CustomerGroupsByDateRangeFamily
   ) {
     return call(
       provider.visibleDates,
+      account: provider.account,
     );
   }
 
@@ -222,11 +225,13 @@ class CustomerGroupsByDateRangeProvider
     extends AutoDisposeStreamProvider<List<CustomerGroup>> {
   /// See also [customerGroupsByDateRange].
   CustomerGroupsByDateRangeProvider(
-    List<DateTime> visibleDates,
-  ) : this._internal(
+    List<DateTime> visibleDates, {
+    String? account,
+  }) : this._internal(
           (ref) => customerGroupsByDateRange(
             ref as CustomerGroupsByDateRangeRef,
             visibleDates,
+            account: account,
           ),
           from: customerGroupsByDateRangeProvider,
           name: r'customerGroupsByDateRangeProvider',
@@ -238,6 +243,7 @@ class CustomerGroupsByDateRangeProvider
           allTransitiveDependencies:
               CustomerGroupsByDateRangeFamily._allTransitiveDependencies,
           visibleDates: visibleDates,
+          account: account,
         );
 
   CustomerGroupsByDateRangeProvider._internal(
@@ -248,9 +254,11 @@ class CustomerGroupsByDateRangeProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.visibleDates,
+    required this.account,
   }) : super.internal();
 
   final List<DateTime> visibleDates;
+  final String? account;
 
   @override
   Override overrideWith(
@@ -267,6 +275,7 @@ class CustomerGroupsByDateRangeProvider
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         visibleDates: visibleDates,
+        account: account,
       ),
     );
   }
@@ -279,13 +288,15 @@ class CustomerGroupsByDateRangeProvider
   @override
   bool operator ==(Object other) {
     return other is CustomerGroupsByDateRangeProvider &&
-        other.visibleDates == visibleDates;
+        other.visibleDates == visibleDates &&
+        other.account == account;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, visibleDates.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -297,6 +308,9 @@ mixin CustomerGroupsByDateRangeRef
     on AutoDisposeStreamProviderRef<List<CustomerGroup>> {
   /// The parameter `visibleDates` of this provider.
   List<DateTime> get visibleDates;
+
+  /// The parameter `account` of this provider.
+  String? get account;
 }
 
 class _CustomerGroupsByDateRangeProviderElement
@@ -307,6 +321,8 @@ class _CustomerGroupsByDateRangeProviderElement
   @override
   List<DateTime> get visibleDates =>
       (origin as CustomerGroupsByDateRangeProvider).visibleDates;
+  @override
+  String? get account => (origin as CustomerGroupsByDateRangeProvider).account;
 }
 
 String _$customerGroupByIdHash() => r'7f9741a1a7216b1d8cb682b06373903ef6e5f74e';
@@ -750,7 +766,7 @@ class _CustomerGroupsByDayProviderElement
 }
 
 String _$customersByBookingIdHash() =>
-    r'92c846e32819d114ef1584666606ee648c5b89d9';
+    r'3747ccdbe4a0371564d90687b6500e31d6120a7c';
 
 /// Gets all the customers assigned to a certain booking
 ///
@@ -771,10 +787,12 @@ class CustomersByBookingIdFamily extends Family<AsyncValue<List<Customer>>> {
   ///
   /// Copied from [customersByBookingId].
   CustomersByBookingIdProvider call(
-    String bookingId,
-  ) {
+    String bookingId, {
+    String? account,
+  }) {
     return CustomersByBookingIdProvider(
       bookingId,
+      account: account,
     );
   }
 
@@ -784,6 +802,7 @@ class CustomersByBookingIdFamily extends Family<AsyncValue<List<Customer>>> {
   ) {
     return call(
       provider.bookingId,
+      account: provider.account,
     );
   }
 
@@ -811,11 +830,13 @@ class CustomersByBookingIdProvider
   ///
   /// Copied from [customersByBookingId].
   CustomersByBookingIdProvider(
-    String bookingId,
-  ) : this._internal(
+    String bookingId, {
+    String? account,
+  }) : this._internal(
           (ref) => customersByBookingId(
             ref as CustomersByBookingIdRef,
             bookingId,
+            account: account,
           ),
           from: customersByBookingIdProvider,
           name: r'customersByBookingIdProvider',
@@ -827,6 +848,7 @@ class CustomersByBookingIdProvider
           allTransitiveDependencies:
               CustomersByBookingIdFamily._allTransitiveDependencies,
           bookingId: bookingId,
+          account: account,
         );
 
   CustomersByBookingIdProvider._internal(
@@ -837,9 +859,11 @@ class CustomersByBookingIdProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.bookingId,
+    required this.account,
   }) : super.internal();
 
   final String bookingId;
+  final String? account;
 
   @override
   Override overrideWith(
@@ -855,6 +879,7 @@ class CustomersByBookingIdProvider
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         bookingId: bookingId,
+        account: account,
       ),
     );
   }
@@ -867,13 +892,15 @@ class CustomersByBookingIdProvider
   @override
   bool operator ==(Object other) {
     return other is CustomersByBookingIdProvider &&
-        other.bookingId == bookingId;
+        other.bookingId == bookingId &&
+        other.account == account;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, bookingId.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -884,6 +911,9 @@ class CustomersByBookingIdProvider
 mixin CustomersByBookingIdRef on AutoDisposeStreamProviderRef<List<Customer>> {
   /// The parameter `bookingId` of this provider.
   String get bookingId;
+
+  /// The parameter `account` of this provider.
+  String? get account;
 }
 
 class _CustomersByBookingIdProviderElement
@@ -893,10 +923,12 @@ class _CustomersByBookingIdProviderElement
 
   @override
   String get bookingId => (origin as CustomersByBookingIdProvider).bookingId;
+  @override
+  String? get account => (origin as CustomersByBookingIdProvider).account;
 }
 
 String _$customersByCustomerGroupIdHash() =>
-    r'442c33a10b385abdf0f323c62e376a7909200c78';
+    r'd28cc78574c89dc0cd10f18476fe5d14c9d6335a';
 
 /// Gets all the customers assigned to a customer group
 ///
@@ -918,10 +950,12 @@ class CustomersByCustomerGroupIdFamily
   ///
   /// Copied from [customersByCustomerGroupId].
   CustomersByCustomerGroupIdProvider call(
-    String customerGroupId,
-  ) {
+    String customerGroupId, {
+    String? account,
+  }) {
     return CustomersByCustomerGroupIdProvider(
       customerGroupId,
+      account: account,
     );
   }
 
@@ -931,6 +965,7 @@ class CustomersByCustomerGroupIdFamily
   ) {
     return call(
       provider.customerGroupId,
+      account: provider.account,
     );
   }
 
@@ -958,11 +993,13 @@ class CustomersByCustomerGroupIdProvider
   ///
   /// Copied from [customersByCustomerGroupId].
   CustomersByCustomerGroupIdProvider(
-    String customerGroupId,
-  ) : this._internal(
+    String customerGroupId, {
+    String? account,
+  }) : this._internal(
           (ref) => customersByCustomerGroupId(
             ref as CustomersByCustomerGroupIdRef,
             customerGroupId,
+            account: account,
           ),
           from: customersByCustomerGroupIdProvider,
           name: r'customersByCustomerGroupIdProvider',
@@ -974,6 +1011,7 @@ class CustomersByCustomerGroupIdProvider
           allTransitiveDependencies:
               CustomersByCustomerGroupIdFamily._allTransitiveDependencies,
           customerGroupId: customerGroupId,
+          account: account,
         );
 
   CustomersByCustomerGroupIdProvider._internal(
@@ -984,9 +1022,11 @@ class CustomersByCustomerGroupIdProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.customerGroupId,
+    required this.account,
   }) : super.internal();
 
   final String customerGroupId;
+  final String? account;
 
   @override
   Override overrideWith(
@@ -1003,6 +1043,7 @@ class CustomersByCustomerGroupIdProvider
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         customerGroupId: customerGroupId,
+        account: account,
       ),
     );
   }
@@ -1015,13 +1056,15 @@ class CustomersByCustomerGroupIdProvider
   @override
   bool operator ==(Object other) {
     return other is CustomersByCustomerGroupIdProvider &&
-        other.customerGroupId == customerGroupId;
+        other.customerGroupId == customerGroupId &&
+        other.account == account;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, customerGroupId.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -1033,6 +1076,9 @@ mixin CustomersByCustomerGroupIdRef
     on AutoDisposeStreamProviderRef<List<Customer>> {
   /// The parameter `customerGroupId` of this provider.
   String get customerGroupId;
+
+  /// The parameter `account` of this provider.
+  String? get account;
 }
 
 class _CustomersByCustomerGroupIdProviderElement
@@ -1043,10 +1089,12 @@ class _CustomersByCustomerGroupIdProviderElement
   @override
   String get customerGroupId =>
       (origin as CustomersByCustomerGroupIdProvider).customerGroupId;
+  @override
+  String? get account => (origin as CustomersByCustomerGroupIdProvider).account;
 }
 
 String _$bookingsByCustomerGroupIdHash() =>
-    r'd74bbb941e9fa3b549e5f93e785a3004a680363b';
+    r'2c06dff4e0cd3333dd92470dac3921bb09a8bc2c';
 
 /// See also [bookingsByCustomerGroupId].
 @ProviderFor(bookingsByCustomerGroupId)
@@ -1060,10 +1108,12 @@ class BookingsByCustomerGroupIdFamily
 
   /// See also [bookingsByCustomerGroupId].
   BookingsByCustomerGroupIdProvider call(
-    String id,
-  ) {
+    String id, {
+    String? account,
+  }) {
     return BookingsByCustomerGroupIdProvider(
       id,
+      account: account,
     );
   }
 
@@ -1073,6 +1123,7 @@ class BookingsByCustomerGroupIdFamily
   ) {
     return call(
       provider.id,
+      account: provider.account,
     );
   }
 
@@ -1096,11 +1147,13 @@ class BookingsByCustomerGroupIdProvider
     extends AutoDisposeStreamProvider<List<Booking>> {
   /// See also [bookingsByCustomerGroupId].
   BookingsByCustomerGroupIdProvider(
-    String id,
-  ) : this._internal(
+    String id, {
+    String? account,
+  }) : this._internal(
           (ref) => bookingsByCustomerGroupId(
             ref as BookingsByCustomerGroupIdRef,
             id,
+            account: account,
           ),
           from: bookingsByCustomerGroupIdProvider,
           name: r'bookingsByCustomerGroupIdProvider',
@@ -1112,6 +1165,7 @@ class BookingsByCustomerGroupIdProvider
           allTransitiveDependencies:
               BookingsByCustomerGroupIdFamily._allTransitiveDependencies,
           id: id,
+          account: account,
         );
 
   BookingsByCustomerGroupIdProvider._internal(
@@ -1122,9 +1176,11 @@ class BookingsByCustomerGroupIdProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.id,
+    required this.account,
   }) : super.internal();
 
   final String id;
+  final String? account;
 
   @override
   Override overrideWith(
@@ -1141,6 +1197,7 @@ class BookingsByCustomerGroupIdProvider
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         id: id,
+        account: account,
       ),
     );
   }
@@ -1152,13 +1209,16 @@ class BookingsByCustomerGroupIdProvider
 
   @override
   bool operator ==(Object other) {
-    return other is BookingsByCustomerGroupIdProvider && other.id == id;
+    return other is BookingsByCustomerGroupIdProvider &&
+        other.id == id &&
+        other.account == account;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, id.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -1170,6 +1230,9 @@ mixin BookingsByCustomerGroupIdRef
     on AutoDisposeStreamProviderRef<List<Booking>> {
   /// The parameter `id` of this provider.
   String get id;
+
+  /// The parameter `account` of this provider.
+  String? get account;
 }
 
 class _BookingsByCustomerGroupIdProviderElement
@@ -1179,6 +1242,8 @@ class _BookingsByCustomerGroupIdProviderElement
 
   @override
   String get id => (origin as BookingsByCustomerGroupIdProvider).id;
+  @override
+  String? get account => (origin as BookingsByCustomerGroupIdProvider).account;
 }
 
 String _$futureCustomerGroupsHash() =>

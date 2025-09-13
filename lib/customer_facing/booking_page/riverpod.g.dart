@@ -173,22 +173,20 @@ class _TourTypeProviderElement
   String get tourId => (origin as TourTypeProvider).tourId;
 }
 
-String _$customerGroupsForTourHash() =>
-    r'3f9ce826552eba06a0727bdd89e0c4307676da06';
+String _$visibleDatesHash() => r'dfe2cbad98045d9ada5bc582c89c0f797e7cd33b';
 
-/// See also [CustomerGroupsForTour].
-@ProviderFor(CustomerGroupsForTour)
-final customerGroupsForTourProvider = AutoDisposeNotifierProvider<
-    CustomerGroupsForTour, List<CustomerGroup>>.internal(
-  CustomerGroupsForTour.new,
-  name: r'customerGroupsForTourProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$customerGroupsForTourHash,
+/// See also [VisibleDates].
+@ProviderFor(VisibleDates)
+final visibleDatesProvider =
+    AutoDisposeNotifierProvider<VisibleDates, List<DateTime>>.internal(
+  VisibleDates.new,
+  name: r'visibleDatesProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$visibleDatesHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$CustomerGroupsForTour = AutoDisposeNotifier<List<CustomerGroup>>;
+typedef _$VisibleDates = AutoDisposeNotifier<List<DateTime>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
