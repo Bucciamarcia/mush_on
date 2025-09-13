@@ -25,6 +25,10 @@ class BookingCalendar extends ConsumerWidget {
     return Expanded(
       child: SfCalendar(
         view: CalendarView.month,
+        monthViewSettings: MonthViewSettings(
+            appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
+        dataSource:
+            CustomerGroupDataSource(cgs: customerGroups, tourType: tourType),
         onViewChanged: (ViewChangedDetails details) {
           SchedulerBinding.instance.addPostFrameCallback((_) async {
             logger.info("View changed");
@@ -33,12 +37,37 @@ class BookingCalendar extends ConsumerWidget {
             if (visibleDates.isNotEmpty) {
               final firstAndLastDate = FirstAndLastDateInCalendar(
                   firstDate: visibleDates.first, lastDate: visibleDates.last);
-              final newCgs = await repo.customerGroupsForTour(firstAndLastDate);
+              final newCgs = await repo.customerGroupsForTour(
+                  firstAndLastDate, tourType.id);
               ref.read(customerGroupsForTourProvider.notifier).change(newCgs);
             }
           });
         },
       ),
     );
+  }
+}
+
+class CustomerGroupDataSource extends CalendarDataSource<CustomerGroup> {
+  final List<CustomerGroup> cgs;
+  final TourType tourType;
+  CustomerGroupDataSource({required this.cgs, required this.tourType});
+  @override
+  List<CustomerGroup> get appointments => cgs;
+  @override
+  DateTime getStartTime(int index) {
+    return appointments[index].datetime;
+  }
+
+  @override
+  DateTime getEndTime(int index) {
+    DateTime startTime = appointments[index].datetime;
+    int duration = tourType.duration;
+    return startTime.add(Duration(minutes: duration));
+  }
+
+  @override
+  String getSubject(int index) {
+    return appointments[index].name;
   }
 }

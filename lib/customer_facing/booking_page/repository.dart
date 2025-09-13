@@ -11,13 +11,14 @@ class BookingPageRepository {
   BookingPageRepository({required this.account, required this.tourId});
 
   Future<List<CustomerGroup>> customerGroupsForTour(
-      FirstAndLastDateInCalendar dates) async {
+      FirstAndLastDateInCalendar dates, String tourTypeId) async {
     final db = FirebaseFirestore.instance;
     final DateTime firstDate = dates.firstDate;
     final DateTime lastDate = dates.lastDate;
     final path = "accounts/$account/data/bookingManager/customerGroups";
     final collection = db
         .collection(path)
+        .where("tourTypeId", isEqualTo: tourTypeId)
         .where("datetime", isGreaterThanOrEqualTo: firstDate)
         .where("datetime", isLessThan: lastDate.add(const Duration(days: 1)));
     try {
