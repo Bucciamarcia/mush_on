@@ -24,12 +24,24 @@ class BookingCalendar extends ConsumerWidget {
                 account: account))
             .value ??
         [];
+    List<DateTime> datesWithCustomerGroups =
+        _buildDatesWithCustomerGroups(customerGroups);
     return Expanded(
       child: SfCalendar(
         view: CalendarView.month,
+        firstDayOfWeek: 1,
+        monthCellBuilder: (BuildContext cellContext, MonthCellDetails details) {
+          return Container(
+            margin: const EdgeInsets.all(5),
+            color: _buildCellColor(details.date, datesWithCustomerGroups),
+            child: Text(details.date.toString()),
+          );
+        },
         monthViewSettings: const MonthViewSettings(
+            numberOfWeeksInView: 5,
+            dayFormat: "EEE",
             appointmentDisplayCount: 1,
-            appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
+            appointmentDisplayMode: MonthAppointmentDisplayMode.none),
         dataSource:
             CustomerGroupDataSource(cgs: customerGroups, tourType: tourType),
         onViewChanged: (ViewChangedDetails details) {
@@ -44,6 +56,25 @@ class BookingCalendar extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  List<DateTime> _buildDatesWithCustomerGroups(List<CustomerGroup> cgs) {
+    Set<DateTime> toReturn = {};
+    for (final cg in cgs) {
+      toReturn.add(cg.datetime);
+    }
+    return toReturn.toList();
+  }
+
+  Color _buildCellColor(DateTime date, List<DateTime> visibleDates) {
+    List<DateTime> baseDates =
+        visibleDates.map((vd) => DateTime(vd.year, vd.month, vd.day)).toList();
+    DateTime baseDate = DateTime(date.year, date.month, date.day);
+    if (baseDates.contains(baseDate)) {
+      return Colors.green;
+    } else {
+      return Colors.red;
+    }
   }
 }
 
