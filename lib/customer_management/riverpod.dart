@@ -30,9 +30,10 @@ Stream<List<TeamGroup>> teamGroupsByDate(Ref ref, DateTime date) async* {
 
 @riverpod
 Stream<List<CustomerGroup>> customerGroupsByDateRange(
-    Ref ref, List<DateTime> visibleDates) async* {
+    Ref ref, List<DateTime> visibleDates,
+    {String? account}) async* {
   if (visibleDates.isEmpty) yield [];
-  String account = await ref.watch(accountProvider.future);
+  account ??= await ref.watch(accountProvider.future);
   DateTime firstDate = visibleDates[0];
   DateTime lastDate = visibleDates[visibleDates.length - 1];
   lastDate = DateTimeUtils.endOfDay(lastDate);
@@ -126,8 +127,9 @@ Stream<List<CustomerGroup>> customerGroupsByDay(Ref ref, DateTime date) async* {
 
 /// Gets all the customers assigned to a certain booking
 
-Stream<List<Customer>> customersByBookingId(Ref ref, String bookingId) async* {
-  String account = await ref.watch(accountProvider.future);
+Stream<List<Customer>> customersByBookingId(Ref ref, String bookingId,
+    {String? account}) async* {
+  account ??= await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
   var collection = db
       .collection("accounts/$account/data/bookingManager/customers")
@@ -147,9 +149,11 @@ Stream<List<Customer>> customersByBookingId(Ref ref, String bookingId) async* {
 
 /// Gets all the customers assigned to a customer group
 Stream<List<Customer>> customersByCustomerGroupId(
-    Ref ref, String customerGroupId) async* {
-  final List<Booking> bookings = await ref
-      .watch(BookingsByCustomerGroupIdProvider(customerGroupId).future);
+    Ref ref, String customerGroupId,
+    {String? account}) async* {
+  final List<Booking> bookings = await ref.watch(
+      BookingsByCustomerGroupIdProvider(customerGroupId, account: account)
+          .future);
 
   if (bookings.isEmpty) {
     yield [];
@@ -168,8 +172,9 @@ Stream<List<Customer>> customersByCustomerGroupId(
 }
 
 @riverpod
-Stream<List<Booking>> bookingsByCustomerGroupId(Ref ref, String id) async* {
-  String account = await ref.watch(accountProvider.future);
+Stream<List<Booking>> bookingsByCustomerGroupId(Ref ref, String id,
+    {String? account}) async* {
+  account ??= await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
   var collection = db
       .collection("accounts/$account/data/bookingManager/bookings")
@@ -194,7 +199,8 @@ Stream<List<CustomerGroup>> futureCustomerGroups(Ref ref,
   var collection = db
       .collection("accounts/$account/data/bookingManager/customerGroups")
       .where("datetime",
-          isGreaterThanOrEqualTo: DateTimeUtils.today().add(const Duration(days: 1)))
+          isGreaterThanOrEqualTo:
+              DateTimeUtils.today().add(const Duration(days: 1)))
       .where("datetime", isLessThanOrEqualTo: untilDate);
   yield* collection.snapshots().map(
         (snapshot) => snapshot.docs
