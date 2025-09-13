@@ -60,3 +60,36 @@ Future<Color> monthCellColor(
     return Colors.grey;
   }
 }
+
+@riverpod
+Stream<Widget> bookingWidget(
+    Ref ref, DateTime? selectedDate, String account) async* {
+  if (selectedDate == null) yield const SizedBox.shrink();
+  final db = FirebaseFirestore.instance;
+  final path = "accounts/$account/data/bookingManager/customerGroups";
+  final collection = db
+      .collection(path)
+      .where("datetime", isGreaterThanOrEqualTo: selectedDate)
+      .where("datetime",
+          isLessThan: selectedDate!.add(const Duration(days: 1)));
+  yield* collection.snapshots().map((snapshot) {
+    return Column(
+      children: snapshot.docs.map((doc) {
+        CustomerGroup cg = CustomerGroup.fromJson(doc.data());
+        return Text(cg.datetime.toString());
+      }).toList(),
+    );
+  });
+}
+
+@riverpod
+class SelectedDateInCalendar extends _$SelectedDateInCalendar {
+  @override
+  DateTime? build() {
+    return null;
+  }
+
+  void change(DateTime newDate) {
+    state = newDate;
+  }
+}

@@ -38,11 +38,18 @@ class BookingCalendar extends ConsumerWidget {
             ..sort((a, b) => a.compareTo(b));
           final key = idsAndCapsParts.join('|');
 
-          return Container(
-            margin: const EdgeInsets.all(5),
-            color: ref.watch(monthCellColorProvider(key, account)).value ??
-                Colors.grey,
-            child: Text(details.date.toString()),
+          return InkWell(
+            onTap: () {
+              ref
+                  .read(selectedDateInCalendarProvider.notifier)
+                  .change(details.date);
+            },
+            child: Container(
+              margin: const EdgeInsets.all(5),
+              color: ref.watch(monthCellColorProvider(key, account)).value ??
+                  Colors.grey,
+              child: Text(details.date.toString()),
+            ),
           );
         },
         monthViewSettings: const MonthViewSettings(

@@ -321,6 +321,153 @@ class _MonthCellColorProviderElement
   String get account => (origin as MonthCellColorProvider).account;
 }
 
+String _$bookingWidgetHash() => r'c3e6819af0850cb2f2c5f2af98077f3703f2f3cc';
+
+/// See also [bookingWidget].
+@ProviderFor(bookingWidget)
+const bookingWidgetProvider = BookingWidgetFamily();
+
+/// See also [bookingWidget].
+class BookingWidgetFamily extends Family<AsyncValue<Widget>> {
+  /// See also [bookingWidget].
+  const BookingWidgetFamily();
+
+  /// See also [bookingWidget].
+  BookingWidgetProvider call(
+    DateTime? selectedDate,
+    String account,
+  ) {
+    return BookingWidgetProvider(
+      selectedDate,
+      account,
+    );
+  }
+
+  @override
+  BookingWidgetProvider getProviderOverride(
+    covariant BookingWidgetProvider provider,
+  ) {
+    return call(
+      provider.selectedDate,
+      provider.account,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'bookingWidgetProvider';
+}
+
+/// See also [bookingWidget].
+class BookingWidgetProvider extends AutoDisposeStreamProvider<Widget> {
+  /// See also [bookingWidget].
+  BookingWidgetProvider(
+    DateTime? selectedDate,
+    String account,
+  ) : this._internal(
+          (ref) => bookingWidget(
+            ref as BookingWidgetRef,
+            selectedDate,
+            account,
+          ),
+          from: bookingWidgetProvider,
+          name: r'bookingWidgetProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$bookingWidgetHash,
+          dependencies: BookingWidgetFamily._dependencies,
+          allTransitiveDependencies:
+              BookingWidgetFamily._allTransitiveDependencies,
+          selectedDate: selectedDate,
+          account: account,
+        );
+
+  BookingWidgetProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.selectedDate,
+    required this.account,
+  }) : super.internal();
+
+  final DateTime? selectedDate;
+  final String account;
+
+  @override
+  Override overrideWith(
+    Stream<Widget> Function(BookingWidgetRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: BookingWidgetProvider._internal(
+        (ref) => create(ref as BookingWidgetRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        selectedDate: selectedDate,
+        account: account,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<Widget> createElement() {
+    return _BookingWidgetProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is BookingWidgetProvider &&
+        other.selectedDate == selectedDate &&
+        other.account == account;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, selectedDate.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin BookingWidgetRef on AutoDisposeStreamProviderRef<Widget> {
+  /// The parameter `selectedDate` of this provider.
+  DateTime? get selectedDate;
+
+  /// The parameter `account` of this provider.
+  String get account;
+}
+
+class _BookingWidgetProviderElement
+    extends AutoDisposeStreamProviderElement<Widget> with BookingWidgetRef {
+  _BookingWidgetProviderElement(super.provider);
+
+  @override
+  DateTime? get selectedDate => (origin as BookingWidgetProvider).selectedDate;
+  @override
+  String get account => (origin as BookingWidgetProvider).account;
+}
+
 String _$visibleDatesHash() => r'dfe2cbad98045d9ada5bc582c89c0f797e7cd33b';
 
 /// See also [VisibleDates].
@@ -336,5 +483,22 @@ final visibleDatesProvider =
 );
 
 typedef _$VisibleDates = AutoDisposeNotifier<List<DateTime>>;
+String _$selectedDateInCalendarHash() =>
+    r'462e39d7ac188907fd9bb9423d3df8eabc886aa6';
+
+/// See also [SelectedDateInCalendar].
+@ProviderFor(SelectedDateInCalendar)
+final selectedDateInCalendarProvider =
+    AutoDisposeNotifierProvider<SelectedDateInCalendar, DateTime?>.internal(
+  SelectedDateInCalendar.new,
+  name: r'selectedDateInCalendarProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$selectedDateInCalendarHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$SelectedDateInCalendar = AutoDisposeNotifier<DateTime?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

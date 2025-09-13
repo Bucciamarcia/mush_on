@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'calendar/main.dart';
 
@@ -26,6 +25,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
     /// Info about the tour type that is being booked.
     final tourTypeAsync = ref.watch(
         tourTypeProvider(account: widget.account!, tourId: widget.tourId!));
+    final selectedDate = ref.watch(selectedDateInCalendarProvider);
 
     return tourTypeAsync.when(
         data: (tourType) {
@@ -35,16 +35,14 @@ class _BookingPageState extends ConsumerState<BookingPage> {
 
           return Scaffold(
             body: SafeArea(
-              child: Column(
+              child: Row(
                 children: [
                   BookingCalendar(tourType: tourType, account: widget.account!),
-                  ...(ref
-                              .watch(customerGroupsByDateRangeProvider(
-                                  ref.watch(visibleDatesProvider),
-                                  account: widget.account))
-                              .value ??
-                          [])
-                      .map((cg) => Text(cg.datetime.toString()))
+                  ref
+                          .watch(BookingWidgetProvider(
+                              selectedDate, widget.account!))
+                          .value ??
+                      const CircularProgressIndicator.adaptive()
                 ],
               ),
             ),
