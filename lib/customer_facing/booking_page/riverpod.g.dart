@@ -173,6 +173,154 @@ class _TourTypeProviderElement
   String get tourId => (origin as TourTypeProvider).tourId;
 }
 
+String _$monthCellColorHash() => r'bd9799cefc17884cdfa8b4be2e82c6b2c68feb9b';
+
+/// See also [monthCellColor].
+@ProviderFor(monthCellColor)
+const monthCellColorProvider = MonthCellColorFamily();
+
+/// See also [monthCellColor].
+class MonthCellColorFamily extends Family<AsyncValue<Color>> {
+  /// See also [monthCellColor].
+  const MonthCellColorFamily();
+
+  /// See also [monthCellColor].
+  MonthCellColorProvider call(
+    String todayCgIdsAndCapsKey,
+    String account,
+  ) {
+    return MonthCellColorProvider(
+      todayCgIdsAndCapsKey,
+      account,
+    );
+  }
+
+  @override
+  MonthCellColorProvider getProviderOverride(
+    covariant MonthCellColorProvider provider,
+  ) {
+    return call(
+      provider.todayCgIdsAndCapsKey,
+      provider.account,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'monthCellColorProvider';
+}
+
+/// See also [monthCellColor].
+class MonthCellColorProvider extends AutoDisposeFutureProvider<Color> {
+  /// See also [monthCellColor].
+  MonthCellColorProvider(
+    String todayCgIdsAndCapsKey,
+    String account,
+  ) : this._internal(
+          (ref) => monthCellColor(
+            ref as MonthCellColorRef,
+            todayCgIdsAndCapsKey,
+            account,
+          ),
+          from: monthCellColorProvider,
+          name: r'monthCellColorProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$monthCellColorHash,
+          dependencies: MonthCellColorFamily._dependencies,
+          allTransitiveDependencies:
+              MonthCellColorFamily._allTransitiveDependencies,
+          todayCgIdsAndCapsKey: todayCgIdsAndCapsKey,
+          account: account,
+        );
+
+  MonthCellColorProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.todayCgIdsAndCapsKey,
+    required this.account,
+  }) : super.internal();
+
+  final String todayCgIdsAndCapsKey;
+  final String account;
+
+  @override
+  Override overrideWith(
+    FutureOr<Color> Function(MonthCellColorRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: MonthCellColorProvider._internal(
+        (ref) => create(ref as MonthCellColorRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        todayCgIdsAndCapsKey: todayCgIdsAndCapsKey,
+        account: account,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<Color> createElement() {
+    return _MonthCellColorProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is MonthCellColorProvider &&
+        other.todayCgIdsAndCapsKey == todayCgIdsAndCapsKey &&
+        other.account == account;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, todayCgIdsAndCapsKey.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin MonthCellColorRef on AutoDisposeFutureProviderRef<Color> {
+  /// The parameter `todayCgIdsAndCapsKey` of this provider.
+  String get todayCgIdsAndCapsKey;
+
+  /// The parameter `account` of this provider.
+  String get account;
+}
+
+class _MonthCellColorProviderElement
+    extends AutoDisposeFutureProviderElement<Color> with MonthCellColorRef {
+  _MonthCellColorProviderElement(super.provider);
+
+  @override
+  String get todayCgIdsAndCapsKey =>
+      (origin as MonthCellColorProvider).todayCgIdsAndCapsKey;
+  @override
+  String get account => (origin as MonthCellColorProvider).account;
+}
+
 String _$visibleDatesHash() => r'dfe2cbad98045d9ada5bc582c89c0f797e7cd33b';
 
 /// See also [VisibleDates].

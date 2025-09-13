@@ -24,16 +24,24 @@ class BookingCalendar extends ConsumerWidget {
                 account: account))
             .value ??
         [];
-    List<DateTime> datesWithCustomerGroups =
-        _buildDatesWithCustomerGroups(customerGroups);
     return Expanded(
       child: SfCalendar(
         view: CalendarView.month,
         firstDayOfWeek: 1,
         monthCellBuilder: (BuildContext cellContext, MonthCellDetails details) {
+          final List<CustomerGroup> todayCustomerGroups =
+              _getTodayCustomerGroups(details.date, customerGroups);
+
+          final List<String> idsAndCapsParts = todayCustomerGroups
+              .map((cg) => '${cg.id}:${cg.maxCapacity}')
+              .toList()
+            ..sort((a, b) => a.compareTo(b));
+          final key = idsAndCapsParts.join('|');
+
           return Container(
             margin: const EdgeInsets.all(5),
-            color: _buildCellColor(details.date, datesWithCustomerGroups),
+            color: ref.watch(monthCellColorProvider(key, account)).value ??
+                Colors.grey,
             child: Text(details.date.toString()),
           );
         },
@@ -58,23 +66,14 @@ class BookingCalendar extends ConsumerWidget {
     );
   }
 
-  List<DateTime> _buildDatesWithCustomerGroups(List<CustomerGroup> cgs) {
-    Set<DateTime> toReturn = {};
-    for (final cg in cgs) {
-      toReturn.add(cg.datetime);
-    }
-    return toReturn.toList();
-  }
-
-  Color _buildCellColor(DateTime date, List<DateTime> visibleDates) {
-    List<DateTime> baseDates =
-        visibleDates.map((vd) => DateTime(vd.year, vd.month, vd.day)).toList();
-    DateTime baseDate = DateTime(date.year, date.month, date.day);
-    if (baseDates.contains(baseDate)) {
-      return Colors.green;
-    } else {
-      return Colors.red;
-    }
+  List<CustomerGroup> _getTodayCustomerGroups(
+      DateTime today, List<CustomerGroup> cgs) {
+    return cgs
+        .where((cg) =>
+            cg.datetime.year == today.year &&
+            cg.datetime.month == today.month &&
+            cg.datetime.day == today.day)
+        .toList();
   }
 }
 
