@@ -321,7 +321,7 @@ class _MonthCellColorProviderElement
   String get account => (origin as MonthCellColorProvider).account;
 }
 
-String _$bookingWidgetHash() => r'c3e6819af0850cb2f2c5f2af98077f3703f2f3cc';
+String _$bookingWidgetHash() => r'14dd631eaa619f171afe1417aa6d0a094d5e56de';
 
 /// See also [bookingWidget].
 @ProviderFor(bookingWidget)
