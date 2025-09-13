@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:mush_on/customer_facing/booking_page/booking_details.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -74,9 +76,18 @@ Stream<Widget> bookingWidget(
           isLessThan: selectedDate!.add(const Duration(days: 1)));
   yield* collection.snapshots().map((snapshot) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: snapshot.docs.map((doc) {
         CustomerGroup cg = CustomerGroup.fromJson(doc.data());
-        return Text(cg.datetime.toString());
+        List<Booking> bookedForDay = ref
+                .watch(
+                    bookingsByCustomerGroupIdProvider(cg.id, account: account))
+                .value ??
+            <Booking>[];
+        if (bookedForDay.length >= cg.maxCapacity) {
+          return const SizedBox.shrink();
+        }
+        return BookingWidgetCgCard(cg: cg, booked: bookedForDay.length);
       }).toList(),
     );
   });
@@ -91,5 +102,24 @@ class SelectedDateInCalendar extends _$SelectedDateInCalendar {
 
   void change(DateTime newDate) {
     state = newDate;
+  }
+}
+
+class BookingWidgetCgCard extends ConsumerWidget {
+  final CustomerGroup cg;
+  final int booked;
+  const BookingWidgetCgCard(
+      {super.key, required this.cg, required this.booked});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    String formattedDate = DateFormat("hh:mm").format(cg.datetime);
+    return InkWell(
+      onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => BookingDetails(cg: cg))),
+      child: Card(
+        child: Text("$formattedDate: ${cg.name} || $booked/${cg.maxCapacity}"),
+      ),
+    );
   }
 }
