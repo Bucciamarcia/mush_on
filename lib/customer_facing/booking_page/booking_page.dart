@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'calendar/main.dart';
 
@@ -42,6 +43,9 @@ class _BookingPageState extends ConsumerState<BookingPage> {
               child: Row(
                 children: [
                   BookingCalendar(tourType: tourType, account: widget.account!),
+                  selectedDate == null
+                      ? const SizedBox.shrink()
+                      : const BookingDayDetails()
                 ],
               ),
             ),
@@ -53,6 +57,30 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           return const NoKennelOrTourIdErrorPage();
         },
         loading: () => const CircularProgressIndicator.adaptive());
+  }
+}
+
+class BookingDayDetails extends ConsumerWidget {
+  const BookingDayDetails({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Map<DateTime, List<CustomerGroup>>? customerGroupsByDay =
+        ref.watch(customerGroupsByDayProvider).value;
+    Map<String, List<Booking>>? bookingsByCustomerGroupId =
+        ref.watch(bookingsByCustomerGroupIdProvider).value;
+    Map<String, List<Customer>>? customersByBookingId =
+        ref.watch(customersByBookingIdProvider).value;
+    Map<String, int>? customersNumberByCgId =
+        ref.watch(customersNumberByCustomerGroupIdProvider).value;
+    DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: (customerGroupsByDay?[selectedDate!]
+              ?.map((cg) => Text(cg.datetime.toString()))
+              .toList()) ??
+          [],
+    );
   }
 }
 
