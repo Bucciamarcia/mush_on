@@ -173,302 +173,77 @@ class _TourTypeProviderElement
   String get tourId => (origin as TourTypeProvider).tourId;
 }
 
-String _$monthCellColorHash() => r'bd9799cefc17884cdfa8b4be2e82c6b2c68feb9b';
+String _$visibleCustomerGroupsHash() =>
+    r'816b361e8827b1288045b00b116cee1a242b3a5a';
 
-/// See also [monthCellColor].
-@ProviderFor(monthCellColor)
-const monthCellColorProvider = MonthCellColorFamily();
-
-/// See also [monthCellColor].
-class MonthCellColorFamily extends Family<AsyncValue<Color>> {
-  /// See also [monthCellColor].
-  const MonthCellColorFamily();
-
-  /// See also [monthCellColor].
-  MonthCellColorProvider call(
-    String todayCgIdsAndCapsKey,
-    String account,
-  ) {
-    return MonthCellColorProvider(
-      todayCgIdsAndCapsKey,
-      account,
-    );
-  }
-
-  @override
-  MonthCellColorProvider getProviderOverride(
-    covariant MonthCellColorProvider provider,
-  ) {
-    return call(
-      provider.todayCgIdsAndCapsKey,
-      provider.account,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'monthCellColorProvider';
-}
-
-/// See also [monthCellColor].
-class MonthCellColorProvider extends AutoDisposeFutureProvider<Color> {
-  /// See also [monthCellColor].
-  MonthCellColorProvider(
-    String todayCgIdsAndCapsKey,
-    String account,
-  ) : this._internal(
-          (ref) => monthCellColor(
-            ref as MonthCellColorRef,
-            todayCgIdsAndCapsKey,
-            account,
-          ),
-          from: monthCellColorProvider,
-          name: r'monthCellColorProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$monthCellColorHash,
-          dependencies: MonthCellColorFamily._dependencies,
-          allTransitiveDependencies:
-              MonthCellColorFamily._allTransitiveDependencies,
-          todayCgIdsAndCapsKey: todayCgIdsAndCapsKey,
-          account: account,
-        );
-
-  MonthCellColorProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.todayCgIdsAndCapsKey,
-    required this.account,
-  }) : super.internal();
-
-  final String todayCgIdsAndCapsKey;
-  final String account;
-
-  @override
-  Override overrideWith(
-    FutureOr<Color> Function(MonthCellColorRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: MonthCellColorProvider._internal(
-        (ref) => create(ref as MonthCellColorRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        todayCgIdsAndCapsKey: todayCgIdsAndCapsKey,
-        account: account,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<Color> createElement() {
-    return _MonthCellColorProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is MonthCellColorProvider &&
-        other.todayCgIdsAndCapsKey == todayCgIdsAndCapsKey &&
-        other.account == account;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, todayCgIdsAndCapsKey.hashCode);
-    hash = _SystemHash.combine(hash, account.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
+/// See also [visibleCustomerGroups].
+@ProviderFor(visibleCustomerGroups)
+final visibleCustomerGroupsProvider =
+    AutoDisposeFutureProvider<List<CustomerGroup>>.internal(
+  visibleCustomerGroups,
+  name: r'visibleCustomerGroupsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$visibleCustomerGroupsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin MonthCellColorRef on AutoDisposeFutureProviderRef<Color> {
-  /// The parameter `todayCgIdsAndCapsKey` of this provider.
-  String get todayCgIdsAndCapsKey;
+typedef VisibleCustomerGroupsRef
+    = AutoDisposeFutureProviderRef<List<CustomerGroup>>;
+String _$visibleBookingsHash() => r'dcb2ac46459aa7d990744a19122e9998615ae414';
 
-  /// The parameter `account` of this provider.
-  String get account;
-}
-
-class _MonthCellColorProviderElement
-    extends AutoDisposeFutureProviderElement<Color> with MonthCellColorRef {
-  _MonthCellColorProviderElement(super.provider);
-
-  @override
-  String get todayCgIdsAndCapsKey =>
-      (origin as MonthCellColorProvider).todayCgIdsAndCapsKey;
-  @override
-  String get account => (origin as MonthCellColorProvider).account;
-}
-
-String _$bookingWidgetHash() => r'14dd631eaa619f171afe1417aa6d0a094d5e56de';
-
-/// See also [bookingWidget].
-@ProviderFor(bookingWidget)
-const bookingWidgetProvider = BookingWidgetFamily();
-
-/// See also [bookingWidget].
-class BookingWidgetFamily extends Family<AsyncValue<Widget>> {
-  /// See also [bookingWidget].
-  const BookingWidgetFamily();
-
-  /// See also [bookingWidget].
-  BookingWidgetProvider call(
-    DateTime? selectedDate,
-    String account,
-  ) {
-    return BookingWidgetProvider(
-      selectedDate,
-      account,
-    );
-  }
-
-  @override
-  BookingWidgetProvider getProviderOverride(
-    covariant BookingWidgetProvider provider,
-  ) {
-    return call(
-      provider.selectedDate,
-      provider.account,
-    );
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'bookingWidgetProvider';
-}
-
-/// See also [bookingWidget].
-class BookingWidgetProvider extends AutoDisposeStreamProvider<Widget> {
-  /// See also [bookingWidget].
-  BookingWidgetProvider(
-    DateTime? selectedDate,
-    String account,
-  ) : this._internal(
-          (ref) => bookingWidget(
-            ref as BookingWidgetRef,
-            selectedDate,
-            account,
-          ),
-          from: bookingWidgetProvider,
-          name: r'bookingWidgetProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$bookingWidgetHash,
-          dependencies: BookingWidgetFamily._dependencies,
-          allTransitiveDependencies:
-              BookingWidgetFamily._allTransitiveDependencies,
-          selectedDate: selectedDate,
-          account: account,
-        );
-
-  BookingWidgetProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.selectedDate,
-    required this.account,
-  }) : super.internal();
-
-  final DateTime? selectedDate;
-  final String account;
-
-  @override
-  Override overrideWith(
-    Stream<Widget> Function(BookingWidgetRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: BookingWidgetProvider._internal(
-        (ref) => create(ref as BookingWidgetRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        selectedDate: selectedDate,
-        account: account,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeStreamProviderElement<Widget> createElement() {
-    return _BookingWidgetProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is BookingWidgetProvider &&
-        other.selectedDate == selectedDate &&
-        other.account == account;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, selectedDate.hashCode);
-    hash = _SystemHash.combine(hash, account.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
+/// See also [visibleBookings].
+@ProviderFor(visibleBookings)
+final visibleBookingsProvider =
+    AutoDisposeFutureProvider<List<Booking>>.internal(
+  visibleBookings,
+  name: r'visibleBookingsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$visibleBookingsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin BookingWidgetRef on AutoDisposeStreamProviderRef<Widget> {
-  /// The parameter `selectedDate` of this provider.
-  DateTime? get selectedDate;
+typedef VisibleBookingsRef = AutoDisposeFutureProviderRef<List<Booking>>;
+String _$visibleCustomersHash() => r'e36ac592a03c5a713d16a5f510b045271b7e01bf';
 
-  /// The parameter `account` of this provider.
-  String get account;
-}
+/// See also [visibleCustomers].
+@ProviderFor(visibleCustomers)
+final visibleCustomersProvider =
+    AutoDisposeFutureProvider<List<Customer>>.internal(
+  visibleCustomers,
+  name: r'visibleCustomersProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$visibleCustomersHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-class _BookingWidgetProviderElement
-    extends AutoDisposeStreamProviderElement<Widget> with BookingWidgetRef {
-  _BookingWidgetProviderElement(super.provider);
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef VisibleCustomersRef = AutoDisposeFutureProviderRef<List<Customer>>;
+String _$accountHash() => r'2787716ed8903cef7bf0ef3133f6c1365ef6caab';
 
-  @override
-  DateTime? get selectedDate => (origin as BookingWidgetProvider).selectedDate;
-  @override
-  String get account => (origin as BookingWidgetProvider).account;
-}
+/// See also [Account].
+@ProviderFor(Account)
+final accountProvider = AutoDisposeNotifierProvider<Account, String?>.internal(
+  Account.new,
+  name: r'accountProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$accountHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-String _$visibleDatesHash() => r'dfe2cbad98045d9ada5bc582c89c0f797e7cd33b';
+typedef _$Account = AutoDisposeNotifier<String?>;
+String _$visibleDatesHash() => r'26be57b90483ad3e22700e8275c1ae57d5c7dbcd';
 
 /// See also [VisibleDates].
 @ProviderFor(VisibleDates)

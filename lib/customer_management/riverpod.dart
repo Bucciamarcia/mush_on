@@ -161,9 +161,9 @@ Stream<List<Customer>> customersByCustomerGroupId(
   }
 
   // Create a stream for each booking's customers
-  final List<Stream<List<Customer>>> customerStreams =
-      bookings.map((booking) => customersByBookingId(ref, booking.id)).toList();
-
+  final List<Stream<List<Customer>>> customerStreams = bookings
+      .map((booking) => customersByBookingId(ref, booking.id, account: account))
+      .toList();
   // Merge all streams and combine their results
   yield* Rx.combineLatestList(customerStreams).map((listOfLists) {
     // Flatten the list of lists into a single list

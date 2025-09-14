@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'calendar/main.dart';
@@ -21,11 +22,14 @@ class _BookingPageState extends ConsumerState<BookingPage> {
     if (widget.account == null || widget.tourId == null) {
       return const NoKennelOrTourIdErrorPage();
     }
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      ref.read(accountProvider.notifier).change(widget.account!);
+    });
 
     /// Info about the tour type that is being booked.
     final tourTypeAsync = ref.watch(
         tourTypeProvider(account: widget.account!, tourId: widget.tourId!));
-    final selectedDate = ref.watch(selectedDateInCalendarProvider);
+    DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
 
     return tourTypeAsync.when(
         data: (tourType) {
@@ -38,11 +42,6 @@ class _BookingPageState extends ConsumerState<BookingPage> {
               child: Row(
                 children: [
                   BookingCalendar(tourType: tourType, account: widget.account!),
-                  ref
-                          .watch(BookingWidgetProvider(
-                              selectedDate, widget.account!))
-                          .value ??
-                      const CircularProgressIndicator.adaptive()
                 ],
               ),
             ),
