@@ -17,18 +17,12 @@ class BookingCalendar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<DateTime> visibleDates = ref.watch(visibleDatesProvider);
     List<CustomerGroup>? visibleCustomerGroups =
         ref.watch(visibleCustomerGroupsProvider).value;
-    List<Booking>? visibleBookings = ref.watch(visibleBookingsProvider).value;
-    List<Customer>? visibleCustomers =
-        ref.watch(visibleCustomersProvider).value;
     Map<DateTime, List<CustomerGroup>>? customerGroupsByDay =
         ref.watch(customerGroupsByDayProvider).value;
-    Map<String, List<Booking>>? bookingsByCustomerGroupId =
-        ref.watch(bookingsByCustomerGroupIdProvider).value;
-    Map<String, List<Customer>>? customersByBookingId =
-        ref.watch(customersByBookingIdProvider).value;
+    Map<String, int>? customersNumberByCgId =
+        ref.watch(customersNumberByCustomerGroupIdProvider).value;
     return Expanded(
       child: SfCalendar(
         view: CalendarView.month,
@@ -45,8 +39,7 @@ class BookingCalendar extends ConsumerWidget {
             },
             child: Container(
               margin: const EdgeInsets.all(5),
-              color: _getCellColor(todayCustomerGroups,
-                  bookingsByCustomerGroupId, customersByBookingId),
+              color: _getCellColor(todayCustomerGroups, customersNumberByCgId),
               child: Text(details.date.toString()),
             ),
           );
@@ -70,20 +63,14 @@ class BookingCalendar extends ConsumerWidget {
     );
   }
 
-  Color _getCellColor(
-      List<CustomerGroup> dayCustomerGroups,
-      Map<String, List<Booking>>? bookingsByCustomerGroupId,
-      Map<String, List<Customer>>? customersByBookingId) {
+  Color _getCellColor(List<CustomerGroup> dayCustomerGroups,
+      Map<String, int>? customersNumberByCgId) {
     if (dayCustomerGroups.isEmpty) return Colors.red;
+    if (customersNumberByCgId == null) return Colors.red;
     for (final cg in dayCustomerGroups) {
-      int customersInCg = 0;
-      List<Booking> bookings = bookingsByCustomerGroupId?[cg.id] ?? [];
-      for (final booking in bookings) {
-        final List<Customer> customers =
-            customersByBookingId?[booking.id] ?? [];
-        customersInCg = customersInCg + customers.length;
-      }
-      if (cg.maxCapacity > customersInCg) return Colors.green;
+      final n = customersNumberByCgId[cg.id];
+      if (n == null) continue;
+      if (cg.maxCapacity > n) return Colors.green;
     }
     return Colors.red;
   }

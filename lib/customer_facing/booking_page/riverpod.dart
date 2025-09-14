@@ -159,6 +159,27 @@ Future<Map<String, List<Customer>>> customersByBookingId(Ref ref) async {
 }
 
 @riverpod
+
+/// How many customers are in each customer group, summing all bookings.
+Future<Map<String, int>> customersNumberByCustomerGroupId(Ref ref) async {
+  final bookingsByCgId =
+      await ref.watch(bookingsByCustomerGroupIdProvider.future);
+  final customersByBookingId =
+      await ref.watch(customersByBookingIdProvider.future);
+  Map<String, int> toReturn = {};
+  for (final cgId in bookingsByCgId.keys) {
+    final bookings = bookingsByCgId[cgId] ?? [];
+    int count = 0;
+    for (final booking in bookings) {
+      final customers = customersByBookingId[booking.id] ?? [];
+      count += customers.length;
+    }
+    toReturn[cgId] = count;
+  }
+  return toReturn;
+}
+
+@riverpod
 class SelectedDateInCalendar extends _$SelectedDateInCalendar {
   @override
   DateTime? build() {

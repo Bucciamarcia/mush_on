@@ -289,6 +289,28 @@ final customersByBookingIdProvider =
 // ignore: unused_element
 typedef CustomersByBookingIdRef
     = AutoDisposeFutureProviderRef<Map<String, List<Customer>>>;
+String _$customersNumberByCustomerGroupIdHash() =>
+    r'f9ead66bf5efd8040d4d6bf3b6c3b10c08425a86';
+
+/// How many customers are in each customer group, summing all bookings.
+///
+/// Copied from [customersNumberByCustomerGroupId].
+@ProviderFor(customersNumberByCustomerGroupId)
+final customersNumberByCustomerGroupIdProvider =
+    AutoDisposeFutureProvider<Map<String, int>>.internal(
+  customersNumberByCustomerGroupId,
+  name: r'customersNumberByCustomerGroupIdProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$customersNumberByCustomerGroupIdHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CustomersNumberByCustomerGroupIdRef
+    = AutoDisposeFutureProviderRef<Map<String, int>>;
 String _$accountHash() => r'2787716ed8903cef7bf0ef3133f6c1365ef6caab';
 
 /// See also [Account].
