@@ -229,6 +229,26 @@ final visibleCustomersProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef VisibleCustomersRef = AutoDisposeFutureProviderRef<List<Customer>>;
+String _$customerGroupsByDayHash() =>
+    r'58e550d1f1f3a607313291b57372623854bbb236';
+
+/// See also [customerGroupsByDay].
+@ProviderFor(customerGroupsByDay)
+final customerGroupsByDayProvider =
+    AutoDisposeFutureProvider<Map<DateTime, List<CustomerGroup>>>.internal(
+  customerGroupsByDay,
+  name: r'customerGroupsByDayProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$customerGroupsByDayHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CustomerGroupsByDayRef
+    = AutoDisposeFutureProviderRef<Map<DateTime, List<CustomerGroup>>>;
 String _$accountHash() => r'2787716ed8903cef7bf0ef3133f6c1365ef6caab';
 
 /// See also [Account].

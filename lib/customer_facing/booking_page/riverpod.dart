@@ -115,6 +115,23 @@ Future<List<Customer>> visibleCustomers(Ref ref) async {
 }
 
 @riverpod
+Future<Map<DateTime, List<CustomerGroup>>> customerGroupsByDay(Ref ref) async {
+  List<DateTime> visibleDates = ref.watch(visibleDatesProvider);
+  List<CustomerGroup> customerGroups =
+      await ref.watch(visibleCustomerGroupsProvider.future);
+  Map<DateTime, List<CustomerGroup>> toReturn = {};
+  for (final date in visibleDates) {
+    toReturn[date] = customerGroups
+        .where((cg) =>
+            cg.datetime.year == date.year &&
+            cg.datetime.month == date.month &&
+            cg.datetime.day == date.day)
+        .toList();
+  }
+  return toReturn;
+}
+
+@riverpod
 class SelectedDateInCalendar extends _$SelectedDateInCalendar {
   @override
   DateTime? build() {
