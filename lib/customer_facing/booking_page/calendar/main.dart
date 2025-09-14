@@ -23,18 +23,15 @@ class BookingCalendar extends ConsumerWidget {
     List<Booking>? visibleBookings = ref.watch(visibleBookingsProvider).value;
     List<Customer>? visibleCustomers =
         ref.watch(visibleCustomersProvider).value;
+    Map<DateTime, List<CustomerGroup>>? customerGroupsByDay =
+        ref.watch(customerGroupsByDayProvider).value;
     return Expanded(
       child: SfCalendar(
         view: CalendarView.month,
         firstDayOfWeek: 1,
         monthCellBuilder: (BuildContext cellContext, MonthCellDetails details) {
-          late final List<CustomerGroup> todayCustomerGroups;
-          if (visibleCustomerGroups == null) {
-            todayCustomerGroups = [];
-          } else {
-            todayCustomerGroups =
-                _getTodayCustomerGroups(details.date, visibleCustomerGroups);
-          }
+          List<CustomerGroup> todayCustomerGroups =
+              customerGroupsByDay?[details.date] ?? [];
 
           return InkWell(
             onTap: () {
@@ -44,7 +41,7 @@ class BookingCalendar extends ConsumerWidget {
             },
             child: Container(
               margin: const EdgeInsets.all(5),
-              color: Colors.red,
+              color: todayCustomerGroups.isEmpty ? Colors.red : Colors.green,
               child: Text(details.date.toString()),
             ),
           );
@@ -66,16 +63,6 @@ class BookingCalendar extends ConsumerWidget {
         },
       ),
     );
-  }
-
-  List<CustomerGroup> _getTodayCustomerGroups(
-      DateTime today, List<CustomerGroup> cgs) {
-    return cgs
-        .where((cg) =>
-            cg.datetime.year == today.year &&
-            cg.datetime.month == today.month &&
-            cg.datetime.day == today.day)
-        .toList();
   }
 }
 
