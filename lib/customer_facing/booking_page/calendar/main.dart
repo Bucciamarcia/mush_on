@@ -76,14 +76,14 @@ class BookingCalendar extends ConsumerWidget {
       Map<String, List<Customer>>? customersByBookingId) {
     if (dayCustomerGroups.isEmpty) return Colors.red;
     for (final cg in dayCustomerGroups) {
-      List<Customer> customersInCg = [];
+      int customersInCg = 0;
       List<Booking> bookings = bookingsByCustomerGroupId?[cg.id] ?? [];
       for (final booking in bookings) {
         final List<Customer> customers =
             customersByBookingId?[booking.id] ?? [];
-        customersInCg.addAll(customers);
+        customersInCg = customersInCg + customers.length;
       }
-      if (cg.maxCapacity > customersInCg.length) return Colors.green;
+      if (cg.maxCapacity > customersInCg) return Colors.green;
     }
     return Colors.red;
   }

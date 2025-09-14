@@ -303,7 +303,7 @@ final accountProvider = AutoDisposeNotifierProvider<Account, String?>.internal(
 );
 
 typedef _$Account = AutoDisposeNotifier<String?>;
-String _$visibleDatesHash() => r'26be57b90483ad3e22700e8275c1ae57d5c7dbcd';
+String _$visibleDatesHash() => r'56469be751db1a9e462ea752b71ea49d955d2d8e';
 
 /// See also [VisibleDates].
 @ProviderFor(VisibleDates)
