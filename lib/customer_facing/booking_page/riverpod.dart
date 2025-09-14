@@ -40,6 +40,7 @@ class VisibleDates extends _$VisibleDates {
   void change(List<DateTime> newDates) {
     final sorted = List<DateTime>.from(newDates);
     sorted.sort((a, b) => a.compareTo(b));
+    if (sorted == state) return;
     state = sorted;
   }
 }
