@@ -25,6 +25,10 @@ class BookingCalendar extends ConsumerWidget {
         ref.watch(visibleCustomersProvider).value;
     Map<DateTime, List<CustomerGroup>>? customerGroupsByDay =
         ref.watch(customerGroupsByDayProvider).value;
+    Map<String, List<Booking>>? bookingsByCustomerGroupId =
+        ref.watch(bookingsByCustomerGroupIdProvider).value;
+    Map<String, List<Customer>>? customersByBookingId =
+        ref.watch(customersByBookingIdProvider).value;
     return Expanded(
       child: SfCalendar(
         view: CalendarView.month,
@@ -41,7 +45,8 @@ class BookingCalendar extends ConsumerWidget {
             },
             child: Container(
               margin: const EdgeInsets.all(5),
-              color: todayCustomerGroups.isEmpty ? Colors.red : Colors.green,
+              color: _getCellColor(todayCustomerGroups,
+                  bookingsByCustomerGroupId, customersByBookingId),
               child: Text(details.date.toString()),
             ),
           );
@@ -63,6 +68,24 @@ class BookingCalendar extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  Color _getCellColor(
+      List<CustomerGroup> dayCustomerGroups,
+      Map<String, List<Booking>>? bookingsByCustomerGroupId,
+      Map<String, List<Customer>>? customersByBookingId) {
+    if (dayCustomerGroups.isEmpty) return Colors.red;
+    for (final cg in dayCustomerGroups) {
+      List<Customer> customersInCg = [];
+      List<Booking> bookings = bookingsByCustomerGroupId?[cg.id] ?? [];
+      for (final booking in bookings) {
+        final List<Customer> customers =
+            customersByBookingId?[booking.id] ?? [];
+        customersInCg.addAll(customers);
+      }
+      if (cg.maxCapacity > customersInCg.length) return Colors.green;
+    }
+    return Colors.red;
   }
 }
 

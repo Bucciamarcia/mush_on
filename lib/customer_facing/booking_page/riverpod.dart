@@ -132,6 +132,32 @@ Future<Map<DateTime, List<CustomerGroup>>> customerGroupsByDay(Ref ref) async {
 }
 
 @riverpod
+Future<Map<String, List<Booking>>> bookingsByCustomerGroupId(Ref ref) async {
+  List<CustomerGroup> customerGroups =
+      await ref.watch(visibleCustomerGroupsProvider.future);
+  Map<String, List<Booking>> toReturn = {};
+  List<Booking> bookings = await ref.watch(visibleBookingsProvider.future);
+  for (final cg in customerGroups) {
+    toReturn[cg.id] =
+        bookings.where((booking) => booking.customerGroupId == cg.id).toList();
+  }
+  return toReturn;
+}
+
+@riverpod
+Future<Map<String, List<Customer>>> customersByBookingId(Ref ref) async {
+  List<Booking> bookings = await ref.watch(visibleBookingsProvider.future);
+  Map<String, List<Customer>> toReturn = {};
+  List<Customer> customers = await ref.watch(visibleCustomersProvider.future);
+  for (final booking in bookings) {
+    toReturn[booking.id] = customers
+        .where((customer) => customer.bookingId == booking.id)
+        .toList();
+  }
+  return toReturn;
+}
+
+@riverpod
 class SelectedDateInCalendar extends _$SelectedDateInCalendar {
   @override
   DateTime? build() {
