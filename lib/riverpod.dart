@@ -25,6 +25,7 @@ Stream<UserName?> userName(Ref ref, String? uid) async* {
     User? user = ref.watch(userProvider).value;
     if (user == null) {
       yield null;
+      return;
     } else {
       path = "users/${user.uid}";
     }

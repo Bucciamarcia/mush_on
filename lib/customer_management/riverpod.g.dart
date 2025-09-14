@@ -928,7 +928,7 @@ class _CustomersByBookingIdProviderElement
 }
 
 String _$customersByCustomerGroupIdHash() =>
-    r'd28cc78574c89dc0cd10f18476fe5d14c9d6335a';
+    r'd508a4f1f2f869487bafb2ea78f62557fa31f0ca';
 
 /// Gets all the customers assigned to a customer group
 ///

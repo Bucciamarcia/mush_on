@@ -1,14 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:mush_on/customer_facing/booking_page/booking_details.dart';
-import 'package:mush_on/customer_management/riverpod.dart';
+import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
-import 'package:mush_on/services/error_handling.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../../customer_management/models.dart';
 part 'riverpod.g.dart';
 
 @riverpod
@@ -25,6 +19,18 @@ Stream<TourType?> tourType(Ref ref,
 }
 
 @riverpod
+class Account extends _$Account {
+  @override
+  String? build() {
+    return null;
+  }
+
+  void change(String newAccount) {
+    state = newAccount;
+  }
+}
+
+@riverpod
 class VisibleDates extends _$VisibleDates {
   @override
   List<DateTime> build() {
@@ -32,65 +38,80 @@ class VisibleDates extends _$VisibleDates {
   }
 
   void change(List<DateTime> newDates) {
-    state = newDates;
+    final sorted = List<DateTime>.from(newDates);
+    sorted.sort((a, b) => a.compareTo(b));
+    state = sorted;
   }
 }
 
 @riverpod
-Future<Color> monthCellColor(
-    Ref ref, String todayCgIdsAndCapsKey, String account) async {
-  try {
-    if (todayCgIdsAndCapsKey.isEmpty) return Colors.red;
-
-    final entries = todayCgIdsAndCapsKey.split('|');
-    for (final entry in entries) {
-      if (entry.isEmpty) continue;
-      final parts = entry.split(':');
-      if (parts.length != 2) continue;
-      final String cgId = parts[0];
-      final int capacity = int.tryParse(parts[1]) ?? 0;
-
-      final List<Customer> customers = await ref.watch(
-          customersByCustomerGroupIdProvider(cgId, account: account).future);
-      if (capacity > customers.length) {
-        return Colors.green;
-      }
-    }
-    return Colors.grey;
-  } catch (e, s) {
-    BasicLogger().error("Couldn't get cell color", error: e, stackTrace: s);
-    return Colors.grey;
-  }
-}
-
-@riverpod
-Stream<Widget> bookingWidget(
-    Ref ref, DateTime? selectedDate, String account) async* {
-  if (selectedDate == null) yield const SizedBox.shrink();
+Future<List<CustomerGroup>> visibleCustomerGroups(Ref ref) async {
+  List<DateTime> visibleDates = ref.watch(visibleDatesProvider);
+  if (visibleDates.isEmpty) return [];
+  String? account = ref.watch(accountProvider);
   final db = FirebaseFirestore.instance;
-  final path = "accounts/$account/data/bookingManager/customerGroups";
   final collection = db
-      .collection(path)
-      .where("datetime", isGreaterThanOrEqualTo: selectedDate)
+      .collection("accounts/$account/data/bookingManager/customerGroups")
+      .where("datetime", isGreaterThanOrEqualTo: visibleDates.first)
       .where("datetime",
-          isLessThan: selectedDate!.add(const Duration(days: 1)));
-  yield* collection.snapshots().map((snapshot) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: snapshot.docs.map((doc) {
-        CustomerGroup cg = CustomerGroup.fromJson(doc.data());
-        List<Booking> bookedForDay = ref
-                .watch(
-                    bookingsByCustomerGroupIdProvider(cg.id, account: account))
-                .value ??
-            <Booking>[];
-        if (bookedForDay.length >= cg.maxCapacity) {
-          return const SizedBox.shrink();
-        }
-        return BookingWidgetCgCard(cg: cg, booked: bookedForDay.length);
-      }).toList(),
-    );
-  });
+          isLessThan: visibleDates.last.add(const Duration(days: 1)));
+  final snapshot = await collection.get();
+  return snapshot.docs
+      .map((doc) => CustomerGroup.fromJson(doc.data()))
+      .toList();
+}
+
+@riverpod
+Future<List<Booking>> visibleBookings(Ref ref) async {
+  final cgs = await ref.watch(visibleCustomerGroupsProvider.future);
+  if (cgs.isEmpty) return const [];
+
+  final account = ref.watch(accountProvider);
+  final db = FirebaseFirestore.instance;
+  final col = db.collection("accounts/$account/data/bookingManager/bookings");
+
+  final cgIds =
+      cgs.map((e) => e.id).where((id) => id.isNotEmpty).toSet().toList();
+  if (cgIds.isEmpty) return const [];
+
+  const batchSize = 25;
+  final futures = <Future<QuerySnapshot<Map<String, dynamic>>>>[];
+
+  for (var i = 0; i < cgIds.length; i += batchSize) {
+    final batch = cgIds.sublist(
+        i, i + batchSize > cgIds.length ? cgIds.length : i + batchSize);
+    futures.add(col.where("customerGroupId", whereIn: batch).get());
+  }
+
+  final snaps = await Future.wait(futures);
+  return snaps
+      .expand((s) => s.docs)
+      .map((d) => Booking.fromJson(d.data()))
+      .toList();
+}
+
+@riverpod
+Future<List<Customer>> visibleCustomers(Ref ref) async {
+  final bookings = await ref.watch(visibleBookingsProvider.future);
+  if (bookings.isEmpty) return [];
+  final account = ref.watch(accountProvider);
+  final db = FirebaseFirestore.instance;
+  final col = db.collection("accounts/$account/data/bookingManager/customers");
+  final bookingIds =
+      bookings.map((b) => b.id).where((id) => id.isNotEmpty).toSet().toList();
+  const batchSize = 25;
+  final futures = <Future<QuerySnapshot<Map<String, dynamic>>>>[];
+  for (var i = 0; i < bookingIds.length; i += batchSize) {
+    final batch = bookingIds.sublist(i,
+        i + batchSize > bookingIds.length ? bookingIds.length : i + batchSize);
+    futures.add(col.where("bookingId", whereIn: batch).get());
+  }
+
+  final snaps = await Future.wait(futures);
+  return snaps
+      .expand((s) => s.docs)
+      .map((d) => Customer.fromJson(d.data()))
+      .toList();
 }
 
 @riverpod
@@ -102,24 +123,5 @@ class SelectedDateInCalendar extends _$SelectedDateInCalendar {
 
   void change(DateTime newDate) {
     state = newDate;
-  }
-}
-
-class BookingWidgetCgCard extends ConsumerWidget {
-  final CustomerGroup cg;
-  final int booked;
-  const BookingWidgetCgCard(
-      {super.key, required this.cg, required this.booked});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    String formattedDate = DateFormat("hh:mm").format(cg.datetime);
-    return InkWell(
-      onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => BookingDetails(cg: cg))),
-      child: Card(
-        child: Text("$formattedDate: ${cg.name} || $booked/${cg.maxCapacity}"),
-      ),
-    );
   }
 }
