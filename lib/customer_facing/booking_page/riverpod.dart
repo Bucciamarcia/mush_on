@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
@@ -43,26 +43,42 @@ class VisibleDates extends _$VisibleDates {
   void change(List<DateTime> newDates) {
     final sorted = List<DateTime>.from(newDates);
     sorted.sort((a, b) => a.compareTo(b));
-    if (listEquals(sorted, state)) return;
     state = sorted;
   }
 }
 
 @riverpod
+class SelectedTourId extends _$SelectedTourId {
+  @override
+  String? build() {
+    return null;
+  }
+
+  void change(String id) {
+    state = id;
+  }
+}
+
+@riverpod
 Future<List<CustomerGroup>> visibleCustomerGroups(Ref ref) async {
+  BasicLogger().info("fetching cgf");
   List<DateTime> visibleDates = ref.watch(visibleDatesProvider);
   if (visibleDates.isEmpty) return [];
   String? account = ref.watch(accountProvider);
   final tourId = ref.watch(selectedTourIdProvider);
-  if (tourId == null) return [];
+  BasicLogger().debug("account: $account, tourId: $tourId");
+  if (tourId == null) {
+    BasicLogger().info("NOEP");
+    return [];
+  }
   final db = FirebaseFirestore.instance;
   final collection = db
       .collection("accounts/$account/data/bookingManager/customerGroups")
       .where("datetime", isGreaterThanOrEqualTo: visibleDates.first)
       .where("datetime",
-          isLessThan: visibleDates.last.add(const Duration(days: 1)))
-      .where("tourTypeId", isEqualTo: tourId);
+          isLessThan: visibleDates.last.add(const Duration(days: 1)));
   final snapshot = await collection.get();
+  BasicLogger().debug("Fetched ${snapshot.docs.length} customer groups");
   return snapshot.docs
       .map((doc) => CustomerGroup.fromJson(doc.data()))
       .toList();
@@ -197,9 +213,6 @@ class SelectedDateInCalendar extends _$SelectedDateInCalendar {
   }
 }
 
-// Selected tour id for customer-facing booking page (no codegen)
-final selectedTourIdProvider = StateProvider<String?>((ref) => null);
-
 @riverpod
 Future<List<TourTypePricing>> tourTypePricesByTourId(Ref ref,
     {required String tourId, required String account}) async {
@@ -247,5 +260,3 @@ sealed class BookingPricingNumberBooked with _$BookingPricingNumberBooked {
     @Default(0) int numberBooked,
   }) = _BookingPricingNumberBooked;
 }
-
-// (no extra classes needed here)
