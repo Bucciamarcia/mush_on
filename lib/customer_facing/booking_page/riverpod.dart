@@ -31,7 +31,6 @@ class Account extends _$Account {
   }
 
   void change(String newAccount) {
-    BasicLogger().info("Changed account to $newAccount");
     state = newAccount;
   }
 }
@@ -46,7 +45,6 @@ class VisibleDates extends _$VisibleDates {
   void change(List<DateTime> newDates) {
     final sorted = List<DateTime>.from(newDates);
     sorted.sort((a, b) => a.compareTo(b));
-    BasicLogger().debug("Changed visible dates to $sorted");
     state = sorted;
   }
 }
