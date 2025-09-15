@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tourTypeHash() => r'9d811f6e749817ade37ff16d41782acad7f4c891';
+String _$tourTypeHash() => r'921eecef97f12009be7a28f1315f5a090931d38d';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -174,7 +174,7 @@ class _TourTypeProviderElement
 }
 
 String _$visibleCustomerGroupsHash() =>
-    r'04da1038decac8dbeb694a79c05759d1f6382a85';
+    r'905e850321969a1635aa77fb01fbf2ea054a051c';
 
 /// See also [visibleCustomerGroups].
 @ProviderFor(visibleCustomerGroups)
