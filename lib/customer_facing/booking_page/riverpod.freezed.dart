@@ -13,7 +13,7 @@ part of 'riverpod.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$BookingPricingNumberBooked implements DiagnosticableTreeMixin {
+mixin _$BookingPricingNumberBooked {
   String get tourTypePricingId;
   int get numberBooked;
 
@@ -25,14 +25,6 @@ mixin _$BookingPricingNumberBooked implements DiagnosticableTreeMixin {
       get copyWith =>
           _$BookingPricingNumberBookedCopyWithImpl<BookingPricingNumberBooked>(
               this as BookingPricingNumberBooked, _$identity);
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    properties
-      ..add(DiagnosticsProperty('type', 'BookingPricingNumberBooked'))
-      ..add(DiagnosticsProperty('tourTypePricingId', tourTypePricingId))
-      ..add(DiagnosticsProperty('numberBooked', numberBooked));
-  }
 
   @override
   bool operator ==(Object other) {
@@ -49,7 +41,7 @@ mixin _$BookingPricingNumberBooked implements DiagnosticableTreeMixin {
   int get hashCode => Object.hash(runtimeType, tourTypePricingId, numberBooked);
 
   @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+  String toString() {
     return 'BookingPricingNumberBooked(tourTypePricingId: $tourTypePricingId, numberBooked: $numberBooked)';
   }
 }
@@ -247,9 +239,7 @@ extension BookingPricingNumberBookedPatterns on BookingPricingNumberBooked {
 
 /// @nodoc
 
-class _BookingPricingNumberBooked
-    with DiagnosticableTreeMixin
-    implements BookingPricingNumberBooked {
+class _BookingPricingNumberBooked implements BookingPricingNumberBooked {
   const _BookingPricingNumberBooked(
       {required this.tourTypePricingId, this.numberBooked = 0});
 
@@ -269,14 +259,6 @@ class _BookingPricingNumberBooked
           _BookingPricingNumberBooked>(this, _$identity);
 
   @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    properties
-      ..add(DiagnosticsProperty('type', 'BookingPricingNumberBooked'))
-      ..add(DiagnosticsProperty('tourTypePricingId', tourTypePricingId))
-      ..add(DiagnosticsProperty('numberBooked', numberBooked));
-  }
-
-  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
@@ -291,7 +273,7 @@ class _BookingPricingNumberBooked
   int get hashCode => Object.hash(runtimeType, tourTypePricingId, numberBooked);
 
   @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+  String toString() {
     return 'BookingPricingNumberBooked(tourTypePricingId: $tourTypePricingId, numberBooked: $numberBooked)';
   }
 }

@@ -174,7 +174,7 @@ class _TourTypeProviderElement
 }
 
 String _$visibleCustomerGroupsHash() =>
-    r'a26c1571532e01667c378cbc650e7a8ff4a04668';
+    r'91e31cec90c7a9723dd15732565076eb23a6b64c';
 
 /// See also [visibleCustomerGroups].
 @ProviderFor(visibleCustomerGroups)
@@ -478,7 +478,7 @@ final accountProvider = AutoDisposeNotifierProvider<Account, String?>.internal(
 );
 
 typedef _$Account = AutoDisposeNotifier<String?>;
-String _$visibleDatesHash() => r'4016c3d29ed297d2dd346c1bb74783499111f195';
+String _$visibleDatesHash() => r'26be57b90483ad3e22700e8275c1ae57d5c7dbcd';
 
 /// See also [VisibleDates].
 @ProviderFor(VisibleDates)
@@ -493,6 +493,22 @@ final visibleDatesProvider =
 );
 
 typedef _$VisibleDates = AutoDisposeNotifier<List<DateTime>>;
+String _$selectedTourIdHash() => r'4a36b0a9ec4d88f9a0dcc800823e3b22bade3368';
+
+/// See also [SelectedTourId].
+@ProviderFor(SelectedTourId)
+final selectedTourIdProvider =
+    AutoDisposeNotifierProvider<SelectedTourId, String?>.internal(
+  SelectedTourId.new,
+  name: r'selectedTourIdProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$selectedTourIdHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$SelectedTourId = AutoDisposeNotifier<String?>;
 String _$selectedDateInCalendarHash() =>
     r'462e39d7ac188907fd9bb9423d3df8eabc886aa6';
 

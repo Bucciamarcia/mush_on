@@ -29,6 +29,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
     }
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       ref.read(accountProvider.notifier).change(widget.account!);
+      ref.read(selectedTourIdProvider.notifier).change(widget.tourId!);
     });
 
     /// Info about the tour type that is being booked.
