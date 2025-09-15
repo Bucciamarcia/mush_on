@@ -174,7 +174,7 @@ class _TourTypeProviderElement
 }
 
 String _$visibleCustomerGroupsHash() =>
-    r'91e31cec90c7a9723dd15732565076eb23a6b64c';
+    r'9a2986a494e854cd4299fdbeec33da6881397c64';
 
 /// See also [visibleCustomerGroups].
 @ProviderFor(visibleCustomerGroups)
@@ -464,7 +464,7 @@ class _TourTypePricesByTourIdProviderElement
   String get account => (origin as TourTypePricesByTourIdProvider).account;
 }
 
-String _$accountHash() => r'2787716ed8903cef7bf0ef3133f6c1365ef6caab';
+String _$accountHash() => r'46c9d24744d21873f7f9ddaa573315225918d9b1';
 
 /// See also [Account].
 @ProviderFor(Account)
@@ -478,7 +478,7 @@ final accountProvider = AutoDisposeNotifierProvider<Account, String?>.internal(
 );
 
 typedef _$Account = AutoDisposeNotifier<String?>;
-String _$visibleDatesHash() => r'26be57b90483ad3e22700e8275c1ae57d5c7dbcd';
+String _$visibleDatesHash() => r'2c830c0b860f5c77d07d1b933ceb4a9627e61616';
 
 /// See also [VisibleDates].
 @ProviderFor(VisibleDates)

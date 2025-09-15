@@ -33,8 +33,9 @@ class _BookingPageState extends ConsumerState<BookingPage> {
     });
 
     /// Info about the tour type that is being booked.
-    final tourTypeAsync = ref.watch(
-        tourTypeProvider(account: widget.account!, tourId: widget.tourId!));
+    final tourTypeAsync = ref.watch(tourTypeProvider(
+        account: widget.account!,
+        tourId: ref.watch(selectedTourIdProvider) ?? ""));
     DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
 
     return tourTypeAsync.when(
