@@ -18,11 +18,6 @@ class BookingDetails extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    int placesLeft = cg.maxCapacity - customersNumber;
-    final List<int> placesList = List.generate(placesLeft + 1, (i) => i);
-    List<DropdownMenuEntry<int>> menuEntries = placesList
-        .map((n) => DropdownMenuEntry<int>(value: n, label: n.toString()))
-        .toList();
     String account = ref.watch(accountProvider)!;
     List<TourTypePricing>? pricings = ref
         .watch(tourTypePricesByTourIdProvider(
@@ -33,6 +28,15 @@ class BookingDetails extends ConsumerWidget {
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
     final notifier =
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings).notifier);
+
+    /// The sum of all the pricings.
+    final selectedPricingsInt = _sumSelected(selectedPricings);
+    int placesLeft = cg.maxCapacity - customersNumber;
+    final List<int> placesList = List.generate(placesLeft + 1, (i) => i);
+    List<DropdownMenuEntry<int>> menuEntries = placesList
+        .map((n) => DropdownMenuEntry<int>(value: n, label: n.toString()))
+        .toList();
+    bool exceededMax = selectedPricingsInt > placesLeft;
     return Column(
       children: [
         ElevatedButton(
@@ -42,15 +46,29 @@ class BookingDetails extends ConsumerWidget {
             pricing: pricing,
             menuEntries: menuEntries,
             onChanged: (s) => notifier.editSinglePricing(pricing.id, s))),
+        exceededMax
+            ? Text(
+                "You can book only $placesLeft spots, but you've selected $selectedPricingsInt")
+            : const SizedBox.shrink(),
         ElevatedButton(
-            onPressed: () {
-              BasicLogger().info(
-                  "This will load the Stripe page for payment and add the booking to the db");
-              BasicLogger().debug(selectedPricings);
-            },
+            onPressed: exceededMax
+                ? null
+                : () {
+                    BasicLogger().info(
+                        "This will load the Stripe page for payment and add the booking to the db");
+                    BasicLogger().debug(selectedPricings);
+                  },
             child: const Text("Book now"))
       ],
     );
+  }
+
+  int _sumSelected(List<BookingPricingNumberBooked> selectedPricings) {
+    int sum = 0;
+    for (var pricing in selectedPricings) {
+      sum += pricing.numberBooked;
+    }
+    return sum;
   }
 }
 

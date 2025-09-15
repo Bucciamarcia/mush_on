@@ -21,10 +21,11 @@ Stream<TourType?> tourType(Ref ref,
   });
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class Account extends _$Account {
   @override
   String? build() {
+    ref.keepAlive();
     return null;
   }
 
@@ -69,6 +70,9 @@ Future<List<CustomerGroup>> visibleCustomerGroups(Ref ref) async {
   String? account = ref.watch(accountProvider);
   final tourId = ref.watch(selectedTourIdProvider);
   BasicLogger().debug("account: $account, tourId: $tourId");
+  if (account == null || account.isEmpty) {
+    return [];
+  }
   if (tourId == null) {
     BasicLogger().info("NOEP");
     return [];
@@ -93,6 +97,7 @@ Future<List<Booking>> visibleBookings(Ref ref) async {
   if (cgs.isEmpty) return const [];
 
   final account = ref.watch(accountProvider);
+  if (account == null || account.isEmpty) return const [];
   final db = FirebaseFirestore.instance;
   final col = db.collection("accounts/$account/data/bookingManager/bookings");
 
@@ -121,6 +126,7 @@ Future<List<Customer>> visibleCustomers(Ref ref) async {
   final bookings = await ref.watch(visibleBookingsProvider.future);
   if (bookings.isEmpty) return [];
   final account = ref.watch(accountProvider);
+  if (account == null || account.isEmpty) return [];
   final db = FirebaseFirestore.instance;
   final col = db.collection("accounts/$account/data/bookingManager/customers");
   final bookingIds =
