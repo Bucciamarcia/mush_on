@@ -174,7 +174,7 @@ class _TourTypeProviderElement
 }
 
 String _$visibleCustomerGroupsHash() =>
-    r'816b361e8827b1288045b00b116cee1a242b3a5a';
+    r'a26c1571532e01667c378cbc650e7a8ff4a04668';
 
 /// See also [visibleCustomerGroups].
 @ProviderFor(visibleCustomerGroups)
@@ -311,6 +311,159 @@ final customersNumberByCustomerGroupIdProvider =
 // ignore: unused_element
 typedef CustomersNumberByCustomerGroupIdRef
     = AutoDisposeFutureProviderRef<Map<String, int>>;
+String _$tourTypePricesByTourIdHash() =>
+    r'78e9440d0bf032c91e90eaa57d9e31d5cf526eab';
+
+/// See also [tourTypePricesByTourId].
+@ProviderFor(tourTypePricesByTourId)
+const tourTypePricesByTourIdProvider = TourTypePricesByTourIdFamily();
+
+/// See also [tourTypePricesByTourId].
+class TourTypePricesByTourIdFamily
+    extends Family<AsyncValue<List<TourTypePricing>>> {
+  /// See also [tourTypePricesByTourId].
+  const TourTypePricesByTourIdFamily();
+
+  /// See also [tourTypePricesByTourId].
+  TourTypePricesByTourIdProvider call({
+    required String tourId,
+    required String account,
+  }) {
+    return TourTypePricesByTourIdProvider(
+      tourId: tourId,
+      account: account,
+    );
+  }
+
+  @override
+  TourTypePricesByTourIdProvider getProviderOverride(
+    covariant TourTypePricesByTourIdProvider provider,
+  ) {
+    return call(
+      tourId: provider.tourId,
+      account: provider.account,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'tourTypePricesByTourIdProvider';
+}
+
+/// See also [tourTypePricesByTourId].
+class TourTypePricesByTourIdProvider
+    extends AutoDisposeFutureProvider<List<TourTypePricing>> {
+  /// See also [tourTypePricesByTourId].
+  TourTypePricesByTourIdProvider({
+    required String tourId,
+    required String account,
+  }) : this._internal(
+          (ref) => tourTypePricesByTourId(
+            ref as TourTypePricesByTourIdRef,
+            tourId: tourId,
+            account: account,
+          ),
+          from: tourTypePricesByTourIdProvider,
+          name: r'tourTypePricesByTourIdProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$tourTypePricesByTourIdHash,
+          dependencies: TourTypePricesByTourIdFamily._dependencies,
+          allTransitiveDependencies:
+              TourTypePricesByTourIdFamily._allTransitiveDependencies,
+          tourId: tourId,
+          account: account,
+        );
+
+  TourTypePricesByTourIdProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.tourId,
+    required this.account,
+  }) : super.internal();
+
+  final String tourId;
+  final String account;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<TourTypePricing>> Function(TourTypePricesByTourIdRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: TourTypePricesByTourIdProvider._internal(
+        (ref) => create(ref as TourTypePricesByTourIdRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        tourId: tourId,
+        account: account,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<TourTypePricing>> createElement() {
+    return _TourTypePricesByTourIdProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TourTypePricesByTourIdProvider &&
+        other.tourId == tourId &&
+        other.account == account;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, tourId.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin TourTypePricesByTourIdRef
+    on AutoDisposeFutureProviderRef<List<TourTypePricing>> {
+  /// The parameter `tourId` of this provider.
+  String get tourId;
+
+  /// The parameter `account` of this provider.
+  String get account;
+}
+
+class _TourTypePricesByTourIdProviderElement
+    extends AutoDisposeFutureProviderElement<List<TourTypePricing>>
+    with TourTypePricesByTourIdRef {
+  _TourTypePricesByTourIdProviderElement(super.provider);
+
+  @override
+  String get tourId => (origin as TourTypePricesByTourIdProvider).tourId;
+  @override
+  String get account => (origin as TourTypePricesByTourIdProvider).account;
+}
+
 String _$accountHash() => r'2787716ed8903cef7bf0ef3133f6c1365ef6caab';
 
 /// See also [Account].
@@ -325,7 +478,7 @@ final accountProvider = AutoDisposeNotifierProvider<Account, String?>.internal(
 );
 
 typedef _$Account = AutoDisposeNotifier<String?>;
-String _$visibleDatesHash() => r'56469be751db1a9e462ea752b71ea49d955d2d8e';
+String _$visibleDatesHash() => r'4016c3d29ed297d2dd346c1bb74783499111f195';
 
 /// See also [VisibleDates].
 @ProviderFor(VisibleDates)
@@ -357,5 +510,170 @@ final selectedDateInCalendarProvider =
 );
 
 typedef _$SelectedDateInCalendar = AutoDisposeNotifier<DateTime?>;
+String _$bookingDetailsSelectedPricingsHash() =>
+    r'1bca2d631062e4ca34d211843bf7ce27385b1c8e';
+
+abstract class _$BookingDetailsSelectedPricings
+    extends BuildlessAutoDisposeNotifier<List<BookingPricingNumberBooked>> {
+  late final List<TourTypePricing> pricings;
+
+  List<BookingPricingNumberBooked> build(
+    List<TourTypePricing> pricings,
+  );
+}
+
+/// The number of each pricing tier that the customer has selected. Data for stripe.
+///
+/// Copied from [BookingDetailsSelectedPricings].
+@ProviderFor(BookingDetailsSelectedPricings)
+const bookingDetailsSelectedPricingsProvider =
+    BookingDetailsSelectedPricingsFamily();
+
+/// The number of each pricing tier that the customer has selected. Data for stripe.
+///
+/// Copied from [BookingDetailsSelectedPricings].
+class BookingDetailsSelectedPricingsFamily
+    extends Family<List<BookingPricingNumberBooked>> {
+  /// The number of each pricing tier that the customer has selected. Data for stripe.
+  ///
+  /// Copied from [BookingDetailsSelectedPricings].
+  const BookingDetailsSelectedPricingsFamily();
+
+  /// The number of each pricing tier that the customer has selected. Data for stripe.
+  ///
+  /// Copied from [BookingDetailsSelectedPricings].
+  BookingDetailsSelectedPricingsProvider call(
+    List<TourTypePricing> pricings,
+  ) {
+    return BookingDetailsSelectedPricingsProvider(
+      pricings,
+    );
+  }
+
+  @override
+  BookingDetailsSelectedPricingsProvider getProviderOverride(
+    covariant BookingDetailsSelectedPricingsProvider provider,
+  ) {
+    return call(
+      provider.pricings,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'bookingDetailsSelectedPricingsProvider';
+}
+
+/// The number of each pricing tier that the customer has selected. Data for stripe.
+///
+/// Copied from [BookingDetailsSelectedPricings].
+class BookingDetailsSelectedPricingsProvider
+    extends AutoDisposeNotifierProviderImpl<BookingDetailsSelectedPricings,
+        List<BookingPricingNumberBooked>> {
+  /// The number of each pricing tier that the customer has selected. Data for stripe.
+  ///
+  /// Copied from [BookingDetailsSelectedPricings].
+  BookingDetailsSelectedPricingsProvider(
+    List<TourTypePricing> pricings,
+  ) : this._internal(
+          () => BookingDetailsSelectedPricings()..pricings = pricings,
+          from: bookingDetailsSelectedPricingsProvider,
+          name: r'bookingDetailsSelectedPricingsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$bookingDetailsSelectedPricingsHash,
+          dependencies: BookingDetailsSelectedPricingsFamily._dependencies,
+          allTransitiveDependencies:
+              BookingDetailsSelectedPricingsFamily._allTransitiveDependencies,
+          pricings: pricings,
+        );
+
+  BookingDetailsSelectedPricingsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.pricings,
+  }) : super.internal();
+
+  final List<TourTypePricing> pricings;
+
+  @override
+  List<BookingPricingNumberBooked> runNotifierBuild(
+    covariant BookingDetailsSelectedPricings notifier,
+  ) {
+    return notifier.build(
+      pricings,
+    );
+  }
+
+  @override
+  Override overrideWith(BookingDetailsSelectedPricings Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: BookingDetailsSelectedPricingsProvider._internal(
+        () => create()..pricings = pricings,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        pricings: pricings,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeNotifierProviderElement<BookingDetailsSelectedPricings,
+      List<BookingPricingNumberBooked>> createElement() {
+    return _BookingDetailsSelectedPricingsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is BookingDetailsSelectedPricingsProvider &&
+        other.pricings == pricings;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, pricings.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin BookingDetailsSelectedPricingsRef
+    on AutoDisposeNotifierProviderRef<List<BookingPricingNumberBooked>> {
+  /// The parameter `pricings` of this provider.
+  List<TourTypePricing> get pricings;
+}
+
+class _BookingDetailsSelectedPricingsProviderElement
+    extends AutoDisposeNotifierProviderElement<BookingDetailsSelectedPricings,
+        List<BookingPricingNumberBooked>>
+    with BookingDetailsSelectedPricingsRef {
+  _BookingDetailsSelectedPricingsProviderElement(super.provider);
+
+  @override
+  List<TourTypePricing> get pricings =>
+      (origin as BookingDetailsSelectedPricingsProvider).pricings;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
