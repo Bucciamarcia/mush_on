@@ -174,7 +174,7 @@ class _TourTypeProviderElement
 }
 
 String _$visibleCustomerGroupsHash() =>
-    r'9a2986a494e854cd4299fdbeec33da6881397c64';
+    r'04da1038decac8dbeb694a79c05759d1f6382a85';
 
 /// See also [visibleCustomerGroups].
 @ProviderFor(visibleCustomerGroups)
@@ -193,7 +193,7 @@ final visibleCustomerGroupsProvider =
 // ignore: unused_element
 typedef VisibleCustomerGroupsRef
     = AutoDisposeFutureProviderRef<List<CustomerGroup>>;
-String _$visibleBookingsHash() => r'dcb2ac46459aa7d990744a19122e9998615ae414';
+String _$visibleBookingsHash() => r'd1acab068d6a11831b7c6806adc821693bfcc63f';
 
 /// See also [visibleBookings].
 @ProviderFor(visibleBookings)
@@ -211,7 +211,7 @@ final visibleBookingsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef VisibleBookingsRef = AutoDisposeFutureProviderRef<List<Booking>>;
-String _$visibleCustomersHash() => r'e36ac592a03c5a713d16a5f510b045271b7e01bf';
+String _$visibleCustomersHash() => r'2381dbf7e28dcef21a347387b9f855404a3dee9b';
 
 /// See also [visibleCustomers].
 @ProviderFor(visibleCustomers)
@@ -464,11 +464,11 @@ class _TourTypePricesByTourIdProviderElement
   String get account => (origin as TourTypePricesByTourIdProvider).account;
 }
 
-String _$accountHash() => r'46c9d24744d21873f7f9ddaa573315225918d9b1';
+String _$accountHash() => r'aaa473da6e9eb8861770da6bed2e3b61366e7399';
 
 /// See also [Account].
 @ProviderFor(Account)
-final accountProvider = AutoDisposeNotifierProvider<Account, String?>.internal(
+final accountProvider = NotifierProvider<Account, String?>.internal(
   Account.new,
   name: r'accountProvider',
   debugGetCreateSourceHash:
@@ -477,7 +477,7 @@ final accountProvider = AutoDisposeNotifierProvider<Account, String?>.internal(
   allTransitiveDependencies: null,
 );
 
-typedef _$Account = AutoDisposeNotifier<String?>;
+typedef _$Account = Notifier<String?>;
 String _$visibleDatesHash() => r'2c830c0b860f5c77d07d1b933ceb4a9627e61616';
 
 /// See also [VisibleDates].

@@ -74,12 +74,6 @@ class BookingDayDetails extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Map<DateTime, List<CustomerGroup>>? customerGroupsByDay =
         ref.watch(customerGroupsByDayProvider).value;
-    Map<String, List<Booking>>? bookingsByCustomerGroupId =
-        ref.watch(bookingsByCustomerGroupIdProvider).value;
-    Map<String, List<Customer>>? customersByBookingId =
-        ref.watch(customersByBookingIdProvider).value;
-    Map<String, int>? customersNumberByCgId =
-        ref.watch(customersNumberByCustomerGroupIdProvider).value;
     DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
