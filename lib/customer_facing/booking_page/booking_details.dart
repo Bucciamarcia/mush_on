@@ -9,6 +9,7 @@ class BookingDetails extends ConsumerWidget {
   final CustomerGroup cg;
   final int customersNumber;
   final TourType tourType;
+  static final logger = BasicLogger();
   const BookingDetails(
       {super.key,
       required this.cg,
