@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:mush_on/customer_facing/booking_page/booking_details.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'calendar/main.dart';
 
@@ -19,13 +22,34 @@ class BookingPage extends ConsumerStatefulWidget {
 class _BookingPageState extends ConsumerState<BookingPage> {
   static final logger = BasicLogger();
   @override
+  void initState() {
+    super.initState();
+    // Initialize global state once with provided params
+    if (widget.account != null) {
+      ref.read(accountProvider.notifier).change(widget.account!);
+    }
+    if (widget.tourId != null) {
+      ref.read(selectedTourIdProvider.notifier).state = widget.tourId!;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant BookingPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update providers only if values actually changed
+    if (widget.account != null && widget.account != oldWidget.account) {
+      ref.read(accountProvider.notifier).change(widget.account!);
+    }
+    if (widget.tourId != null && widget.tourId != oldWidget.tourId) {
+      ref.read(selectedTourIdProvider.notifier).state = widget.tourId!;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (widget.account == null || widget.tourId == null) {
       return const NoKennelOrTourIdErrorPage();
     }
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      ref.read(accountProvider.notifier).change(widget.account!);
-    });
 
     /// Info about the tour type that is being booked.
     final tourTypeAsync = ref.watch(
@@ -45,7 +69,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                   BookingCalendar(tourType: tourType, account: widget.account!),
                   selectedDate == null
                       ? const SizedBox.shrink()
-                      : const BookingDayDetails()
+                      : BookingDayDetails(tourType: tourType)
                 ],
               ),
             ),
@@ -61,7 +85,8 @@ class _BookingPageState extends ConsumerState<BookingPage> {
 }
 
 class BookingDayDetails extends ConsumerWidget {
-  const BookingDayDetails({super.key});
+  final TourType tourType;
+  const BookingDayDetails({super.key, required this.tourType});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -77,9 +102,46 @@ class BookingDayDetails extends ConsumerWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: (customerGroupsByDay?[selectedDate!]
-              ?.map((cg) => Text(cg.datetime.toString()))
+              ?.map(
+                (cg) => SingleCgSlotCard(cg: cg, tourType: tourType),
+              )
               .toList()) ??
           [],
+    );
+  }
+}
+
+class SingleCgSlotCard extends ConsumerWidget {
+  final CustomerGroup cg;
+  final TourType tourType;
+  const SingleCgSlotCard({super.key, required this.cg, required this.tourType});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Map<String, int>? customersNumberByCgId =
+        ref.watch(customersNumberByCustomerGroupIdProvider).value;
+    if (customersNumberByCgId == null || customersNumberByCgId[cg.id] == null) {
+      return const SizedBox.shrink();
+    }
+    String formattedTime = DateFormat("hh:mm").format(cg.datetime);
+    String occupiedAndTotal =
+        "${customersNumberByCgId[cg.id]}/${cg.maxCapacity}";
+    bool isFull = customersNumberByCgId[cg.id]! >= cg.maxCapacity;
+    return InkWell(
+      onTap: isFull
+          ? null
+          : () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => BookingDetails(
+                      cg: cg,
+                      customersNumber: customersNumberByCgId[cg.id]!,
+                      tourType: tourType),
+                ),
+              ),
+      child: Card(
+        color: isFull ? Colors.grey : Colors.lightGreen[200],
+        child: Text("$formattedTime $occupiedAndTotal"),
+      ),
     );
   }
 }

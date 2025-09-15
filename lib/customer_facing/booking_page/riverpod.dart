@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
+part 'riverpod.freezed.dart';
 
 @riverpod
 Stream<TourType?> tourType(Ref ref,
@@ -40,7 +43,7 @@ class VisibleDates extends _$VisibleDates {
   void change(List<DateTime> newDates) {
     final sorted = List<DateTime>.from(newDates);
     sorted.sort((a, b) => a.compareTo(b));
-    if (sorted == state) return;
+    if (listEquals(sorted, state)) return;
     state = sorted;
   }
 }
@@ -50,12 +53,15 @@ Future<List<CustomerGroup>> visibleCustomerGroups(Ref ref) async {
   List<DateTime> visibleDates = ref.watch(visibleDatesProvider);
   if (visibleDates.isEmpty) return [];
   String? account = ref.watch(accountProvider);
+  final tourId = ref.watch(selectedTourIdProvider);
+  if (tourId == null) return [];
   final db = FirebaseFirestore.instance;
   final collection = db
       .collection("accounts/$account/data/bookingManager/customerGroups")
       .where("datetime", isGreaterThanOrEqualTo: visibleDates.first)
       .where("datetime",
-          isLessThan: visibleDates.last.add(const Duration(days: 1)));
+          isLessThan: visibleDates.last.add(const Duration(days: 1)))
+      .where("tourTypeId", isEqualTo: tourId);
   final snapshot = await collection.get();
   return snapshot.docs
       .map((doc) => CustomerGroup.fromJson(doc.data()))
@@ -190,3 +196,56 @@ class SelectedDateInCalendar extends _$SelectedDateInCalendar {
     state = newDate;
   }
 }
+
+// Selected tour id for customer-facing booking page (no codegen)
+final selectedTourIdProvider = StateProvider<String?>((ref) => null);
+
+@riverpod
+Future<List<TourTypePricing>> tourTypePricesByTourId(Ref ref,
+    {required String tourId, required String account}) async {
+  String path = "accounts/$account/data/bookingManager/tours/$tourId/prices";
+  var db = FirebaseFirestore.instance;
+  final collection =
+      await db.collection(path).where("isArchived", isEqualTo: false).get();
+  return collection.docs
+      .map(
+        (doc) => TourTypePricing.fromJson(
+          doc.data(),
+        ),
+      )
+      .toList();
+}
+
+@riverpod
+
+/// The number of each pricing tier that the customer has selected. Data for stripe.
+class BookingDetailsSelectedPricings extends _$BookingDetailsSelectedPricings {
+  @override
+  List<BookingPricingNumberBooked> build(List<TourTypePricing> pricings) {
+    List<BookingPricingNumberBooked> toReturn = [];
+    for (final pricing in pricings) {
+      toReturn.add(BookingPricingNumberBooked(tourTypePricingId: pricing.id));
+    }
+    return toReturn;
+  }
+
+  void editSinglePricing(String pricingId, int n) {
+    final newState = List<BookingPricingNumberBooked>.from(state);
+    int toEdit = newState.indexWhere((p) => p.tourTypePricingId == pricingId);
+    if (toEdit == -1) return;
+    newState[toEdit] = newState[toEdit].copyWith(numberBooked: n);
+    state = newState;
+  }
+}
+
+@freezed
+
+/// A simple utility class that puts together the pricing tier and how many people are booked on it.
+sealed class BookingPricingNumberBooked with _$BookingPricingNumberBooked {
+  const factory BookingPricingNumberBooked({
+    required String tourTypePricingId,
+    @Default(0) int numberBooked,
+  }) = _BookingPricingNumberBooked;
+}
+
+// (no extra classes needed here)
