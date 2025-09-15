@@ -23,9 +23,6 @@ class BookingCalendar extends ConsumerWidget {
         ref.watch(customerGroupsByDayProvider).value;
     Map<String, int>? customersNumberByCgId =
         ref.watch(customersNumberByCustomerGroupIdProvider).value;
-    if (customersNumberByCgId == null) {
-      return const CircularProgressIndicator.adaptive();
-    }
     return Expanded(
       child: SfCalendar(
         view: CalendarView.month,

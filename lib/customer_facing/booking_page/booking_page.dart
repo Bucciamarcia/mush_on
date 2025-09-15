@@ -77,7 +77,7 @@ class BookingDayDetails extends ConsumerWidget {
     DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: (customerGroupsByDay?[selectedDate!]
+      children: (customerGroupsByDay?[selectedDate]
               ?.map(
                 (cg) => SingleCgSlotCard(cg: cg, tourType: tourType),
               )
@@ -99,7 +99,7 @@ class SingleCgSlotCard extends ConsumerWidget {
     if (customersNumberByCgId == null || customersNumberByCgId[cg.id] == null) {
       return const SizedBox.shrink();
     }
-    String formattedTime = DateFormat("hh:mm").format(cg.datetime);
+    String formattedTime = DateFormat("HH:mm").format(cg.datetime);
     String occupiedAndTotal =
         "${customersNumberByCgId[cg.id]}/${cg.maxCapacity}";
     bool isFull = customersNumberByCgId[cg.id]! >= cg.maxCapacity;

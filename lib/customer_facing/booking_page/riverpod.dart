@@ -12,6 +12,7 @@ part 'riverpod.freezed.dart';
 Stream<TourType?> tourType(Ref ref,
     {required String account, required String tourId}) async* {
   final db = FirebaseFirestore.instance;
+  if (account.isEmpty) yield null;
   final String path = "accounts/$account/data/bookingManager/tours/$tourId";
   final doc = db.doc(path);
   yield* doc.snapshots().map((snapshot) {
@@ -64,12 +65,10 @@ class SelectedTourId extends _$SelectedTourId {
 
 @riverpod
 Future<List<CustomerGroup>> visibleCustomerGroups(Ref ref) async {
-  BasicLogger().info("fetching cgf");
   List<DateTime> visibleDates = ref.watch(visibleDatesProvider);
   if (visibleDates.isEmpty) return [];
   String? account = ref.watch(accountProvider);
   final tourId = ref.watch(selectedTourIdProvider);
-  BasicLogger().debug("account: $account, tourId: $tourId");
   if (account == null || account.isEmpty) {
     return [];
   }
@@ -78,14 +77,13 @@ Future<List<CustomerGroup>> visibleCustomerGroups(Ref ref) async {
     return [];
   }
   final db = FirebaseFirestore.instance;
-  BasicLogger().debug("fetching path: accounts/$account/data/bookingManager");
   final collection = db
       .collection("accounts/$account/data/bookingManager/customerGroups")
       .where("datetime", isGreaterThanOrEqualTo: visibleDates.first)
       .where("datetime",
-          isLessThan: visibleDates.last.add(const Duration(days: 1)));
+          isLessThan: visibleDates.last.add(const Duration(days: 1)))
+      .where("tourTypeId", isEqualTo: tourId);
   final snapshot = await collection.get();
-  BasicLogger().debug("Fetched ${snapshot.docs.length} customer groups");
   return snapshot.docs
       .map((doc) => CustomerGroup.fromJson(doc.data()))
       .toList();
