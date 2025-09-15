@@ -464,7 +464,7 @@ class _TourTypePricesByTourIdProviderElement
   String get account => (origin as TourTypePricesByTourIdProvider).account;
 }
 
-String _$accountHash() => r'aaa473da6e9eb8861770da6bed2e3b61366e7399';
+String _$accountHash() => r'7abd3ebcb9dc9c2e383c47fb5fd37d9a706a08d7';
 
 /// See also [Account].
 @ProviderFor(Account)
@@ -478,7 +478,7 @@ final accountProvider = NotifierProvider<Account, String?>.internal(
 );
 
 typedef _$Account = Notifier<String?>;
-String _$visibleDatesHash() => r'2c830c0b860f5c77d07d1b933ceb4a9627e61616';
+String _$visibleDatesHash() => r'26be57b90483ad3e22700e8275c1ae57d5c7dbcd';
 
 /// See also [VisibleDates].
 @ProviderFor(VisibleDates)
