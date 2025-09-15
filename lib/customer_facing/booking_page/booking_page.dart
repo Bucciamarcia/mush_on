@@ -21,35 +21,15 @@ class BookingPage extends ConsumerStatefulWidget {
 
 class _BookingPageState extends ConsumerState<BookingPage> {
   static final logger = BasicLogger();
-  @override
-  void initState() {
-    super.initState();
-    // Initialize global state once with provided params
-    if (widget.account != null) {
-      ref.read(accountProvider.notifier).change(widget.account!);
-    }
-    if (widget.tourId != null) {
-      ref.read(selectedTourIdProvider.notifier).state = widget.tourId!;
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant BookingPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Update providers only if values actually changed
-    if (widget.account != null && widget.account != oldWidget.account) {
-      ref.read(accountProvider.notifier).change(widget.account!);
-    }
-    if (widget.tourId != null && widget.tourId != oldWidget.tourId) {
-      ref.read(selectedTourIdProvider.notifier).state = widget.tourId!;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     if (widget.account == null || widget.tourId == null) {
       return const NoKennelOrTourIdErrorPage();
     }
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      ref.read(accountProvider.notifier).change(widget.account!);
+    });
 
     /// Info about the tour type that is being booked.
     final tourTypeAsync = ref.watch(
@@ -128,16 +108,13 @@ class SingleCgSlotCard extends ConsumerWidget {
         "${customersNumberByCgId[cg.id]}/${cg.maxCapacity}";
     bool isFull = customersNumberByCgId[cg.id]! >= cg.maxCapacity;
     return InkWell(
-      onTap: isFull
+      onTap: () => isFull
           ? null
-          : () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => BookingDetails(
-                      cg: cg,
-                      customersNumber: customersNumberByCgId[cg.id]!,
-                      tourType: tourType),
-                ),
-              ),
+          : Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => BookingDetails(
+                  cg: cg,
+                  customersNumber: customersNumberByCgId[cg.id]!,
+                  tourType: tourType))),
       child: Card(
         color: isFull ? Colors.grey : Colors.lightGreen[200],
         child: Text("$formattedTime $occupiedAndTotal"),
