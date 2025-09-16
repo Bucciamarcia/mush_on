@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:mush_on/customer_facing/booking_page/booking_page.dart';
 import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
@@ -36,6 +37,8 @@ class BookingCalendar extends ConsumerWidget {
               customerGroupsByDay?[details.date] ?? [];
           Color cellColor =
               _getCellColor(todayCustomerGroups, customersNumberByCgId);
+          bool isSelected =
+              details.date == ref.watch(selectedDateInCalendarProvider);
 
           return InkWell(
             onTap: () {
@@ -45,10 +48,16 @@ class BookingCalendar extends ConsumerWidget {
             },
             child: Container(
               decoration: BoxDecoration(
+                  border: BoxBorder.all(
+                      color: cellColor, width: isSelected ? 3 : 2),
                   borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  color: cellColor.withAlpha(150)),
+                  color: cellColor.withAlpha(isSelected ? 170 : 100)),
               margin: const EdgeInsets.all(5),
-              child: Text(details.date.toString()),
+              child: Center(
+                  child: Text(
+                DateFormat("dd").format(details.date),
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              )),
             ),
           );
         },
@@ -72,8 +81,8 @@ class BookingCalendar extends ConsumerWidget {
 
   Color _getCellColor(List<CustomerGroup> dayCustomerGroups,
       Map<String, int>? customersNumberByCgId) {
-    if (dayCustomerGroups.isEmpty) return BookingPageColors.danger.color;
-    if (customersNumberByCgId == null) return BookingPageColors.danger.color;
+    if (dayCustomerGroups.isEmpty) return Colors.white;
+    if (customersNumberByCgId == null) return Colors.white;
     for (final cg in dayCustomerGroups) {
       final n = customersNumberByCgId[cg.id];
       if (n == null) continue;
