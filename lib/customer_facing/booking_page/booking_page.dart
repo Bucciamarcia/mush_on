@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
-import 'package:mush_on/customer_facing/booking_page/booking_details.dart';
-import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'calendar/main.dart';
@@ -24,14 +21,32 @@ class _BookingPageState extends ConsumerState<BookingPage> {
   static final logger = BasicLogger();
 
   @override
-  Widget build(BuildContext context) {
-    if (widget.account == null || widget.tourId == null) {
-      return const NoKennelOrTourIdErrorPage();
-    }
+  void initState() {
+    super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       ref.read(accountProvider.notifier).change(widget.account!);
       ref.read(selectedTourIdProvider.notifier).change(widget.tourId!);
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant BookingPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.account != widget.account ||
+        oldWidget.tourId != widget.tourId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(accountProvider.notifier).change(widget.account!);
+        ref.read(selectedTourIdProvider.notifier).change(widget.tourId!);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.account == null || widget.tourId == null) {
+      return const NoKennelOrTourIdErrorPage();
+    }
 
     /// Info about the tour type that is being booked.
     final tourTypeAsync = ref.watch(tourTypeProvider(
@@ -66,20 +81,11 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                           tourType: tourType,
                         ),
                         const Divider(),
-                        const BookingPageSelectDateHeaderRow(),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(8),
-                            child: Row(
-                              children: [
-                                BookingCalendar(
-                                    tourType: tourType,
-                                    account: widget.account!),
-                                selectedDate == null
-                                    ? const SizedBox.shrink()
-                                    : BookingDayDetails(tourType: tourType)
-                              ],
-                            ),
+                            child: BookingTimeAndDate(
+                                tourType: tourType, account: widget.account!),
                           ),
                         ),
                       ],
@@ -96,49 +102,6 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           return const NoKennelOrTourIdErrorPage();
         },
         loading: () => const CircularProgressIndicator.adaptive());
-  }
-}
-
-class BookingPageSelectDateHeaderRow extends StatelessWidget {
-  const BookingPageSelectDateHeaderRow({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(width: 20),
-        BookingPageNumberBubble(content: "1"),
-        SizedBox(width: 10),
-        Text(
-          "Select date",
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-        )
-      ],
-    );
-  }
-}
-
-class BookingPageNumberBubble extends StatelessWidget {
-  final String content;
-  const BookingPageNumberBubble({super.key, required this.content});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: BookingPageColors.primaryDark.color, shape: BoxShape.circle),
-      child: Padding(
-        padding: const EdgeInsets.all(7),
-        child: Text(content,
-            style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white,
-                fontWeight: FontWeight.w500)),
-      ),
-    );
   }
 }
 
@@ -226,59 +189,6 @@ class BookingPageHeader extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class BookingDayDetails extends ConsumerWidget {
-  final TourType tourType;
-  const BookingDayDetails({super.key, required this.tourType});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    Map<DateTime, List<CustomerGroup>>? customerGroupsByDay =
-        ref.watch(customerGroupsByDayProvider).value;
-    DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: (customerGroupsByDay?[selectedDate]
-              ?.map(
-                (cg) => SingleCgSlotCard(cg: cg, tourType: tourType),
-              )
-              .toList()) ??
-          [],
-    );
-  }
-}
-
-class SingleCgSlotCard extends ConsumerWidget {
-  final CustomerGroup cg;
-  final TourType tourType;
-  const SingleCgSlotCard({super.key, required this.cg, required this.tourType});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    Map<String, int>? customersNumberByCgId =
-        ref.watch(customersNumberByCustomerGroupIdProvider).value;
-    if (customersNumberByCgId == null || customersNumberByCgId[cg.id] == null) {
-      return const SizedBox.shrink();
-    }
-    String formattedTime = DateFormat("HH:mm").format(cg.datetime);
-    String occupiedAndTotal =
-        "${customersNumberByCgId[cg.id]}/${cg.maxCapacity}";
-    bool isFull = customersNumberByCgId[cg.id]! >= cg.maxCapacity;
-    return InkWell(
-      onTap: () => isFull
-          ? null
-          : Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => BookingDetails(
-                  cg: cg,
-                  customersNumber: customersNumberByCgId[cg.id]!,
-                  tourType: tourType))),
-      child: Card(
-        color: isFull ? Colors.grey : Colors.lightGreen[200],
-        child: Text("$formattedTime $occupiedAndTotal"),
       ),
     );
   }

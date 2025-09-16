@@ -11,6 +11,10 @@ part 'riverpod.freezed.dart';
 @riverpod
 Stream<TourType?> tourType(Ref ref,
     {required String account, required String tourId}) async* {
+  if (account.isEmpty) {
+    yield null;
+    return;
+  }
   final db = FirebaseFirestore.instance;
   if (account.isEmpty) yield null;
   final String path = "accounts/$account/data/bookingManager/tours/$tourId";
@@ -215,6 +219,19 @@ class SelectedDateInCalendar extends _$SelectedDateInCalendar {
 
   void change(DateTime newDate) {
     state = newDate;
+  }
+}
+
+@riverpod
+class SelectedCustomerGroupInCalendar
+    extends _$SelectedCustomerGroupInCalendar {
+  @override
+  CustomerGroup? build() {
+    return null;
+  }
+
+  void change(CustomerGroup n) {
+    state = n;
   }
 }
 
