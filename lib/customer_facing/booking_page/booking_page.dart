@@ -43,19 +43,23 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           if (tourType == null) {
             return const NoKennelOrTourIdErrorPage();
           }
-
-          return Scaffold(
-            body: SafeArea(
-              child: Row(
-                children: [
-                  BookingCalendar(tourType: tourType, account: widget.account!),
-                  selectedDate == null
-                      ? const SizedBox.shrink()
-                      : BookingDayDetails(tourType: tourType)
-                ],
+          return Center(
+              child: Container(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: Scaffold(
+              body: SafeArea(
+                child: Row(
+                  children: [
+                    BookingCalendar(
+                        tourType: tourType, account: widget.account!),
+                    selectedDate == null
+                        ? const SizedBox.shrink()
+                        : BookingDayDetails(tourType: tourType)
+                  ],
+                ),
               ),
             ),
-          );
+          ));
         },
         error: (e, s) {
           logger.error("Error loading tour type for booking page",
