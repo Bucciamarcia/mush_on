@@ -48,13 +48,16 @@ class TimeSelectorByDate extends ConsumerWidget {
     List<CustomerGroup>? todayCustomerGroups =
         customerGroupsByDay?[selectedDate];
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Row(
           children: [HeaderWithBubble(number: "2", title: "Choose time")],
         ),
+        const SizedBox(height: 15),
         todayCustomerGroups == null || todayCustomerGroups.isEmpty
             ? const Text("No groups today")
-            : Column(
+            : Wrap(
+                alignment: WrapAlignment.start,
                 children: todayCustomerGroups
                     .map((cg) => SingleCgSlotCard(cg: cg, tourType: tourType))
                     .toList(),
@@ -64,31 +67,98 @@ class TimeSelectorByDate extends ConsumerWidget {
   }
 }
 
-class SingleCgSlotCard extends ConsumerWidget {
+class SingleCgSlotCard extends ConsumerStatefulWidget {
   final CustomerGroup cg;
   final TourType tourType;
   const SingleCgSlotCard({super.key, required this.cg, required this.tourType});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SingleCgSlotCard> createState() => _SingleCgSlotCardState();
+}
+
+class _SingleCgSlotCardState extends ConsumerState<SingleCgSlotCard> {
+  late BoxBorder hoverDecoration;
+  @override
+  void initState() {
+    super.initState();
+    hoverDecoration = BoxBorder.all(color: Colors.transparent, width: 2);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     Map<String, int>? customersNumberByCgId =
         ref.watch(customersNumberByCustomerGroupIdProvider).value;
-    if (customersNumberByCgId == null || customersNumberByCgId[cg.id] == null) {
+    if (customersNumberByCgId == null ||
+        customersNumberByCgId[widget.cg.id] == null) {
       return const SizedBox.shrink();
     }
-    String formattedTime = DateFormat("HH:mm").format(cg.datetime);
-    String occupiedAndTotal =
-        "${customersNumberByCgId[cg.id]}/${cg.maxCapacity}";
-    bool isFull = customersNumberByCgId[cg.id]! >= cg.maxCapacity;
+    String formattedTime = DateFormat("HH:mm").format(widget.cg.datetime);
+    CustomerGroup? selectedCustomerGroup =
+        ref.watch(selectedCustomerGroupInCalendarProvider);
+    int availableSpots =
+        widget.cg.maxCapacity - customersNumberByCgId[widget.cg.id]!;
+    bool isFull = customersNumberByCgId[widget.cg.id]! >= widget.cg.maxCapacity;
+    bool isSelected = selectedCustomerGroup != null &&
+        selectedCustomerGroup.id == widget.cg.id;
     return InkWell(
+      onHover: (isHovering) {
+        if (isHovering) {
+          setState(() {
+            hoverDecoration =
+                BoxBorder.all(color: BookingPageColors.primary.color, width: 2);
+          });
+        } else {
+          setState(() {
+            hoverDecoration =
+                BoxBorder.all(color: Colors.transparent, width: 2);
+          });
+        }
+      },
       onTap: isFull
           ? null
           : () {
-              BasicLogger().debug("moi");
+              ref
+                  .read(selectedCustomerGroupInCalendarProvider.notifier)
+                  .change(widget.cg);
             },
-      child: Card(
-        color: isFull ? Colors.grey : Colors.lightGreen[200],
-        child: Text("$formattedTime $occupiedAndTotal"),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+        margin: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            color: isSelected
+                ? BookingPageColors.primaryDark.color.withAlpha(240)
+                : null,
+            border: isSelected
+                ? BoxBorder.all(
+                    color: BookingPageColors.primaryDark.color, width: 2)
+                : hoverDecoration,
+            borderRadius: const BorderRadius.all(Radius.circular(5))),
+        child: Column(
+          children: [
+            Text(
+              formattedTime,
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected
+                      ? Colors.white
+                      : isFull
+                          ? Colors.grey
+                          : null),
+            ),
+            Text(
+              "$availableSpots available",
+              style: TextStyle(
+                  fontWeight: FontWeight.w300,
+                  color: isSelected
+                      ? Colors.white
+                      : isFull
+                          ? Colors.grey
+                          : Colors.black87),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -130,7 +200,8 @@ class BookingCalendar extends ConsumerWidget {
                       .read(selectedDateInCalendarProvider.notifier)
                       .change(details.date);
                 },
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
             decoration: BoxDecoration(
                 border:
                     BoxBorder.all(color: cellColor, width: isSelected ? 3 : 2),
