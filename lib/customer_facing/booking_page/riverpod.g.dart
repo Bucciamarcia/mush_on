@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tourTypeHash() => r'921eecef97f12009be7a28f1315f5a090931d38d';
+String _$tourTypeHash() => r'c09458c71606c60edc8bf16607e93f4eabf3cb4e';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -526,6 +526,23 @@ final selectedDateInCalendarProvider =
 );
 
 typedef _$SelectedDateInCalendar = AutoDisposeNotifier<DateTime?>;
+String _$selectedCustomerGroupInCalendarHash() =>
+    r'fc63ff519c887e42509198c4f7fb702c2761ae83';
+
+/// See also [SelectedCustomerGroupInCalendar].
+@ProviderFor(SelectedCustomerGroupInCalendar)
+final selectedCustomerGroupInCalendarProvider = AutoDisposeNotifierProvider<
+    SelectedCustomerGroupInCalendar, CustomerGroup?>.internal(
+  SelectedCustomerGroupInCalendar.new,
+  name: r'selectedCustomerGroupInCalendarProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$selectedCustomerGroupInCalendarHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$SelectedCustomerGroupInCalendar = AutoDisposeNotifier<CustomerGroup?>;
 String _$bookingDetailsSelectedPricingsHash() =>
     r'1bca2d631062e4ca34d211843bf7ce27385b1c8e';
 
