@@ -207,7 +207,7 @@ class BookingCalendar extends ConsumerWidget {
             duration: const Duration(milliseconds: 140),
             decoration: BoxDecoration(
                 border:
-                    BoxBorder.all(color: cellColor, width: isSelected ? 3 : 2),
+                    BoxBorder.all(color: cellColor, width: isSelected ? 2 : 1),
                 borderRadius: const BorderRadius.all(Radius.circular(20)),
                 color: cellColor.withAlpha(isSelected ? 170 : 100)),
             margin: const EdgeInsets.all(5),
