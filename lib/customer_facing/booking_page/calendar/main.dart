@@ -20,13 +20,14 @@ class BookingTimeAndDate extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
-      mainAxisSize: MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
       children: [
         const HeaderWithBubble(
           number: "1",
           title: "Select date",
         ),
-        const Expanded(
+        const Flexible(
+          fit: FlexFit.loose,
           child: BookingCalendar(),
         ),
         TimeSelectorByDate(tourType: tourType)

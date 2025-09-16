@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'calendar/main.dart';
@@ -53,6 +55,17 @@ class _BookingPageState extends ConsumerState<BookingPage> {
         account: widget.account!,
         tourId: ref.watch(selectedTourIdProvider) ?? ""));
     DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
+    String formatSelectedDate() {
+      if (selectedDate == null) return "No date selected";
+      return DateFormat("EEEE MMMM, yyyy").format(selectedDate);
+    }
+
+    CustomerGroup? selectedCustomerGroup =
+        ref.watch(selectedCustomerGroupInCalendarProvider);
+    String formatTimeOfSelectedCg() {
+      if (selectedCustomerGroup == null) return "No time selected";
+      return DateFormat("hh:mm a").format(selectedCustomerGroup.datetime);
+    }
 
     return tourTypeAsync.when(
         data: (tourType) {
@@ -83,12 +96,62 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                             tourType: tourType,
                           ),
                           const Divider(),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: BookingTimeAndDate(
-                                  tourType: tourType, account: widget.account!),
-                            ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: BookingTimeAndDate(
+                                      tourType: tourType,
+                                      account: widget.account!),
+                                ),
+                              ),
+                              Container(
+                                margin: const EdgeInsets.only(
+                                    left: 20, right: 20, top: 10),
+                                width: 250,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  spacing: 25,
+                                  children: [
+                                    const Text("Booking Summary",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600)),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const BookingSummaryTitleText(
+                                            text: "Tour Type"),
+                                        BookingSummaryValueText(
+                                            text: tourType.displayName)
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const BookingSummaryTitleText(
+                                            text: "Date"),
+                                        BookingSummaryValueText(
+                                            text: formatSelectedDate())
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const BookingSummaryTitleText(
+                                            text: "Time"),
+                                        BookingSummaryValueText(
+                                            text: formatTimeOfSelectedCg()),
+                                      ],
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
                           ),
                         ],
                       ),
@@ -105,6 +168,36 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           return const NoKennelOrTourIdErrorPage();
         },
         loading: () => const CircularProgressIndicator.adaptive());
+  }
+}
+
+class BookingSummaryTitleText extends StatelessWidget {
+  final String text;
+  const BookingSummaryTitleText({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+          fontSize: 12, fontWeight: FontWeight.w400, color: Colors.black54),
+    );
+  }
+}
+
+class BookingSummaryValueText extends StatelessWidget {
+  final String text;
+  const BookingSummaryValueText({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          overflow: TextOverflow.clip),
+    );
   }
 }
 
