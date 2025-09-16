@@ -527,7 +527,7 @@ final selectedDateInCalendarProvider =
 
 typedef _$SelectedDateInCalendar = AutoDisposeNotifier<DateTime?>;
 String _$selectedCustomerGroupInCalendarHash() =>
-    r'fc63ff519c887e42509198c4f7fb702c2761ae83';
+    r'45540d75ccf0fa1d8eb8a1d098d0dc368e9aff97';
 
 /// See also [SelectedCustomerGroupInCalendar].
 @ProviderFor(SelectedCustomerGroupInCalendar)

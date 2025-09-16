@@ -230,7 +230,7 @@ class SelectedCustomerGroupInCalendar
     return null;
   }
 
-  void change(CustomerGroup n) {
+  void change(CustomerGroup? n) {
     state = n;
   }
 }
