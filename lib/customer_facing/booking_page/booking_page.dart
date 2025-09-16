@@ -54,19 +54,6 @@ class _BookingPageState extends ConsumerState<BookingPage> {
     final tourTypeAsync = ref.watch(tourTypeProvider(
         account: widget.account!,
         tourId: ref.watch(selectedTourIdProvider) ?? ""));
-    DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
-    String formatSelectedDate() {
-      if (selectedDate == null) return "No date selected";
-      return DateFormat("EEEE MMMM, yyyy").format(selectedDate);
-    }
-
-    CustomerGroup? selectedCustomerGroup =
-        ref.watch(selectedCustomerGroupInCalendarProvider);
-    String formatTimeOfSelectedCg() {
-      if (selectedCustomerGroup == null) return "No time selected";
-      return DateFormat("hh:mm a").format(selectedCustomerGroup.datetime);
-    }
-
     return tourTypeAsync.when(
         data: (tourType) {
           if (tourType == null) {
@@ -107,50 +94,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                                       account: widget.account!),
                                 ),
                               ),
-                              Container(
-                                margin: const EdgeInsets.only(
-                                    left: 20, right: 20, top: 10),
-                                width: 250,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  spacing: 25,
-                                  children: [
-                                    const Text("Booking Summary",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600)),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const BookingSummaryTitleText(
-                                            text: "Tour Type"),
-                                        BookingSummaryValueText(
-                                            text: tourType.displayName)
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const BookingSummaryTitleText(
-                                            text: "Date"),
-                                        BookingSummaryValueText(
-                                            text: formatSelectedDate())
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const BookingSummaryTitleText(
-                                            text: "Time"),
-                                        BookingSummaryValueText(
-                                            text: formatTimeOfSelectedCg()),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              )
+                              BookingSummaryColumn(tourType: tourType)
                             ],
                           ),
                         ],
@@ -168,6 +112,61 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           return const NoKennelOrTourIdErrorPage();
         },
         loading: () => const CircularProgressIndicator.adaptive());
+  }
+}
+
+class BookingSummaryColumn extends ConsumerWidget {
+  final TourType tourType;
+  const BookingSummaryColumn({super.key, required this.tourType});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
+    String formatSelectedDate() {
+      if (selectedDate == null) return "No date selected";
+      return DateFormat("EEEE MMMM, yyyy").format(selectedDate);
+    }
+
+    CustomerGroup? selectedCustomerGroup =
+        ref.watch(selectedCustomerGroupInCalendarProvider);
+    String formatTimeOfSelectedCg() {
+      if (selectedCustomerGroup == null) return "No time selected";
+      return DateFormat("hh:mm a").format(selectedCustomerGroup.datetime);
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
+      width: 250,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 25,
+        children: [
+          const Text("Booking Summary",
+              style: TextStyle(fontWeight: FontWeight.w600)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const BookingSummaryTitleText(text: "Tour Type"),
+              BookingSummaryValueText(text: tourType.displayName)
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const BookingSummaryTitleText(text: "Date"),
+              BookingSummaryValueText(text: formatSelectedDate())
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const BookingSummaryTitleText(text: "Time"),
+              BookingSummaryValueText(text: formatTimeOfSelectedCg()),
+            ],
+          )
+        ],
+      ),
+    );
   }
 }
 
