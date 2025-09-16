@@ -43,23 +43,68 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           if (tourType == null) {
             return const NoKennelOrTourIdErrorPage();
           }
-          return Center(
-              child: Container(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Scaffold(
-              body: SafeArea(
-                child: Row(
-                  children: [
-                    BookingCalendar(
-                        tourType: tourType, account: widget.account!),
-                    selectedDate == null
-                        ? const SizedBox.shrink()
-                        : BookingDayDetails(tourType: tourType)
-                  ],
+          return Scaffold(
+            body: SafeArea(
+              child: Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [
+                    BookingPageColors.mainBlue.color,
+                    BookingPageColors.mainPurple.color
+                  ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+                  child: Container(
+                    margin: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20)),
+                    constraints: const BoxConstraints(maxWidth: 1440),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              boxShadow: const [
+                                BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 6,
+                                    offset: Offset(0, 4))
+                              ],
+                              gradient: LinearGradient(
+                                  colors: [
+                                    BookingPageColors.mainBlue.color,
+                                    BookingPageColors.mainPurple.color
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight),
+                              border: BoxBorder.all(
+                                  color: BookingPageColors.mainBlue.color),
+                              borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  topRight: Radius.circular(20))),
+                          child: const BookingPageHeader(),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Row(
+                              children: [
+                                BookingCalendar(
+                                    tourType: tourType,
+                                    account: widget.account!),
+                                selectedDate == null
+                                    ? const SizedBox.shrink()
+                                    : BookingDayDetails(tourType: tourType)
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ));
+          );
         },
         error: (e, s) {
           logger.error("Error loading tour type for booking page",
@@ -67,6 +112,39 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           return const NoKennelOrTourIdErrorPage();
         },
         loading: () => const CircularProgressIndicator.adaptive());
+  }
+}
+
+class BookingPageHeader extends StatelessWidget {
+  const BookingPageHeader({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.all(10),
+      child: Center(
+        child: Column(
+          children: [
+            Text(
+              "Book your adventure",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 34,
+                  fontWeight: FontWeight.w600),
+            ),
+            Text(
+              "Select the date and time of your tour",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -133,4 +211,13 @@ class NoKennelOrTourIdErrorPage extends StatelessWidget {
           child: Text("Error: kennel or tourId are empty or not valid.")),
     );
   }
+}
+
+enum BookingPageColors {
+  mainBlue(color: Color(0xff667eea)),
+  mainPurple(color: Color(0xff764ba2));
+
+  final Color color;
+
+  const BookingPageColors({required this.color});
 }
