@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/customer_facing/booking_page/booking_page.dart';
 import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
@@ -17,19 +18,24 @@ class BookingCalendar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<CustomerGroup>? visibleCustomerGroups =
-        ref.watch(visibleCustomerGroupsProvider).value;
     Map<DateTime, List<CustomerGroup>>? customerGroupsByDay =
         ref.watch(customerGroupsByDayProvider).value;
     Map<String, int>? customersNumberByCgId =
         ref.watch(customersNumberByCustomerGroupIdProvider).value;
     return Expanded(
       child: SfCalendar(
+        showWeekNumber: true,
+        showNavigationArrow: true,
+        showDatePickerButton: true,
+        initialDisplayDate:
+            DateTime(DateTime.now().year, DateTime.now().month, 1),
         view: CalendarView.month,
         firstDayOfWeek: 1,
         monthCellBuilder: (BuildContext cellContext, MonthCellDetails details) {
           List<CustomerGroup> todayCustomerGroups =
               customerGroupsByDay?[details.date] ?? [];
+          Color cellColor =
+              _getCellColor(todayCustomerGroups, customersNumberByCgId);
 
           return InkWell(
             onTap: () {
@@ -38,22 +44,23 @@ class BookingCalendar extends ConsumerWidget {
                   .change(details.date);
             },
             child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  color: cellColor.withAlpha(150)),
               margin: const EdgeInsets.all(5),
-              color: _getCellColor(todayCustomerGroups, customersNumberByCgId),
               child: Text(details.date.toString()),
             ),
           );
         },
         monthViewSettings: const MonthViewSettings(
-            numberOfWeeksInView: 5,
+            showTrailingAndLeadingDates: false,
             dayFormat: "EEE",
             appointmentDisplayCount: 1,
             appointmentDisplayMode: MonthAppointmentDisplayMode.none),
-        dataSource: CustomerGroupDataSource(
-            cgs: visibleCustomerGroups ?? [], tourType: tourType),
         onViewChanged: (ViewChangedDetails details) {
           SchedulerBinding.instance.addPostFrameCallback((_) async {
             logger.info("Changing dates");
+            logger.debug(details.visibleDates);
             ref
                 .read(visibleDatesProvider.notifier)
                 .change(details.visibleDates);
@@ -65,37 +72,13 @@ class BookingCalendar extends ConsumerWidget {
 
   Color _getCellColor(List<CustomerGroup> dayCustomerGroups,
       Map<String, int>? customersNumberByCgId) {
-    if (dayCustomerGroups.isEmpty) return Colors.red;
-    if (customersNumberByCgId == null) return Colors.red;
+    if (dayCustomerGroups.isEmpty) return BookingPageColors.danger.color;
+    if (customersNumberByCgId == null) return BookingPageColors.danger.color;
     for (final cg in dayCustomerGroups) {
       final n = customersNumberByCgId[cg.id];
       if (n == null) continue;
-      if (cg.maxCapacity > n) return Colors.green;
+      if (cg.maxCapacity > n) return BookingPageColors.success.color;
     }
-    return Colors.red;
-  }
-}
-
-class CustomerGroupDataSource extends CalendarDataSource<CustomerGroup> {
-  final List<CustomerGroup> cgs;
-  final TourType tourType;
-  CustomerGroupDataSource({required this.cgs, required this.tourType});
-  @override
-  List<CustomerGroup> get appointments => cgs;
-  @override
-  DateTime getStartTime(int index) {
-    return appointments[index].datetime;
-  }
-
-  @override
-  DateTime getEndTime(int index) {
-    DateTime startTime = appointments[index].datetime;
-    int duration = tourType.duration;
-    return startTime.add(Duration(minutes: duration));
-  }
-
-  @override
-  String getSubject(int index) {
-    return "";
+    return BookingPageColors.danger.color;
   }
 }

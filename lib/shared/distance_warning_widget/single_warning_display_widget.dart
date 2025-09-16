@@ -117,7 +117,7 @@ class _SingleWarningDisplayWidgetState
                   ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<DistanceWarningType>(
-                    value: _selectedType,
+                    initialValue: _selectedType,
                     decoration: const InputDecoration(
                       labelText: 'Type',
                       isDense: true,
