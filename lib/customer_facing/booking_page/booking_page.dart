@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_facing/booking_page/booking_details.dart';
 import 'package:mush_on/customer_management/models.dart';
@@ -61,6 +62,11 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                     child: Column(
                       children: [
                         const BookingPageHeader(),
+                        BookingPageTopOverview(
+                          tourType: tourType,
+                        ),
+                        const Divider(),
+                        const BookingPageSelectDateHeaderRow(),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(8),
@@ -90,6 +96,90 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           return const NoKennelOrTourIdErrorPage();
         },
         loading: () => const CircularProgressIndicator.adaptive());
+  }
+}
+
+class BookingPageSelectDateHeaderRow extends StatelessWidget {
+  const BookingPageSelectDateHeaderRow({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(width: 20),
+        BookingPageNumberBubble(content: "1"),
+        SizedBox(width: 10),
+        Text(
+          "Select date",
+          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        )
+      ],
+    );
+  }
+}
+
+class BookingPageNumberBubble extends StatelessWidget {
+  final String content;
+  const BookingPageNumberBubble({super.key, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          color: BookingPageColors.primaryDark.color, shape: BoxShape.circle),
+      child: Padding(
+        padding: const EdgeInsets.all(7),
+        child: Text(content,
+            style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.w500)),
+      ),
+    );
+  }
+}
+
+class BookingPageTopOverview extends StatelessWidget {
+  final TourType tourType;
+  const BookingPageTopOverview({
+    super.key,
+    required this.tourType,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Card(
+            elevation: 5,
+            child: Padding(
+              padding:
+                  const EdgeInsets.only(left: 15, right: 15, top: 8, bottom: 8),
+              child: Text(
+                tourType.displayName,
+                style: TextStyle(
+                    color: BookingPageColors.primaryDark.color,
+                    fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          const SizedBox(width: 20),
+          FaIcon(
+            FontAwesomeIcons.stopwatch,
+            size: 18,
+            color: BookingPageColors.primary.color.withAlpha(200),
+          ),
+          const SizedBox(width: 10),
+          Text("${tourType.duration} minutes")
+        ],
+      ),
+    );
   }
 }
 
@@ -207,6 +297,12 @@ class NoKennelOrTourIdErrorPage extends StatelessWidget {
 }
 
 enum BookingPageColors {
+  success(color: Color(0xff10b091)),
+  warning(color: Color(0xfff59e0b)),
+  danger(color: Color(0xffef4444)),
+  primary(color: Color(0xff2563eb)),
+  primaryDark(color: Color(0xff1e40af)),
+  primaryLight(color: Color(0xffdbeafe)),
   mainBlue(color: Color(0xff667eea)),
   mainPurple(color: Color(0xff764ba2));
 

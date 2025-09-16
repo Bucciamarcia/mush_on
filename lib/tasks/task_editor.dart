@@ -233,7 +233,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
             color: _isUrgent ? colorScheme.error : colorScheme.primary),
         value: _isUrgent,
         onChanged: (v) => setState(() => _isUrgent = v),
-        activeColor: colorScheme.error,
+        activeThumbColor: colorScheme.error,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
     );
