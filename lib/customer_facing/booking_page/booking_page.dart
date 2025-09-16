@@ -60,29 +60,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                     constraints: const BoxConstraints(maxWidth: 1440),
                     child: Column(
                       children: [
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 6,
-                                    offset: Offset(0, 4))
-                              ],
-                              gradient: LinearGradient(
-                                  colors: [
-                                    BookingPageColors.mainBlue.color,
-                                    BookingPageColors.mainPurple.color
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight),
-                              border: BoxBorder.all(
-                                  color: BookingPageColors.mainBlue.color),
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20))),
-                          child: const BookingPageHeader(),
-                        ),
+                        const BookingPageHeader(),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(8),
@@ -122,26 +100,41 @@ class BookingPageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(10),
-      child: Center(
-        child: Column(
-          children: [
-            Text(
-              "Book your adventure",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 34,
-                  fontWeight: FontWeight.w600),
-            ),
-            Text(
-              "Select the date and time of your tour",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal),
-            )
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+          boxShadow: const [
+            BoxShadow(
+                color: Colors.black26, blurRadius: 6, offset: Offset(0, 4))
           ],
+          gradient: LinearGradient(colors: [
+            BookingPageColors.mainBlue.color,
+            BookingPageColors.mainPurple.color
+          ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+          border: BoxBorder.all(color: BookingPageColors.mainBlue.color),
+          borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+      child: const Padding(
+        padding: EdgeInsets.all(10),
+        child: Center(
+          child: Column(
+            children: [
+              Text(
+                "Book your adventure",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 34,
+                    fontWeight: FontWeight.w600),
+              ),
+              Text(
+                "Select the date and time of your tour",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal),
+              )
+            ],
+          ),
         ),
       ),
     );
