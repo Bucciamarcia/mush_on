@@ -134,6 +134,28 @@ class BookingSummaryColumn extends ConsumerWidget {
       return DateFormat("hh:mm a").format(selectedCustomerGroup.datetime);
     }
 
+    final account = ref.watch(accountProvider);
+    late final List<TourTypePricing> pricings;
+    if (account == null) {
+      pricings = [];
+    } else {
+      pricings = ref
+              .watch(tourTypePricesByTourIdProvider(
+                  tourId: tourType.id, account: account))
+              .value ??
+          [];
+    }
+    Map<String, int>? customersNumberByCgId =
+        ref.watch(customersNumberByCustomerGroupIdProvider).value;
+    int? maxCapacity = selectedCustomerGroup?.maxCapacity;
+    int? customersBooked = customersNumberByCgId?[selectedCustomerGroup?.id];
+    late final int availableSpots;
+    if (maxCapacity == null || customersBooked == null) {
+      availableSpots = 0;
+    } else {
+      availableSpots = maxCapacity - customersBooked;
+    }
+
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
       width: 250,
@@ -163,9 +185,94 @@ class BookingSummaryColumn extends ConsumerWidget {
               const BookingSummaryTitleText(text: "Time"),
               BookingSummaryValueText(text: formatTimeOfSelectedCg()),
             ],
-          )
+          ),
+          ...pricings.map((pricing) => PricingOptionCounter(
+                pricing: pricing,
+                available: availableSpots,
+                pricings: pricings,
+              ))
         ],
       ),
+    );
+  }
+}
+
+class PricingOptionCounter extends ConsumerWidget {
+  final List<TourTypePricing> pricings;
+  final TourTypePricing pricing;
+  final int available;
+  const PricingOptionCounter(
+      {super.key,
+      required this.pricing,
+      required this.available,
+      required this.pricings});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    String? account = ref.watch(accountProvider);
+    if (account == null) return const SizedBox.shrink();
+    final selectedPricings =
+        ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
+    final selectedPricing =
+        selectedPricings.firstWhere((sp) => sp.tourTypePricingId == pricing.id);
+    final notifier =
+        ref.watch(bookingDetailsSelectedPricingsProvider(pricings).notifier);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          children: [
+            SizedBox(
+                width: 100,
+                child: Text(
+                  pricing.displayName,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )),
+            SizedBox(
+              width: 100,
+              child: Text(pricing.displayDescription ?? "",
+                  style: const TextStyle(fontWeight: FontWeight.w400),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+            )
+          ],
+        ),
+        IconButton.outlined(
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(
+                  color: BookingPageColors.primary.color,
+                  width: 2), // outline color
+              foregroundColor: BookingPageColors.primary
+                  .color, // affects ripple & icon color if not overridden
+            ),
+            onPressed: () {
+              int currentNumber = selectedPricing.numberBooked;
+              notifier.editSinglePricing(pricing.id, currentNumber - 1);
+            },
+            icon: Icon(
+              color: BookingPageColors.primary.color,
+              Icons.remove,
+            )),
+        Text(selectedPricing.numberBooked.toString()),
+        IconButton.outlined(
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(
+                  color: BookingPageColors.primary.color,
+                  width: 2), // outline color
+              foregroundColor: BookingPageColors.primary
+                  .color, // affects ripple & icon color if not overridden
+            ),
+            onPressed: () {
+              int currentNumber = selectedPricing.numberBooked;
+              notifier.editSinglePricing(pricing.id, currentNumber + 1);
+            },
+            icon: Icon(
+              Icons.add,
+              color: BookingPageColors.primary.color,
+            )),
+      ],
     );
   }
 }
