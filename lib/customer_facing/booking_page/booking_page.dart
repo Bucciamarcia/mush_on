@@ -63,32 +63,35 @@ class _BookingPageState extends ConsumerState<BookingPage> {
             body: SafeArea(
               child: Center(
                 child: Container(
+                  constraints: const BoxConstraints.expand(),
                   decoration: BoxDecoration(
                       gradient: LinearGradient(colors: [
                     BookingPageColors.mainBlue.color,
                     BookingPageColors.mainPurple.color
                   ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-                  child: Container(
-                    margin: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20)),
-                    constraints: const BoxConstraints(maxWidth: 1440),
-                    child: Column(
-                      children: [
-                        const BookingPageHeader(),
-                        BookingPageTopOverview(
-                          tourType: tourType,
-                        ),
-                        const Divider(),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: BookingTimeAndDate(
-                                tourType: tourType, account: widget.account!),
+                  child: Center(
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20)),
+                      constraints: const BoxConstraints(maxWidth: 1440),
+                      child: Column(
+                        children: [
+                          const BookingPageHeader(),
+                          BookingPageTopOverview(
+                            tourType: tourType,
                           ),
-                        ),
-                      ],
+                          const Divider(),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: BookingTimeAndDate(
+                                  tourType: tourType, account: widget.account!),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
