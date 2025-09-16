@@ -199,6 +199,9 @@ class BookingCalendar extends ConsumerWidget {
                   ref
                       .read(selectedDateInCalendarProvider.notifier)
                       .change(details.date);
+                  ref
+                      .read(selectedCustomerGroupInCalendarProvider.notifier)
+                      .change(null);
                 },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 140),
