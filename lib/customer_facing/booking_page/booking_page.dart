@@ -146,14 +146,14 @@ class BookingSummaryColumn extends ConsumerWidget {
     DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
     String formatSelectedDate() {
       if (selectedDate == null) return "No date selected";
-      return DateFormat("EEEE MMMM, yyyy").format(selectedDate);
+      return DateFormat("MMMM dd, yyyy").format(selectedDate);
     }
 
     CustomerGroup? selectedCustomerGroup =
         ref.watch(selectedCustomerGroupInCalendarProvider);
     String formatTimeOfSelectedCg() {
       if (selectedCustomerGroup == null) return "No time selected";
-      return DateFormat("hh:mm a").format(selectedCustomerGroup.datetime);
+      return DateFormat("HH:mm").format(selectedCustomerGroup.datetime);
     }
 
     final account = ref.watch(accountProvider);
@@ -207,8 +207,7 @@ class BookingSummaryColumn extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 25,
         children: [
-          const Text("Booking Summary",
-              style: TextStyle(fontWeight: FontWeight.w600)),
+          const HeaderWithBubble(number: "3", title: "Booking Summary"),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
