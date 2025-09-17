@@ -59,52 +59,74 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           if (tourType == null) {
             return const NoKennelOrTourIdErrorPage();
           }
-          return Scaffold(
-            body: SafeArea(
-              child: Center(
-                child: Container(
-                  constraints: const BoxConstraints.expand(),
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                    BookingPageColors.mainBlue.color,
-                    BookingPageColors.mainPurple.color
-                  ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-                  child: Center(
-                    child: Container(
-                      margin: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20)),
-                      constraints: const BoxConstraints(maxWidth: 1440),
-                      child: Column(
-                        children: [
-                          const BookingPageHeader(),
-                          BookingPageTopOverview(
-                            tourType: tourType,
-                          ),
-                          const Divider(),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: BookingTimeAndDate(
-                                      tourType: tourType,
-                                      account: widget.account!),
+          return Scaffold(body:
+              SafeArea(child: LayoutBuilder(builder: (context, constraints) {
+            final w = constraints.maxWidth;
+            return Center(
+              child: Container(
+                constraints: const BoxConstraints.expand(),
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [
+                  BookingPageColors.mainBlue.color,
+                  BookingPageColors.mainPurple.color
+                ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+                child: Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20)),
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Column(
+                      children: [
+                        const BookingPageHeader(),
+                        BookingPageTopOverview(
+                          tourType: tourType,
+                        ),
+                        const Divider(),
+                        w >= 768
+                            ? Expanded(
+                                child: SingleChildScrollView(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: BookingTimeAndDate(
+                                              tourType: tourType,
+                                              account: widget.account!),
+                                        ),
+                                      ),
+                                      BookingSummaryColumn(tourType: tourType)
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8),
+                                        child: BookingTimeAndDate(
+                                            tourType: tourType,
+                                            account: widget.account!),
+                                      ),
+                                      BookingSummaryColumn(tourType: tourType)
+                                    ],
+                                  ),
                                 ),
                               ),
-                              BookingSummaryColumn(tourType: tourType)
-                            ],
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ),
-          );
+            );
+          })));
         },
         error: (e, s) {
           logger.error("Error loading tour type for booking page",
