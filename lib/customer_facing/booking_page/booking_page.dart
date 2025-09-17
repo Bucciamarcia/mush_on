@@ -166,6 +166,17 @@ class BookingSummaryColumn extends ConsumerWidget {
     }
 
     bool maxBookingsSelected = totalBooked() >= availableSpots;
+    double total() {
+      double toReturn = 0;
+      for (final sp in selectedPricings) {
+        TourTypePricing pricing =
+            pricings.firstWhere((p) => p.id == sp.tourTypePricingId);
+        toReturn += (pricing.priceCents.toDouble() / 100) * sp.numberBooked;
+      }
+      return toReturn;
+    }
+
+    double grandTotalToPay = total();
 
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
@@ -208,8 +219,41 @@ class BookingSummaryColumn extends ConsumerWidget {
                     .firstWhere((sp) => sp.tourTypePricingId == pricing.id),
                 pricing: pricing,
               )),
+          GrandTotalSummaryRow(
+              selectedPricings: selectedPricings,
+              pricings: pricings,
+              grandTotalToPay: grandTotalToPay)
         ],
       ),
+    );
+  }
+}
+
+class GrandTotalSummaryRow extends StatelessWidget {
+  final List<BookingPricingNumberBooked> selectedPricings;
+  final List<TourTypePricing> pricings;
+  final double grandTotalToPay;
+  const GrandTotalSummaryRow(
+      {super.key,
+      required this.selectedPricings,
+      required this.pricings,
+      required this.grandTotalToPay});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          "Total:",
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+        ),
+        Text("$grandTotalToPay€",
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: BookingPageColors.primary.color,
+                fontSize: 16))
+      ],
     );
   }
 }
@@ -281,40 +325,56 @@ class PricingOptionCounter extends ConsumerWidget {
           ],
         ),
         IconButton.outlined(
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(
-                  color: BookingPageColors.primary.color,
-                  width: 2), // outline color
-              foregroundColor: BookingPageColors.primary
-                  .color, // affects ripple & icon color if not overridden
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(
+              color: selectedPricing.numberBooked == 0
+                  ? Colors.grey
+                  : BookingPageColors.primary.color,
+              width: 2,
             ),
-            onPressed: () {
-              int currentNumber = selectedPricing.numberBooked;
-              if (currentNumber == 0) return;
-              notifier.editSinglePricing(pricing.id, currentNumber - 1);
-            },
-            icon: Icon(
-              color: BookingPageColors.primary.color,
-              Icons.remove,
-            )),
+            foregroundColor: BookingPageColors.primary.color,
+            disabledForegroundColor: Colors.grey,
+            disabledBackgroundColor: Colors.grey.shade200,
+          ),
+          onPressed: selectedPricing.numberBooked == 0
+              ? null
+              : () {
+                  int currentNumber = selectedPricing.numberBooked;
+                  notifier.editSinglePricing(pricing.id, currentNumber - 1);
+                },
+          icon: Icon(
+            Icons.remove,
+            color: selectedPricing.numberBooked == 0
+                ? Colors.grey
+                : BookingPageColors.primary.color,
+          ),
+        ),
         Text(selectedPricing.numberBooked.toString()),
         IconButton.outlined(
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(
-                  color: BookingPageColors.primary.color,
-                  width: 2), // outline color
-              foregroundColor: BookingPageColors.primary
-                  .color, // affects ripple & icon color if not overridden
+          style: OutlinedButton.styleFrom(
+            side: BorderSide(
+              color: maxBookingsSelected
+                  ? Colors.grey
+                  : BookingPageColors.primary.color,
+              width: 2,
             ),
-            onPressed: () {
-              int currentNumber = selectedPricing.numberBooked;
-              if (maxBookingsSelected) return;
-              notifier.editSinglePricing(pricing.id, currentNumber + 1);
-            },
-            icon: Icon(
-              Icons.add,
-              color: BookingPageColors.primary.color,
-            )),
+            foregroundColor: BookingPageColors.primary.color,
+            disabledForegroundColor: Colors.grey,
+            disabledBackgroundColor: Colors.grey.shade200,
+          ),
+          onPressed: maxBookingsSelected
+              ? null
+              : () {
+                  int currentNumber = selectedPricing.numberBooked;
+                  notifier.editSinglePricing(pricing.id, currentNumber + 1);
+                },
+          icon: Icon(
+            Icons.add,
+            color: maxBookingsSelected
+                ? Colors.grey
+                : BookingPageColors.primary.color,
+          ),
+        ),
       ],
     );
   }

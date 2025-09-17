@@ -121,6 +121,7 @@ class _SingleCgSlotCardState extends ConsumerState<SingleCgSlotCard> {
               ref
                   .read(selectedCustomerGroupInCalendarProvider.notifier)
                   .change(widget.cg);
+              ref.invalidate(bookingDetailsSelectedPricingsProvider);
             },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
@@ -203,6 +204,7 @@ class BookingCalendar extends ConsumerWidget {
                   ref
                       .read(selectedCustomerGroupInCalendarProvider.notifier)
                       .change(null);
+                  ref.invalidate(bookingDetailsSelectedPricingsProvider);
                 },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 140),
