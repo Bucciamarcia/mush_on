@@ -73,6 +73,7 @@ dependencies:
   multi_image_capture: ^1.0.2
   syncfusion_flutter_datagrid_export: ^31.1.17
   syncfusion_flutter_xlsio: ^31.1.17
+  flutter_svg: ^2.2.1
 
 icons_launcher:
   image_path: "assets/icon/icon.png"
