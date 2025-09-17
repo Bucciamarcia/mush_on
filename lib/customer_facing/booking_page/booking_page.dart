@@ -222,9 +222,52 @@ class BookingSummaryColumn extends ConsumerWidget {
           GrandTotalSummaryRow(
               selectedPricings: selectedPricings,
               pricings: pricings,
-              grandTotalToPay: grandTotalToPay)
+              grandTotalToPay: grandTotalToPay),
+          Center(
+            child: ConfirmBookingButton(
+                selectedPricings: selectedPricings, pricings: pricings),
+          ),
         ],
       ),
+    );
+  }
+}
+
+class ConfirmBookingButton extends StatelessWidget {
+  static final BasicLogger logger = BasicLogger();
+  final List<BookingPricingNumberBooked> selectedPricings;
+  final List<TourTypePricing> pricings;
+  const ConfirmBookingButton(
+      {super.key, required this.selectedPricings, required this.pricings});
+
+  bool _isActive() {
+    for (final sp in selectedPricings) {
+      if (sp.numberBooked > 0) return true;
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 150),
+      child: ElevatedButton(
+          key: ValueKey(_isActive()),
+          onPressed: _isActive()
+              ? () {
+                  logger.info("TODO: Stripe integration");
+                }
+              : null,
+          style: ButtonStyle(
+              padding: const WidgetStatePropertyAll(
+                  EdgeInsets.symmetric(vertical: 20, horizontal: 30)),
+              backgroundColor: WidgetStatePropertyAll(_isActive()
+                  ? BookingPageColors.primaryDark.color
+                  : Colors.grey)),
+          child: const Text(
+            "Confirm Booking",
+            style: TextStyle(color: Colors.white),
+          )),
     );
   }
 }
