@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_management/models.dart';
@@ -248,8 +249,36 @@ class BookingSummaryColumn extends ConsumerWidget {
             child: ConfirmBookingButton(
                 selectedPricings: selectedPricings, pricings: pricings),
           ),
+          const SafetyIconsWrap(),
         ],
       ),
+    );
+  }
+}
+
+class SafetyIconsWrap extends StatelessWidget {
+  const SafetyIconsWrap({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    double h = 32;
+    return Wrap(
+      spacing: 15,
+      runSpacing: 15,
+      children: [
+        SvgPicture.asset(
+          "assets/images/visa.svg",
+          height: h,
+        ),
+        SvgPicture.asset(
+          "assets/images/mastercard.svg",
+          height: h,
+        ),
+        SvgPicture.asset(
+          "assets/images/amex.svg",
+          height: h,
+        ),
+      ],
     );
   }
 }
