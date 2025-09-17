@@ -145,6 +145,8 @@ class BookingSummaryColumn extends ConsumerWidget {
               .value ??
           [];
     }
+    final selectedPricings =
+        ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
     Map<String, int>? customersNumberByCgId =
         ref.watch(customersNumberByCustomerGroupIdProvider).value;
     int? maxCapacity = selectedCustomerGroup?.maxCapacity;
@@ -155,6 +157,15 @@ class BookingSummaryColumn extends ConsumerWidget {
     } else {
       availableSpots = maxCapacity - customersBooked;
     }
+    int totalBooked() {
+      int toReturn = 0;
+      for (final sp in selectedPricings) {
+        toReturn += sp.numberBooked;
+      }
+      return toReturn;
+    }
+
+    bool maxBookingsSelected = totalBooked() >= availableSpots;
 
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
@@ -190,9 +201,37 @@ class BookingSummaryColumn extends ConsumerWidget {
                 pricing: pricing,
                 available: availableSpots,
                 pricings: pricings,
-              ))
+                maxBookingsSelected: maxBookingsSelected,
+              )),
+          ...pricings.map((pricing) => PricingOptionTotalPrice(
+                bookingInfo: selectedPricings
+                    .firstWhere((sp) => sp.tourTypePricingId == pricing.id),
+                pricing: pricing,
+              )),
         ],
       ),
+    );
+  }
+}
+
+class PricingOptionTotalPrice extends StatelessWidget {
+  final BookingPricingNumberBooked bookingInfo;
+  final TourTypePricing pricing;
+  const PricingOptionTotalPrice(
+      {super.key, required this.bookingInfo, required this.pricing});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+            "${pricing.displayName}: ${bookingInfo.numberBooked} x ${(pricing.priceCents.toDouble()) / 100}€"),
+        Text(
+          "${(pricing.priceCents.toDouble() / 100) * bookingInfo.numberBooked}€",
+          style: TextStyle(color: BookingPageColors.primary.color),
+        )
+      ],
     );
   }
 }
@@ -201,11 +240,13 @@ class PricingOptionCounter extends ConsumerWidget {
   final List<TourTypePricing> pricings;
   final TourTypePricing pricing;
   final int available;
+  final bool maxBookingsSelected;
   const PricingOptionCounter(
       {super.key,
       required this.pricing,
       required this.available,
-      required this.pricings});
+      required this.pricings,
+      required this.maxBookingsSelected});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -249,6 +290,7 @@ class PricingOptionCounter extends ConsumerWidget {
             ),
             onPressed: () {
               int currentNumber = selectedPricing.numberBooked;
+              if (currentNumber == 0) return;
               notifier.editSinglePricing(pricing.id, currentNumber - 1);
             },
             icon: Icon(
@@ -266,6 +308,7 @@ class PricingOptionCounter extends ConsumerWidget {
             ),
             onPressed: () {
               int currentNumber = selectedPricing.numberBooked;
+              if (maxBookingsSelected) return;
               notifier.editSinglePricing(pricing.id, currentNumber + 1);
             },
             icon: Icon(
