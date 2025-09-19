@@ -9,6 +9,7 @@ import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'calendar/main.dart';
 
+import 'info_page.dart';
 import 'riverpod.dart';
 
 class BookingPage extends ConsumerStatefulWidget {
@@ -267,7 +268,9 @@ class BookingSummaryColumn extends ConsumerWidget {
               grandTotalToPay: grandTotalToPay),
           Center(
             child: ConfirmBookingButton(
-                selectedPricings: selectedPricings, pricings: pricings),
+                selectedPricings: selectedPricings,
+                pricings: pricings,
+                tourType: tourType),
           ),
           const SafetyIconsWrap(),
         ],
@@ -307,8 +310,12 @@ class ConfirmBookingButton extends ConsumerWidget {
   static final BasicLogger logger = BasicLogger();
   final List<BookingPricingNumberBooked> selectedPricings;
   final List<TourTypePricing> pricings;
+  final TourType tourType;
   const ConfirmBookingButton(
-      {super.key, required this.selectedPricings, required this.pricings});
+      {super.key,
+      required this.selectedPricings,
+      required this.pricings,
+      required this.tourType});
 
   bool _isActive() {
     for (final sp in selectedPricings) {
@@ -325,7 +332,10 @@ class ConfirmBookingButton extends ConsumerWidget {
           key: ValueKey(_isActive()),
           onPressed: _isActive()
               ? () {
-                  logger.debug("To info screen");
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => CollectInfoPage(
+                          tourType: tourType,
+                          selectedPricings: selectedPricings)));
                 }
               : null,
           style: ButtonStyle(

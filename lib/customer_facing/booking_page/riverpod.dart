@@ -273,6 +273,20 @@ class BookingDetailsSelectedPricings extends _$BookingDetailsSelectedPricings {
   }
 }
 
+@riverpod
+
+/// Stores the info of the customers that are booking
+class CustomersInfo extends _$CustomersInfo {
+  @override
+  List<Customer> build() {
+    return [];
+  }
+
+  void changeAll(List<Customer> nc) {
+    state = nc;
+  }
+}
+
 @freezed
 
 /// A simple utility class that puts together the pricing tier and how many people are booked on it.

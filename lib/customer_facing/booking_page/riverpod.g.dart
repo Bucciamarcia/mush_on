@@ -708,5 +708,24 @@ class _BookingDetailsSelectedPricingsProviderElement
   List<TourTypePricing> get pricings =>
       (origin as BookingDetailsSelectedPricingsProvider).pricings;
 }
+
+String _$customersInfoHash() => r'587b0f817a64c1c654bc8c1fb22b4f1a982fe92b';
+
+/// Stores the info of the customers that are booking
+///
+/// Copied from [CustomersInfo].
+@ProviderFor(CustomersInfo)
+final customersInfoProvider =
+    AutoDisposeNotifierProvider<CustomersInfo, List<Customer>>.internal(
+  CustomersInfo.new,
+  name: r'customersInfoProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$customersInfoHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$CustomersInfo = AutoDisposeNotifier<List<Customer>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
