@@ -9,7 +9,7 @@ import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-class BookingTimeAndDate extends ConsumerWidget {
+class BookingTimeAndDate extends StatelessWidget {
   /// The tour type for this booking.
   final TourType tourType;
   final String account;
@@ -18,7 +18,7 @@ class BookingTimeAndDate extends ConsumerWidget {
       {super.key, required this.tourType, required this.account});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -51,9 +51,7 @@ class TimeSelectorByDate extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
-          children: [HeaderWithBubble(number: "2", title: "Choose time")],
-        ),
+        const HeaderWithBubble(number: "2", title: "Choose time"),
         const SizedBox(height: 15),
         todayCustomerGroups == null || todayCustomerGroups.isEmpty
             ? const Text("No groups today")

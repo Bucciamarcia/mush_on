@@ -708,23 +708,5 @@ class _BookingDetailsSelectedPricingsProviderElement
   List<TourTypePricing> get pricings =>
       (origin as BookingDetailsSelectedPricingsProvider).pricings;
 }
-
-String _$panelToShowHash() => r'c292c7e60acd3d33e21fa47ee8c5e5f7abda3285';
-
-/// Controls whether to show the date or info panel.
-///
-/// Copied from [PanelToShow].
-@ProviderFor(PanelToShow)
-final panelToShowProvider =
-    AutoDisposeNotifierProvider<PanelToShow, ShowBookingPanel>.internal(
-  PanelToShow.new,
-  name: r'panelToShowProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$panelToShowHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$PanelToShow = AutoDisposeNotifier<ShowBookingPanel>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
