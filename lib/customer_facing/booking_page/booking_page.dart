@@ -62,7 +62,6 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           }
           return Scaffold(body:
               SafeArea(child: LayoutBuilder(builder: (context, constraints) {
-            final w = constraints.maxWidth;
             return Center(
               child: Container(
                 constraints: const BoxConstraints.expand(),
@@ -85,42 +84,10 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                           tourType: tourType,
                         ),
                         const Divider(),
-                        w >= 768
-                            ? Expanded(
-                                child: SingleChildScrollView(
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: BookingTimeAndDate(
-                                              tourType: tourType,
-                                              account: widget.account!),
-                                        ),
-                                      ),
-                                      BookingSummaryColumn(tourType: tourType)
-                                    ],
-                                  ),
-                                ),
-                              )
-                            : Expanded(
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: BookingTimeAndDate(
-                                            tourType: tourType,
-                                            account: widget.account!),
-                                      ),
-                                      BookingSummaryColumn(tourType: tourType)
-                                    ],
-                                  ),
-                                ),
-                              ),
+                        DateSelectionWidget(
+                            constraints: constraints,
+                            tourType: tourType,
+                            account: widget.account!),
                       ],
                     ),
                   ),
@@ -135,6 +102,56 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           return const NoKennelOrTourIdErrorPage();
         },
         loading: () => const CircularProgressIndicator.adaptive());
+  }
+}
+
+class DateSelectionWidget extends StatelessWidget {
+  final BoxConstraints constraints;
+  final TourType tourType;
+  final String account;
+  const DateSelectionWidget(
+      {super.key,
+      required this.constraints,
+      required this.tourType,
+      required this.account});
+
+  @override
+  Widget build(BuildContext context) {
+    final w = constraints.maxWidth;
+    if (w >= 768) {
+      return Expanded(
+        child: SingleChildScrollView(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child:
+                      BookingTimeAndDate(tourType: tourType, account: account),
+                ),
+              ),
+              BookingSummaryColumn(tourType: tourType)
+            ],
+          ),
+        ),
+      );
+    } else {
+      return Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: BookingTimeAndDate(tourType: tourType, account: account),
+              ),
+              BookingSummaryColumn(tourType: tourType)
+            ],
+          ),
+        ),
+      );
+    }
   }
 }
 
@@ -208,7 +225,10 @@ class BookingSummaryColumn extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 25,
         children: [
-          const HeaderWithBubble(number: "3", title: "Booking Summary"),
+          const Text(
+            "Booking Summary",
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -283,7 +303,7 @@ class SafetyIconsWrap extends StatelessWidget {
   }
 }
 
-class ConfirmBookingButton extends StatelessWidget {
+class ConfirmBookingButton extends ConsumerWidget {
   static final BasicLogger logger = BasicLogger();
   final List<BookingPricingNumberBooked> selectedPricings;
   final List<TourTypePricing> pricings;
@@ -298,14 +318,16 @@ class ConfirmBookingButton extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 150),
       child: ElevatedButton(
           key: ValueKey(_isActive()),
           onPressed: _isActive()
               ? () {
-                  logger.info("TODO: Stripe integration");
+                  ref
+                      .read(panelToShowProvider.notifier)
+                      .change(ShowBookingPanel.info);
                 }
               : null,
           style: ButtonStyle(
@@ -315,7 +337,7 @@ class ConfirmBookingButton extends StatelessWidget {
                   ? BookingPageColors.primaryDark.color
                   : Colors.grey)),
           child: const Text(
-            "Confirm Booking",
+            "Continue",
             style: TextStyle(color: Colors.white),
           )),
     );
