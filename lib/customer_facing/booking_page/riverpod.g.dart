@@ -709,7 +709,7 @@ class _BookingDetailsSelectedPricingsProviderElement
       (origin as BookingDetailsSelectedPricingsProvider).pricings;
 }
 
-String _$customersInfoHash() => r'587b0f817a64c1c654bc8c1fb22b4f1a982fe92b';
+String _$customersInfoHash() => r'61d616c63e6aff88201b1fa369aa90bc0c247c26';
 
 /// Stores the info of the customers that are booking
 ///
