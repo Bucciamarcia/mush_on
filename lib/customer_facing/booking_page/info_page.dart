@@ -6,6 +6,7 @@ import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:sealed_countries/sealed_countries.dart';
 import 'package:uuid/uuid.dart';
 import 'booking_page.dart';
 
@@ -48,9 +49,11 @@ class CollectInfoPage extends StatelessWidget {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CollectInfoWidget(
-                                    selectedPricings: selectedPricings,
-                                    bookingId: bookingId),
+                                Expanded(
+                                  child: CollectInfoWidget(
+                                      selectedPricings: selectedPricings,
+                                      bookingId: bookingId),
+                                ),
                                 BookingSummaryImmobile(tourType: tourType)
                               ],
                             ),
@@ -124,7 +127,114 @@ class BookingInfoCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Booking? bookingInfo = ref.watch(bookingInfoProvider);
-    return const Placeholder();
+    if (bookingInfo == null) {
+      return const SizedBox.shrink();
+    }
+
+    // Prepare countries list from sealed_countries
+    final countries = List<WorldCountry>.from(WorldCountry.list)
+      ..sort((a, b) => a.name.common.compareTo(b.name.common));
+    final countryEntries = countries
+        .map((c) => DropdownMenuEntry<String>(
+              value: c.name.common,
+              label: c.name.common,
+            ))
+        .toList();
+
+    void updateBooking(Booking nb) =>
+        ref.read(bookingInfoProvider.notifier).change(nb);
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 16,
+          children: [
+            const Text(
+              'Booking Information',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            ),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Booking name',
+                border: OutlineInputBorder(),
+              ),
+              controller: TextEditingController(text: bookingInfo.name),
+              onChanged: (v) => updateBooking(bookingInfo.copyWith(name: v)),
+            ),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Phone',
+                border: OutlineInputBorder(),
+              ),
+              controller: TextEditingController(text: bookingInfo.phone ?? ''),
+              keyboardType: TextInputType.phone,
+              onChanged: (v) => updateBooking(bookingInfo.copyWith(phone: v)),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'Street address',
+                      border: OutlineInputBorder(),
+                    ),
+                    controller: TextEditingController(
+                        text: bookingInfo.streetAddress ?? ''),
+                    onChanged: (v) =>
+                        updateBooking(bookingInfo.copyWith(streetAddress: v)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 130,
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'ZIP',
+                      border: OutlineInputBorder(),
+                    ),
+                    controller:
+                        TextEditingController(text: bookingInfo.zipCode ?? ''),
+                    onChanged: (v) =>
+                        updateBooking(bookingInfo.copyWith(zipCode: v)),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      labelText: 'City',
+                      border: OutlineInputBorder(),
+                    ),
+                    controller:
+                        TextEditingController(text: bookingInfo.city ?? ''),
+                    onChanged: (v) =>
+                        updateBooking(bookingInfo.copyWith(city: v)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownMenu<String>(
+                    label: const Text('Country'),
+                    dropdownMenuEntries: countryEntries,
+                    initialSelection: bookingInfo.country,
+                    onSelected: (val) {
+                      if (val == null) return;
+                      updateBooking(bookingInfo.copyWith(country: val));
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -152,7 +262,66 @@ class _CustomerFormCardState extends State<CustomerFormCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Placeholder();
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 16,
+          children: [
+            const Text(
+              'Customer Information',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            ),
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Full name',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (v) =>
+                  widget.onChanged(widget.customer.copyWith(name: v)),
+            ),
+            SizedBox(
+              width: 160,
+              child: TextField(
+                controller: _ageController,
+                decoration: const InputDecoration(
+                  labelText: 'Age',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (v) {
+                  final parsed = int.tryParse(v);
+                  widget.onChanged(widget.customer.copyWith(age: parsed));
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant CustomerFormCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.customer.name != widget.customer.name) {
+      _nameController.text = widget.customer.name;
+    }
+    final oldAge = oldWidget.customer.age?.toString() ?? '';
+    final newAge = widget.customer.age?.toString() ?? '';
+    if (oldAge != newAge) {
+      _ageController.text = newAge;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _ageController.dispose();
+    super.dispose();
   }
 }
 
