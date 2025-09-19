@@ -93,8 +93,13 @@ class CollectInfoWidget extends ConsumerWidget {
           .changeAll(_getCustomerPricings());
     });
     return Column(
-      children:
-          customerPricings.map((cp) => CustomerFormCard(customer: cp)).toList(),
+      children: customerPricings
+          .map((cp) => CustomerFormCard(
+              customer: cp,
+              onChanged: (nc) => ref
+                  .read(customersInfoProvider.notifier)
+                  .changeSingle(nc.id, nc)))
+          .toList(),
     );
   }
 
@@ -114,9 +119,27 @@ class CollectInfoWidget extends ConsumerWidget {
   }
 }
 
-class CustomerFormCard extends StatelessWidget {
+class CustomerFormCard extends StatefulWidget {
+  final Function(Customer) onChanged;
   final Customer customer;
-  const CustomerFormCard({super.key, required this.customer});
+  const CustomerFormCard(
+      {super.key, required this.customer, required this.onChanged});
+
+  @override
+  State<CustomerFormCard> createState() => _CustomerFormCardState();
+}
+
+class _CustomerFormCardState extends State<CustomerFormCard> {
+  late TextEditingController _nameController;
+  late TextEditingController _ageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.customer.name);
+    _ageController =
+        TextEditingController(text: widget.customer.age?.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +210,10 @@ class BookingSummaryImmobile extends ConsumerWidget {
 
     double grandTotalToPay = total();
 
+    bool isActive() {
+      return true;
+    }
+
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
       width: 250,
@@ -235,10 +262,45 @@ class BookingSummaryImmobile extends ConsumerWidget {
               pricings: pricings,
               grandTotalToPay: grandTotalToPay),
           Center(
-            child: ConfirmBookingButton(
-                selectedPricings: selectedPricings,
-                pricings: pricings,
-                tourType: tourType),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: const ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Colors.grey),
+                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 30))),
+                    child: const Text(
+                      "Go back",
+                      style: TextStyle(color: Colors.black),
+                    )),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  child: ElevatedButton(
+                      key: ValueKey(isActive()),
+                      onPressed: isActive()
+                          ? () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => CollectInfoPage(
+                                      tourType: tourType,
+                                      selectedPricings: selectedPricings)));
+                            }
+                          : null,
+                      style: ButtonStyle(
+                          padding: const WidgetStatePropertyAll(
+                              EdgeInsets.symmetric(
+                                  vertical: 20, horizontal: 30)),
+                          backgroundColor: WidgetStatePropertyAll(isActive()
+                              ? BookingPageColors.primaryDark.color
+                              : Colors.grey)),
+                      child: const Text(
+                        "Continue",
+                        style: TextStyle(color: Colors.white),
+                      )),
+                )
+              ],
+            ),
           ),
           const SafetyIconsWrap(),
         ],

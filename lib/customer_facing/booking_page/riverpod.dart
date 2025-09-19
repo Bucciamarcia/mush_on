@@ -285,6 +285,14 @@ class CustomersInfo extends _$CustomersInfo {
   void changeAll(List<Customer> nc) {
     state = nc;
   }
+
+  void changeSingle(String id, Customer nc) {
+    final newState = List<Customer>.from(state);
+    int toEdit = newState.indexWhere((c) => c.id == id);
+    if (toEdit == -1) return;
+    newState[toEdit] = nc;
+    state = newState;
+  }
 }
 
 @freezed
