@@ -92,15 +92,13 @@ class CollectInfoWidget extends ConsumerWidget {
           .read(customersInfoProvider.notifier)
           .changeAll(_getCustomerPricings());
     });
-    return Column(
-      children: customerPricings
-          .map((cp) => CustomerFormCard(
-              customer: cp,
-              onChanged: (nc) => ref
-                  .read(customersInfoProvider.notifier)
-                  .changeSingle(nc.id, nc)))
-          .toList(),
-    );
+    return Column(children: [
+      const BookingInfoCard(),
+      ...customerPricings.map((cp) => CustomerFormCard(
+          customer: cp,
+          onChanged: (nc) =>
+              ref.read(customersInfoProvider.notifier).changeSingle(nc.id, nc)))
+    ]);
   }
 
   List<Customer> _getCustomerPricings() {
@@ -116,6 +114,16 @@ class CollectInfoWidget extends ConsumerWidget {
     }
 
     return toReturn;
+  }
+}
+
+class BookingInfoCard extends ConsumerWidget {
+  const BookingInfoCard({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Booking? bookingInfo = ref.watch(bookingInfoProvider);
+    return const Placeholder();
   }
 }
 

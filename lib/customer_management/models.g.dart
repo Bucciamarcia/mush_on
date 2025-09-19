@@ -32,12 +32,22 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
       id: json['id'] as String,
       name: json['name'] as String? ?? "",
       customerGroupId: json['customerGroupId'] as String,
+      phone: json['phone'] as String?,
+      streetAddress: json['streetAddress'] as String?,
+      zipCode: json['zipCode'] as String?,
+      city: json['city'] as String?,
+      country: json['country'] as String?,
     );
 
 Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'customerGroupId': instance.customerGroupId,
+      'phone': instance.phone,
+      'streetAddress': instance.streetAddress,
+      'zipCode': instance.zipCode,
+      'city': instance.city,
+      'country': instance.country,
     };
 
 _CustomerGroup _$CustomerGroupFromJson(Map<String, dynamic> json) =>

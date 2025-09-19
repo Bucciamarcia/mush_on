@@ -493,6 +493,15 @@ mixin _$Booking {
   /// Required because CustomerGroup is where date time is.
   String get customerGroupId;
 
+  /// The phone left for this booking.
+  String? get phone;
+
+  /// The street address of the customer.
+  String? get streetAddress;
+  String? get zipCode;
+  String? get city;
+  String? get country;
+
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -511,16 +520,23 @@ mixin _$Booking {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.customerGroupId, customerGroupId) ||
-                other.customerGroupId == customerGroupId));
+                other.customerGroupId == customerGroupId) &&
+            (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.streetAddress, streetAddress) ||
+                other.streetAddress == streetAddress) &&
+            (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
+            (identical(other.city, city) || other.city == city) &&
+            (identical(other.country, country) || other.country == country));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, customerGroupId);
+  int get hashCode => Object.hash(runtimeType, id, name, customerGroupId, phone,
+      streetAddress, zipCode, city, country);
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country)';
   }
 }
 
@@ -529,7 +545,15 @@ abstract mixin class $BookingCopyWith<$Res> {
   factory $BookingCopyWith(Booking value, $Res Function(Booking) _then) =
       _$BookingCopyWithImpl;
   @useResult
-  $Res call({String id, String name, String customerGroupId});
+  $Res call(
+      {String id,
+      String name,
+      String customerGroupId,
+      String? phone,
+      String? streetAddress,
+      String? zipCode,
+      String? city,
+      String? country});
 }
 
 /// @nodoc
@@ -547,6 +571,11 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
     Object? id = null,
     Object? name = null,
     Object? customerGroupId = null,
+    Object? phone = freezed,
+    Object? streetAddress = freezed,
+    Object? zipCode = freezed,
+    Object? city = freezed,
+    Object? country = freezed,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -561,6 +590,26 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
           ? _self.customerGroupId
           : customerGroupId // ignore: cast_nullable_to_non_nullable
               as String,
+      phone: freezed == phone
+          ? _self.phone
+          : phone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      streetAddress: freezed == streetAddress
+          ? _self.streetAddress
+          : streetAddress // ignore: cast_nullable_to_non_nullable
+              as String?,
+      zipCode: freezed == zipCode
+          ? _self.zipCode
+          : zipCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+      city: freezed == city
+          ? _self.city
+          : city // ignore: cast_nullable_to_non_nullable
+              as String?,
+      country: freezed == country
+          ? _self.country
+          : country // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -656,14 +705,30 @@ extension BookingPatterns on Booking {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String id, String name, String customerGroupId)?
+    TResult Function(
+            String id,
+            String name,
+            String customerGroupId,
+            String? phone,
+            String? streetAddress,
+            String? zipCode,
+            String? city,
+            String? country)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _Booking() when $default != null:
-        return $default(_that.id, _that.name, _that.customerGroupId);
+        return $default(
+            _that.id,
+            _that.name,
+            _that.customerGroupId,
+            _that.phone,
+            _that.streetAddress,
+            _that.zipCode,
+            _that.city,
+            _that.country);
       case _:
         return orElse();
     }
@@ -684,12 +749,29 @@ extension BookingPatterns on Booking {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String id, String name, String customerGroupId) $default,
+    TResult Function(
+            String id,
+            String name,
+            String customerGroupId,
+            String? phone,
+            String? streetAddress,
+            String? zipCode,
+            String? city,
+            String? country)
+        $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Booking():
-        return $default(_that.id, _that.name, _that.customerGroupId);
+        return $default(
+            _that.id,
+            _that.name,
+            _that.customerGroupId,
+            _that.phone,
+            _that.streetAddress,
+            _that.zipCode,
+            _that.city,
+            _that.country);
     }
   }
 
@@ -707,12 +789,29 @@ extension BookingPatterns on Booking {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String id, String name, String customerGroupId)? $default,
+    TResult? Function(
+            String id,
+            String name,
+            String customerGroupId,
+            String? phone,
+            String? streetAddress,
+            String? zipCode,
+            String? city,
+            String? country)?
+        $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Booking() when $default != null:
-        return $default(_that.id, _that.name, _that.customerGroupId);
+        return $default(
+            _that.id,
+            _that.name,
+            _that.customerGroupId,
+            _that.phone,
+            _that.streetAddress,
+            _that.zipCode,
+            _that.city,
+            _that.country);
       case _:
         return null;
     }
@@ -724,7 +823,14 @@ extension BookingPatterns on Booking {
 @JsonSerializable(explicitToJson: true)
 class _Booking implements Booking {
   const _Booking(
-      {required this.id, this.name = "", required this.customerGroupId});
+      {required this.id,
+      this.name = "",
+      required this.customerGroupId,
+      this.phone,
+      this.streetAddress,
+      this.zipCode,
+      this.city,
+      this.country});
   factory _Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
 
@@ -741,6 +847,20 @@ class _Booking implements Booking {
   /// Required because CustomerGroup is where date time is.
   @override
   final String customerGroupId;
+
+  /// The phone left for this booking.
+  @override
+  final String? phone;
+
+  /// The street address of the customer.
+  @override
+  final String? streetAddress;
+  @override
+  final String? zipCode;
+  @override
+  final String? city;
+  @override
+  final String? country;
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -765,16 +885,23 @@ class _Booking implements Booking {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.customerGroupId, customerGroupId) ||
-                other.customerGroupId == customerGroupId));
+                other.customerGroupId == customerGroupId) &&
+            (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.streetAddress, streetAddress) ||
+                other.streetAddress == streetAddress) &&
+            (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
+            (identical(other.city, city) || other.city == city) &&
+            (identical(other.country, country) || other.country == country));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, customerGroupId);
+  int get hashCode => Object.hash(runtimeType, id, name, customerGroupId, phone,
+      streetAddress, zipCode, city, country);
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country)';
   }
 }
 
@@ -784,7 +911,15 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
       __$BookingCopyWithImpl;
   @override
   @useResult
-  $Res call({String id, String name, String customerGroupId});
+  $Res call(
+      {String id,
+      String name,
+      String customerGroupId,
+      String? phone,
+      String? streetAddress,
+      String? zipCode,
+      String? city,
+      String? country});
 }
 
 /// @nodoc
@@ -802,6 +937,11 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
     Object? id = null,
     Object? name = null,
     Object? customerGroupId = null,
+    Object? phone = freezed,
+    Object? streetAddress = freezed,
+    Object? zipCode = freezed,
+    Object? city = freezed,
+    Object? country = freezed,
   }) {
     return _then(_Booking(
       id: null == id
@@ -816,6 +956,26 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
           ? _self.customerGroupId
           : customerGroupId // ignore: cast_nullable_to_non_nullable
               as String,
+      phone: freezed == phone
+          ? _self.phone
+          : phone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      streetAddress: freezed == streetAddress
+          ? _self.streetAddress
+          : streetAddress // ignore: cast_nullable_to_non_nullable
+              as String?,
+      zipCode: freezed == zipCode
+          ? _self.zipCode
+          : zipCode // ignore: cast_nullable_to_non_nullable
+              as String?,
+      city: freezed == city
+          ? _self.city
+          : city // ignore: cast_nullable_to_non_nullable
+              as String?,
+      country: freezed == country
+          ? _self.country
+          : country // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }

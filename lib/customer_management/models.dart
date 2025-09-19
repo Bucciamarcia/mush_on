@@ -56,6 +56,15 @@ sealed class Booking with _$Booking {
     ///
     /// Required because CustomerGroup is where date time is.
     required String customerGroupId,
+
+    /// The phone left for this booking.
+    String? phone,
+
+    /// The street address of the customer.
+    String? streetAddress,
+    String? zipCode,
+    String? city,
+    String? country,
   }) = _Booking;
 
   factory Booking.fromJson(Map<String, dynamic> json) =>
