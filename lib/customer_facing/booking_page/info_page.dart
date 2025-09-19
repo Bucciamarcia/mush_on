@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:uuid/uuid.dart';
 import 'booking_page.dart';
 
@@ -288,11 +289,11 @@ class BookingSummaryImmobile extends ConsumerWidget {
                   child: ElevatedButton(
                       key: ValueKey(isActive()),
                       onPressed: isActive()
-                          ? () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => CollectInfoPage(
-                                      tourType: tourType,
-                                      selectedPricings: selectedPricings)));
+                          ? () async {
+                              BasicLogger().info("TODO: go to stripe");
+                              // Simulate stripe call
+                              await Future.delayed(const Duration(seconds: 2));
+                              BasicLogger().info("DONE!");
                             }
                           : null,
                       style: ButtonStyle(
@@ -303,7 +304,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
                               ? BookingPageColors.primaryDark.color
                               : Colors.grey)),
                       child: const Text(
-                        "Continue",
+                        "Book now",
                         style: TextStyle(color: Colors.white),
                       )),
                 )
