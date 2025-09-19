@@ -273,6 +273,22 @@ class BookingDetailsSelectedPricings extends _$BookingDetailsSelectedPricings {
   }
 }
 
+@riverpod
+
+/// Controls whether to show the date or info panel.
+class PanelToShow extends _$PanelToShow {
+  @override
+  ShowBookingPanel build() {
+    return ShowBookingPanel.date;
+  }
+
+  void change(ShowBookingPanel v) {
+    state = v;
+  }
+}
+
+enum ShowBookingPanel { date, info }
+
 @freezed
 
 /// A simple utility class that puts together the pricing tier and how many people are booked on it.
