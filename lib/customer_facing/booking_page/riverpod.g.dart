@@ -727,5 +727,22 @@ final customersInfoProvider =
 );
 
 typedef _$CustomersInfo = AutoDisposeNotifier<List<Customer>>;
+String _$bookingInfoHash() => r'abe6f8a848c2880bd1bac8d228e589767f08152a';
+
+/// Stores the booking to be saved
+///
+/// Copied from [BookingInfo].
+@ProviderFor(BookingInfo)
+final bookingInfoProvider =
+    AutoDisposeNotifierProvider<BookingInfo, Booking?>.internal(
+  BookingInfo.new,
+  name: r'bookingInfoProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$bookingInfoHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$BookingInfo = AutoDisposeNotifier<Booking?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

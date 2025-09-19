@@ -5,6 +5,7 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
 
@@ -292,6 +293,26 @@ class CustomersInfo extends _$CustomersInfo {
     if (toEdit == -1) return;
     newState[toEdit] = nc;
     state = newState;
+  }
+}
+
+@riverpod
+
+/// Stores the booking to be saved
+class BookingInfo extends _$BookingInfo {
+  @override
+  Booking? build() {
+    CustomerGroup? selectedCg =
+        ref.watch(selectedCustomerGroupInCalendarProvider);
+    if (selectedCg == null) return null;
+    return Booking(
+      id: const Uuid().v4(),
+      customerGroupId: selectedCg.id,
+    );
+  }
+
+  void change(Booking nb) {
+    state = nb;
   }
 }
 
