@@ -87,7 +87,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                         DateSelectionWidget(
                             constraints: constraints,
                             tourType: tourType,
-                            account: widget.account!),
+                            account: widget.account!)
                       ],
                     ),
                   ),
@@ -325,9 +325,7 @@ class ConfirmBookingButton extends ConsumerWidget {
           key: ValueKey(_isActive()),
           onPressed: _isActive()
               ? () {
-                  ref
-                      .read(panelToShowProvider.notifier)
-                      .change(ShowBookingPanel.info);
+                  logger.debug("To info screen");
                 }
               : null,
           style: ButtonStyle(
