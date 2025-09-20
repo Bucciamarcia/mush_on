@@ -147,61 +147,147 @@ class BookingInfoPage extends ConsumerWidget {
     if (booking == null) return const SizedBox.shrink();
     List<String> countries =
         WorldCountry.list.map((wc) => wc.name.name).toList();
-    return Column(
-      children: [
-        const Text("Booking information"),
-        TextField(
-            keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(labelText: "Phone number"),
-            onChanged: (nv) {
-              ref
-                  .read(bookingInfoProvider.notifier)
-                  .change(booking.copyWith(phone: nv));
-            }),
-        TextField(
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(labelText: "Email"),
-            onChanged: (nv) {
-              ref
-                  .read(bookingInfoProvider.notifier)
-                  .change(booking.copyWith(email: nv));
-            }),
-        TextField(
-          decoration: const InputDecoration(labelText: "Street address"),
-          keyboardType: TextInputType.streetAddress,
-          onChanged: (nv) {
-            ref
-                .read(bookingInfoProvider.notifier)
-                .change(booking.copyWith(streetAddress: nv));
-          },
+
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return LayoutBuilder(builder: (context, constraints) {
+      final w = constraints.maxWidth;
+      final twoCols = w >= 700;
+      const spacing = 16.0;
+      final itemWidth = twoCols ? (w - (spacing * 3)) / 2 : w - (spacing * 2);
+
+      InputDecoration inputDecoration({
+        required String label,
+        IconData? icon,
+      }) =>
+          InputDecoration(
+            labelText: label,
+            border: const OutlineInputBorder(),
+            prefixIcon: icon != null ? Icon(icon) : null,
+          );
+
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.assignment, color: colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Booking information",
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: spacing,
+                runSpacing: 12,
+                children: [
+                  SizedBox(
+                    width: itemWidth,
+                    child: TextField(
+                      keyboardType: TextInputType.phone,
+                      decoration: inputDecoration(
+                          label: "Phone number", icon: Icons.phone),
+                      onChanged: (nv) {
+                        ref
+                            .read(bookingInfoProvider.notifier)
+                            .change(booking.copyWith(phone: nv));
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: TextField(
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: inputDecoration(
+                          label: "Email", icon: Icons.email_outlined),
+                      onChanged: (nv) {
+                        ref
+                            .read(bookingInfoProvider.notifier)
+                            .change(booking.copyWith(email: nv));
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: TextField(
+                      decoration: inputDecoration(
+                          label: "Street address", icon: Icons.home_outlined),
+                      keyboardType: TextInputType.streetAddress,
+                      onChanged: (nv) {
+                        ref
+                            .read(bookingInfoProvider.notifier)
+                            .change(booking.copyWith(streetAddress: nv));
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: TextField(
+                      decoration: inputDecoration(
+                          label: "Zip code", icon: Icons.local_post_office),
+                      onChanged: (nv) {
+                        ref
+                            .read(bookingInfoProvider.notifier)
+                            .change(booking.copyWith(zipCode: nv));
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: TextField(
+                      decoration: inputDecoration(
+                          label: "City", icon: Icons.location_city),
+                      onChanged: (nv) {
+                        ref
+                            .read(bookingInfoProvider.notifier)
+                            .change(booking.copyWith(city: nv));
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: DropdownMenu(
+                      label: const Text("Country"),
+                      leadingIcon: const Icon(Icons.public),
+                      width: itemWidth,
+                      onSelected: (v) {
+                        ref
+                            .read(bookingInfoProvider.notifier)
+                            .change(booking.copyWith(country: v));
+                      },
+                      dropdownMenuEntries: countries
+                          .map((c) => DropdownMenuEntry(value: c, label: c))
+                          .toList(),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.lock_outline,
+                      size: 16, color: colorScheme.primary),
+                  const SizedBox(width: 6),
+                  Text(
+                    "We keep your information private",
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
-        TextField(
-          decoration: const InputDecoration(labelText: "Zip code"),
-          onChanged: (nv) {
-            ref
-                .read(bookingInfoProvider.notifier)
-                .change(booking.copyWith(zipCode: nv));
-          },
-        ),
-        TextField(
-          decoration: const InputDecoration(labelText: "City"),
-          onChanged: (nv) {
-            ref
-                .read(bookingInfoProvider.notifier)
-                .change(booking.copyWith(city: nv));
-          },
-        ),
-        DropdownMenu(
-            onSelected: (v) {
-              ref
-                  .read(bookingInfoProvider.notifier)
-                  .change(booking.copyWith(country: v));
-            },
-            dropdownMenuEntries: countries
-                .map((c) => DropdownMenuEntry(value: c, label: c))
-                .toList()),
-      ],
-    );
+      );
+    });
   }
 }
 
