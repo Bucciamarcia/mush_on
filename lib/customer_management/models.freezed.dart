@@ -496,6 +496,9 @@ mixin _$Booking {
   /// The phone left for this booking.
   String? get phone;
 
+  /// The reference email for this booking.
+  String? get email;
+
   /// The street address of the customer.
   String? get streetAddress;
   String? get zipCode;
@@ -522,6 +525,7 @@ mixin _$Booking {
             (identical(other.customerGroupId, customerGroupId) ||
                 other.customerGroupId == customerGroupId) &&
             (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.email, email) || other.email == email) &&
             (identical(other.streetAddress, streetAddress) ||
                 other.streetAddress == streetAddress) &&
             (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
@@ -532,11 +536,11 @@ mixin _$Booking {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, customerGroupId, phone,
-      streetAddress, zipCode, city, country);
+      email, streetAddress, zipCode, city, country);
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country)';
   }
 }
 
@@ -550,6 +554,7 @@ abstract mixin class $BookingCopyWith<$Res> {
       String name,
       String customerGroupId,
       String? phone,
+      String? email,
       String? streetAddress,
       String? zipCode,
       String? city,
@@ -572,6 +577,7 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
     Object? name = null,
     Object? customerGroupId = null,
     Object? phone = freezed,
+    Object? email = freezed,
     Object? streetAddress = freezed,
     Object? zipCode = freezed,
     Object? city = freezed,
@@ -593,6 +599,10 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
       phone: freezed == phone
           ? _self.phone
           : phone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      email: freezed == email
+          ? _self.email
+          : email // ignore: cast_nullable_to_non_nullable
               as String?,
       streetAddress: freezed == streetAddress
           ? _self.streetAddress
@@ -710,6 +720,7 @@ extension BookingPatterns on Booking {
             String name,
             String customerGroupId,
             String? phone,
+            String? email,
             String? streetAddress,
             String? zipCode,
             String? city,
@@ -725,6 +736,7 @@ extension BookingPatterns on Booking {
             _that.name,
             _that.customerGroupId,
             _that.phone,
+            _that.email,
             _that.streetAddress,
             _that.zipCode,
             _that.city,
@@ -754,6 +766,7 @@ extension BookingPatterns on Booking {
             String name,
             String customerGroupId,
             String? phone,
+            String? email,
             String? streetAddress,
             String? zipCode,
             String? city,
@@ -768,6 +781,7 @@ extension BookingPatterns on Booking {
             _that.name,
             _that.customerGroupId,
             _that.phone,
+            _that.email,
             _that.streetAddress,
             _that.zipCode,
             _that.city,
@@ -794,6 +808,7 @@ extension BookingPatterns on Booking {
             String name,
             String customerGroupId,
             String? phone,
+            String? email,
             String? streetAddress,
             String? zipCode,
             String? city,
@@ -808,6 +823,7 @@ extension BookingPatterns on Booking {
             _that.name,
             _that.customerGroupId,
             _that.phone,
+            _that.email,
             _that.streetAddress,
             _that.zipCode,
             _that.city,
@@ -827,6 +843,7 @@ class _Booking implements Booking {
       this.name = "",
       required this.customerGroupId,
       this.phone,
+      this.email,
       this.streetAddress,
       this.zipCode,
       this.city,
@@ -851,6 +868,10 @@ class _Booking implements Booking {
   /// The phone left for this booking.
   @override
   final String? phone;
+
+  /// The reference email for this booking.
+  @override
+  final String? email;
 
   /// The street address of the customer.
   @override
@@ -887,6 +908,7 @@ class _Booking implements Booking {
             (identical(other.customerGroupId, customerGroupId) ||
                 other.customerGroupId == customerGroupId) &&
             (identical(other.phone, phone) || other.phone == phone) &&
+            (identical(other.email, email) || other.email == email) &&
             (identical(other.streetAddress, streetAddress) ||
                 other.streetAddress == streetAddress) &&
             (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
@@ -897,11 +919,11 @@ class _Booking implements Booking {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, customerGroupId, phone,
-      streetAddress, zipCode, city, country);
+      email, streetAddress, zipCode, city, country);
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country)';
   }
 }
 
@@ -916,6 +938,7 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
       String name,
       String customerGroupId,
       String? phone,
+      String? email,
       String? streetAddress,
       String? zipCode,
       String? city,
@@ -938,6 +961,7 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
     Object? name = null,
     Object? customerGroupId = null,
     Object? phone = freezed,
+    Object? email = freezed,
     Object? streetAddress = freezed,
     Object? zipCode = freezed,
     Object? city = freezed,
@@ -959,6 +983,10 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
       phone: freezed == phone
           ? _self.phone
           : phone // ignore: cast_nullable_to_non_nullable
+              as String?,
+      email: freezed == email
+          ? _self.email
+          : email // ignore: cast_nullable_to_non_nullable
               as String?,
       streetAddress: freezed == streetAddress
           ? _self.streetAddress

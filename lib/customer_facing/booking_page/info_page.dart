@@ -107,7 +107,11 @@ class CollectInfoWidget extends ConsumerWidget {
           .read(customersInfoProvider.notifier)
           .changeAll(_getCustomerPricings());
     });
-    return Placeholder();
+    return Column(
+      children: [
+        BookingInfoPage(),
+      ],
+    );
   }
 
   Map<String, TourTypePricing> _getPricingById() {
@@ -131,6 +135,73 @@ class CollectInfoWidget extends ConsumerWidget {
     }
 
     return toReturn;
+  }
+}
+
+class BookingInfoPage extends ConsumerWidget {
+  const BookingInfoPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Booking? booking = ref.read(bookingInfoProvider);
+    if (booking == null) return const SizedBox.shrink();
+    List<String> countries =
+        WorldCountry.list.map((wc) => wc.name.name).toList();
+    return Column(
+      children: [
+        const Text("Booking information"),
+        TextField(
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(labelText: "Phone number"),
+            onChanged: (nv) {
+              ref
+                  .read(bookingInfoProvider.notifier)
+                  .change(booking.copyWith(phone: nv));
+            }),
+        TextField(
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(labelText: "Email"),
+            onChanged: (nv) {
+              ref
+                  .read(bookingInfoProvider.notifier)
+                  .change(booking.copyWith(email: nv));
+            }),
+        TextField(
+          decoration: const InputDecoration(labelText: "Street address"),
+          keyboardType: TextInputType.streetAddress,
+          onChanged: (nv) {
+            ref
+                .read(bookingInfoProvider.notifier)
+                .change(booking.copyWith(streetAddress: nv));
+          },
+        ),
+        TextField(
+          decoration: const InputDecoration(labelText: "Zip code"),
+          onChanged: (nv) {
+            ref
+                .read(bookingInfoProvider.notifier)
+                .change(booking.copyWith(zipCode: nv));
+          },
+        ),
+        TextField(
+          decoration: const InputDecoration(labelText: "City"),
+          onChanged: (nv) {
+            ref
+                .read(bookingInfoProvider.notifier)
+                .change(booking.copyWith(city: nv));
+          },
+        ),
+        DropdownMenu(
+            onSelected: (v) {
+              ref
+                  .read(bookingInfoProvider.notifier)
+                  .change(booking.copyWith(country: v));
+            },
+            dropdownMenuEntries: countries
+                .map((c) => DropdownMenuEntry(value: c, label: c))
+                .toList()),
+      ],
+    );
   }
 }
 
