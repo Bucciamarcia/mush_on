@@ -60,6 +60,9 @@ sealed class Booking with _$Booking {
     /// The phone left for this booking.
     String? phone,
 
+    /// The reference email for this booking.
+    String? email,
+
     /// The street address of the customer.
     String? streetAddress,
     String? zipCode,
