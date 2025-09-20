@@ -709,14 +709,14 @@ class _BookingDetailsSelectedPricingsProviderElement
       (origin as BookingDetailsSelectedPricingsProvider).pricings;
 }
 
-String _$customersInfoHash() => r'61d616c63e6aff88201b1fa369aa90bc0c247c26';
+String _$customersInfoHash() => r'9135259e36e748955a32f933d2183329f356886c';
 
 /// Stores the info of the customers that are booking
 ///
 /// Copied from [CustomersInfo].
 @ProviderFor(CustomersInfo)
 final customersInfoProvider =
-    AutoDisposeNotifierProvider<CustomersInfo, List<Customer>>.internal(
+    NotifierProvider<CustomersInfo, List<Customer>>.internal(
   CustomersInfo.new,
   name: r'customersInfoProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -726,15 +726,14 @@ final customersInfoProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$CustomersInfo = AutoDisposeNotifier<List<Customer>>;
-String _$bookingInfoHash() => r'abe6f8a848c2880bd1bac8d228e589767f08152a';
+typedef _$CustomersInfo = Notifier<List<Customer>>;
+String _$bookingInfoHash() => r'a83959a9b530f4a0bc0ac7f50c1ebb9f7c137e2b';
 
 /// Stores the booking to be saved
 ///
 /// Copied from [BookingInfo].
 @ProviderFor(BookingInfo)
-final bookingInfoProvider =
-    AutoDisposeNotifierProvider<BookingInfo, Booking?>.internal(
+final bookingInfoProvider = NotifierProvider<BookingInfo, Booking?>.internal(
   BookingInfo.new,
   name: r'bookingInfoProvider',
   debugGetCreateSourceHash:
@@ -743,6 +742,6 @@ final bookingInfoProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$BookingInfo = AutoDisposeNotifier<Booking?>;
+typedef _$BookingInfo = Notifier<Booking?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
