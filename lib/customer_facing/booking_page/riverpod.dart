@@ -274,7 +274,7 @@ class BookingDetailsSelectedPricings extends _$BookingDetailsSelectedPricings {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 
 /// Stores the info of the customers that are booking
 class CustomersInfo extends _$CustomersInfo {
@@ -296,7 +296,7 @@ class CustomersInfo extends _$CustomersInfo {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 
 /// Stores the booking to be saved
 class BookingInfo extends _$BookingInfo {

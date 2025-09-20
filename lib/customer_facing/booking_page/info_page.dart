@@ -13,8 +13,12 @@ import 'booking_page.dart';
 class CollectInfoPage extends StatelessWidget {
   final TourType tourType;
   final List<BookingPricingNumberBooked> selectedPricings;
+  final List<TourTypePricing> pricings;
   const CollectInfoPage(
-      {super.key, required this.tourType, required this.selectedPricings});
+      {super.key,
+      required this.tourType,
+      required this.selectedPricings,
+      required this.pricings});
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +56,7 @@ class CollectInfoPage extends StatelessWidget {
                                 Expanded(
                                   child: CollectInfoWidget(
                                       selectedPricings: selectedPricings,
+                                      pricings: pricings,
                                       bookingId: bookingId),
                                 ),
                                 BookingSummaryImmobile(tourType: tourType)
@@ -65,6 +70,7 @@ class CollectInfoPage extends StatelessWidget {
                               children: [
                                 CollectInfoWidget(
                                     selectedPricings: selectedPricings,
+                                    pricings: pricings,
                                     bookingId: bookingId),
                                 BookingSummaryImmobile(tourType: tourType)
                               ],
@@ -84,25 +90,32 @@ class CollectInfoPage extends StatelessWidget {
 class CollectInfoWidget extends ConsumerWidget {
   final List<BookingPricingNumberBooked> selectedPricings;
   final String bookingId;
+  final List<TourTypePricing> pricings;
   const CollectInfoWidget(
-      {super.key, required this.selectedPricings, required this.bookingId});
+      {super.key,
+      required this.selectedPricings,
+      required this.bookingId,
+      required this.pricings});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     /// A list of tour type pricings, one for each customers, so that they can fill the info.
     List<Customer> customerPricings = ref.watch(customersInfoProvider);
+    Map<String, TourTypePricing> pricingById = _getPricingById();
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       ref
           .read(customersInfoProvider.notifier)
           .changeAll(_getCustomerPricings());
     });
-    return Column(children: [
-      const BookingInfoCard(),
-      ...customerPricings.map((cp) => CustomerFormCard(
-          customer: cp,
-          onChanged: (nc) =>
-              ref.read(customersInfoProvider.notifier).changeSingle(nc.id, nc)))
-    ]);
+    return Placeholder();
+  }
+
+  Map<String, TourTypePricing> _getPricingById() {
+    Map<String, TourTypePricing> toReturn = {};
+    for (final p in pricings) {
+      toReturn.addAll({p.id: p});
+    }
+    return toReturn;
   }
 
   List<Customer> _getCustomerPricings() {
@@ -111,217 +124,13 @@ class CollectInfoWidget extends ConsumerWidget {
     for (final p in selectedPricings) {
       for (var i = 0; i < p.numberBooked; i++) {
         toReturn.add(Customer(
-          id: const Uuid().v4(),
-          bookingId: bookingId,
-        ));
+            id: const Uuid().v4(),
+            bookingId: bookingId,
+            pricingId: p.tourTypePricingId));
       }
     }
 
     return toReturn;
-  }
-}
-
-class BookingInfoCard extends ConsumerWidget {
-  const BookingInfoCard({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    Booking? bookingInfo = ref.watch(bookingInfoProvider);
-    if (bookingInfo == null) {
-      return const SizedBox.shrink();
-    }
-
-    // Prepare countries list from sealed_countries
-    final countries = List<WorldCountry>.from(WorldCountry.list)
-      ..sort((a, b) => a.name.common.compareTo(b.name.common));
-    final countryEntries = countries
-        .map((c) => DropdownMenuEntry<String>(
-              value: c.name.common,
-              label: c.name.common,
-            ))
-        .toList();
-
-    void updateBooking(Booking nb) =>
-        ref.read(bookingInfoProvider.notifier).change(nb);
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 16,
-          children: [
-            const Text(
-              'Booking Information',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-            ),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Booking name',
-                border: OutlineInputBorder(),
-              ),
-              controller: TextEditingController(text: bookingInfo.name),
-              onChanged: (v) => updateBooking(bookingInfo.copyWith(name: v)),
-            ),
-            TextField(
-              decoration: const InputDecoration(
-                labelText: 'Phone',
-                border: OutlineInputBorder(),
-              ),
-              controller: TextEditingController(text: bookingInfo.phone ?? ''),
-              keyboardType: TextInputType.phone,
-              onChanged: (v) => updateBooking(bookingInfo.copyWith(phone: v)),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Street address',
-                      border: OutlineInputBorder(),
-                    ),
-                    controller: TextEditingController(
-                        text: bookingInfo.streetAddress ?? ''),
-                    onChanged: (v) =>
-                        updateBooking(bookingInfo.copyWith(streetAddress: v)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: 130,
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'ZIP',
-                      border: OutlineInputBorder(),
-                    ),
-                    controller:
-                        TextEditingController(text: bookingInfo.zipCode ?? ''),
-                    onChanged: (v) =>
-                        updateBooking(bookingInfo.copyWith(zipCode: v)),
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'City',
-                      border: OutlineInputBorder(),
-                    ),
-                    controller:
-                        TextEditingController(text: bookingInfo.city ?? ''),
-                    onChanged: (v) =>
-                        updateBooking(bookingInfo.copyWith(city: v)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: DropdownMenu<String>(
-                    label: const Text('Country'),
-                    dropdownMenuEntries: countryEntries,
-                    initialSelection: bookingInfo.country,
-                    onSelected: (val) {
-                      if (val == null) return;
-                      updateBooking(bookingInfo.copyWith(country: val));
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class CustomerFormCard extends StatefulWidget {
-  final Function(Customer) onChanged;
-  final Customer customer;
-  const CustomerFormCard(
-      {super.key, required this.customer, required this.onChanged});
-
-  @override
-  State<CustomerFormCard> createState() => _CustomerFormCardState();
-}
-
-class _CustomerFormCardState extends State<CustomerFormCard> {
-  late TextEditingController _nameController;
-  late TextEditingController _ageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.customer.name);
-    _ageController =
-        TextEditingController(text: widget.customer.age?.toString());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 16,
-          children: [
-            const Text(
-              'Customer Information',
-              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-            ),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Full name',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (v) =>
-                  widget.onChanged(widget.customer.copyWith(name: v)),
-            ),
-            SizedBox(
-              width: 160,
-              child: TextField(
-                controller: _ageController,
-                decoration: const InputDecoration(
-                  labelText: 'Age',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                onChanged: (v) {
-                  final parsed = int.tryParse(v);
-                  widget.onChanged(widget.customer.copyWith(age: parsed));
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  void didUpdateWidget(covariant CustomerFormCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.customer.name != widget.customer.name) {
-      _nameController.text = widget.customer.name;
-    }
-    final oldAge = oldWidget.customer.age?.toString() ?? '';
-    final newAge = widget.customer.age?.toString() ?? '';
-    if (oldAge != newAge) {
-      _ageController.text = newAge;
-    }
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _ageController.dispose();
-    super.dispose();
   }
 }
 
@@ -459,7 +268,10 @@ class BookingSummaryImmobile extends ConsumerWidget {
                       key: ValueKey(isActive()),
                       onPressed: isActive()
                           ? () async {
-                              BasicLogger().info("TODO: go to stripe");
+                              final logger = BasicLogger();
+                              logger.info("TODO: go to stripe");
+                              logger.debug(ref.read(customersInfoProvider));
+                              logger.debug(ref.read(bookingInfoProvider));
                               // Simulate stripe call
                               await Future.delayed(const Duration(seconds: 2));
                               BasicLogger().info("DONE!");

@@ -335,6 +335,7 @@ class ConfirmBookingButton extends ConsumerWidget {
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => CollectInfoPage(
                           tourType: tourType,
+                          pricings: pricings,
                           selectedPricings: selectedPricings)));
                 }
               : null,
