@@ -23,7 +23,8 @@ class BookingPageRepository {
     // Deal with customers
     for (final customer in customers) {
       final doc = db.doc("$path/customers/${customer.id}");
-      batch.set(doc, customer.toJson());
+      final customerData = customer.copyWith(bookingId: booking.id);
+      batch.set(doc, customerData.toJson());
     }
 
     try {
