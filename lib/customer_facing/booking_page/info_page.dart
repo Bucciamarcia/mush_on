@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/customer_facing/booking_page/repository.dart';
 import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
@@ -251,7 +252,7 @@ class CustomerInfoWidget extends ConsumerWidget {
     final current = customers.firstWhere((c) => c.id == customer.id,
         orElse: () => customer);
 
-    bool nameFilled = (current.name ?? '').trim().isNotEmpty;
+    bool nameFilled = (current.name).trim().isNotEmpty;
     bool ageFilled = current.age != null;
     bool filled = field == _CustomerField.name ? nameFilled : ageFilled;
     bool hasError = showErrors && !filled;
@@ -748,37 +749,55 @@ class BookingSummaryImmobile extends ConsumerWidget {
                       "Go back",
                       style: TextStyle(color: Colors.black),
                     )),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 150),
-                  child: ElevatedButton(
-                      key: ValueKey(isComplete),
-                      onPressed: () async {
-                        if (!isComplete) {
-                          ref
-                              .read(showValidationErrorsProvider.notifier)
-                              .state = true;
-                          return;
-                        }
-                        final logger = BasicLogger();
-                        logger.info("TODO: go to stripe");
-                        logger.debug(ref.read(customersInfoProvider));
-                        logger.debug(ref.read(bookingInfoProvider));
-                        // Simulate stripe call
-                        await Future.delayed(const Duration(seconds: 2));
-                        BasicLogger().info("DONE!");
-                      },
-                      style: ButtonStyle(
-                          padding: const WidgetStatePropertyAll(
-                              EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 30)),
-                          backgroundColor: WidgetStatePropertyAll(isComplete
-                              ? BookingPageColors.primaryDark.color
-                              : Colors.grey)),
-                      child: const Text(
-                        "Book now",
-                        style: TextStyle(color: Colors.white),
-                      )),
-                )
+                account == null
+                    ? const SizedBox.shrink()
+                    : AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 150),
+                        child: ElevatedButton(
+                            key: ValueKey(isComplete),
+                            onPressed: () async {
+                              if (!isComplete) {
+                                ref
+                                    .read(showValidationErrorsProvider.notifier)
+                                    .state = true;
+                                return;
+                              }
+                              final logger = BasicLogger();
+                              logger.info("TODO: go to stripe");
+                              logger.debug(ref.read(customersInfoProvider));
+                              logger.debug(ref.read(bookingInfoProvider));
+                              // Simulate stripe call
+                              await Future.delayed(const Duration(seconds: 2));
+                              final repo = BookingPageRepository(
+                                  account: account, tourId: tourType.id);
+                              try {
+                                final booking = ref.read(bookingInfoProvider);
+                                if (booking != null) {
+                                  await repo.bookTour(
+                                      booking, ref.read(customersInfoProvider));
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      errorSnackBar(context,
+                                          "Couldn't add booking: contact support."));
+                                }
+                              }
+                              BasicLogger().info("DONE!");
+                            },
+                            style: ButtonStyle(
+                                padding: const WidgetStatePropertyAll(
+                                    EdgeInsets.symmetric(
+                                        vertical: 20, horizontal: 30)),
+                                backgroundColor: WidgetStatePropertyAll(
+                                    isComplete
+                                        ? BookingPageColors.primaryDark.color
+                                        : Colors.grey)),
+                            child: const Text(
+                              "Book now",
+                              style: TextStyle(color: Colors.white),
+                            )),
+                      )
               ],
             ),
           ),
