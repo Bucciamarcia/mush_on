@@ -105,20 +105,102 @@ class CollectInfoWidget extends ConsumerWidget {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       ref.read(customersInfoProvider.notifier).changeAll(customerPricings);
     });
-    return Column(
-      children: [
-        const BookingInfoPage(),
-        const Text("Customers information"),
-        ...customerPricings.asMap().entries.map((customerMap) {
-          final customer = customerMap.value;
-          final i = customerMap.key;
-          return CustomerInfoWidget(
-              customer: customer,
-              pricing: pricingById[customer.pricingId],
-              i: i);
-        })
-      ],
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      final w = constraints.maxWidth;
+      final twoCols = w >= 700;
+      const spacing = 16.0;
+      const runSpacing = 12.0;
+      final itemWidth = twoCols ? (w - (spacing * 3)) / 2 : w - (spacing * 2);
+      final colorScheme = Theme.of(context).colorScheme;
+
+      Widget sectionCard({
+        required IconData icon,
+        required String title,
+        required List<Widget> children,
+      }) {
+        return Card(
+          elevation: 1,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(icon, color: colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      title,
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ...children,
+              ],
+            ),
+          ),
+        );
+      }
+
+      return Column(
+        children: [
+          const BookingInfoPage(),
+          sectionCard(
+            icon: Icons.group_outlined,
+            title: "Passengers information",
+            children: [
+              ...customerPricings.asMap().entries.map((customerMap) {
+                final customer = customerMap.value;
+                final i = customerMap.key;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${i + 1} - Passenger: ${pricingById[customer.pricingId]?.displayName ?? ''}",
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: spacing,
+                      runSpacing: runSpacing,
+                      children: [
+                        SizedBox(
+                          width: itemWidth,
+                          child: CustomerInfoWidget(
+                            customer: customer,
+                            pricing: pricingById[customer.pricingId],
+                            i: i,
+                            itemWidth: itemWidth,
+                            field: _CustomerField.name,
+                          ),
+                        ),
+                        SizedBox(
+                          width: itemWidth,
+                          child: CustomerInfoWidget(
+                            customer: customer,
+                            pricing: pricingById[customer.pricingId],
+                            i: i,
+                            itemWidth: itemWidth,
+                            field: _CustomerField.age,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    if (i != customerPricings.length - 1)
+                      const Divider(height: 24),
+                  ],
+                );
+              }),
+            ],
+          ),
+        ],
+      );
+    });
   }
 
   Map<String, TourTypePricing> _getPricingById() {
@@ -145,88 +227,127 @@ class CollectInfoWidget extends ConsumerWidget {
   }
 }
 
-class CustomerInfoWidget extends ConsumerStatefulWidget {
+enum _CustomerField { name, age }
+
+class CustomerInfoWidget extends ConsumerWidget {
   final Customer customer;
   final TourTypePricing? pricing;
   final int i;
+  final double itemWidth;
+  final _CustomerField field;
   const CustomerInfoWidget(
       {super.key,
       required this.customer,
       required this.pricing,
-      required this.i});
+      required this.i,
+      required this.itemWidth,
+      required this.field});
 
   @override
-  ConsumerState<CustomerInfoWidget> createState() => _CustomerInfoWidgetState();
-}
-
-class _CustomerInfoWidgetState extends ConsumerState<CustomerInfoWidget> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final customers = ref.watch(customersInfoProvider);
     final notifier = ref.read(customersInfoProvider.notifier);
-    return Column(
-      children: [
-        Text(
-            "${widget.i + 1} - Passenger information: ${widget.pricing?.displayName}"),
-        TextField(
+    final showErrors = ref.watch(showValidationErrorsProvider);
+    final current = customers.firstWhere((c) => c.id == customer.id,
+        orElse: () => customer);
+
+    bool nameFilled = (current.name ?? '').trim().isNotEmpty;
+    bool ageFilled = current.age != null;
+    bool filled = field == _CustomerField.name ? nameFilled : ageFilled;
+    bool hasError = showErrors && !filled;
+
+    const green = Colors.green;
+    const baseBorder = OutlineInputBorder();
+    const successBorder = OutlineInputBorder(
+      borderSide: BorderSide(color: green, width: 1.5),
+      borderRadius: BorderRadius.all(Radius.circular(4)),
+    );
+    const errorBorder = OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.red, width: 1.5),
+      borderRadius: BorderRadius.all(Radius.circular(4)),
+    );
+
+    InputDecoration deco(String label, IconData icon) => InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon),
+          border: baseBorder,
+          enabledBorder:
+              hasError ? errorBorder : (filled ? successBorder : baseBorder),
+          focusedBorder:
+              hasError ? errorBorder : (filled ? successBorder : baseBorder),
+          suffixIcon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 150),
+            transitionBuilder: (child, anim) => FadeTransition(
+              opacity: anim,
+              child: ScaleTransition(scale: anim, child: child),
+            ),
+            child: filled
+                ? const Icon(Icons.check_circle,
+                    key: ValueKey('ok'), color: green)
+                : hasError
+                    ? const Icon(Icons.error_outline,
+                        key: ValueKey('err'), color: Colors.red)
+                    : const SizedBox.shrink(key: ValueKey('empty')),
+          ),
+        );
+
+    Widget wrapField(Widget child) => AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          decoration: BoxDecoration(
+            color: filled
+                ? Colors.green.withValues(alpha: 0.05)
+                : (hasError ? Colors.red.withValues(alpha: 0.05) : null),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: child,
+        );
+
+    switch (field) {
+      case _CustomerField.name:
+        return wrapField(TextField(
+          onChanged: (v) {
+            notifier.changeSingle(customer.id, current.copyWith(name: v));
+          },
+          decoration: deco("Name", Icons.person_outline),
+        ));
+      case _CustomerField.age:
+        return wrapField(TextField(
           onChanged: (v) {
             notifier.changeSingle(
-                widget.customer.id, widget.customer.copyWith(name: v));
-          },
-          decoration: const InputDecoration(labelText: "Name"),
-        ),
-        TextField(
-          onChanged: (v) {
-            notifier.changeSingle(widget.customer.id,
-                widget.customer.copyWith(age: int.tryParse(v)));
+                customer.id, current.copyWith(age: int.tryParse(v)));
           },
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: "Age"),
-        ),
-      ],
-    );
+          decoration: deco("Age", Icons.cake_outlined),
+        ));
+    }
   }
 }
 
-class BookingInfoPage extends ConsumerStatefulWidget {
+class BookingInfoPage extends ConsumerWidget {
   const BookingInfoPage({super.key});
 
   @override
-  ConsumerState<BookingInfoPage> createState() => _BookingInfoPageState();
-}
-
-class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
-  bool _phoneFilled = false;
-  bool _emailFilled = false;
-  bool _streetFilled = false;
-  bool _zipFilled = false;
-  bool _cityFilled = false;
-  bool _countryFilled = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final booking = ref.read(bookingInfoProvider);
-    _phoneFilled = (booking?.phone ?? '').trim().isNotEmpty;
-    _emailFilled = (booking?.email ?? '').trim().isNotEmpty;
-    _streetFilled = (booking?.streetAddress ?? '').trim().isNotEmpty;
-    _zipFilled = (booking?.zipCode ?? '').trim().isNotEmpty;
-    _cityFilled = (booking?.city ?? '').trim().isNotEmpty;
-    _countryFilled = (booking?.country ?? '').trim().isNotEmpty;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Booking? booking = ref.read(bookingInfoProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final booking = ref.watch(bookingInfoProvider);
     if (booking == null) return const SizedBox.shrink();
     List<String> countries =
         WorldCountry.list.map((wc) => wc.name.name).toList();
 
     final colorScheme = Theme.of(context).colorScheme;
+    final showErrors = ref.watch(showValidationErrorsProvider);
+
+    bool filled(String? v) => (v ?? '').trim().isNotEmpty;
+    final phoneFilled = filled(booking.phone);
+    final emailFilled = filled(booking.email);
+    final streetFilled = filled(booking.streetAddress);
+    final zipFilled = filled(booking.zipCode);
+    final cityFilled = filled(booking.city);
+    final countryFilled = filled(booking.country);
 
     InputDecoration _inputDecoration({
       required String label,
       IconData? icon,
-      required bool filled,
+      required bool isFilled,
     }) {
       const green = Colors.green;
       const baseBorder = OutlineInputBorder();
@@ -234,22 +355,32 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
         borderSide: BorderSide(color: green, width: 1.5),
         borderRadius: BorderRadius.all(Radius.circular(4)),
       );
+      const errorBorder = OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.red, width: 1.5),
+        borderRadius: BorderRadius.all(Radius.circular(4)),
+      );
+      final hasError = showErrors && !isFilled;
       return InputDecoration(
         labelText: label,
         prefixIcon: icon != null ? Icon(icon) : null,
         border: baseBorder,
-        enabledBorder: filled ? successBorder : baseBorder,
-        focusedBorder: filled ? successBorder : baseBorder,
+        enabledBorder:
+            hasError ? errorBorder : (isFilled ? successBorder : baseBorder),
+        focusedBorder:
+            hasError ? errorBorder : (isFilled ? successBorder : baseBorder),
         suffixIcon: AnimatedSwitcher(
           duration: const Duration(milliseconds: 150),
           transitionBuilder: (child, anim) => FadeTransition(
             opacity: anim,
             child: ScaleTransition(scale: anim, child: child),
           ),
-          child: filled
+          child: isFilled
               ? const Icon(Icons.check_circle,
                   key: ValueKey('ok'), color: green)
-              : const SizedBox.shrink(key: ValueKey('empty')),
+              : hasError
+                  ? const Icon(Icons.error_outline,
+                      key: ValueKey('err'), color: Colors.red)
+                  : const SizedBox.shrink(key: ValueKey('empty')),
         ),
       );
     }
@@ -294,15 +425,19 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
       const runSpacing = 12.0;
       final itemWidth = twoCols ? (w - (spacing * 3)) / 2 : w - (spacing * 2);
 
-      Widget _animatedField({required bool filled, required Widget child}) =>
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            decoration: BoxDecoration(
-              color: filled ? Colors.green.withOpacity(0.05) : null,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: child,
-          );
+      Widget _animatedField({required bool isFilled, required Widget child}) {
+        final hasError = showErrors && !isFilled;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          decoration: BoxDecoration(
+            color: isFilled
+                ? Colors.green.withOpacity(0.05)
+                : (hasError ? Colors.red.withOpacity(0.05) : null),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: child,
+        );
+      }
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,15 +454,14 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
                   SizedBox(
                     width: itemWidth,
                     child: _animatedField(
-                      filled: _phoneFilled,
+                      isFilled: phoneFilled,
                       child: TextField(
                         keyboardType: TextInputType.phone,
                         decoration: _inputDecoration(
                             label: "Phone number",
                             icon: Icons.phone,
-                            filled: _phoneFilled),
+                            isFilled: phoneFilled),
                         onChanged: (nv) {
-                          setState(() => _phoneFilled = nv.trim().isNotEmpty);
                           ref
                               .read(bookingInfoProvider.notifier)
                               .change(booking.copyWith(phone: nv));
@@ -338,15 +472,14 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
                   SizedBox(
                     width: itemWidth,
                     child: _animatedField(
-                      filled: _emailFilled,
+                      isFilled: emailFilled,
                       child: TextField(
                         keyboardType: TextInputType.emailAddress,
                         decoration: _inputDecoration(
                             label: "Email",
                             icon: Icons.email_outlined,
-                            filled: _emailFilled),
+                            isFilled: emailFilled),
                         onChanged: (nv) {
-                          setState(() => _emailFilled = nv.trim().isNotEmpty);
                           ref
                               .read(bookingInfoProvider.notifier)
                               .change(booking.copyWith(email: nv));
@@ -369,15 +502,14 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
                   SizedBox(
                     width: itemWidth,
                     child: _animatedField(
-                      filled: _streetFilled,
+                      isFilled: streetFilled,
                       child: TextField(
                         keyboardType: TextInputType.streetAddress,
                         decoration: _inputDecoration(
                             label: "Street address",
                             icon: Icons.home_work_outlined,
-                            filled: _streetFilled),
+                            isFilled: streetFilled),
                         onChanged: (nv) {
-                          setState(() => _streetFilled = nv.trim().isNotEmpty);
                           ref
                               .read(bookingInfoProvider.notifier)
                               .change(booking.copyWith(streetAddress: nv));
@@ -388,14 +520,13 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
                   SizedBox(
                     width: itemWidth,
                     child: _animatedField(
-                      filled: _zipFilled,
+                      isFilled: zipFilled,
                       child: TextField(
                         decoration: _inputDecoration(
                             label: "Zip code",
                             icon: Icons.local_post_office,
-                            filled: _zipFilled),
+                            isFilled: zipFilled),
                         onChanged: (nv) {
-                          setState(() => _zipFilled = nv.trim().isNotEmpty);
                           ref
                               .read(bookingInfoProvider.notifier)
                               .change(booking.copyWith(zipCode: nv));
@@ -406,14 +537,13 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
                   SizedBox(
                     width: itemWidth,
                     child: _animatedField(
-                      filled: _cityFilled,
+                      isFilled: cityFilled,
                       child: TextField(
                         decoration: _inputDecoration(
                             label: "City",
                             icon: Icons.location_city,
-                            filled: _cityFilled),
+                            isFilled: cityFilled),
                         onChanged: (nv) {
-                          setState(() => _cityFilled = nv.trim().isNotEmpty);
                           ref
                               .read(bookingInfoProvider.notifier)
                               .change(booking.copyWith(city: nv));
@@ -426,10 +556,18 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 150),
                       decoration: BoxDecoration(
-                        color: _countryFilled
+                        color: countryFilled
                             ? Colors.green.withOpacity(0.05)
-                            : null,
+                            : (showErrors && !countryFilled
+                                ? Colors.red.withOpacity(0.05)
+                                : null),
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: showErrors && !countryFilled
+                              ? Colors.red
+                              : Colors.transparent,
+                          width: showErrors && !countryFilled ? 1.5 : 0.0,
+                        ),
                       ),
                       child: DropdownMenu(
                         label: const Text("Country"),
@@ -440,17 +578,20 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
                             opacity: anim,
                             child: ScaleTransition(scale: anim, child: child),
                           ),
-                          child: _countryFilled
+                          child: countryFilled
                               ? const Icon(Icons.check_circle,
                                   key: ValueKey('country-ok'),
                                   color: Colors.green)
-                              : const Icon(Icons.arrow_drop_down,
-                                  key: ValueKey('country-empty')),
+                              : (showErrors && !countryFilled
+                                  ? const Icon(Icons.error_outline,
+                                      key: ValueKey('country-err'),
+                                      color: Colors.red)
+                                  : const Icon(Icons.arrow_drop_down,
+                                      key: ValueKey('country-empty'))),
                         ),
+                        initialSelection: booking.country,
                         width: itemWidth,
                         onSelected: (v) {
-                          setState(() =>
-                              _countryFilled = (v ?? '').trim().isNotEmpty);
                           ref
                               .read(bookingInfoProvider.notifier)
                               .change(booking.copyWith(country: v));
@@ -544,9 +685,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
 
     double grandTotalToPay = total();
 
-    bool isActive() {
-      return true;
-    }
+    final isComplete = ref.watch(bookingAllFieldsCompleteProvider);
 
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
@@ -612,23 +751,27 @@ class BookingSummaryImmobile extends ConsumerWidget {
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
                   child: ElevatedButton(
-                      key: ValueKey(isActive()),
-                      onPressed: isActive()
-                          ? () async {
-                              final logger = BasicLogger();
-                              logger.info("TODO: go to stripe");
-                              logger.debug(ref.read(customersInfoProvider));
-                              logger.debug(ref.read(bookingInfoProvider));
-                              // Simulate stripe call
-                              await Future.delayed(const Duration(seconds: 2));
-                              BasicLogger().info("DONE!");
-                            }
-                          : null,
+                      key: ValueKey(isComplete),
+                      onPressed: () async {
+                        if (!isComplete) {
+                          ref
+                              .read(showValidationErrorsProvider.notifier)
+                              .state = true;
+                          return;
+                        }
+                        final logger = BasicLogger();
+                        logger.info("TODO: go to stripe");
+                        logger.debug(ref.read(customersInfoProvider));
+                        logger.debug(ref.read(bookingInfoProvider));
+                        // Simulate stripe call
+                        await Future.delayed(const Duration(seconds: 2));
+                        BasicLogger().info("DONE!");
+                      },
                       style: ButtonStyle(
                           padding: const WidgetStatePropertyAll(
                               EdgeInsets.symmetric(
                                   vertical: 20, horizontal: 30)),
-                          backgroundColor: WidgetStatePropertyAll(isActive()
+                          backgroundColor: WidgetStatePropertyAll(isComplete
                               ? BookingPageColors.primaryDark.color
                               : Colors.grey)),
                       child: const Text(

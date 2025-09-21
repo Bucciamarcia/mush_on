@@ -9,6 +9,9 @@ import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
 
+// Validation state for booking info + passengers
+final showValidationErrorsProvider = StateProvider<bool>((ref) => false);
+
 @riverpod
 Stream<TourType?> tourType(Ref ref,
     {required String account, required String tourId}) async* {
@@ -325,3 +328,24 @@ sealed class BookingPricingNumberBooked with _$BookingPricingNumberBooked {
     @Default(0) int numberBooked,
   }) = _BookingPricingNumberBooked;
 }
+
+/// Derived flag: true when all required fields are filled for booking + passengers
+final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
+  final booking = ref.watch(bookingInfoProvider);
+  if (booking == null) return false;
+
+  bool _filled(String? v) => (v ?? '').trim().isNotEmpty;
+
+  final contactOk = _filled(booking.phone) &&
+      _filled(booking.email) &&
+      _filled(booking.streetAddress) &&
+      _filled(booking.zipCode) &&
+      _filled(booking.city) &&
+      _filled(booking.country);
+
+  final customers = ref.watch(customersInfoProvider);
+  final passengersOk = customers.isNotEmpty &&
+      customers.every((c) => _filled(c.name) && c.age != null);
+
+  return contactOk && passengersOk;
+});
