@@ -100,16 +100,23 @@ class CollectInfoWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     /// A list of tour type pricings, one for each customers, so that they can fill the info.
-    List<Customer> customerPricings = ref.watch(customersInfoProvider);
+    List<Customer> customerPricings = _getCustomerPricings();
     Map<String, TourTypePricing> pricingById = _getPricingById();
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      ref
-          .read(customersInfoProvider.notifier)
-          .changeAll(_getCustomerPricings());
+      ref.read(customersInfoProvider.notifier).changeAll(customerPricings);
     });
     return Column(
       children: [
-        BookingInfoPage(),
+        const BookingInfoPage(),
+        const Text("Customers information"),
+        ...customerPricings.asMap().entries.map((customerMap) {
+          final customer = customerMap.value;
+          final i = customerMap.key;
+          return CustomerInfoWidget(
+              customer: customer,
+              pricing: pricingById[customer.pricingId],
+              i: i);
+        })
       ],
     );
   }
@@ -135,6 +142,48 @@ class CollectInfoWidget extends ConsumerWidget {
     }
 
     return toReturn;
+  }
+}
+
+class CustomerInfoWidget extends ConsumerStatefulWidget {
+  final Customer customer;
+  final TourTypePricing? pricing;
+  final int i;
+  const CustomerInfoWidget(
+      {super.key,
+      required this.customer,
+      required this.pricing,
+      required this.i});
+
+  @override
+  ConsumerState<CustomerInfoWidget> createState() => _CustomerInfoWidgetState();
+}
+
+class _CustomerInfoWidgetState extends ConsumerState<CustomerInfoWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final notifier = ref.read(customersInfoProvider.notifier);
+    return Column(
+      children: [
+        Text(
+            "${widget.i + 1} - Passenger information: ${widget.pricing?.displayName}"),
+        TextField(
+          onChanged: (v) {
+            notifier.changeSingle(
+                widget.customer.id, widget.customer.copyWith(name: v));
+          },
+          decoration: const InputDecoration(labelText: "Name"),
+        ),
+        TextField(
+          onChanged: (v) {
+            notifier.changeSingle(widget.customer.id,
+                widget.customer.copyWith(age: int.tryParse(v)));
+          },
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(labelText: "Age"),
+        ),
+      ],
+    );
   }
 }
 
@@ -179,11 +228,11 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
       IconData? icon,
       required bool filled,
     }) {
-      final green = Colors.green;
-      final baseBorder = const OutlineInputBorder();
-      final successBorder = OutlineInputBorder(
+      const green = Colors.green;
+      const baseBorder = OutlineInputBorder();
+      const successBorder = OutlineInputBorder(
         borderSide: BorderSide(color: green, width: 1.5),
-        borderRadius: const BorderRadius.all(Radius.circular(4)),
+        borderRadius: BorderRadius.all(Radius.circular(4)),
       );
       return InputDecoration(
         labelText: label,
@@ -198,7 +247,8 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
             child: ScaleTransition(scale: anim, child: child),
           ),
           child: filled
-              ? Icon(Icons.check_circle, key: const ValueKey('ok'), color: green)
+              ? const Icon(Icons.check_circle,
+                  key: ValueKey('ok'), color: green)
               : const SizedBox.shrink(key: ValueKey('empty')),
         ),
       );
@@ -399,8 +449,8 @@ class _BookingInfoPageState extends ConsumerState<BookingInfoPage> {
                         ),
                         width: itemWidth,
                         onSelected: (v) {
-                          setState(
-                              () => _countryFilled = (v ?? '').trim().isNotEmpty);
+                          setState(() =>
+                              _countryFilled = (v ?? '').trim().isNotEmpty);
                           ref
                               .read(bookingInfoProvider.notifier)
                               .change(booking.copyWith(country: v));
