@@ -82,8 +82,8 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                 );
               }
             },
-            monthViewSettings:
-                const MonthViewSettings(appointmentDisplayCount: 3, showAgenda: true),
+            monthViewSettings: const MonthViewSettings(
+                appointmentDisplayCount: 3, showAgenda: true),
             monthCellBuilder: viewLength == CalendarView.month
                 ? (BuildContext context, MonthCellDetails details) {
                     final List<CustomerGroup> dayAppointments = customerGroups
@@ -183,7 +183,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                         details.appointments.first as CustomerGroup;
 
                     if (customerGroup.name.isEmpty) {
-                      return Container();
+                      return SizedBox.shrink();
                     }
 
                     // Get notes using the data source method

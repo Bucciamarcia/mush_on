@@ -162,6 +162,19 @@ class BookingSummaryColumn extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(customersNumberByCustomerGroupIdBookingProvider);
+    final logger = BasicLogger();
+    logger.info('watched provider runtimeType: ${async.runtimeType}');
+    async.when(
+      data: (m) {
+        logger
+            .info('map valueType sample: ${m.values.firstOrNull?.runtimeType}');
+      },
+      loading: () {},
+      error: (e, s) {
+        logger.info('err: $e');
+      },
+    );
     DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
     String formatSelectedDate() {
       if (selectedDate == null) return "No date selected";
@@ -189,7 +202,7 @@ class BookingSummaryColumn extends ConsumerWidget {
     final selectedPricings =
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
     Map<String, int>? customersNumberByCgId =
-        ref.watch(customersNumberByCustomerGroupIdProvider).value;
+        ref.watch(customersNumberByCustomerGroupIdBookingProvider).value;
     int? maxCapacity = selectedCustomerGroup?.maxCapacity;
     int? customersBooked = customersNumberByCgId?[selectedCustomerGroup?.id];
     late final int availableSpots;

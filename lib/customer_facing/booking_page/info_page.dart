@@ -109,9 +109,7 @@ class CollectInfoWidget extends ConsumerWidget {
       SchedulerBinding.instance.addPostFrameCallback((_) async {
         // Guard again in case something else already initialized it.
         if (ref.read(customersInfoProvider).isEmpty) {
-          ref
-              .read(customersInfoProvider.notifier)
-              .changeAll(initialCustomers);
+          ref.read(customersInfoProvider.notifier).changeAll(initialCustomers);
         }
       });
       customers = initialCustomers;
@@ -205,8 +203,7 @@ class CollectInfoWidget extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    if (i != customers.length - 1)
-                      const Divider(height: 24),
+                    if (i != customers.length - 1) const Divider(height: 24),
                   ],
                 );
               }),
@@ -669,7 +666,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
     final selectedPricings =
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
     Map<String, int>? customersNumberByCgId =
-        ref.watch(customersNumberByCustomerGroupIdProvider).value;
+        ref.watch(customersNumberByCustomerGroupIdBookingProvider).value;
     int? maxCapacity = selectedCustomerGroup?.maxCapacity;
     int? customersBooked = customersNumberByCgId?[selectedCustomerGroup?.id];
     late final int availableSpots;

@@ -196,10 +196,11 @@ Future<Map<String, List<Customer>>> customersByBookingId(Ref ref) async {
 @riverpod
 
 /// How many customers are in each customer group, summing all bookings.
-Future<Map<String, int>> customersNumberByCustomerGroupId(Ref ref) async {
-  final bookingsByCgId =
+Future<Map<String, int>> customersNumberByCustomerGroupIdBooking(
+    Ref ref) async {
+  Map<String, List<Booking>> bookingsByCgId =
       await ref.watch(bookingsByCustomerGroupIdProvider.future);
-  final customersByBookingId =
+  Map<String, List<Customer>> customersByBookingId =
       await ref.watch(customersByBookingIdProvider.future);
   Map<String, int> toReturn = {};
   for (final cgId in bookingsByCgId.keys) {
