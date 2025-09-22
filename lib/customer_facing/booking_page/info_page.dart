@@ -773,7 +773,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
                               try {
                                 final booking = ref.read(bookingInfoProvider);
                                 if (booking != null) {
-                                  await repo.bookTour(
+                                  await repo.bookTourFirebase(
                                       booking, ref.read(customersInfoProvider));
                                 }
                               } catch (e) {
