@@ -100,12 +100,25 @@ class CollectInfoWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    /// A list of tour type pricings, one for each customers, so that they can fill the info.
-    List<Customer> customerPricings = _getCustomerPricings();
+    // Read current customers from provider; initialize once if empty.
+    List<Customer> customers = ref.watch(customersInfoProvider);
+
+    if (customers.isEmpty) {
+      final initialCustomers = _getCustomerPricings();
+      // Initialize provider only once after the first frame to avoid rebuild loops.
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        // Guard again in case something else already initialized it.
+        if (ref.read(customersInfoProvider).isEmpty) {
+          ref
+              .read(customersInfoProvider.notifier)
+              .changeAll(initialCustomers);
+        }
+      });
+      customers = initialCustomers;
+    }
+
+    // Pricing lookup for labels.
     Map<String, TourTypePricing> pricingById = _getPricingById();
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      ref.read(customersInfoProvider.notifier).changeAll(customerPricings);
-    });
     return LayoutBuilder(builder: (context, constraints) {
       final w = constraints.maxWidth;
       final twoCols = w >= 700;
@@ -154,7 +167,7 @@ class CollectInfoWidget extends ConsumerWidget {
             icon: Icons.group_outlined,
             title: "Passengers information",
             children: [
-              ...customerPricings.asMap().entries.map((customerMap) {
+              ...customers.asMap().entries.map((customerMap) {
                 final customer = customerMap.value;
                 final i = customerMap.key;
                 return Column(
@@ -192,7 +205,7 @@ class CollectInfoWidget extends ConsumerWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    if (i != customerPricings.length - 1)
+                    if (i != customers.length - 1)
                       const Divider(height: 24),
                   ],
                 );
