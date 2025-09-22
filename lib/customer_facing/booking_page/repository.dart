@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:mush_on/services/error_handling.dart';
-
 import '../../customer_management/models.dart';
 
 class BookingPageRepository {
@@ -29,6 +29,28 @@ class BookingPageRepository {
 
     try {
       await batch.commit();
+    } catch (e, s) {
+      logger.error("Failed to book tour", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> bookTourFirebase(
+      Booking booking, List<Customer> customers) async {
+    final ref = FirebaseFunctions.instanceFor(region: "europe-north1");
+    final bookingData = booking.copyWith(name: "Test name");
+    List<Map<String, dynamic>> customersData = [];
+    for (final customer in customers) {
+      final cData = customer.copyWith(bookingId: booking.id);
+      customersData.add(cData.toJson());
+    }
+    try {
+      logger.debug("Calling book tour firebase");
+      await ref.httpsCallable("add_booking").call({
+        "booking": bookingData.toJson(),
+        "customers": customersData,
+        "account": account
+      });
     } catch (e, s) {
       logger.error("Failed to book tour", error: e, stackTrace: s);
       rethrow;

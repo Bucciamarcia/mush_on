@@ -24,7 +24,6 @@ import 'package:url_strategy/url_strategy.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Use clean path URLs on web (e.g., /stats instead of /#/stats)
 
   // 1. Initialize Firebase
   await Firebase.initializeApp(
@@ -35,29 +34,11 @@ Future<void> main() async {
   // await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
   // 2. Initialize App Check
   // Use kDebugMode to determine which providers to use
-  if (kDebugMode) {
-    // For web debug builds, activate the debug provider.
-    // For mobile (Android/iOS) debug builds, we will skip initialization.
-    if (kIsWeb) {
-      await FirebaseAppCheck.instance.activate(
-        webProvider:
-            ReCaptchaV3Provider('6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G'),
-        // The appleProvider doesn't run on web, but is good to have here for completeness.
-        appleProvider: AppleProvider.debug,
-      );
-    } else {
-      // This will run for Android and iOS debug builds.
-      print('--> Mobile debug build: SKIPPING App Check initialization.');
-    }
-  } else {
-    await FirebaseAppCheck.instance.activate(
+  late AndroidProvider playCheckProvider;
+  await FirebaseAppCheck.instance.activate(
       webProvider:
-          ReCaptchaV3Provider('6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G'),
-      androidProvider: AndroidProvider.playIntegrity,
-      appleProvider: AppleProvider.deviceCheck,
-    );
-  }
-
+          ReCaptchaV3Provider("6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G"),
+      androidProvider: AndroidProvider.debug);
   FirebaseUIAuth.configureProviders([]);
 
   if (!kDebugMode) {
