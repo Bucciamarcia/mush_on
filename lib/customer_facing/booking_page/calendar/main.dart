@@ -86,7 +86,7 @@ class _SingleCgSlotCardState extends ConsumerState<SingleCgSlotCard> {
   @override
   Widget build(BuildContext context) {
     Map<String, int>? customersNumberByCgId =
-        ref.watch(customersNumberByCustomerGroupIdProvider).value;
+        ref.watch(customersNumberByCustomerGroupIdBookingProvider).value;
     if (customersNumberByCgId == null ||
         customersNumberByCgId[widget.cg.id] == null) {
       return const SizedBox.shrink();
@@ -173,7 +173,7 @@ class BookingCalendar extends ConsumerWidget {
     Map<DateTime, List<CustomerGroup>>? customerGroupsByDay =
         ref.watch(customerGroupsByDayProvider).value;
     Map<String, int>? customersNumberByCgId =
-        ref.watch(customersNumberByCustomerGroupIdProvider).value;
+        ref.watch(customersNumberByCustomerGroupIdBookingProvider).value;
     return SfCalendar(
       showWeekNumber: true,
       showNavigationArrow: true,

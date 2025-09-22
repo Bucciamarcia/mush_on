@@ -18,12 +18,29 @@ set_global_options(max_instances=10, region="europe-north1")
 initialize_app()
 
 
+def _unwrap_int64_wrappers(x):
+    if isinstance(x, dict):
+        # unwrap google.protobuf.Int64Value
+        if (
+            x.get("@type") == "type.googleapis.com/google.protobuf.Int64Value"
+            and "value" in x
+        ):
+            try:
+                return int(x["value"])
+            except Exception:
+                return x
+        return {k: _unwrap_int64_wrappers(v) for k, v in x.items()}
+    if isinstance(x, list):
+        return [_unwrap_int64_wrappers(v) for v in x]
+    return x
+
+
 @https_fn.on_call()
 def add_booking(req: https_fn.CallableRequest[dict]) -> dict:
     try:
         data = req.data
-        booking: dict = data["booking"]
-        customers: list[dict] = data["customers"]
+        booking = _unwrap_int64_wrappers(data["booking"])
+        customers = _unwrap_int64_wrappers(data["customers"])
         account: str = data["account"]
     except Exception as e:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, str(e))

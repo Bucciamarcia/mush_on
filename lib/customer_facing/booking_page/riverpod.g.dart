@@ -289,27 +289,27 @@ final customersByBookingIdProvider =
 // ignore: unused_element
 typedef CustomersByBookingIdRef
     = AutoDisposeFutureProviderRef<Map<String, List<Customer>>>;
-String _$customersNumberByCustomerGroupIdHash() =>
-    r'f9ead66bf5efd8040d4d6bf3b6c3b10c08425a86';
+String _$customersNumberByCustomerGroupIdBookingHash() =>
+    r'4645d75668c77f970109f3ee80a6b5b5a0e72539';
 
 /// How many customers are in each customer group, summing all bookings.
 ///
-/// Copied from [customersNumberByCustomerGroupId].
-@ProviderFor(customersNumberByCustomerGroupId)
-final customersNumberByCustomerGroupIdProvider =
+/// Copied from [customersNumberByCustomerGroupIdBooking].
+@ProviderFor(customersNumberByCustomerGroupIdBooking)
+final customersNumberByCustomerGroupIdBookingProvider =
     AutoDisposeFutureProvider<Map<String, int>>.internal(
-  customersNumberByCustomerGroupId,
-  name: r'customersNumberByCustomerGroupIdProvider',
+  customersNumberByCustomerGroupIdBooking,
+  name: r'customersNumberByCustomerGroupIdBookingProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$customersNumberByCustomerGroupIdHash,
+      : _$customersNumberByCustomerGroupIdBookingHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef CustomersNumberByCustomerGroupIdRef
+typedef CustomersNumberByCustomerGroupIdBookingRef
     = AutoDisposeFutureProviderRef<Map<String, int>>;
 String _$tourTypePricesByTourIdHash() =>
     r'78e9440d0bf032c91e90eaa57d9e31d5cf526eab';
