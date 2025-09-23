@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/custom_fields.dart';
+import 'package:mush_on/settings/payment_settings.dart';
 import 'package:mush_on/settings/repository.dart';
 import 'package:mush_on/settings/user_settings.dart';
 import 'package:mush_on/shared/distance_warning_widget/main.dart';
@@ -85,6 +86,7 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
                     }
                   },
                 ),
+                const PaymentSettingsWidget(),
                 const UserSettings(),
               ],
             ),
