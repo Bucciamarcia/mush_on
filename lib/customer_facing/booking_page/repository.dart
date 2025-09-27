@@ -1,5 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:collection/collection.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe_models.dart';
 import '../../customer_management/models.dart';
@@ -11,35 +12,106 @@ class BookingPageRepository {
 
   BookingPageRepository({required this.account, required this.tourId});
 
-  Future<void> bookTour(Booking booking, List<Customer> customers) async {
-    final path = "accounts/$account/data/bookingManager";
-    final db = FirebaseFirestore.instance;
-    final batch = db.batch();
-
-    // Deal with booking
-    final doc = db.doc("$path/bookings/${booking.id}");
-    final bookingData = booking.copyWith(name: "Test name");
-    batch.set(doc, bookingData.toJson());
-
-    // Deal with customers
-    for (final customer in customers) {
-      final doc = db.doc("$path/customers/${customer.id}");
-      final customerData = customer.copyWith(bookingId: booking.id);
-      batch.set(doc, customerData.toJson());
-    }
-
+  Future<String> getStripePaymentUrl(Booking booking, List<Customer> customers,
+      List<TourTypePricing> pricings) async {
     try {
-      await batch.commit();
+      await bookTour(booking, customers);
     } catch (e, s) {
-      logger.error("Failed to book tour", error: e, stackTrace: s);
+      logger.error("Failed to book tour before getting payment url",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+    Map<String, TourTypePricing> pricingsById = _getPricingsById(pricings);
+    final List<Map<String, dynamic>> lineItems =
+        _getLineItems(customers, pricingsById);
+    final int totalCents = _getTotalCents(customers, pricingsById);
+    const double commissionRate = 0.035;
+    final int commissionCents = (totalCents * commissionRate).toInt();
+    try {
+      logger.debug("Account: $account");
+      final response =
+          await FirebaseFunctions.instanceFor(region: "europe-north1")
+              .httpsCallable("create_checkout_session")
+              .call({
+        "account": account,
+        "lineItems": lineItems,
+        "feeAmount": commissionCents,
+        "bookingId": booking.id
+      });
+      final data = response.data as Map<String, dynamic>;
+      final error = data["error"];
+      if (error != null) {
+        throw Exception("Error not null: ${error.toString()}");
+      } else {
+        logger.debug("Created checkout session successfully");
+      }
+      logger.debug("DATA: $data");
+      final String url = data["url"];
+      return url;
+    } catch (e, s) {
+      logger.error("Failed to create checkout session",
+          error: e, stackTrace: s);
       rethrow;
     }
   }
 
-  Future<void> bookTourFirebase(
-      Booking booking, List<Customer> customers) async {
+  int _getTotalCents(
+      List<Customer> customers, Map<String, TourTypePricing> pricingsById) {
+    int toReturn = 0;
+    for (final customer in customers) {
+      final pricing = pricingsById[customer.pricingId];
+      toReturn += pricing?.priceCents ?? 0;
+    }
+    return toReturn;
+  }
+
+  List<Map<String, dynamic>> _getLineItems(
+      List<Customer> customers, Map<String, TourTypePricing> pricingsById) {
+    List<Map<String, dynamic>> lineItems = [];
+    for (final customer in customers) {
+      final pricing = pricingsById[customer.pricingId];
+      if (pricing == null) {
+        logger.error(
+            "Couldn't find pricing for customer ${customer.name} with pricingId ${customer.pricingId}");
+        throw Exception(
+            "Couldn't find pricing for customer ${customer.name} with pricingId ${customer.pricingId}");
+      }
+      final lineItem = lineItems.firstWhereOrNull((i) =>
+          i["price_data"]["product_data"]["metadata"]["pricing_id"] ==
+          customer.pricingId);
+      if (lineItem == null) {
+        lineItems.add({
+          "price_data": {
+            "currency": "eur",
+            "product_data": {
+              "name": pricing.displayName,
+              "metadata": {"pricing_id": pricing.id}
+            },
+            "unit_amount": pricing.priceCents
+          },
+          "quantity": 1
+        });
+      } else {
+        lineItem["quantity"] += 1;
+      }
+    }
+    return lineItems;
+  }
+
+  Map<String, TourTypePricing> _getPricingsById(
+      List<TourTypePricing> pricings) {
+    Map<String, TourTypePricing> toReturn = {};
+    for (final p in pricings) {
+      toReturn.addAll({p.id: p});
+    }
+    return toReturn;
+  }
+
+  /// Initial add to the db of the tour.
+  Future<void> bookTour(Booking booking, List<Customer> customers) async {
     final ref = FirebaseFunctions.instanceFor(region: "europe-north1");
-    final bookingData = booking.copyWith(name: "Test name");
+    final bookingData =
+        booking.copyWith(name: customers.first.name, isPaid: false);
     List<Map<String, dynamic>> customersData = [];
     for (final customer in customers) {
       final cData = customer.copyWith(bookingId: booking.id);

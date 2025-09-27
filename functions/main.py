@@ -10,6 +10,8 @@ from lib.add_booking.add_booking import add_booking_main
 from dotenv import load_dotenv
 import os
 
+from lib.stripe.utils import get_stripe_data
+
 # For cost control, you can set the maximum number of containers that can be
 # running at the same time. This helps mitigate the impact of unexpected
 # traffic spikes by instead downgrading performance. This limit is a per-function
@@ -67,6 +69,12 @@ def stripe_create_account(req: https_fn.CallableRequest[dict]) -> dict:
                 "losses": {"payments": "application"},
                 "fees": {"payer": "application"},
             },
+            country="fi",
+            capabilities={
+                "transfers": {"requested": True},
+                "card_payments": {"requested": True},
+                "sepa_debit_payments": {"requested": True},
+            },
         )
         return {"account": account.id}
     except Exception as e:
@@ -114,13 +122,36 @@ def get_stripe_integration_data(req: https_fn.CallableRequest[dict]) -> dict:
         account = data["account"]
         if account is None:
             return {"error": "account is null"}
-        db = firestore.client()
-        ref = db.document(f"accounts/{account}/integrations/stripe")
-        snapshot = ref.get()
-        stripe_data = snapshot.to_dict()
-        if stripe_data is None:
-            return {"error": "stripe data is null"}
-        return stripe_data
+        return get_stripe_data(account)
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@https_fn.on_call()
+def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
+    try:
+        data = req.data
+        account = data["account"]
+        line_items = data["lineItems"]
+        fee_amount: int = data["feeAmount"]
+        booking_id: str = data["bookingId"]
+        if (
+            account is None
+            or line_items is None
+            or fee_amount is None
+            or booking_id is None
+        ):
+            return {"error": "account, line items, bookingId or fee amount is null"}
+        stripe_data = get_stripe_data(account)
+        stripe_account_id = stripe_data["accountId"]
+        session = stripe.checkout.Session.create(
+            line_items=line_items,
+            payment_intent_data={"application_fee_amount": fee_amount},
+            mode="payment",
+            success_url=f"https://mush-on.web.app/booking_success?bookingId={booking_id}",
+            stripe_account=stripe_account_id,
+        )
+        return {"url": session.url}
     except Exception as e:
         return {"error": str(e)}
 

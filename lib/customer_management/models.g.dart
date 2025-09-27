@@ -38,6 +38,7 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
       zipCode: json['zipCode'] as String?,
       city: json['city'] as String?,
       country: json['country'] as String?,
+      isPaid: json['isPaid'] ?? false,
     );
 
 Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
@@ -50,6 +51,7 @@ Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
       'zipCode': instance.zipCode,
       'city': instance.city,
       'country': instance.country,
+      'isPaid': instance.isPaid,
     };
 
 _CustomerGroup _$CustomerGroupFromJson(Map<String, dynamic> json) =>
