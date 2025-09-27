@@ -69,8 +69,11 @@ sealed class TourTypePricing with _$TourTypePricing {
     /// The description of this tour to show to customers.
     String? displayDescription,
 
-    /// The price of this tour.
+    /// The price of this tour. This is VAT included.
     @Default(0) int priceCents,
+
+    /// The vat rate of this price.
+    @Default(0) double vatRate,
   }) = _TourTypePricing;
 
   factory TourTypePricing.fromJson(Map<String, dynamic> json) =>

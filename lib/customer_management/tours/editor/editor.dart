@@ -12,7 +12,8 @@ class AddTourScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (tourId == null) {
-      return const TemplateScreen(title: "Tour editor", child: TourEditorMain());
+      return const TemplateScreen(
+          title: "Tour editor", child: TourEditorMain());
     }
     var tourTypeAsync = ref.watch(tourTypeByIdProvider(tourId!));
     return tourTypeAsync.when(

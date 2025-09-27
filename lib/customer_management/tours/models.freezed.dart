@@ -579,8 +579,11 @@ mixin _$TourTypePricing {
   /// The description of this tour to show to customers.
   String? get displayDescription;
 
-  /// The price of this tour.
+  /// The price of this tour. This is VAT included.
   int get priceCents;
+
+  /// The vat rate of this price.
+  double get vatRate;
 
   /// Create a copy of TourTypePricing
   /// with the given fields replaced by the non-null parameter values.
@@ -608,17 +611,18 @@ mixin _$TourTypePricing {
             (identical(other.displayDescription, displayDescription) ||
                 other.displayDescription == displayDescription) &&
             (identical(other.priceCents, priceCents) ||
-                other.priceCents == priceCents));
+                other.priceCents == priceCents) &&
+            (identical(other.vatRate, vatRate) || other.vatRate == vatRate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, isArchived,
-      displayName, notes, displayDescription, priceCents);
+      displayName, notes, displayDescription, priceCents, vatRate);
 
   @override
   String toString() {
-    return 'TourTypePricing(id: $id, name: $name, isArchived: $isArchived, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents)';
+    return 'TourTypePricing(id: $id, name: $name, isArchived: $isArchived, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents, vatRate: $vatRate)';
   }
 }
 
@@ -635,7 +639,8 @@ abstract mixin class $TourTypePricingCopyWith<$Res> {
       String displayName,
       String? notes,
       String? displayDescription,
-      int priceCents});
+      int priceCents,
+      double vatRate});
 }
 
 /// @nodoc
@@ -658,6 +663,7 @@ class _$TourTypePricingCopyWithImpl<$Res>
     Object? notes = freezed,
     Object? displayDescription = freezed,
     Object? priceCents = null,
+    Object? vatRate = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -688,6 +694,10 @@ class _$TourTypePricingCopyWithImpl<$Res>
           ? _self.priceCents
           : priceCents // ignore: cast_nullable_to_non_nullable
               as int,
+      vatRate: null == vatRate
+          ? _self.vatRate
+          : vatRate // ignore: cast_nullable_to_non_nullable
+              as double,
     ));
   }
 }
@@ -790,7 +800,8 @@ extension TourTypePricingPatterns on TourTypePricing {
             String displayName,
             String? notes,
             String? displayDescription,
-            int priceCents)?
+            int priceCents,
+            double vatRate)?
         $default, {
     required TResult orElse(),
   }) {
@@ -804,7 +815,8 @@ extension TourTypePricingPatterns on TourTypePricing {
             _that.displayName,
             _that.notes,
             _that.displayDescription,
-            _that.priceCents);
+            _that.priceCents,
+            _that.vatRate);
       case _:
         return orElse();
     }
@@ -832,7 +844,8 @@ extension TourTypePricingPatterns on TourTypePricing {
             String displayName,
             String? notes,
             String? displayDescription,
-            int priceCents)
+            int priceCents,
+            double vatRate)
         $default,
   ) {
     final _that = this;
@@ -845,7 +858,8 @@ extension TourTypePricingPatterns on TourTypePricing {
             _that.displayName,
             _that.notes,
             _that.displayDescription,
-            _that.priceCents);
+            _that.priceCents,
+            _that.vatRate);
     }
   }
 
@@ -870,7 +884,8 @@ extension TourTypePricingPatterns on TourTypePricing {
             String displayName,
             String? notes,
             String? displayDescription,
-            int priceCents)?
+            int priceCents,
+            double vatRate)?
         $default,
   ) {
     final _that = this;
@@ -883,7 +898,8 @@ extension TourTypePricingPatterns on TourTypePricing {
             _that.displayName,
             _that.notes,
             _that.displayDescription,
-            _that.priceCents);
+            _that.priceCents,
+            _that.vatRate);
       case _:
         return null;
     }
@@ -900,7 +916,8 @@ class _TourTypePricing implements TourTypePricing {
       this.displayName = "",
       this.notes,
       this.displayDescription,
-      this.priceCents = 0});
+      this.priceCents = 0,
+      this.vatRate = 0});
   factory _TourTypePricing.fromJson(Map<String, dynamic> json) =>
       _$TourTypePricingFromJson(json);
 
@@ -930,10 +947,15 @@ class _TourTypePricing implements TourTypePricing {
   @override
   final String? displayDescription;
 
-  /// The price of this tour.
+  /// The price of this tour. This is VAT included.
   @override
   @JsonKey()
   final int priceCents;
+
+  /// The vat rate of this price.
+  @override
+  @JsonKey()
+  final double vatRate;
 
   /// Create a copy of TourTypePricing
   /// with the given fields replaced by the non-null parameter values.
@@ -965,17 +987,18 @@ class _TourTypePricing implements TourTypePricing {
             (identical(other.displayDescription, displayDescription) ||
                 other.displayDescription == displayDescription) &&
             (identical(other.priceCents, priceCents) ||
-                other.priceCents == priceCents));
+                other.priceCents == priceCents) &&
+            (identical(other.vatRate, vatRate) || other.vatRate == vatRate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, isArchived,
-      displayName, notes, displayDescription, priceCents);
+      displayName, notes, displayDescription, priceCents, vatRate);
 
   @override
   String toString() {
-    return 'TourTypePricing(id: $id, name: $name, isArchived: $isArchived, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents)';
+    return 'TourTypePricing(id: $id, name: $name, isArchived: $isArchived, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents, vatRate: $vatRate)';
   }
 }
 
@@ -994,7 +1017,8 @@ abstract mixin class _$TourTypePricingCopyWith<$Res>
       String displayName,
       String? notes,
       String? displayDescription,
-      int priceCents});
+      int priceCents,
+      double vatRate});
 }
 
 /// @nodoc
@@ -1017,6 +1041,7 @@ class __$TourTypePricingCopyWithImpl<$Res>
     Object? notes = freezed,
     Object? displayDescription = freezed,
     Object? priceCents = null,
+    Object? vatRate = null,
   }) {
     return _then(_TourTypePricing(
       id: null == id
@@ -1047,6 +1072,10 @@ class __$TourTypePricingCopyWithImpl<$Res>
           ? _self.priceCents
           : priceCents // ignore: cast_nullable_to_non_nullable
               as int,
+      vatRate: null == vatRate
+          ? _self.vatRate
+          : vatRate // ignore: cast_nullable_to_non_nullable
+              as double,
     ));
   }
 }

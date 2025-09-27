@@ -522,6 +522,7 @@ class PricingEditorAlert extends StatefulWidget {
 class _PricingEditorAlertState extends State<PricingEditorAlert> {
   late TextEditingController nameController;
   late TextEditingController priceController;
+  late TextEditingController vatController;
   late String id;
   late TextEditingController notes;
   late TextEditingController displayNameController;
@@ -534,6 +535,8 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
     nameController = TextEditingController(text: widget.pricing?.name);
     priceController = TextEditingController(
         text: ((widget.pricing?.priceCents ?? 0) / 100).toStringAsFixed(2));
+    vatController = TextEditingController(
+        text: ((widget.pricing?.vatRate ?? 0) * 100).toStringAsFixed(2));
     notes = TextEditingController(text: widget.pricing?.notes);
     displayNameController =
         TextEditingController(text: widget.pricing?.displayName);
@@ -656,6 +659,41 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
                       ],
               ),
               TextField(
+                controller: vatController,
+                readOnly: isViewOnly,
+                decoration: InputDecoration(
+                  labelText: "VAT rate",
+                  hintText: "Vat rate in %",
+                  suffixIcon: Icon(Icons.percent, color: colorScheme.primary),
+                  filled: true,
+                  fillColor: colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
+                ),
+                keyboardType: isViewOnly ? null : TextInputType.number,
+                inputFormatters: isViewOnly
+                    ? null
+                    : [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d*')),
+                      ],
+              ),
+              TextField(
                 controller: notes,
                 readOnly: isViewOnly,
                 decoration: InputDecoration(
@@ -735,6 +773,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
                   priceCents:
                       ((double.tryParse(priceController.text) ?? 0.0) * 100)
                           .round(),
+                  vatRate: (double.tryParse(vatController.text) ?? 0.0) / 100,
                   notes: notes.text,
                   displayDescription: displayDescription.text,
                 ),

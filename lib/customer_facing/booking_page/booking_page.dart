@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/customer_facing/booking_page/repository.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe_models.dart';
 import 'calendar/main.dart';
 
 import 'info_page.dart';
@@ -61,41 +63,26 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           if (tourType == null) {
             return const NoKennelOrTourIdErrorPage();
           }
-          return Scaffold(body:
-              SafeArea(child: LayoutBuilder(builder: (context, constraints) {
-            return Center(
-              child: Container(
-                constraints: const BoxConstraints.expand(),
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                  BookingPageColors.mainBlue.color,
-                  BookingPageColors.mainPurple.color
-                ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-                child: Center(
-                  child: Container(
-                    margin: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20)),
-                    constraints: const BoxConstraints(maxWidth: 1200),
-                    child: Column(
-                      children: [
-                        const BookingPageHeader(),
-                        BookingPageTopOverview(
-                          tourType: tourType,
-                        ),
-                        const Divider(),
-                        DateSelectionWidget(
-                            constraints: constraints,
-                            tourType: tourType,
-                            account: widget.account!)
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          })));
+          return FutureBuilder(
+              future: BookingPageRepository(
+                      account: widget.account!, tourId: widget.tourId!)
+                  .getStripeConnection(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  final stripe = snapshot.data!;
+                  if (!stripe.isActive) {
+                    return const NotAvailable();
+                  }
+                  return MainContent(
+                      account: widget.account!,
+                      tourType: tourType,
+                      stripe: stripe);
+                } else if (snapshot.hasError) {
+                  return const NotAvailable();
+                } else {
+                  return const CircularProgressIndicator.adaptive();
+                }
+              });
         },
         error: (e, s) {
           logger.error("Error loading tour type for booking page",
@@ -103,6 +90,55 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           return const NoKennelOrTourIdErrorPage();
         },
         loading: () => const CircularProgressIndicator.adaptive());
+  }
+}
+
+class MainContent extends StatelessWidget {
+  final TourType tourType;
+  final String account;
+  final StripeConnection stripe;
+  const MainContent(
+      {super.key,
+      required this.tourType,
+      required this.account,
+      required this.stripe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
+      return Center(
+        child: Container(
+          constraints: const BoxConstraints.expand(),
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+            BookingPageColors.mainBlue.color,
+            BookingPageColors.mainPurple.color
+          ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(20)),
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Column(
+                children: [
+                  const BookingPageHeader(),
+                  BookingPageTopOverview(
+                    tourType: tourType,
+                  ),
+                  const Divider(),
+                  DateSelectionWidget(
+                      constraints: constraints,
+                      tourType: tourType,
+                      account: account)
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    })));
   }
 }
 
@@ -644,6 +680,18 @@ class NoKennelOrTourIdErrorPage extends StatelessWidget {
     return const Scaffold(
       body: SafeArea(
           child: Text("Error: kennel or tourId are empty or not valid.")),
+    );
+  }
+}
+
+class NotAvailable extends StatelessWidget {
+  const NotAvailable({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: SafeArea(
+          child: Text("The booking system is not available right now.")),
     );
   }
 }
