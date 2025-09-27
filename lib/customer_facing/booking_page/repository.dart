@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe_models.dart';
 import '../../customer_management/models.dart';
 
 class BookingPageRepository {
@@ -53,6 +54,20 @@ class BookingPageRepository {
       });
     } catch (e, s) {
       logger.error("Failed to book tour", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<StripeConnection> getStripeConnection() async {
+    try {
+      final response =
+          await FirebaseFunctions.instanceFor(region: "europe-north1")
+              .httpsCallable("get_stripe_integration_data")
+              .call({"account": account});
+      final data = response.data as Map<String, dynamic>;
+      return StripeConnection.fromJson(data);
+    } catch (e, s) {
+      logger.error("Failed to get stripe connection", error: e, stackTrace: s);
       rethrow;
     }
   }

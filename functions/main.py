@@ -107,6 +107,24 @@ def change_stripe_integration_activation(req: https_fn.CallableRequest[dict]) ->
         return {"error": str(e)}
 
 
+@https_fn.on_call()
+def get_stripe_integration_data(req: https_fn.CallableRequest[dict]) -> dict:
+    try:
+        data = req.data
+        account = data["account"]
+        if account is None:
+            return {"error": "account is null"}
+        db = firestore.client()
+        ref = db.document(f"accounts/{account}/integrations/stripe")
+        snapshot = ref.get()
+        stripe_data = snapshot.to_dict()
+        if stripe_data is None:
+            return {"error": "stripe data is null"}
+        return stripe_data
+    except Exception as e:
+        return {"error": str(e)}
+
+
 #
 #
 # @https_fn.on_request()
