@@ -51,30 +51,32 @@ sealed class TourType with _$TourType {
 ///
 /// In the DB this is a subcollection of TourType.
 sealed class TourTypePricing with _$TourTypePricing {
-  const factory TourTypePricing({
-    required String id,
+  const factory TourTypePricing(
+      {required String id,
 
-    /// The internal name of this pricing.
-    @Default("") String name,
+      /// The internal name of this pricing.
+      @Default("") String name,
 
-    /// Is the price archived? Can't be deleted or edited bc continuity.
-    @Default(false) bool isArchived,
+      /// Is the price archived? Can't be deleted or edited bc continuity.
+      @Default(false) bool isArchived,
 
-    /// The display name of this pricing, to show to customers.
-    @Default("") String displayName,
+      /// The display name of this pricing, to show to customers.
+      @Default("") String displayName,
 
-    /// The internal notes of this pricing.
-    String? notes,
+      /// The internal notes of this pricing.
+      String? notes,
 
-    /// The description of this tour to show to customers.
-    String? displayDescription,
+      /// The description of this tour to show to customers.
+      String? displayDescription,
 
-    /// The price of this tour. This is VAT included.
-    @Default(0) int priceCents,
+      /// The price of this tour. This is VAT included.
+      @Default(0) int priceCents,
 
-    /// The vat rate of this price.
-    @Default(0) double vatRate,
-  }) = _TourTypePricing;
+      /// The vat rate of this price.
+      @Default(0) double vatRate,
+
+      /// The id for the stripe tax rate
+      String? stripeTaxRateId}) = _TourTypePricing;
 
   factory TourTypePricing.fromJson(Map<String, dynamic> json) =>
       _$TourTypePricingFromJson(json);

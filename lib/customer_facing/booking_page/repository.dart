@@ -82,6 +82,7 @@ class BookingPageRepository {
       if (lineItem == null) {
         lineItems.add({
           "price_data": {
+            "tax_behavior": "inclusive",
             "currency": "eur",
             "product_data": {
               "name": pricing.displayName,
@@ -89,7 +90,8 @@ class BookingPageRepository {
             },
             "unit_amount": pricing.priceCents
           },
-          "quantity": 1
+          "quantity": 1,
+          "tax_rates": [pricing.stripeTaxRateId],
         });
       } else {
         lineItem["quantity"] += 1;

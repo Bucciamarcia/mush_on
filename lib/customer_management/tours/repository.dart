@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe_models.dart';
 import 'models.dart';
 
 class ToursRepository {
@@ -16,9 +18,31 @@ class ToursRepository {
     String path = "accounts/$account/data/bookingManager/tours";
     var batch = _db.batch();
     batch.set(_db.doc("$path/${tour.id}"), tour.toJson());
+    String stripeAccountId = await _getStripeAccountId();
     if (pricing != null) {
-      for (var p in pricing) {
-        batch.set(_db.doc("$path/${tour.id}/prices/${p.id}"), p.toJson());
+      try {
+        for (var p in pricing) {
+          final taxStripe =
+              await FirebaseFunctions.instanceFor(region: "europe-north1")
+                  .httpsCallable("create_stripe_tax_rate")
+                  .call({
+            "percentage": p.vatRate * 100,
+            "stripeAccountId": stripeAccountId
+          });
+          final tsData = taxStripe.data as Map<String, dynamic>;
+          final error = tsData["error"];
+          if (error != null) {
+            throw Exception("Error not null: ${error.toString()}");
+          }
+          final String taxRateId = tsData["tax_id"];
+          final pTax = p.copyWith(stripeTaxRateId: taxRateId);
+          batch.set(
+              _db.doc("$path/${tour.id}/prices/${pTax.id}"), pTax.toJson());
+        }
+      } catch (e, s) {
+        logger.error("Failed to set pricing for tour ${tour.id}",
+            error: e, stackTrace: s);
+        rethrow;
       }
     }
     try {
@@ -28,5 +52,16 @@ class ToursRepository {
           error: e, stackTrace: s);
       rethrow;
     }
+  }
+
+  Future<String> _getStripeAccountId() async {
+    String path = "accounts/$account/integrations/stripe";
+    final snap = await _db.doc(path).get();
+    final data = snap.data();
+    if (data == null) {
+      throw Exception("No Stripe integration found for account $account");
+    }
+    final stripeData = StripeConnection.fromJson(data);
+    return stripeData.accountId;
   }
 }

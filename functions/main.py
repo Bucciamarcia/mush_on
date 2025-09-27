@@ -146,12 +146,32 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
         stripe_account_id = stripe_data["accountId"]
         session = stripe.checkout.Session.create(
             line_items=line_items,
+            client_reference_id=booking_id,
             payment_intent_data={"application_fee_amount": fee_amount},
             mode="payment",
             success_url=f"https://mush-on.web.app/booking_success?bookingId={booking_id}",
             stripe_account=stripe_account_id,
         )
         return {"url": session.url}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@https_fn.on_call()
+def create_stripe_tax_rate(req: https_fn.CallableRequest[dict]) -> dict:
+    try:
+        data = req.data
+        stripe_account_id = data["stripeAccountId"]
+        percentage = data["percentage"]
+        percentage = round(percentage, 2)
+        response = stripe.TaxRate.create(
+            display_name="VAT",
+            inclusive=True,
+            percentage=percentage,
+            tax_type="vat",
+            stripe_account=stripe_account_id,
+        )
+        return {"tax_id": response.id}
     except Exception as e:
         return {"error": str(e)}
 
