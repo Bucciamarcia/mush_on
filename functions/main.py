@@ -4,7 +4,7 @@
 
 from firebase_functions import https_fn
 from firebase_functions.options import set_global_options
-from firebase_admin import initialize_app
+from firebase_admin import initialize_app, firestore
 import stripe
 from lib.add_booking.add_booking import add_booking_main
 from dotenv import load_dotenv
@@ -74,9 +74,7 @@ def stripe_create_account(req: https_fn.CallableRequest[dict]) -> dict:
 
 
 @https_fn.on_call()
-def stripe_create_account_link(
-    req: https_fn.CallableRequest[dict],
-) -> dict:
+def stripe_create_account_link(req: https_fn.CallableRequest[dict]) -> dict:
     try:
         connected_account_id = req.data.get("stripeAccount")
         account = req.data.get("account")
@@ -89,6 +87,22 @@ def stripe_create_account_link(
             type="account_onboarding",
         )
         return {"url": account_link.url}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@https_fn.on_call()
+def change_stripe_integration_activation(req: https_fn.CallableRequest[dict]) -> dict:
+    try:
+        data = req.data
+        account = data["account"]
+        is_active = data["isActive"]
+        if account is None or is_active is None:
+            return {"error": "account or isActive is null"}
+        db = firestore.client()
+        ref = db.document(f"accounts/{account}/integrations/stripe")
+        ref.update({"isActive": is_active})
+        return {}
     except Exception as e:
         return {"error": str(e)}
 
