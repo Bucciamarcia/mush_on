@@ -46,29 +46,29 @@ sealed class Customer with _$Customer {
 /// These people pay together and stay together. Like a single family.
 sealed class Booking with _$Booking {
   @JsonSerializable(explicitToJson: true)
-  const factory Booking({
-    required String id,
+  const factory Booking(
+      {required String id,
 
-    /// The internal user friendly name of this group.
-    @Default("") String name,
+      /// The internal user friendly name of this group.
+      @Default("") String name,
 
-    /// The ID of the CustomerGroup this booking is part of.
-    ///
-    /// Required because CustomerGroup is where date time is.
-    required String customerGroupId,
+      /// The ID of the CustomerGroup this booking is part of.
+      ///
+      /// Required because CustomerGroup is where date time is.
+      required String customerGroupId,
 
-    /// The phone left for this booking.
-    String? phone,
+      /// The phone left for this booking.
+      String? phone,
 
-    /// The reference email for this booking.
-    String? email,
+      /// The reference email for this booking.
+      String? email,
 
-    /// The street address of the customer.
-    String? streetAddress,
-    String? zipCode,
-    String? city,
-    String? country,
-  }) = _Booking;
+      /// The street address of the customer.
+      String? streetAddress,
+      String? zipCode,
+      String? city,
+      String? country,
+      @Default(false) isPaid}) = _Booking;
 
   factory Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);

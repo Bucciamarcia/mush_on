@@ -504,6 +504,7 @@ mixin _$Booking {
   String? get zipCode;
   String? get city;
   String? get country;
+  dynamic get isPaid;
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -530,17 +531,28 @@ mixin _$Booking {
                 other.streetAddress == streetAddress) &&
             (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
             (identical(other.city, city) || other.city == city) &&
-            (identical(other.country, country) || other.country == country));
+            (identical(other.country, country) || other.country == country) &&
+            const DeepCollectionEquality().equals(other.isPaid, isPaid));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, customerGroupId, phone,
-      email, streetAddress, zipCode, city, country);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      customerGroupId,
+      phone,
+      email,
+      streetAddress,
+      zipCode,
+      city,
+      country,
+      const DeepCollectionEquality().hash(isPaid));
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, isPaid: $isPaid)';
   }
 }
 
@@ -558,7 +570,8 @@ abstract mixin class $BookingCopyWith<$Res> {
       String? streetAddress,
       String? zipCode,
       String? city,
-      String? country});
+      String? country,
+      dynamic isPaid});
 }
 
 /// @nodoc
@@ -582,6 +595,7 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
     Object? zipCode = freezed,
     Object? city = freezed,
     Object? country = freezed,
+    Object? isPaid = freezed,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -620,6 +634,10 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
           ? _self.country
           : country // ignore: cast_nullable_to_non_nullable
               as String?,
+      isPaid: freezed == isPaid
+          ? _self.isPaid
+          : isPaid // ignore: cast_nullable_to_non_nullable
+              as dynamic,
     ));
   }
 }
@@ -724,7 +742,8 @@ extension BookingPatterns on Booking {
             String? streetAddress,
             String? zipCode,
             String? city,
-            String? country)?
+            String? country,
+            dynamic isPaid)?
         $default, {
     required TResult orElse(),
   }) {
@@ -740,7 +759,8 @@ extension BookingPatterns on Booking {
             _that.streetAddress,
             _that.zipCode,
             _that.city,
-            _that.country);
+            _that.country,
+            _that.isPaid);
       case _:
         return orElse();
     }
@@ -770,7 +790,8 @@ extension BookingPatterns on Booking {
             String? streetAddress,
             String? zipCode,
             String? city,
-            String? country)
+            String? country,
+            dynamic isPaid)
         $default,
   ) {
     final _that = this;
@@ -785,7 +806,8 @@ extension BookingPatterns on Booking {
             _that.streetAddress,
             _that.zipCode,
             _that.city,
-            _that.country);
+            _that.country,
+            _that.isPaid);
     }
   }
 
@@ -812,7 +834,8 @@ extension BookingPatterns on Booking {
             String? streetAddress,
             String? zipCode,
             String? city,
-            String? country)?
+            String? country,
+            dynamic isPaid)?
         $default,
   ) {
     final _that = this;
@@ -827,7 +850,8 @@ extension BookingPatterns on Booking {
             _that.streetAddress,
             _that.zipCode,
             _that.city,
-            _that.country);
+            _that.country,
+            _that.isPaid);
       case _:
         return null;
     }
@@ -847,7 +871,8 @@ class _Booking implements Booking {
       this.streetAddress,
       this.zipCode,
       this.city,
-      this.country});
+      this.country,
+      this.isPaid = false});
   factory _Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
 
@@ -882,6 +907,9 @@ class _Booking implements Booking {
   final String? city;
   @override
   final String? country;
+  @override
+  @JsonKey()
+  final dynamic isPaid;
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -913,17 +941,28 @@ class _Booking implements Booking {
                 other.streetAddress == streetAddress) &&
             (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
             (identical(other.city, city) || other.city == city) &&
-            (identical(other.country, country) || other.country == country));
+            (identical(other.country, country) || other.country == country) &&
+            const DeepCollectionEquality().equals(other.isPaid, isPaid));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, customerGroupId, phone,
-      email, streetAddress, zipCode, city, country);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      customerGroupId,
+      phone,
+      email,
+      streetAddress,
+      zipCode,
+      city,
+      country,
+      const DeepCollectionEquality().hash(isPaid));
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, isPaid: $isPaid)';
   }
 }
 
@@ -942,7 +981,8 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
       String? streetAddress,
       String? zipCode,
       String? city,
-      String? country});
+      String? country,
+      dynamic isPaid});
 }
 
 /// @nodoc
@@ -966,6 +1006,7 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
     Object? zipCode = freezed,
     Object? city = freezed,
     Object? country = freezed,
+    Object? isPaid = freezed,
   }) {
     return _then(_Booking(
       id: null == id
@@ -1004,6 +1045,10 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
           ? _self.country
           : country // ignore: cast_nullable_to_non_nullable
               as String?,
+      isPaid: freezed == isPaid
+          ? _self.isPaid
+          : isPaid // ignore: cast_nullable_to_non_nullable
+              as dynamic,
     ));
   }
 }

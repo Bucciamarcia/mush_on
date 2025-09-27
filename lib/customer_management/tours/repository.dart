@@ -17,11 +17,6 @@ class ToursRepository {
     var batch = _db.batch();
     batch.set(_db.doc("$path/${tour.id}"), tour.toJson());
     if (pricing != null) {
-      var coll = _db.collection("$path/${tour.id}/prices");
-      var snap = await coll.get();
-      for (var s in snap.docs) {
-        batch.delete(_db.doc("$path/${tour.id}/prices/${s.id}"));
-      }
       for (var p in pricing) {
         batch.set(_db.doc("$path/${tour.id}/prices/${p.id}"), p.toJson());
       }

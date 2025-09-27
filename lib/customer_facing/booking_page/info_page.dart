@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:sealed_countries/sealed_countries.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'booking_page.dart';
 
@@ -343,6 +345,9 @@ class BookingInfoPage extends ConsumerWidget {
     if (booking == null) return const SizedBox.shrink();
     List<String> countries =
         WorldCountry.list.map((wc) => wc.name.name).toList();
+    if (kDebugMode) {
+      countries = ["One", "two"];
+    }
 
     final colorScheme = Theme.of(context).colorScheme;
     final showErrors = ref.watch(showValidationErrorsProvider);
@@ -777,14 +782,16 @@ class BookingSummaryImmobile extends ConsumerWidget {
                               logger.debug(ref.read(customersInfoProvider));
                               logger.debug(ref.read(bookingInfoProvider));
                               // Simulate stripe call
-                              await Future.delayed(const Duration(seconds: 2));
                               final repo = BookingPageRepository(
                                   account: account, tourId: tourType.id);
                               try {
                                 final booking = ref.read(bookingInfoProvider);
+                                final customers =
+                                    ref.read(customersInfoProvider);
                                 if (booking != null) {
-                                  await repo.bookTourFirebase(
-                                      booking, ref.read(customersInfoProvider));
+                                  final url = await repo.getStripePaymentUrl(
+                                      booking, customers, pricings);
+                                  await _launchUrl(url);
                                 }
                               } catch (e) {
                                 if (context.mounted) {
@@ -793,7 +800,6 @@ class BookingSummaryImmobile extends ConsumerWidget {
                                           "Couldn't add booking: contact support."));
                                 }
                               }
-                              BasicLogger().info("DONE!");
                             },
                             style: ButtonStyle(
                                 padding: const WidgetStatePropertyAll(
@@ -815,6 +821,17 @@ class BookingSummaryImmobile extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+
+    if (!await launchUrl(
+      uri,
+      mode: LaunchMode.inAppWebView,
+    )) {
+      throw Exception("Could not launch $url");
+    }
   }
 }
 
