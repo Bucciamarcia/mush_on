@@ -76,6 +76,7 @@ dependencies:
   flutter_svg: ^2.2.1
   sealed_countries: ^2.6.0
   cloud_functions: ^6.0.1
+  url_launcher: ^6.3.2
 
 icons_launcher:
   image_path: "assets/icon/icon.png"

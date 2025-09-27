@@ -56,42 +56,41 @@ def add_booking(req: https_fn.CallableRequest[dict]) -> dict:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INTERNAL, str(e))
 
 
-@https_fn.on_request()
-def stripe_create_account(req: https_fn.Request) -> https_fn.Response:
+@https_fn.on_call()
+def stripe_create_account(req: https_fn.CallableRequest[dict]) -> dict:
     try:
-        account = stripe.Account.create()
-        return https_fn.Response(
-            {"account": account.id}, mimetype="application/json", status=200
+        account = stripe.Account.create(
+            controller={
+                "stripe_dashboard": {
+                    "type": "express",
+                },
+                "losses": {"payments": "application"},
+                "fees": {"payer": "application"},
+            },
         )
+        return {"account": account.id}
     except Exception as e:
-        return https_fn.Response(
-            response={"error": str(e)}, status=500, mimetype="application/json"
-        )
+        return {"error": str(e)}
 
 
-@https_fn.on_request()
-def stripe_create_account_link(req: https_fn.Request) -> https_fn.Response:
+@https_fn.on_call()
+def stripe_create_account_link(
+    req: https_fn.CallableRequest[dict],
+) -> dict:
     try:
-        connected_account_id = req.args.get("account")
+        connected_account_id = req.data.get("stripeAccount")
+        account = req.data.get("account")
         if connected_account_id is None:
-            return https_fn.Response(
-                {"error": "account param is not present"},
-                status=400,
-                mimetype="application/json",
-            )
+            return {"error": "account param is not present"}
         account_link = stripe.AccountLink.create(
             account=connected_account_id,
-            return_url="https://lapponiatravel.com",
-            refresh_url="https://lapponiatravel.com/refresh",
+            return_url=f"https://mush-on.web.app/stripe_connection?kennel={account}&result=success",
+            refresh_url=f"https://mush-on.web.app/stripe_connection?kennel={account}&result=failed",
             type="account_onboarding",
         )
-        return https_fn.Response(
-            {"url": account_link.url}, mimetype="application/json", status=200
-        )
+        return {"url": account_link.url}
     except Exception as e:
-        return https_fn.Response(
-            response={"error": str(e)}, status=500, mimetype="application/json"
-        )
+        return {"error": str(e)}
 
 
 #

@@ -9,6 +9,7 @@ import 'package:mush_on/kennel/dog/dog.dart';
 import 'package:mush_on/kennel/kennel.dart';
 import 'package:mush_on/main.dart';
 import 'package:mush_on/settings/settings.dart';
+import 'package:mush_on/settings/stripe_connection_result.dart';
 import 'package:mush_on/stats/insights/insights.dart';
 import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
@@ -121,6 +122,17 @@ final goRoutes = GoRouter(
           String? account = state.uri.queryParameters["kennel"];
           String? tourId = state.uri.queryParameters["tourId"];
           return BookingPage(account: account, tourId: tourId);
+        }),
+    GoRoute(
+        path: "/stripe_connection",
+        name: "/stripe_connection",
+        builder: (context, state) {
+          String? account = state.uri.queryParameters["kennel"];
+
+          /// Can be `success` or `failed`
+          String? result = state.uri.queryParameters["result"];
+          return StripeConnectionResultWidget(
+              account: account, resultString: result);
         }),
   ],
 );
