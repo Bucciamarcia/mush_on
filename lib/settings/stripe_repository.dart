@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:mush_on/services/error_handling.dart';
 
 class StripeRepository {
@@ -34,11 +35,18 @@ class StripeRepository {
   }
 
   /// Flips the `isActive` parameter for stripe integration.
-  Future<void> changeStripeIntegrationActivation(bool newStatus) async {
-    String path = "accounts/$account/integrations/stripe";
-    final doc = db.doc(path);
+  Future<bool> changeStripeIntegrationActivation(bool newStatus) async {
     try {
-      await doc.set({"isActive": bool}, SetOptions(merge: true));
+      final result =
+          await FirebaseFunctions.instanceFor(region: "europe-north1")
+              .httpsCallable("change_stripe_integration_activation")
+              .call({"account": account, "isActive": newStatus});
+      final data = result.data as Map<String, dynamic>;
+      final error = data["error"];
+      if (error != null) {
+        throw Exception("Error not null: ${error.toString()}");
+      }
+      return true;
     } catch (e, s) {
       logger.error("Couldn't change Stripe integration activation status",
           error: e, stackTrace: s);

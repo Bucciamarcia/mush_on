@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe_repository.dart';
 
 class StripeConnectionResultWidget extends StatelessWidget {
@@ -9,7 +10,7 @@ class StripeConnectionResultWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final result = ResultTypeX.fromString(account);
+    final result = ResultTypeX.fromString(resultString);
     return Scaffold(
       body: SafeArea(
           child: Center(
@@ -45,7 +46,7 @@ class StripeConnectionError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-        "Error: account or result type is null: $account - $resultType - $resultString");
+        "Error 2: account or result type is null: $account - $resultType - $resultString");
   }
 }
 
@@ -58,12 +59,12 @@ class StripeConnectionFailed extends StatelessWidget {
     return FutureBuilder(
         future: StripeRepository(account: account).removeStripeAccountId(),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return const Text("Operation failed, Please try again.");
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
           } else if (snapshot.hasError) {
             return Text("Error: ${snapshot.error}");
           } else {
-            return const CircularProgressIndicator();
+            return const Text("Operation failed, Please try again.");
           }
         });
   }
@@ -81,10 +82,11 @@ class StripeConnectionSuccess extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return const Text("Stripe account connected successfully!");
-          } else if (snapshot.hasError) {
-            return Text("Error: ${snapshot.error}");
-          } else {
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
             return const CircularProgressIndicator();
+          } else {
+            BasicLogger().error(snapshot.error.toString());
+            return Text("Error in stripeconnectionsuccess: ${snapshot.error}");
           }
         });
   }
@@ -94,10 +96,11 @@ enum ResultType { success, failed, none }
 
 extension ResultTypeX on ResultType {
   static ResultType fromString(String? value) {
-    if (value == "success") {
+    final normalized = value?.trim().toLowerCase();
+    if (normalized == "success") {
       return ResultType.success;
     }
-    if (value == "failed") {
+    if (normalized == "failed") {
       return ResultType.failed;
     }
     return ResultType.none;
