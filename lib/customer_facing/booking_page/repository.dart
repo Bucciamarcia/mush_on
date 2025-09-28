@@ -55,6 +55,43 @@ class BookingPageRepository {
     }
   }
 
+  /// Initial add to the db of the tour.
+  Future<void> bookTour(Booking booking, List<Customer> customers) async {
+    final ref = FirebaseFunctions.instanceFor(region: "europe-north1");
+    final bookingData = booking.copyWith(
+        name: customers.first.name, paymentStatus: PaymentStatus.waiting);
+    List<Map<String, dynamic>> customersData = [];
+    for (final customer in customers) {
+      final cData = customer.copyWith(bookingId: booking.id);
+      customersData.add(cData.toJson());
+    }
+    try {
+      logger.debug("Calling book tour firebase");
+      await ref.httpsCallable("add_booking").call({
+        "booking": bookingData.toJson(),
+        "customers": customersData,
+        "account": account
+      });
+    } catch (e, s) {
+      logger.error("Failed to book tour", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<StripeConnection> getStripeConnection() async {
+    try {
+      final response =
+          await FirebaseFunctions.instanceFor(region: "europe-north1")
+              .httpsCallable("get_stripe_integration_data")
+              .call({"account": account});
+      final data = response.data as Map<String, dynamic>;
+      return StripeConnection.fromJson(data);
+    } catch (e, s) {
+      logger.error("Failed to get stripe connection", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   int _getTotalCents(
       List<Customer> customers, Map<String, TourTypePricing> pricingsById) {
     int toReturn = 0;
@@ -107,42 +144,5 @@ class BookingPageRepository {
       toReturn.addAll({p.id: p});
     }
     return toReturn;
-  }
-
-  /// Initial add to the db of the tour.
-  Future<void> bookTour(Booking booking, List<Customer> customers) async {
-    final ref = FirebaseFunctions.instanceFor(region: "europe-north1");
-    final bookingData =
-        booking.copyWith(name: customers.first.name, isPaid: false);
-    List<Map<String, dynamic>> customersData = [];
-    for (final customer in customers) {
-      final cData = customer.copyWith(bookingId: booking.id);
-      customersData.add(cData.toJson());
-    }
-    try {
-      logger.debug("Calling book tour firebase");
-      await ref.httpsCallable("add_booking").call({
-        "booking": bookingData.toJson(),
-        "customers": customersData,
-        "account": account
-      });
-    } catch (e, s) {
-      logger.error("Failed to book tour", error: e, stackTrace: s);
-      rethrow;
-    }
-  }
-
-  Future<StripeConnection> getStripeConnection() async {
-    try {
-      final response =
-          await FirebaseFunctions.instanceFor(region: "europe-north1")
-              .httpsCallable("get_stripe_integration_data")
-              .call({"account": account});
-      final data = response.data as Map<String, dynamic>;
-      return StripeConnection.fromJson(data);
-    } catch (e, s) {
-      logger.error("Failed to get stripe connection", error: e, stackTrace: s);
-      rethrow;
-    }
   }
 }

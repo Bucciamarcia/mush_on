@@ -5,8 +5,10 @@
 from firebase_functions import https_fn
 from firebase_functions.options import set_global_options
 from firebase_admin import initialize_app, firestore
+from flask import json
 import stripe
 from lib.add_booking.add_booking import add_booking_main
+from lib.add_booking import add_checkout_session
 from dotenv import load_dotenv
 import os
 
@@ -130,20 +132,29 @@ def get_stripe_integration_data(req: https_fn.CallableRequest[dict]) -> dict:
 @https_fn.on_call()
 def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
     try:
-        data = req.data
-        account = data["account"]
-        line_items = data["lineItems"]
-        fee_amount: int = data["feeAmount"]
-        booking_id: str = data["bookingId"]
-        if (
-            account is None
-            or line_items is None
-            or fee_amount is None
-            or booking_id is None
-        ):
+        data = req.data or {}
+        account = data.get("account")
+        line_items = data.get("lineItems") or []
+        fee_amount_raw = data.get("feeAmount")
+        booking_id = data.get("bookingId")
+
+        if not account or not line_items or fee_amount_raw is None or not booking_id:
             return {"error": "account, line items, bookingId or fee amount is null"}
+
+        # Sanitize int-like values
+        fee_amount = _unwrap_int64_wrappers(fee_amount_raw)
+        for item in line_items:
+            # quantity
+            if "quantity" in item:
+                item["quantity"] = _unwrap_int64_wrappers(item["quantity"])
+            # unit_amount
+            pd = item.get("price_data") or {}
+            if "unit_amount" in pd:
+                pd["unit_amount"] = _unwrap_int64_wrappers(pd["unit_amount"])
+
         stripe_data = get_stripe_data(account)
         stripe_account_id = stripe_data["accountId"]
+
         session = stripe.checkout.Session.create(
             line_items=line_items,
             client_reference_id=booking_id,
@@ -152,6 +163,13 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
             success_url=f"https://mush-on.web.app/booking_success?bookingId={booking_id}",
             stripe_account=stripe_account_id,
         )
+        checkout_session = session.id
+        if checkout_session is None:
+            return {"error": f"Checkout session is None. Session: {session}"}
+        add_checkout_session.add_checkout_session_to_db(
+            checkout_session, account, stripe_account_id, booking_id
+        )
+
         return {"url": session.url}
     except Exception as e:
         return {"error": str(e)}
@@ -174,6 +192,32 @@ def create_stripe_tax_rate(req: https_fn.CallableRequest[dict]) -> dict:
         return {"tax_id": response.id}
     except Exception as e:
         return {"error": str(e)}
+
+
+@https_fn.on_request()
+def stirpe_webhook_checkout_session_succeeded(
+    req: https_fn.Request,
+) -> https_fn.Response:
+    payload = req.data
+    event = None
+    endpoint_secret = os.getenv("STRIPE_PAYMENT_SUCCESS_WEBHOOK_SECRET")
+    try:
+        event = json.loads(payload)
+    except Exception as e:
+        return https_fn.Response(f"Invalid payload: {str(e)}", status=400)
+    sig_header = req.headers.get("stripe-signature")
+    try:
+        event: stripe.Event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except Exception as e:
+        print("⚠️  Webhook signature verification failed." + str(e))
+        return https_fn.Response(f"Unauthenticated: {str(e)}", status=400)
+    if event and event.type == "checkout.session.completed":
+        checkout_session_id = event.data.object["id"]
+        add_checkout_session.payment_processed(checkout_session_id)
+
+    return https_fn.Response("ok for event")
 
 
 #

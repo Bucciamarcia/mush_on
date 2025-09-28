@@ -329,4 +329,444 @@ class __$StripeConnectionCopyWithImpl<$Res>
   }
 }
 
+/// @nodoc
+mixin _$CheckoutSession {
+  String get checkoutSessionId;
+
+  /// The name of the account that this payment goes to.
+  String get account;
+
+  /// The ID of the booking
+  String get bookingId;
+
+  /// The Stripe ID of the account.
+  String get stripeId;
+  @NonNullableTimestampConverter()
+  DateTime get createdAt;
+  bool get webhookProcessed;
+
+  /// Create a copy of CheckoutSession
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $CheckoutSessionCopyWith<CheckoutSession> get copyWith =>
+      _$CheckoutSessionCopyWithImpl<CheckoutSession>(
+          this as CheckoutSession, _$identity);
+
+  /// Serializes this CheckoutSession to a JSON map.
+  Map<String, dynamic> toJson();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is CheckoutSession &&
+            (identical(other.checkoutSessionId, checkoutSessionId) ||
+                other.checkoutSessionId == checkoutSessionId) &&
+            (identical(other.account, account) || other.account == account) &&
+            (identical(other.bookingId, bookingId) ||
+                other.bookingId == bookingId) &&
+            (identical(other.stripeId, stripeId) ||
+                other.stripeId == stripeId) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.webhookProcessed, webhookProcessed) ||
+                other.webhookProcessed == webhookProcessed));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, checkoutSessionId, account,
+      bookingId, stripeId, createdAt, webhookProcessed);
+
+  @override
+  String toString() {
+    return 'CheckoutSession(checkoutSessionId: $checkoutSessionId, account: $account, bookingId: $bookingId, stripeId: $stripeId, createdAt: $createdAt, webhookProcessed: $webhookProcessed)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $CheckoutSessionCopyWith<$Res> {
+  factory $CheckoutSessionCopyWith(
+          CheckoutSession value, $Res Function(CheckoutSession) _then) =
+      _$CheckoutSessionCopyWithImpl;
+  @useResult
+  $Res call(
+      {String checkoutSessionId,
+      String account,
+      String bookingId,
+      String stripeId,
+      @NonNullableTimestampConverter() DateTime createdAt,
+      bool webhookProcessed});
+}
+
+/// @nodoc
+class _$CheckoutSessionCopyWithImpl<$Res>
+    implements $CheckoutSessionCopyWith<$Res> {
+  _$CheckoutSessionCopyWithImpl(this._self, this._then);
+
+  final CheckoutSession _self;
+  final $Res Function(CheckoutSession) _then;
+
+  /// Create a copy of CheckoutSession
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? checkoutSessionId = null,
+    Object? account = null,
+    Object? bookingId = null,
+    Object? stripeId = null,
+    Object? createdAt = null,
+    Object? webhookProcessed = null,
+  }) {
+    return _then(_self.copyWith(
+      checkoutSessionId: null == checkoutSessionId
+          ? _self.checkoutSessionId
+          : checkoutSessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      account: null == account
+          ? _self.account
+          : account // ignore: cast_nullable_to_non_nullable
+              as String,
+      bookingId: null == bookingId
+          ? _self.bookingId
+          : bookingId // ignore: cast_nullable_to_non_nullable
+              as String,
+      stripeId: null == stripeId
+          ? _self.stripeId
+          : stripeId // ignore: cast_nullable_to_non_nullable
+              as String,
+      createdAt: null == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      webhookProcessed: null == webhookProcessed
+          ? _self.webhookProcessed
+          : webhookProcessed // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [CheckoutSession].
+extension CheckoutSessionPatterns on CheckoutSession {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_CheckoutSession value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _CheckoutSession() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_CheckoutSession value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CheckoutSession():
+        return $default(_that);
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_CheckoutSession value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CheckoutSession() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(
+            String checkoutSessionId,
+            String account,
+            String bookingId,
+            String stripeId,
+            @NonNullableTimestampConverter() DateTime createdAt,
+            bool webhookProcessed)?
+        $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _CheckoutSession() when $default != null:
+        return $default(_that.checkoutSessionId, _that.account, _that.bookingId,
+            _that.stripeId, _that.createdAt, _that.webhookProcessed);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(
+            String checkoutSessionId,
+            String account,
+            String bookingId,
+            String stripeId,
+            @NonNullableTimestampConverter() DateTime createdAt,
+            bool webhookProcessed)
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CheckoutSession():
+        return $default(_that.checkoutSessionId, _that.account, _that.bookingId,
+            _that.stripeId, _that.createdAt, _that.webhookProcessed);
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(
+            String checkoutSessionId,
+            String account,
+            String bookingId,
+            String stripeId,
+            @NonNullableTimestampConverter() DateTime createdAt,
+            bool webhookProcessed)?
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _CheckoutSession() when $default != null:
+        return $default(_that.checkoutSessionId, _that.account, _that.bookingId,
+            _that.stripeId, _that.createdAt, _that.webhookProcessed);
+      case _:
+        return null;
+    }
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _CheckoutSession implements CheckoutSession {
+  const _CheckoutSession(
+      {required this.checkoutSessionId,
+      required this.account,
+      required this.bookingId,
+      required this.stripeId,
+      @NonNullableTimestampConverter() required this.createdAt,
+      required this.webhookProcessed});
+  factory _CheckoutSession.fromJson(Map<String, dynamic> json) =>
+      _$CheckoutSessionFromJson(json);
+
+  @override
+  final String checkoutSessionId;
+
+  /// The name of the account that this payment goes to.
+  @override
+  final String account;
+
+  /// The ID of the booking
+  @override
+  final String bookingId;
+
+  /// The Stripe ID of the account.
+  @override
+  final String stripeId;
+  @override
+  @NonNullableTimestampConverter()
+  final DateTime createdAt;
+  @override
+  final bool webhookProcessed;
+
+  /// Create a copy of CheckoutSession
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$CheckoutSessionCopyWith<_CheckoutSession> get copyWith =>
+      __$CheckoutSessionCopyWithImpl<_CheckoutSession>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$CheckoutSessionToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _CheckoutSession &&
+            (identical(other.checkoutSessionId, checkoutSessionId) ||
+                other.checkoutSessionId == checkoutSessionId) &&
+            (identical(other.account, account) || other.account == account) &&
+            (identical(other.bookingId, bookingId) ||
+                other.bookingId == bookingId) &&
+            (identical(other.stripeId, stripeId) ||
+                other.stripeId == stripeId) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.webhookProcessed, webhookProcessed) ||
+                other.webhookProcessed == webhookProcessed));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, checkoutSessionId, account,
+      bookingId, stripeId, createdAt, webhookProcessed);
+
+  @override
+  String toString() {
+    return 'CheckoutSession(checkoutSessionId: $checkoutSessionId, account: $account, bookingId: $bookingId, stripeId: $stripeId, createdAt: $createdAt, webhookProcessed: $webhookProcessed)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$CheckoutSessionCopyWith<$Res>
+    implements $CheckoutSessionCopyWith<$Res> {
+  factory _$CheckoutSessionCopyWith(
+          _CheckoutSession value, $Res Function(_CheckoutSession) _then) =
+      __$CheckoutSessionCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {String checkoutSessionId,
+      String account,
+      String bookingId,
+      String stripeId,
+      @NonNullableTimestampConverter() DateTime createdAt,
+      bool webhookProcessed});
+}
+
+/// @nodoc
+class __$CheckoutSessionCopyWithImpl<$Res>
+    implements _$CheckoutSessionCopyWith<$Res> {
+  __$CheckoutSessionCopyWithImpl(this._self, this._then);
+
+  final _CheckoutSession _self;
+  final $Res Function(_CheckoutSession) _then;
+
+  /// Create a copy of CheckoutSession
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? checkoutSessionId = null,
+    Object? account = null,
+    Object? bookingId = null,
+    Object? stripeId = null,
+    Object? createdAt = null,
+    Object? webhookProcessed = null,
+  }) {
+    return _then(_CheckoutSession(
+      checkoutSessionId: null == checkoutSessionId
+          ? _self.checkoutSessionId
+          : checkoutSessionId // ignore: cast_nullable_to_non_nullable
+              as String,
+      account: null == account
+          ? _self.account
+          : account // ignore: cast_nullable_to_non_nullable
+              as String,
+      bookingId: null == bookingId
+          ? _self.bookingId
+          : bookingId // ignore: cast_nullable_to_non_nullable
+              as String,
+      stripeId: null == stripeId
+          ? _self.stripeId
+          : stripeId // ignore: cast_nullable_to_non_nullable
+              as String,
+      createdAt: null == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      webhookProcessed: null == webhookProcessed
+          ? _self.webhookProcessed
+          : webhookProcessed // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
+}
+
 // dart format on
