@@ -777,11 +777,6 @@ class BookingSummaryImmobile extends ConsumerWidget {
                                     .state = true;
                                 return;
                               }
-                              final logger = BasicLogger();
-                              logger.info("TODO: go to stripe");
-                              logger.debug(ref.read(customersInfoProvider));
-                              logger.debug(ref.read(bookingInfoProvider));
-                              // Simulate stripe call
                               final repo = BookingPageRepository(
                                   account: account, tourId: tourType.id);
                               try {
