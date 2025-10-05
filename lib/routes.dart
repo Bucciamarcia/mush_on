@@ -1,6 +1,5 @@
 import 'package:go_router/go_router.dart';
 import 'package:mush_on/create_team/create_team.dart';
-import 'package:mush_on/customer_facing/booking_success.dart';
 import 'package:mush_on/customer_management/alert_editors/customer_group.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/mass_cg_adder.dart';
 import 'package:mush_on/customer_management/tours/tours.dart';
@@ -16,6 +15,7 @@ import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
 import 'package:mush_on/stats/stats.dart';
 import 'package:mush_on/whiteboard/whiteboard.dart';
+import 'customer_facing/booking/success/booking_success.dart';
 import 'customer_facing/booking_page/booking_page.dart';
 import 'customer_management/customer_management.dart';
 import 'customer_management/tours/editor/editor.dart';
