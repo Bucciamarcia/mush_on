@@ -1,7 +1,9 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_facing/booking/success/repository.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
 
@@ -15,4 +17,19 @@ Future<(Booking, List<Customer>, CustomerGroup)> bookingDataSuccess(Ref ref,
   ).wait;
   final cg = await repo.fetchCg(account, booking.customerGroupId);
   return (booking, customers, cg);
+}
+
+@riverpod
+Future<String> receiptUrl(Ref ref, String bookingId) async {
+  final instance = FirebaseFunctions.instanceFor(region: "europe-north1");
+  try {
+    final response = await instance
+        .httpsCallable("stripe_get_payment_receipt_url")
+        .call({"bookingId": bookingId});
+    final url = response.data as String;
+    return url;
+  } catch (e, s) {
+    BasicLogger().error("Couldn't get receipt url", error: e, stackTrace: s);
+    rethrow;
+  }
 }
