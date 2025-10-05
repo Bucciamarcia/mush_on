@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe_models.dart';
 
 class SuccessPageRepository {
   final db = FirebaseFirestore.instance;
@@ -48,5 +49,15 @@ class SuccessPageRepository {
       logger.error("Couldn't get customer group", error: e, stackTrace: s);
       rethrow;
     }
+  }
+
+  Future<CheckoutSession> getCheckoutSessionFromBookingId(
+      String bookingId) async {
+    final db = FirebaseFirestore.instance;
+    const path = "checkoutSessions";
+    final ref = db.collection(path).where("bookingId", isEqualTo: bookingId);
+    final snapshot = await ref.get();
+    final doc = snapshot.docs.first;
+    return CheckoutSession.fromJson(doc.data());
   }
 }

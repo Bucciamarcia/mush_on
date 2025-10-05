@@ -181,5 +181,135 @@ class _BookingDataSuccessProviderElement
   @override
   String get account => (origin as BookingDataSuccessProvider).account;
 }
+
+String _$receiptUrlHash() => r'f0d86deaf3d36f678ad21320017142088a81d475';
+
+/// See also [receiptUrl].
+@ProviderFor(receiptUrl)
+const receiptUrlProvider = ReceiptUrlFamily();
+
+/// See also [receiptUrl].
+class ReceiptUrlFamily extends Family<AsyncValue<String>> {
+  /// See also [receiptUrl].
+  const ReceiptUrlFamily();
+
+  /// See also [receiptUrl].
+  ReceiptUrlProvider call(
+    String bookingId,
+  ) {
+    return ReceiptUrlProvider(
+      bookingId,
+    );
+  }
+
+  @override
+  ReceiptUrlProvider getProviderOverride(
+    covariant ReceiptUrlProvider provider,
+  ) {
+    return call(
+      provider.bookingId,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'receiptUrlProvider';
+}
+
+/// See also [receiptUrl].
+class ReceiptUrlProvider extends AutoDisposeFutureProvider<String> {
+  /// See also [receiptUrl].
+  ReceiptUrlProvider(
+    String bookingId,
+  ) : this._internal(
+          (ref) => receiptUrl(
+            ref as ReceiptUrlRef,
+            bookingId,
+          ),
+          from: receiptUrlProvider,
+          name: r'receiptUrlProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$receiptUrlHash,
+          dependencies: ReceiptUrlFamily._dependencies,
+          allTransitiveDependencies:
+              ReceiptUrlFamily._allTransitiveDependencies,
+          bookingId: bookingId,
+        );
+
+  ReceiptUrlProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.bookingId,
+  }) : super.internal();
+
+  final String bookingId;
+
+  @override
+  Override overrideWith(
+    FutureOr<String> Function(ReceiptUrlRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: ReceiptUrlProvider._internal(
+        (ref) => create(ref as ReceiptUrlRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        bookingId: bookingId,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<String> createElement() {
+    return _ReceiptUrlProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ReceiptUrlProvider && other.bookingId == bookingId;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, bookingId.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin ReceiptUrlRef on AutoDisposeFutureProviderRef<String> {
+  /// The parameter `bookingId` of this provider.
+  String get bookingId;
+}
+
+class _ReceiptUrlProviderElement
+    extends AutoDisposeFutureProviderElement<String> with ReceiptUrlRef {
+  _ReceiptUrlProviderElement(super.provider);
+
+  @override
+  String get bookingId => (origin as ReceiptUrlProvider).bookingId;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

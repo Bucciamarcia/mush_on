@@ -12,6 +12,7 @@ from lib.add_booking import add_checkout_session
 from dotenv import load_dotenv
 import os
 
+from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import get_stripe_data
 
 # For cost control, you can set the maximum number of containers that can be
@@ -220,8 +221,19 @@ def stirpe_webhook_checkout_session_succeeded(
     return https_fn.Response("ok for event")
 
 
-#
-#
-# @https_fn.on_request()
-# def on_request_example(req: https_fn.Request) -> https_fn.Response:
-#     return https_fn.Response("Hello world!")
+@https_fn.on_call()
+def stripe_get_payment_receipt_url(req: https_fn.CallableRequest[dict]) -> str:
+    data = req.data
+    booking_id = data["bookingId"]
+    db = firestore.client()
+    ref = db.collection("checkoutSessions").where("bookingId", "==", booking_id)
+    docs = ref.stream()
+    first_doc = next(docs, None)
+    if first_doc is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND, "No checkout session found"
+        )
+    data = first_doc.to_dict()
+    return get_payment_receipt_url(
+        data["stripeId"], data["checkoutSessionId"], os.getenv("STRIPE_KEY")
+    )
