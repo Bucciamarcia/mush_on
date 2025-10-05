@@ -160,7 +160,7 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
             client_reference_id=booking_id,
             payment_intent_data={"application_fee_amount": fee_amount},
             mode="payment",
-            success_url=f"https://mush-on.web.app/booking_success?bookingId={booking_id}",
+            success_url=f"https://mush-on.web.app/booking_success?bookingId={booking_id}&account={account}",
             stripe_account=stripe_account_id,
         )
         checkout_session = session.id

@@ -221,7 +221,9 @@ class PositionCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 16),
               ),
               const SizedBox(width: 5),
-              (canRun) ? const Icon(Icons.check) : const Icon(Icons.cancel_outlined),
+              (canRun)
+                  ? const Icon(Icons.check)
+                  : const Icon(Icons.cancel_outlined),
             ],
           ),
         ),

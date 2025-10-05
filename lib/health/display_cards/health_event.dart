@@ -14,9 +14,9 @@ class HealthEventDisplayCard extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final dogs = ref.watch(dogsProvider).valueOrNull ?? [];
     final dog = dogs.where((d) => d.id == event.dogId).firstOrNull;
-    
+
     final bool requiresAttention = event.preventFromRunning && event.isOngoing;
-    
+
     // Health events have orange/amber theme
     Color cardColor = Colors.orange[50] ?? colorScheme.surfaceContainerHighest;
     Color borderColor = Colors.orange[300] ?? colorScheme.outline;
@@ -59,8 +59,8 @@ class HealthEventDisplayCard extends ConsumerWidget {
                     child: Icon(
                       _getEventIcon(event.eventType),
                       size: 16,
-                      color: requiresAttention 
-                          ? colorScheme.onError 
+                      color: requiresAttention
+                          ? colorScheme.onError
                           : Colors.white,
                     ),
                   ),
@@ -88,7 +88,8 @@ class HealthEventDisplayCard extends ConsumerWidget {
                   ),
                   if (event.preventFromRunning && event.isOngoing)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: colorScheme.error,
                         borderRadius: BorderRadius.circular(12),
@@ -96,7 +97,8 @@ class HealthEventDisplayCard extends ConsumerWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.block, size: 12, color: colorScheme.onError),
+                          Icon(Icons.block,
+                              size: 12, color: colorScheme.onError),
                           const SizedBox(width: 4),
                           Text(
                             "CAN'T RUN",
@@ -129,7 +131,8 @@ class HealthEventDisplayCard extends ConsumerWidget {
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: textColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),

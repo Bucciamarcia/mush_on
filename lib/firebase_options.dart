@@ -72,5 +72,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'mush-on.firebasestorage.app',
     iosBundleId: 'com.stefanominiconsulting.mushOn',
   );
-
 }

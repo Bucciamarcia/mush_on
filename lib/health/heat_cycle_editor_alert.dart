@@ -217,7 +217,8 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                 }
               },
               title: const Text("Prevent from running"),
-              subtitle: const Text("Dog should not participate in training or races"),
+              subtitle:
+                  const Text("Dog should not participate in training or races"),
               secondary: Icon(
                 Icons.block,
                 color: _preventFromRunning ? Colors.orange : null,
@@ -314,7 +315,8 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
     final DateTime? picked = await showDatePicker(
       initialDate: minDate ?? _startDate,
       context: context,
-      firstDate: minDate ?? DateTimeUtils.today().subtract(const Duration(days: 900)),
+      firstDate:
+          minDate ?? DateTimeUtils.today().subtract(const Duration(days: 900)),
       lastDate: DateTimeUtils.today().add(const Duration(days: 900)),
       builder: (context, child) {
         return Theme(

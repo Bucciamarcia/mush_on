@@ -118,7 +118,8 @@ class StatsMain extends ConsumerWidget {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('CSV download started/saved.'),
+                                    content:
+                                        Text('CSV download started/saved.'),
                                   ),
                                 );
                               }

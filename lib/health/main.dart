@@ -43,7 +43,8 @@ class HealthMain extends ConsumerWidget {
           ref.read(triggerAddhealthEventProvider.notifier).setValue(false);
           await showDialog(
               context: context,
-              builder: (BuildContext context) => const HealthEventEditorAlert());
+              builder: (BuildContext context) =>
+                  const HealthEventEditorAlert());
         }
       },
     );
@@ -54,7 +55,8 @@ class HealthMain extends ConsumerWidget {
           ref.read(triggerAddVaccinationProvider.notifier).setValue(false);
           await showDialog(
               context: context,
-              builder: (BuildContext context) => const VaccinationEditorAlert());
+              builder: (BuildContext context) =>
+                  const VaccinationEditorAlert());
         }
       },
     );
@@ -109,7 +111,8 @@ class HealthMain extends ConsumerWidget {
                           borderRadius:
                               BorderRadiusGeometry.all(Radius.circular(20))),
                       label: Text("${canRun.length} can run"),
-                      avatar: const Icon(Icons.check_circle, color: Colors.green),
+                      avatar:
+                          const Icon(Icons.check_circle, color: Colors.green),
                       backgroundColor: Colors.green[100],
                       onPressed: () => showDialog(
                         context: context,
@@ -139,8 +142,8 @@ class HealthMain extends ConsumerWidget {
                                   Radius.circular(20))),
                           label: Text(
                               "${healthEvents.active.length} active health events"),
-                          avatar:
-                              const Icon(Icons.check_circle, color: Colors.orange),
+                          avatar: const Icon(Icons.check_circle,
+                              color: Colors.orange),
                           backgroundColor: Colors.orange[100],
                           onPressed: () {
                             var healthEventDogs = <Dog>[];
@@ -163,7 +166,8 @@ class HealthMain extends ConsumerWidget {
                               borderRadius: BorderRadiusGeometry.all(
                                   Radius.circular(20))),
                           label: Text("${heatCycles.active.length} in heat"),
-                          avatar: const Icon(Icons.check_circle, color: Colors.pink),
+                          avatar: const Icon(Icons.check_circle,
+                              color: Colors.pink),
                           backgroundColor: Colors.pink[100],
                           onPressed: () {
                             var dogsInHeat = <Dog>[];
@@ -186,7 +190,8 @@ class HealthMain extends ConsumerWidget {
                                   Radius.circular(20))),
                           label: Text(
                               "${vaccinations.expiringSoon(days: 30).length} vaccines expiring soon"),
-                          avatar: const Icon(Icons.check_circle, color: Colors.amber),
+                          avatar: const Icon(Icons.check_circle,
+                              color: Colors.amber),
                           backgroundColor: Colors.amber[100],
                           onPressed: () {
                             var dogse = <Dog>[];
@@ -370,5 +375,4 @@ class HealthMain extends ConsumerWidget {
       ],
     );
   }
-
 }

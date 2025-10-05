@@ -386,8 +386,8 @@ class _VaccinationEditorAlertState
     final DateTime? picked = await showDatePicker(
         initialDate: minDate,
         context: context,
-        firstDate:
-            minDate ?? DateTimeUtils.today().subtract(const Duration(days: 900)),
+        firstDate: minDate ??
+            DateTimeUtils.today().subtract(const Duration(days: 900)),
         lastDate: DateTimeUtils.today().add(const Duration(days: 900)),
         builder: (context, child) {
           return Theme(

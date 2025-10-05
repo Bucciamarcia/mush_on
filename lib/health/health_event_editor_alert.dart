@@ -290,8 +290,8 @@ class HealtheventEditorAlertState
                 }
               },
               title: const Text("Dog can't run"),
-              subtitle:
-                  const Text("This condition prevents the dog from training/racing"),
+              subtitle: const Text(
+                  "This condition prevents the dog from training/racing"),
               secondary: Icon(
                 Icons.block,
                 color: _preventsFromRunning ? colorScheme.error : null,
@@ -371,8 +371,8 @@ class HealtheventEditorAlertState
     final DateTime? picked = await showDatePicker(
         initialDate: minDate,
         context: context,
-        firstDate:
-            minDate ?? DateTimeUtils.today().subtract(const Duration(days: 900)),
+        firstDate: minDate ??
+            DateTimeUtils.today().subtract(const Duration(days: 900)),
         lastDate: DateTimeUtils.today().add(const Duration(days: 900)),
         builder: (context, child) {
           return Theme(

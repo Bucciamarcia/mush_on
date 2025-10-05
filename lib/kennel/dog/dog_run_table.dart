@@ -18,8 +18,10 @@ class DogrunTableWidget extends StatelessWidget {
           source: dataSource,
           columnWidthMode: ColumnWidthMode.fill,
           columns: [
-            GridColumn(columnName: "Date", label: const Center(child: Text("Date"))),
-            GridColumn(columnName: "Run", label: const Center(child: Text("Run"))),
+            GridColumn(
+                columnName: "Date", label: const Center(child: Text("Date"))),
+            GridColumn(
+                columnName: "Run", label: const Center(child: Text("Run"))),
           ],
           // These are correct for nested scrolling -
           // they tell the grid NOT to scroll itself.

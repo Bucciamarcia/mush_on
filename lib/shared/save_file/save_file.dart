@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
 
 import 'save_file_web.dart' if (dart.library.io) 'save_file_io.dart' as impl;
 
@@ -14,4 +15,3 @@ Future<bool> saveCsvIfSupported({
   }
   return false;
 }
-
