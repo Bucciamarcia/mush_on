@@ -222,7 +222,7 @@ def stirpe_webhook_checkout_session_succeeded(
 
 
 @https_fn.on_call()
-def stripe_get_payment_receipt_url(req: https_fn.CallableRequest[dict]) -> str:
+def stripe_get_payment_receipt_url(req: https_fn.CallableRequest[dict]) -> dict:
     data = req.data
     booking_id = data["bookingId"]
     db = firestore.client()

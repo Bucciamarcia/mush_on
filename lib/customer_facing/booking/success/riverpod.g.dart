@@ -182,14 +182,14 @@ class _BookingDataSuccessProviderElement
   String get account => (origin as BookingDataSuccessProvider).account;
 }
 
-String _$receiptUrlHash() => r'f0d86deaf3d36f678ad21320017142088a81d475';
+String _$receiptUrlHash() => r'cdc75029d0d148d21c2874dc7126658d76b0ef04';
 
 /// See also [receiptUrl].
 @ProviderFor(receiptUrl)
 const receiptUrlProvider = ReceiptUrlFamily();
 
 /// See also [receiptUrl].
-class ReceiptUrlFamily extends Family<AsyncValue<String>> {
+class ReceiptUrlFamily extends Family<AsyncValue<UrlAndAmount>> {
   /// See also [receiptUrl].
   const ReceiptUrlFamily();
 
@@ -227,7 +227,7 @@ class ReceiptUrlFamily extends Family<AsyncValue<String>> {
 }
 
 /// See also [receiptUrl].
-class ReceiptUrlProvider extends AutoDisposeFutureProvider<String> {
+class ReceiptUrlProvider extends AutoDisposeFutureProvider<UrlAndAmount> {
   /// See also [receiptUrl].
   ReceiptUrlProvider(
     String bookingId,
@@ -262,7 +262,7 @@ class ReceiptUrlProvider extends AutoDisposeFutureProvider<String> {
 
   @override
   Override overrideWith(
-    FutureOr<String> Function(ReceiptUrlRef provider) create,
+    FutureOr<UrlAndAmount> Function(ReceiptUrlRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -279,7 +279,7 @@ class ReceiptUrlProvider extends AutoDisposeFutureProvider<String> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<String> createElement() {
+  AutoDisposeFutureProviderElement<UrlAndAmount> createElement() {
     return _ReceiptUrlProviderElement(this);
   }
 
@@ -299,13 +299,13 @@ class ReceiptUrlProvider extends AutoDisposeFutureProvider<String> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin ReceiptUrlRef on AutoDisposeFutureProviderRef<String> {
+mixin ReceiptUrlRef on AutoDisposeFutureProviderRef<UrlAndAmount> {
   /// The parameter `bookingId` of this provider.
   String get bookingId;
 }
 
 class _ReceiptUrlProviderElement
-    extends AutoDisposeFutureProviderElement<String> with ReceiptUrlRef {
+    extends AutoDisposeFutureProviderElement<UrlAndAmount> with ReceiptUrlRef {
   _ReceiptUrlProviderElement(super.provider);
 
   @override

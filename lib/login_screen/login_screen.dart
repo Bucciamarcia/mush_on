@@ -32,7 +32,7 @@ class LoginScreen extends StatelessWidget {
                   ElevatedButton(
                     child: const Text("Go to confirmation page"),
                     onPressed: () => context.go(
-                        "/booking_success?bookingId=0b5bd52d-84ca-4df3-9dbd-67ab51fe2832&account=test-stefano"),
+                        "/booking_success?bookingId=7726c0de-fd6e-4efd-a3fb-2466ff7c3b39&account=test-stefano"),
                   ),
                 ],
               )

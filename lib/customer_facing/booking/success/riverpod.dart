@@ -6,6 +6,7 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
+part 'riverpod.freezed.dart';
 
 @riverpod
 Future<(Booking, List<Customer>, CustomerGroup)> bookingDataSuccess(Ref ref,
@@ -20,16 +21,24 @@ Future<(Booking, List<Customer>, CustomerGroup)> bookingDataSuccess(Ref ref,
 }
 
 @riverpod
-Future<String> receiptUrl(Ref ref, String bookingId) async {
+Future<UrlAndAmount> receiptUrl(Ref ref, String bookingId) async {
   final instance = FirebaseFunctions.instanceFor(region: "europe-north1");
   try {
     final response = await instance
         .httpsCallable("stripe_get_payment_receipt_url")
         .call({"bookingId": bookingId});
-    final url = response.data as String;
-    return url;
+    final data = response.data as Map<String, dynamic>;
+    return UrlAndAmount(url: data["url"], amount: data["total"]);
   } catch (e, s) {
     BasicLogger().error("Couldn't get receipt url", error: e, stackTrace: s);
     rethrow;
   }
+}
+
+@freezed
+sealed class UrlAndAmount with _$UrlAndAmount {
+  const factory UrlAndAmount({
+    required String url,
+    required int amount,
+  }) = _UrlAndAmount;
 }
