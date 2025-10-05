@@ -69,45 +69,66 @@ class BookingConfirmationDataPage extends ConsumerWidget {
           constraints: BoxConstraints(maxWidth: maxWidth),
           padding: EdgeInsets.all(isDesktop ? 48.0 : 24.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Success header
-              Center(
+              // Success header with gradient background
+              Container(
+                padding: EdgeInsets.all(isDesktop ? 48.0 : 32.0),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      colorScheme.primaryContainer,
+                      colorScheme.secondaryContainer.withValues(alpha: 0.3),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                ),
                 child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer,
+                        color: colorScheme.surface,
                         shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.primary.withValues(alpha: 0.2),
+                            blurRadius: 24,
+                            spreadRadius: 4,
+                          ),
+                        ],
                       ),
                       child: Icon(
                         Icons.check_circle_rounded,
-                        size: 64,
+                        size: 72,
                         color: colorScheme.primary,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
                     Text(
                       "Booking Confirmed!",
-                      style: textTheme.headlineMedium?.copyWith(
+                      style: textTheme.headlineLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: colorScheme.onSurface,
+                        letterSpacing: -0.5,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     Text(
                       "We're looking forward to your visit",
-                      style: textTheme.bodyLarge?.copyWith(
+                      style: textTheme.titleMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w400,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
 
               // Tour details card
               _InfoCard(
@@ -139,66 +160,102 @@ class BookingConfirmationDataPage extends ConsumerWidget {
                 title: "Participants",
                 icon: Icons.people_rounded,
                 children: [
-                  ...customers.map((customer) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                  ...customers.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final customer = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: colorScheme.outlineVariant
+                                .withValues(alpha: 0.5),
+                            width: 1,
+                          ),
+                        ),
                         child: Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(8),
+                              width: 48,
+                              height: 48,
                               decoration: BoxDecoration(
-                                color: colorScheme.secondaryContainer,
-                                borderRadius: BorderRadius.circular(8),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    colorScheme.secondaryContainer,
+                                    colorScheme.tertiaryContainer,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Icon(
-                                Icons.person_rounded,
-                                size: 20,
-                                color: colorScheme.onSecondaryContainer,
+                              child: Center(
+                                child: Text(
+                                  "${index + 1}",
+                                  style: textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: colorScheme.onSecondaryContainer,
+                                  ),
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 16),
                             Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    customer.name,
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  if (customer.age != null)
-                                    Text(
-                                      "${customer.age} years old",
-                                      style: textTheme.bodySmall?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                ],
+                              child: Text(
+                                customer.name,
+                                style: textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.2,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      )),
+                      ),
+                    );
+                  }),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primaryContainer.withValues(alpha: 0.5),
+                          colorScheme.secondaryContainer.withValues(alpha: 0.3),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           "Total participants",
-                          style: textTheme.bodyMedium?.copyWith(
+                          style: textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        Text(
-                          "${customers.length}",
-                          style: textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            "${customers.length}",
+                            style: textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onPrimary,
+                            ),
                           ),
                         ),
                       ],
@@ -247,56 +304,112 @@ class BookingConfirmationDataPage extends ConsumerWidget {
 
               const SizedBox(height: 32),
 
-              // Payment status
-              Center(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: _getPaymentStatusColor(
-                        booking.paymentStatus, colorScheme),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _getPaymentStatusIcon(booking.paymentStatus),
-                        size: 20,
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _getPaymentStatusText(booking.paymentStatus),
-                        style: textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onPrimaryContainer,
-                        ),
-                      ),
+              // Payment status with elevated card design
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      _getPaymentStatusColor(
+                          booking.paymentStatus, colorScheme),
+                      _getPaymentStatusColor(booking.paymentStatus, colorScheme)
+                          .withValues(alpha: 0.7),
                     ],
                   ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: _getPaymentStatusColor(
+                              booking.paymentStatus, colorScheme)
+                          .withValues(alpha: 0.3),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        _getPaymentStatusIcon(booking.paymentStatus),
+                        size: 28,
+                        color: _getPaymentStatusIconColor(
+                            booking.paymentStatus, colorScheme),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Payment Status",
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onPrimaryContainer
+                                  .withValues(alpha: 0.8),
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _getPaymentStatusText(booking.paymentStatus),
+                            style: textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onPrimaryContainer,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
-              // Receipt button
+              // Receipt button with modern style
               if (urlAndAmount != null) ...[
-                const SizedBox(height: 24),
-                Center(
-                  child: FilledButton.tonalIcon(
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.tonal(
                     onPressed: () async {
                       await launchReceiptUrl(urlAndAmount.url);
                     },
-                    icon: const Icon(Icons.receipt_long_rounded),
-                    label: const Text("View Receipt"),
                     style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.receipt_long_rounded,
+                          size: 22,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          "View Payment Receipt",
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ],
+
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -342,6 +455,20 @@ class BookingConfirmationDataPage extends ConsumerWidget {
         return "Payment Status Unknown";
     }
   }
+
+  Color _getPaymentStatusIconColor(
+      PaymentStatus status, ColorScheme colorScheme) {
+    switch (status) {
+      case PaymentStatus.paid:
+        return colorScheme.primary;
+      case PaymentStatus.waiting:
+        return colorScheme.secondary;
+      case PaymentStatus.deferredPayment:
+        return colorScheme.tertiary;
+      case PaymentStatus.unknown:
+        return colorScheme.onSurfaceVariant;
+    }
+  }
 }
 
 class _InfoCard extends StatelessWidget {
@@ -361,31 +488,53 @@ class _InfoCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(16),
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: colorScheme.outlineVariant,
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 24, color: colorScheme.primary),
-              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      colorScheme.primaryContainer,
+                      colorScheme.secondaryContainer.withValues(alpha: 0.5),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, size: 24, color: colorScheme.primary),
+              ),
+              const SizedBox(width: 16),
               Text(
                 title,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           ...children,
         ],
       ),
@@ -410,31 +559,43 @@ class _InfoRow extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: colorScheme.onSurfaceVariant,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: colorScheme.primary,
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: theme.textTheme.bodySmall?.copyWith(
+                  style: theme.textTheme.labelMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                    textBaseline: TextBaseline.alphabetic,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   value,
-                  style: theme.textTheme.bodyLarge,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                  ),
                 ),
               ],
             ),
