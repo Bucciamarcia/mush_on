@@ -12,7 +12,8 @@ class NameWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       spacing: 20,
       children: [
-        Text(name, style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+        Text(name,
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
         IconButton.outlined(
             onPressed: () {
               showAdaptiveDialog(

@@ -18,7 +18,8 @@ class DateRangePicker extends StatelessWidget {
       minDate: minDate,
       selectionMode: DateRangePickerSelectionMode.range,
       onSelectionChanged: (r) => onSelectionChanged(r),
-      monthViewSettings: const DateRangePickerMonthViewSettings(firstDayOfWeek: 1),
+      monthViewSettings:
+          const DateRangePickerMonthViewSettings(firstDayOfWeek: 1),
     );
   }
 }

@@ -40,14 +40,16 @@ class InsightsMain extends ConsumerWidget {
         [];
     List<TeamGroup> teamGroups = ref
             .watch(teamGroupsProvider(
-                earliestDate: dateRange.startDate.subtract(const Duration(days: 30)),
+                earliestDate:
+                    dateRange.startDate.subtract(const Duration(days: 30)),
                 finalDate: DateTimeUtils.today()))
             .value ??
         [];
     List<TeamGroup> filteredTeamGroups = teamGroups
         .where((teamGroup) =>
             teamGroup.date.isAfter(dateRange.startDate) &&
-            teamGroup.date.isBefore(dateRange.endDate.add(const Duration(days: 1))))
+            teamGroup.date
+                .isBefore(dateRange.endDate.add(const Duration(days: 1))))
         .toList();
     Map<String, List<DogDailyStats>> dogDailyStats =
         _getDogDailyStats(dogs, filteredTeamGroups, ref);

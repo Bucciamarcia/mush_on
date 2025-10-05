@@ -16,9 +16,10 @@ class HeatCycleDisplayCard extends ConsumerWidget {
     final dogs = ref.watch(dogsProvider).valueOrNull ?? [];
     final dog = dogs.where((d) => d.id == event.dogId).firstOrNull;
 
-    final bool isActive = event.endDate == null || event.endDate!.isAfter(DateTimeUtils.today());
+    final bool isActive =
+        event.endDate == null || event.endDate!.isAfter(DateTimeUtils.today());
     final bool requiresAttention = isActive && event.preventFromRunning;
-    
+
     // Heat cycles have pink/purple theme
     Color cardColor = Colors.pink[50] ?? colorScheme.surfaceContainerHighest;
     Color borderColor = Colors.pink[300] ?? colorScheme.outline;
@@ -88,7 +89,9 @@ class HeatCycleDisplayCard extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          isActive ? "Heat Cycle (Active)" : "Heat Cycle (Ended)",
+                          isActive
+                              ? "Heat Cycle (Active)"
+                              : "Heat Cycle (Ended)",
                           style: TextStyle(
                             fontSize: 13,
                             color: textColor.withOpacity(0.8),
@@ -99,7 +102,8 @@ class HeatCycleDisplayCard extends ConsumerWidget {
                   ),
                   if (event.preventFromRunning && isActive)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: colorScheme.error,
                         borderRadius: BorderRadius.circular(12),
@@ -107,7 +111,8 @@ class HeatCycleDisplayCard extends ConsumerWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.block, size: 12, color: colorScheme.onError),
+                          Icon(Icons.block,
+                              size: 12, color: colorScheme.onError),
                           const SizedBox(width: 4),
                           Text(
                             "CAN'T RUN",
@@ -122,7 +127,8 @@ class HeatCycleDisplayCard extends ConsumerWidget {
                     )
                   else if (isActive)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.pink,
                         borderRadius: BorderRadius.circular(12),
@@ -186,8 +192,8 @@ class HeatCycleDisplayCard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      daysSinceStart == 0 
-                          ? "Started today" 
+                      daysSinceStart == 0
+                          ? "Started today"
                           : "Day ${daysSinceStart + 1} of cycle",
                       style: TextStyle(
                         fontSize: 12,
@@ -201,7 +207,8 @@ class HeatCycleDisplayCard extends ConsumerWidget {
               if (event.notes.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: textColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),

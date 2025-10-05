@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:mush_on/create_team/create_team.dart';
+import 'package:mush_on/customer_facing/booking_success.dart';
 import 'package:mush_on/customer_management/alert_editors/customer_group.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/mass_cg_adder.dart';
 import 'package:mush_on/customer_management/tours/tours.dart';
@@ -116,13 +117,14 @@ final goRoutes = GoRouter(
       builder: (context, state) => const MassCgAdderScreen(),
     ),
     GoRoute(
-        path: "/booking",
-        name: "/booking",
-        builder: (context, state) {
-          String? account = state.uri.queryParameters["kennel"];
-          String? tourId = state.uri.queryParameters["tourId"];
-          return BookingPage(account: account, tourId: tourId);
-        }),
+      path: "/booking",
+      name: "/booking",
+      builder: (context, state) {
+        String? account = state.uri.queryParameters["kennel"];
+        String? tourId = state.uri.queryParameters["tourId"];
+        return BookingPage(account: account, tourId: tourId);
+      },
+    ),
     GoRoute(
         path: "/stripe_connection",
         name: "/stripe_connection",
@@ -134,5 +136,13 @@ final goRoutes = GoRouter(
           return StripeConnectionResultWidget(
               account: account, resultString: result);
         }),
+    GoRoute(
+        path: "/booking_success",
+        name: "/booking_success",
+        builder: (context, state) {
+          String? account = state.uri.queryParameters["account"];
+          String? bookingId = state.uri.queryParameters["bookingId"];
+          return BookingSuccessPage(account: account, bookingId: bookingId);
+        })
   ],
 );

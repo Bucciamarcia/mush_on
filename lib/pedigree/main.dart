@@ -38,10 +38,11 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
     final parentCenter = viewerBox.size.center(Offset.zero);
     final delta = parentCenter - childCenter;
 
-    _transformationController.value =
-        Matrix4.identity()..translate(delta.dx, delta.dy);
+    _transformationController.value = Matrix4.identity()
+      ..translate(delta.dx, delta.dy);
     _didCenter = true;
   }
+
   @override
   Widget build(BuildContext context) {
     /// The usual list of all dogs.

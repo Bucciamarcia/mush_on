@@ -63,7 +63,8 @@ class DogPhotoCard extends StatelessWidget {
                   },
                   icon: const Icon(Icons.edit)),
               IconButton.outlined(
-                  onPressed: () => onImageDeleted(), icon: const Icon(Icons.delete))
+                  onPressed: () => onImageDeleted(),
+                  icon: const Icon(Icons.delete))
             ],
           ),
         ],
