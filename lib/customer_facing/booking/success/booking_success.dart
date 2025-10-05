@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'riverpod.dart';
 
 class BookingSuccessPage extends ConsumerWidget {
@@ -60,7 +61,7 @@ class BookingConfirmationDataPage extends ConsumerWidget {
     final width = MediaQuery.of(context).size.width;
     final isDesktop = width > 600;
     final maxWidth = isDesktop ? 700.0 : double.infinity;
-    final String? receiptUrl = ref.watch(receiptUrlProvider(booking.id)).value;
+    final urlAndAmount = ref.watch(receiptUrlProvider(booking.id)).value;
 
     return SingleChildScrollView(
       child: Center(
@@ -265,16 +266,6 @@ class BookingConfirmationDataPage extends ConsumerWidget {
                         color: colorScheme.onPrimaryContainer,
                       ),
                       const SizedBox(width: 8),
-                      ElevatedButton(
-                          onPressed: () {
-                            if (receiptUrl != null) {
-                              print(receiptUrl);
-                            } else {
-                              print("NOEP");
-                            }
-                          },
-                          child: const Text("Show receipt")),
-                      const SizedBox(width: 8),
                       Text(
                         _getPaymentStatusText(booking.paymentStatus),
                         style: textTheme.bodyMedium?.copyWith(
@@ -286,6 +277,26 @@ class BookingConfirmationDataPage extends ConsumerWidget {
                   ),
                 ),
               ),
+
+              // Receipt button
+              if (urlAndAmount != null) ...[
+                const SizedBox(height: 24),
+                Center(
+                  child: FilledButton.tonalIcon(
+                    onPressed: () async {
+                      await launchReceiptUrl(urlAndAmount.url);
+                    },
+                    icon: const Icon(Icons.receipt_long_rounded),
+                    label: const Text("View Receipt"),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -431,5 +442,16 @@ class _InfoRow extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+Future<void> launchReceiptUrl(String url) async {
+  final Uri uri = Uri.parse(url);
+
+  if (!await launchUrl(
+    uri,
+    mode: LaunchMode.externalApplication,
+  )) {
+    throw Exception("Could not launch $url");
   }
 }
