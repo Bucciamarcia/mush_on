@@ -23,10 +23,19 @@ class LoginScreen extends StatelessWidget {
     return Column(
       children: [
         kDebugMode
-            ? ElevatedButton(
-                onPressed: () => context.go(
-                    "/booking?kennel=test-stefano&tourId=76c1e154-baf5-460f-9072-a8638042ee61"),
-                child: const Text("Go to test page"))
+            ? Column(
+                children: [
+                  ElevatedButton(
+                      onPressed: () => context.go(
+                          "/booking?kennel=test-stefano&tourId=76c1e154-baf5-460f-9072-a8638042ee61"),
+                      child: const Text("Go to test page")),
+                  ElevatedButton(
+                    child: const Text("Go to confirmation page"),
+                    onPressed: () => context.go(
+                        "/booking_success?bookingId=0b5bd52d-84ca-4df3-9dbd-67ab51fe2832&account=test-stefano"),
+                  ),
+                ],
+              )
             : const SizedBox.shrink(),
         Expanded(
           child: SignInScreen(
