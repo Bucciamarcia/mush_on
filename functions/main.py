@@ -216,7 +216,15 @@ def stirpe_webhook_checkout_session_succeeded(
         return https_fn.Response(f"Unauthenticated: {str(e)}", status=400)
     if event and event.type == "checkout.session.completed":
         checkout_session_id = event.data.object["id"]
-        add_checkout_session.payment_processed(checkout_session_id)
+        account = event.account
+        stripe_api = os.getenv("STRIPE_KEY")
+        if account is None or stripe_api is None:
+            raise Exception("Account is None in webhook")
+        add_checkout_session.payment_processed(
+            checkout_session_id=checkout_session_id,
+            account=account,
+            stripe_api_key=stripe_api,
+        )
 
     return https_fn.Response("ok for event")
 
