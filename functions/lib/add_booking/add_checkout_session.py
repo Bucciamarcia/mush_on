@@ -45,5 +45,10 @@ def payment_processed(checkout_session_id: str) -> None:
     batch.update(doc_ref, {"webhookProcessed": True})
     booking_path = f"accounts/{checkout_session.account}/data/bookingManager/bookings/{checkout_session.bookingId}"
     booking_ref = firestore.client().document(booking_path)
+    booking = booking_ref.get()
+    data = booking.to_dict()
+    if data is None:
+        raise Exception("Couldn't find booking")
+    email = data["email"]
     batch.update(booking_ref, {"paymentStatus": "paid"})
     batch.commit()
