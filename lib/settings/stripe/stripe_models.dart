@@ -38,3 +38,14 @@ sealed class CheckoutSession with _$CheckoutSession {
   factory CheckoutSession.fromJson(Map<String, dynamic> json) =>
       _$CheckoutSessionFromJson(json);
 }
+
+@freezed
+sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
+  const factory BookingManagerKennelInfo({
+    required String kennelName,
+    required String kennelUrl,
+  }) = _BookingManagerKennelInfo;
+
+  factory BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) =>
+      _$BookingManagerKennelInfoFromJson(json);
+}
