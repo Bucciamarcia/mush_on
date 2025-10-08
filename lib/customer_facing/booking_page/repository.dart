@@ -2,7 +2,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:collection/collection.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/settings/stripe_models.dart';
+import 'package:mush_on/settings/stripe/stripe_models.dart';
 import '../../customer_management/models.dart';
 
 class BookingPageRepository {

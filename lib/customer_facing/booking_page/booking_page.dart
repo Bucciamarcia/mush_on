@@ -8,7 +8,7 @@ import 'package:mush_on/customer_facing/booking_page/repository.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/settings/stripe_models.dart';
+import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'calendar/main.dart';
 
 import 'info_page.dart';
@@ -30,7 +30,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
   void initState() {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback((_) async {
-      ref.read(accountProvider.notifier).change(widget.account!);
+      ref.read(accountPublicProvider.notifier).change(widget.account!);
       ref.read(selectedTourIdProvider.notifier).change(widget.tourId!);
     });
   }
@@ -42,7 +42,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
         oldWidget.tourId != widget.tourId) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ref.read(accountProvider.notifier).change(widget.account!);
+        ref.read(accountPublicProvider.notifier).change(widget.account!);
         ref.read(selectedTourIdProvider.notifier).change(widget.tourId!);
       });
     }
@@ -224,7 +224,7 @@ class BookingSummaryColumn extends ConsumerWidget {
       return DateFormat("HH:mm").format(selectedCustomerGroup.datetime);
     }
 
-    final account = ref.watch(accountProvider);
+    final account = ref.watch(accountPublicProvider);
     late final List<TourTypePricing> pricings;
     if (account == null) {
       pricings = [];
@@ -467,7 +467,7 @@ class PricingOptionCounter extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    String? account = ref.watch(accountProvider);
+    String? account = ref.watch(accountPublicProvider);
     if (account == null) return const SizedBox.shrink();
     final selectedPricings =
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings));

@@ -657,7 +657,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
       return DateFormat("HH:mm").format(selectedCustomerGroup.datetime);
     }
 
-    final account = ref.watch(accountProvider);
+    final account = ref.watch(accountPublicProvider);
     late final List<TourTypePricing> pricings;
     if (account == null) {
       pricings = [];
@@ -844,7 +844,7 @@ class PricingOptionCounterImmobile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    String? account = ref.watch(accountProvider);
+    String? account = ref.watch(accountPublicProvider);
     if (account == null) return const SizedBox.shrink();
     final selectedPricings =
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings));

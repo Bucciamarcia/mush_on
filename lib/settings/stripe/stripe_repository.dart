@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'stripe_models.dart';
 
 class StripeRepository {
   final db = FirebaseFirestore.instance;
@@ -52,5 +53,15 @@ class StripeRepository {
           error: e, stackTrace: s);
       rethrow;
     }
+  }
+
+  Stream<StripeConnection?> stripeConnection() async* {
+    String path = "accounts/$account/integrations/stripe";
+    final doc = db.doc(path);
+    yield* doc.snapshots().map((snapshot) {
+      final data = snapshot.data();
+      if (data == null) return null;
+      return StripeConnection.fromJson(data);
+    });
   }
 }
