@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/settings/stripe_models.dart';
+import 'package:mush_on/settings/stripe/stripe_models.dart';
 
 class SuccessPageRepository {
   final db = FirebaseFirestore.instance;

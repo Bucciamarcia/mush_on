@@ -7,7 +7,7 @@ part of 'riverpod.dart';
 // **************************************************************************
 
 String _$bookingDataSuccessHash() =>
-    r'434beb393e6b6891b268fbecf959e015c6bf223b';
+    r'a14d190b7ef8ae0655393c49b09ae7fc0deb9718';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -35,8 +35,9 @@ class _SystemHash {
 const bookingDataSuccessProvider = BookingDataSuccessFamily();
 
 /// See also [bookingDataSuccess].
-class BookingDataSuccessFamily
-    extends Family<AsyncValue<(Booking, List<Customer>, CustomerGroup)>> {
+class BookingDataSuccessFamily extends Family<
+    AsyncValue<
+        (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>> {
   /// See also [bookingDataSuccess].
   const BookingDataSuccessFamily();
 
@@ -78,7 +79,7 @@ class BookingDataSuccessFamily
 
 /// See also [bookingDataSuccess].
 class BookingDataSuccessProvider extends AutoDisposeFutureProvider<
-    (Booking, List<Customer>, CustomerGroup)> {
+    (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)> {
   /// See also [bookingDataSuccess].
   BookingDataSuccessProvider({
     required String bookingId,
@@ -118,8 +119,8 @@ class BookingDataSuccessProvider extends AutoDisposeFutureProvider<
 
   @override
   Override overrideWith(
-    FutureOr<(Booking, List<Customer>, CustomerGroup)> Function(
-            BookingDataSuccessRef provider)
+    FutureOr<(Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>
+            Function(BookingDataSuccessRef provider)
         create,
   ) {
     return ProviderOverride(
@@ -138,7 +139,8 @@ class BookingDataSuccessProvider extends AutoDisposeFutureProvider<
   }
 
   @override
-  AutoDisposeFutureProviderElement<(Booking, List<Customer>, CustomerGroup)>
+  AutoDisposeFutureProviderElement<
+          (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>
       createElement() {
     return _BookingDataSuccessProviderElement(this);
   }
@@ -162,8 +164,8 @@ class BookingDataSuccessProvider extends AutoDisposeFutureProvider<
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin BookingDataSuccessRef
-    on AutoDisposeFutureProviderRef<(Booking, List<Customer>, CustomerGroup)> {
+mixin BookingDataSuccessRef on AutoDisposeFutureProviderRef<
+    (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)> {
   /// The parameter `bookingId` of this provider.
   String get bookingId;
 
@@ -173,7 +175,8 @@ mixin BookingDataSuccessRef
 
 class _BookingDataSuccessProviderElement
     extends AutoDisposeFutureProviderElement<
-        (Booking, List<Customer>, CustomerGroup)> with BookingDataSuccessRef {
+        (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>
+    with BookingDataSuccessRef {
   _BookingDataSuccessProviderElement(super.provider);
 
   @override

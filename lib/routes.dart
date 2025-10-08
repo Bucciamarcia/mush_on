@@ -9,7 +9,6 @@ import 'package:mush_on/kennel/dog/dog.dart';
 import 'package:mush_on/kennel/kennel.dart';
 import 'package:mush_on/main.dart';
 import 'package:mush_on/settings/settings.dart';
-import 'package:mush_on/settings/stripe_connection_result.dart';
 import 'package:mush_on/stats/insights/insights.dart';
 import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
@@ -19,6 +18,7 @@ import 'customer_facing/booking/success/booking_success.dart';
 import 'customer_facing/booking_page/booking_page.dart';
 import 'customer_management/customer_management.dart';
 import 'customer_management/tours/editor/editor.dart';
+import 'settings/stripe/stripe_connection_result.dart';
 
 final goRoutes = GoRouter(
   routes: [

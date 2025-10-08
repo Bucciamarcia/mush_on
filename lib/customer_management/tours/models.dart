@@ -81,3 +81,9 @@ sealed class TourTypePricing with _$TourTypePricing {
   factory TourTypePricing.fromJson(Map<String, dynamic> json) =>
       _$TourTypePricingFromJson(json);
 }
+
+extension TourTypePricingExtension on List<TourTypePricing> {
+  TourTypePricing pricingFromId(String id) {
+    return firstWhere((pricing) => pricing.id == id);
+  }
+}

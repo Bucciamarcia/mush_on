@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/settings/stripe_models.dart';
+import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'models.dart';
 
 class ToursRepository {

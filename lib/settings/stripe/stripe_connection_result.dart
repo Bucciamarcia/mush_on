@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/settings/stripe_repository.dart';
+
+import 'stripe_repository.dart';
 
 class StripeConnectionResultWidget extends StatelessWidget {
   final String? account;

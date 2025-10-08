@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'riverpod.dart';
@@ -26,9 +27,13 @@ class BookingSuccessPage extends ConsumerWidget {
           alignment: Alignment.topCenter,
           child: bookingDataAsync.when(
               data: (bookingAndCustomers) {
-                final (booking, customers, cg) = bookingAndCustomers;
+                final (booking, customers, cg, pricings) = bookingAndCustomers;
                 return BookingConfirmationDataPage(
-                    booking: booking, customers: customers, cg: cg);
+                  booking: booking,
+                  customers: customers,
+                  cg: cg,
+                  pricings: pricings,
+                );
               },
               error: (e, s) {
                 logger.error("Couldn't load booking", error: e, stackTrace: s);
@@ -47,11 +52,13 @@ class BookingConfirmationDataPage extends ConsumerWidget {
   final Booking booking;
   final List<Customer> customers;
   final CustomerGroup cg;
+  final List<TourTypePricing> pricings;
   const BookingConfirmationDataPage({
     super.key,
     required this.booking,
     required this.customers,
     required this.cg,
+    required this.pricings,
   });
 
   @override
@@ -111,7 +118,28 @@ class BookingConfirmationDataPage extends ConsumerWidget {
               ),
             ),
             TourDetailsBox(booking: booking, customers: customers, cg: cg),
-            ParticipantsBox(booking: booking, customers: customers, cg: cg),
+            ParticipantsBox(
+              booking: booking,
+              customers: customers,
+              cg: cg,
+              pricings: pricings,
+            ),
+            urlAndAmount == null
+                ? const CircularProgressIndicator.adaptive()
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        "Total: ${(urlAndAmount.amount) / 100}€",
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w500),
+                      ),
+                      ElevatedButton(
+                          onPressed: () async =>
+                              await launchReceiptUrl(urlAndAmount.url),
+                          child: const Text("View receipt")),
+                    ],
+                  )
           ],
         ),
       ),
@@ -200,11 +228,13 @@ class ParticipantsBox extends StatelessWidget {
   final Booking booking;
   final List<Customer> customers;
   final CustomerGroup cg;
+  final List<TourTypePricing> pricings;
   const ParticipantsBox({
     super.key,
     required this.booking,
     required this.customers,
     required this.cg,
+    required this.pricings,
   });
 
   @override
@@ -235,27 +265,25 @@ class ParticipantsBox extends StatelessWidget {
                     ]),
                     borderRadius: const BorderRadius.all(Radius.circular(10))),
                 child: Icon(
-                  Icons.calendar_today,
+                  Icons.perm_identity,
                   color: colorScheme.primary,
                   size: 30,
                 ),
               ),
               const Text(
-                "Tour Details",
+                "Participants",
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
               )
             ],
           ),
-          BoxElement(
-            iconData: Icons.calendar_month,
-            title: "Date",
-            content: DateFormat("dd-MM-yyyy").format(cg.datetime),
-          ),
-          BoxElement(
-            iconData: Icons.punch_clock,
-            title: "Time",
-            content: DateFormat("hh:mm").format(cg.datetime),
-          )
+          ...customers.map((customer) {
+            TourTypePricing pricing =
+                pricings.firstWhere((p) => p.id == customer.pricingId);
+            return BoxElement(
+                iconData: Icons.person,
+                title: customer.name,
+                content: pricing.displayName);
+          }),
         ],
       ),
     );

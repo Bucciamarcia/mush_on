@@ -174,7 +174,7 @@ class _TourTypeProviderElement
 }
 
 String _$visibleCustomerGroupsHash() =>
-    r'905e850321969a1635aa77fb01fbf2ea054a051c';
+    r'7912d2e6aa53a709f2920041b4d6b1fc56ec6dc4';
 
 /// See also [visibleCustomerGroups].
 @ProviderFor(visibleCustomerGroups)
@@ -193,7 +193,7 @@ final visibleCustomerGroupsProvider =
 // ignore: unused_element
 typedef VisibleCustomerGroupsRef
     = AutoDisposeFutureProviderRef<List<CustomerGroup>>;
-String _$visibleBookingsHash() => r'd1acab068d6a11831b7c6806adc821693bfcc63f';
+String _$visibleBookingsHash() => r'464cd99aed181665420f0ce704d0865963b9602e';
 
 /// See also [visibleBookings].
 @ProviderFor(visibleBookings)
@@ -211,7 +211,7 @@ final visibleBookingsProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef VisibleBookingsRef = AutoDisposeFutureProviderRef<List<Booking>>;
-String _$visibleCustomersHash() => r'2381dbf7e28dcef21a347387b9f855404a3dee9b';
+String _$visibleCustomersHash() => r'6225acecd6083f82f4f1d2361488159f59659ace';
 
 /// See also [visibleCustomers].
 @ProviderFor(visibleCustomers)
@@ -464,20 +464,21 @@ class _TourTypePricesByTourIdProviderElement
   String get account => (origin as TourTypePricesByTourIdProvider).account;
 }
 
-String _$accountHash() => r'7abd3ebcb9dc9c2e383c47fb5fd37d9a706a08d7';
+String _$accountPublicHash() => r'5fea2ceeb03ad4484f7d6bf79437a9c9f1c962ac';
 
-/// See also [Account].
-@ProviderFor(Account)
-final accountProvider = NotifierProvider<Account, String?>.internal(
-  Account.new,
-  name: r'accountProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$accountHash,
+/// See also [AccountPublic].
+@ProviderFor(AccountPublic)
+final accountPublicProvider = NotifierProvider<AccountPublic, String?>.internal(
+  AccountPublic.new,
+  name: r'accountPublicProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$accountPublicHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$Account = Notifier<String?>;
+typedef _$AccountPublic = Notifier<String?>;
 String _$visibleDatesHash() => r'26be57b90483ad3e22700e8275c1ae57d5c7dbcd';
 
 /// See also [VisibleDates].
