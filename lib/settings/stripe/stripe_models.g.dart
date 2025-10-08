@@ -39,3 +39,17 @@ Map<String, dynamic> _$CheckoutSessionToJson(_CheckoutSession instance) =>
           const NonNullableTimestampConverter().toJson(instance.createdAt),
       'webhookProcessed': instance.webhookProcessed,
     };
+
+_BookingManagerKennelInfo _$BookingManagerKennelInfoFromJson(
+        Map<String, dynamic> json) =>
+    _BookingManagerKennelInfo(
+      kennelName: json['kennelName'] as String,
+      kennelUrl: json['kennelUrl'] as String,
+    );
+
+Map<String, dynamic> _$BookingManagerKennelInfoToJson(
+        _BookingManagerKennelInfo instance) =>
+    <String, dynamic>{
+      'kennelName': instance.kennelName,
+      'kennelUrl': instance.kennelUrl,
+    };

@@ -769,4 +769,322 @@ class __$CheckoutSessionCopyWithImpl<$Res>
   }
 }
 
+/// @nodoc
+mixin _$BookingManagerKennelInfo {
+  String get kennelName;
+  String get kennelUrl;
+
+  /// Create a copy of BookingManagerKennelInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $BookingManagerKennelInfoCopyWith<BookingManagerKennelInfo> get copyWith =>
+      _$BookingManagerKennelInfoCopyWithImpl<BookingManagerKennelInfo>(
+          this as BookingManagerKennelInfo, _$identity);
+
+  /// Serializes this BookingManagerKennelInfo to a JSON map.
+  Map<String, dynamic> toJson();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is BookingManagerKennelInfo &&
+            (identical(other.kennelName, kennelName) ||
+                other.kennelName == kennelName) &&
+            (identical(other.kennelUrl, kennelUrl) ||
+                other.kennelUrl == kennelUrl));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, kennelName, kennelUrl);
+
+  @override
+  String toString() {
+    return 'BookingManagerKennelInfo(kennelName: $kennelName, kennelUrl: $kennelUrl)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $BookingManagerKennelInfoCopyWith<$Res> {
+  factory $BookingManagerKennelInfoCopyWith(BookingManagerKennelInfo value,
+          $Res Function(BookingManagerKennelInfo) _then) =
+      _$BookingManagerKennelInfoCopyWithImpl;
+  @useResult
+  $Res call({String kennelName, String kennelUrl});
+}
+
+/// @nodoc
+class _$BookingManagerKennelInfoCopyWithImpl<$Res>
+    implements $BookingManagerKennelInfoCopyWith<$Res> {
+  _$BookingManagerKennelInfoCopyWithImpl(this._self, this._then);
+
+  final BookingManagerKennelInfo _self;
+  final $Res Function(BookingManagerKennelInfo) _then;
+
+  /// Create a copy of BookingManagerKennelInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? kennelName = null,
+    Object? kennelUrl = null,
+  }) {
+    return _then(_self.copyWith(
+      kennelName: null == kennelName
+          ? _self.kennelName
+          : kennelName // ignore: cast_nullable_to_non_nullable
+              as String,
+      kennelUrl: null == kennelUrl
+          ? _self.kennelUrl
+          : kennelUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [BookingManagerKennelInfo].
+extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_BookingManagerKennelInfo value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _BookingManagerKennelInfo() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_BookingManagerKennelInfo value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _BookingManagerKennelInfo():
+        return $default(_that);
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_BookingManagerKennelInfo value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _BookingManagerKennelInfo() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(String kennelName, String kennelUrl)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _BookingManagerKennelInfo() when $default != null:
+        return $default(_that.kennelName, _that.kennelUrl);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(String kennelName, String kennelUrl) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _BookingManagerKennelInfo():
+        return $default(_that.kennelName, _that.kennelUrl);
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(String kennelName, String kennelUrl)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _BookingManagerKennelInfo() when $default != null:
+        return $default(_that.kennelName, _that.kennelUrl);
+      case _:
+        return null;
+    }
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
+  const _BookingManagerKennelInfo(
+      {required this.kennelName, required this.kennelUrl});
+  factory _BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) =>
+      _$BookingManagerKennelInfoFromJson(json);
+
+  @override
+  final String kennelName;
+  @override
+  final String kennelUrl;
+
+  /// Create a copy of BookingManagerKennelInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$BookingManagerKennelInfoCopyWith<_BookingManagerKennelInfo> get copyWith =>
+      __$BookingManagerKennelInfoCopyWithImpl<_BookingManagerKennelInfo>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$BookingManagerKennelInfoToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _BookingManagerKennelInfo &&
+            (identical(other.kennelName, kennelName) ||
+                other.kennelName == kennelName) &&
+            (identical(other.kennelUrl, kennelUrl) ||
+                other.kennelUrl == kennelUrl));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, kennelName, kennelUrl);
+
+  @override
+  String toString() {
+    return 'BookingManagerKennelInfo(kennelName: $kennelName, kennelUrl: $kennelUrl)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$BookingManagerKennelInfoCopyWith<$Res>
+    implements $BookingManagerKennelInfoCopyWith<$Res> {
+  factory _$BookingManagerKennelInfoCopyWith(_BookingManagerKennelInfo value,
+          $Res Function(_BookingManagerKennelInfo) _then) =
+      __$BookingManagerKennelInfoCopyWithImpl;
+  @override
+  @useResult
+  $Res call({String kennelName, String kennelUrl});
+}
+
+/// @nodoc
+class __$BookingManagerKennelInfoCopyWithImpl<$Res>
+    implements _$BookingManagerKennelInfoCopyWith<$Res> {
+  __$BookingManagerKennelInfoCopyWithImpl(this._self, this._then);
+
+  final _BookingManagerKennelInfo _self;
+  final $Res Function(_BookingManagerKennelInfo) _then;
+
+  /// Create a copy of BookingManagerKennelInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? kennelName = null,
+    Object? kennelUrl = null,
+  }) {
+    return _then(_BookingManagerKennelInfo(
+      kennelName: null == kennelName
+          ? _self.kennelName
+          : kennelName // ignore: cast_nullable_to_non_nullable
+              as String,
+      kennelUrl: null == kennelUrl
+          ? _self.kennelUrl
+          : kennelUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
 // dart format on
