@@ -33,3 +33,18 @@ class KennelImage extends _$KennelImage {
     state = AsyncValue.data(newPic);
   }
 }
+
+@riverpod
+Stream<BookingManagerKennelInfo?> bookingManagerKennelInfo(Ref ref) async* {
+  final account = await ref.watch(accountProvider.future);
+  final path = "accounts/$account/data/bookingManager";
+  final db = FirebaseFirestore.instance;
+  final doc = db.doc(path);
+  yield* doc.snapshots().map((snapshot) {
+    final data = snapshot.data();
+    if (data == null) {
+      return null;
+    }
+    return BookingManagerKennelInfo.fromJson(data);
+  });
+}

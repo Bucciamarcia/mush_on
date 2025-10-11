@@ -24,6 +24,26 @@ final stripeConnectionProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef StripeConnectionRef = AutoDisposeStreamProviderRef<StripeConnection?>;
+String _$bookingManagerKennelInfoHash() =>
+    r'7eb13853d632ac96cc27e790983289c413bb661a';
+
+/// See also [bookingManagerKennelInfo].
+@ProviderFor(bookingManagerKennelInfo)
+final bookingManagerKennelInfoProvider =
+    AutoDisposeStreamProvider<BookingManagerKennelInfo?>.internal(
+  bookingManagerKennelInfo,
+  name: r'bookingManagerKennelInfoProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$bookingManagerKennelInfoHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef BookingManagerKennelInfoRef
+    = AutoDisposeStreamProviderRef<BookingManagerKennelInfo?>;
 String _$kennelImageHash() => r'4fb8f62e83fa483a373d90d14077738de80ca8d2';
 
 /// See also [KennelImage].
