@@ -46,73 +46,94 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
 
   @override
   Widget build(BuildContext context) {
+    final logger = BasicLogger();
     final imageState = ref.watch(kennelImageProvider);
     bool isLoading = imageState.isLoading;
     Uint8List? image = imageState.value;
-    return Column(
-      children: [
-        const TextTitle("Payment page settings"),
-        Form(
-          key: _formKey,
-          child: Column(
+    final bookingManagerKennelInfo =
+        ref.watch(bookingManagerKennelInfoProvider);
+    return bookingManagerKennelInfo.when(
+        data: (kennelInfo) {
+          if (kennelInfo != null) {
+            _nameController.text = kennelInfo.name;
+            _urlController.text = kennelInfo.url;
+            _emailController.text = kennelInfo.email;
+            _cancellationPolicyController.text = kennelInfo.cancellationPolicy;
+          }
+          return Column(
             children: [
-              KennelImageCard(image: image, isLoading: isLoading),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: "Kennel name"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Enter the kennel name";
-                  } else {
-                    return null;
-                  }
-                },
+              const TextTitle("Payment page settings"),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    KennelImageCard(image: image, isLoading: isLoading),
+                    TextFormField(
+                      controller: _nameController,
+                      decoration:
+                          const InputDecoration(labelText: "Kennel name"),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Enter the kennel name";
+                        } else {
+                          return null;
+                        }
+                      },
+                    ),
+                    TextFormField(
+                      controller: _urlController,
+                      keyboardType: TextInputType.url,
+                      decoration:
+                          const InputDecoration(labelText: "Kennel URL"),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Enter the kennel URL";
+                        } else {
+                          return null;
+                        }
+                      },
+                    ),
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration:
+                          const InputDecoration(labelText: "Contact email"),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Enter the contact email";
+                        } else if (!value.contains("@") ||
+                            !value.contains(".")) {
+                          return "Enter a valid email address";
+                        } else {
+                          return null;
+                        }
+                      },
+                    ),
+                    TextFormField(
+                      controller: _cancellationPolicyController,
+                      decoration: const InputDecoration(
+                          labelText: "Cancellation policy"),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Enter the cancellation policy";
+                        } else {
+                          return null;
+                        }
+                      },
+                    ),
+                    ElevatedButton(
+                        onPressed: _submitForm, child: const Text("Submit")),
+                  ],
+                ),
               ),
-              TextFormField(
-                controller: _urlController,
-                keyboardType: TextInputType.url,
-                decoration: const InputDecoration(labelText: "Kennel URL"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Enter the kennel URL";
-                  } else {
-                    return null;
-                  }
-                },
-              ),
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(labelText: "Contact email"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Enter the contact email";
-                  } else if (!value.contains("@") || !value.contains(".")) {
-                    return "Enter a valid email address";
-                  } else {
-                    return null;
-                  }
-                },
-              ),
-              TextFormField(
-                controller: _cancellationPolicyController,
-                decoration:
-                    const InputDecoration(labelText: "Cancellation policy"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Enter the cancellation policy";
-                  } else {
-                    return null;
-                  }
-                },
-              ),
-              ElevatedButton(
-                  onPressed: _submitForm, child: const Text("Submit")),
             ],
-          ),
-        ),
-      ],
-    );
+          );
+        },
+        error: (e, s) {
+          logger.error("Error loading kennel info", error: e, stackTrace: s);
+          return Text("Error loading kennel info: $e");
+        },
+        loading: () => const CircularProgressIndicator.adaptive());
   }
 
   /// checks that all the fields, returns false if any is empty.
