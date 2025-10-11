@@ -123,6 +123,7 @@ class StripeRepository {
     final ref = storage.ref(path);
     try {
       final files = await ref.list();
+      if (files.items.isEmpty) return null;
       final imageRef = files.items.first;
       return await imageRef.getData();
     } catch (e, s) {
