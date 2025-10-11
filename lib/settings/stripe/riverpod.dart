@@ -42,4 +42,10 @@ class KennelImage extends _$KennelImage {
     ref.read(isLoadingKennelImageProvider.notifier).change(false);
     return data;
   }
+
+  void change(Uint8List? newPic) {
+    state.whenData((data) {
+      data = newPic;
+    });
+  }
 }

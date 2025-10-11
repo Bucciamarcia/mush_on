@@ -5,6 +5,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:mush_on/settings/stripe/stripe_repository.dart';
 
 class KennelImageCard extends ConsumerWidget {
@@ -40,7 +41,13 @@ class KennelImageCard extends ConsumerWidget {
                   onPressed: () async {
                     final account = await ref.read(accountProvider.future);
                     try {
-                      _onEditPressed(account);
+                      ref
+                          .read(isLoadingKennelImageProvider.notifier)
+                          .change(true);
+                      _onEditPressed(account,
+                          onChanged: (data) => ref
+                              .read(kennelImageProvider.notifier)
+                              .change(data));
                     } on FileSizeException catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -59,6 +66,10 @@ class KennelImageCard extends ConsumerWidget {
                             errorSnackBar(
                                 context, "Error: couldn't upload file"));
                       }
+                    } finally {
+                      ref
+                          .read(isLoadingKennelImageProvider.notifier)
+                          .change(false);
                     }
                   },
                   icon: const Icon(Icons.edit)),
@@ -66,13 +77,22 @@ class KennelImageCard extends ConsumerWidget {
                   onPressed: () async {
                     final account = await ref.read(accountProvider.future);
                     try {
-                      StripeRepository(account: account).deleteKennelImage();
+                      ref
+                          .read(isLoadingKennelImageProvider.notifier)
+                          .change(true);
+                      await StripeRepository(account: account)
+                          .deleteKennelImage();
+                      ref.read(kennelImageProvider.notifier).change(null);
                     } catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             errorSnackBar(
                                 context, "Couldn't delete the image"));
                       }
+                    } finally {
+                      ref
+                          .read(isLoadingKennelImageProvider.notifier)
+                          .change(false);
                     }
                   },
                   icon: const Icon(Icons.delete))
@@ -83,7 +103,8 @@ class KennelImageCard extends ConsumerWidget {
     );
   }
 
-  Future<void> _onEditPressed(String account) async {
+  Future<void> _onEditPressed(String account,
+      {required Function(Uint8List) onChanged}) async {
     final BasicLogger logger = BasicLogger();
     logger.info("Starting the image upload process");
     late FilePickerResult? result;
@@ -103,7 +124,12 @@ class KennelImageCard extends ConsumerWidget {
     }
 
     final finalFile = File(result.files.single.path!);
-    await StripeRepository(account: account).saveKennelImage(finalFile);
+    try {
+      await StripeRepository(account: account).saveKennelImage(finalFile);
+      onChanged(finalFile.readAsBytesSync());
+    } catch (e) {
+      rethrow;
+    }
   }
 }
 
