@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:mush_on/shared/text_title.dart';
 
-class ShoppingCartSettings extends StatefulWidget {
+import 'stripe_repository.dart';
+
+class ShoppingCartSettings extends ConsumerStatefulWidget {
   const ShoppingCartSettings({super.key});
 
   @override
-  State<ShoppingCartSettings> createState() => _ShoppingCartSettingsState();
+  ConsumerState<ShoppingCartSettings> createState() =>
+      _ShoppingCartSettingsState();
 }
 
-class _ShoppingCartSettingsState extends State<ShoppingCartSettings> {
+class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
   static final logger = BasicLogger();
   late GlobalKey<FormState> _formKey;
   late TextEditingController _nameController;
   late TextEditingController _urlController;
   late TextEditingController _emailController;
-  late TextEditingController _privacyPolicyController;
+  late TextEditingController _cancellationPolicyController;
   @override
   void initState() {
     super.initState();
@@ -23,7 +29,7 @@ class _ShoppingCartSettingsState extends State<ShoppingCartSettings> {
     _nameController = TextEditingController();
     _urlController = TextEditingController();
     _emailController = TextEditingController();
-    _privacyPolicyController = TextEditingController();
+    _cancellationPolicyController = TextEditingController();
   }
 
   @override
@@ -31,7 +37,7 @@ class _ShoppingCartSettingsState extends State<ShoppingCartSettings> {
     _nameController.dispose();
     _urlController.dispose();
     _emailController.dispose();
-    _privacyPolicyController.dispose();
+    _cancellationPolicyController.dispose();
     super.dispose();
   }
 
@@ -57,6 +63,7 @@ class _ShoppingCartSettingsState extends State<ShoppingCartSettings> {
               ),
               TextFormField(
                 controller: _urlController,
+                keyboardType: TextInputType.url,
                 decoration: const InputDecoration(labelText: "Kennel URL"),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -68,22 +75,25 @@ class _ShoppingCartSettingsState extends State<ShoppingCartSettings> {
               ),
               TextFormField(
                 controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(labelText: "Contact email"),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Enter the contact email";
+                  } else if (!value.contains("@") || !value.contains(".")) {
+                    return "Enter a valid email address";
                   } else {
                     return null;
                   }
                 },
               ),
               TextFormField(
-                controller: _privacyPolicyController,
+                controller: _cancellationPolicyController,
                 decoration:
-                    const InputDecoration(labelText: "Privacy policy URL"),
+                    const InputDecoration(labelText: "Cancellation policy"),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Enter the privacy policy URL";
+                    return "Enter the cancellation policy";
                   } else {
                     return null;
                   }
@@ -99,9 +109,24 @@ class _ShoppingCartSettingsState extends State<ShoppingCartSettings> {
   }
 
   /// checks that all the fields, returns false if any is empty.
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      logger.info("ok");
+      logger.info("Form contains valid data");
+      final toSubmit = BookingManagerKennelInfo(
+          name: _nameController.text,
+          url: _urlController.text,
+          email: _emailController.text,
+          cancellationPolicy: _cancellationPolicyController.text);
+      try {
+        final account = await ref.read(accountProvider.future);
+        await StripeRepository(account: account)
+            .saveBookingManagerKennelInfo(toSubmit);
+        ScaffoldMessenger.of(context).showSnackBar(
+            confirmationSnackbar(context, "Data saved correctly"));
+      } catch (e) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(errorSnackBar(context, "Couldn't save the data"));
+      }
     } else {
       logger.warning("Not all data filled");
     }

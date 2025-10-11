@@ -64,4 +64,26 @@ class StripeRepository {
       return StripeConnection.fromJson(data);
     });
   }
+
+  Future<BookingManagerKennelInfo?> getBookingManagerKennelInfo() async {
+    String path = "accounts/$account/data/bookingManager";
+    final doc = db.doc(path);
+    final snapshot = await doc.get();
+    final data = snapshot.data();
+    if (data == null) return null;
+    return BookingManagerKennelInfo.fromJson(data);
+  }
+
+  Future<void> saveBookingManagerKennelInfo(
+      BookingManagerKennelInfo data) async {
+    String path = "accounts/$account/data/bookingManager";
+    final doc = db.doc(path);
+    try {
+      await doc.set(data.toJson());
+    } catch (e, s) {
+      logger.error("Couldn't save Booking Manager kennel info",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }
