@@ -41,7 +41,7 @@ final isLoadingKennelImageProvider =
 );
 
 typedef _$IsLoadingKennelImage = AutoDisposeNotifier<bool>;
-String _$kennelImageHash() => r'6a796a6a45f9b6bf9a5ef517b34e7d3c7e38c46b';
+String _$kennelImageHash() => r'1fc8194f2a2fefa36becb70ecdfe00d86288e84c';
 
 /// See also [KennelImage].
 @ProviderFor(KennelImage)

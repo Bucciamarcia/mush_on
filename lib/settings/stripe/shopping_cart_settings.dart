@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
+import 'package:mush_on/settings/stripe/shopping_cart_settings_image.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:mush_on/shared/text_title.dart';
 
@@ -43,6 +46,8 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLoading = ref.watch(isLoadingKennelImageProvider);
+    Uint8List? image = ref.watch(kennelImageProvider).value;
     return Column(
       children: [
         const TextTitle("Payment page settings"),
@@ -50,6 +55,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
           key: _formKey,
           child: Column(
             children: [
+              KennelImageCard(image: image, isLoading: isLoading),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(labelText: "Kennel name"),
