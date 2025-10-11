@@ -42,8 +42,10 @@ sealed class CheckoutSession with _$CheckoutSession {
 @freezed
 sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
   const factory BookingManagerKennelInfo({
-    required String kennelName,
-    required String kennelUrl,
+    required String name,
+    required String url,
+    required String email,
+    required String cancellationPolicy,
   }) = _BookingManagerKennelInfo;
 
   factory BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) =>

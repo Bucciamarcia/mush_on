@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/shopping_cart_settings.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'stripe_repository.dart';
 import 'riverpod.dart';
@@ -25,7 +26,7 @@ class PaymentSettingsWidget extends ConsumerWidget {
             if (stripeConnection == null) {
               return ConnectStripeButton(account: account);
             } else {
-              return const Text("moi");
+              return const ShoppingCartSettings();
             }
           },
           error: (e, s) {
