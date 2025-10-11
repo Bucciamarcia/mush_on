@@ -1,23 +1,23 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:mush_on/settings/stripe/stripe_repository.dart';
 
-class KennelImageCard extends StatelessWidget {
+class KennelImageCard extends ConsumerWidget {
   final Uint8List? image;
   final bool isLoading;
-  final Function(File) onImageEdited;
-  final Function onImageDeleted;
-  const KennelImageCard(
-      {super.key,
-      required this.image,
-      required this.isLoading,
-      required this.onImageEdited,
-      required this.onImageDeleted});
+  const KennelImageCard({
+    super.key,
+    required this.image,
+    required this.isLoading,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     BasicLogger logger = BasicLogger();
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10),
@@ -38,8 +38,9 @@ class KennelImageCard extends StatelessWidget {
             children: [
               IconButton.outlined(
                   onPressed: () async {
+                    final account = await ref.read(accountProvider.future);
                     try {
-                      onImageEdited(await _onEditPressed());
+                      _onEditPressed(account);
                     } on FileSizeException catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -62,7 +63,18 @@ class KennelImageCard extends StatelessWidget {
                   },
                   icon: const Icon(Icons.edit)),
               IconButton.outlined(
-                  onPressed: () => onImageDeleted(),
+                  onPressed: () async {
+                    final account = await ref.read(accountProvider.future);
+                    try {
+                      StripeRepository(account: account).deleteKennelImage();
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(
+                                context, "Couldn't delete the image"));
+                      }
+                    }
+                  },
                   icon: const Icon(Icons.delete))
             ],
           ),
@@ -71,7 +83,7 @@ class KennelImageCard extends StatelessWidget {
     );
   }
 
-  Future<File> _onEditPressed() async {
+  Future<void> _onEditPressed(String account) async {
     final BasicLogger logger = BasicLogger();
     logger.info("Starting the image upload process");
     late FilePickerResult? result;
@@ -90,7 +102,8 @@ class KennelImageCard extends StatelessWidget {
       throw FileSizeException("File too large");
     }
 
-    return File(result.files.single.path!);
+    final finalFile = File(result.files.single.path!);
+    await StripeRepository(account: account).saveKennelImage(finalFile);
   }
 }
 
