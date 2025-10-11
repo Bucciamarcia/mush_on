@@ -21,31 +21,15 @@ Stream<StripeConnection?> stripeConnection(Ref ref) async* {
 }
 
 @riverpod
-class IsLoadingKennelImage extends _$IsLoadingKennelImage {
-  @override
-  bool build() {
-    return false;
-  }
-
-  void change(bool v) {
-    state = v;
-  }
-}
-
-@riverpod
 class KennelImage extends _$KennelImage {
   @override
   Future<Uint8List?> build() async {
-    ref.read(isLoadingKennelImageProvider.notifier).change(true);
     final account = await ref.read(accountProvider.future);
     final data = await StripeRepository(account: account).getKennelImage();
-    ref.read(isLoadingKennelImageProvider.notifier).change(false);
     return data;
   }
 
   void change(Uint8List? newPic) {
-    state.whenData((data) {
-      data = newPic;
-    });
+    state = AsyncValue.data(newPic);
   }
 }
