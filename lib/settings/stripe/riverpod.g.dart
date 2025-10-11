@@ -24,5 +24,37 @@ final stripeConnectionProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef StripeConnectionRef = AutoDisposeStreamProviderRef<StripeConnection?>;
+String _$isLoadingKennelImageHash() =>
+    r'e240e3bc8d3e218ed6fef01cfae72658da012199';
+
+/// See also [IsLoadingKennelImage].
+@ProviderFor(IsLoadingKennelImage)
+final isLoadingKennelImageProvider =
+    AutoDisposeNotifierProvider<IsLoadingKennelImage, bool>.internal(
+  IsLoadingKennelImage.new,
+  name: r'isLoadingKennelImageProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$isLoadingKennelImageHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$IsLoadingKennelImage = AutoDisposeNotifier<bool>;
+String _$kennelImageHash() => r'6a796a6a45f9b6bf9a5ef517b34e7d3c7e38c46b';
+
+/// See also [KennelImage].
+@ProviderFor(KennelImage)
+final kennelImageProvider =
+    AutoDisposeAsyncNotifierProvider<KennelImage, Uint8List?>.internal(
+  KennelImage.new,
+  name: r'kennelImageProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$kennelImageHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$KennelImage = AutoDisposeAsyncNotifier<Uint8List?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
