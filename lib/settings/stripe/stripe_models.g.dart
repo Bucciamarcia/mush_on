@@ -43,13 +43,17 @@ Map<String, dynamic> _$CheckoutSessionToJson(_CheckoutSession instance) =>
 _BookingManagerKennelInfo _$BookingManagerKennelInfoFromJson(
         Map<String, dynamic> json) =>
     _BookingManagerKennelInfo(
-      kennelName: json['kennelName'] as String,
-      kennelUrl: json['kennelUrl'] as String,
+      name: json['name'] as String,
+      url: json['url'] as String,
+      email: json['email'] as String,
+      cancellationPolicy: json['cancellationPolicy'] as String,
     );
 
 Map<String, dynamic> _$BookingManagerKennelInfoToJson(
         _BookingManagerKennelInfo instance) =>
     <String, dynamic>{
-      'kennelName': instance.kennelName,
-      'kennelUrl': instance.kennelUrl,
+      'name': instance.name,
+      'url': instance.url,
+      'email': instance.email,
+      'cancellationPolicy': instance.cancellationPolicy,
     };

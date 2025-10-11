@@ -771,8 +771,10 @@ class __$CheckoutSessionCopyWithImpl<$Res>
 
 /// @nodoc
 mixin _$BookingManagerKennelInfo {
-  String get kennelName;
-  String get kennelUrl;
+  String get name;
+  String get url;
+  String get email;
+  String get cancellationPolicy;
 
   /// Create a copy of BookingManagerKennelInfo
   /// with the given fields replaced by the non-null parameter values.
@@ -790,19 +792,21 @@ mixin _$BookingManagerKennelInfo {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is BookingManagerKennelInfo &&
-            (identical(other.kennelName, kennelName) ||
-                other.kennelName == kennelName) &&
-            (identical(other.kennelUrl, kennelUrl) ||
-                other.kennelUrl == kennelUrl));
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.url, url) || other.url == url) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.cancellationPolicy, cancellationPolicy) ||
+                other.cancellationPolicy == cancellationPolicy));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, kennelName, kennelUrl);
+  int get hashCode =>
+      Object.hash(runtimeType, name, url, email, cancellationPolicy);
 
   @override
   String toString() {
-    return 'BookingManagerKennelInfo(kennelName: $kennelName, kennelUrl: $kennelUrl)';
+    return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy)';
   }
 }
 
@@ -812,7 +816,7 @@ abstract mixin class $BookingManagerKennelInfoCopyWith<$Res> {
           $Res Function(BookingManagerKennelInfo) _then) =
       _$BookingManagerKennelInfoCopyWithImpl;
   @useResult
-  $Res call({String kennelName, String kennelUrl});
+  $Res call({String name, String url, String email, String cancellationPolicy});
 }
 
 /// @nodoc
@@ -828,17 +832,27 @@ class _$BookingManagerKennelInfoCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? kennelName = null,
-    Object? kennelUrl = null,
+    Object? name = null,
+    Object? url = null,
+    Object? email = null,
+    Object? cancellationPolicy = null,
   }) {
     return _then(_self.copyWith(
-      kennelName: null == kennelName
-          ? _self.kennelName
-          : kennelName // ignore: cast_nullable_to_non_nullable
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
-      kennelUrl: null == kennelUrl
-          ? _self.kennelUrl
-          : kennelUrl // ignore: cast_nullable_to_non_nullable
+      url: null == url
+          ? _self.url
+          : url // ignore: cast_nullable_to_non_nullable
+              as String,
+      email: null == email
+          ? _self.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      cancellationPolicy: null == cancellationPolicy
+          ? _self.cancellationPolicy
+          : cancellationPolicy // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
@@ -935,13 +949,16 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String kennelName, String kennelUrl)? $default, {
+    TResult Function(
+            String name, String url, String email, String cancellationPolicy)?
+        $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _BookingManagerKennelInfo() when $default != null:
-        return $default(_that.kennelName, _that.kennelUrl);
+        return $default(
+            _that.name, _that.url, _that.email, _that.cancellationPolicy);
       case _:
         return orElse();
     }
@@ -962,12 +979,15 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String kennelName, String kennelUrl) $default,
+    TResult Function(
+            String name, String url, String email, String cancellationPolicy)
+        $default,
   ) {
     final _that = this;
     switch (_that) {
       case _BookingManagerKennelInfo():
-        return $default(_that.kennelName, _that.kennelUrl);
+        return $default(
+            _that.name, _that.url, _that.email, _that.cancellationPolicy);
     }
   }
 
@@ -985,12 +1005,15 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String kennelName, String kennelUrl)? $default,
+    TResult? Function(
+            String name, String url, String email, String cancellationPolicy)?
+        $default,
   ) {
     final _that = this;
     switch (_that) {
       case _BookingManagerKennelInfo() when $default != null:
-        return $default(_that.kennelName, _that.kennelUrl);
+        return $default(
+            _that.name, _that.url, _that.email, _that.cancellationPolicy);
       case _:
         return null;
     }
@@ -1001,14 +1024,21 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
 @JsonSerializable()
 class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
   const _BookingManagerKennelInfo(
-      {required this.kennelName, required this.kennelUrl});
+      {required this.name,
+      required this.url,
+      required this.email,
+      required this.cancellationPolicy});
   factory _BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) =>
       _$BookingManagerKennelInfoFromJson(json);
 
   @override
-  final String kennelName;
+  final String name;
   @override
-  final String kennelUrl;
+  final String url;
+  @override
+  final String email;
+  @override
+  final String cancellationPolicy;
 
   /// Create a copy of BookingManagerKennelInfo
   /// with the given fields replaced by the non-null parameter values.
@@ -1031,19 +1061,21 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _BookingManagerKennelInfo &&
-            (identical(other.kennelName, kennelName) ||
-                other.kennelName == kennelName) &&
-            (identical(other.kennelUrl, kennelUrl) ||
-                other.kennelUrl == kennelUrl));
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.url, url) || other.url == url) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.cancellationPolicy, cancellationPolicy) ||
+                other.cancellationPolicy == cancellationPolicy));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, kennelName, kennelUrl);
+  int get hashCode =>
+      Object.hash(runtimeType, name, url, email, cancellationPolicy);
 
   @override
   String toString() {
-    return 'BookingManagerKennelInfo(kennelName: $kennelName, kennelUrl: $kennelUrl)';
+    return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy)';
   }
 }
 
@@ -1055,7 +1087,7 @@ abstract mixin class _$BookingManagerKennelInfoCopyWith<$Res>
       __$BookingManagerKennelInfoCopyWithImpl;
   @override
   @useResult
-  $Res call({String kennelName, String kennelUrl});
+  $Res call({String name, String url, String email, String cancellationPolicy});
 }
 
 /// @nodoc
@@ -1071,17 +1103,27 @@ class __$BookingManagerKennelInfoCopyWithImpl<$Res>
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? kennelName = null,
-    Object? kennelUrl = null,
+    Object? name = null,
+    Object? url = null,
+    Object? email = null,
+    Object? cancellationPolicy = null,
   }) {
     return _then(_BookingManagerKennelInfo(
-      kennelName: null == kennelName
-          ? _self.kennelName
-          : kennelName // ignore: cast_nullable_to_non_nullable
+      name: null == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
               as String,
-      kennelUrl: null == kennelUrl
-          ? _self.kennelUrl
-          : kennelUrl // ignore: cast_nullable_to_non_nullable
+      url: null == url
+          ? _self.url
+          : url // ignore: cast_nullable_to_non_nullable
+              as String,
+      email: null == email
+          ? _self.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      cancellationPolicy: null == cancellationPolicy
+          ? _self.cancellationPolicy
+          : cancellationPolicy // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
