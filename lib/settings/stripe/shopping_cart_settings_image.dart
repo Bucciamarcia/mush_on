@@ -40,59 +40,51 @@ class KennelImageCard extends ConsumerWidget {
               IconButton.outlined(
                   onPressed: () async {
                     final account = await ref.read(accountProvider.future);
+                    final notifier = ref.read(kennelImageProvider.notifier);
                     try {
-                      ref
-                          .read(isLoadingKennelImageProvider.notifier)
-                          .change(true);
-                      _onEditPressed(account,
-                          onChanged: (data) => ref
-                              .read(kennelImageProvider.notifier)
-                              .change(data));
+                      notifier.state = const AsyncValue.loading();
+                      final newData = await _onEditPressed(account);
+                      notifier.change(newData);
                     } on FileSizeException catch (e) {
+                      notifier.state = AsyncValue.error(e, StackTrace.current);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             errorSnackBar(context, "Max file size is 10mb"));
                         logger.info("File uploaded is too large", error: e);
                       }
                     } on NoFileSelectedException catch (e) {
+                      notifier.state = AsyncValue.error(e, StackTrace.current);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             errorSnackBar(context, "No file selected"));
                         logger.info("No file selected", error: e);
                       }
-                    } catch (e) {
+                    } catch (e, s) {
+                      notifier.state = AsyncValue.error(e, s);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             errorSnackBar(
                                 context, "Error: couldn't upload file"));
                       }
-                    } finally {
-                      ref
-                          .read(isLoadingKennelImageProvider.notifier)
-                          .change(false);
                     }
                   },
                   icon: const Icon(Icons.edit)),
               IconButton.outlined(
                   onPressed: () async {
                     final account = await ref.read(accountProvider.future);
+                    final notifier = ref.read(kennelImageProvider.notifier);
                     try {
-                      ref
-                          .read(isLoadingKennelImageProvider.notifier)
-                          .change(true);
+                      notifier.state = const AsyncValue.loading();
                       await StripeRepository(account: account)
                           .deleteKennelImage();
-                      ref.read(kennelImageProvider.notifier).change(null);
-                    } catch (e) {
+                      notifier.change(null);
+                    } catch (e, s) {
+                      notifier.state = AsyncValue.error(e, s);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             errorSnackBar(
                                 context, "Couldn't delete the image"));
                       }
-                    } finally {
-                      ref
-                          .read(isLoadingKennelImageProvider.notifier)
-                          .change(false);
                     }
                   },
                   icon: const Icon(Icons.delete))
@@ -103,8 +95,7 @@ class KennelImageCard extends ConsumerWidget {
     );
   }
 
-  Future<void> _onEditPressed(String account,
-      {required Function(Uint8List) onChanged}) async {
+  Future<Uint8List> _onEditPressed(String account) async {
     final BasicLogger logger = BasicLogger();
     logger.info("Starting the image upload process");
     late FilePickerResult? result;
@@ -126,7 +117,7 @@ class KennelImageCard extends ConsumerWidget {
     final finalFile = File(result.files.single.path!);
     try {
       await StripeRepository(account: account).saveKennelImage(finalFile);
-      onChanged(finalFile.readAsBytesSync());
+      return finalFile.readAsBytesSync();
     } catch (e) {
       rethrow;
     }

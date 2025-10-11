@@ -46,8 +46,9 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
 
   @override
   Widget build(BuildContext context) {
-    bool isLoading = ref.watch(isLoadingKennelImageProvider);
-    Uint8List? image = ref.watch(kennelImageProvider).value;
+    final imageState = ref.watch(kennelImageProvider);
+    bool isLoading = imageState.isLoading;
+    Uint8List? image = imageState.value;
     return Column(
       children: [
         const TextTitle("Payment page settings"),

@@ -24,24 +24,7 @@ final stripeConnectionProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef StripeConnectionRef = AutoDisposeStreamProviderRef<StripeConnection?>;
-String _$isLoadingKennelImageHash() =>
-    r'e240e3bc8d3e218ed6fef01cfae72658da012199';
-
-/// See also [IsLoadingKennelImage].
-@ProviderFor(IsLoadingKennelImage)
-final isLoadingKennelImageProvider =
-    AutoDisposeNotifierProvider<IsLoadingKennelImage, bool>.internal(
-  IsLoadingKennelImage.new,
-  name: r'isLoadingKennelImageProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$isLoadingKennelImageHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$IsLoadingKennelImage = AutoDisposeNotifier<bool>;
-String _$kennelImageHash() => r'1fc8194f2a2fefa36becb70ecdfe00d86288e84c';
+String _$kennelImageHash() => r'4fb8f62e83fa483a373d90d14077738de80ca8d2';
 
 /// See also [KennelImage].
 @ProviderFor(KennelImage)
