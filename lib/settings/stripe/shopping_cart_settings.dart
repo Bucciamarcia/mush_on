@@ -47,7 +47,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
   @override
   Widget build(BuildContext context) {
     final logger = BasicLogger();
-    final imageState = ref.watch(kennelImageProvider);
+    final imageState = ref.watch(kennelImageProvider(account: null));
     bool isLoading = imageState.isLoading;
     Uint8List? image = imageState.value;
     final bookingManagerKennelInfo =

@@ -103,15 +103,12 @@ class StripeRepository {
     }
   }
 
-  /// Deletes everything in the path.
+  /// Deletes the kennel banner image.
   Future<void> deleteKennelImage() async {
     String path = "accounts/$account/bookingManager/banner";
     final ref = storage.ref(path);
     try {
-      final files = await ref.list();
-      for (final file in files.items) {
-        await file.delete();
-      }
+      await ref.delete();
     } catch (e, s) {
       logger.error("Couldn't delete kennel image", error: e, stackTrace: s);
       rethrow;
@@ -120,14 +117,15 @@ class StripeRepository {
 
   Future<Uint8List?> getKennelImage() async {
     String path = "accounts/$account/bookingManager/banner";
+    logger.debug("Fetching kennel image from path: $path");
     final ref = storage.ref(path);
     try {
-      final files = await ref.list();
-      if (files.items.isEmpty) return null;
-      final imageRef = files.items.first;
-      return await imageRef.getData();
+      final data = await ref.getData();
+      logger.debug(
+          "Successfully fetched image data, size: ${data?.length ?? 0} bytes");
+      return data;
     } catch (e, s) {
-      logger.error("Couldn't get kennel image", error: e, stackTrace: s);
+      logger.debug("No image found or error occurred: $e");
       return null;
     }
   }

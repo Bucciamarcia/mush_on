@@ -137,18 +137,20 @@ class MainContent extends ConsumerWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20)),
                 constraints: const BoxConstraints(maxWidth: 1200),
-                child: Column(
-                  children: [
-                    const BookingPageHeader(),
-                    BookingPageTopOverview(
-                      tourType: tourType,
-                    ),
-                    const Divider(),
-                    DateSelectionWidget(
-                        constraints: constraints,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const BookingPageHeader(),
+                      BookingPageTopOverview(
                         tourType: tourType,
-                        account: account)
-                  ],
+                      ),
+                      const Divider(),
+                      DateSelectionWidget(
+                          constraints: constraints,
+                          tourType: tourType,
+                          account: account)
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -187,37 +189,28 @@ class DateSelectionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final w = constraints.maxWidth;
     if (w >= 768) {
-      return Expanded(
-        child: SingleChildScrollView(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child:
-                      BookingTimeAndDate(tourType: tourType, account: account),
-                ),
-              ),
-              BookingSummaryColumn(tourType: tourType)
-            ],
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: BookingTimeAndDate(tourType: tourType, account: account),
+            ),
           ),
-        ),
+          BookingSummaryColumn(tourType: tourType)
+        ],
       );
     } else {
-      return Expanded(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: BookingTimeAndDate(tourType: tourType, account: account),
-              ),
-              BookingSummaryColumn(tourType: tourType)
-            ],
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: BookingTimeAndDate(tourType: tourType, account: account),
           ),
-        ),
+          BookingSummaryColumn(tourType: tourType)
+        ],
       );
     }
   }
@@ -656,13 +649,16 @@ class BookingPageTopOverview extends StatelessWidget {
   }
 }
 
-class BookingPageHeader extends StatelessWidget {
+class BookingPageHeader extends ConsumerWidget {
   const BookingPageHeader({
     super.key,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final kennelImage = ref
+        .watch(kennelImageProvider(account: ref.read(accountPublicProvider)))
+        .value;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -677,19 +673,22 @@ class BookingPageHeader extends StatelessWidget {
           border: BoxBorder.all(color: BookingPageColors.mainBlue.color),
           borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(20), topRight: Radius.circular(20))),
-      child: const Padding(
-        padding: EdgeInsets.all(10),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
         child: Center(
           child: Column(
             children: [
-              Text(
+              kennelImage != null
+                  ? Image.memory(kennelImage)
+                  : const SizedBox.shrink(),
+              const Text(
                 "Book your adventure",
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 34,
                     fontWeight: FontWeight.w600),
               ),
-              Text(
+              const Text(
                 "Select the date and time of your tour",
                 style: TextStyle(
                     color: Colors.white,

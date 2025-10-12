@@ -183,20 +183,150 @@ class _BookingManagerKennelInfoProviderElement
   String? get account => (origin as BookingManagerKennelInfoProvider).account;
 }
 
-String _$kennelImageHash() => r'4fb8f62e83fa483a373d90d14077738de80ca8d2';
+String _$kennelImageHash() => r'06f48bb76ef49847690804a1c5f61cbefb57ae71';
+
+abstract class _$KennelImage
+    extends BuildlessAutoDisposeAsyncNotifier<Uint8List?> {
+  late final String? account;
+
+  FutureOr<Uint8List?> build({
+    String? account,
+  });
+}
 
 /// See also [KennelImage].
 @ProviderFor(KennelImage)
-final kennelImageProvider =
-    AutoDisposeAsyncNotifierProvider<KennelImage, Uint8List?>.internal(
-  KennelImage.new,
-  name: r'kennelImageProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$kennelImageHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+const kennelImageProvider = KennelImageFamily();
 
-typedef _$KennelImage = AutoDisposeAsyncNotifier<Uint8List?>;
+/// See also [KennelImage].
+class KennelImageFamily extends Family<AsyncValue<Uint8List?>> {
+  /// See also [KennelImage].
+  const KennelImageFamily();
+
+  /// See also [KennelImage].
+  KennelImageProvider call({
+    String? account,
+  }) {
+    return KennelImageProvider(
+      account: account,
+    );
+  }
+
+  @override
+  KennelImageProvider getProviderOverride(
+    covariant KennelImageProvider provider,
+  ) {
+    return call(
+      account: provider.account,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'kennelImageProvider';
+}
+
+/// See also [KennelImage].
+class KennelImageProvider
+    extends AutoDisposeAsyncNotifierProviderImpl<KennelImage, Uint8List?> {
+  /// See also [KennelImage].
+  KennelImageProvider({
+    String? account,
+  }) : this._internal(
+          () => KennelImage()..account = account,
+          from: kennelImageProvider,
+          name: r'kennelImageProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$kennelImageHash,
+          dependencies: KennelImageFamily._dependencies,
+          allTransitiveDependencies:
+              KennelImageFamily._allTransitiveDependencies,
+          account: account,
+        );
+
+  KennelImageProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.account,
+  }) : super.internal();
+
+  final String? account;
+
+  @override
+  FutureOr<Uint8List?> runNotifierBuild(
+    covariant KennelImage notifier,
+  ) {
+    return notifier.build(
+      account: account,
+    );
+  }
+
+  @override
+  Override overrideWith(KennelImage Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: KennelImageProvider._internal(
+        () => create()..account = account,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        account: account,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeAsyncNotifierProviderElement<KennelImage, Uint8List?>
+      createElement() {
+    return _KennelImageProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is KennelImageProvider && other.account == account;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin KennelImageRef on AutoDisposeAsyncNotifierProviderRef<Uint8List?> {
+  /// The parameter `account` of this provider.
+  String? get account;
+}
+
+class _KennelImageProviderElement
+    extends AutoDisposeAsyncNotifierProviderElement<KennelImage, Uint8List?>
+    with KennelImageRef {
+  _KennelImageProviderElement(super.provider);
+
+  @override
+  String? get account => (origin as KennelImageProvider).account;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
