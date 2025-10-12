@@ -813,6 +813,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
             ),
           ),
           const SafetyIconsWrap(),
+          const SizedBox(height: 15),
         ],
       ),
     );

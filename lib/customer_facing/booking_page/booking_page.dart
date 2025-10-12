@@ -8,6 +8,7 @@ import 'package:mush_on/customer_facing/booking_page/repository.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'calendar/main.dart';
 
@@ -80,7 +81,16 @@ class _BookingPageState extends ConsumerState<BookingPage> {
                 } else if (snapshot.hasError) {
                   return const NotAvailable();
                 } else {
-                  return const CircularProgressIndicator.adaptive();
+                  return const Scaffold(
+                      body: Center(
+                          child: Column(
+                    spacing: 10,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Loading the booking page, please wait..."),
+                      CircularProgressIndicator.adaptive(),
+                    ],
+                  )));
                 }
               });
         },
@@ -93,7 +103,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
   }
 }
 
-class MainContent extends StatelessWidget {
+class MainContent extends ConsumerWidget {
   final TourType tourType;
   final String account;
   final StripeConnection stripe;
@@ -104,41 +114,62 @@ class MainContent extends StatelessWidget {
       required this.stripe});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
-      return Center(
-        child: Container(
-          constraints: const BoxConstraints.expand(),
-          decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
-            BookingPageColors.mainBlue.color,
-            BookingPageColors.mainPurple.color
-          ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-          child: Center(
-            child: Container(
-              margin: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(20)),
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: Column(
-                children: [
-                  const BookingPageHeader(),
-                  BookingPageTopOverview(
-                    tourType: tourType,
-                  ),
-                  const Divider(),
-                  DateSelectionWidget(
-                      constraints: constraints,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bookingManagerKennelInfoAsync =
+        ref.watch(bookingManagerKennelInfoProvider(account: account));
+    final logger = BasicLogger();
+    return bookingManagerKennelInfoAsync.when(data: (kennelInfo) {
+      if (kennelInfo == null) return const NotAvailable();
+      return Scaffold(
+          body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
+        return Center(
+          child: Container(
+            constraints: const BoxConstraints.expand(),
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+              BookingPageColors.mainBlue.color,
+              BookingPageColors.mainPurple.color
+            ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+            child: Center(
+              child: Container(
+                margin: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20)),
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: Column(
+                  children: [
+                    const BookingPageHeader(),
+                    BookingPageTopOverview(
                       tourType: tourType,
-                      account: account)
-                ],
+                    ),
+                    const Divider(),
+                    DateSelectionWidget(
+                        constraints: constraints,
+                        tourType: tourType,
+                        account: account)
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
-    })));
+        );
+      })));
+    }, error: (e, s) {
+      logger.error("Couldn't get booking info", error: e, stackTrace: s);
+      return const NotAvailable();
+    }, loading: () {
+      return const Scaffold(
+          body: Center(
+              child: Column(
+        spacing: 10,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Loading the booking page, please wait..."),
+          CircularProgressIndicator.adaptive(),
+        ],
+      )));
+    });
   }
 }
 
@@ -322,6 +353,7 @@ class BookingSummaryColumn extends ConsumerWidget {
                 tourType: tourType),
           ),
           const SafetyIconsWrap(),
+          const SizedBox(height: 15),
         ],
       ),
     );

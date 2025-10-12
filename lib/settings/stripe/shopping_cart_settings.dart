@@ -51,7 +51,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
     bool isLoading = imageState.isLoading;
     Uint8List? image = imageState.value;
     final bookingManagerKennelInfo =
-        ref.watch(bookingManagerKennelInfoProvider);
+        ref.watch(bookingManagerKennelInfoProvider(account: null));
     return bookingManagerKennelInfo.when(
         data: (kennelInfo) {
           if (kennelInfo != null) {
