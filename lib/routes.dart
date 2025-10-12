@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:mush_on/create_team/create_team.dart';
+import 'package:mush_on/customer_facing/booking_page/privacy_policy.dart';
 import 'package:mush_on/customer_management/alert_editors/customer_group.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/mass_cg_adder.dart';
 import 'package:mush_on/customer_management/tours/tours.dart';
@@ -143,6 +144,12 @@ final goRoutes = GoRouter(
           String? account = state.uri.queryParameters["account"];
           String? bookingId = state.uri.queryParameters["bookingId"];
           return BookingSuccessPage(account: account, bookingId: bookingId);
+        }),
+    GoRoute(
+        path: "/privacy_customer",
+        name: "/privacy_customer",
+        builder: (context, state) {
+          return const PrivacyPolicy();
         })
   ],
 );

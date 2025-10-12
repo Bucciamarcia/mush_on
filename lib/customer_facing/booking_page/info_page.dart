@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_facing/booking_page/repository.dart';
 import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
@@ -149,6 +150,10 @@ class CollectInfoWidget extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 ...children,
+                InkWell(
+                  child: const Text("Go to privacy policy"),
+                  onTap: () => context.pushNamed("/privacy_customer"),
+                )
               ],
             ),
           ),
