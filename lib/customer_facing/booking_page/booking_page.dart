@@ -679,7 +679,11 @@ class BookingPageHeader extends ConsumerWidget {
           child: Column(
             children: [
               kennelImage != null
-                  ? Image.memory(kennelImage)
+                  ? Image.memory(
+                      kennelImage,
+                      height: 200,
+                      fit: BoxFit.contain,
+                    )
                   : const SizedBox.shrink(),
               const Text(
                 "Book your adventure",
