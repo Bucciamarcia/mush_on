@@ -35,8 +35,9 @@ class KennelImage extends _$KennelImage {
 }
 
 @riverpod
-Stream<BookingManagerKennelInfo?> bookingManagerKennelInfo(Ref ref) async* {
-  final account = await ref.watch(accountProvider.future);
+Stream<BookingManagerKennelInfo?> bookingManagerKennelInfo(Ref ref,
+    {String? account}) async* {
+  account ??= await ref.watch(accountProvider.future);
   final path = "accounts/$account/data/bookingManager";
   final db = FirebaseFirestore.instance;
   final doc = db.doc(path);
