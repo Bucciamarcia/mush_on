@@ -212,7 +212,7 @@ def stirpe_webhook_checkout_session_succeeded(
             payload, sig_header, endpoint_secret
         )
     except Exception as e:
-        print("⚠️  Webhook signature verification failed." + str(e))
+        print("Webhook signature verification failed." + str(e))
         return https_fn.Response(f"Unauthenticated: {str(e)}", status=400)
     if event and event.type == "checkout.session.completed":
         checkout_session_id = event.data.object["id"]
@@ -222,7 +222,7 @@ def stirpe_webhook_checkout_session_succeeded(
             raise Exception("Account is None in webhook")
         add_checkout_session.payment_processed(
             checkout_session_id=checkout_session_id,
-            account=account,
+            stripe_account=account,
             stripe_api_key=stripe_api,
         )
 
