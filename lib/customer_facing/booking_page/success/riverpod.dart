@@ -1,12 +1,13 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mush_on/customer_facing/booking/success/repository.dart';
 import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import 'repository.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
 
