@@ -3,7 +3,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:mush_on/customer_facing/booking_page/privacy_policy.dart';
 import 'package:mush_on/customer_facing/booking_page/repository.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
@@ -148,7 +150,11 @@ class MainContent extends ConsumerWidget {
                       DateSelectionWidget(
                           constraints: constraints,
                           tourType: tourType,
-                          account: account)
+                          account: account),
+                      InkWell(
+                        child: const Text("Go to privacy policy"),
+                        onTap: () => context.pushNamed("/privacy_customer"),
+                      )
                     ],
                   ),
                 ),

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:collection/collection.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
@@ -144,5 +145,18 @@ class BookingPageRepository {
       toReturn.addAll({p.id: p});
     }
     return toReturn;
+  }
+
+  static Future<String> getFullPrivacyPolicy() async {
+    const path = "global/privacyPolicy";
+    final db = FirebaseFirestore.instance;
+    try {
+      final snapshot = await db.doc(path).get();
+      final data = snapshot.data();
+      if (data == null) throw Exception("No privacy policy found");
+      return data["fullHtml"];
+    } catch (e) {
+      return "";
+    }
   }
 }
