@@ -8,6 +8,7 @@ import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:sealed_countries/sealed_countries.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
@@ -750,6 +751,8 @@ class BookingSummaryImmobile extends ConsumerWidget {
               selectedPricings: selectedPricings,
               pricings: pricings,
               grandTotalToPay: grandTotalToPay),
+          const CancellationPolicySection(),
+          const SizedBox(height: 20),
           Center(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -875,6 +878,58 @@ class PricingOptionCounterImmobile extends ConsumerWidget {
         ),
         Text(selectedPricing.numberBooked.toString()),
       ],
+    );
+  }
+}
+
+class CancellationPolicySection extends ConsumerWidget {
+  const CancellationPolicySection({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final account = ref.watch(accountPublicProvider);
+    if (account == null) return const Text("Error");
+    final kennelInfo =
+        ref.watch(bookingManagerKennelInfoProvider(account: account)).value;
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: BookingPageColors.primaryLight.color.withAlpha(100),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 18,
+                color: BookingPageColors.primary.color,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Cancellation Policy",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: BookingPageColors.primaryDark.color,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            kennelInfo?.cancellationPolicy ?? "",
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              color: Colors.black87,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
