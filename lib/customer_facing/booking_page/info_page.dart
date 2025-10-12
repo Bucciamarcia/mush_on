@@ -44,44 +44,38 @@ class CollectInfoPage extends StatelessWidget {
               decoration: BoxDecoration(
                   color: Colors.white, borderRadius: BorderRadius.circular(20)),
               constraints: const BoxConstraints(maxWidth: 1200),
-              child: Column(
-                children: [
-                  const BookingPageHeader(),
-                  BookingPageTopOverview(
-                    tourType: tourType,
-                  ),
-                  const Divider(),
-                  w >= 768
-                      ? Expanded(
-                          child: SingleChildScrollView(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: CollectInfoWidget(
-                                      selectedPricings: selectedPricings,
-                                      pricings: pricings,
-                                      bookingId: bookingId),
-                                ),
-                                BookingSummaryImmobile(tourType: tourType)
-                              ],
-                            ),
-                          ),
-                        )
-                      : Expanded(
-                          child: SingleChildScrollView(
-                            child: Column(
-                              children: [
-                                CollectInfoWidget(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const BookingPageHeader(),
+                    BookingPageTopOverview(
+                      tourType: tourType,
+                    ),
+                    const Divider(),
+                    w >= 768
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: CollectInfoWidget(
                                     selectedPricings: selectedPricings,
                                     pricings: pricings,
                                     bookingId: bookingId),
-                                BookingSummaryImmobile(tourType: tourType)
-                              ],
-                            ),
-                          ),
-                        )
-                ],
+                              ),
+                              BookingSummaryImmobile(tourType: tourType)
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              CollectInfoWidget(
+                                  selectedPricings: selectedPricings,
+                                  pricings: pricings,
+                                  bookingId: bookingId),
+                              BookingSummaryImmobile(tourType: tourType)
+                            ],
+                          )
+                  ],
+                ),
               ),
             ),
           ),

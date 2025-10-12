@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:mush_on/settings/stripe/stripe_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -23,9 +24,17 @@ Stream<StripeConnection?> stripeConnection(Ref ref) async* {
 @riverpod
 class KennelImage extends _$KennelImage {
   @override
-  Future<Uint8List?> build() async {
-    final account = await ref.read(accountProvider.future);
+  Future<Uint8List?> build({String? account}) async {
+    final logger = BasicLogger();
+    logger.debug("KennelImage provider build called with account: $account");
+    account ??= await ref.read(accountProvider.future);
+    if (account == null) {
+      logger.error("No account found for kennel image");
+      return null;
+    }
+    logger.debug("Fetching kennel image for account: $account");
     final data = await StripeRepository(account: account).getKennelImage();
+    logger.debug("KennelImage provider returning data: ${data?.length ?? 0} bytes");
     return data;
   }
 

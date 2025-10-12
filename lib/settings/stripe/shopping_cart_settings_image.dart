@@ -40,7 +40,8 @@ class KennelImageCard extends ConsumerWidget {
               IconButton.outlined(
                   onPressed: () async {
                     final account = await ref.read(accountProvider.future);
-                    final notifier = ref.read(kennelImageProvider.notifier);
+                    final notifier =
+                        ref.read(kennelImageProvider(account: null).notifier);
                     try {
                       notifier.state = const AsyncValue.loading();
                       final newData = await _onEditPressed(account);
@@ -72,7 +73,8 @@ class KennelImageCard extends ConsumerWidget {
               IconButton.outlined(
                   onPressed: () async {
                     final account = await ref.read(accountProvider.future);
-                    final notifier = ref.read(kennelImageProvider.notifier);
+                    final notifier =
+                        ref.read(kennelImageProvider(account: null).notifier);
                     try {
                       notifier.state = const AsyncValue.loading();
                       await StripeRepository(account: account)
