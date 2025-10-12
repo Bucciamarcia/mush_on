@@ -348,8 +348,17 @@ class BookingInfoPage extends ConsumerWidget {
     final showErrors = ref.watch(showValidationErrorsProvider);
 
     bool filled(String? v) => (v ?? '').trim().isNotEmpty;
+
+    bool isValidEmail(String? email) {
+      if (email == null || email.trim().isEmpty) return false;
+      final emailRegex = RegExp(
+        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      );
+      return emailRegex.hasMatch(email.trim().toLowerCase());
+    }
+
     final phoneFilled = filled(booking.phone);
-    final emailFilled = filled(booking.email);
+    final emailFilled = isValidEmail(booking.email);
     final streetFilled = filled(booking.streetAddress);
     final zipFilled = filled(booking.zipCode);
     final cityFilled = filled(booking.city);
@@ -491,9 +500,10 @@ class BookingInfoPage extends ConsumerWidget {
                             icon: Icons.email_outlined,
                             isFilled: emailFilled),
                         onChanged: (nv) {
+                          final normalizedEmail = nv.trim().toLowerCase();
                           ref
                               .read(bookingInfoProvider.notifier)
-                              .change(booking.copyWith(email: nv));
+                              .change(booking.copyWith(email: normalizedEmail));
                         },
                       ),
                     ),

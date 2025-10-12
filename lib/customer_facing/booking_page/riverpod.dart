@@ -337,8 +337,16 @@ final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
 
   bool _filled(String? v) => (v ?? '').trim().isNotEmpty;
 
+  bool _isValidEmail(String? email) {
+    if (email == null || email.trim().isEmpty) return false;
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    return emailRegex.hasMatch(email.trim().toLowerCase());
+  }
+
   final contactOk = _filled(booking.phone) &&
-      _filled(booking.email) &&
+      _isValidEmail(booking.email) &&
       _filled(booking.streetAddress) &&
       _filled(booking.zipCode) &&
       _filled(booking.city) &&
