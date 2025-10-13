@@ -783,6 +783,11 @@ class BookingSummaryImmobile extends ConsumerWidget {
                         child: ElevatedButton(
                             key: ValueKey(isComplete),
                             onPressed: () async {
+                              final kennelInfo = await ref.watch(
+                                  bookingManagerKennelInfoProvider(
+                                          account: account)
+                                      .future);
+                              if (kennelInfo == null) return;
                               if (!isComplete) {
                                 ref
                                     .read(showValidationErrorsProvider.notifier)
@@ -797,7 +802,10 @@ class BookingSummaryImmobile extends ConsumerWidget {
                                     ref.read(customersInfoProvider);
                                 if (booking != null) {
                                   final url = await repo.getStripePaymentUrl(
-                                      booking, customers, pricings);
+                                      booking: booking,
+                                      customers: customers,
+                                      pricings: pricings,
+                                      kennelInfo: kennelInfo);
                                   await _launchUrl(url);
                                 }
                               } catch (e) {

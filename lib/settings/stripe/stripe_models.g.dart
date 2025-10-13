@@ -47,6 +47,8 @@ _BookingManagerKennelInfo _$BookingManagerKennelInfoFromJson(
       url: json['url'] as String,
       email: json['email'] as String,
       cancellationPolicy: json['cancellationPolicy'] as String,
+      vatRate: (json['vatRate'] as num?)?.toDouble() ?? 0,
+      commissionRate: (json['commissionRate'] as num?)?.toDouble() ?? 0.035,
     );
 
 Map<String, dynamic> _$BookingManagerKennelInfoToJson(
@@ -56,4 +58,6 @@ Map<String, dynamic> _$BookingManagerKennelInfoToJson(
       'url': instance.url,
       'email': instance.email,
       'cancellationPolicy': instance.cancellationPolicy,
+      'vatRate': instance.vatRate,
+      'commissionRate': instance.commissionRate,
     };

@@ -13,8 +13,12 @@ class BookingPageRepository {
 
   BookingPageRepository({required this.account, required this.tourId});
 
-  Future<String> getStripePaymentUrl(Booking booking, List<Customer> customers,
-      List<TourTypePricing> pricings) async {
+  Future<String> getStripePaymentUrl({
+    required Booking booking,
+    required List<Customer> customers,
+    required List<TourTypePricing> pricings,
+    required BookingManagerKennelInfo kennelInfo,
+  }) async {
     try {
       await bookTour(booking, customers);
     } catch (e, s) {
@@ -26,8 +30,10 @@ class BookingPageRepository {
     final List<Map<String, dynamic>> lineItems =
         _getLineItems(customers, pricingsById);
     final int totalCents = _getTotalCents(customers, pricingsById);
-    const double commissionRate = 0.035;
-    final int commissionCents = (totalCents * commissionRate).toInt();
+    final commissionRate = kennelInfo.commissionRate;
+    final vatRate = 1 + kennelInfo.vatRate;
+    final finalCommissionRate = commissionRate * vatRate;
+    final int commissionCents = (totalCents * finalCommissionRate).toInt();
     try {
       logger.debug("Account: $account");
       final response =

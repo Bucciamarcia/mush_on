@@ -776,6 +776,12 @@ mixin _$BookingManagerKennelInfo {
   String get email;
   String get cancellationPolicy;
 
+  /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
+  double get vatRate;
+
+  /// The commission rate of the platform on payments. Defaults to 3.5%.
+  double get commissionRate;
+
   /// Create a copy of BookingManagerKennelInfo
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -796,17 +802,20 @@ mixin _$BookingManagerKennelInfo {
             (identical(other.url, url) || other.url == url) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.cancellationPolicy, cancellationPolicy) ||
-                other.cancellationPolicy == cancellationPolicy));
+                other.cancellationPolicy == cancellationPolicy) &&
+            (identical(other.vatRate, vatRate) || other.vatRate == vatRate) &&
+            (identical(other.commissionRate, commissionRate) ||
+                other.commissionRate == commissionRate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, name, url, email, cancellationPolicy);
+  int get hashCode => Object.hash(runtimeType, name, url, email,
+      cancellationPolicy, vatRate, commissionRate);
 
   @override
   String toString() {
-    return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy)';
+    return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, vatRate: $vatRate, commissionRate: $commissionRate)';
   }
 }
 
@@ -816,7 +825,13 @@ abstract mixin class $BookingManagerKennelInfoCopyWith<$Res> {
           $Res Function(BookingManagerKennelInfo) _then) =
       _$BookingManagerKennelInfoCopyWithImpl;
   @useResult
-  $Res call({String name, String url, String email, String cancellationPolicy});
+  $Res call(
+      {String name,
+      String url,
+      String email,
+      String cancellationPolicy,
+      double vatRate,
+      double commissionRate});
 }
 
 /// @nodoc
@@ -836,6 +851,8 @@ class _$BookingManagerKennelInfoCopyWithImpl<$Res>
     Object? url = null,
     Object? email = null,
     Object? cancellationPolicy = null,
+    Object? vatRate = null,
+    Object? commissionRate = null,
   }) {
     return _then(_self.copyWith(
       name: null == name
@@ -854,6 +871,14 @@ class _$BookingManagerKennelInfoCopyWithImpl<$Res>
           ? _self.cancellationPolicy
           : cancellationPolicy // ignore: cast_nullable_to_non_nullable
               as String,
+      vatRate: null == vatRate
+          ? _self.vatRate
+          : vatRate // ignore: cast_nullable_to_non_nullable
+              as double,
+      commissionRate: null == commissionRate
+          ? _self.commissionRate
+          : commissionRate // ignore: cast_nullable_to_non_nullable
+              as double,
     ));
   }
 }
@@ -949,16 +974,16 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(
-            String name, String url, String email, String cancellationPolicy)?
+    TResult Function(String name, String url, String email,
+            String cancellationPolicy, double vatRate, double commissionRate)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _BookingManagerKennelInfo() when $default != null:
-        return $default(
-            _that.name, _that.url, _that.email, _that.cancellationPolicy);
+        return $default(_that.name, _that.url, _that.email,
+            _that.cancellationPolicy, _that.vatRate, _that.commissionRate);
       case _:
         return orElse();
     }
@@ -979,15 +1004,15 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(
-            String name, String url, String email, String cancellationPolicy)
+    TResult Function(String name, String url, String email,
+            String cancellationPolicy, double vatRate, double commissionRate)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _BookingManagerKennelInfo():
-        return $default(
-            _that.name, _that.url, _that.email, _that.cancellationPolicy);
+        return $default(_that.name, _that.url, _that.email,
+            _that.cancellationPolicy, _that.vatRate, _that.commissionRate);
     }
   }
 
@@ -1005,15 +1030,15 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(
-            String name, String url, String email, String cancellationPolicy)?
+    TResult? Function(String name, String url, String email,
+            String cancellationPolicy, double vatRate, double commissionRate)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _BookingManagerKennelInfo() when $default != null:
-        return $default(
-            _that.name, _that.url, _that.email, _that.cancellationPolicy);
+        return $default(_that.name, _that.url, _that.email,
+            _that.cancellationPolicy, _that.vatRate, _that.commissionRate);
       case _:
         return null;
     }
@@ -1027,7 +1052,9 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
       {required this.name,
       required this.url,
       required this.email,
-      required this.cancellationPolicy});
+      required this.cancellationPolicy,
+      this.vatRate = 0,
+      this.commissionRate = 0.035});
   factory _BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) =>
       _$BookingManagerKennelInfoFromJson(json);
 
@@ -1039,6 +1066,16 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
   final String email;
   @override
   final String cancellationPolicy;
+
+  /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
+  @override
+  @JsonKey()
+  final double vatRate;
+
+  /// The commission rate of the platform on payments. Defaults to 3.5%.
+  @override
+  @JsonKey()
+  final double commissionRate;
 
   /// Create a copy of BookingManagerKennelInfo
   /// with the given fields replaced by the non-null parameter values.
@@ -1065,17 +1102,20 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
             (identical(other.url, url) || other.url == url) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.cancellationPolicy, cancellationPolicy) ||
-                other.cancellationPolicy == cancellationPolicy));
+                other.cancellationPolicy == cancellationPolicy) &&
+            (identical(other.vatRate, vatRate) || other.vatRate == vatRate) &&
+            (identical(other.commissionRate, commissionRate) ||
+                other.commissionRate == commissionRate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, name, url, email, cancellationPolicy);
+  int get hashCode => Object.hash(runtimeType, name, url, email,
+      cancellationPolicy, vatRate, commissionRate);
 
   @override
   String toString() {
-    return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy)';
+    return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, vatRate: $vatRate, commissionRate: $commissionRate)';
   }
 }
 
@@ -1087,7 +1127,13 @@ abstract mixin class _$BookingManagerKennelInfoCopyWith<$Res>
       __$BookingManagerKennelInfoCopyWithImpl;
   @override
   @useResult
-  $Res call({String name, String url, String email, String cancellationPolicy});
+  $Res call(
+      {String name,
+      String url,
+      String email,
+      String cancellationPolicy,
+      double vatRate,
+      double commissionRate});
 }
 
 /// @nodoc
@@ -1107,6 +1153,8 @@ class __$BookingManagerKennelInfoCopyWithImpl<$Res>
     Object? url = null,
     Object? email = null,
     Object? cancellationPolicy = null,
+    Object? vatRate = null,
+    Object? commissionRate = null,
   }) {
     return _then(_BookingManagerKennelInfo(
       name: null == name
@@ -1125,6 +1173,14 @@ class __$BookingManagerKennelInfoCopyWithImpl<$Res>
           ? _self.cancellationPolicy
           : cancellationPolicy // ignore: cast_nullable_to_non_nullable
               as String,
+      vatRate: null == vatRate
+          ? _self.vatRate
+          : vatRate // ignore: cast_nullable_to_non_nullable
+              as double,
+      commissionRate: null == commissionRate
+          ? _self.commissionRate
+          : commissionRate // ignore: cast_nullable_to_non_nullable
+              as double,
     ));
   }
 }
