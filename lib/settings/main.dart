@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/settings/custom_fields.dart';
 import 'package:mush_on/settings/repository.dart';
 import 'package:mush_on/settings/user_settings.dart';
@@ -21,7 +22,9 @@ class SettingsMain extends ConsumerStatefulWidget {
 class _SettingsMainState extends ConsumerState<SettingsMain> {
   @override
   Widget build(BuildContext context) {
-    var settingsAsync = ref.watch(settingsProvider);
+    final settingsAsync = ref.watch(settingsProvider);
+    final user = ref.watch(userProvider).value!;
+    final userName = ref.watch(UserNameProvider(user.uid)).value!;
     return settingsAsync.when(
       data: (settings) {
         final settingsRepo =
@@ -87,7 +90,9 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
                     }
                   },
                 ),
-                const PaymentSettingsWidget(),
+                userName.userLevel.rank < UserLevel.musher.rank
+                    ? const SizedBox.shrink()
+                    : const PaymentSettingsWidget(),
                 const UserSettings(),
               ],
             ),
