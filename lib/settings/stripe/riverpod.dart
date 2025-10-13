@@ -34,7 +34,8 @@ class KennelImage extends _$KennelImage {
     }
     logger.debug("Fetching kennel image for account: $account");
     final data = await StripeRepository(account: account).getKennelImage();
-    logger.debug("KennelImage provider returning data: ${data?.length ?? 0} bytes");
+    logger.debug(
+        "KennelImage provider returning data: ${data?.length ?? 0} bytes");
     return data;
   }
 
