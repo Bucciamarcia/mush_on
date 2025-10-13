@@ -48,7 +48,7 @@ sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
     required String cancellationPolicy,
 
     /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
-    @Default(0) double vatRate,
+    required double vatRate,
 
     /// The commission rate of the platform on payments. Defaults to 3.5%.
     @Default(0.035) double commissionRate,

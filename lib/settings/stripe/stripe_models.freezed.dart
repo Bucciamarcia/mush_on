@@ -1053,7 +1053,7 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
       required this.url,
       required this.email,
       required this.cancellationPolicy,
-      this.vatRate = 0,
+      required this.vatRate,
       this.commissionRate = 0.035});
   factory _BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) =>
       _$BookingManagerKennelInfoFromJson(json);
@@ -1069,7 +1069,6 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
 
   /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
   @override
-  @JsonKey()
   final double vatRate;
 
   /// The commission rate of the platform on payments. Defaults to 3.5%.

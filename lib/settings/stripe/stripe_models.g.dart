@@ -47,7 +47,7 @@ _BookingManagerKennelInfo _$BookingManagerKennelInfoFromJson(
       url: json['url'] as String,
       email: json['email'] as String,
       cancellationPolicy: json['cancellationPolicy'] as String,
-      vatRate: (json['vatRate'] as num?)?.toDouble() ?? 0,
+      vatRate: (json['vatRate'] as num).toDouble(),
       commissionRate: (json['commissionRate'] as num?)?.toDouble() ?? 0.035,
     );
 
