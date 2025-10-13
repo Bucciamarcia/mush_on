@@ -25,6 +25,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
   late TextEditingController _urlController;
   late TextEditingController _emailController;
   late TextEditingController _cancellationPolicyController;
+  bool? applyVat;
   @override
   void initState() {
     super.initState();
@@ -59,6 +60,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
             _urlController.text = kennelInfo.url;
             _emailController.text = kennelInfo.email;
             _cancellationPolicyController.text = kennelInfo.cancellationPolicy;
+            kennelInfo.vatRate != 0 ? applyVat = true : false;
           }
           return Column(
             children: [
@@ -66,6 +68,8 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
               Form(
                 key: _formKey,
                 child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     KennelImageCard(image: image, isLoading: isLoading),
                     TextFormField(
@@ -121,6 +125,26 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                         }
                       },
                     ),
+                    DropdownMenuFormField(
+                      dropdownMenuEntries: const [
+                        DropdownMenuEntry(value: true, label: "Yes"),
+                        DropdownMenuEntry(value: false, label: "No"),
+                      ],
+                      onSelected: (v) {
+                        setState(() {
+                          applyVat = v;
+                        });
+                      },
+                      validator: (v) {
+                        if (v == null) {
+                          return "Select if VAT should be applied";
+                        } else {
+                          return null;
+                        }
+                      },
+                      initialSelection: applyVat,
+                      label: const Text("Apply Finnish 25,5% VAT"),
+                    ),
                     ElevatedButton(
                         onPressed: _submitForm, child: const Text("Submit")),
                   ],
@@ -140,11 +164,17 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       logger.info("Form contains valid data");
+      if (applyVat == null) {
+        BasicLogger().error("Apply vat is not right!");
+        ScaffoldMessenger.of(context).showSnackBar(
+            errorSnackBar(context, "Select if VAT should be applied"));
+      }
       final toSubmit = BookingManagerKennelInfo(
           name: _nameController.text,
           url: _urlController.text,
           email: _emailController.text,
-          cancellationPolicy: _cancellationPolicyController.text);
+          cancellationPolicy: _cancellationPolicyController.text,
+          vatRate: applyVat == false ? 0 : 0.255);
       try {
         final account = await ref.read(accountProvider.future);
         await StripeRepository(account: account)
