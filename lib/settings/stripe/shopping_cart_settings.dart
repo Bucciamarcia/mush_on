@@ -60,7 +60,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
             _urlController.text = kennelInfo.url;
             _emailController.text = kennelInfo.email;
             _cancellationPolicyController.text = kennelInfo.cancellationPolicy;
-            kennelInfo.vatRate != 0 ? applyVat = true : false;
+            applyVat ??= kennelInfo.vatRate != 0;
           }
           return Column(
             children: [
@@ -168,6 +168,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
         BasicLogger().error("Apply vat is not right!");
         ScaffoldMessenger.of(context).showSnackBar(
             errorSnackBar(context, "Select if VAT should be applied"));
+        return;
       }
       final toSubmit = BookingManagerKennelInfo(
           name: _nameController.text,
