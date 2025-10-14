@@ -224,6 +224,8 @@ def stirpe_webhook_checkout_session_succeeded(
             checkout_session_id=checkout_session_id,
             stripe_account=account,
             stripe_api_key=stripe_api,
+            payment_intent_id=event.data.object["payment_intent"],
+            stripe_email=event.data.object["customer_details"]["email"],
         )
 
     return https_fn.Response("ok for event")
