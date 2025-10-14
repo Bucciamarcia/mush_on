@@ -60,7 +60,11 @@ def add_checkout_session_to_db(
 
 
 def payment_processed(
-    checkout_session_id: str, stripe_account: str, stripe_api_key: str
+    checkout_session_id: str,
+    stripe_account: str,
+    stripe_api_key: str,
+    payment_intent_id: str,
+    stripe_email: str,
 ) -> None:
     """Sets webook processed in checkout sessions and changes payment
     status in booking"""
@@ -77,7 +81,14 @@ def payment_processed(
         print(f"Payment {checkout_session_id} already processed, skipping")
         return
     batch = firestore.client().batch()
-    batch.update(doc_ref, {"webhookProcessed": True})
+    batch.update(
+        doc_ref,
+        {
+            "webhookProcessed": True,
+            "paymentIntentId": payment_intent_id,
+            "stripeEmail": stripe_email,
+        },
+    )
     booking_path = f"accounts/{checkout_session.account}/data/bookingManager/bookings/{checkout_session.bookingId}"
     booking_ref = firestore.client().document(booking_path)
     booking_obj = booking_ref.get()
