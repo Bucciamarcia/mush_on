@@ -81,14 +81,6 @@ def payment_processed(
         print(f"Payment {checkout_session_id} already processed, skipping")
         return
     batch = firestore.client().batch()
-    batch.update(
-        doc_ref,
-        {
-            "webhookProcessed": True,
-            "paymentIntentId": payment_intent_id,
-            "stripeEmail": stripe_email,
-        },
-    )
     booking_path = f"accounts/{checkout_session.account}/data/bookingManager/bookings/{checkout_session.bookingId}"
     booking_ref = firestore.client().document(booking_path)
     booking_obj = booking_ref.get()
@@ -97,7 +89,6 @@ def payment_processed(
     if data is None:
         raise Exception("Couldn't find booking")
     batch.update(booking_ref, {"paymentStatus": "paid"})
-    batch.commit()
     cg_obj = (
         firestore.client()
         .document(
@@ -115,6 +106,16 @@ def payment_processed(
     receipt_url = payment_receipt_url["url"]
     total = payment_receipt_url["total"]
     booking_info = get_booking_info(account=account)
+    batch.update(
+        doc_ref,
+        {
+            "webhookProcessed": True,
+            "paymentIntentId": payment_intent_id,
+            "stripeEmail": stripe_email,
+            "total": total,
+        },
+    )
+    batch.commit()
     send_postmark_email(
         account=account,
         kennel_name=booking_info.name,

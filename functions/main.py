@@ -247,3 +247,12 @@ def stripe_get_payment_receipt_url(req: https_fn.CallableRequest[dict]) -> dict:
     return get_payment_receipt_url(
         data["stripeId"], data["checkoutSessionId"], os.getenv("STRIPE_KEY")
     )
+
+
+@https_fn.on_call()
+def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
+    data = req.data
+    payment_intent: str = data["paymentIntent"]
+    amount: int = data["amount"]
+    refund = stripe.Refund.create(payment_intent=payment_intent, amount=amount)
+    return {"refundId": refund.id}
