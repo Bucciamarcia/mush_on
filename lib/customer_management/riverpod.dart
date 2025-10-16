@@ -99,7 +99,8 @@ Stream<List<CustomerGroup>> customerGroupsByDate(
 @riverpod
 
 /// Returns a list of customer groups that have the same date.
-Stream<List<CustomerGroup>> customerGroupsByDay(Ref ref, DateTime date) async* {
+Stream<List<CustomerGroup>> customerGroupsByDay(Ref ref,
+    {required DateTime date, required bool showEmpty}) async* {
   String account = await ref.watch(accountProvider.future);
   DateTime day = DateTime(date.year, date.month, date.day);
   final db = FirebaseFirestore.instance;
@@ -112,15 +113,25 @@ Stream<List<CustomerGroup>> customerGroupsByDay(Ref ref, DateTime date) async* {
           const Duration(days: 1),
         ),
       );
-  yield* collection.snapshots().map(
-        (snapshot) => snapshot.docs
-            .map(
-              (doc) => CustomerGroup.fromJson(
-                doc.data(),
-              ),
-            )
-            .toList(),
-      );
+  yield* collection.snapshots().asyncMap(
+    (snapshot) async {
+      final cgs = snapshot.docs
+          .map(
+            (doc) => CustomerGroup.fromJson(
+              doc.data(),
+            ),
+          )
+          .toList();
+      if (showEmpty) return cgs;
+      List<CustomerGroup> toReturn = [];
+      for (final cg in cgs) {
+        List<Booking> bookings = await ref.watch(
+            bookingsByCustomerGroupIdProvider(cg.id, account: null).future);
+        if (bookings.active.isNotEmpty) toReturn.add(cg);
+      }
+      return toReturn;
+    },
+  );
 }
 
 @riverpod
@@ -193,7 +204,7 @@ Stream<List<Booking>> bookingsByCustomerGroupId(Ref ref, String id,
 
 @riverpod
 Stream<List<CustomerGroup>> futureCustomerGroups(Ref ref,
-    {required DateTime? untilDate}) async* {
+    {required DateTime? untilDate, required bool showEmpty}) async* {
   String account = await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
   untilDate = untilDate ?? DateTimeUtils.today().add(const Duration(days: 30));
@@ -203,13 +214,24 @@ Stream<List<CustomerGroup>> futureCustomerGroups(Ref ref,
           isGreaterThanOrEqualTo:
               DateTimeUtils.today().add(const Duration(days: 1)))
       .where("datetime", isLessThanOrEqualTo: untilDate);
-  yield* collection.snapshots().map(
-        (snapshot) => snapshot.docs
-            .map(
-              (doc) => CustomerGroup.fromJson(
-                doc.data(),
-              ),
-            )
-            .toList(),
-      );
+
+  yield* collection.snapshots().asyncMap(
+    (snapshot) async {
+      final cgs = snapshot.docs
+          .map((doc) => CustomerGroup.fromJson(doc.data()))
+          .toList();
+
+      if (showEmpty) {
+        return cgs;
+      } else {
+        List<CustomerGroup> toReturn = [];
+        for (final cg in cgs) {
+          List<Booking> bookings = await ref.watch(
+              bookingsByCustomerGroupIdProvider(cg.id, account: null).future);
+          if (bookings.active.isNotEmpty) toReturn.add(cg);
+        }
+        return toReturn;
+      }
+    },
+  );
 }

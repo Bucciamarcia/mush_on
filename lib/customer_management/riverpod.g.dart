@@ -618,7 +618,7 @@ class _CustomerGroupsByDateProviderElement
 }
 
 String _$customerGroupsByDayHash() =>
-    r'e9e3a448de5fda8492bfbd52598fe7916296fa90';
+    r'6a3e206817f30cee064b528457890d6a69dd5452';
 
 /// Returns a list of customer groups that have the same date.
 ///
@@ -639,11 +639,13 @@ class CustomerGroupsByDayFamily
   /// Returns a list of customer groups that have the same date.
   ///
   /// Copied from [customerGroupsByDay].
-  CustomerGroupsByDayProvider call(
-    DateTime date,
-  ) {
+  CustomerGroupsByDayProvider call({
+    required DateTime date,
+    required bool showEmpty,
+  }) {
     return CustomerGroupsByDayProvider(
-      date,
+      date: date,
+      showEmpty: showEmpty,
     );
   }
 
@@ -652,7 +654,8 @@ class CustomerGroupsByDayFamily
     covariant CustomerGroupsByDayProvider provider,
   ) {
     return call(
-      provider.date,
+      date: provider.date,
+      showEmpty: provider.showEmpty,
     );
   }
 
@@ -679,12 +682,14 @@ class CustomerGroupsByDayProvider
   /// Returns a list of customer groups that have the same date.
   ///
   /// Copied from [customerGroupsByDay].
-  CustomerGroupsByDayProvider(
-    DateTime date,
-  ) : this._internal(
+  CustomerGroupsByDayProvider({
+    required DateTime date,
+    required bool showEmpty,
+  }) : this._internal(
           (ref) => customerGroupsByDay(
             ref as CustomerGroupsByDayRef,
-            date,
+            date: date,
+            showEmpty: showEmpty,
           ),
           from: customerGroupsByDayProvider,
           name: r'customerGroupsByDayProvider',
@@ -696,6 +701,7 @@ class CustomerGroupsByDayProvider
           allTransitiveDependencies:
               CustomerGroupsByDayFamily._allTransitiveDependencies,
           date: date,
+          showEmpty: showEmpty,
         );
 
   CustomerGroupsByDayProvider._internal(
@@ -706,9 +712,11 @@ class CustomerGroupsByDayProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.date,
+    required this.showEmpty,
   }) : super.internal();
 
   final DateTime date;
+  final bool showEmpty;
 
   @override
   Override overrideWith(
@@ -725,6 +733,7 @@ class CustomerGroupsByDayProvider
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         date: date,
+        showEmpty: showEmpty,
       ),
     );
   }
@@ -736,13 +745,16 @@ class CustomerGroupsByDayProvider
 
   @override
   bool operator ==(Object other) {
-    return other is CustomerGroupsByDayProvider && other.date == date;
+    return other is CustomerGroupsByDayProvider &&
+        other.date == date &&
+        other.showEmpty == showEmpty;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, date.hashCode);
+    hash = _SystemHash.combine(hash, showEmpty.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -754,6 +766,9 @@ mixin CustomerGroupsByDayRef
     on AutoDisposeStreamProviderRef<List<CustomerGroup>> {
   /// The parameter `date` of this provider.
   DateTime get date;
+
+  /// The parameter `showEmpty` of this provider.
+  bool get showEmpty;
 }
 
 class _CustomerGroupsByDayProviderElement
@@ -763,6 +778,8 @@ class _CustomerGroupsByDayProviderElement
 
   @override
   DateTime get date => (origin as CustomerGroupsByDayProvider).date;
+  @override
+  bool get showEmpty => (origin as CustomerGroupsByDayProvider).showEmpty;
 }
 
 String _$customersByBookingIdHash() =>
@@ -1247,7 +1264,7 @@ class _BookingsByCustomerGroupIdProviderElement
 }
 
 String _$futureCustomerGroupsHash() =>
-    r'af0e53be4b01b05f77ce7dfbd43d91ed8bed558e';
+    r'd0aa3e5ce215add3c0086a659af571de58207174';
 
 /// See also [futureCustomerGroups].
 @ProviderFor(futureCustomerGroups)
@@ -1262,9 +1279,11 @@ class FutureCustomerGroupsFamily
   /// See also [futureCustomerGroups].
   FutureCustomerGroupsProvider call({
     required DateTime? untilDate,
+    required bool showEmpty,
   }) {
     return FutureCustomerGroupsProvider(
       untilDate: untilDate,
+      showEmpty: showEmpty,
     );
   }
 
@@ -1274,6 +1293,7 @@ class FutureCustomerGroupsFamily
   ) {
     return call(
       untilDate: provider.untilDate,
+      showEmpty: provider.showEmpty,
     );
   }
 
@@ -1298,10 +1318,12 @@ class FutureCustomerGroupsProvider
   /// See also [futureCustomerGroups].
   FutureCustomerGroupsProvider({
     required DateTime? untilDate,
+    required bool showEmpty,
   }) : this._internal(
           (ref) => futureCustomerGroups(
             ref as FutureCustomerGroupsRef,
             untilDate: untilDate,
+            showEmpty: showEmpty,
           ),
           from: futureCustomerGroupsProvider,
           name: r'futureCustomerGroupsProvider',
@@ -1313,6 +1335,7 @@ class FutureCustomerGroupsProvider
           allTransitiveDependencies:
               FutureCustomerGroupsFamily._allTransitiveDependencies,
           untilDate: untilDate,
+          showEmpty: showEmpty,
         );
 
   FutureCustomerGroupsProvider._internal(
@@ -1323,9 +1346,11 @@ class FutureCustomerGroupsProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.untilDate,
+    required this.showEmpty,
   }) : super.internal();
 
   final DateTime? untilDate;
+  final bool showEmpty;
 
   @override
   Override overrideWith(
@@ -1342,6 +1367,7 @@ class FutureCustomerGroupsProvider
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         untilDate: untilDate,
+        showEmpty: showEmpty,
       ),
     );
   }
@@ -1354,13 +1380,15 @@ class FutureCustomerGroupsProvider
   @override
   bool operator ==(Object other) {
     return other is FutureCustomerGroupsProvider &&
-        other.untilDate == untilDate;
+        other.untilDate == untilDate &&
+        other.showEmpty == showEmpty;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, untilDate.hashCode);
+    hash = _SystemHash.combine(hash, showEmpty.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -1372,6 +1400,9 @@ mixin FutureCustomerGroupsRef
     on AutoDisposeStreamProviderRef<List<CustomerGroup>> {
   /// The parameter `untilDate` of this provider.
   DateTime? get untilDate;
+
+  /// The parameter `showEmpty` of this provider.
+  bool get showEmpty;
 }
 
 class _FutureCustomerGroupsProviderElement
@@ -1381,6 +1412,8 @@ class _FutureCustomerGroupsProviderElement
 
   @override
   DateTime? get untilDate => (origin as FutureCustomerGroupsProvider).untilDate;
+  @override
+  bool get showEmpty => (origin as FutureCustomerGroupsProvider).showEmpty;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

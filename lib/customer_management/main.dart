@@ -18,24 +18,31 @@ class ClientManagementMainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final todaysCustomerGroups =
-        ref.watch(customerGroupsByDayProvider(DateTimeUtils.today())).value ??
-            [];
+    final todaysCustomerGroups = ref
+            .watch(customerGroupsByDayProvider(
+                date: DateTimeUtils.today(), showEmpty: false))
+            .value ??
+        [];
     final todaysOrphanedCustomerGroups =
         todaysCustomerGroups.where((cg) => cg.teamGroupId == null).toList();
-    final futureCustomerGroups =
-        ref.watch(futureCustomerGroupsProvider(untilDate: null)).value ?? [];
+    final futureCustomerGroups = ref
+            .watch(
+                futureCustomerGroupsProvider(untilDate: null, showEmpty: false))
+            .value ??
+        [];
     final customerGroupsWithoutTeamgroup =
         futureCustomerGroups.where((c) => c.teamGroupId == null).toList();
 
     final tomorrowCustomerGroups = ref
             .watch(futureCustomerGroupsProvider(
-                untilDate: DateTimeUtils.today().add(const Duration(days: 2))))
+                untilDate: DateTimeUtils.today().add(const Duration(days: 2)),
+                showEmpty: false))
             .value ??
         [];
     final next7DaysCustomerGroups = ref
             .watch(futureCustomerGroupsProvider(
-                untilDate: DateTimeUtils.today().add(const Duration(days: 8))))
+                untilDate: DateTimeUtils.today().add(const Duration(days: 8)),
+                showEmpty: false))
             .value ??
         [];
 
