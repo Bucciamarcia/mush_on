@@ -157,7 +157,7 @@ def send_postmark_email(
         "kennel_name": kennel_name,
         "cancellation_policy": cancellation_policy,
         "booking_date": booking_date_string,
-        "total_amount_number": str(total_amount),
+        "total_amount_number": str(total_amount / 100.0),
         "total_amout_currency": currency,
         "receipt_url": receipt_url,
         "kennel_url": kennel_url,
