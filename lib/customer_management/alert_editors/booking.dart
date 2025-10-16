@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mush_on/customer_facing/booking_page/repository.dart';
 import 'package:mush_on/customer_management/alert_editors/customer.dart';
 import 'package:mush_on/customer_management/alert_editors/repository.dart';
+import 'package:mush_on/customer_management/alert_editors/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/user_level.dart';
@@ -196,20 +196,21 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                 ),
               ),
               (widget.booking != null &&
-                      widget.booking!.paymentStatus == PaymentStatus.paid)
-                  ? userName.userLevel.rank < UserLevel.musher.rank
-                      ? const SizedBox.shrink()
-                      : ElevatedButton.icon(
-                          onPressed: () {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext alertContext) {
-                                  return ConfirmRefundDialog(
-                                      booking: widget.booking!);
-                                });
-                          },
-                          icon: const Icon(Icons.warning),
-                          label: const Text("Refund booking"))
+                      widget.booking!.paymentStatus == PaymentStatus.paid &&
+                      userName.userLevel.rank >= UserLevel.musher.rank)
+                  ? ElevatedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext alertContext) {
+                              return ConfirmRefundDialog(
+                                booking: widget.booking!,
+                                onRefunded: () => Navigator.of(context).pop(),
+                              );
+                            });
+                      },
+                      icon: const Icon(Icons.warning),
+                      label: const Text("Refund booking"))
                   : const SizedBox.shrink(),
             ],
           ),
@@ -291,56 +292,70 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
 
 class ConfirmRefundDialog extends ConsumerWidget {
   final Booking booking;
-  const ConfirmRefundDialog({super.key, required this.booking});
+  final Function() onRefunded;
+  const ConfirmRefundDialog(
+      {super.key, required this.booking, required this.onRefunded});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final account = ref.watch(accountProvider).value;
+    final isProcessing = ref.watch(isRefundProcessingProvider);
     return AlertDialog.adaptive(
       title: const Text("Be careful!"),
       content: const Text(
           "This will refund the entire booking and remove the booking from the group. This CANNOT be reversed!"),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            "Go back",
-            style: TextStyle(color: colorScheme.primary),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            if (account == null) {
-              BasicLogger().warning("Account is null");
-              ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
-                  context, "Error: account is null. This shouldn't happen!"));
-              return;
-            }
-            try {
-              final repo = AlertEditorsRepository(account: account);
-              await repo.refundBooking(booking);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    confirmationSnackbar(context, "Client refunded"));
-              }
-            } catch (e, s) {
-              BasicLogger()
-                  .error("Failed to refund booking", error: e, stackTrace: s);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    errorSnackBar(context, "Failed to refund booking:"));
-              }
-              return;
-            }
-          },
-          style: ButtonStyle(
-              backgroundColor: WidgetStatePropertyAll(colorScheme.error)),
-          child: Text(
-            "Refund payment",
-            style: TextStyle(color: colorScheme.onError),
-          ),
-        )
+        isProcessing
+            ? const SizedBox.shrink()
+            : TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  "Go back",
+                  style: TextStyle(color: colorScheme.primary),
+                ),
+              ),
+        isProcessing
+            ? const CircularProgressIndicator.adaptive()
+            : ElevatedButton(
+                onPressed: () async {
+                  ref.read(isRefundProcessingProvider.notifier).change(true);
+                  if (account == null) {
+                    BasicLogger().warning("Account is null");
+                    ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
+                        context,
+                        "Error: account is null. This shouldn't happen!"));
+                    ref.read(isRefundProcessingProvider.notifier).change(false);
+                    return;
+                  }
+                  try {
+                    final repo = AlertEditorsRepository(account: account);
+                    await repo.refundBooking(booking);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(context, "Client refunded"));
+                    }
+                    if (context.mounted) Navigator.of(context).pop();
+                    onRefunded();
+                  } catch (e, s) {
+                    BasicLogger().error("Failed to refund booking",
+                        error: e, stackTrace: s);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "Failed to refund booking:"));
+                    }
+                    return;
+                  } finally {
+                    ref.read(isRefundProcessingProvider.notifier).change(false);
+                  }
+                },
+                style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(colorScheme.error)),
+                child: Text(
+                  "Refund payment",
+                  style: TextStyle(color: colorScheme.onError),
+                ),
+              )
       ],
     );
   }
