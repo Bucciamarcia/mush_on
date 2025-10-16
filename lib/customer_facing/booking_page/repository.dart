@@ -44,6 +44,7 @@ class BookingPageRepository {
         "lineItems": lineItems,
         "feeAmount": commissionCents,
         "bookingId": booking.id,
+        "totalAmount": totalCents,
       });
       final data = response.data as Map<String, dynamic>;
       final error = data["error"];

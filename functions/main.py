@@ -138,10 +138,12 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
         line_items = data.get("lineItems") or []
         fee_amount_raw = data.get("feeAmount")
         booking_id = data.get("bookingId")
+        total_amount_cents_wrapped = data.get("totalAmount")
 
         if not account or not line_items or fee_amount_raw is None or not booking_id:
             return {"error": "account, line items, bookingId or fee amount is null"}
 
+        total_amount_cents = _unwrap_int64_wrappers(total_amount_cents_wrapped)
         # Sanitize int-like values
         fee_amount = _unwrap_int64_wrappers(fee_amount_raw)
         for item in line_items:
@@ -168,7 +170,12 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
         if checkout_session is None:
             return {"error": f"Checkout session is None. Session: {session}"}
         add_checkout_session.add_checkout_session_to_db(
-            checkout_session, account, stripe_account_id, booking_id
+            checkout_session,
+            account,
+            stripe_account_id,
+            booking_id,
+            total_amount_cents,
+            fee_amount,
         )
 
         return {"url": session.url}
@@ -255,6 +262,8 @@ def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
     payment_intent: str = data["paymentIntent"]
     stripe_account: str = data["stripeAccount"]
     refund = stripe.Refund.create(
-        payment_intent=payment_intent, stripe_account=stripe_account
+        payment_intent=payment_intent,
+        stripe_account=stripe_account,
+        refund_application_fee=True,
     )
     return {"refundId": refund.id}
