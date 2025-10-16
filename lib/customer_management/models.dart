@@ -88,6 +88,12 @@ enum PaymentStatus {
   /// Waiting for the customer to pay. Usually takes minutes.
   @JsonValue("waiting")
   waiting,
+
+  /// The payment has been refunded
+  @JsonValue("refunded")
+  refunded,
+
+  /// Payment status not known. Means there's been an error.
   @JsonValue("unknown")
   unknown;
 }

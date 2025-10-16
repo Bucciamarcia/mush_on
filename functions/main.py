@@ -253,5 +253,8 @@ def stripe_get_payment_receipt_url(req: https_fn.CallableRequest[dict]) -> dict:
 def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
     data = req.data
     payment_intent: str = data["paymentIntent"]
-    refund = stripe.Refund.create(payment_intent=payment_intent)
+    stripe_account: str = data["stripeAccount"]
+    refund = stripe.Refund.create(
+        payment_intent=payment_intent, stripe_account=stripe_account
+    )
     return {"refundId": refund.id}
