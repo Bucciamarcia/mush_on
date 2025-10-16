@@ -320,6 +320,21 @@ class BookingInfo extends _$BookingInfo {
   }
 }
 
+@riverpod
+
+/// Used to know whether to show the loading indicator and disable the buttons in the info page,
+/// when the backend is loading the stripe cart.
+class IsLoadingCart extends _$IsLoadingCart {
+  @override
+  bool build() {
+    return false;
+  }
+
+  void change(bool v) {
+    state = v;
+  }
+}
+
 @freezed
 
 /// A simple utility class that puts together the pricing tier and how many people are booked on it.

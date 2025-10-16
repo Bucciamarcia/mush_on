@@ -744,5 +744,24 @@ final bookingInfoProvider = NotifierProvider<BookingInfo, Booking?>.internal(
 );
 
 typedef _$BookingInfo = Notifier<Booking?>;
+String _$isLoadingCartHash() => r'2a2bd13903c1c315a8b1959e7da1cf2daeb2244b';
+
+/// Used to know whether to show the loading indicator and disable the buttons in the info page,
+/// when the backend is loading the stripe cart.
+///
+/// Copied from [IsLoadingCart].
+@ProviderFor(IsLoadingCart)
+final isLoadingCartProvider =
+    AutoDisposeNotifierProvider<IsLoadingCart, bool>.internal(
+  IsLoadingCart.new,
+  name: r'isLoadingCartProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$isLoadingCartHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$IsLoadingCart = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

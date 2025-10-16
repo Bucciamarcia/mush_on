@@ -655,6 +655,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
+    bool isLoadingCart = ref.watch(isLoadingCartProvider);
     String formatSelectedDate() {
       if (selectedDate == null) return "No date selected";
       return DateFormat("MMMM dd, yyyy").format(selectedDate);
@@ -763,74 +764,95 @@ class BookingSummaryImmobile extends ConsumerWidget {
           const CancellationPolicySection(),
           const SizedBox(height: 20),
           Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: const ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(Colors.grey),
-                        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(
-                            vertical: 20, horizontal: 30))),
-                    child: const Text(
-                      "Go back",
-                      style: TextStyle(color: Colors.black),
-                    )),
-                account == null
-                    ? const SizedBox.shrink()
-                    : AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 150),
-                        child: ElevatedButton(
-                            key: ValueKey(isComplete),
-                            onPressed: () async {
-                              final kennelInfo = await ref.watch(
-                                  bookingManagerKennelInfoProvider(
-                                          account: account)
-                                      .future);
-                              if (kennelInfo == null) return;
-                              if (!isComplete) {
-                                ref
-                                    .read(showValidationErrorsProvider.notifier)
-                                    .state = true;
-                                return;
-                              }
-                              final repo = BookingPageRepository(
-                                  account: account, tourId: tourType.id);
-                              try {
-                                final booking = ref.read(bookingInfoProvider);
-                                final customers =
-                                    ref.read(customersInfoProvider);
-                                if (booking != null) {
-                                  final url = await repo.getStripePaymentUrl(
-                                      booking: booking,
-                                      customers: customers,
-                                      pricings: pricings,
-                                      kennelInfo: kennelInfo);
-                                  await _launchUrl(url);
-                                }
-                              } catch (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      errorSnackBar(context,
-                                          "Couldn't add booking: contact support."));
-                                }
-                              }
-                            },
-                            style: ButtonStyle(
-                                padding: const WidgetStatePropertyAll(
-                                    EdgeInsets.symmetric(
-                                        vertical: 20, horizontal: 30)),
-                                backgroundColor: WidgetStatePropertyAll(
-                                    isComplete
-                                        ? BookingPageColors.primaryDark.color
-                                        : Colors.grey)),
-                            child: const Text(
-                              "Book now",
-                              style: TextStyle(color: Colors.white),
-                            )),
-                      )
-              ],
-            ),
+            child: isLoadingCart
+                ? const Column(
+                    spacing: 10,
+                    children: [
+                      CircularProgressIndicator.adaptive(),
+                      Text("Please wait: loading secure payment system")
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          style: const ButtonStyle(
+                              backgroundColor:
+                                  WidgetStatePropertyAll(Colors.grey),
+                              padding: WidgetStatePropertyAll(
+                                  EdgeInsets.symmetric(
+                                      vertical: 20, horizontal: 30))),
+                          child: const Text(
+                            "Go back",
+                            style: TextStyle(color: Colors.black),
+                          )),
+                      account == null
+                          ? const SizedBox.shrink()
+                          : AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 150),
+                              child: ElevatedButton(
+                                  key: ValueKey(isComplete),
+                                  onPressed: () async {
+                                    ref
+                                        .read(isLoadingCartProvider.notifier)
+                                        .change(true);
+                                    final kennelInfo = await ref.watch(
+                                        bookingManagerKennelInfoProvider(
+                                                account: account)
+                                            .future);
+                                    if (kennelInfo == null) return;
+                                    if (!isComplete) {
+                                      ref
+                                          .read(showValidationErrorsProvider
+                                              .notifier)
+                                          .state = true;
+                                      return;
+                                    }
+                                    final repo = BookingPageRepository(
+                                        account: account, tourId: tourType.id);
+                                    try {
+                                      final booking =
+                                          ref.read(bookingInfoProvider);
+                                      final customers =
+                                          ref.read(customersInfoProvider);
+                                      if (booking != null) {
+                                        final url =
+                                            await repo.getStripePaymentUrl(
+                                                booking: booking,
+                                                customers: customers,
+                                                pricings: pricings,
+                                                kennelInfo: kennelInfo);
+                                        await _launchUrl(url);
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(errorSnackBar(context,
+                                                "Couldn't add booking: contact support."));
+                                      }
+                                    } finally {
+                                      ref
+                                          .read(isLoadingCartProvider.notifier)
+                                          .change(false);
+                                    }
+                                  },
+                                  style: ButtonStyle(
+                                      padding: const WidgetStatePropertyAll(
+                                          EdgeInsets.symmetric(
+                                              vertical: 20, horizontal: 30)),
+                                      backgroundColor: WidgetStatePropertyAll(
+                                          isComplete
+                                              ? BookingPageColors
+                                                  .primaryDark.color
+                                              : Colors.grey)),
+                                  child: const Text(
+                                    "Book now",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            )
+                    ],
+                  ),
           ),
           const SafetyIconsWrap(),
           const SizedBox(height: 15),
