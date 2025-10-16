@@ -306,7 +306,78 @@ class TemplateScreen extends ConsumerWidget {
               error: (e, s) {
                 BasicLogger()
                     .error("Couldn't fetch username", error: e, stackTrace: s);
-                return Text("Error: coudln't fetch username: ${e.toString()}");
+                return Scaffold(
+                  appBar: AppBar(
+                    title: const Text("Error"),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.errorContainer,
+                  ),
+                  body: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            "Unable to Load User Data",
+                            style: Theme.of(context).textTheme.headlineSmall,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "There was a problem loading your user information. This could be a temporary connection issue.",
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 32),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              // Force a provider refresh
+                              ref.invalidate(userNameProvider(data.uid));
+                            },
+                            icon: const Icon(Icons.refresh),
+                            label: const Text("Retry"),
+                          ),
+                          const SizedBox(height: 16),
+                          OutlinedButton.icon(
+                            onPressed: () async {
+                              await AuthService().signOut();
+                            },
+                            icon: const Icon(Icons.logout),
+                            label: const Text("Sign Out"),
+                          ),
+                          const SizedBox(height: 24),
+                          ExpansionTile(
+                            title: const Text("Error Details"),
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: SelectableText(
+                                  e.toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        fontFamily: 'monospace',
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               },
               loading: () => const CircularProgressIndicator.adaptive());
         }

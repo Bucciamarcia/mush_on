@@ -15,33 +15,80 @@ Stream<User?> user(Ref ref) {
   return FirebaseAuth.instance.authStateChanges();
 }
 
+/// Helper function to get Firestore document with exponential backoff retry
+/// Handles race conditions where auth token hasn't propagated yet
+Future<DocumentSnapshot<Map<String, dynamic>>> _getDocumentWithRetry(
+  DocumentReference<Map<String, dynamic>> doc, {
+  int maxRetries = 4,
+  Duration initialDelay = const Duration(milliseconds: 300),
+}) async {
+  int attempt = 0;
+  while (true) {
+    try {
+      return await doc.get();
+    } catch (e) {
+      if (e.toString().contains('permission-denied') && attempt < maxRetries) {
+        // Exponential backoff: 300ms, 600ms, 1200ms, 2400ms
+        final delay = initialDelay * (1 << attempt);
+        await Future.delayed(delay);
+        attempt++;
+      } else {
+        rethrow;
+      }
+    }
+  }
+}
+
 @Riverpod(keepAlive: true)
 
 /// This provider streams a user from firestore. Use UID to determine which, or null for self.
 /// If it returns null, it couldn't find it.
 Stream<UserName?> userName(Ref ref, String? uid) async* {
   late String path;
+  User? currentUser;
+
   if (uid == null) {
     User? user = ref.watch(userProvider).value;
     if (user == null) {
       yield null;
       return;
     } else {
+      currentUser = user;
       path = "users/${user.uid}";
     }
   } else {
+    currentUser = FirebaseAuth.instance.currentUser;
     path = "users/$uid";
   }
+
+  // Force token refresh to ensure Firestore has the latest auth state
+  if (currentUser != null) {
+    await currentUser.getIdToken(true);
+  }
+
   var doc = FirebaseFirestore.instance.doc(path);
-  yield* doc.snapshots().map(
-    (snapshot) {
-      if (snapshot.data() != null) {
-        return UserName.fromJson(snapshot.data()!);
-      } else {
-        return null;
-      }
-    },
-  );
+
+  // First, try to get the document with retry logic
+  try {
+    final initialSnapshot = await _getDocumentWithRetry(doc);
+    if (initialSnapshot.data() != null) {
+      yield UserName.fromJson(initialSnapshot.data()!);
+    } else {
+      yield null;
+    }
+  } catch (e) {
+    // If all retries fail, rethrow
+    rethrow;
+  }
+
+  // Then listen for subsequent updates (without retry logic)
+  await for (var snapshot in doc.snapshots().skip(1)) {
+    if (snapshot.data() != null) {
+      yield UserName.fromJson(snapshot.data()!);
+    } else {
+      yield null;
+    }
+  }
 }
 
 @Riverpod(keepAlive: true)
