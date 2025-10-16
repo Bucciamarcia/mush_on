@@ -75,6 +75,13 @@ sealed class Booking with _$Booking {
       _$BookingFromJson(json);
 }
 
+extension BookingsExtension on List<Booking> {
+  /// Only returns bookings that either have been already paid or are deferred.
+  List<Booking> get active => where((b) =>
+      b.paymentStatus == PaymentStatus.paid ||
+      b.paymentStatus == PaymentStatus.deferredPayment).toList();
+}
+
 @JsonEnum()
 enum PaymentStatus {
   /// Tour fully paid

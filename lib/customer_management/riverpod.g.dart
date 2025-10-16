@@ -928,7 +928,7 @@ class _CustomersByBookingIdProviderElement
 }
 
 String _$customersByCustomerGroupIdHash() =>
-    r'd508a4f1f2f869487bafb2ea78f62557fa31f0ca';
+    r'2907f77416b4f586f97339cc2472027270d7cea3';
 
 /// Gets all the customers assigned to a customer group
 ///
@@ -1094,7 +1094,7 @@ class _CustomersByCustomerGroupIdProviderElement
 }
 
 String _$bookingsByCustomerGroupIdHash() =>
-    r'2c06dff4e0cd3333dd92470dac3921bb09a8bc2c';
+    r'92f4d916ca2601d86c02fe356236e70cacea8a76';
 
 /// See also [bookingsByCustomerGroupId].
 @ProviderFor(bookingsByCustomerGroupId)

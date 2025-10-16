@@ -152,7 +152,7 @@ Stream<List<Customer>> customersByCustomerGroupId(
     Ref ref, String customerGroupId,
     {String? account}) async* {
   final List<Booking> bookings = await ref.watch(
-      BookingsByCustomerGroupIdProvider(customerGroupId, account: account)
+      bookingsByCustomerGroupIdProvider(customerGroupId, account: account)
           .future);
 
   if (bookings.isEmpty) {
@@ -186,7 +186,8 @@ Stream<List<Booking>> bookingsByCustomerGroupId(Ref ref, String id,
                 doc.data(),
               ),
             )
-            .toList(),
+            .toList()
+            .active,
       );
 }
 
