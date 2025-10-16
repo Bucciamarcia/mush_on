@@ -5,6 +5,7 @@ import 'package:mush_on/customer_management/alert_editors/customer.dart';
 import 'package:mush_on/customer_management/alert_editors/repository.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models/user_level.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models.dart';
@@ -62,6 +63,10 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
               [];
     }
     var colorScheme = Theme.of(context).colorScheme;
+    final user = ref.watch(userProvider).value;
+    if (user == null) return const CircularProgressIndicator.adaptive();
+    final userName = ref.watch(userNameProvider(user.uid)).value;
+    if (userName == null) return const CircularProgressIndicator.adaptive();
     return AlertDialog.adaptive(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -192,17 +197,19 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
               ),
               (widget.booking != null &&
                       widget.booking!.paymentStatus == PaymentStatus.paid)
-                  ? ElevatedButton.icon(
-                      onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext alertContext) {
-                              return ConfirmRefundDialog(
-                                  booking: widget.booking!);
-                            });
-                      },
-                      icon: const Icon(Icons.warning),
-                      label: const Text("Refund booking"))
+                  ? userName.userLevel.rank < UserLevel.musher.rank
+                      ? const SizedBox.shrink()
+                      : ElevatedButton.icon(
+                          onPressed: () {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext alertContext) {
+                                  return ConfirmRefundDialog(
+                                      booking: widget.booking!);
+                                });
+                          },
+                          icon: const Icon(Icons.warning),
+                          label: const Text("Refund booking"))
                   : const SizedBox.shrink(),
             ],
           ),

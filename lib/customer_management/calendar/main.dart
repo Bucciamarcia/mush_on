@@ -183,7 +183,7 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                         details.appointments.first as CustomerGroup;
 
                     if (customerGroup.name.isEmpty) {
-                      return SizedBox.shrink();
+                      return const SizedBox.shrink();
                     }
 
                     // Get notes using the data source method
