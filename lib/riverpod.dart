@@ -55,6 +55,10 @@ Stream<UserName?> userName(Ref ref, String? uid) async* {
     } else {
       currentUser = user;
       path = "users/${user.uid}";
+
+      // Add delay to allow auth token to propagate to Firestore
+      // This prevents race conditions on fresh logins
+      await Future.delayed(const Duration(milliseconds: 1000));
     }
   } else {
     currentUser = FirebaseAuth.instance.currentUser;

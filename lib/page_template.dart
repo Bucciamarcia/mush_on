@@ -331,7 +331,7 @@ class TemplateScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            "There was a problem loading your user information. This could be a temporary connection issue.",
+                            "There was a problem loading your user information. This could be a temporary connection issue. Try reloading the page.",
                             style: Theme.of(context).textTheme.bodyMedium,
                             textAlign: TextAlign.center,
                           ),
