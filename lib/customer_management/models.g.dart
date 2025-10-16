@@ -60,6 +60,7 @@ const _$PaymentStatusEnumMap = {
   PaymentStatus.paid: 'paid',
   PaymentStatus.deferredPayment: 'deferredPayment',
   PaymentStatus.waiting: 'waiting',
+  PaymentStatus.refunded: 'refunded',
   PaymentStatus.unknown: 'unknown',
 };
 
