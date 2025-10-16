@@ -45,7 +45,12 @@ class BookingInfo(BaseModel):
 
 
 def add_checkout_session_to_db(
-    checkout_session_id: str, account: str, stripe_id: str, booking_id: str
+    checkout_session_id: str,
+    account: str,
+    stripe_id: str,
+    booking_id: str,
+    total_amount_cents: int,
+    commission: int,
 ) -> None:
     firestore.client().document(f"checkoutSessions/{checkout_session_id}").set(
         {
@@ -55,6 +60,8 @@ def add_checkout_session_to_db(
             "bookingId": booking_id,
             "createdAt": datetime.now(),
             "webhookProcessed": False,
+            "total": total_amount_cents,
+            "commission": commission,
         }
     )
 
