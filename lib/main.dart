@@ -34,7 +34,6 @@ Future<void> main() async {
   // await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
   // 2. Initialize App Check
   // Use kDebugMode to determine which providers to use
-  late AndroidProvider playCheckProvider;
   await FirebaseAppCheck.instance.activate(
       webProvider:
           ReCaptchaV3Provider("6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G"),

@@ -9,7 +9,7 @@ enum UserLevel {
   handler(rank: 50),
 
   /// Rank 0, everyone.
-  everyone(rank: 0);
+  guest(rank: 0);
 
   /// Numerical representation of the level of permission this role has. Higher = more access.
   final int rank;

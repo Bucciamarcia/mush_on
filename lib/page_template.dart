@@ -25,7 +25,7 @@ class TemplateScreen extends ConsumerWidget {
       {super.key,
       required this.child,
       required this.title,
-      this.minUserRank = UserLevel.everyone});
+      this.minUserRank = UserLevel.guest});
 
   Widget? _getFab(BuildContext context, WidgetRef ref) {
     if (child is HealthMain) {
