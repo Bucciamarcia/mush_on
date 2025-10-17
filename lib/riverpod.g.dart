@@ -22,7 +22,7 @@ final userProvider = StreamProvider<User?>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef UserRef = StreamProviderRef<User?>;
-String _$userNameHash() => r'f55ce80880725b0e816674a03db2671f458744d6';
+String _$userNameHash() => r'60c166d0568c9175e009215926ccbd47395d8438';
 
 /// Copied from Dart SDK
 class _SystemHash {
