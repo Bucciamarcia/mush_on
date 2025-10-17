@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/user_level.dart';
+import 'package:mush_on/settings/add_users.dart';
 import 'package:mush_on/settings/custom_fields.dart';
 import 'package:mush_on/settings/repository.dart';
 import 'package:mush_on/settings/user_settings.dart';
@@ -93,6 +94,9 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
                 userName.userLevel.rank < UserLevel.musher.rank
                     ? const SizedBox.shrink()
                     : const PaymentSettingsWidget(),
+                userName.userLevel.rank < UserLevel.musher.rank
+                    ? const SizedBox.shrink()
+                    : const AddUsers(),
                 const UserSettings(),
               ],
             ),
