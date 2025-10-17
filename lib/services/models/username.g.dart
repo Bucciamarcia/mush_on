@@ -29,5 +29,5 @@ Map<String, dynamic> _$UserNameToJson(_UserName instance) => <String, dynamic>{
 const _$UserLevelEnumMap = {
   UserLevel.musher: 'musher',
   UserLevel.handler: 'handler',
-  UserLevel.everyone: 'everyone',
+  UserLevel.guest: 'guest',
 };

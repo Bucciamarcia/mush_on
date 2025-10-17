@@ -38,9 +38,11 @@ class UserSettings extends ConsumerWidget {
                   data = fileBytes;
                   // If equal or bigger than 10mb, can't upload
                   if (data.lengthInBytes >= 10 * 1024 * 1024) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      errorSnackBar(context, "File is too large"),
-                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "File is too large"),
+                      );
+                    }
                     return;
                   }
                 } catch (e) {
@@ -64,9 +66,11 @@ class UserSettings extends ConsumerWidget {
                       .changeProfilePic(data);
                 } catch (e, s) {
                   logger.error("Error writing avatar", error: e, stackTrace: s);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    errorSnackBar(context, "Couldn't change profile picture"),
-                  );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      errorSnackBar(context, "Couldn't change profile picture"),
+                    );
+                  }
                 }
               }
             }
@@ -84,9 +88,11 @@ class UserSettings extends ConsumerWidget {
                   .removeProfilePic();
             } catch (e, s) {
               logger.error("Error deleting avatar", error: e, stackTrace: s);
-              ScaffoldMessenger.of(context).showSnackBar(
-                errorSnackBar(context, "Couldn't delete profile picture"),
-              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Couldn't delete profile picture"),
+                );
+              }
             }
           },
           child: const Text("Delete profile picture"),
@@ -150,11 +156,13 @@ class _UsernameNameWidgetState extends ConsumerState<UsernameNameWidget> {
                 username!.copyWith(name: controller.text),
               );
             } catch (e, s) {
-              UserSettings.logger
-                  .error("Error setting username", error: e, stackTrace: s);
-              ScaffoldMessenger.of(context).showSnackBar(
-                errorSnackBar(context, "Couldn't change name"),
-              );
+              if (context.mounted) {
+                UserSettings.logger
+                    .error("Error setting username", error: e, stackTrace: s);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Couldn't change name"),
+                );
+              }
             }
           },
           child: const Text("Change name"),
