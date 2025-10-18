@@ -25,6 +25,16 @@ class _AddUsersState extends State<AddUsers> {
       children: [
         TextTitle("Add new user"),
         Text("Allows you to add a new user to this account."),
+        TextField(
+          controller: _emailController,
+          decoration: InputDecoration(label: Text("Email address")),
+        ),
+        DropdownMenu(
+            dropdownMenuEntries: UserLevel.values
+                .map((userLevel) =>
+                    DropdownMenuEntry(value: userLevel, label: userLevel.name))
+                .toList()),
+        ElevatedButton(onPressed: () {}, child: Text("Add user")),
       ],
     );
   }
