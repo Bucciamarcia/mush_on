@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/services/models/user_level.dart';
+import 'package:mush_on/settings/repository.dart';
 import 'package:mush_on/shared/text_title.dart';
 
 class AddUsers extends StatefulWidget {
-  const AddUsers({super.key});
+  final String account;
+  const AddUsers({super.key, required this.account});
 
   @override
   State<AddUsers> createState() => _AddUsersState();
@@ -21,21 +23,63 @@ class _AddUsersState extends State<AddUsers> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextTitle("Add new user"),
-        Text("Allows you to add a new user to this account."),
-        TextField(
-          controller: _emailController,
-          decoration: InputDecoration(label: Text("Email address")),
-        ),
-        DropdownMenu(
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const TextTitle("Add new user"),
+          const SizedBox(height: 8),
+          const Text(
+            "Allows you to add a new user to this account.",
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _emailController,
+            decoration: const InputDecoration(
+              labelText: "Email address",
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.email),
+            ),
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 16),
+          DropdownMenu(
+            initialSelection: UserLevel.handler,
+            label: const Text("User Level"),
+            leadingIcon: const Icon(Icons.admin_panel_settings),
             dropdownMenuEntries: UserLevel.values
-                .map((userLevel) =>
-                    DropdownMenuEntry(value: userLevel, label: userLevel.name))
-                .toList()),
-        ElevatedButton(onPressed: () {}, child: Text("Add user")),
-      ],
+                .map(
+                  (userLevel) => DropdownMenuEntry(
+                    value: userLevel,
+                    label: userLevel.name,
+                  ),
+                )
+                .toList(),
+            onSelected: (UserLevel? value) {
+              if (value != null) {
+                setState(() {
+                  userLevel = value;
+                });
+              }
+            },
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async =>
+                  await SettingsRepository(account: widget.account).addUser(
+                      email: _emailController.text, userLevel: userLevel),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: const Text("Add user"),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
