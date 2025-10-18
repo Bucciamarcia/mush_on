@@ -17,6 +17,7 @@ mixin _$UserInvitation {
   String get email;
   UserLevel get userLevel;
   String get account;
+  dynamic get accepted;
   String get senderUid;
 
   /// Create a copy of UserInvitation
@@ -39,18 +40,19 @@ mixin _$UserInvitation {
             (identical(other.userLevel, userLevel) ||
                 other.userLevel == userLevel) &&
             (identical(other.account, account) || other.account == account) &&
+            const DeepCollectionEquality().equals(other.accepted, accepted) &&
             (identical(other.senderUid, senderUid) ||
                 other.senderUid == senderUid));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, email, userLevel, account, senderUid);
+  int get hashCode => Object.hash(runtimeType, email, userLevel, account,
+      const DeepCollectionEquality().hash(accepted), senderUid);
 
   @override
   String toString() {
-    return 'UserInvitation(email: $email, userLevel: $userLevel, account: $account, senderUid: $senderUid)';
+    return 'UserInvitation(email: $email, userLevel: $userLevel, account: $account, accepted: $accepted, senderUid: $senderUid)';
   }
 }
 
@@ -61,7 +63,11 @@ abstract mixin class $UserInvitationCopyWith<$Res> {
       _$UserInvitationCopyWithImpl;
   @useResult
   $Res call(
-      {String email, UserLevel userLevel, String account, String senderUid});
+      {String email,
+      UserLevel userLevel,
+      String account,
+      dynamic accepted,
+      String senderUid});
 }
 
 /// @nodoc
@@ -80,6 +86,7 @@ class _$UserInvitationCopyWithImpl<$Res>
     Object? email = null,
     Object? userLevel = null,
     Object? account = null,
+    Object? accepted = freezed,
     Object? senderUid = null,
   }) {
     return _then(_self.copyWith(
@@ -95,6 +102,10 @@ class _$UserInvitationCopyWithImpl<$Res>
           ? _self.account
           : account // ignore: cast_nullable_to_non_nullable
               as String,
+      accepted: freezed == accepted
+          ? _self.accepted
+          : accepted // ignore: cast_nullable_to_non_nullable
+              as dynamic,
       senderUid: null == senderUid
           ? _self.senderUid
           : senderUid // ignore: cast_nullable_to_non_nullable
@@ -195,15 +206,15 @@ extension UserInvitationPatterns on UserInvitation {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(String email, UserLevel userLevel, String account,
-            String senderUid)?
+            dynamic accepted, String senderUid)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _UserInvitation() when $default != null:
-        return $default(
-            _that.email, _that.userLevel, _that.account, _that.senderUid);
+        return $default(_that.email, _that.userLevel, _that.account,
+            _that.accepted, _that.senderUid);
       case _:
         return orElse();
     }
@@ -224,15 +235,15 @@ extension UserInvitationPatterns on UserInvitation {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(
-            String email, UserLevel userLevel, String account, String senderUid)
+    TResult Function(String email, UserLevel userLevel, String account,
+            dynamic accepted, String senderUid)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _UserInvitation():
-        return $default(
-            _that.email, _that.userLevel, _that.account, _that.senderUid);
+        return $default(_that.email, _that.userLevel, _that.account,
+            _that.accepted, _that.senderUid);
     }
   }
 
@@ -251,14 +262,14 @@ extension UserInvitationPatterns on UserInvitation {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(String email, UserLevel userLevel, String account,
-            String senderUid)?
+            dynamic accepted, String senderUid)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _UserInvitation() when $default != null:
-        return $default(
-            _that.email, _that.userLevel, _that.account, _that.senderUid);
+        return $default(_that.email, _that.userLevel, _that.account,
+            _that.accepted, _that.senderUid);
       case _:
         return null;
     }
@@ -272,6 +283,7 @@ class _UserInvitation implements UserInvitation {
       {required this.email,
       required this.userLevel,
       required this.account,
+      this.accepted = false,
       required this.senderUid});
   factory _UserInvitation.fromJson(Map<String, dynamic> json) =>
       _$UserInvitationFromJson(json);
@@ -282,6 +294,9 @@ class _UserInvitation implements UserInvitation {
   final UserLevel userLevel;
   @override
   final String account;
+  @override
+  @JsonKey()
+  final dynamic accepted;
   @override
   final String senderUid;
 
@@ -309,18 +324,19 @@ class _UserInvitation implements UserInvitation {
             (identical(other.userLevel, userLevel) ||
                 other.userLevel == userLevel) &&
             (identical(other.account, account) || other.account == account) &&
+            const DeepCollectionEquality().equals(other.accepted, accepted) &&
             (identical(other.senderUid, senderUid) ||
                 other.senderUid == senderUid));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, email, userLevel, account, senderUid);
+  int get hashCode => Object.hash(runtimeType, email, userLevel, account,
+      const DeepCollectionEquality().hash(accepted), senderUid);
 
   @override
   String toString() {
-    return 'UserInvitation(email: $email, userLevel: $userLevel, account: $account, senderUid: $senderUid)';
+    return 'UserInvitation(email: $email, userLevel: $userLevel, account: $account, accepted: $accepted, senderUid: $senderUid)';
   }
 }
 
@@ -333,7 +349,11 @@ abstract mixin class _$UserInvitationCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String email, UserLevel userLevel, String account, String senderUid});
+      {String email,
+      UserLevel userLevel,
+      String account,
+      dynamic accepted,
+      String senderUid});
 }
 
 /// @nodoc
@@ -352,6 +372,7 @@ class __$UserInvitationCopyWithImpl<$Res>
     Object? email = null,
     Object? userLevel = null,
     Object? account = null,
+    Object? accepted = freezed,
     Object? senderUid = null,
   }) {
     return _then(_UserInvitation(
@@ -367,6 +388,10 @@ class __$UserInvitationCopyWithImpl<$Res>
           ? _self.account
           : account // ignore: cast_nullable_to_non_nullable
               as String,
+      accepted: freezed == accepted
+          ? _self.accepted
+          : accepted // ignore: cast_nullable_to_non_nullable
+              as dynamic,
       senderUid: null == senderUid
           ? _self.senderUid
           : senderUid // ignore: cast_nullable_to_non_nullable
