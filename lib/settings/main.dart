@@ -26,6 +26,8 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
     final settingsAsync = ref.watch(settingsProvider);
     final user = ref.watch(userProvider).value!;
     final userName = ref.watch(UserNameProvider(user.uid)).value!;
+    final account = ref.watch(accountProvider).value;
+    if (account == null) return const Text("Account is null");
     return settingsAsync.when(
       data: (settings) {
         final settingsRepo =
@@ -96,7 +98,7 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
                     : const PaymentSettingsWidget(),
                 userName.userLevel.rank < UserLevel.musher.rank
                     ? const SizedBox.shrink()
-                    : const AddUsers(),
+                    : AddUsers(account: account),
                 const UserSettings(),
               ],
             ),

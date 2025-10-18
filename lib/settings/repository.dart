@@ -3,6 +3,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
 import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
+import 'package:mush_on/services/models/user_level.dart';
 
 class SettingsRepository {
   final db = FirebaseFirestore.instance;
@@ -94,4 +95,7 @@ class SettingsRepository {
       rethrow;
     }
   }
+
+  Future<void> addUser(
+      {required String email, required UserLevel userLevel}) async {}
 }
