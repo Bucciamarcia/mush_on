@@ -7,6 +7,7 @@ import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/services/models/username.dart';
+import 'package:uuid/uuid.dart';
 part 'repository.freezed.dart';
 part 'repository.g.dart';
 
@@ -110,6 +111,7 @@ class SettingsRepository {
         email: email,
         userLevel: userLevel,
         account: account,
+        securityCode: const Uuid().v4(),
         senderUid: senderUser.uid);
 
     // Send the email invitation
@@ -134,6 +136,10 @@ sealed class UserInvitation with _$UserInvitation {
       {required String email,
       required UserLevel userLevel,
       required String account,
+
+      /// Uuid security code to make sure the correct user is being registered.
+      /// Created by addUser().
+      required String securityCode,
       @Default(false) accepted,
       required String senderUid}) = _UserInvitation;
 
