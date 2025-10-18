@@ -12,6 +12,7 @@ from lib.add_booking import add_checkout_session
 from dotenv import load_dotenv
 import os
 
+from lib.send_invitation_email import SendInvitationEmail
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import get_stripe_data
 
@@ -272,4 +273,11 @@ def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
 @https_fn.on_call()
 def send_invitation_email(req: https_fn.CallableRequest[dict]) -> dict:
     data = req.data
+    sender_email = data["senderEmail"]
+    receiver_email = data["receiverEmail"]
+    account = data["account"]
+    runner = SendInvitationEmail(
+        sender_email=sender_email, receiver_email=receiver_email, account=account
+    )
+    runner.run()
     return {"result": "ok"}
