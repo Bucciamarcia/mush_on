@@ -134,6 +134,7 @@ sealed class UserInvitation with _$UserInvitation {
       {required String email,
       required UserLevel userLevel,
       required String account,
+      @Default(false) accepted,
       required String senderUid}) = _UserInvitation;
 
   factory UserInvitation.fromJson(Map<String, dynamic> json) =>
