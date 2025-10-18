@@ -267,3 +267,9 @@ def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
         refund_application_fee=True,
     )
     return {"refundId": refund.id}
+
+
+@https_fn.on_call()
+def send_invitation_email(req: https_fn.CallableRequest[dict]) -> dict:
+    data = req.data
+    return {"result": "ok"}
