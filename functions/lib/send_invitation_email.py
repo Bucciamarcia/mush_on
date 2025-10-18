@@ -7,9 +7,9 @@ class SendInvitationEmail:
         self.sender_email = sender_email
         self.receiver_email = receiver_email
         self.account = account
-        self.postmark_server_token = (os.getenv("POSTMARK_SERVER_TOKEN"),)
-        self.postmark_account_token = (os.getenv("POSTMARK_ACCOUNT_TOKEN"),)
-        self.postmark_template_id = (os.getenv("POSTMARK_TEMPLATE_INVITE_USER"),)
+        self.postmark_server_token = os.getenv("POSTMARK_SERVER_TOKEN")
+        self.postmark_account_token = os.getenv("POSTMARK_ACCOUNT_TOKEN")
+        self.postmark_template_id = os.getenv("POSTMARK_TEMPLATE_INVITE_USER")
         self.privacy_policy_url = os.getenv("PRIVACY_POLICY_URL")
         self.signup_url = os.getenv("SIGNUP_URL")
         self.support_email = os.getenv("SUPPORT_EMAIL")
@@ -33,7 +33,7 @@ class SendInvitationEmail:
             "email": self.receiver_email,
             "invite_sender_email": self.sender_email,
             "action_url": self.signup_url,
-            "support_email": self,
+            "support_email": self.support_email,
             "privacy_policy_url": self.privacy_policy_url,
         }
         body = {

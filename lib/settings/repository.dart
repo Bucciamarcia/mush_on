@@ -105,29 +105,21 @@ class SettingsRepository {
       {required String email,
       required UserLevel userLevel,
       required UserName senderUser}) async {
-    // Create the db entry
-    final path = "userInvitations/$email";
-    final doc = db.doc(path);
+    // Put in object to validate.
     final data = UserInvitation(
         email: email,
         userLevel: userLevel,
         account: account,
         senderUid: senderUser.uid);
-    try {
-      await doc.set(data.toJson());
-    } catch (e, s) {
-      logger.error("Couldn't add user invitation to db",
-          error: e, stackTrace: s);
-      rethrow;
-    }
 
     // Send the email invitation
     final functions = FirebaseFunctions.instanceFor(region: "europe-north1");
     try {
-      await functions.httpsCallable("send_invitation_email").call({
+      await functions.httpsCallable("invite_user").call({
         "senderEmail": senderUser.email,
         "receiverEmail": email,
-        "account": account
+        "account": account,
+        "payload": data.toJson()
       });
     } catch (e, s) {
       logger.error("Couldn't send invitation email", error: e, stackTrace: s);

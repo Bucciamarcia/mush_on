@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/settings/repository.dart';
 import 'package:mush_on/shared/text_title.dart';
@@ -83,11 +84,19 @@ class _AddUsersState extends ConsumerState<AddUsers> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () async =>
+              onPressed: () async {
+                try {
                   await SettingsRepository(account: widget.account).addUser(
                       email: _emailController.text,
                       userLevel: userLevel,
-                      senderUser: userName),
+                      senderUser: userName);
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Couldn't invite user"));
+                  }
+                }
+              },
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
