@@ -1,4 +1,5 @@
 import os
+import requests
 
 
 class SendInvitationEmail:
@@ -35,3 +36,28 @@ class SendInvitationEmail:
             "support_email": self,
             "privacy_policy_url": self.privacy_policy_url,
         }
+        body = {
+            "TemplateId": self.postmark_template_id,
+            "TemplateModel": template_model,
+            "From": "Mush On <newaccounts@mush-on.com>",
+            "To": self.receiver_email,
+            "ReplyTo": self.sender_email,
+        }
+        header = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-Postmark-Server-Token": self.postmark_server_token,
+        }
+        try:
+            response = requests.post(url, headers=header, json=body)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 422:
+                print(f"Postmark API error (422): {response.json()}")
+            else:
+                print(f"HTTP error sending email via Postmark: {e}")
+                print(f"Response body: {response.text}")
+            raise e
+        except Exception as e:
+            print(f"Error sending email via Postmark: {e}")
+            raise e
