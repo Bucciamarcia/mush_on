@@ -102,12 +102,17 @@ class SettingsRepository {
   }
 
   Future<void> addUser(
-      {required String email, required UserLevel userLevel}) async {
+      {required String email,
+      required UserLevel userLevel,
+      required UserName senderUser}) async {
     // Create the db entry
     final path = "userInvitations/$email";
     final doc = db.doc(path);
-    final data =
-        UserInvitation(email: email, userLevel: userLevel, account: account);
+    final data = UserInvitation(
+        email: email,
+        userLevel: userLevel,
+        account: account,
+        senderUid: senderUser.uid);
     try {
       await doc.set(data.toJson());
     } catch (e, s) {
@@ -119,9 +124,11 @@ class SettingsRepository {
     // Send the email invitation
     final functions = FirebaseFunctions.instanceFor(region: "europe-north1");
     try {
-      await functions
-          .httpsCallable("send_invitation_email")
-          .call({"email": email, "account": account});
+      await functions.httpsCallable("send_invitation_email").call({
+        "senderEmail": senderUser.email,
+        "receiverEmail": email,
+        "account": account
+      });
     } catch (e, s) {
       logger.error("Couldn't send invitation email", error: e, stackTrace: s);
       rethrow;
@@ -131,11 +138,11 @@ class SettingsRepository {
 
 @freezed
 sealed class UserInvitation with _$UserInvitation {
-  const factory UserInvitation({
-    required String email,
-    required UserLevel userLevel,
-    required String account,
-  }) = _UserInvitation;
+  const factory UserInvitation(
+      {required String email,
+      required UserLevel userLevel,
+      required String account,
+      required String senderUid}) = _UserInvitation;
 
   factory UserInvitation.fromJson(Map<String, dynamic> json) =>
       _$UserInvitationFromJson(json);
