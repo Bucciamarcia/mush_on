@@ -17,6 +17,10 @@ mixin _$UserInvitation {
   String get email;
   UserLevel get userLevel;
   String get account;
+
+  /// Uuid security code to make sure the correct user is being registered.
+  /// Created by addUser().
+  String get securityCode;
   dynamic get accepted;
   String get senderUid;
 
@@ -40,6 +44,8 @@ mixin _$UserInvitation {
             (identical(other.userLevel, userLevel) ||
                 other.userLevel == userLevel) &&
             (identical(other.account, account) || other.account == account) &&
+            (identical(other.securityCode, securityCode) ||
+                other.securityCode == securityCode) &&
             const DeepCollectionEquality().equals(other.accepted, accepted) &&
             (identical(other.senderUid, senderUid) ||
                 other.senderUid == senderUid));
@@ -48,11 +54,11 @@ mixin _$UserInvitation {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, email, userLevel, account,
-      const DeepCollectionEquality().hash(accepted), senderUid);
+      securityCode, const DeepCollectionEquality().hash(accepted), senderUid);
 
   @override
   String toString() {
-    return 'UserInvitation(email: $email, userLevel: $userLevel, account: $account, accepted: $accepted, senderUid: $senderUid)';
+    return 'UserInvitation(email: $email, userLevel: $userLevel, account: $account, securityCode: $securityCode, accepted: $accepted, senderUid: $senderUid)';
   }
 }
 
@@ -66,6 +72,7 @@ abstract mixin class $UserInvitationCopyWith<$Res> {
       {String email,
       UserLevel userLevel,
       String account,
+      String securityCode,
       dynamic accepted,
       String senderUid});
 }
@@ -86,6 +93,7 @@ class _$UserInvitationCopyWithImpl<$Res>
     Object? email = null,
     Object? userLevel = null,
     Object? account = null,
+    Object? securityCode = null,
     Object? accepted = freezed,
     Object? senderUid = null,
   }) {
@@ -101,6 +109,10 @@ class _$UserInvitationCopyWithImpl<$Res>
       account: null == account
           ? _self.account
           : account // ignore: cast_nullable_to_non_nullable
+              as String,
+      securityCode: null == securityCode
+          ? _self.securityCode
+          : securityCode // ignore: cast_nullable_to_non_nullable
               as String,
       accepted: freezed == accepted
           ? _self.accepted
@@ -206,7 +218,7 @@ extension UserInvitationPatterns on UserInvitation {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(String email, UserLevel userLevel, String account,
-            dynamic accepted, String senderUid)?
+            String securityCode, dynamic accepted, String senderUid)?
         $default, {
     required TResult orElse(),
   }) {
@@ -214,7 +226,7 @@ extension UserInvitationPatterns on UserInvitation {
     switch (_that) {
       case _UserInvitation() when $default != null:
         return $default(_that.email, _that.userLevel, _that.account,
-            _that.accepted, _that.senderUid);
+            _that.securityCode, _that.accepted, _that.senderUid);
       case _:
         return orElse();
     }
@@ -236,14 +248,14 @@ extension UserInvitationPatterns on UserInvitation {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(String email, UserLevel userLevel, String account,
-            dynamic accepted, String senderUid)
+            String securityCode, dynamic accepted, String senderUid)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _UserInvitation():
         return $default(_that.email, _that.userLevel, _that.account,
-            _that.accepted, _that.senderUid);
+            _that.securityCode, _that.accepted, _that.senderUid);
     }
   }
 
@@ -262,14 +274,14 @@ extension UserInvitationPatterns on UserInvitation {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(String email, UserLevel userLevel, String account,
-            dynamic accepted, String senderUid)?
+            String securityCode, dynamic accepted, String senderUid)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _UserInvitation() when $default != null:
         return $default(_that.email, _that.userLevel, _that.account,
-            _that.accepted, _that.senderUid);
+            _that.securityCode, _that.accepted, _that.senderUid);
       case _:
         return null;
     }
@@ -283,6 +295,7 @@ class _UserInvitation implements UserInvitation {
       {required this.email,
       required this.userLevel,
       required this.account,
+      required this.securityCode,
       this.accepted = false,
       required this.senderUid});
   factory _UserInvitation.fromJson(Map<String, dynamic> json) =>
@@ -294,6 +307,11 @@ class _UserInvitation implements UserInvitation {
   final UserLevel userLevel;
   @override
   final String account;
+
+  /// Uuid security code to make sure the correct user is being registered.
+  /// Created by addUser().
+  @override
+  final String securityCode;
   @override
   @JsonKey()
   final dynamic accepted;
@@ -324,6 +342,8 @@ class _UserInvitation implements UserInvitation {
             (identical(other.userLevel, userLevel) ||
                 other.userLevel == userLevel) &&
             (identical(other.account, account) || other.account == account) &&
+            (identical(other.securityCode, securityCode) ||
+                other.securityCode == securityCode) &&
             const DeepCollectionEquality().equals(other.accepted, accepted) &&
             (identical(other.senderUid, senderUid) ||
                 other.senderUid == senderUid));
@@ -332,11 +352,11 @@ class _UserInvitation implements UserInvitation {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, email, userLevel, account,
-      const DeepCollectionEquality().hash(accepted), senderUid);
+      securityCode, const DeepCollectionEquality().hash(accepted), senderUid);
 
   @override
   String toString() {
-    return 'UserInvitation(email: $email, userLevel: $userLevel, account: $account, accepted: $accepted, senderUid: $senderUid)';
+    return 'UserInvitation(email: $email, userLevel: $userLevel, account: $account, securityCode: $securityCode, accepted: $accepted, senderUid: $senderUid)';
   }
 }
 
@@ -352,6 +372,7 @@ abstract mixin class _$UserInvitationCopyWith<$Res>
       {String email,
       UserLevel userLevel,
       String account,
+      String securityCode,
       dynamic accepted,
       String senderUid});
 }
@@ -372,6 +393,7 @@ class __$UserInvitationCopyWithImpl<$Res>
     Object? email = null,
     Object? userLevel = null,
     Object? account = null,
+    Object? securityCode = null,
     Object? accepted = freezed,
     Object? senderUid = null,
   }) {
@@ -387,6 +409,10 @@ class __$UserInvitationCopyWithImpl<$Res>
       account: null == account
           ? _self.account
           : account // ignore: cast_nullable_to_non_nullable
+              as String,
+      securityCode: null == securityCode
+          ? _self.securityCode
+          : securityCode // ignore: cast_nullable_to_non_nullable
               as String,
       accepted: freezed == accepted
           ? _self.accepted
