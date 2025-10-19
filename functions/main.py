@@ -289,3 +289,10 @@ def invite_user(req: https_fn.CallableRequest[dict]) -> dict:
     )
     runner.run()
     return {"result": "ok"}
+
+
+@https_fn.on_call()
+def get_user_invitation_db(req: https_fn.CallableRequest[dict]) -> dict:
+    data = req.data
+    email = data["email"]
+    return FirestoreUtils().read_doc(f"userInvitations/{email}")

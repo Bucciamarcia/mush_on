@@ -1,3 +1,4 @@
+from typing import Any
 from firebase_admin import firestore
 
 
@@ -13,3 +14,14 @@ class FirestoreUtils:
         """
         doc = self.db.document(path)
         doc.set(data, merge=merge)
+
+    def read_doc(self, path: str) -> dict[str, Any]:
+        """
+        Returns the dict of a single document.
+        """
+        doc = self.db.document(path)
+        snapshot = doc.get()
+        data = snapshot.to_dict()
+        if data is None:
+            raise Exception("Document is empty or does not exist")
+        return data
