@@ -1,5 +1,7 @@
 from typing import Any
 from firebase_admin import firestore
+from google.cloud.firestore import DocumentSnapshot
+from google.cloud.firestore_v1.query_results import QueryResultsList
 
 
 class FirestoreUtils:
@@ -25,3 +27,7 @@ class FirestoreUtils:
         if data is None:
             raise Exception("Document is empty or does not exist")
         return data
+
+    def get_collection(self, path) -> QueryResultsList[DocumentSnapshot]:
+        collection = self.db.collection(path)
+        return collection.get()

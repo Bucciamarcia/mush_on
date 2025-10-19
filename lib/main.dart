@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/services/models/username.dart';
+import 'package:mush_on/shared/text_title.dart';
 // ignore: depend_on_referenced_packages
 import 'package:timezone/data/latest.dart' as tz;
 // ignore: unused_import, depend_on_referenced_packages
@@ -70,6 +73,117 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class CreateKennelTextAndButton extends StatefulWidget {
+  final UserName userName;
+  const CreateKennelTextAndButton({super.key, required this.userName});
+
+  @override
+  State<CreateKennelTextAndButton> createState() =>
+      _CreateKennelTextAndButtonState();
+}
+
+class _CreateKennelTextAndButtonState extends State<CreateKennelTextAndButton> {
+  late TextEditingController _controller;
+  late bool _isUpdating;
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+    _isUpdating = false;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isUpdating) return const CircularProgressIndicator.adaptive();
+    return Column(
+      children: [
+        TextField(
+          controller: _controller,
+          decoration: const InputDecoration(hint: Text("Kennel name")),
+        ),
+        ElevatedButton(
+            onPressed: () async {
+              setState(() {
+                _isUpdating = true;
+              });
+              if (_controller.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                    errorSnackBar(context, "The name must not be empty"));
+                setState(() {
+                  _isUpdating = false;
+                });
+                return;
+              }
+              var value = _controller.text;
+              value = value.trim();
+              value = value.replaceAll(" ", "-");
+              final db = FirebaseFirestore.instance;
+
+              // Let's first check no kennel with this name exists
+              try {
+                final functions =
+                    FirebaseFunctions.instanceFor(region: "europe-north1");
+                final response = await functions
+                    .httpsCallable("get_list_of_accounts")
+                    .call();
+                final responseData = response.data as Map<String, dynamic>;
+                BasicLogger().debug("DATA: $responseData");
+                final accounts = List<String>.from(responseData["accounts"]);
+                BasicLogger().debug("Accounts: ${accounts.toString()}");
+                for (final account in accounts) {
+                  if (account == value) {
+                    BasicLogger().debug("Name taken");
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
+                          context, "This kennel name is already taken"));
+                    }
+                    return;
+                  } else {
+                    BasicLogger().debug("name not taken");
+                  }
+                }
+              } catch (e, s) {
+                BasicLogger().error("Couldn't get existing accounts",
+                    error: e, stackTrace: s);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      errorSnackBar(context, "Error: contact support"));
+                }
+                return;
+              } finally {
+                setState(() {
+                  _isUpdating = false;
+                });
+              }
+              final doc = db.doc("users/${widget.userName.uid}");
+              try {
+                await doc.update({"account": value});
+              } catch (e, s) {
+                BasicLogger()
+                    .error("Couldn't create account", error: e, stackTrace: s);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      errorSnackBar(context, "Couldn't create kennel: $e"));
+                }
+                return;
+              } finally {
+                setState(() {
+                  _isUpdating = false;
+                });
+              }
+            },
+            child: const Text("Create kennel"))
+      ],
+    );
+  }
+}
+
 class HomeScreen extends rp.ConsumerWidget {
   static final BasicLogger logger = BasicLogger();
   const HomeScreen({super.key});
@@ -89,18 +203,32 @@ class HomeScreen extends rp.ConsumerWidget {
                 if (userName == null) {
                   final ref =
                       FirebaseFirestore.instance.doc("users/${user.uid}");
+
                   ref.set(
                     UserName(
                       uid: user.uid,
                       email: user.email ?? "",
                       account: null,
                       lastLogin: DateTime.now(),
+                      userLevel: UserLevel.musher,
                     ).toJson(),
                   );
                   return const Text("Creating user");
                 } else if (userName.account == null) {
-                  return const Text(
-                      "You are not assigned to any account. This is normal for new accounts, get in touch with admin to fix.");
+                  return Scaffold(
+                    body: Center(
+                      child: Column(
+                        children: [
+                          const TextTitle("Create a kennel"),
+                          const Text(
+                              "You are not assigned to any kennel. Create a kennel and start using Mush on!"),
+                          const Text(
+                              "If you are an employee of a kennel already on Mush On, ask an administrator to send you an invite"),
+                          CreateKennelTextAndButton(userName: userName),
+                        ],
+                      ),
+                    ),
+                  );
                 } else {
                   return const HomePageScreen();
                 }
