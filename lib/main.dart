@@ -133,9 +133,7 @@ class _CreateKennelTextAndButtonState extends State<CreateKennelTextAndButton> {
                     .httpsCallable("get_list_of_accounts")
                     .call();
                 final responseData = response.data as Map<String, dynamic>;
-                BasicLogger().debug("DATA: $responseData");
                 final accounts = List<String>.from(responseData["accounts"]);
-                BasicLogger().debug("Accounts: ${accounts.toString()}");
                 for (final account in accounts) {
                   if (account == value) {
                     BasicLogger().debug("Name taken");
@@ -144,8 +142,6 @@ class _CreateKennelTextAndButtonState extends State<CreateKennelTextAndButton> {
                           context, "This kennel name is already taken"));
                     }
                     return;
-                  } else {
-                    BasicLogger().debug("name not taken");
                   }
                 }
               } catch (e, s) {
@@ -164,6 +160,7 @@ class _CreateKennelTextAndButtonState extends State<CreateKennelTextAndButton> {
               final doc = db.doc("users/${widget.userName.uid}");
               try {
                 await doc.update({"account": value});
+                await db.doc("accounts/$value").set({"a": "a"});
               } catch (e, s) {
                 BasicLogger()
                     .error("Couldn't create account", error: e, stackTrace: s);

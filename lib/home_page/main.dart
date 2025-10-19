@@ -317,7 +317,7 @@ class HomePageScreenContent extends ConsumerWidget {
       error: (e, s) {
         BasicLogger().error("Couldn't load warning dogs async in home page",
             error: e, stackTrace: s);
-        return const Text("Couldn't load the page!");
+        return const Text("Couldn't load the page! Try to reload");
       },
       loading: () => const Center(
         child: CircularProgressIndicator.adaptive(),

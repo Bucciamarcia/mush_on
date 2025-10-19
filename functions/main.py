@@ -306,7 +306,6 @@ def get_list_of_accounts(req: https_fn.CallableRequest[dict]) -> dict:
     to_return = []
     number = 0
     for account in accounts:
-        print(f"going for account: {account}")
         to_return.append(account.id)
         number = number + 1
     return {"accounts": to_return, "number": number}
