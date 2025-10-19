@@ -278,10 +278,14 @@ def invite_user(req: https_fn.CallableRequest[dict]) -> dict:
     receiver_email = data["receiverEmail"]
     account = data["account"]
     payload = data["payload"]
+    security_code = payload["securityCode"]
 
     FirestoreUtils().set_doc(path=f"userInvitations/{receiver_email}", data=payload)
     runner = SendInvitationEmail(
-        sender_email=sender_email, receiver_email=receiver_email, account=account
+        sender_email=sender_email,
+        receiver_email=receiver_email,
+        account=account,
+        security_code=security_code,
     )
     runner.run()
     return {"result": "ok"}
