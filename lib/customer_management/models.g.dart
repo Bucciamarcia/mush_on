@@ -38,6 +38,7 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
       zipCode: json['zipCode'] as String?,
       city: json['city'] as String?,
       country: json['country'] as String?,
+      resellerId: json['resellerId'] as String?,
       paymentStatus:
           $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']) ??
               PaymentStatus.unknown,
@@ -53,6 +54,7 @@ Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
       'zipCode': instance.zipCode,
       'city': instance.city,
       'country': instance.country,
+      'resellerId': instance.resellerId,
       'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
     };
 

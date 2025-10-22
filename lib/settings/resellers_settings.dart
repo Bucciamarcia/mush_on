@@ -27,16 +27,27 @@ class _ResellersSettingsState extends ConsumerState<ResellersSettings> {
   }
 
   @override
+  void dispose() {
+    _delayController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final logger = BasicLogger();
     final resellerSettingsAsync = ref.watch(resellerSettingsProvider);
     final isSaving = ref.watch(isSavingProvider);
+
+    // Listen for changes and update controllers without setState in build
+    ref.listen(resellerSettingsProvider, (previous, next) {
+      next.whenData((settings) {
+        _delayController.text = settings.paymentDelayDays.toString();
+        _delayedPaymentAllowed = settings.allowedDelayedPayment;
+      });
+    });
+
     return resellerSettingsAsync.when(
         data: (settings) {
-          setState(() {
-            _delayController.text = settings.paymentDelayDays.toString();
-            _delayedPaymentAllowed = settings.allowedDelayedPayment;
-          });
           return Column(
             spacing: 20,
             children: [
@@ -54,7 +65,7 @@ class _ResellersSettingsState extends ConsumerState<ResellersSettings> {
                   }
                 },
                 label: const Text(
-                    "Are resellers allowed to pay after they place a booking?"),
+                    "Resellers allowed to pay after placing a booking?"),
                 dropdownMenuEntries: const [
                   DropdownMenuEntry(value: true, label: "yes"),
                   DropdownMenuEntry(value: false, label: "no"),

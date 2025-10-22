@@ -14,18 +14,31 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$Reseller {
+  /// UID for the reseller
+  String get id;
+
   /// Contact email for all the business stuff
   String get email;
+
+  /// The phone number to contact
+  String get phoneNumber;
   ResellerBusinessInfo get businessInfo;
+  @NonNullableTimestampConverter()
+  DateTime get createdAt;
+  @NonNullableTimestampConverter()
+  DateTime get updatedAt;
 
   /// The list of accounts this entity is a reseller of.
   /// Useful for operators that work with multiple kennels.
-  List<String> get accountsAssigned;
+  List<String> get assignedAccountIds;
 
   /// Discout to apply to this business off of the regular price.
   ///
   /// Must be a fraction, eg: 0.15 = 15% discount.
   double get discount;
+
+  /// The current status of this reseller
+  ResellerStatus get status;
 
   /// Create a copy of Reseller
   /// with the given fields replaced by the non-null parameter values.
@@ -42,23 +55,40 @@ mixin _$Reseller {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Reseller &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.phoneNumber, phoneNumber) ||
+                other.phoneNumber == phoneNumber) &&
             (identical(other.businessInfo, businessInfo) ||
                 other.businessInfo == businessInfo) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
             const DeepCollectionEquality()
-                .equals(other.accountsAssigned, accountsAssigned) &&
+                .equals(other.assignedAccountIds, assignedAccountIds) &&
             (identical(other.discount, discount) ||
-                other.discount == discount));
+                other.discount == discount) &&
+            (identical(other.status, status) || other.status == status));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, email, businessInfo,
-      const DeepCollectionEquality().hash(accountsAssigned), discount);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      email,
+      phoneNumber,
+      businessInfo,
+      createdAt,
+      updatedAt,
+      const DeepCollectionEquality().hash(assignedAccountIds),
+      discount,
+      status);
 
   @override
   String toString() {
-    return 'Reseller(email: $email, businessInfo: $businessInfo, accountsAssigned: $accountsAssigned, discount: $discount)';
+    return 'Reseller(id: $id, email: $email, phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
   }
 }
 
@@ -68,10 +98,15 @@ abstract mixin class $ResellerCopyWith<$Res> {
       _$ResellerCopyWithImpl;
   @useResult
   $Res call(
-      {String email,
+      {String id,
+      String email,
+      String phoneNumber,
       ResellerBusinessInfo businessInfo,
-      List<String> accountsAssigned,
-      double discount});
+      @NonNullableTimestampConverter() DateTime createdAt,
+      @NonNullableTimestampConverter() DateTime updatedAt,
+      List<String> assignedAccountIds,
+      double discount,
+      ResellerStatus status});
 
   $ResellerBusinessInfoCopyWith<$Res> get businessInfo;
 }
@@ -88,28 +123,53 @@ class _$ResellerCopyWithImpl<$Res> implements $ResellerCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? email = null,
+    Object? phoneNumber = null,
     Object? businessInfo = null,
-    Object? accountsAssigned = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? assignedAccountIds = null,
     Object? discount = null,
+    Object? status = null,
   }) {
     return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       email: null == email
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      phoneNumber: null == phoneNumber
+          ? _self.phoneNumber
+          : phoneNumber // ignore: cast_nullable_to_non_nullable
               as String,
       businessInfo: null == businessInfo
           ? _self.businessInfo
           : businessInfo // ignore: cast_nullable_to_non_nullable
               as ResellerBusinessInfo,
-      accountsAssigned: null == accountsAssigned
-          ? _self.accountsAssigned
-          : accountsAssigned // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      updatedAt: null == updatedAt
+          ? _self.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      assignedAccountIds: null == assignedAccountIds
+          ? _self.assignedAccountIds
+          : assignedAccountIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
       discount: null == discount
           ? _self.discount
           : discount // ignore: cast_nullable_to_non_nullable
               as double,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as ResellerStatus,
     ));
   }
 
@@ -215,16 +275,32 @@ extension ResellerPatterns on Reseller {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String email, ResellerBusinessInfo businessInfo,
-            List<String> accountsAssigned, double discount)?
+    TResult Function(
+            String id,
+            String email,
+            String phoneNumber,
+            ResellerBusinessInfo businessInfo,
+            @NonNullableTimestampConverter() DateTime createdAt,
+            @NonNullableTimestampConverter() DateTime updatedAt,
+            List<String> assignedAccountIds,
+            double discount,
+            ResellerStatus status)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _Reseller() when $default != null:
-        return $default(_that.email, _that.businessInfo, _that.accountsAssigned,
-            _that.discount);
+        return $default(
+            _that.id,
+            _that.email,
+            _that.phoneNumber,
+            _that.businessInfo,
+            _that.createdAt,
+            _that.updatedAt,
+            _that.assignedAccountIds,
+            _that.discount,
+            _that.status);
       case _:
         return orElse();
     }
@@ -245,15 +321,31 @@ extension ResellerPatterns on Reseller {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String email, ResellerBusinessInfo businessInfo,
-            List<String> accountsAssigned, double discount)
+    TResult Function(
+            String id,
+            String email,
+            String phoneNumber,
+            ResellerBusinessInfo businessInfo,
+            @NonNullableTimestampConverter() DateTime createdAt,
+            @NonNullableTimestampConverter() DateTime updatedAt,
+            List<String> assignedAccountIds,
+            double discount,
+            ResellerStatus status)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Reseller():
-        return $default(_that.email, _that.businessInfo, _that.accountsAssigned,
-            _that.discount);
+        return $default(
+            _that.id,
+            _that.email,
+            _that.phoneNumber,
+            _that.businessInfo,
+            _that.createdAt,
+            _that.updatedAt,
+            _that.assignedAccountIds,
+            _that.discount,
+            _that.status);
     }
   }
 
@@ -271,15 +363,31 @@ extension ResellerPatterns on Reseller {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String email, ResellerBusinessInfo businessInfo,
-            List<String> accountsAssigned, double discount)?
+    TResult? Function(
+            String id,
+            String email,
+            String phoneNumber,
+            ResellerBusinessInfo businessInfo,
+            @NonNullableTimestampConverter() DateTime createdAt,
+            @NonNullableTimestampConverter() DateTime updatedAt,
+            List<String> assignedAccountIds,
+            double discount,
+            ResellerStatus status)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Reseller() when $default != null:
-        return $default(_that.email, _that.businessInfo, _that.accountsAssigned,
-            _that.discount);
+        return $default(
+            _that.id,
+            _that.email,
+            _that.phoneNumber,
+            _that.businessInfo,
+            _that.createdAt,
+            _that.updatedAt,
+            _that.assignedAccountIds,
+            _that.discount,
+            _that.status);
       case _:
         return null;
     }
@@ -290,33 +398,52 @@ extension ResellerPatterns on Reseller {
 @JsonSerializable()
 class _Reseller implements Reseller {
   const _Reseller(
-      {required this.email,
+      {required this.id,
+      required this.email,
+      required this.phoneNumber,
       required this.businessInfo,
-      final List<String> accountsAssigned = const <String>[],
-      this.discount = 0})
-      : _accountsAssigned = accountsAssigned;
+      @NonNullableTimestampConverter() required this.createdAt,
+      @NonNullableTimestampConverter() required this.updatedAt,
+      final List<String> assignedAccountIds = const <String>[],
+      this.discount = 0,
+      required this.status})
+      : _assignedAccountIds = assignedAccountIds;
   factory _Reseller.fromJson(Map<String, dynamic> json) =>
       _$ResellerFromJson(json);
+
+  /// UID for the reseller
+  @override
+  final String id;
 
   /// Contact email for all the business stuff
   @override
   final String email;
+
+  /// The phone number to contact
+  @override
+  final String phoneNumber;
   @override
   final ResellerBusinessInfo businessInfo;
+  @override
+  @NonNullableTimestampConverter()
+  final DateTime createdAt;
+  @override
+  @NonNullableTimestampConverter()
+  final DateTime updatedAt;
 
   /// The list of accounts this entity is a reseller of.
   /// Useful for operators that work with multiple kennels.
-  final List<String> _accountsAssigned;
+  final List<String> _assignedAccountIds;
 
   /// The list of accounts this entity is a reseller of.
   /// Useful for operators that work with multiple kennels.
   @override
   @JsonKey()
-  List<String> get accountsAssigned {
-    if (_accountsAssigned is EqualUnmodifiableListView)
-      return _accountsAssigned;
+  List<String> get assignedAccountIds {
+    if (_assignedAccountIds is EqualUnmodifiableListView)
+      return _assignedAccountIds;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_accountsAssigned);
+    return EqualUnmodifiableListView(_assignedAccountIds);
   }
 
   /// Discout to apply to this business off of the regular price.
@@ -325,6 +452,10 @@ class _Reseller implements Reseller {
   @override
   @JsonKey()
   final double discount;
+
+  /// The current status of this reseller
+  @override
+  final ResellerStatus status;
 
   /// Create a copy of Reseller
   /// with the given fields replaced by the non-null parameter values.
@@ -346,23 +477,40 @@ class _Reseller implements Reseller {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _Reseller &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.email, email) || other.email == email) &&
+            (identical(other.phoneNumber, phoneNumber) ||
+                other.phoneNumber == phoneNumber) &&
             (identical(other.businessInfo, businessInfo) ||
                 other.businessInfo == businessInfo) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt) &&
             const DeepCollectionEquality()
-                .equals(other._accountsAssigned, _accountsAssigned) &&
+                .equals(other._assignedAccountIds, _assignedAccountIds) &&
             (identical(other.discount, discount) ||
-                other.discount == discount));
+                other.discount == discount) &&
+            (identical(other.status, status) || other.status == status));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, email, businessInfo,
-      const DeepCollectionEquality().hash(_accountsAssigned), discount);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      email,
+      phoneNumber,
+      businessInfo,
+      createdAt,
+      updatedAt,
+      const DeepCollectionEquality().hash(_assignedAccountIds),
+      discount,
+      status);
 
   @override
   String toString() {
-    return 'Reseller(email: $email, businessInfo: $businessInfo, accountsAssigned: $accountsAssigned, discount: $discount)';
+    return 'Reseller(id: $id, email: $email, phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
   }
 }
 
@@ -374,10 +522,15 @@ abstract mixin class _$ResellerCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String email,
+      {String id,
+      String email,
+      String phoneNumber,
       ResellerBusinessInfo businessInfo,
-      List<String> accountsAssigned,
-      double discount});
+      @NonNullableTimestampConverter() DateTime createdAt,
+      @NonNullableTimestampConverter() DateTime updatedAt,
+      List<String> assignedAccountIds,
+      double discount,
+      ResellerStatus status});
 
   @override
   $ResellerBusinessInfoCopyWith<$Res> get businessInfo;
@@ -395,28 +548,53 @@ class __$ResellerCopyWithImpl<$Res> implements _$ResellerCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
+    Object? id = null,
     Object? email = null,
+    Object? phoneNumber = null,
     Object? businessInfo = null,
-    Object? accountsAssigned = null,
+    Object? createdAt = null,
+    Object? updatedAt = null,
+    Object? assignedAccountIds = null,
     Object? discount = null,
+    Object? status = null,
   }) {
     return _then(_Reseller(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       email: null == email
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      phoneNumber: null == phoneNumber
+          ? _self.phoneNumber
+          : phoneNumber // ignore: cast_nullable_to_non_nullable
               as String,
       businessInfo: null == businessInfo
           ? _self.businessInfo
           : businessInfo // ignore: cast_nullable_to_non_nullable
               as ResellerBusinessInfo,
-      accountsAssigned: null == accountsAssigned
-          ? _self._accountsAssigned
-          : accountsAssigned // ignore: cast_nullable_to_non_nullable
+      createdAt: null == createdAt
+          ? _self.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      updatedAt: null == updatedAt
+          ? _self.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      assignedAccountIds: null == assignedAccountIds
+          ? _self._assignedAccountIds
+          : assignedAccountIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
       discount: null == discount
           ? _self.discount
           : discount // ignore: cast_nullable_to_non_nullable
               as double,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as ResellerStatus,
     ));
   }
 
@@ -441,6 +619,7 @@ mixin _$ResellerBusinessInfo {
 
   /// Second (optional) line of the address
   String? get addressLineTwo;
+  String? get province;
   String get zipCode;
   String get city;
   String get country;
@@ -470,6 +649,8 @@ mixin _$ResellerBusinessInfo {
                 other.addressLineOne == addressLineOne) &&
             (identical(other.addressLineTwo, addressLineTwo) ||
                 other.addressLineTwo == addressLineTwo) &&
+            (identical(other.province, province) ||
+                other.province == province) &&
             (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
             (identical(other.city, city) || other.city == city) &&
             (identical(other.country, country) || other.country == country) &&
@@ -480,11 +661,11 @@ mixin _$ResellerBusinessInfo {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, legalName, addressLineOne,
-      addressLineTwo, zipCode, city, country, businessId);
+      addressLineTwo, province, zipCode, city, country, businessId);
 
   @override
   String toString() {
-    return 'ResellerBusinessInfo(legalName: $legalName, addressLineOne: $addressLineOne, addressLineTwo: $addressLineTwo, zipCode: $zipCode, city: $city, country: $country, businessId: $businessId)';
+    return 'ResellerBusinessInfo(legalName: $legalName, addressLineOne: $addressLineOne, addressLineTwo: $addressLineTwo, province: $province, zipCode: $zipCode, city: $city, country: $country, businessId: $businessId)';
   }
 }
 
@@ -498,6 +679,7 @@ abstract mixin class $ResellerBusinessInfoCopyWith<$Res> {
       {String legalName,
       String addressLineOne,
       String? addressLineTwo,
+      String? province,
       String zipCode,
       String city,
       String country,
@@ -520,6 +702,7 @@ class _$ResellerBusinessInfoCopyWithImpl<$Res>
     Object? legalName = null,
     Object? addressLineOne = null,
     Object? addressLineTwo = freezed,
+    Object? province = freezed,
     Object? zipCode = null,
     Object? city = null,
     Object? country = null,
@@ -537,6 +720,10 @@ class _$ResellerBusinessInfoCopyWithImpl<$Res>
       addressLineTwo: freezed == addressLineTwo
           ? _self.addressLineTwo
           : addressLineTwo // ignore: cast_nullable_to_non_nullable
+              as String?,
+      province: freezed == province
+          ? _self.province
+          : province // ignore: cast_nullable_to_non_nullable
               as String?,
       zipCode: null == zipCode
           ? _self.zipCode
@@ -653,6 +840,7 @@ extension ResellerBusinessInfoPatterns on ResellerBusinessInfo {
             String legalName,
             String addressLineOne,
             String? addressLineTwo,
+            String? province,
             String zipCode,
             String city,
             String country,
@@ -667,6 +855,7 @@ extension ResellerBusinessInfoPatterns on ResellerBusinessInfo {
             _that.legalName,
             _that.addressLineOne,
             _that.addressLineTwo,
+            _that.province,
             _that.zipCode,
             _that.city,
             _that.country,
@@ -695,6 +884,7 @@ extension ResellerBusinessInfoPatterns on ResellerBusinessInfo {
             String legalName,
             String addressLineOne,
             String? addressLineTwo,
+            String? province,
             String zipCode,
             String city,
             String country,
@@ -708,6 +898,7 @@ extension ResellerBusinessInfoPatterns on ResellerBusinessInfo {
             _that.legalName,
             _that.addressLineOne,
             _that.addressLineTwo,
+            _that.province,
             _that.zipCode,
             _that.city,
             _that.country,
@@ -733,6 +924,7 @@ extension ResellerBusinessInfoPatterns on ResellerBusinessInfo {
             String legalName,
             String addressLineOne,
             String? addressLineTwo,
+            String? province,
             String zipCode,
             String city,
             String country,
@@ -746,6 +938,7 @@ extension ResellerBusinessInfoPatterns on ResellerBusinessInfo {
             _that.legalName,
             _that.addressLineOne,
             _that.addressLineTwo,
+            _that.province,
             _that.zipCode,
             _that.city,
             _that.country,
@@ -763,6 +956,7 @@ class _ResellerBusinessInfo implements ResellerBusinessInfo {
       {required this.legalName,
       required this.addressLineOne,
       this.addressLineTwo,
+      this.province,
       required this.zipCode,
       required this.city,
       required this.country,
@@ -781,6 +975,8 @@ class _ResellerBusinessInfo implements ResellerBusinessInfo {
   /// Second (optional) line of the address
   @override
   final String? addressLineTwo;
+  @override
+  final String? province;
   @override
   final String zipCode;
   @override
@@ -819,6 +1015,8 @@ class _ResellerBusinessInfo implements ResellerBusinessInfo {
                 other.addressLineOne == addressLineOne) &&
             (identical(other.addressLineTwo, addressLineTwo) ||
                 other.addressLineTwo == addressLineTwo) &&
+            (identical(other.province, province) ||
+                other.province == province) &&
             (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
             (identical(other.city, city) || other.city == city) &&
             (identical(other.country, country) || other.country == country) &&
@@ -829,11 +1027,11 @@ class _ResellerBusinessInfo implements ResellerBusinessInfo {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, legalName, addressLineOne,
-      addressLineTwo, zipCode, city, country, businessId);
+      addressLineTwo, province, zipCode, city, country, businessId);
 
   @override
   String toString() {
-    return 'ResellerBusinessInfo(legalName: $legalName, addressLineOne: $addressLineOne, addressLineTwo: $addressLineTwo, zipCode: $zipCode, city: $city, country: $country, businessId: $businessId)';
+    return 'ResellerBusinessInfo(legalName: $legalName, addressLineOne: $addressLineOne, addressLineTwo: $addressLineTwo, province: $province, zipCode: $zipCode, city: $city, country: $country, businessId: $businessId)';
   }
 }
 
@@ -849,6 +1047,7 @@ abstract mixin class _$ResellerBusinessInfoCopyWith<$Res>
       {String legalName,
       String addressLineOne,
       String? addressLineTwo,
+      String? province,
       String zipCode,
       String city,
       String country,
@@ -871,6 +1070,7 @@ class __$ResellerBusinessInfoCopyWithImpl<$Res>
     Object? legalName = null,
     Object? addressLineOne = null,
     Object? addressLineTwo = freezed,
+    Object? province = freezed,
     Object? zipCode = null,
     Object? city = null,
     Object? country = null,
@@ -888,6 +1088,10 @@ class __$ResellerBusinessInfoCopyWithImpl<$Res>
       addressLineTwo: freezed == addressLineTwo
           ? _self.addressLineTwo
           : addressLineTwo // ignore: cast_nullable_to_non_nullable
+              as String?,
+      province: freezed == province
+          ? _self.province
+          : province // ignore: cast_nullable_to_non_nullable
               as String?,
       zipCode: null == zipCode
           ? _self.zipCode

@@ -7,22 +7,41 @@ part of 'models.dart';
 // **************************************************************************
 
 _Reseller _$ResellerFromJson(Map<String, dynamic> json) => _Reseller(
+      id: json['id'] as String,
       email: json['email'] as String,
+      phoneNumber: json['phoneNumber'] as String,
       businessInfo: ResellerBusinessInfo.fromJson(
           json['businessInfo'] as Map<String, dynamic>),
-      accountsAssigned: (json['accountsAssigned'] as List<dynamic>?)
+      createdAt: const NonNullableTimestampConverter()
+          .fromJson(json['createdAt'] as Timestamp),
+      updatedAt: const NonNullableTimestampConverter()
+          .fromJson(json['updatedAt'] as Timestamp),
+      assignedAccountIds: (json['assignedAccountIds'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const <String>[],
       discount: (json['discount'] as num?)?.toDouble() ?? 0,
+      status: $enumDecode(_$ResellerStatusEnumMap, json['status']),
     );
 
 Map<String, dynamic> _$ResellerToJson(_Reseller instance) => <String, dynamic>{
+      'id': instance.id,
       'email': instance.email,
+      'phoneNumber': instance.phoneNumber,
       'businessInfo': instance.businessInfo.toJson(),
-      'accountsAssigned': instance.accountsAssigned,
+      'createdAt':
+          const NonNullableTimestampConverter().toJson(instance.createdAt),
+      'updatedAt':
+          const NonNullableTimestampConverter().toJson(instance.updatedAt),
+      'assignedAccountIds': instance.assignedAccountIds,
       'discount': instance.discount,
+      'status': _$ResellerStatusEnumMap[instance.status]!,
     };
+
+const _$ResellerStatusEnumMap = {
+  ResellerStatus.active: 'active',
+  ResellerStatus.inactive: 'inactive',
+};
 
 _ResellerBusinessInfo _$ResellerBusinessInfoFromJson(
         Map<String, dynamic> json) =>
@@ -30,6 +49,7 @@ _ResellerBusinessInfo _$ResellerBusinessInfoFromJson(
       legalName: json['legalName'] as String,
       addressLineOne: json['addressLineOne'] as String,
       addressLineTwo: json['addressLineTwo'] as String?,
+      province: json['province'] as String?,
       zipCode: json['zipCode'] as String,
       city: json['city'] as String,
       country: json['country'] as String,
@@ -42,6 +62,7 @@ Map<String, dynamic> _$ResellerBusinessInfoToJson(
       'legalName': instance.legalName,
       'addressLineOne': instance.addressLineOne,
       'addressLineTwo': instance.addressLineTwo,
+      'province': instance.province,
       'zipCode': instance.zipCode,
       'city': instance.city,
       'country': instance.country,

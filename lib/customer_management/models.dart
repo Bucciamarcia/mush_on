@@ -68,6 +68,9 @@ sealed class Booking with _$Booking {
     String? zipCode,
     String? city,
     String? country,
+
+    /// The ID of the reseller that made this booking. Null means direct booking.
+    String? resellerId,
     @Default(PaymentStatus.unknown) PaymentStatus paymentStatus,
   }) = _Booking;
 

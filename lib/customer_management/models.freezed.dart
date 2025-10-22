@@ -504,6 +504,9 @@ mixin _$Booking {
   String? get zipCode;
   String? get city;
   String? get country;
+
+  /// The ID of the reseller that made this booking. Null means direct booking.
+  String? get resellerId;
   PaymentStatus get paymentStatus;
 
   /// Create a copy of Booking
@@ -532,6 +535,8 @@ mixin _$Booking {
             (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
             (identical(other.city, city) || other.city == city) &&
             (identical(other.country, country) || other.country == country) &&
+            (identical(other.resellerId, resellerId) ||
+                other.resellerId == resellerId) &&
             (identical(other.paymentStatus, paymentStatus) ||
                 other.paymentStatus == paymentStatus));
   }
@@ -539,11 +544,11 @@ mixin _$Booking {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, customerGroupId, phone,
-      email, streetAddress, zipCode, city, country, paymentStatus);
+      email, streetAddress, zipCode, city, country, resellerId, paymentStatus);
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, paymentStatus: $paymentStatus)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, resellerId: $resellerId, paymentStatus: $paymentStatus)';
   }
 }
 
@@ -562,6 +567,7 @@ abstract mixin class $BookingCopyWith<$Res> {
       String? zipCode,
       String? city,
       String? country,
+      String? resellerId,
       PaymentStatus paymentStatus});
 }
 
@@ -586,6 +592,7 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
     Object? zipCode = freezed,
     Object? city = freezed,
     Object? country = freezed,
+    Object? resellerId = freezed,
     Object? paymentStatus = null,
   }) {
     return _then(_self.copyWith(
@@ -624,6 +631,10 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
       country: freezed == country
           ? _self.country
           : country // ignore: cast_nullable_to_non_nullable
+              as String?,
+      resellerId: freezed == resellerId
+          ? _self.resellerId
+          : resellerId // ignore: cast_nullable_to_non_nullable
               as String?,
       paymentStatus: null == paymentStatus
           ? _self.paymentStatus
@@ -734,6 +745,7 @@ extension BookingPatterns on Booking {
             String? zipCode,
             String? city,
             String? country,
+            String? resellerId,
             PaymentStatus paymentStatus)?
         $default, {
     required TResult orElse(),
@@ -751,6 +763,7 @@ extension BookingPatterns on Booking {
             _that.zipCode,
             _that.city,
             _that.country,
+            _that.resellerId,
             _that.paymentStatus);
       case _:
         return orElse();
@@ -782,6 +795,7 @@ extension BookingPatterns on Booking {
             String? zipCode,
             String? city,
             String? country,
+            String? resellerId,
             PaymentStatus paymentStatus)
         $default,
   ) {
@@ -798,6 +812,7 @@ extension BookingPatterns on Booking {
             _that.zipCode,
             _that.city,
             _that.country,
+            _that.resellerId,
             _that.paymentStatus);
     }
   }
@@ -826,6 +841,7 @@ extension BookingPatterns on Booking {
             String? zipCode,
             String? city,
             String? country,
+            String? resellerId,
             PaymentStatus paymentStatus)?
         $default,
   ) {
@@ -842,6 +858,7 @@ extension BookingPatterns on Booking {
             _that.zipCode,
             _that.city,
             _that.country,
+            _that.resellerId,
             _that.paymentStatus);
       case _:
         return null;
@@ -863,6 +880,7 @@ class _Booking implements Booking {
       this.zipCode,
       this.city,
       this.country,
+      this.resellerId,
       this.paymentStatus = PaymentStatus.unknown});
   factory _Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
@@ -898,6 +916,10 @@ class _Booking implements Booking {
   final String? city;
   @override
   final String? country;
+
+  /// The ID of the reseller that made this booking. Null means direct booking.
+  @override
+  final String? resellerId;
   @override
   @JsonKey()
   final PaymentStatus paymentStatus;
@@ -933,6 +955,8 @@ class _Booking implements Booking {
             (identical(other.zipCode, zipCode) || other.zipCode == zipCode) &&
             (identical(other.city, city) || other.city == city) &&
             (identical(other.country, country) || other.country == country) &&
+            (identical(other.resellerId, resellerId) ||
+                other.resellerId == resellerId) &&
             (identical(other.paymentStatus, paymentStatus) ||
                 other.paymentStatus == paymentStatus));
   }
@@ -940,11 +964,11 @@ class _Booking implements Booking {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, name, customerGroupId, phone,
-      email, streetAddress, zipCode, city, country, paymentStatus);
+      email, streetAddress, zipCode, city, country, resellerId, paymentStatus);
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, paymentStatus: $paymentStatus)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, resellerId: $resellerId, paymentStatus: $paymentStatus)';
   }
 }
 
@@ -964,6 +988,7 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
       String? zipCode,
       String? city,
       String? country,
+      String? resellerId,
       PaymentStatus paymentStatus});
 }
 
@@ -988,6 +1013,7 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
     Object? zipCode = freezed,
     Object? city = freezed,
     Object? country = freezed,
+    Object? resellerId = freezed,
     Object? paymentStatus = null,
   }) {
     return _then(_Booking(
@@ -1026,6 +1052,10 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
       country: freezed == country
           ? _self.country
           : country // ignore: cast_nullable_to_non_nullable
+              as String?,
+      resellerId: freezed == resellerId
+          ? _self.resellerId
+          : resellerId // ignore: cast_nullable_to_non_nullable
               as String?,
       paymentStatus: null == paymentStatus
           ? _self.paymentStatus

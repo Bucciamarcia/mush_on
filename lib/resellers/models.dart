@@ -1,4 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mush_on/services/models/custom_converters.dart';
 part 'models.freezed.dart';
 part 'models.g.dart';
 
@@ -7,18 +9,29 @@ part 'models.g.dart';
 /// A single reseller. The reseller is an ENTITY, multiple users can be added to a reseller (not available yet)
 sealed class Reseller with _$Reseller {
   const factory Reseller({
+    /// UID for the reseller
+    required String id,
+
     /// Contact email for all the business stuff
     required String email,
+
+    /// The phone number to contact
+    required String phoneNumber,
     required ResellerBusinessInfo businessInfo,
+    @NonNullableTimestampConverter() required DateTime createdAt,
+    @NonNullableTimestampConverter() required DateTime updatedAt,
 
     /// The list of accounts this entity is a reseller of.
     /// Useful for operators that work with multiple kennels.
-    @Default(<String>[]) List<String> accountsAssigned,
+    @Default(<String>[]) List<String> assignedAccountIds,
 
     /// Discout to apply to this business off of the regular price.
     ///
     /// Must be a fraction, eg: 0.15 = 15% discount.
     @Default(0) double discount,
+
+    /// The current status of this reseller
+    required ResellerStatus status,
   }) = _Reseller;
   factory Reseller.fromJson(Map<String, dynamic> json) =>
       _$ResellerFromJson(json);
@@ -37,6 +50,7 @@ sealed class ResellerBusinessInfo with _$ResellerBusinessInfo {
 
     /// Second (optional) line of the address
     String? addressLineTwo,
+    String? province,
     required String zipCode,
     required String city,
     required String country,
@@ -65,4 +79,10 @@ sealed class ResellerSettings with _$ResellerSettings {
 
   factory ResellerSettings.fromJson(Map<String, dynamic> json) =>
       _$ResellerSettingsFromJson(json);
+}
+
+@JsonEnum()
+enum ResellerStatus {
+  active,
+  inactive;
 }
