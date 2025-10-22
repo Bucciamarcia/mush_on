@@ -6,6 +6,7 @@ import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/settings/add_users.dart';
 import 'package:mush_on/settings/custom_fields.dart';
 import 'package:mush_on/settings/repository.dart';
+import 'package:mush_on/settings/resellers_settings.dart';
 import 'package:mush_on/settings/user_settings.dart';
 import 'package:mush_on/shared/distance_warning_widget/main.dart';
 import 'package:mush_on/shared/text_title.dart';
@@ -99,6 +100,9 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
                 userName.userLevel.rank < UserLevel.musher.rank
                     ? const SizedBox.shrink()
                     : AddUsers(account: account),
+                userName.userLevel.rank < UserLevel.musher.rank
+                    ? const SizedBox.shrink()
+                    : ResellersSettings(account: account),
                 const UserSettings(),
               ],
             ),

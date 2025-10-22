@@ -116,3 +116,8 @@ A cool and open source CRM for sled dog kennels.
 ### 0.0.15
 
 - Adds payments
+
+### 0.0.16
+
+- Administrators can now invite new users.
+- A new user is not prompted to create a new kennel.

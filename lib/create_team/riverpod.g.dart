@@ -30,7 +30,7 @@ Map<String, dynamic> _$TeamGroupWorkspaceToJson(_TeamGroupWorkspace instance) =>
       'date': const NonNullableTimestampConverter().toJson(instance.date),
       'distance': instance.distance,
       'notes': instance.notes,
-      'teams': instance.teams,
+      'teams': instance.teams.map((e) => e.toJson()).toList(),
       'runType': _$TeamGroupRunTypeEnumMap[instance.runType]!,
     };
 
@@ -57,7 +57,7 @@ Map<String, dynamic> _$TeamWorkspaceToJson(_TeamWorkspace instance) =>
       'name': instance.name,
       'id': instance.id,
       'capacity': instance.capacity,
-      'dogPairs': instance.dogPairs,
+      'dogPairs': instance.dogPairs.map((e) => e.toJson()).toList(),
     };
 
 _DogPairWorkspace _$DogPairWorkspaceFromJson(Map<String, dynamic> json) =>
