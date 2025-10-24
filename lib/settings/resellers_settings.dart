@@ -178,10 +178,14 @@ class _InviteResellerSnippetState extends State<InviteResellerSnippet> {
         children: [
           TextFormField(
             controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(labelText: "Reseller email"),
             validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter an email';
+              if (value == null ||
+                  value.isEmpty ||
+                  !value.contains("@") ||
+                  !value.contains(".")) {
+                return 'Please enter a valid email';
               }
               return null;
             },
