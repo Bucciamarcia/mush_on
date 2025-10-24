@@ -67,6 +67,8 @@ Future<void> main() async {
 
       FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
       await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+      FirebaseFunctions.instanceFor(region: "europe-north1")
+          .useFunctionsEmulator(host, 5001);
 
       print('Connected to emulators: $host');
     } catch (e) {

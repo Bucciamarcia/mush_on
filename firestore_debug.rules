@@ -1,0 +1,77 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+
+    function userAccount() {
+      return isSignedIn() &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.account
+        : null;
+    }
+
+    // Users can fully manage their own user doc
+    match /users/{uid}/{document=**} {
+      allow read, write: if isSignedIn() && uid == request.auth.uid;
+    }
+
+    // Public-facing content: anyone can read; only members of the account can write
+    match /customerFacing/{account}/{document=**} {
+      allow read: if true;  // public (no auth required)
+      allow write: if isSignedIn() && userAccount() == account;
+    }
+    
+    // anyone can read tours
+    match /accounts/{account}/data/bookingManager/tours/{tourId} {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager/customerGroups/{customerGroupId} {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager/customers/{customerId} {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager/bookings/{bookingId} {
+  		allow read: if true;      // public
+  		allow write: if true;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager/tours/{tourId}/prices/{pricing} {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager/customers/{custmer} {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /global/privacyPolicy {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+
+
+    // Restrict account data to the user's assigned account
+    match /accounts/{account}/{document=**} {
+      allow read, write: if isSignedIn() && userAccount() == account;
+    }
+    
+    // Logged in can read paymentintents
+    match /checkoutSessions/{session} {
+    allow read: if true;
+    allow write: if false;
+    }
+
+    // Default deny for everything else
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -121,3 +121,4 @@ A cool and open source CRM for sled dog kennels.
 
 - Administrators can now invite new users.
 - A new user is not prompted to create a new kennel.
+- Fix add distance warning and dog notes in dog page.

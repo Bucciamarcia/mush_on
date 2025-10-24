@@ -252,7 +252,7 @@ class DogMain extends ConsumerWidget {
                               List<DistanceWarning>.from(dog.distanceWarnings);
                           newW = [...newW, w];
                           DogsDbOperations().updateDistanceWarnings(
-                              warnings: newW, dogId: dogId!);
+                              warnings: newW, dogId: dogId!, account: account);
                         },
                         onWarningEdited: (w) {
                           var newW =
@@ -260,14 +260,14 @@ class DogMain extends ConsumerWidget {
                           newW.removeWhere((oldW) => oldW.id == w.id);
                           newW = [...newW, w];
                           DogsDbOperations().updateDistanceWarnings(
-                              warnings: newW, dogId: dogId!);
+                              warnings: newW, dogId: dogId!, account: account);
                         },
                         onWarningRemoved: (id) {
                           var newW =
                               List<DistanceWarning>.from(dog.distanceWarnings);
                           newW.removeWhere((oldW) => oldW.id == id);
                           DogsDbOperations().updateDistanceWarnings(
-                              warnings: newW, dogId: dogId!);
+                              warnings: newW, dogId: dogId!, account: account);
                         }),
                     const Divider(),
                     CustomFieldArea(
@@ -370,8 +370,10 @@ class DogMain extends ConsumerWidget {
                           updatedNotes
                               .removeWhere((note) => note.id == newNote.id);
                           updatedNotes.add(newNote);
-                          await DogsDbOperations()
-                              .updateNotes(dogId: dog.id, notes: updatedNotes);
+                          await DogsDbOperations().updateNotes(
+                              dogId: dog.id,
+                              notes: updatedNotes,
+                              account: account);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -404,8 +406,10 @@ class DogMain extends ConsumerWidget {
                             updatedNotes.add(note);
                           }
                           updatedNotes.removeWhere((note) => note.id == id);
-                          await DogsDbOperations()
-                              .updateNotes(dogId: dog.id, notes: updatedNotes);
+                          await DogsDbOperations().updateNotes(
+                              dogId: dog.id,
+                              notes: updatedNotes,
+                              account: account);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

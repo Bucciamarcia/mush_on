@@ -456,7 +456,9 @@ class DogsDbOperations {
   }
 
   Future<void> updateNotes(
-      {required String dogId, required List<SingleDogNote> notes}) async {
+      {required String dogId,
+      required List<SingleDogNote> notes,
+      required String account}) async {
     String path = "accounts/$account/data/kennel/dogs";
     var dogsRef = FirebaseFirestore.instance.collection(path);
     var doc = dogsRef.doc(dogId);
@@ -473,7 +475,9 @@ class DogsDbOperations {
   }
 
   Future<void> updateDistanceWarnings(
-      {required List<DistanceWarning> warnings, required String dogId}) async {
+      {required List<DistanceWarning> warnings,
+      required String dogId,
+      required String account}) async {
     String path = "accounts/$account/data/kennel/dogs";
     var dogsRef = FirebaseFirestore.instance.collection(path);
     var doc = dogsRef.doc(dogId);
