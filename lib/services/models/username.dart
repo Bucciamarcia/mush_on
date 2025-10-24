@@ -18,10 +18,22 @@ sealed class UserName with _$UserName {
 
     /// Used to restrict access to sensitive info.
     @Default(UserLevel.handler) UserLevel userLevel,
+
+    /// If he's a musher (normal access) or reseller. Defaults to musher.
+    @Default(UserType.musher) UserType userType,
   }) = _UserName;
 
   const UserName._();
 
   factory UserName.fromJson(Map<String, dynamic> json) =>
       _$UserNameFromJson(json);
+}
+
+@JsonEnum()
+enum UserType {
+  /// A musher or handler, or someone who needs regular access
+  musher,
+
+  /// A business entity that sells B2B a kennel's tours
+  reseller
 }

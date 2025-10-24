@@ -24,6 +24,9 @@ mixin _$UserName {
   /// Used to restrict access to sensitive info.
   UserLevel get userLevel;
 
+  /// If he's a musher (normal access) or reseller. Defaults to musher.
+  UserType get userType;
+
   /// Create a copy of UserName
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -46,17 +49,19 @@ mixin _$UserName {
             (identical(other.email, email) || other.email == email) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.userLevel, userLevel) ||
-                other.userLevel == userLevel));
+                other.userLevel == userLevel) &&
+            (identical(other.userType, userType) ||
+                other.userType == userType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, lastLogin, account, uid, email, name, userLevel);
+  int get hashCode => Object.hash(
+      runtimeType, lastLogin, account, uid, email, name, userLevel, userType);
 
   @override
   String toString() {
-    return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email, name: $name, userLevel: $userLevel)';
+    return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email, name: $name, userLevel: $userLevel, userType: $userType)';
   }
 }
 
@@ -71,7 +76,8 @@ abstract mixin class $UserNameCopyWith<$Res> {
       String uid,
       String email,
       String name,
-      UserLevel userLevel});
+      UserLevel userLevel,
+      UserType userType});
 }
 
 /// @nodoc
@@ -92,6 +98,7 @@ class _$UserNameCopyWithImpl<$Res> implements $UserNameCopyWith<$Res> {
     Object? email = null,
     Object? name = null,
     Object? userLevel = null,
+    Object? userType = null,
   }) {
     return _then(_self.copyWith(
       lastLogin: freezed == lastLogin
@@ -118,6 +125,10 @@ class _$UserNameCopyWithImpl<$Res> implements $UserNameCopyWith<$Res> {
           ? _self.userLevel
           : userLevel // ignore: cast_nullable_to_non_nullable
               as UserLevel,
+      userType: null == userType
+          ? _self.userType
+          : userType // ignore: cast_nullable_to_non_nullable
+              as UserType,
     ));
   }
 }
@@ -213,8 +224,14 @@ extension UserNamePatterns on UserName {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(@TimestampConverter() DateTime? lastLogin, String? account,
-            String uid, String email, String name, UserLevel userLevel)?
+    TResult Function(
+            @TimestampConverter() DateTime? lastLogin,
+            String? account,
+            String uid,
+            String email,
+            String name,
+            UserLevel userLevel,
+            UserType userType)?
         $default, {
     required TResult orElse(),
   }) {
@@ -222,7 +239,7 @@ extension UserNamePatterns on UserName {
     switch (_that) {
       case _UserName() when $default != null:
         return $default(_that.lastLogin, _that.account, _that.uid, _that.email,
-            _that.name, _that.userLevel);
+            _that.name, _that.userLevel, _that.userType);
       case _:
         return orElse();
     }
@@ -243,15 +260,21 @@ extension UserNamePatterns on UserName {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(@TimestampConverter() DateTime? lastLogin, String? account,
-            String uid, String email, String name, UserLevel userLevel)
+    TResult Function(
+            @TimestampConverter() DateTime? lastLogin,
+            String? account,
+            String uid,
+            String email,
+            String name,
+            UserLevel userLevel,
+            UserType userType)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _UserName():
         return $default(_that.lastLogin, _that.account, _that.uid, _that.email,
-            _that.name, _that.userLevel);
+            _that.name, _that.userLevel, _that.userType);
     }
   }
 
@@ -275,14 +298,15 @@ extension UserNamePatterns on UserName {
             String uid,
             String email,
             String name,
-            UserLevel userLevel)?
+            UserLevel userLevel,
+            UserType userType)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _UserName() when $default != null:
         return $default(_that.lastLogin, _that.account, _that.uid, _that.email,
-            _that.name, _that.userLevel);
+            _that.name, _that.userLevel, _that.userType);
       case _:
         return null;
     }
@@ -298,7 +322,8 @@ class _UserName extends UserName {
       required this.uid,
       required this.email,
       this.name = "",
-      this.userLevel = UserLevel.handler})
+      this.userLevel = UserLevel.handler,
+      this.userType = UserType.musher})
       : super._();
   factory _UserName.fromJson(Map<String, dynamic> json) =>
       _$UserNameFromJson(json);
@@ -320,6 +345,11 @@ class _UserName extends UserName {
   @override
   @JsonKey()
   final UserLevel userLevel;
+
+  /// If he's a musher (normal access) or reseller. Defaults to musher.
+  @override
+  @JsonKey()
+  final UserType userType;
 
   /// Create a copy of UserName
   /// with the given fields replaced by the non-null parameter values.
@@ -348,17 +378,19 @@ class _UserName extends UserName {
             (identical(other.email, email) || other.email == email) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.userLevel, userLevel) ||
-                other.userLevel == userLevel));
+                other.userLevel == userLevel) &&
+            (identical(other.userType, userType) ||
+                other.userType == userType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, lastLogin, account, uid, email, name, userLevel);
+  int get hashCode => Object.hash(
+      runtimeType, lastLogin, account, uid, email, name, userLevel, userType);
 
   @override
   String toString() {
-    return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email, name: $name, userLevel: $userLevel)';
+    return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email, name: $name, userLevel: $userLevel, userType: $userType)';
   }
 }
 
@@ -375,7 +407,8 @@ abstract mixin class _$UserNameCopyWith<$Res>
       String uid,
       String email,
       String name,
-      UserLevel userLevel});
+      UserLevel userLevel,
+      UserType userType});
 }
 
 /// @nodoc
@@ -396,6 +429,7 @@ class __$UserNameCopyWithImpl<$Res> implements _$UserNameCopyWith<$Res> {
     Object? email = null,
     Object? name = null,
     Object? userLevel = null,
+    Object? userType = null,
   }) {
     return _then(_UserName(
       lastLogin: freezed == lastLogin
@@ -422,6 +456,10 @@ class __$UserNameCopyWithImpl<$Res> implements _$UserNameCopyWith<$Res> {
           ? _self.userLevel
           : userLevel // ignore: cast_nullable_to_non_nullable
               as UserLevel,
+      userType: null == userType
+          ? _self.userType
+          : userType // ignore: cast_nullable_to_non_nullable
+              as UserType,
     ));
   }
 }

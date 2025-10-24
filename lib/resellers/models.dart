@@ -6,7 +6,7 @@ part 'models.g.dart';
 
 @freezed
 
-/// A single reseller. The reseller is an ENTITY, multiple users can be added to a reseller (not available yet)
+/// A single reseller with its own login.
 sealed class Reseller with _$Reseller {
   const factory Reseller({
     /// UID for the reseller

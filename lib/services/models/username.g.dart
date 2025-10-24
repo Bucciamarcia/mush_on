@@ -15,6 +15,8 @@ _UserName _$UserNameFromJson(Map<String, dynamic> json) => _UserName(
       name: json['name'] as String? ?? "",
       userLevel: $enumDecodeNullable(_$UserLevelEnumMap, json['userLevel']) ??
           UserLevel.handler,
+      userType: $enumDecodeNullable(_$UserTypeEnumMap, json['userType']) ??
+          UserType.musher,
     );
 
 Map<String, dynamic> _$UserNameToJson(_UserName instance) => <String, dynamic>{
@@ -24,10 +26,16 @@ Map<String, dynamic> _$UserNameToJson(_UserName instance) => <String, dynamic>{
       'email': instance.email,
       'name': instance.name,
       'userLevel': _$UserLevelEnumMap[instance.userLevel]!,
+      'userType': _$UserTypeEnumMap[instance.userType]!,
     };
 
 const _$UserLevelEnumMap = {
   UserLevel.musher: 'musher',
   UserLevel.handler: 'handler',
   UserLevel.guest: 'guest',
+};
+
+const _$UserTypeEnumMap = {
+  UserType.musher: 'musher',
+  UserType.reseller: 'reseller',
 };
