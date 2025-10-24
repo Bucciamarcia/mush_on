@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:mush_on/resellers/home/home.dart';
 import 'package:mush_on/riverpod.dart';
@@ -59,7 +60,7 @@ Future<void> main() async {
       // Determine the correct host based on platform
       String host;
       if (defaultTargetPlatform == TargetPlatform.android) {
-        host = '10.0.2.2'; // Android emulator
+        host = 'localhost'; // Android emulator
       } else {
         host = 'localhost'; // iOS simulator, web, etc.
       }
@@ -71,6 +72,19 @@ Future<void> main() async {
     } catch (e) {
       print('Emulator connection error: $e');
     }
+    FirebaseUIAuth.configureProviders([
+      EmailAuthProvider(),
+      if (!kDebugMode) // Only add Google in production
+        GoogleProvider(
+            clientId:
+                "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com"),
+    ]);
+  } else {
+    FirebaseUIAuth.configureProviders([
+      GoogleProvider(
+          clientId:
+              "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com"),
+    ]);
   }
   tz.initializeTimeZones();
   setPathUrlStrategy();

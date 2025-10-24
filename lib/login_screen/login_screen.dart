@@ -1,5 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -10,11 +10,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Define providers
-    final providers = [
-      GoogleProvider(
-          clientId:
-              "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com")
-    ];
 
     void onSignedIn() {
       context.go('/');
@@ -41,9 +36,31 @@ class LoginScreen extends StatelessWidget {
                 ],
               )
             : const SizedBox.shrink(),
+        ElevatedButton(
+          onPressed: () async {
+            try {
+              print('🧪 Testing direct auth emulator connection...');
+              final userCred =
+                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                email: 'test${DateTime.now().millisecondsSinceEpoch}@test.com',
+                password: 'test123456',
+              );
+              print('✅ Auth emulator working! User: ${userCred.user?.email}');
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Emulator connection works!')),
+              );
+            } catch (e) {
+              print('❌ Auth emulator test failed: $e');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Emulator test failed: $e')),
+              );
+            }
+          },
+          child: const Text('Test Emulator Connection'),
+        ),
         Expanded(
           child: SignInScreen(
-            providers: providers,
+            providers: FirebaseUIAuth.providersFor(FirebaseAuth.instance.app),
             headerBuilder: (context, constraints, shrinkOffset) {
               return Padding(
                 padding: const EdgeInsets.all(20),
