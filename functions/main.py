@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 import os
 
 from lib.send_invitation_email import SendInvitationEmail
+from lib.send_reseller_invitation_email import SendResellerInvitationEmail
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import get_stripe_data
 from lib.utils.firebase import FirestoreUtils
@@ -320,6 +321,21 @@ def invite_reseller(req: https_fn.CallableRequest[dict]) -> dict:
     email: str = data["email"]
     discount_str: str = data["discount"]
     account: str = data["account"]
+    security_code: str = data["securityCode"]
+    sender_email: str = data["senderEmail"]
     discount = int(discount_str)
+    FirestoreUtils().set_doc(
+        path=f"resellerInvitations/{email}",
+        data={
+            "email": email,
+            "discount": discount,
+            "account": account,
+            "securityCode": security_code,
+            "accepted": False,
+        },
+    )
+    SendResellerInvitationEmail(
+        email=email, security_code=security_code, sender_email=sender_email
+    ).run()
     logger.info("DONE")
     return {"status": "ok"}
