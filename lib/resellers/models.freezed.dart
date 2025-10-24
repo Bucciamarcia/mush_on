@@ -14,12 +14,6 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$Reseller {
-  /// UID for the reseller
-  String get id;
-
-  /// Contact email for all the business stuff
-  String get email;
-
   /// The phone number to contact
   String get phoneNumber;
   ResellerBusinessInfo get businessInfo;
@@ -55,8 +49,6 @@ mixin _$Reseller {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Reseller &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.email, email) || other.email == email) &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
             (identical(other.businessInfo, businessInfo) ||
@@ -76,8 +68,6 @@ mixin _$Reseller {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      id,
-      email,
       phoneNumber,
       businessInfo,
       createdAt,
@@ -88,7 +78,7 @@ mixin _$Reseller {
 
   @override
   String toString() {
-    return 'Reseller(id: $id, email: $email, phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
+    return 'Reseller(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
   }
 }
 
@@ -98,9 +88,7 @@ abstract mixin class $ResellerCopyWith<$Res> {
       _$ResellerCopyWithImpl;
   @useResult
   $Res call(
-      {String id,
-      String email,
-      String phoneNumber,
+      {String phoneNumber,
       ResellerBusinessInfo businessInfo,
       @NonNullableTimestampConverter() DateTime createdAt,
       @NonNullableTimestampConverter() DateTime updatedAt,
@@ -123,8 +111,6 @@ class _$ResellerCopyWithImpl<$Res> implements $ResellerCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? email = null,
     Object? phoneNumber = null,
     Object? businessInfo = null,
     Object? createdAt = null,
@@ -134,14 +120,6 @@ class _$ResellerCopyWithImpl<$Res> implements $ResellerCopyWith<$Res> {
     Object? status = null,
   }) {
     return _then(_self.copyWith(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      email: null == email
-          ? _self.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
       phoneNumber: null == phoneNumber
           ? _self.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
@@ -276,8 +254,6 @@ extension ResellerPatterns on Reseller {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
-            String id,
-            String email,
             String phoneNumber,
             ResellerBusinessInfo businessInfo,
             @NonNullableTimestampConverter() DateTime createdAt,
@@ -292,8 +268,6 @@ extension ResellerPatterns on Reseller {
     switch (_that) {
       case _Reseller() when $default != null:
         return $default(
-            _that.id,
-            _that.email,
             _that.phoneNumber,
             _that.businessInfo,
             _that.createdAt,
@@ -322,8 +296,6 @@ extension ResellerPatterns on Reseller {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(
-            String id,
-            String email,
             String phoneNumber,
             ResellerBusinessInfo businessInfo,
             @NonNullableTimestampConverter() DateTime createdAt,
@@ -337,8 +309,6 @@ extension ResellerPatterns on Reseller {
     switch (_that) {
       case _Reseller():
         return $default(
-            _that.id,
-            _that.email,
             _that.phoneNumber,
             _that.businessInfo,
             _that.createdAt,
@@ -364,8 +334,6 @@ extension ResellerPatterns on Reseller {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
-            String id,
-            String email,
             String phoneNumber,
             ResellerBusinessInfo businessInfo,
             @NonNullableTimestampConverter() DateTime createdAt,
@@ -379,8 +347,6 @@ extension ResellerPatterns on Reseller {
     switch (_that) {
       case _Reseller() when $default != null:
         return $default(
-            _that.id,
-            _that.email,
             _that.phoneNumber,
             _that.businessInfo,
             _that.createdAt,
@@ -395,12 +361,11 @@ extension ResellerPatterns on Reseller {
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _Reseller implements Reseller {
   const _Reseller(
-      {required this.id,
-      required this.email,
-      required this.phoneNumber,
+      {required this.phoneNumber,
       required this.businessInfo,
       @NonNullableTimestampConverter() required this.createdAt,
       @NonNullableTimestampConverter() required this.updatedAt,
@@ -410,14 +375,6 @@ class _Reseller implements Reseller {
       : _assignedAccountIds = assignedAccountIds;
   factory _Reseller.fromJson(Map<String, dynamic> json) =>
       _$ResellerFromJson(json);
-
-  /// UID for the reseller
-  @override
-  final String id;
-
-  /// Contact email for all the business stuff
-  @override
-  final String email;
 
   /// The phone number to contact
   @override
@@ -477,8 +434,6 @@ class _Reseller implements Reseller {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _Reseller &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.email, email) || other.email == email) &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
             (identical(other.businessInfo, businessInfo) ||
@@ -498,8 +453,6 @@ class _Reseller implements Reseller {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      id,
-      email,
       phoneNumber,
       businessInfo,
       createdAt,
@@ -510,7 +463,7 @@ class _Reseller implements Reseller {
 
   @override
   String toString() {
-    return 'Reseller(id: $id, email: $email, phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
+    return 'Reseller(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
   }
 }
 
@@ -522,9 +475,7 @@ abstract mixin class _$ResellerCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String id,
-      String email,
-      String phoneNumber,
+      {String phoneNumber,
       ResellerBusinessInfo businessInfo,
       @NonNullableTimestampConverter() DateTime createdAt,
       @NonNullableTimestampConverter() DateTime updatedAt,
@@ -548,8 +499,6 @@ class __$ResellerCopyWithImpl<$Res> implements _$ResellerCopyWith<$Res> {
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? id = null,
-    Object? email = null,
     Object? phoneNumber = null,
     Object? businessInfo = null,
     Object? createdAt = null,
@@ -559,14 +508,6 @@ class __$ResellerCopyWithImpl<$Res> implements _$ResellerCopyWith<$Res> {
     Object? status = null,
   }) {
     return _then(_Reseller(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      email: null == email
-          ? _self.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
       phoneNumber: null == phoneNumber
           ? _self.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable

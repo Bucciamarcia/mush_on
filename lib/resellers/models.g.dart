@@ -7,8 +7,6 @@ part of 'models.dart';
 // **************************************************************************
 
 _Reseller _$ResellerFromJson(Map<String, dynamic> json) => _Reseller(
-      id: json['id'] as String,
-      email: json['email'] as String,
       phoneNumber: json['phoneNumber'] as String,
       businessInfo: ResellerBusinessInfo.fromJson(
           json['businessInfo'] as Map<String, dynamic>),
@@ -25,8 +23,6 @@ _Reseller _$ResellerFromJson(Map<String, dynamic> json) => _Reseller(
     );
 
 Map<String, dynamic> _$ResellerToJson(_Reseller instance) => <String, dynamic>{
-      'id': instance.id,
-      'email': instance.email,
       'phoneNumber': instance.phoneNumber,
       'businessInfo': instance.businessInfo.toJson(),
       'createdAt':

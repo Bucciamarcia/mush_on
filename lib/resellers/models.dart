@@ -8,13 +8,8 @@ part 'models.g.dart';
 
 /// A single reseller with its own login.
 sealed class Reseller with _$Reseller {
+  @JsonSerializable(explicitToJson: true)
   const factory Reseller({
-    /// UID for the reseller
-    required String id,
-
-    /// Contact email for all the business stuff
-    required String email,
-
     /// The phone number to contact
     required String phoneNumber,
     required ResellerBusinessInfo businessInfo,
