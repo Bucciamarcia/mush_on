@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/resellers/models.dart';
 import 'package:mush_on/riverpod.dart';
@@ -152,9 +153,68 @@ class InviteResellerSnippet extends StatefulWidget {
 }
 
 class _InviteResellerSnippetState extends State<InviteResellerSnippet> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _emailController;
+  late TextEditingController _discountAmountController;
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _discountAmountController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _discountAmountController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          TextFormField(
+            controller: _emailController,
+            decoration: const InputDecoration(labelText: "Reseller email"),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter an email';
+              }
+              return null;
+            },
+          ),
+          TextFormField(
+            controller: _discountAmountController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+                labelText: "Discount % amount (e.g. 15)", suffix: Text("%")),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter a discount amount';
+              }
+              final discount = double.tryParse(value);
+              if (discount == null || discount < 0 || discount > 100) {
+                return 'Please enter a discount between 0 (no discount) and 100 (all bookings are free)';
+              }
+              return null;
+            },
+          ),
+          ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  // Process the invitation logic here
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content:
+                          Text('Invitation sent to ${_emailController.text}')));
+                }
+              },
+              child: const Text("Send Invitation")),
+        ],
+      ),
+    );
   }
 }
 
