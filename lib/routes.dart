@@ -10,6 +10,7 @@ import 'package:mush_on/kennel/add_dog/add_dog.dart';
 import 'package:mush_on/kennel/dog/dog.dart';
 import 'package:mush_on/kennel/kennel.dart';
 import 'package:mush_on/main.dart';
+import 'package:mush_on/resellers/home/home.dart';
 import 'package:mush_on/settings/settings.dart';
 import 'package:mush_on/stats/insights/insights.dart';
 import 'package:mush_on/tasks/tasks.dart';
@@ -159,6 +160,12 @@ final goRoutes = GoRouter(
           String? email = state.uri.queryParameters["email"];
           String? securityCode = state.uri.queryParameters["securityCode"];
           return ConfirmInvitation(email: email, securityCode: securityCode);
+        }),
+    GoRoute(
+        path: "/reseller",
+        name: "/reseller",
+        builder: (context, state) {
+          return const ResellerHome();
         })
   ],
 );

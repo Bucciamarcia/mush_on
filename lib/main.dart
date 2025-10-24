@@ -5,6 +5,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
+import 'package:mush_on/resellers/home/home.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/user_level.dart';
@@ -211,6 +212,8 @@ class HomeScreen extends rp.ConsumerWidget {
                     ).toJson(),
                   );
                   return const Text("Creating user");
+                } else if (userName.userType == UserType.reseller) {
+                  return const ResellerHome();
                 } else if (userName.account == null) {
                   return Scaffold(
                     body: Center(

@@ -10,6 +10,7 @@ import 'package:mush_on/kennel/main.dart';
 import 'package:mush_on/login_screen/login_screen.dart';
 import 'package:mush_on/services/auth.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/user_level.dart';
 import 'customer_management/main.dart';
 import 'riverpod.dart';
@@ -112,6 +113,10 @@ class TemplateScreen extends ConsumerWidget {
               data: (userName) {
                 if (userName == null) {
                   return const Text("Error: username not valid");
+                }
+                if (userName.userType == UserType.reseller) {
+                  print("is reseller");
+                  context.go("/reseller");
                 }
                 if (userName.userLevel.rank < minUserRank.rank) {
                   return const Scaffold(
