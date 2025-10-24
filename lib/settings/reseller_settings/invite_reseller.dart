@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/reseller_settings/repository.dart';
 
-class InviteResellerSnippet extends StatefulWidget {
+class InviteResellerSnippet extends ConsumerStatefulWidget {
   const InviteResellerSnippet({super.key});
 
   @override
-  State<InviteResellerSnippet> createState() => _InviteResellerSnippetState();
+  ConsumerState<InviteResellerSnippet> createState() =>
+      _InviteResellerSnippetState();
 }
 
-class _InviteResellerSnippetState extends State<InviteResellerSnippet> {
+class _InviteResellerSnippetState extends ConsumerState<InviteResellerSnippet> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _emailController;
   late TextEditingController _discountAmountController;
@@ -62,12 +67,20 @@ class _InviteResellerSnippetState extends State<InviteResellerSnippet> {
             },
           ),
           ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  // Process the invitation logic here
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content:
-                          Text('Invitation sent to ${_emailController.text}')));
+                  final account = await ref.watch(accountProvider.future);
+                  try {
+                    await ResellerSettingsRepository().inviteReseller(
+                        _emailController.text,
+                        int.parse(_discountAmountController.text),
+                        account);
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "Couldn't invite reseller"));
+                    }
+                  }
                 }
               },
               child: const Text("Send Invitation")),

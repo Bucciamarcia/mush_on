@@ -53,6 +53,25 @@ Future<void> main() async {
       return true;
     };
   }
+  // Emulators
+  if (kDebugMode) {
+    try {
+      // Determine the correct host based on platform
+      String host;
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        host = '10.0.2.2'; // Android emulator
+      } else {
+        host = 'localhost'; // iOS simulator, web, etc.
+      }
+
+      FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+      await FirebaseAuth.instance.useAuthEmulator(host, 9099);
+
+      print('Connected to emulators: $host');
+    } catch (e) {
+      print('Emulator connection error: $e');
+    }
+  }
   tz.initializeTimeZones();
   setPathUrlStrategy();
   runApp(const rp.ProviderScope(child: MyApp()));

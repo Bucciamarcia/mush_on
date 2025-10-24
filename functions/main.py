@@ -309,3 +309,8 @@ def get_list_of_accounts(req: https_fn.CallableRequest[dict]) -> dict:
         to_return.append(account.id)
         number = number + 1
     return {"accounts": to_return, "number": number}
+
+
+@https_fn.on_call()
+def invite_reseller(req: https_fn.CallableRequest[dict]) -> dict:
+    return {"status": "ok"}
