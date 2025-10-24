@@ -315,5 +315,11 @@ def get_list_of_accounts(req: https_fn.CallableRequest[dict]) -> dict:
 @https_fn.on_call()
 def invite_reseller(req: https_fn.CallableRequest[dict]) -> dict:
     logger = BasicLogger("invite_reseller")
-    logger.info("ok")
+    logger.info("Starting invite reseler")
+    data = req.data
+    email: str = data["email"]
+    discount_str: str = data["discount"]
+    account: str = data["account"]
+    discount = int(discount_str)
+    logger.info("DONE")
     return {"status": "ok"}

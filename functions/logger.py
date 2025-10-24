@@ -9,19 +9,24 @@ class BasicLogger:
         self.logger = logging.getLogger(logger_name)
         self.logger.setLevel(logging.DEBUG)
 
-        # Only use Cloud Logging in production
-        if os.getenv("ENVIRONMENT") == "production":
-            client = cloud_logging.Client()
-            handler = CloudLoggingHandler(client, name=logger_name)
-            self.logger.addHandler(handler)
-        else:
-            # Use simple console logging locally
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
-            handler.setFormatter(formatter)
-            self.logger.addHandler(handler)
+        # Only add handler if none exist
+        if not self.logger.handlers:
+            # Only use Cloud Logging in production
+            if os.getenv("ENVIRONMENT") == "production":
+                client = cloud_logging.Client()
+                handler = CloudLoggingHandler(client, name=logger_name)
+                self.logger.addHandler(handler)
+            else:
+                # Use simple console logging locally
+                handler = logging.StreamHandler()
+                formatter = logging.Formatter(
+                    "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+                )
+                handler.setFormatter(formatter)
+                self.logger.addHandler(handler)
+
+        # Prevent propagation to root logger to avoid duplicate logs
+        self.logger.propagate = False
 
     def debug(self, message):
         self.logger.debug(message)
