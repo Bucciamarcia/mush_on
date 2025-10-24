@@ -1,4 +1,5 @@
 firebase_functions~=0.1.0
+google-cloud-logging
 firebase-admin
 stripe==12.5.1
 python-dotenv

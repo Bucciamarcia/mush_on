@@ -16,6 +16,7 @@ from lib.send_invitation_email import SendInvitationEmail
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import get_stripe_data
 from lib.utils.firebase import FirestoreUtils
+from logger import BasicLogger
 
 # For cost control, you can set the maximum number of containers that can be
 # running at the same time. This helps mitigate the impact of unexpected
@@ -313,4 +314,6 @@ def get_list_of_accounts(req: https_fn.CallableRequest[dict]) -> dict:
 
 @https_fn.on_call()
 def invite_reseller(req: https_fn.CallableRequest[dict]) -> dict:
+    logger = BasicLogger("invite_reseller")
+    logger.info("ok")
     return {"status": "ok"}
