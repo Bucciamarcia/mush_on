@@ -117,6 +117,9 @@ class _ResellersSettingsState extends ConsumerState<ResellersSettings> {
                   child: isSaving
                       ? const CircularProgressIndicator.adaptive()
                       : const Text("Save settings")),
+              const TextTitle("Invite reseller"),
+              const Text("Invite a reseller to join your platform"),
+              const InviteResellerSnippet(),
             ],
           );
         },
@@ -138,6 +141,20 @@ class _ResellersSettingsState extends ConsumerState<ResellersSettings> {
       logger.error("Couldn't save settings", error: e, stackTrace: s);
       rethrow;
     }
+  }
+}
+
+class InviteResellerSnippet extends StatefulWidget {
+  const InviteResellerSnippet({super.key});
+
+  @override
+  State<InviteResellerSnippet> createState() => _InviteResellerSnippetState();
+}
+
+class _InviteResellerSnippetState extends State<InviteResellerSnippet> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }
 
