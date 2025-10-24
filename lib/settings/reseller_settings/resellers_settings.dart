@@ -1,13 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/resellers/models.dart';
-import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/shared/text_title.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
-part 'resellers_settings.g.dart';
+import 'invite_reseller.dart';
+import 'riverpod.dart';
 
 class ResellersSettings extends ConsumerStatefulWidget {
   final String account;
@@ -142,110 +140,5 @@ class _ResellersSettingsState extends ConsumerState<ResellersSettings> {
       logger.error("Couldn't save settings", error: e, stackTrace: s);
       rethrow;
     }
-  }
-}
-
-class InviteResellerSnippet extends StatefulWidget {
-  const InviteResellerSnippet({super.key});
-
-  @override
-  State<InviteResellerSnippet> createState() => _InviteResellerSnippetState();
-}
-
-class _InviteResellerSnippetState extends State<InviteResellerSnippet> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _emailController;
-  late TextEditingController _discountAmountController;
-  @override
-  void initState() {
-    super.initState();
-    _emailController = TextEditingController();
-    _discountAmountController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _discountAmountController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          TextFormField(
-            controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(labelText: "Reseller email"),
-            validator: (value) {
-              if (value == null ||
-                  value.isEmpty ||
-                  !value.contains("@") ||
-                  !value.contains(".")) {
-                return 'Please enter a valid email';
-              }
-              return null;
-            },
-          ),
-          TextFormField(
-            controller: _discountAmountController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-                labelText: "Discount % amount (e.g. 15)", suffix: Text("%")),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter a discount amount';
-              }
-              final discount = double.tryParse(value);
-              if (discount == null || discount < 0 || discount > 100) {
-                return 'Please enter a discount between 0 (no discount) and 100 (all bookings are free)';
-              }
-              return null;
-            },
-          ),
-          ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  // Process the invitation logic here
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content:
-                          Text('Invitation sent to ${_emailController.text}')));
-                }
-              },
-              child: const Text("Send Invitation")),
-        ],
-      ),
-    );
-  }
-}
-
-@riverpod
-Stream<ResellerSettings> resellerSettings(Ref ref) async* {
-  final account = await ref.watch(accountProvider.future);
-  final db = FirebaseFirestore.instance;
-  final path = "accounts/$account/data/settings/resellers/settings";
-  final docRef = db.doc(path);
-  yield* docRef.snapshots().map((snapshot) {
-    final data = snapshot.data();
-    if (data == null) {
-      return const ResellerSettings();
-    } else {
-      return ResellerSettings.fromJson(data);
-    }
-  });
-}
-
-@riverpod
-class IsSaving extends _$IsSaving {
-  @override
-  bool build() {
-    return false;
-  }
-
-  void change(bool v) {
-    state = v;
   }
 }
