@@ -19,7 +19,6 @@ _ResellerData _$ResellerDataFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String)
               .toList() ??
           const <String>[],
-      discount: (json['discount'] as num?)?.toDouble() ?? 0,
       status: $enumDecode(_$ResellerStatusEnumMap, json['status']),
     );
 
@@ -32,7 +31,6 @@ Map<String, dynamic> _$ResellerDataToJson(_ResellerData instance) =>
       'updatedAt':
           const NonNullableTimestampConverter().toJson(instance.updatedAt),
       'assignedAccountIds': instance.assignedAccountIds,
-      'discount': instance.discount,
       'status': _$ResellerStatusEnumMap[instance.status]!,
     };
 

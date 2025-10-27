@@ -59,8 +59,8 @@ class ResellerAcceptInvitation extends ConsumerWidget {
                       errorSnackBar(context, "Error: couldn't log in"));
                   return;
                 }
-                await InviteResellerRepository()
-                    .onResellerSignin(uid, email, invitation.account);
+                await InviteResellerRepository().onResellerSignin(
+                    uid, email, invitation.account, invitation.discount);
                 if (context.mounted) context.go("/reseller");
               }),
               AuthStateChangeAction<UserCreated>((context, state) async {
@@ -71,8 +71,8 @@ class ResellerAcceptInvitation extends ConsumerWidget {
                       errorSnackBar(context, "Error: couldn't log in"));
                   return;
                 }
-                await InviteResellerRepository()
-                    .onResellerSignin(uid, email, invitation.account);
+                await InviteResellerRepository().onResellerSignin(
+                    uid, email, invitation.account, invitation.discount);
                 if (context.mounted) context.go("/reseller");
               }),
             ],

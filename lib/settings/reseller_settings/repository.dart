@@ -1,5 +1,6 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:uuid/uuid.dart';
 
 class ResellerSettingsRepository {
   final functions = FirebaseFunctions.instanceFor(region: "europe-north1");
@@ -12,6 +13,7 @@ class ResellerSettingsRepository {
         "discount": discount.toString(),
         "email": email,
         "senderEmail": senderEmail,
+        "securityCode": const Uuid().v4(),
       });
     } catch (e, s) {
       logger.error("Couldn't invite reseller", error: e, stackTrace: s);

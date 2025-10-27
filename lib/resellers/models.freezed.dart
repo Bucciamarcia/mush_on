@@ -26,11 +26,6 @@ mixin _$ResellerData {
   /// Useful for operators that work with multiple kennels.
   List<String> get assignedAccountIds;
 
-  /// Discout to apply to this business off of the regular price.
-  ///
-  /// Must be a fraction, eg: 0.15 = 15% discount.
-  double get discount;
-
   /// The current status of this reseller
   ResellerStatus get status;
 
@@ -60,8 +55,6 @@ mixin _$ResellerData {
                 other.updatedAt == updatedAt) &&
             const DeepCollectionEquality()
                 .equals(other.assignedAccountIds, assignedAccountIds) &&
-            (identical(other.discount, discount) ||
-                other.discount == discount) &&
             (identical(other.status, status) || other.status == status));
   }
 
@@ -74,12 +67,11 @@ mixin _$ResellerData {
       createdAt,
       updatedAt,
       const DeepCollectionEquality().hash(assignedAccountIds),
-      discount,
       status);
 
   @override
   String toString() {
-    return 'ResellerData(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
+    return 'ResellerData(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, status: $status)';
   }
 }
 
@@ -95,7 +87,6 @@ abstract mixin class $ResellerDataCopyWith<$Res> {
       @NonNullableTimestampConverter() DateTime createdAt,
       @NonNullableTimestampConverter() DateTime updatedAt,
       List<String> assignedAccountIds,
-      double discount,
       ResellerStatus status});
 
   $ResellerBusinessInfoCopyWith<$Res> get businessInfo;
@@ -118,7 +109,6 @@ class _$ResellerDataCopyWithImpl<$Res> implements $ResellerDataCopyWith<$Res> {
     Object? createdAt = null,
     Object? updatedAt = null,
     Object? assignedAccountIds = null,
-    Object? discount = null,
     Object? status = null,
   }) {
     return _then(_self.copyWith(
@@ -142,10 +132,6 @@ class _$ResellerDataCopyWithImpl<$Res> implements $ResellerDataCopyWith<$Res> {
           ? _self.assignedAccountIds
           : assignedAccountIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      discount: null == discount
-          ? _self.discount
-          : discount // ignore: cast_nullable_to_non_nullable
-              as double,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -261,7 +247,6 @@ extension ResellerDataPatterns on ResellerData {
             @NonNullableTimestampConverter() DateTime createdAt,
             @NonNullableTimestampConverter() DateTime updatedAt,
             List<String> assignedAccountIds,
-            double discount,
             ResellerStatus status)?
         $default, {
     required TResult orElse(),
@@ -269,14 +254,8 @@ extension ResellerDataPatterns on ResellerData {
     final _that = this;
     switch (_that) {
       case _ResellerData() when $default != null:
-        return $default(
-            _that.phoneNumber,
-            _that.businessInfo,
-            _that.createdAt,
-            _that.updatedAt,
-            _that.assignedAccountIds,
-            _that.discount,
-            _that.status);
+        return $default(_that.phoneNumber, _that.businessInfo, _that.createdAt,
+            _that.updatedAt, _that.assignedAccountIds, _that.status);
       case _:
         return orElse();
     }
@@ -303,21 +282,14 @@ extension ResellerDataPatterns on ResellerData {
             @NonNullableTimestampConverter() DateTime createdAt,
             @NonNullableTimestampConverter() DateTime updatedAt,
             List<String> assignedAccountIds,
-            double discount,
             ResellerStatus status)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ResellerData():
-        return $default(
-            _that.phoneNumber,
-            _that.businessInfo,
-            _that.createdAt,
-            _that.updatedAt,
-            _that.assignedAccountIds,
-            _that.discount,
-            _that.status);
+        return $default(_that.phoneNumber, _that.businessInfo, _that.createdAt,
+            _that.updatedAt, _that.assignedAccountIds, _that.status);
     }
   }
 
@@ -341,21 +313,14 @@ extension ResellerDataPatterns on ResellerData {
             @NonNullableTimestampConverter() DateTime createdAt,
             @NonNullableTimestampConverter() DateTime updatedAt,
             List<String> assignedAccountIds,
-            double discount,
             ResellerStatus status)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ResellerData() when $default != null:
-        return $default(
-            _that.phoneNumber,
-            _that.businessInfo,
-            _that.createdAt,
-            _that.updatedAt,
-            _that.assignedAccountIds,
-            _that.discount,
-            _that.status);
+        return $default(_that.phoneNumber, _that.businessInfo, _that.createdAt,
+            _that.updatedAt, _that.assignedAccountIds, _that.status);
       case _:
         return null;
     }
@@ -372,7 +337,6 @@ class _ResellerData implements ResellerData {
       @NonNullableTimestampConverter() required this.createdAt,
       @NonNullableTimestampConverter() required this.updatedAt,
       final List<String> assignedAccountIds = const <String>[],
-      this.discount = 0,
       required this.status})
       : _assignedAccountIds = assignedAccountIds;
   factory _ResellerData.fromJson(Map<String, dynamic> json) =>
@@ -404,13 +368,6 @@ class _ResellerData implements ResellerData {
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_assignedAccountIds);
   }
-
-  /// Discout to apply to this business off of the regular price.
-  ///
-  /// Must be a fraction, eg: 0.15 = 15% discount.
-  @override
-  @JsonKey()
-  final double discount;
 
   /// The current status of this reseller
   @override
@@ -446,8 +403,6 @@ class _ResellerData implements ResellerData {
                 other.updatedAt == updatedAt) &&
             const DeepCollectionEquality()
                 .equals(other._assignedAccountIds, _assignedAccountIds) &&
-            (identical(other.discount, discount) ||
-                other.discount == discount) &&
             (identical(other.status, status) || other.status == status));
   }
 
@@ -460,12 +415,11 @@ class _ResellerData implements ResellerData {
       createdAt,
       updatedAt,
       const DeepCollectionEquality().hash(_assignedAccountIds),
-      discount,
       status);
 
   @override
   String toString() {
-    return 'ResellerData(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
+    return 'ResellerData(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, status: $status)';
   }
 }
 
@@ -483,7 +437,6 @@ abstract mixin class _$ResellerDataCopyWith<$Res>
       @NonNullableTimestampConverter() DateTime createdAt,
       @NonNullableTimestampConverter() DateTime updatedAt,
       List<String> assignedAccountIds,
-      double discount,
       ResellerStatus status});
 
   @override
@@ -508,7 +461,6 @@ class __$ResellerDataCopyWithImpl<$Res>
     Object? createdAt = null,
     Object? updatedAt = null,
     Object? assignedAccountIds = null,
-    Object? discount = null,
     Object? status = null,
   }) {
     return _then(_ResellerData(
@@ -532,10 +484,6 @@ class __$ResellerDataCopyWithImpl<$Res>
           ? _self._assignedAccountIds
           : assignedAccountIds // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      discount: null == discount
-          ? _self.discount
-          : discount // ignore: cast_nullable_to_non_nullable
-              as double,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable

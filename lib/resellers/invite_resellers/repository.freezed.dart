@@ -18,7 +18,7 @@ mixin _$Reseller {
   String get email;
 
   /// The account names associated with this reseller
-  List<String> get accounts;
+  List<AccountAndDiscount> get resellerAccounts;
 
   /// Create a copy of Reseller
   /// with the given fields replaced by the non-null parameter values.
@@ -37,17 +37,18 @@ mixin _$Reseller {
             other is Reseller &&
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.email, email) || other.email == email) &&
-            const DeepCollectionEquality().equals(other.accounts, accounts));
+            const DeepCollectionEquality()
+                .equals(other.resellerAccounts, resellerAccounts));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, uid, email, const DeepCollectionEquality().hash(accounts));
+  int get hashCode => Object.hash(runtimeType, uid, email,
+      const DeepCollectionEquality().hash(resellerAccounts));
 
   @override
   String toString() {
-    return 'Reseller(uid: $uid, email: $email, accounts: $accounts)';
+    return 'Reseller(uid: $uid, email: $email, resellerAccounts: $resellerAccounts)';
   }
 }
 
@@ -56,7 +57,8 @@ abstract mixin class $ResellerCopyWith<$Res> {
   factory $ResellerCopyWith(Reseller value, $Res Function(Reseller) _then) =
       _$ResellerCopyWithImpl;
   @useResult
-  $Res call({String uid, String email, List<String> accounts});
+  $Res call(
+      {String uid, String email, List<AccountAndDiscount> resellerAccounts});
 }
 
 /// @nodoc
@@ -73,7 +75,7 @@ class _$ResellerCopyWithImpl<$Res> implements $ResellerCopyWith<$Res> {
   $Res call({
     Object? uid = null,
     Object? email = null,
-    Object? accounts = null,
+    Object? resellerAccounts = null,
   }) {
     return _then(_self.copyWith(
       uid: null == uid
@@ -84,10 +86,10 @@ class _$ResellerCopyWithImpl<$Res> implements $ResellerCopyWith<$Res> {
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
-      accounts: null == accounts
-          ? _self.accounts
-          : accounts // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+      resellerAccounts: null == resellerAccounts
+          ? _self.resellerAccounts
+          : resellerAccounts // ignore: cast_nullable_to_non_nullable
+              as List<AccountAndDiscount>,
     ));
   }
 }
@@ -183,14 +185,15 @@ extension ResellerPatterns on Reseller {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String uid, String email, List<String> accounts)?
+    TResult Function(String uid, String email,
+            List<AccountAndDiscount> resellerAccounts)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _Reseller() when $default != null:
-        return $default(_that.uid, _that.email, _that.accounts);
+        return $default(_that.uid, _that.email, _that.resellerAccounts);
       case _:
         return orElse();
     }
@@ -211,12 +214,14 @@ extension ResellerPatterns on Reseller {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String uid, String email, List<String> accounts) $default,
+    TResult Function(
+            String uid, String email, List<AccountAndDiscount> resellerAccounts)
+        $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Reseller():
-        return $default(_that.uid, _that.email, _that.accounts);
+        return $default(_that.uid, _that.email, _that.resellerAccounts);
     }
   }
 
@@ -234,13 +239,14 @@ extension ResellerPatterns on Reseller {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String uid, String email, List<String> accounts)?
+    TResult? Function(String uid, String email,
+            List<AccountAndDiscount> resellerAccounts)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Reseller() when $default != null:
-        return $default(_that.uid, _that.email, _that.accounts);
+        return $default(_that.uid, _that.email, _that.resellerAccounts);
       case _:
         return null;
     }
@@ -248,13 +254,14 @@ extension ResellerPatterns on Reseller {
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _Reseller implements Reseller {
   const _Reseller(
       {required this.uid,
       required this.email,
-      required final List<String> accounts})
-      : _accounts = accounts;
+      required final List<AccountAndDiscount> resellerAccounts})
+      : _resellerAccounts = resellerAccounts;
   factory _Reseller.fromJson(Map<String, dynamic> json) =>
       _$ResellerFromJson(json);
 
@@ -264,14 +271,15 @@ class _Reseller implements Reseller {
   final String email;
 
   /// The account names associated with this reseller
-  final List<String> _accounts;
+  final List<AccountAndDiscount> _resellerAccounts;
 
   /// The account names associated with this reseller
   @override
-  List<String> get accounts {
-    if (_accounts is EqualUnmodifiableListView) return _accounts;
+  List<AccountAndDiscount> get resellerAccounts {
+    if (_resellerAccounts is EqualUnmodifiableListView)
+      return _resellerAccounts;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_accounts);
+    return EqualUnmodifiableListView(_resellerAccounts);
   }
 
   /// Create a copy of Reseller
@@ -296,17 +304,18 @@ class _Reseller implements Reseller {
             other is _Reseller &&
             (identical(other.uid, uid) || other.uid == uid) &&
             (identical(other.email, email) || other.email == email) &&
-            const DeepCollectionEquality().equals(other._accounts, _accounts));
+            const DeepCollectionEquality()
+                .equals(other._resellerAccounts, _resellerAccounts));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, uid, email, const DeepCollectionEquality().hash(_accounts));
+  int get hashCode => Object.hash(runtimeType, uid, email,
+      const DeepCollectionEquality().hash(_resellerAccounts));
 
   @override
   String toString() {
-    return 'Reseller(uid: $uid, email: $email, accounts: $accounts)';
+    return 'Reseller(uid: $uid, email: $email, resellerAccounts: $resellerAccounts)';
   }
 }
 
@@ -317,7 +326,8 @@ abstract mixin class _$ResellerCopyWith<$Res>
       __$ResellerCopyWithImpl;
   @override
   @useResult
-  $Res call({String uid, String email, List<String> accounts});
+  $Res call(
+      {String uid, String email, List<AccountAndDiscount> resellerAccounts});
 }
 
 /// @nodoc
@@ -334,7 +344,7 @@ class __$ResellerCopyWithImpl<$Res> implements _$ResellerCopyWith<$Res> {
   $Res call({
     Object? uid = null,
     Object? email = null,
-    Object? accounts = null,
+    Object? resellerAccounts = null,
   }) {
     return _then(_Reseller(
       uid: null == uid
@@ -345,10 +355,333 @@ class __$ResellerCopyWithImpl<$Res> implements _$ResellerCopyWith<$Res> {
           ? _self.email
           : email // ignore: cast_nullable_to_non_nullable
               as String,
-      accounts: null == accounts
-          ? _self._accounts
-          : accounts // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+      resellerAccounts: null == resellerAccounts
+          ? _self._resellerAccounts
+          : resellerAccounts // ignore: cast_nullable_to_non_nullable
+              as List<AccountAndDiscount>,
+    ));
+  }
+}
+
+/// @nodoc
+mixin _$AccountAndDiscount {
+  /// The name of the account being resold
+  String get accountName;
+
+  /// The amount of the discount in %, eg. 0.15 for 15%
+  double get discountAmount;
+
+  /// Create a copy of AccountAndDiscount
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $AccountAndDiscountCopyWith<AccountAndDiscount> get copyWith =>
+      _$AccountAndDiscountCopyWithImpl<AccountAndDiscount>(
+          this as AccountAndDiscount, _$identity);
+
+  /// Serializes this AccountAndDiscount to a JSON map.
+  Map<String, dynamic> toJson();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is AccountAndDiscount &&
+            (identical(other.accountName, accountName) ||
+                other.accountName == accountName) &&
+            (identical(other.discountAmount, discountAmount) ||
+                other.discountAmount == discountAmount));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, accountName, discountAmount);
+
+  @override
+  String toString() {
+    return 'AccountAndDiscount(accountName: $accountName, discountAmount: $discountAmount)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $AccountAndDiscountCopyWith<$Res> {
+  factory $AccountAndDiscountCopyWith(
+          AccountAndDiscount value, $Res Function(AccountAndDiscount) _then) =
+      _$AccountAndDiscountCopyWithImpl;
+  @useResult
+  $Res call({String accountName, double discountAmount});
+}
+
+/// @nodoc
+class _$AccountAndDiscountCopyWithImpl<$Res>
+    implements $AccountAndDiscountCopyWith<$Res> {
+  _$AccountAndDiscountCopyWithImpl(this._self, this._then);
+
+  final AccountAndDiscount _self;
+  final $Res Function(AccountAndDiscount) _then;
+
+  /// Create a copy of AccountAndDiscount
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? accountName = null,
+    Object? discountAmount = null,
+  }) {
+    return _then(_self.copyWith(
+      accountName: null == accountName
+          ? _self.accountName
+          : accountName // ignore: cast_nullable_to_non_nullable
+              as String,
+      discountAmount: null == discountAmount
+          ? _self.discountAmount
+          : discountAmount // ignore: cast_nullable_to_non_nullable
+              as double,
+    ));
+  }
+}
+
+/// Adds pattern-matching-related methods to [AccountAndDiscount].
+extension AccountAndDiscountPatterns on AccountAndDiscount {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_AccountAndDiscount value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _AccountAndDiscount() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_AccountAndDiscount value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _AccountAndDiscount():
+        return $default(_that);
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_AccountAndDiscount value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _AccountAndDiscount() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(String accountName, double discountAmount)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _AccountAndDiscount() when $default != null:
+        return $default(_that.accountName, _that.discountAmount);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(String accountName, double discountAmount) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _AccountAndDiscount():
+        return $default(_that.accountName, _that.discountAmount);
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(String accountName, double discountAmount)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _AccountAndDiscount() when $default != null:
+        return $default(_that.accountName, _that.discountAmount);
+      case _:
+        return null;
+    }
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _AccountAndDiscount implements AccountAndDiscount {
+  const _AccountAndDiscount(
+      {required this.accountName, required this.discountAmount});
+  factory _AccountAndDiscount.fromJson(Map<String, dynamic> json) =>
+      _$AccountAndDiscountFromJson(json);
+
+  /// The name of the account being resold
+  @override
+  final String accountName;
+
+  /// The amount of the discount in %, eg. 0.15 for 15%
+  @override
+  final double discountAmount;
+
+  /// Create a copy of AccountAndDiscount
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$AccountAndDiscountCopyWith<_AccountAndDiscount> get copyWith =>
+      __$AccountAndDiscountCopyWithImpl<_AccountAndDiscount>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$AccountAndDiscountToJson(
+      this,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _AccountAndDiscount &&
+            (identical(other.accountName, accountName) ||
+                other.accountName == accountName) &&
+            (identical(other.discountAmount, discountAmount) ||
+                other.discountAmount == discountAmount));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, accountName, discountAmount);
+
+  @override
+  String toString() {
+    return 'AccountAndDiscount(accountName: $accountName, discountAmount: $discountAmount)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$AccountAndDiscountCopyWith<$Res>
+    implements $AccountAndDiscountCopyWith<$Res> {
+  factory _$AccountAndDiscountCopyWith(
+          _AccountAndDiscount value, $Res Function(_AccountAndDiscount) _then) =
+      __$AccountAndDiscountCopyWithImpl;
+  @override
+  @useResult
+  $Res call({String accountName, double discountAmount});
+}
+
+/// @nodoc
+class __$AccountAndDiscountCopyWithImpl<$Res>
+    implements _$AccountAndDiscountCopyWith<$Res> {
+  __$AccountAndDiscountCopyWithImpl(this._self, this._then);
+
+  final _AccountAndDiscount _self;
+  final $Res Function(_AccountAndDiscount) _then;
+
+  /// Create a copy of AccountAndDiscount
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? accountName = null,
+    Object? discountAmount = null,
+  }) {
+    return _then(_AccountAndDiscount(
+      accountName: null == accountName
+          ? _self.accountName
+          : accountName // ignore: cast_nullable_to_non_nullable
+              as String,
+      discountAmount: null == discountAmount
+          ? _self.discountAmount
+          : discountAmount // ignore: cast_nullable_to_non_nullable
+              as double,
     ));
   }
 }

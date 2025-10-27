@@ -20,11 +20,6 @@ sealed class ResellerData with _$ResellerData {
     /// Useful for operators that work with multiple kennels.
     @Default(<String>[]) List<String> assignedAccountIds,
 
-    /// Discout to apply to this business off of the regular price.
-    ///
-    /// Must be a fraction, eg: 0.15 = 15% discount.
-    @Default(0) double discount,
-
     /// The current status of this reseller
     required ResellerStatus status,
   }) = _ResellerData;
