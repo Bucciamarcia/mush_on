@@ -55,7 +55,7 @@ Future<void> main() async {
     };
   }
   // Emulators
-  if (kDebugMode) {
+  if (kDebugMode && defaultTargetPlatform != TargetPlatform.android) {
     try {
       // Determine the correct host based on platform
       String host;

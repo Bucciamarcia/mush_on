@@ -68,13 +68,25 @@ class _InviteResellerSnippetState extends ConsumerState<InviteResellerSnippet> {
           ),
           ElevatedButton(
               onPressed: () async {
+                final user = await ref.watch(userProvider.future);
+                if (user == null) return;
+                final userName =
+                    await ref.watch(userNameProvider(user.uid).future);
+                if (userName == null) return;
+                final senderEmail = userName.email;
                 if (_formKey.currentState!.validate()) {
                   final account = await ref.watch(accountProvider.future);
                   try {
                     await ResellerSettingsRepository().inviteReseller(
                         _emailController.text,
                         int.parse(_discountAmountController.text),
-                        account);
+                        account,
+                        senderEmail);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(
+                              context, "Reseller has been invited via email"));
+                    }
                   } catch (e) {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

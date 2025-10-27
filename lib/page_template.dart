@@ -94,6 +94,7 @@ class TemplateScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var authState = ref.watch(userProvider);
+    final logger = BasicLogger();
     return authState.when(
       error: (e, s) {
         BasicLogger().error("Couldn't get auth state in template",
@@ -115,7 +116,7 @@ class TemplateScreen extends ConsumerWidget {
                   return const Text("Error: username not valid");
                 }
                 if (userName.userType == UserType.reseller) {
-                  print("is reseller");
+                  logger.info("is reseller");
                   context.go("/reseller");
                 }
                 if (userName.userLevel.rank < minUserRank.rank) {

@@ -32,7 +32,11 @@ class LoginScreen extends StatelessWidget {
                   ElevatedButton(
                       onPressed: () => context.push(
                           "/accept_invitation?email=info@stefanominiconsulting.com&securityCode=6"),
-                      child: const Text("Go to accept invitation page"))
+                      child: const Text("Go to accept invitation page")),
+                  ElevatedButton(
+                      onPressed: () => context.push(
+                          "/reseller-signup?email=info@stefanominiconsulting.com&securityCode=3e1fa4ed-4207-4708-9ea5-dc5417efd40b"),
+                      child: const Text("Go to reseller signup page"))
                 ],
               )
             : const SizedBox.shrink(),

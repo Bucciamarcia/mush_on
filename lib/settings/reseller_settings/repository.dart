@@ -5,12 +5,13 @@ class ResellerSettingsRepository {
   final functions = FirebaseFunctions.instanceFor(region: "europe-north1");
   final logger = BasicLogger();
   Future<void> inviteReseller(
-      String email, int discount, String account) async {
+      String email, int discount, String account, String senderEmail) async {
     try {
       await functions.httpsCallable("invite_reseller").call({
         "account": account,
         "discount": discount.toString(),
-        "email": email
+        "email": email,
+        "senderEmail": senderEmail,
       });
     } catch (e, s) {
       logger.error("Couldn't invite reseller", error: e, stackTrace: s);

@@ -7,9 +7,9 @@ part 'models.g.dart';
 @freezed
 
 /// A single reseller with its own login.
-sealed class Reseller with _$Reseller {
+sealed class ResellerData with _$ResellerData {
   @JsonSerializable(explicitToJson: true)
-  const factory Reseller({
+  const factory ResellerData({
     /// The phone number to contact
     required String phoneNumber,
     required ResellerBusinessInfo businessInfo,
@@ -27,9 +27,9 @@ sealed class Reseller with _$Reseller {
 
     /// The current status of this reseller
     required ResellerStatus status,
-  }) = _Reseller;
-  factory Reseller.fromJson(Map<String, dynamic> json) =>
-      _$ResellerFromJson(json);
+  }) = _ResellerData;
+  factory ResellerData.fromJson(Map<String, dynamic> json) =>
+      _$ResellerDataFromJson(json);
 }
 
 @freezed

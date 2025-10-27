@@ -6,7 +6,8 @@ part of 'models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_Reseller _$ResellerFromJson(Map<String, dynamic> json) => _Reseller(
+_ResellerData _$ResellerDataFromJson(Map<String, dynamic> json) =>
+    _ResellerData(
       phoneNumber: json['phoneNumber'] as String,
       businessInfo: ResellerBusinessInfo.fromJson(
           json['businessInfo'] as Map<String, dynamic>),
@@ -22,7 +23,8 @@ _Reseller _$ResellerFromJson(Map<String, dynamic> json) => _Reseller(
       status: $enumDecode(_$ResellerStatusEnumMap, json['status']),
     );
 
-Map<String, dynamic> _$ResellerToJson(_Reseller instance) => <String, dynamic>{
+Map<String, dynamic> _$ResellerDataToJson(_ResellerData instance) =>
+    <String, dynamic>{
       'phoneNumber': instance.phoneNumber,
       'businessInfo': instance.businessInfo.toJson(),
       'createdAt':

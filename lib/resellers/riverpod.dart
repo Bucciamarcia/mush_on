@@ -7,7 +7,7 @@ import 'models.dart';
 part 'riverpod.g.dart';
 
 @Riverpod(keepAlive: true)
-Stream<Reseller?> resellerData(Ref ref) async* {
+Stream<ResellerData?> resellerData(Ref ref) async* {
   final User? user = await ref.watch(userProvider.future);
   if (user == null) {
     throw Exception("User is not logged in");
@@ -20,6 +20,6 @@ Stream<Reseller?> resellerData(Ref ref) async* {
     if (data == null) {
       return null;
     }
-    return Reseller.fromJson(data);
+    return ResellerData.fromJson(data);
   });
 }

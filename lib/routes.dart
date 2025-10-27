@@ -11,6 +11,7 @@ import 'package:mush_on/kennel/dog/dog.dart';
 import 'package:mush_on/kennel/kennel.dart';
 import 'package:mush_on/main.dart';
 import 'package:mush_on/resellers/home/home.dart';
+import 'package:mush_on/resellers/invite_resellers/main.dart';
 import 'package:mush_on/settings/settings.dart';
 import 'package:mush_on/stats/insights/insights.dart';
 import 'package:mush_on/tasks/tasks.dart';
@@ -166,6 +167,15 @@ final goRoutes = GoRouter(
         name: "/reseller",
         builder: (context, state) {
           return const ResellerHome();
+        }),
+    GoRoute(
+        path: "/reseller-signup",
+        name: "/reseller-signup",
+        builder: (context, state) {
+          String? email = state.uri.queryParameters["email"];
+          String? securityCode = state.uri.queryParameters["securityCode"];
+          return ResellerAcceptInvitation(
+              email: email, securityCode: securityCode);
         })
   ],
 );

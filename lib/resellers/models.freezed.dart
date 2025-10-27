@@ -13,7 +13,7 @@ part of 'models.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$Reseller {
+mixin _$ResellerData {
   /// The phone number to contact
   String get phoneNumber;
   ResellerBusinessInfo get businessInfo;
@@ -34,21 +34,22 @@ mixin _$Reseller {
   /// The current status of this reseller
   ResellerStatus get status;
 
-  /// Create a copy of Reseller
+  /// Create a copy of ResellerData
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $ResellerCopyWith<Reseller> get copyWith =>
-      _$ResellerCopyWithImpl<Reseller>(this as Reseller, _$identity);
+  $ResellerDataCopyWith<ResellerData> get copyWith =>
+      _$ResellerDataCopyWithImpl<ResellerData>(
+          this as ResellerData, _$identity);
 
-  /// Serializes this Reseller to a JSON map.
+  /// Serializes this ResellerData to a JSON map.
   Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is Reseller &&
+            other is ResellerData &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
             (identical(other.businessInfo, businessInfo) ||
@@ -78,14 +79,15 @@ mixin _$Reseller {
 
   @override
   String toString() {
-    return 'Reseller(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
+    return 'ResellerData(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
   }
 }
 
 /// @nodoc
-abstract mixin class $ResellerCopyWith<$Res> {
-  factory $ResellerCopyWith(Reseller value, $Res Function(Reseller) _then) =
-      _$ResellerCopyWithImpl;
+abstract mixin class $ResellerDataCopyWith<$Res> {
+  factory $ResellerDataCopyWith(
+          ResellerData value, $Res Function(ResellerData) _then) =
+      _$ResellerDataCopyWithImpl;
   @useResult
   $Res call(
       {String phoneNumber,
@@ -100,13 +102,13 @@ abstract mixin class $ResellerCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$ResellerCopyWithImpl<$Res> implements $ResellerCopyWith<$Res> {
-  _$ResellerCopyWithImpl(this._self, this._then);
+class _$ResellerDataCopyWithImpl<$Res> implements $ResellerDataCopyWith<$Res> {
+  _$ResellerDataCopyWithImpl(this._self, this._then);
 
-  final Reseller _self;
-  final $Res Function(Reseller) _then;
+  final ResellerData _self;
+  final $Res Function(ResellerData) _then;
 
-  /// Create a copy of Reseller
+  /// Create a copy of ResellerData
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -151,7 +153,7 @@ class _$ResellerCopyWithImpl<$Res> implements $ResellerCopyWith<$Res> {
     ));
   }
 
-  /// Create a copy of Reseller
+  /// Create a copy of ResellerData
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -162,8 +164,8 @@ class _$ResellerCopyWithImpl<$Res> implements $ResellerCopyWith<$Res> {
   }
 }
 
-/// Adds pattern-matching-related methods to [Reseller].
-extension ResellerPatterns on Reseller {
+/// Adds pattern-matching-related methods to [ResellerData].
+extension ResellerDataPatterns on ResellerData {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -178,12 +180,12 @@ extension ResellerPatterns on Reseller {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_Reseller value)? $default, {
+    TResult Function(_ResellerData value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _Reseller() when $default != null:
+      case _ResellerData() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -205,11 +207,11 @@ extension ResellerPatterns on Reseller {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_Reseller value) $default,
+    TResult Function(_ResellerData value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _Reseller():
+      case _ResellerData():
         return $default(_that);
     }
   }
@@ -228,11 +230,11 @@ extension ResellerPatterns on Reseller {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_Reseller value)? $default,
+    TResult? Function(_ResellerData value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _Reseller() when $default != null:
+      case _ResellerData() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -266,7 +268,7 @@ extension ResellerPatterns on Reseller {
   }) {
     final _that = this;
     switch (_that) {
-      case _Reseller() when $default != null:
+      case _ResellerData() when $default != null:
         return $default(
             _that.phoneNumber,
             _that.businessInfo,
@@ -307,7 +309,7 @@ extension ResellerPatterns on Reseller {
   ) {
     final _that = this;
     switch (_that) {
-      case _Reseller():
+      case _ResellerData():
         return $default(
             _that.phoneNumber,
             _that.businessInfo,
@@ -345,7 +347,7 @@ extension ResellerPatterns on Reseller {
   ) {
     final _that = this;
     switch (_that) {
-      case _Reseller() when $default != null:
+      case _ResellerData() when $default != null:
         return $default(
             _that.phoneNumber,
             _that.businessInfo,
@@ -363,8 +365,8 @@ extension ResellerPatterns on Reseller {
 /// @nodoc
 
 @JsonSerializable(explicitToJson: true)
-class _Reseller implements Reseller {
-  const _Reseller(
+class _ResellerData implements ResellerData {
+  const _ResellerData(
       {required this.phoneNumber,
       required this.businessInfo,
       @NonNullableTimestampConverter() required this.createdAt,
@@ -373,8 +375,8 @@ class _Reseller implements Reseller {
       this.discount = 0,
       required this.status})
       : _assignedAccountIds = assignedAccountIds;
-  factory _Reseller.fromJson(Map<String, dynamic> json) =>
-      _$ResellerFromJson(json);
+  factory _ResellerData.fromJson(Map<String, dynamic> json) =>
+      _$ResellerDataFromJson(json);
 
   /// The phone number to contact
   @override
@@ -414,17 +416,17 @@ class _Reseller implements Reseller {
   @override
   final ResellerStatus status;
 
-  /// Create a copy of Reseller
+  /// Create a copy of ResellerData
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$ResellerCopyWith<_Reseller> get copyWith =>
-      __$ResellerCopyWithImpl<_Reseller>(this, _$identity);
+  _$ResellerDataCopyWith<_ResellerData> get copyWith =>
+      __$ResellerDataCopyWithImpl<_ResellerData>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$ResellerToJson(
+    return _$ResellerDataToJson(
       this,
     );
   }
@@ -433,7 +435,7 @@ class _Reseller implements Reseller {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _Reseller &&
+            other is _ResellerData &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
             (identical(other.businessInfo, businessInfo) ||
@@ -463,15 +465,16 @@ class _Reseller implements Reseller {
 
   @override
   String toString() {
-    return 'Reseller(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
+    return 'ResellerData(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, discount: $discount, status: $status)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$ResellerCopyWith<$Res>
-    implements $ResellerCopyWith<$Res> {
-  factory _$ResellerCopyWith(_Reseller value, $Res Function(_Reseller) _then) =
-      __$ResellerCopyWithImpl;
+abstract mixin class _$ResellerDataCopyWith<$Res>
+    implements $ResellerDataCopyWith<$Res> {
+  factory _$ResellerDataCopyWith(
+          _ResellerData value, $Res Function(_ResellerData) _then) =
+      __$ResellerDataCopyWithImpl;
   @override
   @useResult
   $Res call(
@@ -488,13 +491,14 @@ abstract mixin class _$ResellerCopyWith<$Res>
 }
 
 /// @nodoc
-class __$ResellerCopyWithImpl<$Res> implements _$ResellerCopyWith<$Res> {
-  __$ResellerCopyWithImpl(this._self, this._then);
+class __$ResellerDataCopyWithImpl<$Res>
+    implements _$ResellerDataCopyWith<$Res> {
+  __$ResellerDataCopyWithImpl(this._self, this._then);
 
-  final _Reseller _self;
-  final $Res Function(_Reseller) _then;
+  final _ResellerData _self;
+  final $Res Function(_ResellerData) _then;
 
-  /// Create a copy of Reseller
+  /// Create a copy of ResellerData
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -507,7 +511,7 @@ class __$ResellerCopyWithImpl<$Res> implements _$ResellerCopyWith<$Res> {
     Object? discount = null,
     Object? status = null,
   }) {
-    return _then(_Reseller(
+    return _then(_ResellerData(
       phoneNumber: null == phoneNumber
           ? _self.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
@@ -539,7 +543,7 @@ class __$ResellerCopyWithImpl<$Res> implements _$ResellerCopyWith<$Res> {
     ));
   }
 
-  /// Create a copy of Reseller
+  /// Create a copy of ResellerData
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
