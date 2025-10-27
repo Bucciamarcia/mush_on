@@ -15,11 +15,8 @@ _ResellerData _$ResellerDataFromJson(Map<String, dynamic> json) =>
           .fromJson(json['createdAt'] as Timestamp),
       updatedAt: const NonNullableTimestampConverter()
           .fromJson(json['updatedAt'] as Timestamp),
-      assignedAccountIds: (json['assignedAccountIds'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          const <String>[],
       status: $enumDecode(_$ResellerStatusEnumMap, json['status']),
+      reverseCharge: json['reverseCharge'] as bool,
     );
 
 Map<String, dynamic> _$ResellerDataToJson(_ResellerData instance) =>
@@ -30,8 +27,8 @@ Map<String, dynamic> _$ResellerDataToJson(_ResellerData instance) =>
           const NonNullableTimestampConverter().toJson(instance.createdAt),
       'updatedAt':
           const NonNullableTimestampConverter().toJson(instance.updatedAt),
-      'assignedAccountIds': instance.assignedAccountIds,
       'status': _$ResellerStatusEnumMap[instance.status]!,
+      'reverseCharge': instance.reverseCharge,
     };
 
 const _$ResellerStatusEnumMap = {

@@ -16,12 +16,9 @@ sealed class ResellerData with _$ResellerData {
     @NonNullableTimestampConverter() required DateTime createdAt,
     @NonNullableTimestampConverter() required DateTime updatedAt,
 
-    /// The list of accounts this entity is a reseller of.
-    /// Useful for operators that work with multiple kennels.
-    @Default(<String>[]) List<String> assignedAccountIds,
-
     /// The current status of this reseller
     required ResellerStatus status,
+    required bool reverseCharge,
   }) = _ResellerData;
   factory ResellerData.fromJson(Map<String, dynamic> json) =>
       _$ResellerDataFromJson(json);

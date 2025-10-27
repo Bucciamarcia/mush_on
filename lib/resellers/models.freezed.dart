@@ -22,12 +22,9 @@ mixin _$ResellerData {
   @NonNullableTimestampConverter()
   DateTime get updatedAt;
 
-  /// The list of accounts this entity is a reseller of.
-  /// Useful for operators that work with multiple kennels.
-  List<String> get assignedAccountIds;
-
   /// The current status of this reseller
   ResellerStatus get status;
+  bool get reverseCharge;
 
   /// Create a copy of ResellerData
   /// with the given fields replaced by the non-null parameter values.
@@ -53,25 +50,19 @@ mixin _$ResellerData {
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
-            const DeepCollectionEquality()
-                .equals(other.assignedAccountIds, assignedAccountIds) &&
-            (identical(other.status, status) || other.status == status));
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.reverseCharge, reverseCharge) ||
+                other.reverseCharge == reverseCharge));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      phoneNumber,
-      businessInfo,
-      createdAt,
-      updatedAt,
-      const DeepCollectionEquality().hash(assignedAccountIds),
-      status);
+  int get hashCode => Object.hash(runtimeType, phoneNumber, businessInfo,
+      createdAt, updatedAt, status, reverseCharge);
 
   @override
   String toString() {
-    return 'ResellerData(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, status: $status)';
+    return 'ResellerData(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, status: $status, reverseCharge: $reverseCharge)';
   }
 }
 
@@ -86,8 +77,8 @@ abstract mixin class $ResellerDataCopyWith<$Res> {
       ResellerBusinessInfo businessInfo,
       @NonNullableTimestampConverter() DateTime createdAt,
       @NonNullableTimestampConverter() DateTime updatedAt,
-      List<String> assignedAccountIds,
-      ResellerStatus status});
+      ResellerStatus status,
+      bool reverseCharge});
 
   $ResellerBusinessInfoCopyWith<$Res> get businessInfo;
 }
@@ -108,8 +99,8 @@ class _$ResellerDataCopyWithImpl<$Res> implements $ResellerDataCopyWith<$Res> {
     Object? businessInfo = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? assignedAccountIds = null,
     Object? status = null,
+    Object? reverseCharge = null,
   }) {
     return _then(_self.copyWith(
       phoneNumber: null == phoneNumber
@@ -128,14 +119,14 @@ class _$ResellerDataCopyWithImpl<$Res> implements $ResellerDataCopyWith<$Res> {
           ? _self.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      assignedAccountIds: null == assignedAccountIds
-          ? _self.assignedAccountIds
-          : assignedAccountIds // ignore: cast_nullable_to_non_nullable
-              as List<String>,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
               as ResellerStatus,
+      reverseCharge: null == reverseCharge
+          ? _self.reverseCharge
+          : reverseCharge // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 
@@ -246,8 +237,8 @@ extension ResellerDataPatterns on ResellerData {
             ResellerBusinessInfo businessInfo,
             @NonNullableTimestampConverter() DateTime createdAt,
             @NonNullableTimestampConverter() DateTime updatedAt,
-            List<String> assignedAccountIds,
-            ResellerStatus status)?
+            ResellerStatus status,
+            bool reverseCharge)?
         $default, {
     required TResult orElse(),
   }) {
@@ -255,7 +246,7 @@ extension ResellerDataPatterns on ResellerData {
     switch (_that) {
       case _ResellerData() when $default != null:
         return $default(_that.phoneNumber, _that.businessInfo, _that.createdAt,
-            _that.updatedAt, _that.assignedAccountIds, _that.status);
+            _that.updatedAt, _that.status, _that.reverseCharge);
       case _:
         return orElse();
     }
@@ -281,15 +272,15 @@ extension ResellerDataPatterns on ResellerData {
             ResellerBusinessInfo businessInfo,
             @NonNullableTimestampConverter() DateTime createdAt,
             @NonNullableTimestampConverter() DateTime updatedAt,
-            List<String> assignedAccountIds,
-            ResellerStatus status)
+            ResellerStatus status,
+            bool reverseCharge)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ResellerData():
         return $default(_that.phoneNumber, _that.businessInfo, _that.createdAt,
-            _that.updatedAt, _that.assignedAccountIds, _that.status);
+            _that.updatedAt, _that.status, _that.reverseCharge);
     }
   }
 
@@ -312,15 +303,15 @@ extension ResellerDataPatterns on ResellerData {
             ResellerBusinessInfo businessInfo,
             @NonNullableTimestampConverter() DateTime createdAt,
             @NonNullableTimestampConverter() DateTime updatedAt,
-            List<String> assignedAccountIds,
-            ResellerStatus status)?
+            ResellerStatus status,
+            bool reverseCharge)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _ResellerData() when $default != null:
         return $default(_that.phoneNumber, _that.businessInfo, _that.createdAt,
-            _that.updatedAt, _that.assignedAccountIds, _that.status);
+            _that.updatedAt, _that.status, _that.reverseCharge);
       case _:
         return null;
     }
@@ -336,9 +327,8 @@ class _ResellerData implements ResellerData {
       required this.businessInfo,
       @NonNullableTimestampConverter() required this.createdAt,
       @NonNullableTimestampConverter() required this.updatedAt,
-      final List<String> assignedAccountIds = const <String>[],
-      required this.status})
-      : _assignedAccountIds = assignedAccountIds;
+      required this.status,
+      required this.reverseCharge});
   factory _ResellerData.fromJson(Map<String, dynamic> json) =>
       _$ResellerDataFromJson(json);
 
@@ -354,24 +344,11 @@ class _ResellerData implements ResellerData {
   @NonNullableTimestampConverter()
   final DateTime updatedAt;
 
-  /// The list of accounts this entity is a reseller of.
-  /// Useful for operators that work with multiple kennels.
-  final List<String> _assignedAccountIds;
-
-  /// The list of accounts this entity is a reseller of.
-  /// Useful for operators that work with multiple kennels.
-  @override
-  @JsonKey()
-  List<String> get assignedAccountIds {
-    if (_assignedAccountIds is EqualUnmodifiableListView)
-      return _assignedAccountIds;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_assignedAccountIds);
-  }
-
   /// The current status of this reseller
   @override
   final ResellerStatus status;
+  @override
+  final bool reverseCharge;
 
   /// Create a copy of ResellerData
   /// with the given fields replaced by the non-null parameter values.
@@ -401,25 +378,19 @@ class _ResellerData implements ResellerData {
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
                 other.updatedAt == updatedAt) &&
-            const DeepCollectionEquality()
-                .equals(other._assignedAccountIds, _assignedAccountIds) &&
-            (identical(other.status, status) || other.status == status));
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.reverseCharge, reverseCharge) ||
+                other.reverseCharge == reverseCharge));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      phoneNumber,
-      businessInfo,
-      createdAt,
-      updatedAt,
-      const DeepCollectionEquality().hash(_assignedAccountIds),
-      status);
+  int get hashCode => Object.hash(runtimeType, phoneNumber, businessInfo,
+      createdAt, updatedAt, status, reverseCharge);
 
   @override
   String toString() {
-    return 'ResellerData(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, assignedAccountIds: $assignedAccountIds, status: $status)';
+    return 'ResellerData(phoneNumber: $phoneNumber, businessInfo: $businessInfo, createdAt: $createdAt, updatedAt: $updatedAt, status: $status, reverseCharge: $reverseCharge)';
   }
 }
 
@@ -436,8 +407,8 @@ abstract mixin class _$ResellerDataCopyWith<$Res>
       ResellerBusinessInfo businessInfo,
       @NonNullableTimestampConverter() DateTime createdAt,
       @NonNullableTimestampConverter() DateTime updatedAt,
-      List<String> assignedAccountIds,
-      ResellerStatus status});
+      ResellerStatus status,
+      bool reverseCharge});
 
   @override
   $ResellerBusinessInfoCopyWith<$Res> get businessInfo;
@@ -460,8 +431,8 @@ class __$ResellerDataCopyWithImpl<$Res>
     Object? businessInfo = null,
     Object? createdAt = null,
     Object? updatedAt = null,
-    Object? assignedAccountIds = null,
     Object? status = null,
+    Object? reverseCharge = null,
   }) {
     return _then(_ResellerData(
       phoneNumber: null == phoneNumber
@@ -480,14 +451,14 @@ class __$ResellerDataCopyWithImpl<$Res>
           ? _self.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      assignedAccountIds: null == assignedAccountIds
-          ? _self._assignedAccountIds
-          : assignedAccountIds // ignore: cast_nullable_to_non_nullable
-              as List<String>,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
               as ResellerStatus,
+      reverseCharge: null == reverseCharge
+          ? _self.reverseCharge
+          : reverseCharge // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 
