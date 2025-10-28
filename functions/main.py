@@ -358,3 +358,57 @@ def reseller_invitation_accepted(req: https_fn.CallableRequest[dict]) -> dict:
             https_fn.FunctionsErrorCode.INTERNAL,
             f"Failed to update document: {str(e)}",
         )
+
+
+@https_fn.on_call()
+def get_firebase_document(req: https_fn.CallableRequest[dict]) -> dict:
+    """
+    Returns the dict of a single firestore document if the client doesn't have,
+    or can't be granted direct access to the database.
+    Requires the `path` of the document.
+    """
+    logger = BasicLogger("get_firebase_document")
+    logger.info("Starting get firebase document")
+    data = req.data
+    db = firestore.client()
+    path = data["path"]
+    doc = db.document(path)
+    try:
+        response = doc.get()
+        to_return = response.to_dict()
+        if to_return is None:
+            raise Exception("The document fetched is None")
+        return to_return
+    except Exception as e:
+        logger.error(f"Failed to fetch document: {str(e)}")
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INTERNAL,
+            f"Failed to fetch the document: {str(e)}",
+        )
+
+
+@https_fn.on_call()
+def get_firebase_collection(req: https_fn.CallableRequest[dict]) -> list[dict]:
+    """
+    Returns the list of dicts of a firestore collection if the client doesn't have,
+    or can't be granted direct access to the database.
+    Requires the `path` of the collection.
+    """
+    logger = BasicLogger("get_firebase_collection")
+    logger.info("Starting get firebase collection")
+    data = req.data
+    path = data["path"]
+    db = firestore.client()
+    collection = db.collection(path)
+    try:
+        response = collection.stream()
+        to_return = []
+        for doc in response:
+            to_return.append(doc.to_dict())
+        return to_return
+    except Exception as e:
+        logger.error(f"Failed to fetch collection: {str(e)}")
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INTERNAL,
+            f"Failed to fetch the collection: {str(e)}",
+        )

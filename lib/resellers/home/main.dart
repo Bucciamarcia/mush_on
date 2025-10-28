@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/resellers/create_account/riverpod.dart';
+import 'package:mush_on/resellers/home/resell_calendar.dart';
 import 'package:mush_on/resellers/home/riverpod.dart';
 import 'package:mush_on/resellers/invite_resellers/repository.dart';
 import 'package:mush_on/resellers/reseller_template.dart';
 import 'package:mush_on/services/error_handling.dart';
 
-class ResellerMain extends ConsumerWidget {
+class ResellerMain extends StatelessWidget {
   const ResellerMain({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return const Column(
-      children: [SelectAccountToResell()],
+      spacing: 20,
+      children: [
+        SelectAccountToResell(),
+        ResellCalendar(),
+      ],
     );
   }
 }
