@@ -46,7 +46,17 @@ class ResellerScaffold extends StatelessWidget {
           title: Text(title),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
-        body: child);
+        body: Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              SizedBox(width: 1200, child: child),
+            ],
+          )),
+        ));
   }
 }
 
