@@ -17,10 +17,12 @@ class ResellCalendar extends ConsumerStatefulWidget {
 
 class _ResellCalendarState extends ConsumerState<ResellCalendar> {
   late List<DateTime> visibleDates;
+  late final CalendarController _calendarController;
   @override
   void initState() {
     super.initState();
     visibleDates = [];
+    _calendarController = CalendarController();
   }
 
   @override
@@ -40,22 +42,32 @@ class _ResellCalendarState extends ConsumerState<ResellCalendar> {
     if (visibleCgs == null) {
       return const CircularProgressIndicator.adaptive();
     }
-    return SfCalendar(
-      showNavigationArrow: true,
-      dataSource: BookingDataSource(
-          ref: ref, source: visibleCgs, account: accountToResell.accountName),
-      view: CalendarView.month,
-      onViewChanged: (details) {
-        final newVisible = details.visibleDates;
-        if (listEquals<DateTime>(visibleDates, newVisible)) {
-          return; // No actual change; avoid redundant rebuilds
-        }
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          setState(() {
-            visibleDates = newVisible;
-          });
-        });
-      },
+    return Column(
+      children: [
+        SfCalendar(
+          showNavigationArrow: true,
+          controller: _calendarController,
+          dataSource: BookingDataSource(
+              ref: ref,
+              source: visibleCgs,
+              account: accountToResell.accountName),
+          view: CalendarView.month,
+          onViewChanged: (details) {
+            final newVisible = details.visibleDates;
+            if (listEquals<DateTime>(visibleDates, newVisible)) {
+              return; // No actual change; avoid redundant rebuilds
+            }
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!mounted) return;
+              if (listEquals<DateTime>(visibleDates, newVisible)) return;
+              setState(() {
+                visibleDates = newVisible;
+              });
+            });
+          },
+        ),
+        Text(visibleCgs.toString()),
+      ],
     );
   }
 }
