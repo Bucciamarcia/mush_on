@@ -37,15 +37,3 @@ Future<List<TourType>> tourTypes(Ref ref, String account) async {
       .toList();
   return data.map((tour) => TourType.fromJson(tour)).toList();
 }
-
-@riverpod
-class VisibleDates extends _$VisibleDates {
-  @override
-  List<DateTime> build() {
-    return [];
-  }
-
-  void change(List<DateTime> v) {
-    if (state != v) state = v;
-  }
-}

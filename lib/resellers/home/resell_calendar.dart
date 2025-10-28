@@ -28,49 +28,35 @@ class _ResellCalendarState extends ConsumerState<ResellCalendar> {
     final logger = BasicLogger();
     final accountToResell = ref.watch(accountToResellProvider).value;
     if (accountToResell == null) return const SizedBox.shrink();
-    final tourTypesAsync =
-        ref.watch(tourTypesProvider(accountToResell.accountName));
+    final tourTypes =
+        ref.watch(tourTypesProvider(accountToResell.accountName)).value;
     final visibleCgs = ref
         .watch(customerGroupsByDateRangeProvider(visibleDates,
             account: accountToResell.accountName))
         .value;
-    return tourTypesAsync.when(
-        data: (tourTypes) {
-          if (tourTypes.isEmpty) {
-            return const Text("There are no tours available for this operator");
-          }
-          if (visibleCgs == null) {
-            return const CircularProgressIndicator.adaptive();
-          }
-          return SfCalendar(
-            showNavigationArrow: true,
-            dataSource: BookingDataSource(
-                ref: ref,
-                source: visibleCgs,
-                account: accountToResell.accountName),
-            view: CalendarView.month,
-            onViewChanged: (details) {
-              final newVisible = details.visibleDates;
-              if (listEquals<DateTime>(visibleDates, newVisible)) {
-                return; // No actual change; avoid redundant rebuilds
-              }
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!mounted) return;
-                // Re-check after frame in case state changed in the meantime.
-                if (listEquals<DateTime>(visibleDates, newVisible)) return;
-                setState(() {
-                  visibleDates = newVisible;
-                });
-              });
-            },
-          );
-        },
-        error: (e, s) {
-          logger.error("Error loading tour types for resell calendar",
-              error: e, stackTrace: s);
-          return Text("Error loading tour types: $e");
-        },
-        loading: () => const CircularProgressIndicator.adaptive());
+    if (tourTypes?.isEmpty ?? true) {
+      return const Text("There are no tours available for this operator");
+    }
+    if (visibleCgs == null) {
+      return const CircularProgressIndicator.adaptive();
+    }
+    return SfCalendar(
+      showNavigationArrow: true,
+      dataSource: BookingDataSource(
+          ref: ref, source: visibleCgs, account: accountToResell.accountName),
+      view: CalendarView.month,
+      onViewChanged: (details) {
+        final newVisible = details.visibleDates;
+        if (listEquals<DateTime>(visibleDates, newVisible)) {
+          return; // No actual change; avoid redundant rebuilds
+        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            visibleDates = newVisible;
+          });
+        });
+      },
+    );
   }
 }
 
@@ -86,7 +72,8 @@ class BookingDataSource extends CalendarDataSource<CustomerGroup> {
   @override
   String getSubject(int index) {
     List<Customer> customers = ref
-            .watch(customersByCustomerGroupIdProvider(appointments![index].id))
+            .watch(customersByCustomerGroupIdProvider(appointments![index].id,
+                account: account))
             .value ??
         [];
     return appointments![index].name +

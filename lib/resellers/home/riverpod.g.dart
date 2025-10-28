@@ -172,20 +172,5 @@ final accountToResellProvider =
 );
 
 typedef _$AccountToResell = AsyncNotifier<AccountAndDiscount?>;
-String _$visibleDatesHash() => r'26b3e3a4a1b914351e5abd1284a056339f9c5848';
-
-/// See also [VisibleDates].
-@ProviderFor(VisibleDates)
-final visibleDatesProvider =
-    AutoDisposeNotifierProvider<VisibleDates, List<DateTime>>.internal(
-  VisibleDates.new,
-  name: r'visibleDatesProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$visibleDatesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$VisibleDates = AutoDisposeNotifier<List<DateTime>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
