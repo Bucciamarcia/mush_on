@@ -31,10 +31,10 @@ class ResellerLogin extends StatelessWidget {
         },
         actions: [
           AuthStateChangeAction<SignedIn>((context, state) async {
-            context.go("reseller");
+            context.go("/reseller");
           }),
           AuthStateChangeAction<UserCreated>((context, state) async {
-            context.go("reseller");
+            context.go("/reseller");
           }),
         ]);
   }

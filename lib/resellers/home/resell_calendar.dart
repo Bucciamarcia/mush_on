@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
@@ -49,9 +50,16 @@ class _ResellCalendarState extends ConsumerState<ResellCalendar> {
                 account: accountToResell.accountName),
             view: CalendarView.month,
             onViewChanged: (details) {
+              final newVisible = details.visibleDates;
+              if (listEquals<DateTime>(visibleDates, newVisible)) {
+                return; // No actual change; avoid redundant rebuilds
+              }
               WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                // Re-check after frame in case state changed in the meantime.
+                if (listEquals<DateTime>(visibleDates, newVisible)) return;
                 setState(() {
-                  visibleDates = details.visibleDates;
+                  visibleDates = newVisible;
                 });
               });
             },

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
 
@@ -35,6 +36,9 @@ Stream<List<TourType>> allTourTypes(Ref ref,
 
 /// Gets the tour type object from its id.
 Future<TourType> tourTypeById(Ref ref, String id, {String? account}) async {
+  if (account == null) {
+    BasicLogger().info("Account is null. Fetching from db");
+  }
   account ??= await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/bookingManager/tours/$id";
   var db = FirebaseFirestore.instance;

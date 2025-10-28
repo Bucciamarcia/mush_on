@@ -170,7 +170,7 @@ class _AllTourTypesProviderElement
   bool get showArchived => (origin as AllTourTypesProvider).showArchived;
 }
 
-String _$tourTypeByIdHash() => r'ab15a13a3489ecd522bfbc83722cac3815152069';
+String _$tourTypeByIdHash() => r'e07748c8ca9a9b7c43ec4ce883e197469511e5e4';
 
 /// Gets the tour type object from its id.
 ///
