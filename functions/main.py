@@ -339,3 +339,22 @@ def invite_reseller(req: https_fn.CallableRequest[dict]) -> dict:
     ).run()
     logger.info("DONE")
     return {"status": "ok"}
+
+
+@https_fn.on_call()
+def reseller_invitation_accepted(req: https_fn.CallableRequest[dict]) -> dict:
+    logger = BasicLogger("reseller_invitation_accepted")
+    logger.info("Starting invitation reseller accepted")
+    data = req.data
+    email = data["email"]
+    db = firestore.client()
+    path = f"resellerInvitations/{email}"
+    doc = db.document(path)
+    try:
+        doc.update({"accepted": True})
+        return {"status": "ok"}
+    except Exception as e:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INTERNAL,
+            f"Failed to update document: {str(e)}",
+        )
