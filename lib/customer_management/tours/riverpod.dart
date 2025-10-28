@@ -34,8 +34,8 @@ Stream<List<TourType>> allTourTypes(Ref ref,
 @riverpod
 
 /// Gets the tour type object from its id.
-Future<TourType> tourTypeById(Ref ref, String id) async {
-  String account = await ref.watch(accountProvider.future);
+Future<TourType> tourTypeById(Ref ref, String id, {String? account}) async {
+  account ??= await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/bookingManager/tours/$id";
   var db = FirebaseFirestore.instance;
   var doc = db.doc(path);

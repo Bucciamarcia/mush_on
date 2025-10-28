@@ -170,7 +170,7 @@ class _AllTourTypesProviderElement
   bool get showArchived => (origin as AllTourTypesProvider).showArchived;
 }
 
-String _$tourTypeByIdHash() => r'b1f3612be40fef2775982b058a6912a61695d15d';
+String _$tourTypeByIdHash() => r'ab15a13a3489ecd522bfbc83722cac3815152069';
 
 /// Gets the tour type object from its id.
 ///
@@ -191,10 +191,12 @@ class TourTypeByIdFamily extends Family<AsyncValue<TourType>> {
   ///
   /// Copied from [tourTypeById].
   TourTypeByIdProvider call(
-    String id,
-  ) {
+    String id, {
+    String? account,
+  }) {
     return TourTypeByIdProvider(
       id,
+      account: account,
     );
   }
 
@@ -204,6 +206,7 @@ class TourTypeByIdFamily extends Family<AsyncValue<TourType>> {
   ) {
     return call(
       provider.id,
+      account: provider.account,
     );
   }
 
@@ -230,11 +233,13 @@ class TourTypeByIdProvider extends AutoDisposeFutureProvider<TourType> {
   ///
   /// Copied from [tourTypeById].
   TourTypeByIdProvider(
-    String id,
-  ) : this._internal(
+    String id, {
+    String? account,
+  }) : this._internal(
           (ref) => tourTypeById(
             ref as TourTypeByIdRef,
             id,
+            account: account,
           ),
           from: tourTypeByIdProvider,
           name: r'tourTypeByIdProvider',
@@ -246,6 +251,7 @@ class TourTypeByIdProvider extends AutoDisposeFutureProvider<TourType> {
           allTransitiveDependencies:
               TourTypeByIdFamily._allTransitiveDependencies,
           id: id,
+          account: account,
         );
 
   TourTypeByIdProvider._internal(
@@ -256,9 +262,11 @@ class TourTypeByIdProvider extends AutoDisposeFutureProvider<TourType> {
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.id,
+    required this.account,
   }) : super.internal();
 
   final String id;
+  final String? account;
 
   @override
   Override overrideWith(
@@ -274,6 +282,7 @@ class TourTypeByIdProvider extends AutoDisposeFutureProvider<TourType> {
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         id: id,
+        account: account,
       ),
     );
   }
@@ -285,13 +294,16 @@ class TourTypeByIdProvider extends AutoDisposeFutureProvider<TourType> {
 
   @override
   bool operator ==(Object other) {
-    return other is TourTypeByIdProvider && other.id == id;
+    return other is TourTypeByIdProvider &&
+        other.id == id &&
+        other.account == account;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, id.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -302,6 +314,9 @@ class TourTypeByIdProvider extends AutoDisposeFutureProvider<TourType> {
 mixin TourTypeByIdRef on AutoDisposeFutureProviderRef<TourType> {
   /// The parameter `id` of this provider.
   String get id;
+
+  /// The parameter `account` of this provider.
+  String? get account;
 }
 
 class _TourTypeByIdProviderElement
@@ -310,6 +325,8 @@ class _TourTypeByIdProviderElement
 
   @override
   String get id => (origin as TourTypeByIdProvider).id;
+  @override
+  String? get account => (origin as TourTypeByIdProvider).account;
 }
 
 String _$tourTypePricingByIdHash() =>
