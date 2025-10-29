@@ -156,6 +156,48 @@ class _TourTypesProviderElement
   String get account => (origin as TourTypesProvider).account;
 }
 
+String _$resellerSettingsAsyncHash() =>
+    r'54194ca21ad4206162597e6232d8bff093258e4b';
+
+/// Fetches the reseller settings, but needs to go thorugh a function this time.
+///
+/// Copied from [resellerSettingsAsync].
+@ProviderFor(resellerSettingsAsync)
+final resellerSettingsAsyncProvider =
+    AutoDisposeFutureProvider<ResellerSettings?>.internal(
+  resellerSettingsAsync,
+  name: r'resellerSettingsAsyncProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$resellerSettingsAsyncHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ResellerSettingsAsyncRef
+    = AutoDisposeFutureProviderRef<ResellerSettings?>;
+String _$bookingDetailsDataFetchHash() =>
+    r'2134a57e1558e1cd12483a1e20841a69207d2a45';
+
+/// See also [bookingDetailsDataFetch].
+@ProviderFor(bookingDetailsDataFetch)
+final bookingDetailsDataFetchProvider =
+    AutoDisposeFutureProvider<BookingDetailsDataFetch>.internal(
+  bookingDetailsDataFetch,
+  name: r'bookingDetailsDataFetchProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$bookingDetailsDataFetchHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef BookingDetailsDataFetchRef
+    = AutoDisposeFutureProviderRef<BookingDetailsDataFetch>;
 String _$accountToResellHash() => r'1d465256eb279572dc1c5abbac9769097b994256';
 
 /// See also [AccountToResell].
@@ -172,5 +214,24 @@ final accountToResellProvider =
 );
 
 typedef _$AccountToResell = AsyncNotifier<AccountAndDiscount?>;
+String _$selectedCustomerGroupHash() =>
+    r'20cc8632db28ed439fc13e4cb952e5bc706c5dcd';
+
+/// The CG selected by the reseller for booking tours.
+///
+/// Copied from [SelectedCustomerGroup].
+@ProviderFor(SelectedCustomerGroup)
+final selectedCustomerGroupProvider =
+    NotifierProvider<SelectedCustomerGroup, CustomerGroup?>.internal(
+  SelectedCustomerGroup.new,
+  name: r'selectedCustomerGroupProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$selectedCustomerGroupHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$SelectedCustomerGroup = Notifier<CustomerGroup?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

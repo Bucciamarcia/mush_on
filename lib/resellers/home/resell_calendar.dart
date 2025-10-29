@@ -5,7 +5,9 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
+import 'package:mush_on/resellers/home/booking_page.dart';
 import 'package:mush_on/resellers/home/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class ResellCalendar extends ConsumerStatefulWidget {
@@ -41,41 +43,46 @@ class _ResellCalendarState extends ConsumerState<ResellCalendar> {
     if (visibleCgs == null) {
       return const CircularProgressIndicator.adaptive();
     }
-    return Column(
-      children: [
-        SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: SfCalendar(
-            showNavigationArrow: true,
-            controller: _calendarController,
-            dataSource: BookingDataSource(
-                ref: ref,
-                source: visibleCgs,
-                account: accountToResell.accountName),
-            view: CalendarView.month,
-            monthViewSettings: const MonthViewSettings(
-                appointmentDisplayCount: 4,
-                showAgenda: true,
-                appointmentDisplayMode:
-                    MonthAppointmentDisplayMode.appointment),
-            onViewChanged: (details) {
-              final newVisible = details.visibleDates;
-              if (listEquals<DateTime>(visibleDates, newVisible)) {
-                return; // No actual change; avoid redundant rebuilds
-              }
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!mounted) return;
-                if (listEquals<DateTime>(visibleDates, newVisible)) return;
-                setState(() {
-                  visibleDates = newVisible;
-                });
-              });
-            },
-          ),
-        ),
-        Text(visibleCgs.toString()),
-      ],
+    return SizedBox(
+      height: MediaQuery.of(context).size.height,
+      child: SfCalendar(
+        showNavigationArrow: true,
+        controller: _calendarController,
+        dataSource: BookingDataSource(
+            ref: ref, source: visibleCgs, account: accountToResell.accountName),
+        view: CalendarView.month,
+        onTap: (details) {
+          BasicLogger().debug("tap on: ${details.appointments}");
+          _handleCalendarTap(details.appointments);
+        },
+        monthViewSettings: const MonthViewSettings(
+            appointmentDisplayCount: 4,
+            showAgenda: true,
+            appointmentDisplayMode: MonthAppointmentDisplayMode.appointment),
+        onViewChanged: (details) {
+          final newVisible = details.visibleDates;
+          if (listEquals<DateTime>(visibleDates, newVisible)) {
+            return; // No actual change; avoid redundant rebuilds
+          }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            if (listEquals<DateTime>(visibleDates, newVisible)) return;
+            setState(() {
+              visibleDates = newVisible;
+            });
+          });
+        },
+      ),
     );
+  }
+
+  void _handleCalendarTap(List<dynamic>? app) {
+    if (app == null) return;
+    if (app.length > 1) return;
+    final cgs = List<CustomerGroup>.from(app);
+    ref.read(selectedCustomerGroupProvider.notifier).change(cgs.first);
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => const BookingDetailsReseller()));
   }
 }
 

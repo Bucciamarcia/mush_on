@@ -121,6 +121,15 @@ class ResellerError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: SafeArea(child: Text(message)));
+    return Scaffold(
+        body: SafeArea(
+            child: Column(
+      children: [
+        Text(message),
+        ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Go back")),
+      ],
+    )));
   }
 }
