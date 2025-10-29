@@ -3,9 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/resellers/home/riverpod.dart';
-import 'package:mush_on/services/error_handling.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class ResellCalendar extends ConsumerStatefulWidget {
@@ -27,7 +27,6 @@ class _ResellCalendarState extends ConsumerState<ResellCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    final logger = BasicLogger();
     final accountToResell = ref.watch(accountToResellProvider).value;
     if (accountToResell == null) return const SizedBox.shrink();
     final tourTypes =
@@ -44,27 +43,35 @@ class _ResellCalendarState extends ConsumerState<ResellCalendar> {
     }
     return Column(
       children: [
-        SfCalendar(
-          showNavigationArrow: true,
-          controller: _calendarController,
-          dataSource: BookingDataSource(
-              ref: ref,
-              source: visibleCgs,
-              account: accountToResell.accountName),
-          view: CalendarView.month,
-          onViewChanged: (details) {
-            final newVisible = details.visibleDates;
-            if (listEquals<DateTime>(visibleDates, newVisible)) {
-              return; // No actual change; avoid redundant rebuilds
-            }
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!mounted) return;
-              if (listEquals<DateTime>(visibleDates, newVisible)) return;
-              setState(() {
-                visibleDates = newVisible;
+        SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: SfCalendar(
+            showNavigationArrow: true,
+            controller: _calendarController,
+            dataSource: BookingDataSource(
+                ref: ref,
+                source: visibleCgs,
+                account: accountToResell.accountName),
+            view: CalendarView.month,
+            monthViewSettings: const MonthViewSettings(
+                appointmentDisplayCount: 4,
+                showAgenda: true,
+                appointmentDisplayMode:
+                    MonthAppointmentDisplayMode.appointment),
+            onViewChanged: (details) {
+              final newVisible = details.visibleDates;
+              if (listEquals<DateTime>(visibleDates, newVisible)) {
+                return; // No actual change; avoid redundant rebuilds
+              }
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted) return;
+                if (listEquals<DateTime>(visibleDates, newVisible)) return;
+                setState(() {
+                  visibleDates = newVisible;
+                });
               });
-            });
-          },
+            },
+          ),
         ),
         Text(visibleCgs.toString()),
       ],
@@ -91,6 +98,25 @@ class BookingDataSource extends CalendarDataSource<CustomerGroup> {
     return appointments![index].name +
         " " +
         "${customers.length}/${appointments![index].maxCapacity}";
+  }
+
+  @override
+  DateTime getStartTime(int index) {
+    return appointments![index].datetime;
+  }
+
+  @override
+  DateTime getEndTime(int index) {
+    CustomerGroup cg = appointments![index];
+    if (cg.tourTypeId == null) {
+      return cg.datetime.add(const Duration(minutes: 60));
+    }
+    TourType? tour =
+        ref.watch(tourTypeByIdProvider(cg.tourTypeId!, account: account)).value;
+    if (tour == null) {
+      return cg.datetime.add(const Duration(minutes: 60));
+    }
+    return cg.datetime.add(Duration(minutes: tour.duration));
   }
 
   @override
