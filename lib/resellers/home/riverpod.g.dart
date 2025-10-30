@@ -378,5 +378,53 @@ class _BookedSpotsProviderElement
   @override
   List<TourTypePricing> get prices => (origin as BookedSpotsProvider).prices;
 }
+
+String _$payNowPreferenceHash() => r'492e76190febef18f1e3b6f9f49f4ca77ab2e84a';
+
+/// See also [PayNowPreference].
+@ProviderFor(PayNowPreference)
+final payNowPreferenceProvider =
+    AutoDisposeNotifierProvider<PayNowPreference, bool>.internal(
+  PayNowPreference.new,
+  name: r'payNowPreferenceProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$payNowPreferenceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$PayNowPreference = AutoDisposeNotifier<bool>;
+String _$nameOnBookingHash() => r'574fc2d515b627d26ebaf5dd5c534f3745df93da';
+
+/// See also [NameOnBooking].
+@ProviderFor(NameOnBooking)
+final nameOnBookingProvider =
+    AutoDisposeNotifierProvider<NameOnBooking, String>.internal(
+  NameOnBooking.new,
+  name: r'nameOnBookingProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$nameOnBookingHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$NameOnBooking = AutoDisposeNotifier<String>;
+String _$otherNotesHash() => r'17761105f5650c0ad9e8f6c9059e7dda640a5ddd';
+
+/// See also [OtherNotes].
+@ProviderFor(OtherNotes)
+final otherNotesProvider =
+    AutoDisposeNotifierProvider<OtherNotes, String>.internal(
+  OtherNotes.new,
+  name: r'otherNotesProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$otherNotesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$OtherNotes = AutoDisposeNotifier<String>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

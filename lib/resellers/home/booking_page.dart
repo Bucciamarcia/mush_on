@@ -87,8 +87,9 @@ class BookingDetailsResellerMain extends ConsumerWidget {
                   pricings: pricings,
                   customers: customersInBooking,
                   bookedSpots: bookedSpots),
-              SecondColumn(),
-              ThirdColumn(),
+              const Expanded(child: SecondColumn()),
+              ThirdColumn(
+                  cg: cg, pricings: pricings ?? [], bookingData: bookingData),
             ],
           );
         },
@@ -125,7 +126,7 @@ class FirstColumn extends StatelessWidget {
       const CircularProgressIndicator.adaptive();
     }
     final spotsAvailable = cg.maxCapacity - customers.length;
-    final listSpotsAvailable = List.generate(spotsAvailable, (i) => (i + 1));
+    final listSpotsAvailable = List.generate(spotsAvailable + 1, (i) => (i));
     return SizedBox(
         width: 200,
         child: Column(
@@ -170,6 +171,7 @@ class SinglePricingRow extends ConsumerWidget {
           ],
         ),
         DropdownMenu(
+            initialSelection: listSpotsAvailable.first,
             onSelected: (v) {
               if (v != null) {
                 ref
@@ -185,20 +187,110 @@ class SinglePricingRow extends ConsumerWidget {
   }
 }
 
-class SecondColumn extends StatelessWidget {
+class SecondColumn extends ConsumerWidget {
   const SecondColumn({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Expanded(child: const Placeholder());
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 350),
+          child: TextField(
+            maxLines: 1,
+            decoration: const InputDecoration(label: Text("Name on booking")),
+            onChanged: (v) {
+              ref.read(nameOnBookingProvider.notifier).change(v);
+            },
+          ),
+        ),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 350),
+          child: TextField(
+            maxLines: 5,
+            decoration: const InputDecoration(label: Text("Other notes")),
+            onChanged: (v) {
+              ref.read(otherNotesProvider.notifier).change(v);
+            },
+          ),
+        )
+      ],
+    );
   }
 }
 
-class ThirdColumn extends StatelessWidget {
-  const ThirdColumn({super.key});
+class ThirdColumn extends ConsumerWidget {
+  final CustomerGroup cg;
+  final List<TourTypePricing> pricings;
+  final BookingDetailsDataFetch bookingData;
+  const ThirdColumn(
+      {super.key,
+      required this.cg,
+      required this.pricings,
+      required this.bookingData});
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(width: 300, child: const Placeholder());
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bookedSpots = ref.watch(bookedSpotsProvider(pricings));
+    final payNowPreference = ref.watch(payNowPreferenceProvider);
+    return SizedBox(
+      width: 200,
+      child: Column(
+        spacing: 20,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Total price:"),
+              Text("${_calculateTotalPrice(bookedSpots)}€")
+            ],
+          ),
+          const Text(
+              "Price includes VAT. It will be removed on the invoice based on your state preferences"),
+          Tooltip(
+            message: _canPayLater()
+                ? "Check to pay now, uncheck to pay later"
+                : "This tour must be paid at the time of booking",
+            child: CheckboxListTile(
+                value: payNowPreference,
+                title: const Text("Pay now"),
+                enabled: _canPayLater(),
+                onChanged: (v) {
+                  if (v != null) {
+                    ref.read(payNowPreferenceProvider.notifier).change(v);
+                  }
+                }),
+          ),
+          ElevatedButton(
+            style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(
+                    Theme.of(context).colorScheme.primary)),
+            onPressed: () {},
+            child: Text("Confirm booking",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                )),
+          )
+        ],
+      ),
+    );
+  }
+
+  /// Calculates whether the reseller is allows to pay late.
+  bool _canPayLater() {
+    if (!bookingData.resellerSettings!.allowedDelayedPayment) return false;
+    int maxDelay = bookingData.resellerSettings!.paymentDelayDays;
+    DateTime cgDatetime = cg.datetime;
+    final distanceToTour = cgDatetime.difference(DateTime.now());
+    if (distanceToTour.inDays <= maxDelay) return false;
+    return true;
+  }
+
+  double _calculateTotalPrice(List<BookedSpot> booked) {
+    double toReturn = 0;
+    for (final b in booked) {
+      toReturn = toReturn + b.pricing.priceCents.toDouble() * b.number;
+    }
+    return toReturn / 100;
   }
 }

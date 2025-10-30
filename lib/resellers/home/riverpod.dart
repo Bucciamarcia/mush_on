@@ -104,6 +104,18 @@ class BookedSpots extends _$BookedSpots {
   }
 }
 
+@riverpod
+class PayNowPreference extends _$PayNowPreference {
+  @override
+  bool build() {
+    return true;
+  }
+
+  void change(bool v) {
+    state = v;
+  }
+}
+
 @freezed
 sealed class BookedSpot with _$BookedSpot {
   const factory BookedSpot({
@@ -135,6 +147,30 @@ Future<BookingDetailsDataFetch> bookingDetailsDataFetch(Ref ref) async {
       resellerData: results[1] as ResellerData?,
       resellerSettings: results[2] as ResellerSettings?,
       accountToResell: results[3] as AccountAndDiscount?);
+}
+
+@riverpod
+class NameOnBooking extends _$NameOnBooking {
+  @override
+  String build() {
+    return "";
+  }
+
+  void change(String v) {
+    state = v;
+  }
+}
+
+@riverpod
+class OtherNotes extends _$OtherNotes {
+  @override
+  String build() {
+    return "";
+  }
+
+  void change(String v) {
+    state = v;
+  }
 }
 
 @freezed
