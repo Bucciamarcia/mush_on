@@ -13,6 +13,326 @@ part of 'riverpod.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
+mixin _$BookedSpot {
+  TourTypePricing get pricing;
+  int get number;
+
+  /// Create a copy of BookedSpot
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $BookedSpotCopyWith<BookedSpot> get copyWith =>
+      _$BookedSpotCopyWithImpl<BookedSpot>(this as BookedSpot, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is BookedSpot &&
+            (identical(other.pricing, pricing) || other.pricing == pricing) &&
+            (identical(other.number, number) || other.number == number));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, pricing, number);
+
+  @override
+  String toString() {
+    return 'BookedSpot(pricing: $pricing, number: $number)';
+  }
+}
+
+/// @nodoc
+abstract mixin class $BookedSpotCopyWith<$Res> {
+  factory $BookedSpotCopyWith(
+          BookedSpot value, $Res Function(BookedSpot) _then) =
+      _$BookedSpotCopyWithImpl;
+  @useResult
+  $Res call({TourTypePricing pricing, int number});
+
+  $TourTypePricingCopyWith<$Res> get pricing;
+}
+
+/// @nodoc
+class _$BookedSpotCopyWithImpl<$Res> implements $BookedSpotCopyWith<$Res> {
+  _$BookedSpotCopyWithImpl(this._self, this._then);
+
+  final BookedSpot _self;
+  final $Res Function(BookedSpot) _then;
+
+  /// Create a copy of BookedSpot
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? pricing = null,
+    Object? number = null,
+  }) {
+    return _then(_self.copyWith(
+      pricing: null == pricing
+          ? _self.pricing
+          : pricing // ignore: cast_nullable_to_non_nullable
+              as TourTypePricing,
+      number: null == number
+          ? _self.number
+          : number // ignore: cast_nullable_to_non_nullable
+              as int,
+    ));
+  }
+
+  /// Create a copy of BookedSpot
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TourTypePricingCopyWith<$Res> get pricing {
+    return $TourTypePricingCopyWith<$Res>(_self.pricing, (value) {
+      return _then(_self.copyWith(pricing: value));
+    });
+  }
+}
+
+/// Adds pattern-matching-related methods to [BookedSpot].
+extension BookedSpotPatterns on BookedSpot {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_BookedSpot value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _BookedSpot() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_BookedSpot value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _BookedSpot():
+        return $default(_that);
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_BookedSpot value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _BookedSpot() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(TourTypePricing pricing, int number)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _BookedSpot() when $default != null:
+        return $default(_that.pricing, _that.number);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(TourTypePricing pricing, int number) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _BookedSpot():
+        return $default(_that.pricing, _that.number);
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(TourTypePricing pricing, int number)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _BookedSpot() when $default != null:
+        return $default(_that.pricing, _that.number);
+      case _:
+        return null;
+    }
+  }
+}
+
+/// @nodoc
+
+class _BookedSpot implements BookedSpot {
+  const _BookedSpot({required this.pricing, required this.number});
+
+  @override
+  final TourTypePricing pricing;
+  @override
+  final int number;
+
+  /// Create a copy of BookedSpot
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$BookedSpotCopyWith<_BookedSpot> get copyWith =>
+      __$BookedSpotCopyWithImpl<_BookedSpot>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _BookedSpot &&
+            (identical(other.pricing, pricing) || other.pricing == pricing) &&
+            (identical(other.number, number) || other.number == number));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, pricing, number);
+
+  @override
+  String toString() {
+    return 'BookedSpot(pricing: $pricing, number: $number)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$BookedSpotCopyWith<$Res>
+    implements $BookedSpotCopyWith<$Res> {
+  factory _$BookedSpotCopyWith(
+          _BookedSpot value, $Res Function(_BookedSpot) _then) =
+      __$BookedSpotCopyWithImpl;
+  @override
+  @useResult
+  $Res call({TourTypePricing pricing, int number});
+
+  @override
+  $TourTypePricingCopyWith<$Res> get pricing;
+}
+
+/// @nodoc
+class __$BookedSpotCopyWithImpl<$Res> implements _$BookedSpotCopyWith<$Res> {
+  __$BookedSpotCopyWithImpl(this._self, this._then);
+
+  final _BookedSpot _self;
+  final $Res Function(_BookedSpot) _then;
+
+  /// Create a copy of BookedSpot
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? pricing = null,
+    Object? number = null,
+  }) {
+    return _then(_BookedSpot(
+      pricing: null == pricing
+          ? _self.pricing
+          : pricing // ignore: cast_nullable_to_non_nullable
+              as TourTypePricing,
+      number: null == number
+          ? _self.number
+          : number // ignore: cast_nullable_to_non_nullable
+              as int,
+    ));
+  }
+
+  /// Create a copy of BookedSpot
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TourTypePricingCopyWith<$Res> get pricing {
+    return $TourTypePricingCopyWith<$Res>(_self.pricing, (value) {
+      return _then(_self.copyWith(pricing: value));
+    });
+  }
+}
+
+/// @nodoc
 mixin _$BookingDetailsDataFetch {
   User? get resellerUser;
   ResellerData? get resellerData;

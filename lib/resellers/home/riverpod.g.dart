@@ -233,5 +233,150 @@ final selectedCustomerGroupProvider =
 );
 
 typedef _$SelectedCustomerGroup = Notifier<CustomerGroup?>;
+String _$bookedSpotsHash() => r'704e04dfb9e47a3d6ced2f18f8cede9942c60d17';
+
+abstract class _$BookedSpots
+    extends BuildlessAutoDisposeNotifier<List<BookedSpot>> {
+  late final List<TourTypePricing> prices;
+
+  List<BookedSpot> build(
+    List<TourTypePricing> prices,
+  );
+}
+
+/// See also [BookedSpots].
+@ProviderFor(BookedSpots)
+const bookedSpotsProvider = BookedSpotsFamily();
+
+/// See also [BookedSpots].
+class BookedSpotsFamily extends Family<List<BookedSpot>> {
+  /// See also [BookedSpots].
+  const BookedSpotsFamily();
+
+  /// See also [BookedSpots].
+  BookedSpotsProvider call(
+    List<TourTypePricing> prices,
+  ) {
+    return BookedSpotsProvider(
+      prices,
+    );
+  }
+
+  @override
+  BookedSpotsProvider getProviderOverride(
+    covariant BookedSpotsProvider provider,
+  ) {
+    return call(
+      provider.prices,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'bookedSpotsProvider';
+}
+
+/// See also [BookedSpots].
+class BookedSpotsProvider
+    extends AutoDisposeNotifierProviderImpl<BookedSpots, List<BookedSpot>> {
+  /// See also [BookedSpots].
+  BookedSpotsProvider(
+    List<TourTypePricing> prices,
+  ) : this._internal(
+          () => BookedSpots()..prices = prices,
+          from: bookedSpotsProvider,
+          name: r'bookedSpotsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$bookedSpotsHash,
+          dependencies: BookedSpotsFamily._dependencies,
+          allTransitiveDependencies:
+              BookedSpotsFamily._allTransitiveDependencies,
+          prices: prices,
+        );
+
+  BookedSpotsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.prices,
+  }) : super.internal();
+
+  final List<TourTypePricing> prices;
+
+  @override
+  List<BookedSpot> runNotifierBuild(
+    covariant BookedSpots notifier,
+  ) {
+    return notifier.build(
+      prices,
+    );
+  }
+
+  @override
+  Override overrideWith(BookedSpots Function() create) {
+    return ProviderOverride(
+      origin: this,
+      override: BookedSpotsProvider._internal(
+        () => create()..prices = prices,
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        prices: prices,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeNotifierProviderElement<BookedSpots, List<BookedSpot>>
+      createElement() {
+    return _BookedSpotsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is BookedSpotsProvider && other.prices == prices;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, prices.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin BookedSpotsRef on AutoDisposeNotifierProviderRef<List<BookedSpot>> {
+  /// The parameter `prices` of this provider.
+  List<TourTypePricing> get prices;
+}
+
+class _BookedSpotsProviderElement
+    extends AutoDisposeNotifierProviderElement<BookedSpots, List<BookedSpot>>
+    with BookedSpotsRef {
+  _BookedSpotsProviderElement(super.provider);
+
+  @override
+  List<TourTypePricing> get prices => (origin as BookedSpotsProvider).prices;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

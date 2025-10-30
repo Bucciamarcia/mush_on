@@ -86,6 +86,43 @@ Future<ResellerSettings?> resellerSettingsAsync(Ref ref) async {
 }
 
 @riverpod
+class BookedSpots extends _$BookedSpots {
+  @override
+  List<BookedSpot> build(List<TourTypePricing> prices) {
+    var toReturn = <BookedSpot>[];
+    for (final p in prices) {
+      toReturn.add(BookedSpot(pricing: p, number: 0));
+    }
+    return toReturn;
+  }
+
+  void changeOne(TourTypePricing pricing, int value) {
+    var toReturn = List<BookedSpot>.from(state);
+    toReturn.removeWhere((bs) => bs.pricing.id == pricing.id);
+    toReturn.add(BookedSpot(pricing: pricing, number: value));
+    state = toReturn;
+  }
+}
+
+@freezed
+sealed class BookedSpot with _$BookedSpot {
+  const factory BookedSpot({
+    required TourTypePricing pricing,
+    required int number,
+  }) = _BookedSpot;
+}
+
+extension BookedSpotListExtension on List<BookedSpot> {
+  int get number {
+    var toReturn = 0;
+    for (final bs in this) {
+      toReturn = toReturn + bs.number;
+    }
+    return toReturn;
+  }
+}
+
+@riverpod
 Future<BookingDetailsDataFetch> bookingDetailsDataFetch(Ref ref) async {
   final results = await Future.wait([
     ref.watch(userProvider.future),

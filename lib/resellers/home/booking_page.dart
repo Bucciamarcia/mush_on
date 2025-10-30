@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/resellers/home/riverpod.dart';
 import 'package:mush_on/resellers/reseller_template.dart';
@@ -36,10 +37,18 @@ class BookingDetailsResellerMain extends ConsumerWidget {
     if (cg.tourTypeId == null) {
       return const Text("The customer group has no tour type: can't be resold");
     }
-    final tourType = ref.watch(tourTypeByIdProvider(cg.tourTypeId!,
-        account: accountToResell?.accountName ?? ""));
-    final pricings = ref.watch(TourTypePricesByTourIdProvider(
-        tourId: cg.tourTypeId!, account: accountToResell?.accountName ?? ""));
+    final tourType = ref
+        .watch(tourTypeByIdProvider(cg.tourTypeId!,
+            account: accountToResell?.accountName ?? ""))
+        .value;
+    final pricings = ref
+        .watch(TourTypePricesByTourIdProvider(
+            tourId: cg.tourTypeId!,
+            account: accountToResell?.accountName ?? ""))
+        .value;
+
+    /// List of sposts that have been selected for this specific booking.
+    final bookedSpots = ref.watch(BookedSpotsProvider(pricings ?? []));
     final List<Customer> customersInBooking;
     if (accountToResell == null) {
       customersInBooking = [];
@@ -68,17 +77,19 @@ class BookingDetailsResellerMain extends ConsumerWidget {
             logger.error("no account to resell");
             return const Text("There is no account to resell set");
           }
-          return const IntrinsicHeight(
-            child: Row(
-              spacing: 5,
-              children: [
-                FirstColumn(),
-                VerticalDivider(),
-                SecondColumn(),
-                VerticalDivider(),
-                ThirdColumn(),
-              ],
-            ),
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
+            children: [
+              FirstColumn(
+                  cg: cg,
+                  tourType: tourType,
+                  pricings: pricings,
+                  customers: customersInBooking,
+                  bookedSpots: bookedSpots),
+              SecondColumn(),
+              ThirdColumn(),
+            ],
           );
         },
         error: (e, s) {
@@ -93,11 +104,84 @@ class BookingDetailsResellerMain extends ConsumerWidget {
 }
 
 class FirstColumn extends StatelessWidget {
-  const FirstColumn({super.key});
+  final CustomerGroup cg;
+  final TourType? tourType;
+  final List<TourTypePricing>? pricings;
+  final List<Customer> customers;
+
+  /// List of sposts that have been selected for this specific booking.
+  final List<BookedSpot> bookedSpots;
+  const FirstColumn(
+      {super.key,
+      required this.cg,
+      required this.tourType,
+      required this.pricings,
+      required this.customers,
+      required this.bookedSpots});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(width: 300, height: 300, child: const Placeholder());
+    if (tourType == null || pricings == null) {
+      const CircularProgressIndicator.adaptive();
+    }
+    final spotsAvailable = cg.maxCapacity - customers.length;
+    final listSpotsAvailable = List.generate(spotsAvailable, (i) => (i + 1));
+    return SizedBox(
+        width: 200,
+        child: Column(
+          spacing: 20,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              tourType!.displayName,
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+            ...pricings!.map((p) => SinglePricingRow(
+                pricing: p,
+                listSpotsAvailable: listSpotsAvailable,
+                prices: pricings!)),
+          ],
+        ));
+  }
+}
+
+class SinglePricingRow extends ConsumerWidget {
+  final TourTypePricing pricing;
+  final List<TourTypePricing> prices;
+  final List<int> listSpotsAvailable;
+  const SinglePricingRow(
+      {super.key,
+      required this.pricing,
+      required this.listSpotsAvailable,
+      required this.prices});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(pricing.displayName, overflow: TextOverflow.fade),
+            Text(
+              "${(pricing.priceCents / 100).toString()}€",
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            )
+          ],
+        ),
+        DropdownMenu(
+            onSelected: (v) {
+              if (v != null) {
+                ref
+                    .read(bookedSpotsProvider(prices).notifier)
+                    .changeOne(pricing, v);
+              }
+            },
+            dropdownMenuEntries: listSpotsAvailable
+                .map((n) => DropdownMenuEntry(value: n, label: n.toString()))
+                .toList())
+      ],
+    );
   }
 }
 
