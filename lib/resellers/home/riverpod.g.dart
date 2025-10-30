@@ -157,7 +157,7 @@ class _TourTypesProviderElement
 }
 
 String _$resellerSettingsAsyncHash() =>
-    r'54194ca21ad4206162597e6232d8bff093258e4b';
+    r'0b37c0a9c5bc96feb11f456e87e656cb0b8a667a';
 
 /// Fetches the reseller settings, but needs to go thorugh a function this time.
 ///
@@ -179,7 +179,7 @@ final resellerSettingsAsyncProvider =
 typedef ResellerSettingsAsyncRef
     = AutoDisposeFutureProviderRef<ResellerSettings?>;
 String _$bookingDetailsDataFetchHash() =>
-    r'2134a57e1558e1cd12483a1e20841a69207d2a45';
+    r'd062edcadf8c7f84a7d9daa7b2ee0e9f237319a7';
 
 /// See also [bookingDetailsDataFetch].
 @ProviderFor(bookingDetailsDataFetch)

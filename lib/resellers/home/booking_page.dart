@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/riverpod.dart';
+import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/resellers/home/riverpod.dart';
 import 'package:mush_on/resellers/reseller_template.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -29,6 +32,24 @@ class BookingDetailsResellerMain extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final logger = BasicLogger();
     final bookingDataAsync = ref.watch(bookingDetailsDataFetchProvider);
+    final accountToResell = ref.watch(accountToResellProvider).value;
+    if (cg.tourTypeId == null) {
+      return const Text("The customer group has no tour type: can't be resold");
+    }
+    final tourType = ref.watch(tourTypeByIdProvider(cg.tourTypeId!,
+        account: accountToResell?.accountName ?? ""));
+    final pricings = ref.watch(TourTypePricesByTourIdProvider(
+        tourId: cg.tourTypeId!, account: accountToResell?.accountName ?? ""));
+    final List<Customer> customersInBooking;
+    if (accountToResell == null) {
+      customersInBooking = [];
+    } else {
+      customersInBooking = ref
+              .watch(customersByCustomerGroupIdProvider(cg.id,
+                  account: accountToResell.accountName))
+              .value ??
+          [];
+    }
     return bookingDataAsync.when(
         data: (bookingData) {
           if (bookingData.resellerUser == null) {
@@ -41,22 +62,23 @@ class BookingDetailsResellerMain extends ConsumerWidget {
           }
           if (bookingData.resellerSettings == null) {
             logger.error("no reseller settings");
-            return const Text(
-                "The kennel hasn't specified any reseller settings");
+            return const Text("No reseller settigns present");
           }
           if (bookingData.accountToResell == null) {
             logger.error("no account to resell");
             return const Text("There is no account to resell set");
           }
-          return Column(
-            children: [
-              Text(cg.toString()),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Go back")),
-            ],
+          return const IntrinsicHeight(
+            child: Row(
+              spacing: 5,
+              children: [
+                FirstColumn(),
+                VerticalDivider(),
+                SecondColumn(),
+                VerticalDivider(),
+                ThirdColumn(),
+              ],
+            ),
           );
         },
         error: (e, s) {
@@ -67,5 +89,32 @@ class BookingDetailsResellerMain extends ConsumerWidget {
                   "Couldn't load the data: error occurred - ${e.toString()}");
         },
         loading: () => const CircularProgressIndicator.adaptive());
+  }
+}
+
+class FirstColumn extends StatelessWidget {
+  const FirstColumn({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(width: 300, height: 300, child: const Placeholder());
+  }
+}
+
+class SecondColumn extends StatelessWidget {
+  const SecondColumn({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(child: const Placeholder());
+  }
+}
+
+class ThirdColumn extends StatelessWidget {
+  const ThirdColumn({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(width: 300, child: const Placeholder());
   }
 }

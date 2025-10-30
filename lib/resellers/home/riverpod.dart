@@ -71,6 +71,7 @@ Future<ResellerSettings?> resellerSettingsAsync(Ref ref) async {
   }
   final path =
       "accounts/${accountToResell.accountName}/data/settings/resellers/settings";
+  logger.debug(path);
   final functions = FirebaseFunctions.instanceFor(region: "europe-north1");
   try {
     final response = await functions
@@ -86,16 +87,17 @@ Future<ResellerSettings?> resellerSettingsAsync(Ref ref) async {
 
 @riverpod
 Future<BookingDetailsDataFetch> bookingDetailsDataFetch(Ref ref) async {
-  final resellerUser = await ref.watch(userProvider.future);
-  final resellerData = await ref.watch(resellerDataProvider.future);
-  final resellerSettings =
-      await ref.watch(resellerSettingsAsyncProvider.future);
-  final accountToResell = await ref.watch(accountToResellProvider.future);
+  final results = await Future.wait([
+    ref.watch(userProvider.future),
+    ref.watch(resellerDataProvider.future),
+    ref.watch(resellerSettingsAsyncProvider.future),
+    ref.watch(accountToResellProvider.future),
+  ]);
   return BookingDetailsDataFetch(
-      resellerUser: resellerUser,
-      resellerData: resellerData,
-      resellerSettings: resellerSettings,
-      accountToResell: accountToResell);
+      resellerUser: results[0] as User?,
+      resellerData: results[1] as ResellerData?,
+      resellerSettings: results[2] as ResellerSettings?,
+      accountToResell: results[3] as AccountAndDiscount?);
 }
 
 @freezed
