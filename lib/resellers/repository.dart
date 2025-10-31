@@ -19,7 +19,6 @@ class ResellerRepository {
 
   bool _isCustomerGroupFull(List<BookedSpot> bookedSpots,
       CustomerGroup customerGroup, List<Customer> existingCustomers) {
-    return true;
     int existingCustomersNumber = existingCustomers.length;
     int maxCapacity = customerGroup.maxCapacity;
     int tryingToBookNumber = bookedSpots.number;
