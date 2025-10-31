@@ -6,6 +6,7 @@ import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/resellers/home/riverpod.dart';
+import 'package:mush_on/resellers/repository.dart';
 import 'package:mush_on/resellers/reseller_template.dart';
 import 'package:mush_on/services/error_handling.dart';
 
@@ -89,7 +90,10 @@ class BookingDetailsResellerMain extends ConsumerWidget {
                   bookedSpots: bookedSpots),
               const Expanded(child: SecondColumn()),
               ThirdColumn(
-                  cg: cg, pricings: pricings ?? [], bookingData: bookingData),
+                  cg: cg,
+                  pricings: pricings ?? [],
+                  bookingData: bookingData,
+                  customers: customersInBooking),
             ],
           );
         },
@@ -223,16 +227,19 @@ class ThirdColumn extends ConsumerWidget {
   final CustomerGroup cg;
   final List<TourTypePricing> pricings;
   final BookingDetailsDataFetch bookingData;
+  final List<Customer> customers;
   const ThirdColumn(
       {super.key,
       required this.cg,
       required this.pricings,
+      required this.customers,
       required this.bookingData});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bookedSpots = ref.watch(bookedSpotsProvider(pricings));
     final payNowPreference = ref.watch(payNowPreferenceProvider);
+    final logger = BasicLogger();
     return SizedBox(
       width: 200,
       child: Column(
@@ -265,7 +272,35 @@ class ThirdColumn extends ConsumerWidget {
             style: ButtonStyle(
                 backgroundColor: WidgetStatePropertyAll(
                     Theme.of(context).colorScheme.primary)),
-            onPressed: () {},
+            onPressed: () async {
+              if (payNowPreference) {
+                try {
+                  await ResellerRepository().makeResellerBooking(
+                      bookedSpots: bookedSpots,
+                      customerGroup: cg,
+                      existingCustomers: customers);
+                  logger.info("Booking confirmed");
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationSnackbar(context, "Booking confirmed"));
+                  }
+                } on GroupAlreadyFullException catch (e, s) {
+                  logger.error("The group is already full!",
+                      error: e, stackTrace: s);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(errorSnackBar(context, e.toString()));
+                  }
+                } catch (e, s) {
+                  logger.error("Error while making reseller booking",
+                      error: e, stackTrace: s);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Couldn't book this tour"));
+                  }
+                }
+              }
+            },
             child: Text("Confirm booking",
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onPrimary,
