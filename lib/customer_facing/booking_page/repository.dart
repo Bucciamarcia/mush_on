@@ -63,7 +63,7 @@ class BookingPageRepository {
     }
   }
 
-  /// Initial add to the db of the tour.
+  /// Initial add to the db of the tour with PaymentStatus.waiting.
   Future<void> bookTour(Booking booking, List<Customer> customers) async {
     final ref = FirebaseFunctions.instanceFor(region: "europe-north1");
     final bookingData = booking.copyWith(

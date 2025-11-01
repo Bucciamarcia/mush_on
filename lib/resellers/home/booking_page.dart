@@ -9,6 +9,7 @@ import 'package:mush_on/resellers/home/riverpod.dart';
 import 'package:mush_on/resellers/repository.dart';
 import 'package:mush_on/resellers/reseller_template.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
 
 class BookingDetailsReseller extends ConsumerWidget {
   const BookingDetailsReseller({super.key});
@@ -275,9 +276,27 @@ class ThirdColumn extends ConsumerWidget {
             onPressed: () async {
               if (payNowPreference) {
                 try {
-                  await ResellerRepository().makeResellerBooking(
+                  final kennelInfo = await ref.watch(
+                      bookingManagerKennelInfoProvider(
+                              account: bookingData.accountToResell!.accountName)
+                          .future);
+                  if (kennelInfo == null) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
+                          context, "Error: couldn't get kennel info"));
+                      return;
+                    } else {
+                      return;
+                    }
+                  }
+                  await ResellerRepository().getStripeUrlReseller(
                       bookedSpots: bookedSpots,
+                      account: bookingData.accountToResell!.accountName,
+                      kennelInfo: kennelInfo,
+                      pricings: pricings,
                       customerGroup: cg,
+                      resellerName:
+                          bookingData.resellerData!.businessInfo.legalName,
                       existingCustomers: customers);
                   logger.info("Booking confirmed");
                   if (context.mounted) {
