@@ -10,6 +10,7 @@ import 'package:mush_on/resellers/repository.dart';
 import 'package:mush_on/resellers/reseller_template.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BookingDetailsReseller extends ConsumerWidget {
   const BookingDetailsReseller({super.key});
@@ -289,8 +290,9 @@ class ThirdColumn extends ConsumerWidget {
                       return;
                     }
                   }
-                  await ResellerRepository().getStripeUrlReseller(
+                  final url = await ResellerRepository().getStripeUrlReseller(
                       bookedSpots: bookedSpots,
+                      resellerId: bookingData.resellerUser!.uid,
                       account: bookingData.accountToResell!.accountName,
                       kennelInfo: kennelInfo,
                       pricings: pricings,
@@ -298,6 +300,7 @@ class ThirdColumn extends ConsumerWidget {
                       resellerName:
                           bookingData.resellerData!.businessInfo.legalName,
                       existingCustomers: customers);
+                  await _launchUrl(url);
                   logger.info("Booking confirmed");
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -346,5 +349,16 @@ class ThirdColumn extends ConsumerWidget {
       toReturn = toReturn + b.pricing.priceCents.toDouble() * b.number;
     }
     return toReturn / 100;
+  }
+
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+
+    if (!await launchUrl(
+      uri,
+      mode: LaunchMode.inAppWebView,
+    )) {
+      throw Exception("Could not launch $url");
+    }
   }
 }

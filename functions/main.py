@@ -188,6 +188,59 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
 
 
 @https_fn.on_call()
+def create_checkout_session_reseller(req: https_fn.CallableRequest[dict]) -> dict:
+    try:
+        data = req.data or {}
+        account = data.get("account")
+        line_items = data.get("lineItems") or []
+        fee_amount_raw = data.get("feeAmount")
+        booking_id = data.get("bookingId")
+        total_amount_cents_wrapped = data.get("totalAmount")
+
+        if not account or not line_items or fee_amount_raw is None or not booking_id:
+            return {"error": "account, line items, bookingId or fee amount is null"}
+
+        total_amount_cents = _unwrap_int64_wrappers(total_amount_cents_wrapped)
+        # Sanitize int-like values
+        fee_amount = _unwrap_int64_wrappers(fee_amount_raw)
+        for item in line_items:
+            # quantity
+            if "quantity" in item:
+                item["quantity"] = _unwrap_int64_wrappers(item["quantity"])
+            # unit_amount
+            pd = item.get("price_data") or {}
+            if "unit_amount" in pd:
+                pd["unit_amount"] = _unwrap_int64_wrappers(pd["unit_amount"])
+
+        stripe_data = get_stripe_data(account)
+        stripe_account_id = stripe_data["accountId"]
+
+        session = stripe.checkout.Session.create(
+            line_items=line_items,
+            client_reference_id=booking_id,
+            payment_intent_data={"application_fee_amount": fee_amount},
+            mode="payment",
+            success_url=f"https://mush-on.web.app/booking_reseller_success?bookingId={booking_id}&account={account}",
+            stripe_account=stripe_account_id,
+        )
+        checkout_session = session.id
+        if checkout_session is None:
+            return {"error": f"Checkout session is None. Session: {session}"}
+        add_checkout_session.add_checkout_session_to_db(
+            checkout_session,
+            account,
+            stripe_account_id,
+            booking_id,
+            total_amount_cents,
+            fee_amount,
+        )
+
+        return {"url": session.url}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@https_fn.on_call()
 def create_stripe_tax_rate(req: https_fn.CallableRequest[dict]) -> dict:
     try:
         data = req.data

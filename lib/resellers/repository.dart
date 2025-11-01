@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:collection/collection.dart';
 import 'package:mush_on/customer_facing/booking_page/repository.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
@@ -13,12 +14,13 @@ class ResellerRepository {
   final functions = FirebaseFunctions.instanceFor(region: "europe-north1");
   final logger = BasicLogger();
 
-  Future<void> getStripeUrlReseller(
+  Future<String> getStripeUrlReseller(
       {required List<BookedSpot> bookedSpots,
       required CustomerGroup customerGroup,
       required String account,
       required BookingManagerKennelInfo kennelInfo,
       required String resellerName,
+      required String resellerId,
       required List<TourTypePricing> pricings,
       required List<Customer> existingCustomers}) async {
     if (_isCustomerGroupFull(bookedSpots, customerGroup, existingCustomers)) {
@@ -26,8 +28,10 @@ class ResellerRepository {
           "Trying to book ${bookedSpots.number} in a group of max ${customerGroup.maxCapacity}, but ${existingCustomers.length} already booked");
     } else {
       // Booking is created here
-      final booking =
-          Booking(id: const Uuid().v4(), customerGroupId: customerGroup.id);
+      final booking = Booking(
+          id: const Uuid().v4(),
+          customerGroupId: customerGroup.id,
+          resellerId: resellerId);
 
       final customersList =
           _fromBookedSpotsToCustomers(bookedSpots, booking.id, resellerName);
@@ -38,6 +42,7 @@ class ResellerRepository {
 
       final url = await _getStripeUrl(
           pricings, customersList, account, booking, kennelInfo);
+      return url;
     }
   }
 
