@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -8,6 +9,7 @@ import 'stripe_models.dart';
 class StripeRepository {
   final db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
+  final functions = FirebaseFunctions.instanceFor(region: "europe-north1");
   final String account;
   static BasicLogger logger = BasicLogger();
 
@@ -18,9 +20,24 @@ class StripeRepository {
     String path = "accounts/$account/integrations/stripe/accounts/$id";
     final doc = db.doc(path);
     try {
-      await doc.set(StripeConnection(accountId: id, isActive: true).toJson());
+      await doc
+          .set(StripeConnection(accountId: id, isActive: isActive).toJson());
     } catch (e, s) {
       logger.error("Couldn't save Stripe account ID", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<String> changeStripeIntegrationActivation(
+      {required bool newStatus, required String stripeAccountId}) async {
+    try {
+      await functions
+          .httpsCallable("activate_stripe_connection")
+          .call({"account": account, "stripeAccountId": stripeAccountId});
+      return "OK";
+    } catch (e, s) {
+      logger.error("Couldn't change Stripe integration activation status",
+          error: e, stackTrace: s);
       rethrow;
     }
   }
@@ -83,7 +100,6 @@ class StripeRepository {
 
   /// Removes the Stripe connection and the payment page settings data.
   Future<void> removeBookingManagerKennelInfo() async {
-    /// TODO: Remove the stripe connection.
     String path = "accounts/$account/data/bookingManager";
     final doc = db.doc(path);
     try {
@@ -128,7 +144,8 @@ class StripeRepository {
           "Successfully fetched image data, size: ${data?.length ?? 0} bytes");
       return data;
     } catch (e, s) {
-      logger.debug("No image found or error occurred: $e");
+      logger.debug("No image found or error occurred: $e",
+          error: e, stackTrace: s);
       return null;
     }
   }

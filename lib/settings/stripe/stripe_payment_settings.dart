@@ -59,11 +59,12 @@ class ConnectStripeButton extends StatelessWidget {
               throw Exception(error);
             }
             final accountId = responseJson["account"];
+            logger.info(accountId);
             if (accountId == null) {
               throw Exception("Account ID is null");
             }
             await StripeRepository(account: account)
-                .saveStripeAccountId(accountId, true);
+                .saveStripeAccountId(accountId, false);
             final responseLink =
                 await FirebaseFunctions.instanceFor(region: "europe-north1")
                     .httpsCallable("stripe_create_account_link")
@@ -79,6 +80,7 @@ class ConnectStripeButton extends StatelessWidget {
             await _launchStripeUrl(url);
           } catch (e, s) {
             logger.error("Couldn't call link", error: e, stackTrace: s);
+            await StripeRepository(account: account).removeStripeAccountId();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                   errorSnackBar(context, "Couldn't connect Stripe account"));

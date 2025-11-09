@@ -137,8 +137,12 @@ final goRoutes = GoRouter(
 
           /// Can be `success` or `failed`
           String? result = state.uri.queryParameters["result"];
+          String? stripeAccountId =
+              state.uri.queryParameters["stripeAccountId"];
           return StripeConnectionResultWidget(
-              account: account, resultString: result);
+              account: account,
+              resultString: result,
+              stripeAccountId: stripeAccountId);
         }),
     GoRoute(
         path: "/booking_success",

@@ -161,10 +161,12 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                                         const Text(
                                             "This action cannot be reversed: you'll need to contact support to restore.\n\nBe EXTREMELY careful with this action, it should NEVER be used if unsure."),
                                         () async {
-                                      // TODO: Cancel data
                                       final account = await ref
                                           .watch(accountProvider.future);
-                                      await StripeRepository(account: account)
+                                      final repo =
+                                          StripeRepository(account: account);
+                                      await repo.removeStripeAccountId();
+                                      await repo
                                           .removeBookingManagerKennelInfo();
                                       if (context.mounted) {
                                         ScaffoldMessenger.of(context)

@@ -11,6 +11,7 @@ from lib.add_booking.add_booking import add_booking_main
 from lib.add_booking import add_checkout_session
 from dotenv import load_dotenv
 import os
+from urllib.parse import parse_qs, quote
 
 from lib.send_invitation_email import SendInvitationEmail
 from lib.send_reseller_invitation_email import SendResellerInvitationEmail
@@ -90,20 +91,67 @@ def stripe_create_account(req: https_fn.CallableRequest[dict]) -> dict:
 
 @https_fn.on_call()
 def stripe_create_account_link(req: https_fn.CallableRequest[dict]) -> dict:
+    print("Starting create account link")
+    print(f"data: {req.data}")
     try:
         connected_account_id = req.data.get("stripeAccount")
         account = req.data.get("account")
         if connected_account_id is None:
+            print("connected account is none")
             return {"error": "account param is not present"}
+        if account is None:
+            print("account is none")
+            return {"error": "account param is not present"}
+
+        is_emulator = os.environ.get("FUNCTIONS_EMULATOR") == "true"
+        base_url = (
+            "http://localhost:36663" if is_emulator else "https://mush-on.web.app"
+        )
+
+        print(
+            f"Running in {'emulator' if is_emulator else 'production'}, base URL: {base_url}"
+        )
+        # URL-encode the account parameter to handle non-ASCII characters
+        encoded_account = quote(account, safe="")
+        print(f"encoded account: {encoded_account}")
+
         account_link = stripe.AccountLink.create(
             account=connected_account_id,
-            return_url=f"https://mush-on.web.app/stripe_connection?kennel={account}&result=success",
-            refresh_url=f"https://mush-on.web.app/stripe_connection?kennel={account}&result=failed",
+            return_url=f"{base_url}/stripe_connection?kennel={encoded_account}&result=success&stripeAccountId={connected_account_id}",
+            refresh_url=f"{base_url}/stripe_connection?kennel={encoded_account}&result=failed&stripeAccountId={connected_account_id}",
             type="account_onboarding",
         )
+        print(f"account link created: {account_link.url}")
         return {"url": account_link.url}
     except Exception as e:
+        print("Exception occurred while creating account link: " + str(e))
         return {"error": str(e)}
+
+
+@https_fn.on_call()
+def activate_stripe_connection(req: https_fn.CallableRequest[dict]) -> dict:
+    data = req.data
+    account = data["account"]
+    stripe_account_id = data["stripeAccountId"]
+    if account is None or stripe_account_id is None:
+        https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "account or stripeAccountId is null",
+        )
+        raise Exception("account or stripeAccountId is null")
+    try:
+        FirestoreUtils().set_doc(
+            path=f"accounts/{account}/integrations/stripe/accounts/{stripe_account_id}",
+            data={"isActive": True},
+            merge=True,
+        )
+        return {"status": "ok"}
+    except Exception as e:
+        https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INTERNAL,
+            f"Failed to activate stripe connection: {str(e)}",
+        )
+        raise e
 
 
 @https_fn.on_call()

@@ -12,12 +12,17 @@ part 'riverpod.g.dart';
 Stream<StripeConnection?> stripeConnection(Ref ref) async* {
   final String account = await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
-  String path = "accounts/$account/integrations/stripe";
-  final doc = db.doc(path);
-  yield* doc.snapshots().map((snapshot) {
-    final data = snapshot.data();
-    if (data == null) return null;
-    return StripeConnection.fromJson(data);
+  String path = "accounts/$account/integrations/stripe/accounts";
+  final collection = db.collection(path);
+  final collectionRef = collection.where("isActive", isEqualTo: true);
+  yield* collectionRef.snapshots().map((snapshot) {
+    final docs = snapshot.docs;
+    if (docs.length > 1) {
+      throw Exception("Too many active stripe connections: ${docs.length}");
+    }
+    if (docs.isEmpty) return null;
+    final doc = docs.first;
+    return StripeConnection.fromJson(doc.data());
   });
 }
 

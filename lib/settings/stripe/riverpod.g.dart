@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$stripeConnectionHash() => r'4baf134e47218c68ccac010d58c3eae9c5f4a7d4';
+String _$stripeConnectionHash() => r'e97fe04c85831344a6a330f3e6fe6f5a10f8fa20';
 
 /// See also [stripeConnection].
 @ProviderFor(stripeConnection)
