@@ -25,7 +25,7 @@ final stripeConnectionProvider =
 // ignore: unused_element
 typedef StripeConnectionRef = AutoDisposeStreamProviderRef<StripeConnection?>;
 String _$bookingManagerKennelInfoHash() =>
-    r'3b17ef822d7f273a2e7b773c3ad6982d8ed113e0';
+    r'1025b29d541fc3699eaaf2a7b07582127060bd8f';
 
 /// Copied from Dart SDK
 class _SystemHash {

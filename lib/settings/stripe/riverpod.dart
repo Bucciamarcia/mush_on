@@ -47,13 +47,17 @@ class KennelImage extends _$KennelImage {
 @riverpod
 Stream<BookingManagerKennelInfo?> bookingManagerKennelInfo(Ref ref,
     {String? account}) async* {
+  final logger = BasicLogger();
+  logger.debug("Passed account: $account");
   account ??= await ref.watch(accountProvider.future);
   final path = "accounts/$account/data/bookingManager";
+  logger.debug("Path: $path");
   final db = FirebaseFirestore.instance;
   final doc = db.doc(path);
   yield* doc.snapshots().map((snapshot) {
     final data = snapshot.data();
     if (data == null) {
+      logger.warning("Data is null");
       return null;
     }
     return BookingManagerKennelInfo.fromJson(data);

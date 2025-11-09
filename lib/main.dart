@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as rp;
 import 'package:mush_on/resellers/home/home.dart';
@@ -66,6 +67,7 @@ Future<void> main() async {
       }
 
       FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+      FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
       await FirebaseAuth.instance.useAuthEmulator(host, 9099);
       FirebaseFunctions.instanceFor(region: "europe-north1")
           .useFunctionsEmulator(host, 5001);

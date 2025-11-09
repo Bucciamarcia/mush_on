@@ -242,94 +242,104 @@ class ThirdColumn extends ConsumerWidget {
     final bookedSpots = ref.watch(bookedSpotsProvider(pricings));
     final payNowPreference = ref.watch(payNowPreferenceProvider);
     final logger = BasicLogger();
+    final kennelInfo = ref
+        .watch(bookingManagerKennelInfoProvider(
+            account: bookingData.accountToResell!.accountName))
+        .value;
     return SizedBox(
       width: 200,
-      child: Column(
-        spacing: 20,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Total price:"),
-              Text("${_calculateTotalPrice(bookedSpots)}€")
-            ],
-          ),
-          const Text(
-              "Price includes VAT. It will be removed on the invoice based on your state preferences"),
-          Tooltip(
-            message: _canPayLater()
-                ? "Check to pay now, uncheck to pay later"
-                : "This tour must be paid at the time of booking",
-            child: CheckboxListTile(
-                value: payNowPreference,
-                title: const Text("Pay now"),
-                enabled: _canPayLater(),
-                onChanged: (v) {
-                  if (v != null) {
-                    ref.read(payNowPreferenceProvider.notifier).change(v);
-                  }
-                }),
-          ),
-          ElevatedButton(
-            style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(
-                    Theme.of(context).colorScheme.primary)),
-            onPressed: () async {
-              if (payNowPreference) {
-                try {
-                  final kennelInfo = await ref.watch(
-                      bookingManagerKennelInfoProvider(
-                              account: bookingData.accountToResell!.accountName)
-                          .future);
-                  if (kennelInfo == null) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
-                          context, "Error: couldn't get kennel info"));
-                      return;
-                    } else {
-                      return;
+      child: kennelInfo == null
+          ? const Text(
+              "The kennel hasn't entered reseller info: the tour cannot be booked")
+          : Column(
+              spacing: 20,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Total price:"),
+                    Text("${_calculateTotalPrice(bookedSpots)}€")
+                  ],
+                ),
+                const Text(
+                    "Price includes VAT. It will be removed on the invoice based on your state preferences"),
+                Tooltip(
+                  message: _canPayLater()
+                      ? "Check to pay now, uncheck to pay later"
+                      : "This tour must be paid at the time of booking",
+                  child: CheckboxListTile(
+                      value: payNowPreference,
+                      title: const Text("Pay now"),
+                      enabled: _canPayLater(),
+                      onChanged: (v) {
+                        if (v != null) {
+                          ref.read(payNowPreferenceProvider.notifier).change(v);
+                        }
+                      }),
+                ),
+                ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(
+                          Theme.of(context).colorScheme.primary)),
+                  onPressed: () async {
+                    if (payNowPreference) {
+                      try {
+                        logger.debug(
+                            "Kennel info: ${bookingData.accountToResell!.accountName}");
+                        if (kennelInfo == null) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                errorSnackBar(context,
+                                    "Error: couldn't get kennel info"));
+                            return;
+                          } else {
+                            return;
+                          }
+                        }
+                        final url = await ResellerRepository()
+                            .getStripeUrlReseller(
+                                bookedSpots: bookedSpots,
+                                resellerId: bookingData.resellerUser!.uid,
+                                account:
+                                    bookingData.accountToResell!.accountName,
+                                kennelInfo: kennelInfo,
+                                pricings: pricings,
+                                customerGroup: cg,
+                                resellerName: bookingData
+                                    .resellerData!.businessInfo.legalName,
+                                existingCustomers: customers);
+                        await _launchUrl(url);
+                        logger.info("Booking confirmed");
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              confirmationSnackbar(
+                                  context, "Booking confirmed"));
+                        }
+                      } on GroupAlreadyFullException catch (e, s) {
+                        logger.error("The group is already full!",
+                            error: e, stackTrace: s);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(context, e.toString()));
+                        }
+                      } catch (e, s) {
+                        logger.error("Error while making reseller booking",
+                            error: e, stackTrace: s);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(
+                                  context, "Couldn't book this tour"));
+                        }
+                      }
                     }
-                  }
-                  final url = await ResellerRepository().getStripeUrlReseller(
-                      bookedSpots: bookedSpots,
-                      resellerId: bookingData.resellerUser!.uid,
-                      account: bookingData.accountToResell!.accountName,
-                      kennelInfo: kennelInfo,
-                      pricings: pricings,
-                      customerGroup: cg,
-                      resellerName:
-                          bookingData.resellerData!.businessInfo.legalName,
-                      existingCustomers: customers);
-                  await _launchUrl(url);
-                  logger.info("Booking confirmed");
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        confirmationSnackbar(context, "Booking confirmed"));
-                  }
-                } on GroupAlreadyFullException catch (e, s) {
-                  logger.error("The group is already full!",
-                      error: e, stackTrace: s);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(errorSnackBar(context, e.toString()));
-                  }
-                } catch (e, s) {
-                  logger.error("Error while making reseller booking",
-                      error: e, stackTrace: s);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        errorSnackBar(context, "Couldn't book this tour"));
-                  }
-                }
-              }
-            },
-            child: Text("Confirm booking",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimary,
-                )),
-          )
-        ],
-      ),
+                  },
+                  child: Text("Confirm booking",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      )),
+                )
+              ],
+            ),
     );
   }
 

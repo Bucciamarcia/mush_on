@@ -6,6 +6,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:mush_on/settings/stripe/shopping_cart_settings_image.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
+import 'package:mush_on/shared/confirmation_box_alert.dart';
 import 'package:mush_on/shared/text_title.dart';
 
 import 'stripe_repository.dart';
@@ -145,8 +146,39 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                       initialSelection: applyVat,
                       label: const Text("Apply Finnish 25,5% VAT"),
                     ),
-                    ElevatedButton(
-                        onPressed: _submitForm, child: const Text("Submit")),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                            onPressed: _submitForm,
+                            child: const Text("Submit")),
+                        ElevatedButton(
+                            onPressed: () => showDialog(
+                                context: context,
+                                builder: (BuildContext ctx) =>
+                                    confirmationBoxAlert(
+                                        const Text("Are you sure?"),
+                                        const Text(
+                                            "This action cannot be reversed: you'll need to contact support to restore.\n\nBe EXTREMELY careful with this action, it should NEVER be used if unsure."),
+                                        () async {
+                                      // TODO: Cancel data
+                                      final account = await ref
+                                          .watch(accountProvider.future);
+                                      await StripeRepository(account: account)
+                                          .removeBookingManagerKennelInfo();
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(confirmationSnackbar(
+                                                context,
+                                                "Data removed correctly"));
+                                      }
+                                      if (ctx.mounted) Navigator.of(ctx).pop();
+                                    }, () {
+                                      if (ctx.mounted) Navigator.of(ctx).pop();
+                                    })),
+                            child: const Text("Remove stripe connection")),
+                      ],
+                    ),
                   ],
                 ),
               ),

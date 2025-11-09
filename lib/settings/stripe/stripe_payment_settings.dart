@@ -63,7 +63,7 @@ class ConnectStripeButton extends StatelessWidget {
               throw Exception("Account ID is null");
             }
             await StripeRepository(account: account)
-                .saveStripeAccountId(accountId);
+                .saveStripeAccountId(accountId, true);
             final responseLink =
                 await FirebaseFunctions.instanceFor(region: "europe-north1")
                     .httpsCallable("stripe_create_account_link")

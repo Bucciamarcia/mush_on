@@ -107,22 +107,6 @@ def stripe_create_account_link(req: https_fn.CallableRequest[dict]) -> dict:
 
 
 @https_fn.on_call()
-def change_stripe_integration_activation(req: https_fn.CallableRequest[dict]) -> dict:
-    try:
-        data = req.data
-        account = data["account"]
-        is_active = data["isActive"]
-        if account is None or is_active is None:
-            return {"error": "account or isActive is null"}
-        db = firestore.client()
-        ref = db.document(f"accounts/{account}/integrations/stripe")
-        ref.update({"isActive": is_active})
-        return {}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-@https_fn.on_call()
 def get_stripe_integration_data(req: https_fn.CallableRequest[dict]) -> dict:
     try:
         data = req.data
