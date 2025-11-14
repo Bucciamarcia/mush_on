@@ -286,16 +286,6 @@ class ThirdColumn extends ConsumerWidget {
                       try {
                         logger.debug(
                             "Kennel info: ${bookingData.accountToResell!.accountName}");
-                        if (kennelInfo == null) {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                errorSnackBar(context,
-                                    "Error: couldn't get kennel info"));
-                            return;
-                          } else {
-                            return;
-                          }
-                        }
                         final url = await ResellerRepository()
                             .getStripeUrlReseller(
                                 bookedSpots: bookedSpots,

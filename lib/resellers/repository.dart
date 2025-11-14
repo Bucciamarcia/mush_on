@@ -64,15 +64,17 @@ class ResellerRepository {
       logger.debug("Account: $account");
       final response =
           await FirebaseFunctions.instanceFor(region: "europe-north1")
-              .httpsCallable("create_checkout_session")
+              .httpsCallable("create_checkout_session_reseller")
               .call({
         "account": account,
         "lineItems": lineItems,
         "feeAmount": commissionCents,
         "bookingId": booking.id,
         "totalAmount": totalCents,
+        "accountId": await _getStirpeAccountId(account),
       });
       final data = response.data as Map<String, dynamic>;
+      logger.debug("DATA FOR CHECKOUT SESSION: $data");
       final error = data["error"];
       if (error != null) {
         throw Exception("Error not null: ${error.toString()}");
@@ -84,6 +86,21 @@ class ResellerRepository {
       return url;
     } catch (e, s) {
       logger.error("Failed to create checkout session",
+          error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  /// Gets the ID of the stripe account to deposit the money to.
+  Future<String> _getStirpeAccountId(String account) async {
+    try {
+      final result = await functions
+          .httpsCallable("get_stripe_account_id_for_account")
+          .call({"account": account});
+      final data = result.data as Map<String, dynamic>;
+      return data["accountId"] as String;
+    } catch (e, s) {
+      logger.error("Couldn't get stripe account id for account $account",
           error: e, stackTrace: s);
       rethrow;
     }

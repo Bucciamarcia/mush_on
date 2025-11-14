@@ -222,6 +222,7 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
 @https_fn.on_call()
 def create_checkout_session_reseller(req: https_fn.CallableRequest[dict]) -> dict:
     try:
+        print("Getting the data from req")
         data = req.data or {}
         account = data.get("account")
         line_items = data.get("lineItems") or []
@@ -232,9 +233,13 @@ def create_checkout_session_reseller(req: https_fn.CallableRequest[dict]) -> dic
         if not account or not line_items or fee_amount_raw is None or not booking_id:
             return {"error": "account, line items, bookingId or fee amount is null"}
 
+        print("Unwrapping total amount cents")
         total_amount_cents = _unwrap_int64_wrappers(total_amount_cents_wrapped)
+        print(f"Total amount cents: {total_amount_cents}")
         # Sanitize int-like values
+        print("Unwrapping fee amount")
         fee_amount = _unwrap_int64_wrappers(fee_amount_raw)
+        print(f"Fee amount: {fee_amount}")
         for item in line_items:
             # quantity
             if "quantity" in item:
@@ -244,9 +249,11 @@ def create_checkout_session_reseller(req: https_fn.CallableRequest[dict]) -> dic
             if "unit_amount" in pd:
                 pd["unit_amount"] = _unwrap_int64_wrappers(pd["unit_amount"])
 
+        print("Getting stripe data")
         stripe_data = get_stripe_data(account)
         stripe_account_id = stripe_data["accountId"]
 
+        print("Creating checkout session")
         session = stripe.checkout.Session.create(
             line_items=line_items,
             client_reference_id=booking_id,
@@ -255,6 +262,7 @@ def create_checkout_session_reseller(req: https_fn.CallableRequest[dict]) -> dic
             success_url=f"https://mush-on.web.app/booking_reseller_success?bookingId={booking_id}&account={account}",
             stripe_account=stripe_account_id,
         )
+        print(f"Checkout session created: {session.id}")
         checkout_session = session.id
         if checkout_session is None:
             return {"error": f"Checkout session is None. Session: {session}"}
@@ -443,6 +451,32 @@ def reseller_invitation_accepted(req: https_fn.CallableRequest[dict]) -> dict:
             https_fn.FunctionsErrorCode.INTERNAL,
             f"Failed to update document: {str(e)}",
         )
+
+
+@https_fn.on_call()
+def get_stripe_account_id_for_account(req: https_fn.CallableRequest[dict]) -> dict:
+    logger = BasicLogger("get_stripe_account_id_for_account")
+    logger.info("Starting get stripe account id for account")
+    data = req.data
+    account = data["account"]
+    if account is None:
+        logger.error("Account is none")
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT, "Account is null"
+        )
+    path = f"accounts/{account}/integrations/stripe/accounts"
+    db = firestore.client()
+    collection = db.collection(path).where("isActive", "==", True)
+    snapshot = collection.get()
+    data = snapshot[0]
+    d = data.to_dict()
+    if d is None:
+        logger.error("Stripe account data is none")
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND,
+            "No active stripe account found for the given account",
+        )
+    return {"accountId": d["accountId"]}
 
 
 @https_fn.on_call()
