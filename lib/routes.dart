@@ -11,7 +11,6 @@ import 'package:mush_on/kennel/dog/dog.dart';
 import 'package:mush_on/kennel/kennel.dart';
 import 'package:mush_on/main.dart';
 import 'package:mush_on/settings/settings.dart';
-import 'package:mush_on/stats/insights/insights.dart';
 import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
 import 'package:mush_on/stats/stats.dart';
@@ -79,11 +78,6 @@ final goRoutes = GoRouter(
       name: "/health_dashboard",
       path: "/health_dashboard",
       builder: (context, state) => const HealthScreen(),
-    ),
-    GoRoute(
-      name: "/insights",
-      path: "/insights",
-      builder: (context, state) => const InsightsScreen(),
     ),
     GoRoute(
       name: "/client_management",

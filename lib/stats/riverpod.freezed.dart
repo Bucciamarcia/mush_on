@@ -13,77 +13,76 @@ part of 'riverpod.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$StatsDateRange {
-  DateTime get startDate;
-  DateTime get endDate;
+mixin _$DateRangeSelection {
+  DateTime get start;
+  DateTime get end;
 
-  /// Create a copy of StatsDateRange
+  /// Create a copy of DateRangeSelection
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $StatsDateRangeCopyWith<StatsDateRange> get copyWith =>
-      _$StatsDateRangeCopyWithImpl<StatsDateRange>(
-          this as StatsDateRange, _$identity);
+  $DateRangeSelectionCopyWith<DateRangeSelection> get copyWith =>
+      _$DateRangeSelectionCopyWithImpl<DateRangeSelection>(
+          this as DateRangeSelection, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is StatsDateRange &&
-            (identical(other.startDate, startDate) ||
-                other.startDate == startDate) &&
-            (identical(other.endDate, endDate) || other.endDate == endDate));
+            other is DateRangeSelection &&
+            (identical(other.start, start) || other.start == start) &&
+            (identical(other.end, end) || other.end == end));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, startDate, endDate);
+  int get hashCode => Object.hash(runtimeType, start, end);
 
   @override
   String toString() {
-    return 'StatsDateRange(startDate: $startDate, endDate: $endDate)';
+    return 'DateRangeSelection(start: $start, end: $end)';
   }
 }
 
 /// @nodoc
-abstract mixin class $StatsDateRangeCopyWith<$Res> {
-  factory $StatsDateRangeCopyWith(
-          StatsDateRange value, $Res Function(StatsDateRange) _then) =
-      _$StatsDateRangeCopyWithImpl;
+abstract mixin class $DateRangeSelectionCopyWith<$Res> {
+  factory $DateRangeSelectionCopyWith(
+          DateRangeSelection value, $Res Function(DateRangeSelection) _then) =
+      _$DateRangeSelectionCopyWithImpl;
   @useResult
-  $Res call({DateTime startDate, DateTime endDate});
+  $Res call({DateTime start, DateTime end});
 }
 
 /// @nodoc
-class _$StatsDateRangeCopyWithImpl<$Res>
-    implements $StatsDateRangeCopyWith<$Res> {
-  _$StatsDateRangeCopyWithImpl(this._self, this._then);
+class _$DateRangeSelectionCopyWithImpl<$Res>
+    implements $DateRangeSelectionCopyWith<$Res> {
+  _$DateRangeSelectionCopyWithImpl(this._self, this._then);
 
-  final StatsDateRange _self;
-  final $Res Function(StatsDateRange) _then;
+  final DateRangeSelection _self;
+  final $Res Function(DateRangeSelection) _then;
 
-  /// Create a copy of StatsDateRange
+  /// Create a copy of DateRangeSelection
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? startDate = null,
-    Object? endDate = null,
+    Object? start = null,
+    Object? end = null,
   }) {
     return _then(_self.copyWith(
-      startDate: null == startDate
-          ? _self.startDate
-          : startDate // ignore: cast_nullable_to_non_nullable
+      start: null == start
+          ? _self.start
+          : start // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      endDate: null == endDate
-          ? _self.endDate
-          : endDate // ignore: cast_nullable_to_non_nullable
+      end: null == end
+          ? _self.end
+          : end // ignore: cast_nullable_to_non_nullable
               as DateTime,
     ));
   }
 }
 
-/// Adds pattern-matching-related methods to [StatsDateRange].
-extension StatsDateRangePatterns on StatsDateRange {
+/// Adds pattern-matching-related methods to [DateRangeSelection].
+extension DateRangeSelectionPatterns on DateRangeSelection {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -98,12 +97,12 @@ extension StatsDateRangePatterns on StatsDateRange {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_StatsDateRange value)? $default, {
+    TResult Function(_DateRangeSelection value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _StatsDateRange() when $default != null:
+      case _DateRangeSelection() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -125,14 +124,12 @@ extension StatsDateRangePatterns on StatsDateRange {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_StatsDateRange value) $default,
+    TResult Function(_DateRangeSelection value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _StatsDateRange():
+      case _DateRangeSelection():
         return $default(_that);
-      case _:
-        throw StateError('Unexpected subclass');
     }
   }
 
@@ -150,11 +147,11 @@ extension StatsDateRangePatterns on StatsDateRange {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_StatsDateRange value)? $default,
+    TResult? Function(_DateRangeSelection value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _StatsDateRange() when $default != null:
+      case _DateRangeSelection() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -175,13 +172,13 @@ extension StatsDateRangePatterns on StatsDateRange {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(DateTime startDate, DateTime endDate)? $default, {
+    TResult Function(DateTime start, DateTime end)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _StatsDateRange() when $default != null:
-        return $default(_that.startDate, _that.endDate);
+      case _DateRangeSelection() when $default != null:
+        return $default(_that.start, _that.end);
       case _:
         return orElse();
     }
@@ -202,14 +199,12 @@ extension StatsDateRangePatterns on StatsDateRange {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(DateTime startDate, DateTime endDate) $default,
+    TResult Function(DateTime start, DateTime end) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _StatsDateRange():
-        return $default(_that.startDate, _that.endDate);
-      case _:
-        throw StateError('Unexpected subclass');
+      case _DateRangeSelection():
+        return $default(_that.start, _that.end);
     }
   }
 
@@ -227,12 +222,12 @@ extension StatsDateRangePatterns on StatsDateRange {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(DateTime startDate, DateTime endDate)? $default,
+    TResult? Function(DateTime start, DateTime end)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _StatsDateRange() when $default != null:
-        return $default(_that.startDate, _that.endDate);
+      case _DateRangeSelection() when $default != null:
+        return $default(_that.start, _that.end);
       case _:
         return null;
     }
@@ -241,77 +236,75 @@ extension StatsDateRangePatterns on StatsDateRange {
 
 /// @nodoc
 
-class _StatsDateRange extends StatsDateRange {
-  const _StatsDateRange({required this.startDate, required this.endDate})
-      : super._();
+class _DateRangeSelection implements DateRangeSelection {
+  const _DateRangeSelection({required this.start, required this.end});
 
   @override
-  final DateTime startDate;
+  final DateTime start;
   @override
-  final DateTime endDate;
+  final DateTime end;
 
-  /// Create a copy of StatsDateRange
+  /// Create a copy of DateRangeSelection
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$StatsDateRangeCopyWith<_StatsDateRange> get copyWith =>
-      __$StatsDateRangeCopyWithImpl<_StatsDateRange>(this, _$identity);
+  _$DateRangeSelectionCopyWith<_DateRangeSelection> get copyWith =>
+      __$DateRangeSelectionCopyWithImpl<_DateRangeSelection>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _StatsDateRange &&
-            (identical(other.startDate, startDate) ||
-                other.startDate == startDate) &&
-            (identical(other.endDate, endDate) || other.endDate == endDate));
+            other is _DateRangeSelection &&
+            (identical(other.start, start) || other.start == start) &&
+            (identical(other.end, end) || other.end == end));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, startDate, endDate);
+  int get hashCode => Object.hash(runtimeType, start, end);
 
   @override
   String toString() {
-    return 'StatsDateRange(startDate: $startDate, endDate: $endDate)';
+    return 'DateRangeSelection(start: $start, end: $end)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$StatsDateRangeCopyWith<$Res>
-    implements $StatsDateRangeCopyWith<$Res> {
-  factory _$StatsDateRangeCopyWith(
-          _StatsDateRange value, $Res Function(_StatsDateRange) _then) =
-      __$StatsDateRangeCopyWithImpl;
+abstract mixin class _$DateRangeSelectionCopyWith<$Res>
+    implements $DateRangeSelectionCopyWith<$Res> {
+  factory _$DateRangeSelectionCopyWith(
+          _DateRangeSelection value, $Res Function(_DateRangeSelection) _then) =
+      __$DateRangeSelectionCopyWithImpl;
   @override
   @useResult
-  $Res call({DateTime startDate, DateTime endDate});
+  $Res call({DateTime start, DateTime end});
 }
 
 /// @nodoc
-class __$StatsDateRangeCopyWithImpl<$Res>
-    implements _$StatsDateRangeCopyWith<$Res> {
-  __$StatsDateRangeCopyWithImpl(this._self, this._then);
+class __$DateRangeSelectionCopyWithImpl<$Res>
+    implements _$DateRangeSelectionCopyWith<$Res> {
+  __$DateRangeSelectionCopyWithImpl(this._self, this._then);
 
-  final _StatsDateRange _self;
-  final $Res Function(_StatsDateRange) _then;
+  final _DateRangeSelection _self;
+  final $Res Function(_DateRangeSelection) _then;
 
-  /// Create a copy of StatsDateRange
+  /// Create a copy of DateRangeSelection
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? startDate = null,
-    Object? endDate = null,
+    Object? start = null,
+    Object? end = null,
   }) {
-    return _then(_StatsDateRange(
-      startDate: null == startDate
-          ? _self.startDate
-          : startDate // ignore: cast_nullable_to_non_nullable
+    return _then(_DateRangeSelection(
+      start: null == start
+          ? _self.start
+          : start // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      endDate: null == endDate
-          ? _self.endDate
-          : endDate // ignore: cast_nullable_to_non_nullable
+      end: null == end
+          ? _self.end
+          : end // ignore: cast_nullable_to_non_nullable
               as DateTime,
     ));
   }

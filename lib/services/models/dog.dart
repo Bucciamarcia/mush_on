@@ -94,6 +94,14 @@ extension DogListExtension on List<Dog> {
   Map<String, Dog> getAllDogsById() {
     return {for (var dog in this) dog.id: dog};
   }
+
+  String get justNames {
+    var toReturn = "";
+    for (final dog in this) {
+      toReturn = "$toReturn // ${dog.name}";
+    }
+    return toReturn.replaceFirst(" // ", "");
+  }
 }
 
 /// All the operations related to the Dog class
