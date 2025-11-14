@@ -1,8 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/riverpod/teamgroup.dart';
 import 'package:mush_on/stats/group_summary.dart';
+import 'package:mush_on/stats/riverpod.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../services/models.dart';
 import 'constants.dart';
@@ -14,13 +13,13 @@ class GridRowProcessor {
   List<Dog> dogs;
   DateTime startDate;
   DateTime finishDate;
-  WidgetRef ref;
+  TeamGroupData teamGroupData;
   GridRowProcessor(
       {required this.teams,
       required this.dogs,
       required this.startDate,
       required this.finishDate,
-      required this.ref});
+      required this.teamGroupData});
   GridRowProcessorResult run() {
     Map<String, Dog> dogsMap = _generateDogsMap();
     // Get daily aggregated data
@@ -89,12 +88,10 @@ class GridRowProcessor {
           // Add try-catch to catch potential errors in inner loops
           for (TeamGroup dayTeam in dayTeams) {
             List<Team> teams =
-                ref.watch(teamsInTeamgroupProvider(dayTeam.id)).value ?? [];
+                teamGroupData.teamsByGroupId[dayTeam.id] ?? [];
             for (Team team in teams) {
-              List<DogPair> dogPairs = ref
-                      .watch(dogPairsInTeamProvider(dayTeam.id, team.id))
-                      .value ??
-                  [];
+              List<DogPair> dogPairs =
+                  teamGroupData.dogPairsByGroupAndTeamId[dayTeam.id]?[team.id] ?? [];
               for (DogPair dogPair in dogPairs) {
                 if (dogPair.firstDogId != null) {
                   dogDistances[dogPair.firstDogId!] =
