@@ -27,123 +27,140 @@ class StatsMain extends ConsumerWidget {
         final filteredDogs = ref.watch(filteredDogsProvider);
         var dates = ref.watch(statsDatesProvider);
         var teamGroupsAsync = ref.watch(teamGroupsProvider(
-            earliestDate: dates.startDate,
+            earliestDate:
+                DateTimeUtils.today().subtract(const Duration(days: 14)),
             finalDate: DateTimeUtils.endOfToday()));
         return teamGroupsAsync.when(
           data: (teams) {
-            GridRowProcessor dataManipulator = GridRowProcessor(
-                teams: teams,
-                dogs: filteredDogs.isEmpty ? allDogs : filteredDogs,
-                startDate: dates.startDate,
-                finishDate: dates.endDate,
-                ref: ref);
-            GridRowProcessorResult gridData = dataManipulator.run();
+            final prefetchedDataAsync =
+                ref.watch(prefetchedTeamDataProvider(teams));
+            return prefetchedDataAsync.when(
+              data: (teamGroupData) {
+                GridRowProcessor dataManipulator = GridRowProcessor(
+                    teams: teams,
+                    dogs: filteredDogs.isEmpty ? allDogs : filteredDogs,
+                    startDate: dates.startDate,
+                    finishDate: dates.endDate,
+                    teamGroupData: teamGroupData);
+                GridRowProcessorResult gridData = dataManipulator.run();
 
-            StatsDataSource statsDataSource =
-                StatsDataSource(gridData: gridData);
+                StatsDataSource statsDataSource =
+                    StatsDataSource(gridData: gridData);
 
-            return Column(
-              children: [
-                Card(
-                  child: ExpansionTile(
-                    maintainState: true,
-                    title: const Text("Filter date"),
-                    children: [
-                      DateRangePicker(
-                        key: const PageStorageKey("daterangepicker stats"),
-                        maxDate: DateTimeUtils.today(),
-                        minDate: calculateOldestTeamGroup(teams)
-                                .isBefore(DateTimeUtils.today())
-                            ? calculateOldestTeamGroup(teams)
-                            : DateTimeUtils.today(),
-                        onSelectionChanged: (r) => _onSelectionChanged(
-                          r: r,
-                          onNewEndDate: (date) => ref
-                              .read(statsDatesProvider.notifier)
-                              .changeEndDate(date),
-                          onNewStartDate: (date) => ref
-                              .read(statsDatesProvider.notifier)
-                              .changeStartDate(date),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Card(
-                    child: ExpansionTile(
-                  maintainState: true,
-                  title: const Text("Filter dogs"),
+                return Column(
                   children: [
-                    DogFilterWidget(
-                        dogs: allDogs,
-                        onResult: (changedDogs) => ref
-                            .read(filteredDogsProvider.notifier)
-                            .changeFilteredDogs(changedDogs),
-                        templates: null)
-                  ],
-                )),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.download),
-                        label: const Text('Export CSV'),
-                        onPressed: () async {
-                          try {
-                            final dogsToUse =
-                                filteredDogs.isEmpty ? allDogs : filteredDogs;
-                            final csv = _buildCsv(
-                              gridData: gridData,
-                              dogs: dogsToUse,
-                            );
-                            // Direct download on Web or Android. Otherwise, copy to clipboard.
-                            bool saved = await saveCsvIfSupported(
-                              filename: 'stats.csv',
-                              content: csv,
-                            );
-                            if (!saved) {
-                              await Clipboard.setData(ClipboardData(text: csv));
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'CSV copied to clipboard. Paste it into a file (e.g., stats.csv).'),
-                                  ),
-                                );
-                              }
-                            } else {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('CSV download started/saved.'),
-                                  ),
-                                );
-                              }
-                            }
-                          } catch (e, s) {
-                            logger.error('CSV export failed',
-                                error: e, stackTrace: s);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Failed to export CSV'),
-                                ),
-                              );
-                            }
-                          }
-                        },
+                    Card(
+                      child: ExpansionTile(
+                        maintainState: true,
+                        title: const Text("Filter date"),
+                        children: [
+                          DateRangePicker(
+                            key: const PageStorageKey("daterangepicker stats"),
+                            maxDate: DateTimeUtils.today(),
+                            minDate: calculateOldestTeamGroup(teams)
+                                    .isBefore(DateTimeUtils.today())
+                                ? calculateOldestTeamGroup(teams)
+                                : DateTimeUtils.today(),
+                            onSelectionChanged: (r) => _onSelectionChanged(
+                              r: r,
+                              onNewEndDate: (date) => ref
+                                  .read(statsDatesProvider.notifier)
+                                  .changeEndDate(date),
+                              onNewStartDate: (date) => ref
+                                  .read(statsDatesProvider.notifier)
+                                  .changeStartDate(date),
+                            ),
+                          )
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-                Flexible(
-                    child: SfDataGridClass(
-                        statsDataSource: statsDataSource,
-                        dogs: filteredDogs.isEmpty ? allDogs : filteredDogs)),
-              ],
+                    ),
+                    Card(
+                        child: ExpansionTile(
+                      maintainState: true,
+                      title: const Text("Filter dogs"),
+                      children: [
+                        DogFilterWidget(
+                            dogs: allDogs,
+                            onResult: (changedDogs) => ref
+                                .read(filteredDogsProvider.notifier)
+                                .changeFilteredDogs(changedDogs),
+                            templates: null)
+                      ],
+                    )),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.download),
+                            label: const Text('Export CSV'),
+                            onPressed: () async {
+                              try {
+                                final dogsToUse = filteredDogs.isEmpty
+                                    ? allDogs
+                                    : filteredDogs;
+                                final csv = _buildCsv(
+                                  gridData: gridData,
+                                  dogs: dogsToUse,
+                                );
+                                // Direct download on Web or Android. Otherwise, copy to clipboard.
+                                bool saved = await saveCsvIfSupported(
+                                  filename: 'stats.csv',
+                                  content: csv,
+                                );
+                                if (!saved) {
+                                  await Clipboard.setData(
+                                      ClipboardData(text: csv));
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'CSV copied to clipboard. Paste it into a file (e.g., stats.csv).'),
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text('CSV download started/saved.'),
+                                      ),
+                                    );
+                                  }
+                                }
+                              } catch (e, s) {
+                                logger.error('CSV export failed',
+                                    error: e, stackTrace: s);
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Failed to export CSV'),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    Flexible(
+                        child: SfDataGridClass(
+                            statsDataSource: statsDataSource,
+                            dogs:
+                                filteredDogs.isEmpty ? allDogs : filteredDogs)),
+                  ],
+                );
+              },
+              error: (e, s) {
+                logger.error("Couldn't prefetch team data",
+                    error: e, stackTrace: s);
+                return const Text("Couldn't load team details");
+              },
+              loading: () =>
+                  const Center(child: CircularProgressIndicator.adaptive()),
             );
           },
           error: (e, s) {
