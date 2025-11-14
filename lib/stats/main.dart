@@ -27,8 +27,7 @@ class StatsMain extends ConsumerWidget {
         final filteredDogs = ref.watch(filteredDogsProvider);
         var dates = ref.watch(statsDatesProvider);
         var teamGroupsAsync = ref.watch(teamGroupsProvider(
-            earliestDate:
-                DateTimeUtils.today().subtract(const Duration(days: 30)),
+            earliestDate: dates.startDate,
             finalDate: DateTimeUtils.endOfToday()));
         return teamGroupsAsync.when(
           data: (teams) {
