@@ -64,8 +64,7 @@ class StatsMain extends ConsumerWidget {
                           child: TabBarView(
                             children: [
                               RunTable(
-                                  selectedDogs: dogsToDisplay,
-                                  teamGroups: teamGroups),
+                                  dogs: dogsToDisplay, teamGroups: teamGroups),
                               const Placeholder(),
                             ],
                           ),
