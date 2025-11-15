@@ -8,6 +8,8 @@ import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:mush_on/stats/repository.dart';
 import 'package:mush_on/stats/riverpod.dart';
 
+import 'run_table/main.dart';
+
 class StatsMain extends ConsumerWidget {
   const StatsMain({super.key});
 
@@ -61,18 +63,9 @@ class StatsMain extends ConsumerWidget {
                         Expanded(
                           child: TabBarView(
                             children: [
-                              SingleChildScrollView(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    DogFilter(allDogs: allDogs),
-                                    Text(selectedDateRange.toString()),
-                                    Text(
-                                        "Number of dogs: ${dogsToDisplay.length}"),
-                                    Text(dogsToDisplay.justNames),
-                                  ],
-                                ),
-                              ),
+                              RunTable(
+                                  selectedDogs: dogsToDisplay,
+                                  teamGroups: teamGroups),
                               const Placeholder(),
                             ],
                           ),
