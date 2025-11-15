@@ -11,7 +11,12 @@ from lib.add_booking.add_booking import add_booking_main
 from lib.add_booking import add_checkout_session
 from dotenv import load_dotenv
 import os
-
+import asyncio
+from datetime import datetime
+from firebase_functions import https_fn
+from firebase_admin import firestore
+from concurrent.futures import ThreadPoolExecutor
+from typing import List, Dict, Any
 from lib.send_invitation_email import SendInvitationEmail
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import get_stripe_data
@@ -309,3 +314,127 @@ def get_list_of_accounts(req: https_fn.CallableRequest[dict]) -> dict:
         to_return.append(account.id)
         number = number + 1
     return {"accounts": to_return, "number": number}
+
+
+@https_fn.on_call()
+def team_groups_workspace_from_date_range(req: https_fn.CallableRequest):
+    """
+    Fetch team groups with nested teams and dog pairs for a date range.
+
+    Expected data:
+    {
+        "account": "account_id",
+        "start": "ISO datetime string",
+        "end": "ISO datetime string"
+    }
+    """
+    # Parse request data
+    data = req.data
+    account = data.get("account")
+    start_str = data.get("start")
+    end_str = data.get("end")
+
+    # Validate inputs
+    if not account or not start_str or not end_str:
+        raise https_fn.HttpsError(
+            code=https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            message="Missing required fields: account, start, end",
+        )
+
+    # Parse datetime strings
+    start = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
+    end = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
+
+    db = firestore.client()
+    path = f"accounts/{account}/data/teams/history"
+
+    # Step 1: Get all team groups
+    team_groups_ref = (
+        db.collection(path).where("date", ">=", start).where("date", "<=", end)
+    )
+    team_groups_snapshot = team_groups_ref.stream()
+    team_groups = list(team_groups_snapshot)
+
+    # Step 2: Get all teams in parallel
+    def get_teams(team_group_id):
+        teams_ref = db.collection(f"{path}/{team_group_id}/teams")
+        return list(teams_ref.stream())
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        teams_for_teamgroup = list(
+            executor.map(get_teams, [tg.id for tg in team_groups])
+        )
+
+    # Step 3: Build list of all team references for dog pairs fetch
+    all_team_refs = []
+    for i, team_group in enumerate(team_groups):
+        teams = teams_for_teamgroup[i]
+        for team in teams:
+            all_team_refs.append({"teamGroupId": team_group.id, "teamId": team.id})
+
+    # Step 4: Fetch all dog pairs in parallel
+    def get_dog_pairs(team_ref):
+        tg_id = team_ref["teamGroupId"]
+        t_id = team_ref["teamId"]
+        dog_pairs_ref = db.collection(f"{path}/{tg_id}/teams/{t_id}/dogPairs")
+        dog_pairs = [doc.to_dict() for doc in dog_pairs_ref.stream()]
+        return {"teamGroupId": tg_id, "teamId": t_id, "dogPairs": dog_pairs}
+
+    with ThreadPoolExecutor(max_workers=50) as executor:
+        dog_pairs_results = list(executor.map(get_dog_pairs, all_team_refs))
+
+    # Step 5: Build lookup map for dog pairs
+    dog_pairs_map = {}
+    for result in dog_pairs_results:
+        tg_id = result["teamGroupId"]
+        t_id = result["teamId"]
+
+        if tg_id not in dog_pairs_map:
+            dog_pairs_map[tg_id] = {}
+
+        dog_pairs_map[tg_id][t_id] = [
+            {
+                "id": dp.get("id"),
+                "firstDogId": dp.get("firstDogId"),
+                "secondDogId": dp.get("secondDogId"),
+            }
+            for dp in result["dogPairs"]
+        ]
+
+    # Step 6: Build final structure
+    to_return = []
+    for i, team_group_doc in enumerate(team_groups):
+        tg_data = team_group_doc.to_dict()
+        if tg_data is None:
+            continue
+        team_docs = teams_for_teamgroup[i]
+
+        teams_workspace = []
+        for team_doc in team_docs:
+            team_data = team_doc.to_dict()
+            if team_data is None:
+                continue
+            dog_pairs = dog_pairs_map.get(tg_data["id"], {}).get(team_data["id"], [])
+
+            teams_workspace.append(
+                {
+                    "id": team_data.get("id"),
+                    "name": team_data.get("name"),
+                    "capacity": team_data.get("capacity"),
+                    "dogPairs": dog_pairs,
+                }
+            )
+
+        to_return.append(
+            {
+                "date": tg_data.get("date"),
+                "runType": tg_data.get("runType"),
+                "notes": tg_data.get("notes"),
+                "name": tg_data.get("name"),
+                "id": tg_data.get("id"),
+                "teams": teams_workspace,
+                "distance": tg_data.get("distance"),
+            }
+        )
+
+    return {"teamGroups": to_return}
