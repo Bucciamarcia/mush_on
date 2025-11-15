@@ -13,6 +13,33 @@ import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
 
+class FlexibleTimestampConverter implements JsonConverter<DateTime, dynamic> {
+  const FlexibleTimestampConverter();
+
+  @override
+  DateTime fromJson(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    } else if (value is String) {
+      return DateTime.parse(value);
+    } else if (value is Map) {
+      // Handle Firestore Timestamp serialized as map
+      // e.g., {_seconds: 1234567890, _nanoseconds: 0}
+      final seconds = value['_seconds'] ?? value['seconds'];
+      final nanoseconds = value['_nanoseconds'] ?? value['nanoseconds'] ?? 0;
+      if (seconds != null) {
+        return DateTime.fromMillisecondsSinceEpoch(
+          seconds * 1000 + (nanoseconds ~/ 1000000),
+        );
+      }
+    }
+    throw ArgumentError('Cannot convert $value to DateTime');
+  }
+
+  @override
+  Timestamp toJson(DateTime date) => Timestamp.fromDate(date);
+}
+
 @freezed
 sealed class TeamGroupWorkspace with _$TeamGroupWorkspace {
   const factory TeamGroupWorkspace({

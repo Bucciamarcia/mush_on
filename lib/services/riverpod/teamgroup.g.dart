@@ -473,5 +473,161 @@ class _DogPairsInTeamProviderElement
   @override
   String get teamId => (origin as DogPairsInTeamProvider).teamId;
 }
+
+String _$teamGroupsWorkspaceFromDateRangeHash() =>
+    r'7a8179663a19325c5e8b07b4c4a9e810b5125545';
+
+/// See also [teamGroupsWorkspaceFromDateRange].
+@ProviderFor(teamGroupsWorkspaceFromDateRange)
+const teamGroupsWorkspaceFromDateRangeProvider =
+    TeamGroupsWorkspaceFromDateRangeFamily();
+
+/// See also [teamGroupsWorkspaceFromDateRange].
+class TeamGroupsWorkspaceFromDateRangeFamily
+    extends Family<AsyncValue<List<TeamGroupWorkspace>>> {
+  /// See also [teamGroupsWorkspaceFromDateRange].
+  const TeamGroupsWorkspaceFromDateRangeFamily();
+
+  /// See also [teamGroupsWorkspaceFromDateRange].
+  TeamGroupsWorkspaceFromDateRangeProvider call({
+    required DateTime start,
+    required DateTime end,
+  }) {
+    return TeamGroupsWorkspaceFromDateRangeProvider(
+      start: start,
+      end: end,
+    );
+  }
+
+  @override
+  TeamGroupsWorkspaceFromDateRangeProvider getProviderOverride(
+    covariant TeamGroupsWorkspaceFromDateRangeProvider provider,
+  ) {
+    return call(
+      start: provider.start,
+      end: provider.end,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'teamGroupsWorkspaceFromDateRangeProvider';
+}
+
+/// See also [teamGroupsWorkspaceFromDateRange].
+class TeamGroupsWorkspaceFromDateRangeProvider
+    extends AutoDisposeFutureProvider<List<TeamGroupWorkspace>> {
+  /// See also [teamGroupsWorkspaceFromDateRange].
+  TeamGroupsWorkspaceFromDateRangeProvider({
+    required DateTime start,
+    required DateTime end,
+  }) : this._internal(
+          (ref) => teamGroupsWorkspaceFromDateRange(
+            ref as TeamGroupsWorkspaceFromDateRangeRef,
+            start: start,
+            end: end,
+          ),
+          from: teamGroupsWorkspaceFromDateRangeProvider,
+          name: r'teamGroupsWorkspaceFromDateRangeProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$teamGroupsWorkspaceFromDateRangeHash,
+          dependencies: TeamGroupsWorkspaceFromDateRangeFamily._dependencies,
+          allTransitiveDependencies:
+              TeamGroupsWorkspaceFromDateRangeFamily._allTransitiveDependencies,
+          start: start,
+          end: end,
+        );
+
+  TeamGroupsWorkspaceFromDateRangeProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.start,
+    required this.end,
+  }) : super.internal();
+
+  final DateTime start;
+  final DateTime end;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<TeamGroupWorkspace>> Function(
+            TeamGroupsWorkspaceFromDateRangeRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: TeamGroupsWorkspaceFromDateRangeProvider._internal(
+        (ref) => create(ref as TeamGroupsWorkspaceFromDateRangeRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        start: start,
+        end: end,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<TeamGroupWorkspace>> createElement() {
+    return _TeamGroupsWorkspaceFromDateRangeProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is TeamGroupsWorkspaceFromDateRangeProvider &&
+        other.start == start &&
+        other.end == end;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, start.hashCode);
+    hash = _SystemHash.combine(hash, end.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin TeamGroupsWorkspaceFromDateRangeRef
+    on AutoDisposeFutureProviderRef<List<TeamGroupWorkspace>> {
+  /// The parameter `start` of this provider.
+  DateTime get start;
+
+  /// The parameter `end` of this provider.
+  DateTime get end;
+}
+
+class _TeamGroupsWorkspaceFromDateRangeProviderElement
+    extends AutoDisposeFutureProviderElement<List<TeamGroupWorkspace>>
+    with TeamGroupsWorkspaceFromDateRangeRef {
+  _TeamGroupsWorkspaceFromDateRangeProviderElement(super.provider);
+
+  @override
+  DateTime get start =>
+      (origin as TeamGroupsWorkspaceFromDateRangeProvider).start;
+  @override
+  DateTime get end => (origin as TeamGroupsWorkspaceFromDateRangeProvider).end;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

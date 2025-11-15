@@ -5,6 +5,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
+import 'package:mush_on/stats/repository.dart';
 import 'package:mush_on/stats/riverpod.dart';
 
 class StatsMain extends ConsumerWidget {
@@ -17,45 +18,81 @@ class StatsMain extends ConsumerWidget {
     final selectedDateRange = ref.watch(selectedDateRangeProvider);
     final allDogsAsync = ref.watch(dogsProvider);
     final selectedDogs = ref.watch(selectedDogsProvider);
+    final account = ref.watch(accountProvider).value;
     return allDogsAsync.when(
         data: (allDogs) {
+          if (account == null) {
+            return const CircularProgressIndicator.adaptive();
+          }
           late final List<Dog> dogsToDisplay;
           if (selectedDogs.isEmpty) {
             dogsToDisplay = allDogs;
           } else {
             dogsToDisplay = selectedDogs;
           }
-          return DefaultTabController(
-            length: 2,
-            child: Column(
-              children: [
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      Column(
-                        children: [
-                          DogFilter(allDogs: allDogs),
-                          Text(selectedDateRange.toString()),
-                          Text("Numbero of dogs: ${dogsToDisplay.length}"),
-                          Text(dogsToDisplay.justNames),
-                        ],
-                      ),
-                      const Placeholder(),
-                    ],
-                  ),
-                ),
-                TabBar(
-                  labelColor: colorScheme.primary,
-                  unselectedLabelColor: Colors.grey,
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  tabs: const [
-                    Tab(text: "Run table"),
-                    Tab(text: "Insights"),
-                  ],
-                ),
-              ],
-            ),
-          );
+          return FutureBuilder(
+              future: StatsRepository(account: account)
+                  .teamGroupsWorkspaceFromDateRange(
+                      selectedDateRange.start, selectedDateRange.end),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator.adaptive(),
+                        Text(
+                            "Calculating the distances by each dog. This might take a while..."),
+                      ],
+                    ),
+                  );
+                }
+                if (snapshot.hasError) {
+                  logger.error("Couldn't load the teamgroups",
+                      error: snapshot.error, stackTrace: snapshot.stackTrace);
+                  return Text("Error: ${snapshot.error.toString()}");
+                }
+                if (snapshot.hasData) {
+                  final teamGroups = snapshot.data!;
+                  logger.debug("Number of teamgroups: ${teamGroups.length}");
+                  return DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: TabBarView(
+                            children: [
+                              SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    DogFilter(allDogs: allDogs),
+                                    Text(selectedDateRange.toString()),
+                                    Text(
+                                        "Number of dogs: ${dogsToDisplay.length}"),
+                                    Text(dogsToDisplay.justNames),
+                                  ],
+                                ),
+                              ),
+                              const Placeholder(),
+                            ],
+                          ),
+                        ),
+                        TabBar(
+                          labelColor: colorScheme.primary,
+                          unselectedLabelColor: Colors.grey,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          tabs: const [
+                            Tab(text: "Run table"),
+                            Tab(text: "Insights"),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                logger.error("Error: state of teamgroup future unknown.");
+                return const Text("Error: state of teamgroup future unknown");
+              });
         },
         error: (e, s) {
           logger.error("Couldn't load all dogs in stats");
