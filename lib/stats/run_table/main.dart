@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -10,9 +11,10 @@ class RunTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    teamGroups.sort((a, b) => a.date.compareTo(b.date));
+    final sortedTeamGroups = [...teamGroups]
+      ..sort((a, b) => a.date.compareTo(b.date));
     return SfDataGrid(
-        source: DogsDataSource(dogs: dogs, teamGroups: teamGroups),
+        source: DogsDataSource(dogs: dogs, teamGroups: sortedTeamGroups),
         columns: _fetchGridcolumns());
   }
 
@@ -27,23 +29,13 @@ class RunTable extends StatelessWidget {
 }
 
 class DogsDataSource extends DataGridSource {
-  final List<Dog> dogs; // ← Now accessible everywhere
-  final List<TeamGroupWorkspace> teamGroups; // ← Now accessible everywhere
+  final List<Dog> dogs;
+  final List<TeamGroupWorkspace> teamGroups;
   List<DataGridRow> dataGridRows = [];
   DogsDataSource({required this.dogs, required this.teamGroups}) {
-    /// All the dates (rows) that will be displayed. These are all set at midnight,
-    /// as they represent the day only, not the exact time.
     final allDates = _getAllDates();
     final runTableByDog = _getRunTableByDog(allDates);
-    dataGridRows = allDates
-        .map((date) => DataGridRow(cells: [
-              DataGridCell(columnName: "Date", value: date.toString()),
-              ...dogs.map((dog) => DataGridCell(
-                  columnName: dog.name,
-                  value:
-                      runTableByDog[date]?[dog.name].toString() ?? "Not found"))
-            ]))
-        .toList();
+    dataGridRows = _buildDataGridRows(allDates, runTableByDog);
   }
 
   @override
@@ -66,8 +58,80 @@ class DogsDataSource extends DataGridSource {
     }).toList());
   }
 
+  List<DataGridRow> _buildDataGridRows(
+    List<DateTime> allDates,
+    Map<DateTime, Map<String, double>> runTableByDog,
+  ) {
+    final List<DataGridRow> toReturn = [];
+    if (allDates.isEmpty) return toReturn;
+
+    var previousDate = allDates.first;
+
+    // Summary for the first month
+    toReturn.add(_buildMonthSummaryRow(
+      runTableByDog: runTableByDog,
+      month: previousDate.month,
+      year: previousDate.year,
+    ));
+
+    for (final date in allDates) {
+      if (previousDate.month != date.month || previousDate.year != date.year) {
+        // Month (or year) changed → summary row for the new month
+        toReturn.add(_buildMonthSummaryRow(
+          runTableByDog: runTableByDog,
+          month: date.month,
+          year: date.year,
+        ));
+      }
+
+      toReturn.add(DataGridRow(cells: [
+        DataGridCell(columnName: "Date", value: date.toString()),
+        ...dogs.map((dog) => DataGridCell(
+              columnName: dog.name,
+              value: runTableByDog[date]?[dog.name] ?? 0.0,
+            )),
+      ]));
+
+      previousDate = date;
+    }
+
+    return toReturn;
+  }
+
+  DataGridRow _buildMonthSummaryRow(
+      {required Map<DateTime, Map<String, double>> runTableByDog,
+      required int month,
+      required int year}) {
+    Map<String, double> dogTotals = {};
+    for (final dog in dogs) {
+      dogTotals[dog.name] = 0.0;
+    }
+    runTableByDog.forEach((date, runMap) {
+      if (date.month == month && date.year == year) {
+        for (final dog in dogs) {
+          if (runMap[dog.name] != null) {
+            final distanceRan = runMap[dog.name]!;
+            dogTotals[dog.name] = dogTotals[dog.name]! + distanceRan;
+          }
+        }
+      }
+    });
+    final firstOfMonth = DateTime(year, month, 1);
+    List<DataGridCell> cells = [];
+    dogTotals.forEach((dogName, ran) {
+      cells.add(DataGridCell(columnName: dogName, value: ran.toString()));
+    });
+
+    return DataGridRow(cells: [
+      DataGridCell(
+          columnName: "Date", value: DateFormat("MMM yy").format(firstOfMonth)),
+      ...cells
+    ]);
+  }
+
   List<DateTime> _getAllDates() {
     var toReturn = <DateTime>[];
+    if (teamGroups.isEmpty) return [];
     final firstDate = teamGroups.first.date;
     var iteratorDate = DateTime(firstDate.year, firstDate.month, firstDate.day);
     final lastDate = teamGroups.last.date;
@@ -81,6 +145,7 @@ class DogsDataSource extends DataGridSource {
       }
       iteratorDate = iteratorDate.add(const Duration(days: 1));
     }
+    toReturn.sort((a, b) => b.compareTo(a));
     return toReturn;
   }
 
@@ -93,14 +158,63 @@ class DogsDataSource extends DataGridSource {
   ///   2024-01-02: { "Dog A": 12.
   ///   0, "Dog B": 9.5 },
   /// }
+  /// Optimized: Pre-group teamGroups by date
   Map<DateTime, Map<String, double>> _getRunTableByDog(
-
-      /// All the dates (rows) of the table. These are the keys of the map.
       List<DateTime> allDates) {
-    // Order from newest to oldest.
+    // Sort newest to oldest for display
     allDates.sort((a, b) => b.compareTo(a));
+
+    // Pre-calculate dogs per teamGroup (called once per teamGroup instead of once per date)
+    final Map<TeamGroupWorkspace, List<Dog>> dogsPerTeam = {};
+    for (final tg in teamGroups) {
+      dogsPerTeam[tg] = _findDogsInTg(tg);
+    }
+
+    // Group teamGroups by date
+    final Map<DateTime, List<TeamGroupWorkspace>> teamGroupsByDate = {};
+    for (final tg in teamGroups) {
+      final dateKey = DateTime(tg.date.year, tg.date.month, tg.date.day);
+      teamGroupsByDate.putIfAbsent(dateKey, () => []).add(tg);
+    }
+
+    // Build the result table
     Map<DateTime, Map<String, double>> toReturn = {};
-    for (final date in allDates) {}
+    for (final date in allDates) {
+      toReturn[date] = {};
+      final tgsOnThisDate = teamGroupsByDate[date] ?? [];
+
+      for (final tg in tgsOnThisDate) {
+        final tourDistance = tg.distance;
+        final dogsInTg = dogsPerTeam[tg]!;
+
+        for (final dog in dogsInTg) {
+          toReturn[date]![dog.name] =
+              (toReturn[date]![dog.name] ?? 0.0) + tourDistance;
+        }
+      }
+    }
+
     return toReturn;
+  }
+
+  List<Dog> _findDogsInTg(TeamGroupWorkspace tg) {
+    final teams = tg.teams;
+    Set<Dog> toReturn = {};
+    for (final team in teams) {
+      final dogPairs = team.dogPairs;
+      for (final dp in dogPairs) {
+        List<Dog> dogsToAdd = [];
+        if (dp.firstDogId != null &&
+            dogs.getDogFromId(dp.firstDogId!) != null) {
+          dogsToAdd.add(dogs.getDogFromId(dp.firstDogId!)!);
+        }
+        if (dp.secondDogId != null &&
+            dogs.getDogFromId(dp.secondDogId!) != null) {
+          dogsToAdd.add(dogs.getDogFromId(dp.secondDogId!)!);
+        }
+        toReturn.addAll(dogsToAdd);
+      }
+    }
+    return toReturn.toList();
   }
 }
