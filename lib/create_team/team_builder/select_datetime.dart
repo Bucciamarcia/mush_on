@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 
-class DateTimeDistancePicker extends StatefulWidget {
+class DateTimeDistancePicker extends ConsumerStatefulWidget {
   final TeamGroupWorkspace teamGroup;
   final Function(DateTime) onDateChanged;
   final Function(double) onDistanceChanged;
@@ -15,24 +16,12 @@ class DateTimeDistancePicker extends StatefulWidget {
   });
 
   @override
-  State<DateTimeDistancePicker> createState() => _DateTimeDistancePickerState();
+  ConsumerState<DateTimeDistancePicker> createState() =>
+      _DateTimeDistancePickerState();
 }
 
-class _DateTimeDistancePickerState extends State<DateTimeDistancePicker> {
-  late TextEditingController _distanceController;
-  @override
-  void initState() {
-    super.initState();
-    _distanceController =
-        TextEditingController(text: widget.teamGroup.distance.toString());
-  }
-
-  @override
-  void dispose() {
-    _distanceController.dispose();
-    super.dispose();
-  }
-
+class _DateTimeDistancePickerState
+    extends ConsumerState<DateTimeDistancePicker> {
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -99,7 +88,7 @@ class _DateTimeDistancePickerState extends State<DateTimeDistancePicker> {
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
             ],
             onChanged: (v) => widget.onDistanceChanged(double.tryParse(v) ?? 0),
-            controller: _distanceController,
+            controller: ref.watch(distanceControllerProvider),
           ),
         ),
       ],

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/repository.dart';
@@ -54,7 +55,11 @@ class SaveTeamsButton extends ConsumerWidget {
           ),
         ),
         ElevatedButton(
-            onPressed: () => ref.invalidate(createTeamGroupProvider),
+            onPressed: () {
+              ref.invalidate(createTeamGroupProvider);
+              ref.invalidate(distanceControllerProvider);
+              context.goNamed("/createteam");
+            },
             child: const Text("Create a new team group")),
       ],
     );

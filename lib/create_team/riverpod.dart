@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/models.dart';
@@ -444,4 +445,16 @@ Stream<CustomerGroup?> customerGroupForTeamgroup(
         ),
       )
       .firstOrNull);
+}
+
+@riverpod
+class DistanceController extends _$DistanceController {
+  @override
+  TextEditingController build() {
+    return TextEditingController();
+  }
+
+  void change(int v) {
+    state = TextEditingController(text: v.toString());
+  }
 }
