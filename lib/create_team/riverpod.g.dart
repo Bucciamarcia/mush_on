@@ -887,5 +887,23 @@ class _RunningDogsProviderElement
   @override
   TeamGroupWorkspace get group => (origin as RunningDogsProvider).group;
 }
+
+String _$distanceControllerHash() =>
+    r'e7b90928fe14f50e605252ff480ae80486696678';
+
+/// See also [DistanceController].
+@ProviderFor(DistanceController)
+final distanceControllerProvider = AutoDisposeNotifierProvider<
+    DistanceController, TextEditingController>.internal(
+  DistanceController.new,
+  name: r'distanceControllerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$distanceControllerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$DistanceController = AutoDisposeNotifier<TextEditingController>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
