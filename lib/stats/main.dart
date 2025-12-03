@@ -7,6 +7,7 @@ import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:mush_on/stats/repository.dart';
 import 'package:mush_on/stats/riverpod.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 import 'run_table/main.dart';
 
@@ -63,8 +64,36 @@ class StatsMain extends ConsumerWidget {
                         Expanded(
                           child: TabBarView(
                             children: [
-                              RunTable(
-                                  dogs: dogsToDisplay, teamGroups: teamGroups),
+                              Column(
+                                children: [
+                                  ExpansionTile(
+                                    title: const Text("Change date range"),
+                                    children: [
+                                      SfDateRangePicker(
+                                        initialSelectedRange: PickerDateRange(
+                                            selectedDateRange.start,
+                                            selectedDateRange.end),
+                                        selectionMode:
+                                            DateRangePickerSelectionMode.range,
+                                        onSelectionChanged: (args) {
+                                          if (args.value is PickerDateRange) {
+                                            ref
+                                                .read(selectedDateRangeProvider
+                                                    .notifier)
+                                                .change(args.value.startDate,
+                                                    args.value.endDate);
+                                          }
+                                        },
+                                      )
+                                    ],
+                                  ),
+                                  Expanded(
+                                    child: RunTable(
+                                        dogs: dogsToDisplay,
+                                        teamGroups: teamGroups),
+                                  ),
+                                ],
+                              ),
                               const Placeholder(),
                             ],
                           ),

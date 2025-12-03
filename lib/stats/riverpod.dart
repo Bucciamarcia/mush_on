@@ -15,8 +15,12 @@ class SelectedDateRange extends _$SelectedDateRange {
   @override
   DateRangeSelection build() {
     return DateRangeSelection(
-        start: DateTimeUtils.today().subtract(const Duration(days: 2)),
+        start: DateTimeUtils.today().subtract(const Duration(days: 14)),
         end: DateTimeUtils.endOfToday());
+  }
+
+  void change(DateTime start, DateTime end) {
+    state = DateRangeSelection(start: start, end: end);
   }
 }
 
