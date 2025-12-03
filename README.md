@@ -113,6 +113,10 @@ A cool and open source CRM for sled dog kennels.
 - Added export to CSV button on stats page.
 - Added run type and total capacity in team builder.
 
+### 0.0.14b
+
+- Fix stats page and run table.
+
 ### 0.0.15
 
 - Adds payments
