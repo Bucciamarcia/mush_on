@@ -17,37 +17,46 @@ class SaveTeamsButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ElevatedButton(
-      onPressed: () async {
-        try {
-          String account = await ref.watch(accountProvider.future);
-          await saveToDb(teamGroup, account, ref);
-          await saveCustomersToDb(teamGroup, account, ref);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              content: Text(
-                "Teams saved",
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-              ),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-          ref.read(canPopTeamGroupProvider.notifier).changeState(true);
-        } catch (e, s) {
-          logger.error("Couldn't save team to db", error: e, stackTrace: s);
-          ScaffoldMessenger.of(context).showSnackBar(
-            errorSnackBar(context, "Couldn't save team to database"),
-          );
-        }
-      },
-      style: ElevatedButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary),
-      child: Text(
-        "Save team group",
-        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: 10,
+      children: [
+        ElevatedButton(
+          onPressed: () async {
+            try {
+              String account = await ref.watch(accountProvider.future);
+              await saveToDb(teamGroup, account, ref);
+              await saveCustomersToDb(teamGroup, account, ref);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  content: Text(
+                    "Teams saved",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary),
+                  ),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+              ref.read(canPopTeamGroupProvider.notifier).changeState(true);
+            } catch (e, s) {
+              logger.error("Couldn't save team to db", error: e, stackTrace: s);
+              ScaffoldMessenger.of(context).showSnackBar(
+                errorSnackBar(context, "Couldn't save team to database"),
+              );
+            }
+          },
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary),
+          child: Text(
+            "Save team group",
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+          ),
+        ),
+        ElevatedButton(
+            onPressed: () => ref.invalidate(createTeamGroupProvider),
+            child: const Text("Create a new team group")),
+      ],
     );
   }
 
