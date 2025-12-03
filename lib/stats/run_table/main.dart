@@ -67,6 +67,9 @@ class DogsDataSource extends DataGridSource {
 
     var previousDate = allDates.first;
 
+    // Summary of the whole total of all the dates displayed
+    toReturn.add(_buildTotalSummaryRow(runTableByDog: runTableByDog));
+
     // Summary for the first month
     toReturn.add(_buildMonthSummaryRow(
       runTableByDog: runTableByDog,
@@ -97,6 +100,30 @@ class DogsDataSource extends DataGridSource {
     }
 
     return toReturn;
+  }
+
+  DataGridRow _buildTotalSummaryRow(
+      {required Map<DateTime, Map<String, double>> runTableByDog}) {
+    Map<String, double> dogTotals = {};
+    for (final dog in dogs) {
+      dogTotals[dog.name] = 0.0;
+    }
+    runTableByDog.forEach((date, runMap) {
+      for (final dog in dogs) {
+        if (runMap[dog.name] != null) {
+          final distanceRan = runMap[dog.name]!;
+          dogTotals[dog.name] = dogTotals[dog.name]! + distanceRan;
+        }
+      }
+    });
+    List<DataGridCell> cells = [];
+    dogTotals.forEach((dogName, ran) {
+      cells.add(DataGridCell(columnName: dogName, value: ran.toString()));
+    });
+    return DataGridRow(cells: [
+      const DataGridCell(columnName: "Date", value: "Total"),
+      ...cells
+    ]);
   }
 
   DataGridRow _buildMonthSummaryRow(
