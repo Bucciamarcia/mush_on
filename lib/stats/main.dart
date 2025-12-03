@@ -77,11 +77,19 @@ class StatsMain extends ConsumerWidget {
                                             DateRangePickerSelectionMode.range,
                                         onSelectionChanged: (args) {
                                           if (args.value is PickerDateRange) {
-                                            ref
-                                                .read(selectedDateRangeProvider
-                                                    .notifier)
-                                                .change(args.value.startDate,
-                                                    args.value.endDate);
+                                            final range =
+                                                args.value as PickerDateRange;
+                                            final startDate = range.startDate;
+                                            final endDate = range.endDate;
+
+                                            if (startDate != null &&
+                                                endDate != null) {
+                                              ref
+                                                  .read(
+                                                      selectedDateRangeProvider
+                                                          .notifier)
+                                                  .change(startDate, endDate);
+                                            }
                                           }
                                         },
                                       )
