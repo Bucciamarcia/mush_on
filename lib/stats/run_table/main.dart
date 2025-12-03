@@ -85,7 +85,8 @@ class DogsDataSource extends DataGridSource {
       }
 
       toReturn.add(DataGridRow(cells: [
-        DataGridCell(columnName: "Date", value: date.toString()),
+        DataGridCell(
+            columnName: "Date", value: DateFormat("dd-MM-yy").format(date)),
         ...dogs.map((dog) => DataGridCell(
               columnName: dog.name,
               value: runTableByDog[date]?[dog.name] ?? 0.0,
