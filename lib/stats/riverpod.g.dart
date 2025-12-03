@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$selectedDateRangeHash() => r'76e313c3b9d73fc8cfc8f03891714d3b14af4653';
+String _$selectedDateRangeHash() => r'b9e2134fd32eb3f68e211ab6ea6e182d778c5a60';
 
 /// The date `start` and `end` date selected to be displayed.
 /// Start defaults to 30 days ago at midnight (so slightly over 30 days),
