@@ -12,8 +12,10 @@ class LoginScreen extends StatelessWidget {
     // Define providers
     final providers = [
       GoogleProvider(
-          clientId:
-              "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com")
+        clientId:
+            "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com",
+        redirectUri: kIsWeb ? Uri.base.toString() : null,
+      )
     ];
 
     void onSignedIn() {
