@@ -350,9 +350,9 @@ final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
   final booking = ref.watch(bookingInfoProvider);
   if (booking == null) return false;
 
-  bool _filled(String? v) => (v ?? '').trim().isNotEmpty;
+  bool filled(String? v) => (v ?? '').trim().isNotEmpty;
 
-  bool _isValidEmail(String? email) {
+  bool isValidEmail(String? email) {
     if (email == null || email.trim().isEmpty) return false;
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -360,16 +360,16 @@ final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
     return emailRegex.hasMatch(email.trim().toLowerCase());
   }
 
-  final contactOk = _filled(booking.phone) &&
-      _isValidEmail(booking.email) &&
-      _filled(booking.streetAddress) &&
-      _filled(booking.zipCode) &&
-      _filled(booking.city) &&
-      _filled(booking.country);
+  final contactOk = filled(booking.phone) &&
+      isValidEmail(booking.email) &&
+      filled(booking.streetAddress) &&
+      filled(booking.zipCode) &&
+      filled(booking.city) &&
+      filled(booking.country);
 
   final customers = ref.watch(customersInfoProvider);
   final passengersOk = customers.isNotEmpty &&
-      customers.every((c) => _filled(c.name) && c.age != null);
+      customers.every((c) => filled(c.name) && c.age != null);
 
   return contactOk && passengersOk;
 });
