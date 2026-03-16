@@ -189,7 +189,7 @@ class CollectInfoWidget extends ConsumerWidget {
                             pricing: pricingById[customer.pricingId],
                             i: i,
                             itemWidth: itemWidth,
-                            field: _CustomerField.name,
+                            field: CustomerField.name,
                           ),
                         ),
                         SizedBox(
@@ -199,7 +199,7 @@ class CollectInfoWidget extends ConsumerWidget {
                             pricing: pricingById[customer.pricingId],
                             i: i,
                             itemWidth: itemWidth,
-                            field: _CustomerField.age,
+                            field: CustomerField.age,
                           ),
                         ),
                       ],
@@ -240,14 +240,14 @@ class CollectInfoWidget extends ConsumerWidget {
   }
 }
 
-enum _CustomerField { name, age }
+enum CustomerField { name, age }
 
 class CustomerInfoWidget extends ConsumerWidget {
   final Customer customer;
   final TourTypePricing? pricing;
   final int i;
   final double itemWidth;
-  final _CustomerField field;
+  final CustomerField field;
   const CustomerInfoWidget(
       {super.key,
       required this.customer,
@@ -266,7 +266,7 @@ class CustomerInfoWidget extends ConsumerWidget {
 
     bool nameFilled = (current.name).trim().isNotEmpty;
     bool ageFilled = current.age != null;
-    bool filled = field == _CustomerField.name ? nameFilled : ageFilled;
+    bool filled = field == CustomerField.name ? nameFilled : ageFilled;
     bool hasError = showErrors && !filled;
 
     const green = Colors.green;
@@ -316,14 +316,14 @@ class CustomerInfoWidget extends ConsumerWidget {
         );
 
     switch (field) {
-      case _CustomerField.name:
+      case CustomerField.name:
         return wrapField(TextField(
           onChanged: (v) {
             notifier.changeSingle(customer.id, current.copyWith(name: v));
           },
           decoration: deco("Name", Icons.person_outline),
         ));
-      case _CustomerField.age:
+      case CustomerField.age:
         return wrapField(TextField(
           onChanged: (v) {
             notifier.changeSingle(
@@ -369,7 +369,7 @@ class BookingInfoPage extends ConsumerWidget {
     final cityFilled = filled(booking.city);
     final countryFilled = filled(booking.country);
 
-    InputDecoration _inputDecoration({
+    InputDecoration inputDecoration({
       required String label,
       IconData? icon,
       required bool isFilled,
@@ -410,7 +410,7 @@ class BookingInfoPage extends ConsumerWidget {
       );
     }
 
-    Widget _sectionCard({
+    Widget sectionCard({
       required IconData icon,
       required String title,
       required List<Widget> children,
@@ -450,7 +450,7 @@ class BookingInfoPage extends ConsumerWidget {
       const runSpacing = 12.0;
       final itemWidth = twoCols ? (w - (spacing * 3)) / 2 : w - (spacing * 2);
 
-      Widget _animatedField({required bool isFilled, required Widget child}) {
+      Widget animatedField({required bool isFilled, required Widget child}) {
         final hasError = showErrors && !isFilled;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 150),
@@ -468,7 +468,7 @@ class BookingInfoPage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 16,
         children: [
-          _sectionCard(
+          sectionCard(
             icon: Icons.person_outline,
             title: "Contact information",
             children: [
@@ -478,11 +478,11 @@ class BookingInfoPage extends ConsumerWidget {
                 children: [
                   SizedBox(
                     width: itemWidth,
-                    child: _animatedField(
+                    child: animatedField(
                       isFilled: phoneFilled,
                       child: TextField(
                         keyboardType: TextInputType.phone,
-                        decoration: _inputDecoration(
+                        decoration: inputDecoration(
                             label: "Phone number",
                             icon: Icons.phone,
                             isFilled: phoneFilled),
@@ -496,11 +496,11 @@ class BookingInfoPage extends ConsumerWidget {
                   ),
                   SizedBox(
                     width: itemWidth,
-                    child: _animatedField(
+                    child: animatedField(
                       isFilled: emailFilled,
                       child: TextField(
                         keyboardType: TextInputType.emailAddress,
-                        decoration: _inputDecoration(
+                        decoration: inputDecoration(
                             label: "Email",
                             icon: Icons.email_outlined,
                             isFilled: emailFilled),
@@ -517,7 +517,7 @@ class BookingInfoPage extends ConsumerWidget {
               ),
             ],
           ),
-          _sectionCard(
+          sectionCard(
             icon: Icons.home_outlined,
             title: "Address",
             children: [
@@ -527,11 +527,11 @@ class BookingInfoPage extends ConsumerWidget {
                 children: [
                   SizedBox(
                     width: itemWidth,
-                    child: _animatedField(
+                    child: animatedField(
                       isFilled: streetFilled,
                       child: TextField(
                         keyboardType: TextInputType.streetAddress,
-                        decoration: _inputDecoration(
+                        decoration: inputDecoration(
                             label: "Street address",
                             icon: Icons.home_work_outlined,
                             isFilled: streetFilled),
@@ -545,10 +545,10 @@ class BookingInfoPage extends ConsumerWidget {
                   ),
                   SizedBox(
                     width: itemWidth,
-                    child: _animatedField(
+                    child: animatedField(
                       isFilled: zipFilled,
                       child: TextField(
-                        decoration: _inputDecoration(
+                        decoration: inputDecoration(
                             label: "Zip code",
                             icon: Icons.local_post_office,
                             isFilled: zipFilled),
@@ -562,10 +562,10 @@ class BookingInfoPage extends ConsumerWidget {
                   ),
                   SizedBox(
                     width: itemWidth,
-                    child: _animatedField(
+                    child: animatedField(
                       isFilled: cityFilled,
                       child: TextField(
-                        decoration: _inputDecoration(
+                        decoration: inputDecoration(
                             label: "City",
                             icon: Icons.location_city,
                             isFilled: cityFilled),

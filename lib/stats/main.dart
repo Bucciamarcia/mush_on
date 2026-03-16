@@ -146,8 +146,9 @@ class DogFilter extends ConsumerWidget {
             onResult: (resultDogs) {
               ref.read(selectedDogsProvider.notifier).change(resultDogs);
               if (resultDogs.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
-                    context, "Result is empty: showing all dogs"));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Result is empty: showing all dogs"),
+                );
               }
             },
             templates: settings?.customFieldTemplates ?? []),

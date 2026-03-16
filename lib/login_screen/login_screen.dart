@@ -9,14 +9,14 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Define providers
-    final providers = [
+    FirebaseUIAuth.configureProviders([
       GoogleProvider(
         clientId:
             "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com",
         redirectUri: kIsWeb ? Uri.base.toString() : null,
-      )
-    ];
+      ),
+      EmailAuthProvider()
+    ]);
 
     void onSignedIn() {
       context.go('/');
@@ -45,7 +45,6 @@ class LoginScreen extends StatelessWidget {
             : const SizedBox.shrink(),
         Expanded(
           child: SignInScreen(
-            providers: providers,
             headerBuilder: (context, constraints, shrinkOffset) {
               return Padding(
                 padding: const EdgeInsets.all(20),

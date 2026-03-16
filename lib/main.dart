@@ -28,15 +28,11 @@ import 'package:url_strategy/url_strategy.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 1. Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseFirestore.instance.settings = const Settings(
       persistenceEnabled: true, cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
-  // await FirebaseAuth.instance.setPersistence(Persistence.LOCAL);
-  // 2. Initialize App Check
-  // Use kDebugMode to determine which providers to use
   await FirebaseAppCheck.instance.activate(
       webProvider:
           ReCaptchaV3Provider("6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G"),

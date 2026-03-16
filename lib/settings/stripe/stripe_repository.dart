@@ -124,7 +124,7 @@ class StripeRepository {
       logger.debug(
           "Successfully fetched image data, size: ${data?.length ?? 0} bytes");
       return data;
-    } catch (e, s) {
+    } catch (e) {
       logger.debug("No image found or error occurred: $e");
       return null;
     }
