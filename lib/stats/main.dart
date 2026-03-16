@@ -138,21 +138,18 @@ class DogFilter extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     SettingsModel? settings = ref.watch(settingsProvider).value;
-    return ExpansionTile(
-      title: const Text("Filter dogs"),
-      children: [
-        DogFilterWidget(
-            dogs: allDogs,
-            onResult: (resultDogs) {
-              ref.read(selectedDogsProvider.notifier).change(resultDogs);
-              if (resultDogs.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  errorSnackBar(context, "Result is empty: showing all dogs"),
-                );
-              }
-            },
-            templates: settings?.customFieldTemplates ?? []),
-      ],
-    );
+    return ExpansionTile(title: const Text("Filter dogs"), children: [
+      DogFilterWidget(
+          dogs: allDogs,
+          onResult: (resultDogs) {
+            ref.read(selectedDogsProvider.notifier).change(resultDogs);
+            if (resultDogs.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                errorSnackBar(context, "Result is empty: showing all dogs"),
+              );
+            }
+          },
+          templates: settings?.customFieldTemplates ?? []),
+    ]);
   }
 }

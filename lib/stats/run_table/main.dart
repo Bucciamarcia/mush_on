@@ -1,8 +1,12 @@
+import 'dart:typed_data';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:syncfusion_flutter_datagrid_export/export.dart';
 
 class RunTable extends StatelessWidget {
   final List<Dog> dogs;
@@ -13,9 +17,33 @@ class RunTable extends StatelessWidget {
   Widget build(BuildContext context) {
     final sortedTeamGroups = [...teamGroups]
       ..sort((a, b) => a.date.compareTo(b.date));
-    return SfDataGrid(
-        source: DogsDataSource(dogs: dogs, teamGroups: sortedTeamGroups),
-        columns: _fetchGridcolumns());
+    final sfKey = GlobalKey<SfDataGridState>();
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () async {
+            try {
+              final workbook = sfKey.currentState!.exportToExcelWorkbook();
+              final bytes = workbook.saveAsStream();
+              workbook.dispose();
+              FileSaver.instance.saveFile(
+                  name: "worksheet",
+                  bytes: Uint8List.fromList(bytes),
+                  fileExtension: "xlsx",
+                  mimeType: MimeType.microsoftExcel);
+            } catch (e, s) {
+              BasicLogger()
+                  .error("Couldn't save the file", error: e, stackTrace: s);
+            }
+          },
+          child: const Text("Export to excel"),
+        ),
+        SfDataGrid(
+            key: sfKey,
+            source: DogsDataSource(dogs: dogs, teamGroups: sortedTeamGroups),
+            columns: _fetchGridcolumns()),
+      ],
+    );
   }
 
   List<GridColumn> _fetchGridcolumns() {
