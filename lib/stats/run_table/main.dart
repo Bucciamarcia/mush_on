@@ -1,10 +1,10 @@
 import 'dart:typed_data';
-import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/shared/save_file/save_file.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_datagrid_export/export.dart';
 
@@ -26,14 +26,26 @@ class RunTable extends StatelessWidget {
               final workbook = sfKey.currentState!.exportToExcelWorkbook();
               final bytes = workbook.saveAsStream();
               workbook.dispose();
-              FileSaver.instance.saveFile(
-                  name: "worksheet",
-                  bytes: Uint8List.fromList(bytes),
-                  fileExtension: "xlsx",
-                  mimeType: MimeType.microsoftExcel);
+              final didSave = await saveFileIfSupported(
+                filename: "worksheet",
+                bytes: Uint8List.fromList(bytes),
+                fileExtension: "xlsx",
+                mimeType:
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              );
+              if (context.mounted && !didSave) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Couldn't save the file"),
+                );
+              }
             } catch (e, s) {
               BasicLogger()
                   .error("Couldn't save the file", error: e, stackTrace: s);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Couldn't save the file"),
+                );
+              }
             }
           },
           child: const Text("Export to excel"),

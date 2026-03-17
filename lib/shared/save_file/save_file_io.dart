@@ -1,21 +1,22 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:mush_on/services/error_handling.dart';
 
-Future<bool> saveCsvImpl({
+Future<bool> saveFileImpl({
   required String filename,
-  required String content,
+  required Uint8List bytes,
+  required String fileExtension,
+  String? mimeType,
 }) async {
   final logger = BasicLogger();
   try {
     final result = await FilePicker.platform.saveFile(
-      dialogTitle: 'Save CSV',
+      dialogTitle: 'Save file',
       fileName: filename,
       type: FileType.custom,
-      allowedExtensions: const ['csv'],
-      bytes: Uint8List.fromList(utf8.encode(content)),
+      allowedExtensions: [fileExtension],
+      bytes: bytes,
     );
     return result != null;
   } catch (e, s) {
