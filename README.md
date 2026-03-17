@@ -124,3 +124,4 @@ A cool and open source CRM for sled dog kennels.
 ### 0.0.16
 
 - Adds email login
+- Exports to excel
