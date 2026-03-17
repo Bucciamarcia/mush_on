@@ -20,6 +20,7 @@ from typing import List, Dict, Any
 from lib.send_invitation_email import SendInvitationEmail
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import get_stripe_data
+from lib.team_groups import rebuild_teamgroup_snapshot
 from lib.utils.firebase import FirestoreUtils
 
 # For cost control, you can set the maximum number of containers that can be
@@ -438,3 +439,24 @@ def team_groups_workspace_from_date_range(req: https_fn.CallableRequest):
         )
 
     return {"teamGroups": to_return}
+
+
+@https_fn.on_call()
+def rebuild_teamgroup_teams_snapshot(req: https_fn.CallableRequest[dict]) -> dict:
+    data = req.data or {}
+    teamgroup_path = data.get("teamgroupPath")
+
+    if not teamgroup_path:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing required field: teamgroupPath",
+        )
+
+    try:
+        return rebuild_teamgroup_snapshot(teamgroup_path)
+    except ValueError as exc:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT, str(exc)
+        )
+    except Exception as exc:
+        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INTERNAL, str(exc))
