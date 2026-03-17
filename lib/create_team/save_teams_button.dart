@@ -130,7 +130,9 @@ Future<void> saveToDb(
   _removeCustomerGroups(newtg.id, account, newtg.date);
 
   var newtgObject = newtg.toJson();
-  newtgObject.remove("teams");
+  newtgObject
+    ..remove("teams")
+    ..["teamsSnapshot"] = _buildTeamsSnapshot(newtg);
 
   logger.info("starting the save with id: ${newtg.id}");
   batch.set(
@@ -166,6 +168,30 @@ Future<void> saveToDb(
     logger.error("Error while saving team group", error: e, stackTrace: s);
     rethrow;
   }
+}
+
+Map<String, dynamic> _buildTeamsSnapshot(TeamGroupWorkspace teamGroup) {
+  final teams = <String, dynamic>{};
+
+  for (final (teamRank, team) in teamGroup.teams.indexed) {
+    final teamData = Map<String, dynamic>.from(team.toJson());
+    teamData.remove("id");
+    final dogPairs = <String, dynamic>{};
+
+    for (final (dogPairRank, dogPair) in team.dogPairs.indexed) {
+      final dogPairData = Map<String, dynamic>.from(dogPair.toJson());
+      dogPairData.remove("id");
+      dogPairData["rank"] = dogPairRank;
+      dogPairs[dogPair.id] = dogPairData;
+    }
+
+    teamData
+      ..["rank"] = teamRank
+      ..["dogPairs"] = dogPairs;
+    teams[team.id] = teamData;
+  }
+
+  return teams;
 }
 
 Future<void> _removeCustomerGroups(

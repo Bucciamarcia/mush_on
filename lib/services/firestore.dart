@@ -175,7 +175,10 @@ class DogsDbOperations {
       {required String account, required String id}) async {
     var doc = db.doc("accounts/$account/data/teams/history/$id");
     var snapshot = await doc.get();
-    var tg = snapshot.data() ?? {};
+    var tg = Map<String, dynamic>.from(snapshot.data() ?? {});
+    tg
+      ..remove("teams")
+      ..remove("teamsSnapshot");
     var toReturn = TeamGroupWorkspace.fromJson(tg);
 
     // Now get the teams with its dogpairs.
