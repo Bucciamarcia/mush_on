@@ -28,23 +28,27 @@ class SaveTeamsButton extends ConsumerWidget {
               String account = await ref.watch(accountProvider.future);
               await saveToDb(teamGroup, account, ref);
               await saveCustomersToDb(teamGroup, account, ref);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  content: Text(
-                    "Teams saved",
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary),
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    content: Text(
+                      "Teams saved",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary),
+                    ),
+                    behavior: SnackBarBehavior.floating,
                   ),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
+                );
+              }
               ref.read(canPopTeamGroupProvider.notifier).changeState(true);
             } catch (e, s) {
               logger.error("Couldn't save team to db", error: e, stackTrace: s);
-              ScaffoldMessenger.of(context).showSnackBar(
-                errorSnackBar(context, "Couldn't save team to database"),
-              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Couldn't save team to database"),
+                );
+              }
             }
           },
           style: ElevatedButton.styleFrom(
