@@ -1,3 +1,5 @@
+import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -58,6 +60,7 @@ class HomePageScreenContent extends ConsumerWidget {
           ..sort((a, b) => a.date.compareTo(b.date));
         return ListView(
           children: [
+            (kDebugMode) ? const ConvertTeamGroup() : const SizedBox.shrink(),
             Card(
               color: Theme.of(context).colorScheme.surfaceContainer,
               child: ExpansionTile(
@@ -333,6 +336,53 @@ class HomePageScreenContent extends ConsumerWidget {
     } else {
       return Colors.green;
     }
+  }
+}
+
+class ConvertTeamGroup extends StatefulWidget {
+  const ConvertTeamGroup({super.key});
+
+  @override
+  State<ConvertTeamGroup> createState() => _ConvertTeamGroupState();
+}
+
+class _ConvertTeamGroupState extends State<ConvertTeamGroup> {
+  late TextEditingController c;
+  @override
+  void initState() {
+    c = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 400,
+          child: TextField(
+            controller: c,
+          ),
+        ),
+        ElevatedButton(
+            onPressed: () async {
+              final functions =
+                  FirebaseFunctions.instanceFor(region: "europe-north1");
+              try {
+                final response = await functions
+                    .httpsCallable("rebuild_teamgroup_teams_snapshot")
+                    .call({
+                  "teamgroupPath":
+                      "accounts/test-stefano/data/teams/history/${c.text}"
+                });
+                BasicLogger().debug(response.data);
+              } catch (e, s) {
+                BasicLogger().error("Couldn't do it", error: e, stackTrace: s);
+              }
+            },
+            child: const Text("gogo"))
+      ],
+    );
   }
 }
 
