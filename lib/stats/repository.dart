@@ -30,24 +30,54 @@ class StatsRepository {
         itemMap["date"] = Timestamp.fromDate(dateTime);
       }
 
-      // Cast nested teams array
-      if (itemMap["teams"] is List) {
-        itemMap["teams"] = (itemMap["teams"] as List).map((team) {
-          final teamMap = Map<String, dynamic>.from(team as Map);
-
-          // Cast nested dogPairs array
-          if (teamMap["dogPairs"] is List) {
-            teamMap["dogPairs"] = (teamMap["dogPairs"] as List)
-                .map((dogPair) => Map<String, dynamic>.from(dogPair as Map))
-                .toList();
-          }
-
-          return teamMap;
-        }).toList();
-      }
+      itemMap["teams"] = _normalizeTeams(itemMap["teams"]);
 
       return TeamGroupWorkspace.fromJson(itemMap);
     }).toList();
     return teamGroups;
   }
+}
+
+List<Map<String, dynamic>> _normalizeTeams(dynamic rawTeams) {
+  if (rawTeams is List) {
+    return rawTeams
+        .map((team) => _normalizeTeam(Map<String, dynamic>.from(team as Map)))
+        .toList();
+  }
+
+  if (rawTeams is Map) {
+    final entries = rawTeams.entries
+        .map((entry) => _normalizeTeam(Map<String, dynamic>.from(entry.value)))
+        .toList()
+      ..sort(
+        (a, b) => ((a["rank"] as num?)?.toInt() ?? 0)
+            .compareTo((b["rank"] as num?)?.toInt() ?? 0),
+      );
+    return entries;
+  }
+
+  return [];
+}
+
+Map<String, dynamic> _normalizeTeam(Map<String, dynamic> teamMap) {
+  final rawDogPairs = teamMap["dogPairs"];
+  if (rawDogPairs is List) {
+    teamMap["dogPairs"] = rawDogPairs
+        .map((dogPair) => Map<String, dynamic>.from(dogPair as Map))
+        .toList();
+    return teamMap;
+  }
+
+  if (rawDogPairs is Map) {
+    final dogPairs = rawDogPairs.entries
+        .map((entry) => Map<String, dynamic>.from(entry.value))
+        .toList()
+      ..sort(
+        (a, b) => ((a["rank"] as num?)?.toInt() ?? 0)
+            .compareTo((b["rank"] as num?)?.toInt() ?? 0),
+      );
+    teamMap["dogPairs"] = dogPairs;
+  }
+
+  return teamMap;
 }
