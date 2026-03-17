@@ -42,28 +42,18 @@ class TeamRetriever extends ConsumerStatefulWidget {
 
 class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
   late BasicLogger logger;
-  late TextEditingController textController;
+  late TextEditingController teamNameController;
   @override
   void initState() {
     super.initState();
     logger = BasicLogger();
-    textController =
+    teamNameController =
         TextEditingController(text: widget.teams[widget.teamNumber].name);
   }
 
   @override
-  void didUpdateWidget(covariant TeamRetriever oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.teamNumber < widget.teams.length &&
-        widget.teams[widget.teamNumber].name !=
-            oldWidget.teams[widget.teamNumber].name) {
-      textController.text = widget.teams[widget.teamNumber].name;
-    }
-  }
-
-  @override
   void dispose() {
-    textController.dispose();
+    teamNameController.dispose();
     super.dispose();
   }
 
@@ -83,7 +73,7 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
-              controller: textController,
+              controller: teamNameController,
               decoration: const InputDecoration(labelText: "Team name"),
               onChanged: (String text) {
                 widget.onTeamNameChanged(widget.teamNumber, text);
