@@ -458,3 +458,15 @@ class DistanceController extends _$DistanceController {
     state = TextEditingController(text: v.toString());
   }
 }
+
+@riverpod
+class IsReadOnly extends _$IsReadOnly {
+  @override
+  bool build() {
+    return false;
+  }
+
+  void newValue(bool v) {
+    state = v;
+  }
+}

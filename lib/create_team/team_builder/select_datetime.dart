@@ -6,6 +6,7 @@ import 'package:mush_on/create_team/riverpod.dart';
 
 class DateTimeDistancePicker extends ConsumerStatefulWidget {
   final TeamGroupWorkspace teamGroup;
+  final bool isReadOnly;
   final Function(DateTime) onDateChanged;
   final Function(double) onDistanceChanged;
   const DateTimeDistancePicker({
@@ -13,6 +14,7 @@ class DateTimeDistancePicker extends ConsumerStatefulWidget {
     required this.teamGroup,
     required this.onDateChanged,
     required this.onDistanceChanged,
+    required this.isReadOnly,
   });
 
   @override
@@ -32,20 +34,27 @@ class _DateTimeDistancePickerState
             decoration:
                 const InputDecoration(hint: Text("Date"), label: Text("Date")),
             readOnly: true,
-            onTap: () async {
-              DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: widget.teamGroup.date,
-                firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                lastDate: DateTime.now().add(const Duration(days: 365)),
-              );
-              if (pickedDate != null) {
-                widget.onDateChanged(
-                  DateTime(pickedDate.year, pickedDate.month, pickedDate.day,
-                      widget.teamGroup.date.hour, widget.teamGroup.date.minute),
-                );
-              }
-            },
+            onTap: widget.isReadOnly
+                ? null
+                : () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: widget.teamGroup.date,
+                      firstDate:
+                          DateTime.now().subtract(const Duration(days: 365)),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (pickedDate != null) {
+                      widget.onDateChanged(
+                        DateTime(
+                            pickedDate.year,
+                            pickedDate.month,
+                            pickedDate.day,
+                            widget.teamGroup.date.hour,
+                            widget.teamGroup.date.minute),
+                      );
+                    }
+                  },
             controller: TextEditingController(
               text: _formatDate(widget.teamGroup.date),
             ),
@@ -56,25 +65,27 @@ class _DateTimeDistancePickerState
             decoration:
                 const InputDecoration(hint: Text("Time"), label: Text("Time")),
             readOnly: true,
-            onTap: () async {
-              TimeOfDay? pickedTime = await showTimePicker(
-                context: context,
-                initialTime: TimeOfDay(
-                    hour: widget.teamGroup.date.hour,
-                    minute: widget.teamGroup.date.minute),
-              );
-              if (pickedTime != null) {
-                widget.onDateChanged(
-                  DateTime(
-                    widget.teamGroup.date.year,
-                    widget.teamGroup.date.month,
-                    widget.teamGroup.date.day,
-                    pickedTime.hour,
-                    pickedTime.minute,
-                  ),
-                );
-              }
-            },
+            onTap: widget.isReadOnly
+                ? null
+                : () async {
+                    TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay(
+                          hour: widget.teamGroup.date.hour,
+                          minute: widget.teamGroup.date.minute),
+                    );
+                    if (pickedTime != null) {
+                      widget.onDateChanged(
+                        DateTime(
+                          widget.teamGroup.date.year,
+                          widget.teamGroup.date.month,
+                          widget.teamGroup.date.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        ),
+                      );
+                    }
+                  },
             controller: TextEditingController(
               text: _formatTime(widget.teamGroup.date),
             ),
@@ -82,6 +93,7 @@ class _DateTimeDistancePickerState
         ),
         Flexible(
           child: TextField(
+            readOnly: widget.isReadOnly,
             decoration: const InputDecoration(label: Text("Distance")),
             keyboardType: TextInputType.number,
             inputFormatters: [

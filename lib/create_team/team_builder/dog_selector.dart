@@ -17,6 +17,7 @@ class DogSelector extends StatefulWidget {
     required this.positionNumber,
     required this.dogs,
     required this.runningDogs,
+    required this.isReadOnly,
     required this.onDogSelected,
     required this.onDogRemoved,
   });
@@ -28,6 +29,7 @@ class DogSelector extends StatefulWidget {
   final int positionNumber;
   final List<Dog> dogs;
   final List<String> runningDogs;
+  final bool isReadOnly;
   final Function(Dog newDog) onDogSelected;
   final Function(int p1, int p2) onDogRemoved;
 
@@ -130,6 +132,7 @@ class _DogSelectorState extends State<DogSelector> {
           ? DogSelectedInterface(
               dog: _dogsById[currentValue]!,
               notes: widget.notes,
+              isReadOnly: widget.isReadOnly,
               onDogRemoved: () =>
                   widget.onDogRemoved(widget.teamNumber, widget.rowNumber),
             )
@@ -142,6 +145,7 @@ class _DogSelectorState extends State<DogSelector> {
               teamNumber: widget.teamNumber,
               rowNumber: widget.rowNumber,
               positionNumber: widget.positionNumber,
+              isReadOnly: widget.isReadOnly,
               onDogSelected: widget.onDogSelected,
               dogs: widget.dogs,
               runningDogs: widget.runningDogs),

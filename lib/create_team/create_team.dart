@@ -11,6 +11,8 @@ class CreateTeamScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return TemplateScreen(
         title: "Create team",
-        child: CreateTeamMain(loadedTeamId: loadedTeamId));
+        child: CreateTeamMain(
+          loadedTeamId: loadedTeamId,
+        ));
   }
 }

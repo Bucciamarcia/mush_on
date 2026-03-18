@@ -13,6 +13,7 @@ class TeamRetriever extends ConsumerStatefulWidget {
   final List<String> runningDogs;
   final List<TeamWorkspace> teams;
   final List<DogNote> notes;
+  final bool isReadOnly;
   final Function(DogSelection) onDogSelected;
   final Function(int, String) onTeamNameChanged;
   final Function(int, int) onRowRemoved;
@@ -28,6 +29,7 @@ class TeamRetriever extends ConsumerStatefulWidget {
       required this.runningDogs,
       required this.notes,
       required this.teams,
+      required this.isReadOnly,
       required this.onDogSelected,
       required this.onTeamNameChanged,
       required this.onRowRemoved,
@@ -73,6 +75,7 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
+              readOnly: widget.isReadOnly,
               controller: teamNameController,
               decoration: const InputDecoration(labelText: "Team name"),
               onChanged: (String text) {
@@ -96,22 +99,26 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
                   ),
                 ),
                 IconButton(
-                    onPressed: () => ref
-                        .read(createTeamGroupProvider(widget.teamGroupId)
-                            .notifier)
-                        .changeTeamCapacity(
-                          teamNumber: widget.teamNumber,
-                          capacity: team.capacity + 1,
-                        ),
+                    onPressed: widget.isReadOnly
+                        ? null
+                        : () => ref
+                            .read(createTeamGroupProvider(widget.teamGroupId)
+                                .notifier)
+                            .changeTeamCapacity(
+                              teamNumber: widget.teamNumber,
+                              capacity: team.capacity + 1,
+                            ),
                     icon: const Icon(Icons.add_box)),
                 IconButton(
-                    onPressed: () => ref
-                        .read(createTeamGroupProvider(widget.teamGroupId)
-                            .notifier)
-                        .changeTeamCapacity(
-                            teamNumber: widget.teamNumber,
-                            capacity:
-                                team.capacity == 0 ? 0 : team.capacity - 1),
+                    onPressed: widget.isReadOnly
+                        ? null
+                        : () => ref
+                            .read(createTeamGroupProvider(widget.teamGroupId)
+                                .notifier)
+                            .changeTeamCapacity(
+                                teamNumber: widget.teamNumber,
+                                capacity:
+                                    team.capacity == 0 ? 0 : team.capacity - 1),
                     icon: const Icon(Icons.remove)),
               ],
             ),
@@ -126,6 +133,7 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
                     onDogSelected: (newDog) => widget.onDogSelected(newDog),
                     dogs: widget.dogs,
                     runningDogs: widget.runningDogs,
+                    isReadOnly: widget.isReadOnly,
                     onRowRemoved: (teamNumber, rowNumber) =>
                         widget.onRowRemoved(teamNumber, rowNumber),
                     onDogRemoved: (teamNumber, rowNumber, positionNumber) =>
@@ -151,10 +159,12 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
               children: [
                 AddTeamWidget(
                   teamNumber: widget.teamNumber,
+                  isReadOnly: widget.isReadOnly,
                   onAddTeam: (newTeamNumber) => widget.onAddTeam(newTeamNumber),
                 ),
                 RemoveTeamWidget(
                   teamNumber: widget.teamNumber,
+                  isReadOnly: widget.isReadOnly,
                   onRemoveTeam: (teamNumber) => widget.onRemoveTeam(teamNumber),
                   totalTeams: widget.teams.length,
                 ),
@@ -192,15 +202,20 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
 
 class AddTeamWidget extends StatelessWidget {
   final int teamNumber;
+  final bool isReadOnly;
   final Function(int) onAddTeam;
-  const AddTeamWidget(
-      {super.key, required this.teamNumber, required this.onAddTeam});
+  const AddTeamWidget({
+    super.key,
+    required this.teamNumber,
+    required this.isReadOnly,
+    required this.onAddTeam,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       key: Key("Add team  - $teamNumber"),
-      onPressed: () => onAddTeam(teamNumber + 1),
+      onPressed: isReadOnly ? null : () => onAddTeam(teamNumber + 1),
       child: const Text("Add team"),
     );
   }
@@ -210,19 +225,23 @@ class RemoveTeamWidget extends StatelessWidget {
   final int teamNumber;
   final Function(int) onRemoveTeam;
   final int totalTeams;
+  final bool isReadOnly;
   const RemoveTeamWidget(
       {super.key,
       required this.teamNumber,
       required this.onRemoveTeam,
+      required this.isReadOnly,
       required this.totalTeams});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       key: Key("Remove team - $teamNumber"),
-      onPressed: () {
-        if (totalTeams > 1) onRemoveTeam(teamNumber);
-      },
+      onPressed: isReadOnly
+          ? null
+          : () {
+              if (totalTeams > 1) onRemoveTeam(teamNumber);
+            },
       child: const Text("Remove team"),
     );
   }

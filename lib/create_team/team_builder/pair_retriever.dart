@@ -14,6 +14,7 @@ class PairRetriever extends StatelessWidget {
   final List<Dog> dogs;
   final List<String> runningDogs;
   final List<DogNote> notes;
+  final bool isReadOnly;
   final Function(DogSelection) onDogSelected;
   final Function(int, int) onRowRemoved;
   final Function(int, int, int) onDogRemoved;
@@ -24,6 +25,7 @@ class PairRetriever extends StatelessWidget {
       required this.notes,
       required this.teams,
       required this.dogs,
+      required this.isReadOnly,
       required this.runningDogs,
       required this.onDogSelected,
       required this.onRowRemoved,
@@ -41,6 +43,7 @@ class PairRetriever extends StatelessWidget {
           dogs: dogs,
           runningDogs: runningDogs,
           notes: notes,
+          isReadOnly: isReadOnly,
           onDogSelected: (Dog newDog) => onDogSelected(
             DogSelection(
                 dog: newDog,
@@ -60,6 +63,7 @@ class PairRetriever extends StatelessWidget {
           positionNumber: 1,
           dogs: dogs,
           runningDogs: runningDogs,
+          isReadOnly: isReadOnly,
           onDogSelected: (Dog newDog) => onDogSelected(
             DogSelection(
                 dog: newDog,
@@ -72,9 +76,11 @@ class PairRetriever extends StatelessWidget {
         ),
         IconButton(
           key: Key("Row remover: $teamNumber - $rowNumber"),
-          onPressed: () {
-            onRowRemoved(teamNumber, rowNumber);
-          },
+          onPressed: isReadOnly
+              ? null
+              : () {
+                  onRowRemoved(teamNumber, rowNumber);
+                },
           icon: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(2),

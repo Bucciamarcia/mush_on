@@ -10,10 +10,12 @@ import 'package:mush_on/services/error_handling.dart';
 
 class SaveTeamsButton extends ConsumerWidget {
   final TeamGroupWorkspace teamGroup;
+  final bool isReadOnly;
   static final BasicLogger logger = BasicLogger();
   const SaveTeamsButton({
     super.key,
     required this.teamGroup,
+    required this.isReadOnly,
   });
 
   @override
@@ -23,34 +25,41 @@ class SaveTeamsButton extends ConsumerWidget {
       spacing: 10,
       children: [
         ElevatedButton(
-          onPressed: () async {
-            try {
-              String account = await ref.watch(accountProvider.future);
-              await saveToDb(teamGroup, account, ref);
-              await saveCustomersToDb(teamGroup, account, ref);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    content: Text(
-                      "Teams saved",
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onPrimary),
-                    ),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              }
-              ref.read(canPopTeamGroupProvider.notifier).changeState(true);
-            } catch (e, s) {
-              logger.error("Couldn't save team to db", error: e, stackTrace: s);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  errorSnackBar(context, "Couldn't save team to database"),
-                );
-              }
-            }
-          },
+          onPressed: isReadOnly
+              ? null
+              : () async {
+                  try {
+                    String account = await ref.watch(accountProvider.future);
+                    await saveToDb(teamGroup, account, ref);
+                    await saveCustomersToDb(teamGroup, account, ref);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          content: Text(
+                            "Teams saved",
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary),
+                          ),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                    ref
+                        .read(canPopTeamGroupProvider.notifier)
+                        .changeState(true);
+                  } catch (e, s) {
+                    logger.error("Couldn't save team to db",
+                        error: e, stackTrace: s);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(
+                            context, "Couldn't save team to database"),
+                      );
+                    }
+                  }
+                },
           style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary),
           child: Text(
@@ -59,11 +68,13 @@ class SaveTeamsButton extends ConsumerWidget {
           ),
         ),
         ElevatedButton(
-            onPressed: () {
-              ref.invalidate(createTeamGroupProvider);
-              ref.invalidate(distanceControllerProvider);
-              context.goNamed("/createteam");
-            },
+            onPressed: isReadOnly
+                ? null
+                : () {
+                    ref.invalidate(createTeamGroupProvider);
+                    ref.invalidate(distanceControllerProvider);
+                    context.goNamed("/createteam");
+                  },
             child: const Text("Create a new team group")),
       ],
     );
