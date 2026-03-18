@@ -15,6 +15,7 @@ class AutocompleteDogs extends StatelessWidget {
     required this.positionNumber,
     required this.dogs,
     required this.runningDogs,
+    required this.isReadOnly,
     required this.onDogSelected,
   });
 
@@ -26,6 +27,7 @@ class AutocompleteDogs extends StatelessWidget {
   final List<Dog> dogs;
   final List<String> runningDogs;
   final List<DogNote> notes;
+  final bool isReadOnly;
   final Function(Dog) onDogSelected;
   static final BasicLogger logger = BasicLogger();
 
@@ -35,6 +37,7 @@ class AutocompleteDogs extends StatelessWidget {
     return Column(
       children: [
         SearchField<Dog>(
+          enabled: !isReadOnly,
           key: autoCompleteKey,
           searchInputDecoration:
               SearchInputDecoration(hint: const Text("Select dog")),
@@ -47,9 +50,11 @@ class AutocompleteDogs extends StatelessWidget {
                   ),
                   item: dog))
               .toList(),
-          onSuggestionTap: (x) {
-            if (x.item != null) onDogSelected(x.item!);
-          },
+          onSuggestionTap: isReadOnly
+              ? (x) {}
+              : (x) {
+                  if (x.item != null) onDogSelected(x.item!);
+                },
         ),
       ],
     );

@@ -905,5 +905,20 @@ final distanceControllerProvider = AutoDisposeNotifierProvider<
 );
 
 typedef _$DistanceController = AutoDisposeNotifier<TextEditingController>;
+String _$isReadOnlyHash() => r'8700cc1278bf20045d8a914afa379a489b8a9504';
+
+/// See also [IsReadOnly].
+@ProviderFor(IsReadOnly)
+final isReadOnlyProvider =
+    AutoDisposeNotifierProvider<IsReadOnly, bool>.internal(
+  IsReadOnly.new,
+  name: r'isReadOnlyProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$isReadOnlyHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$IsReadOnly = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -9,12 +9,14 @@ import 'package:mush_on/services/models.dart';
 class DogSelectedInterface extends StatelessWidget {
   final Dog dog;
   final List<DogNote> notes;
+  final bool isReadOnly;
   final Function() onDogRemoved;
 
   const DogSelectedInterface(
       {super.key,
       required this.dog,
       required this.notes,
+      required this.isReadOnly,
       required this.onDogRemoved});
 
   @override
@@ -25,6 +27,7 @@ class DogSelectedInterface extends StatelessWidget {
         DogSelectedChip(
           dog: dog,
           dogNote: dogNote,
+          isReadOnly: isReadOnly,
           onDogRemoved: () => onDogRemoved(),
         ),
         dogNote != null ? NotesList(notes: dogNote) : const SizedBox.shrink(),
@@ -37,11 +40,13 @@ class DogSelectedInterface extends StatelessWidget {
 class DogSelectedChip extends StatelessWidget {
   final Dog dog;
   final DogNote? dogNote;
+  final bool isReadOnly;
   final Function() onDogRemoved;
   static final BasicLogger logger = BasicLogger();
   const DogSelectedChip(
       {super.key,
       required this.dog,
+      required this.isReadOnly,
       required this.onDogRemoved,
       required this.dogNote});
 
@@ -60,7 +65,7 @@ class DogSelectedChip extends StatelessWidget {
         softWrap: true,
         maxLines: 2,
       ),
-      onDeleted: () => onDogRemoved(),
+      onDeleted: isReadOnly ? () {} : () => onDogRemoved(),
     );
   }
 }

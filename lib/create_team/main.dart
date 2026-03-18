@@ -51,6 +51,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
 
   @override
   Widget build(BuildContext context) {
+    final isReadOnly = ref.watch(isReadOnlyProvider);
     var teamGroupAsync =
         ref.watch(createTeamGroupProvider(widget.loadedTeamId));
     return teamGroupAsync.when(
@@ -104,6 +105,7 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
                   ),
                   SaveTeamsButton(
                     teamGroup: teamGroup,
+                    isReadOnly: isReadOnly,
                   ),
                 ],
               ),

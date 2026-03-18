@@ -55,58 +55,82 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
         ref.read(createTeamGroupProvider(widget.providerKey).notifier);
     List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
     SettingsModel? settings = ref.watch(settingsProvider).value;
+    bool isReadOnly = ref.watch(isReadOnlyProvider);
     return SingleChildScrollView(
       child: Column(
         children: [
+          CheckboxListTile.adaptive(
+              title: const Text(
+                  "Read only: when selected. you can't edit anything (for safety).",
+                  maxLines: 3,
+                  textAlign: TextAlign.end),
+              value: isReadOnly,
+              onChanged: (v) {
+                if (v != null) {
+                  ref.read(isReadOnlyProvider.notifier).newValue(v);
+                }
+              }),
           Card(
             color: Theme.of(context).colorScheme.primaryContainer,
-            child: ExpansionTile(
-              title: const Center(child: Text("Filter dogs")),
-              children: [
-                DogFilterWidget(
-                    dogs: allDogs,
-                    templates: settings?.customFieldTemplates ?? [],
-                    onResult: (dogs) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            "Filter successful",
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary),
-                          ),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                        ),
-                      );
-                    }),
-              ],
-            ),
+            child: isReadOnly
+                ? const SizedBox.shrink()
+                : ExpansionTile(
+                    title: const Center(child: Text("Filter dogs")),
+                    children: [
+                      DogFilterWidget(
+                          dogs: allDogs,
+                          templates: settings?.customFieldTemplates ?? [],
+                          onResult: (dogs) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Filter successful",
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary),
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                              ),
+                            );
+                          }),
+                    ],
+                  ),
           ),
           DateTimeDistancePicker(
+            isReadOnly: isReadOnly,
             teamGroup: widget.teamGroup,
             onDateChanged: (newDate) => notifier.changeDate(newDate),
             onDistanceChanged: (newDistance) =>
                 notifier.changeDistance(newDistance),
           ),
           TextField(
+            readOnly: isReadOnly,
             controller: groupNameController,
             decoration: const InputDecoration(labelText: "Group name"),
-            onChanged: (String text) {
-              notifier.changeName(text);
-            },
+            onChanged: isReadOnly
+                ? null
+                : (String text) {
+                    notifier.changeName(text);
+                  },
           ),
           TextField(
+            readOnly: isReadOnly,
             controller: groupNotesController,
             decoration: const InputDecoration(labelText: "Group notes"),
-            onChanged: (String text) {
-              notifier.changeNotes(text);
-            },
+            onChanged: isReadOnly
+                ? null
+                : (String text) {
+                    notifier.changeNotes(text);
+                  },
           ),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               DropdownMenu<TeamGroupRunType>(
+                enabled: !isReadOnly,
                 inputDecorationTheme: InputDecorationTheme(
                   filled: true,
                   fillColor: widget.teamGroup.runType.backgroundColor
@@ -146,6 +170,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                 children: [
                   const Divider(),
                   TeamRetriever(
+                    isReadOnly: isReadOnly,
                     teamNumber: entry.key,
                     teamGroupId: widget.providerKey,
                     dogs: allDogs,
@@ -185,24 +210,28 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
           ),
           const SizedBox(height: 10),
           ElevatedButton(
-            onPressed: () async {
-              String teamString = CreateTeamsString(
-                allDogs: allDogs,
-              ).teamGroup(widget.teamGroup);
-              await Clipboard.setData(ClipboardData(text: teamString));
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    confirmationSnackbar(context, "Teams copied"));
-              }
-            },
+            onPressed: isReadOnly
+                ? null
+                : () async {
+                    String teamString = CreateTeamsString(
+                      allDogs: allDogs,
+                    ).teamGroup(widget.teamGroup);
+                    await Clipboard.setData(ClipboardData(text: teamString));
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(context, "Teams copied"));
+                    }
+                  },
             child: const Text("Copy team group"),
           ),
           ElevatedButton(
-            onPressed: () {
-              ref.invalidate(canPopTeamGroupProvider);
-              ref.invalidate(createTeamGroupProvider);
-              Navigator.of(context).popAndPushNamed("/createteam");
-            },
+            onPressed: isReadOnly
+                ? null
+                : () {
+                    ref.invalidate(canPopTeamGroupProvider);
+                    ref.invalidate(createTeamGroupProvider);
+                    Navigator.of(context).popAndPushNamed("/createteam");
+                  },
             child: const Text("Create new team group"),
           ),
         ],
