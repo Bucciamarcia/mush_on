@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
@@ -43,25 +42,21 @@ class KennelImageCard extends ConsumerWidget {
                     final notifier =
                         ref.read(kennelImageProvider(account: null).notifier);
                     try {
-                      notifier.state = const AsyncValue.loading();
                       final newData = await _onEditPressed(account);
                       notifier.change(newData);
                     } on FileSizeException catch (e) {
-                      notifier.state = AsyncValue.error(e, StackTrace.current);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             errorSnackBar(context, "Max file size is 10mb"));
                         logger.info("File uploaded is too large", error: e);
                       }
                     } on NoFileSelectedException catch (e) {
-                      notifier.state = AsyncValue.error(e, StackTrace.current);
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             errorSnackBar(context, "No file selected"));
                         logger.info("No file selected", error: e);
                       }
                     } catch (e, s) {
-                      notifier.state = AsyncValue.error(e, s);
                       if (context.mounted) {
                         logger.error("Couldn't upload file in shopping cart",
                             error: e, stackTrace: s);
