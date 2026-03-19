@@ -63,9 +63,11 @@ class KennelImageCard extends ConsumerWidget {
                     } catch (e, s) {
                       notifier.state = AsyncValue.error(e, s);
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            errorSnackBar(
-                                context, "Error: couldn't upload file"));
+                        logger.error("Couldn't upload file in shopping cart",
+                            error: e, stackTrace: s);
+                        ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
+                            context,
+                            "Error: couldn't upload file in shopping cart"));
                       }
                     }
                   },
@@ -76,12 +78,10 @@ class KennelImageCard extends ConsumerWidget {
                     final notifier =
                         ref.read(kennelImageProvider(account: null).notifier);
                     try {
-                      notifier.state = const AsyncValue.loading();
                       await StripeRepository(account: account)
                           .deleteKennelImage();
                       notifier.change(null);
-                    } catch (e, s) {
-                      notifier.state = AsyncValue.error(e, s);
+                    } catch (e) {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                             errorSnackBar(
@@ -102,8 +102,8 @@ class KennelImageCard extends ConsumerWidget {
     logger.info("Starting the image upload process");
     late FilePickerResult? result;
     try {
-      result = await FilePicker.platform
-          .pickFiles(allowMultiple: false, type: FileType.image);
+      result = await FilePicker.platform.pickFiles(
+          allowMultiple: false, type: FileType.image, withData: true);
     } catch (e, s) {
       logger.error("Couldn't pick file", error: e, stackTrace: s);
       rethrow;
@@ -116,10 +116,14 @@ class KennelImageCard extends ConsumerWidget {
       throw FileSizeException("File too large");
     }
 
-    final finalFile = File(result.files.single.path!);
+    final platformFile = result.files.single;
+    if (platformFile.size > 10485760) {
+      throw FileSizeException("File too large");
+    }
+    final fileBytes = platformFile.bytes!;
     try {
-      await StripeRepository(account: account).saveKennelImage(finalFile);
-      return finalFile.readAsBytesSync();
+      await StripeRepository(account: account).saveKennelImage(fileBytes);
+      return fileBytes;
     } catch (e) {
       rethrow;
     }

@@ -92,11 +92,16 @@ class StripeRepository {
     }
   }
 
-  Future<void> saveKennelImage(File file) async {
+  Future<void> saveKennelImage(Uint8List? fileBytes) async {
     String path = "accounts/$account/bookingManager/banner";
     final ref = storage.ref(path);
+
     try {
-      await ref.putFile(file);
+      if (fileBytes != null) {
+        await ref.putData(fileBytes);
+      } else {
+        throw Exception("File bytes are null, cannot upload on web.");
+      }
     } catch (e, s) {
       logger.error("Couldn't upload kennel image", error: e, stackTrace: s);
       rethrow;
