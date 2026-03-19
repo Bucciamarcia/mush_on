@@ -125,25 +125,38 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                         }
                       },
                     ),
-                    DropdownMenuFormField(
-                      dropdownMenuEntries: const [
-                        DropdownMenuEntry(value: true, label: "Yes"),
-                        DropdownMenuEntry(value: false, label: "No"),
+                    Row(
+                      children: [
+                        DropdownMenuFormField(
+                          dropdownMenuEntries: const [
+                            DropdownMenuEntry(value: true, label: "Yes"),
+                            DropdownMenuEntry(value: false, label: "No"),
+                          ],
+                          onSelected: (v) {
+                            setState(() {
+                              applyVat = v;
+                            });
+                          },
+                          validator: (v) {
+                            if (v == null) {
+                              return "Select if VAT should be applied";
+                            } else {
+                              return null;
+                            }
+                          },
+                          initialSelection: applyVat,
+                          label: const Text("Apply Finnish 25,5% VAT"),
+                        ),
+                        const Tooltip(
+                          message:
+                              "Select YES if your business is in Finland to be charged VAT for your payments to Mush On. Select NO if you want reverse VAT.",
+                          child: Icon(
+                            Icons.help_outline,
+                            size: 20,
+                            color: Colors.grey,
+                          ),
+                        )
                       ],
-                      onSelected: (v) {
-                        setState(() {
-                          applyVat = v;
-                        });
-                      },
-                      validator: (v) {
-                        if (v == null) {
-                          return "Select if VAT should be applied";
-                        } else {
-                          return null;
-                        }
-                      },
-                      initialSelection: applyVat,
-                      label: const Text("Apply Finnish 25,5% VAT"),
                     ),
                     ElevatedButton(
                         onPressed: _submitForm, child: const Text("Submit")),
