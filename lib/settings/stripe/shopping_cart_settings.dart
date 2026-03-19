@@ -239,24 +239,32 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Wrap(
-      crossAxisAlignment: WrapCrossAlignment.center,
-      alignment: WrapAlignment.center,
+    return Column(
       children: [
-        ...fields.asMap().entries.map((entry) {
-          final index = entry.key;
-          final field = entry.value;
-          return FieldDisplayWidget(
-            field: field,
-            onChanged: (v) => ref
-                .read(tempCustomerFieldsProvider.notifier)
-                .updateField(index, v),
-          );
-        }),
-        IconButton(
-            onPressed: () =>
-                ref.read(tempCustomerFieldsProvider.notifier).addField(),
-            icon: const Icon(Icons.add))
+        const TextTitle("Customer custom fields"),
+        const Text(
+          "Add custom fields to the checkout page. You can use these to ask for extra information from your customers, like their dog's name or dietary restrictions. You can also make the fields required.",
+        ),
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          alignment: WrapAlignment.center,
+          children: [
+            ...fields.asMap().entries.map((entry) {
+              final index = entry.key;
+              final field = entry.value;
+              return FieldDisplayWidget(
+                field: field,
+                onChanged: (v) => ref
+                    .read(tempCustomerFieldsProvider.notifier)
+                    .updateField(index, v),
+              );
+            }),
+            IconButton(
+                onPressed: () =>
+                    ref.read(tempCustomerFieldsProvider.notifier).addField(),
+                icon: const Icon(Icons.add))
+          ],
+        ),
       ],
     );
   }
