@@ -3,6 +3,25 @@
 part of 'riverpod.dart';
 
 // **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+_CustomerCustomField _$CustomerCustomFieldFromJson(Map<String, dynamic> json) =>
+    _CustomerCustomField(
+      name: json['name'] as String,
+      description: json['description'] as String,
+      isRequired: json['isRequired'] as bool,
+    );
+
+Map<String, dynamic> _$CustomerCustomFieldToJson(
+        _CustomerCustomField instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'description': instance.description,
+      'isRequired': instance.isRequired,
+    };
+
+// **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
@@ -328,5 +347,23 @@ class _KennelImageProviderElement
   @override
   String? get account => (origin as KennelImageProvider).account;
 }
+
+String _$tempCustomerFieldsHash() =>
+    r'c0b1776a10bcda24c4e32e8cba3b7f0b588453d3';
+
+/// See also [TempCustomerFields].
+@ProviderFor(TempCustomerFields)
+final tempCustomerFieldsProvider = AutoDisposeNotifierProvider<
+    TempCustomerFields, List<CustomerCustomField>>.internal(
+  TempCustomerFields.new,
+  name: r'tempCustomerFieldsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$tempCustomerFieldsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$TempCustomerFields = AutoDisposeNotifier<List<CustomerCustomField>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

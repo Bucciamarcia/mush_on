@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mush_on/services/models/custom_converters.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
 part 'stripe_models.freezed.dart';
 part 'stripe_models.g.dart';
 
@@ -41,11 +42,13 @@ sealed class CheckoutSession with _$CheckoutSession {
 
 @freezed
 sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
+  @JsonSerializable(explicitToJson: true)
   const factory BookingManagerKennelInfo({
     required String name,
     required String url,
     required String email,
     required String cancellationPolicy,
+    @Default([]) List<CustomerCustomField> customerCustomFields,
 
     /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
     required double vatRate,

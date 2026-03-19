@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:mush_on/settings/stripe/stripe_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
+part 'riverpod.freezed.dart';
 
 @riverpod
 Stream<StripeConnection?> stripeConnection(Ref ref) async* {
@@ -58,4 +60,52 @@ Stream<BookingManagerKennelInfo?> bookingManagerKennelInfo(Ref ref,
     }
     return BookingManagerKennelInfo.fromJson(data);
   });
+}
+
+@riverpod
+class TempCustomerFields extends _$TempCustomerFields {
+  @override
+  List<CustomerCustomField> build() {
+    return [];
+  }
+
+  // Method to initialize the draft from existing data
+  void setInitialFields(List<CustomerCustomField> fields) {
+    if (state.isEmpty && fields.isNotEmpty) {
+      state = fields;
+    }
+  }
+
+  void addField() {
+    state = [
+      ...state,
+      const CustomerCustomField(name: '', description: '', isRequired: false)
+    ];
+  }
+
+  void removeField(int index) {
+    state = [
+      for (int i = 0; i < state.length; i++)
+        if (i != index) state[i],
+    ];
+  }
+
+  void updateField(int index, CustomerCustomField updatedField) {
+    state = [
+      for (int i = 0; i < state.length; i++)
+        if (i == index) updatedField else state[i],
+    ];
+  }
+}
+
+@freezed
+sealed class CustomerCustomField with _$CustomerCustomField {
+  const factory CustomerCustomField({
+    required String name,
+    required String description,
+    required bool isRequired,
+  }) = _CustomerCustomField;
+
+  factory CustomerCustomField.fromJson(Map<String, dynamic> json) =>
+      _$CustomerCustomFieldFromJson(json);
 }
