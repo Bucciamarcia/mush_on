@@ -14,6 +14,8 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$CustomerCustomField implements DiagnosticableTreeMixin {
+  String get id;
+  CustomerCustomFieldType get type;
   String get name;
   String get description;
   bool get isRequired;
@@ -33,6 +35,8 @@ mixin _$CustomerCustomField implements DiagnosticableTreeMixin {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     properties
       ..add(DiagnosticsProperty('type', 'CustomerCustomField'))
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('type', type))
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('description', description))
       ..add(DiagnosticsProperty('isRequired', isRequired));
@@ -43,6 +47,8 @@ mixin _$CustomerCustomField implements DiagnosticableTreeMixin {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is CustomerCustomField &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.type, type) || other.type == type) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.description, description) ||
                 other.description == description) &&
@@ -52,11 +58,12 @@ mixin _$CustomerCustomField implements DiagnosticableTreeMixin {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, description, isRequired);
+  int get hashCode =>
+      Object.hash(runtimeType, id, type, name, description, isRequired);
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CustomerCustomField(name: $name, description: $description, isRequired: $isRequired)';
+    return 'CustomerCustomField(id: $id, type: $type, name: $name, description: $description, isRequired: $isRequired)';
   }
 }
 
@@ -66,7 +73,12 @@ abstract mixin class $CustomerCustomFieldCopyWith<$Res> {
           CustomerCustomField value, $Res Function(CustomerCustomField) _then) =
       _$CustomerCustomFieldCopyWithImpl;
   @useResult
-  $Res call({String name, String description, bool isRequired});
+  $Res call(
+      {String id,
+      CustomerCustomFieldType type,
+      String name,
+      String description,
+      bool isRequired});
 }
 
 /// @nodoc
@@ -82,11 +94,21 @@ class _$CustomerCustomFieldCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
+    Object? type = null,
     Object? name = null,
     Object? description = null,
     Object? isRequired = null,
   }) {
     return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as CustomerCustomFieldType,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
@@ -194,14 +216,16 @@ extension CustomerCustomFieldPatterns on CustomerCustomField {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String name, String description, bool isRequired)?
+    TResult Function(String id, CustomerCustomFieldType type, String name,
+            String description, bool isRequired)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _CustomerCustomField() when $default != null:
-        return $default(_that.name, _that.description, _that.isRequired);
+        return $default(_that.id, _that.type, _that.name, _that.description,
+            _that.isRequired);
       case _:
         return orElse();
     }
@@ -222,12 +246,15 @@ extension CustomerCustomFieldPatterns on CustomerCustomField {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String name, String description, bool isRequired) $default,
+    TResult Function(String id, CustomerCustomFieldType type, String name,
+            String description, bool isRequired)
+        $default,
   ) {
     final _that = this;
     switch (_that) {
       case _CustomerCustomField():
-        return $default(_that.name, _that.description, _that.isRequired);
+        return $default(_that.id, _that.type, _that.name, _that.description,
+            _that.isRequired);
     }
   }
 
@@ -245,13 +272,15 @@ extension CustomerCustomFieldPatterns on CustomerCustomField {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String name, String description, bool isRequired)?
+    TResult? Function(String id, CustomerCustomFieldType type, String name,
+            String description, bool isRequired)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _CustomerCustomField() when $default != null:
-        return $default(_that.name, _that.description, _that.isRequired);
+        return $default(_that.id, _that.type, _that.name, _that.description,
+            _that.isRequired);
       case _:
         return null;
     }
@@ -264,12 +293,18 @@ class _CustomerCustomField
     with DiagnosticableTreeMixin
     implements CustomerCustomField {
   const _CustomerCustomField(
-      {required this.name,
+      {required this.id,
+      required this.type,
+      required this.name,
       required this.description,
       required this.isRequired});
   factory _CustomerCustomField.fromJson(Map<String, dynamic> json) =>
       _$CustomerCustomFieldFromJson(json);
 
+  @override
+  final String id;
+  @override
+  final CustomerCustomFieldType type;
   @override
   final String name;
   @override
@@ -297,6 +332,8 @@ class _CustomerCustomField
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     properties
       ..add(DiagnosticsProperty('type', 'CustomerCustomField'))
+      ..add(DiagnosticsProperty('id', id))
+      ..add(DiagnosticsProperty('type', type))
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('description', description))
       ..add(DiagnosticsProperty('isRequired', isRequired));
@@ -307,6 +344,8 @@ class _CustomerCustomField
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _CustomerCustomField &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.type, type) || other.type == type) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.description, description) ||
                 other.description == description) &&
@@ -316,11 +355,12 @@ class _CustomerCustomField
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, name, description, isRequired);
+  int get hashCode =>
+      Object.hash(runtimeType, id, type, name, description, isRequired);
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'CustomerCustomField(name: $name, description: $description, isRequired: $isRequired)';
+    return 'CustomerCustomField(id: $id, type: $type, name: $name, description: $description, isRequired: $isRequired)';
   }
 }
 
@@ -332,7 +372,12 @@ abstract mixin class _$CustomerCustomFieldCopyWith<$Res>
       __$CustomerCustomFieldCopyWithImpl;
   @override
   @useResult
-  $Res call({String name, String description, bool isRequired});
+  $Res call(
+      {String id,
+      CustomerCustomFieldType type,
+      String name,
+      String description,
+      bool isRequired});
 }
 
 /// @nodoc
@@ -348,11 +393,21 @@ class __$CustomerCustomFieldCopyWithImpl<$Res>
   @override
   @pragma('vm:prefer-inline')
   $Res call({
+    Object? id = null,
+    Object? type = null,
     Object? name = null,
     Object? description = null,
     Object? isRequired = null,
   }) {
     return _then(_CustomerCustomField(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      type: null == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as CustomerCustomFieldType,
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable

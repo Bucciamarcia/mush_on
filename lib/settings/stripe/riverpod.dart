@@ -7,6 +7,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:mush_on/settings/stripe/stripe_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
 
@@ -79,7 +80,12 @@ class TempCustomerFields extends _$TempCustomerFields {
   void addField() {
     state = [
       ...state,
-      const CustomerCustomField(name: '', description: '', isRequired: false)
+      CustomerCustomField(
+          id: const Uuid().v4(),
+          type: CustomerCustomFieldType.text,
+          name: '',
+          description: '',
+          isRequired: false)
     ];
   }
 
@@ -98,9 +104,26 @@ class TempCustomerFields extends _$TempCustomerFields {
   }
 }
 
+@riverpod
+class IsCustomerCustomFieldsEdited extends _$IsCustomerCustomFieldsEdited {
+  @override
+  bool build() {
+    return false;
+  }
+
+  void setEdited(bool edited) {
+    state = edited;
+  }
+}
+
+@JsonEnum()
+enum CustomerCustomFieldType { text, dropdown }
+
 @freezed
 sealed class CustomerCustomField with _$CustomerCustomField {
   const factory CustomerCustomField({
+    required String id,
+    required CustomerCustomFieldType type,
     required String name,
     required String description,
     required bool isRequired,
