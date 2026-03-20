@@ -14,7 +14,8 @@ import 'package:mush_on/shared/text_title.dart';
 
 class UserSettings extends ConsumerWidget {
   static final logger = BasicLogger();
-  const UserSettings({super.key});
+  final UserNameRepository? userNameRepository;
+  const UserSettings({super.key, this.userNameRepository});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -82,7 +83,9 @@ class UserSettings extends ConsumerWidget {
             final u = await ref.watch(userProvider.future);
             String uid = u!.uid;
             try {
-              await UserNameRepository().deleteAvatar(uid);
+              await (userNameRepository ?? UserNameRepository()).deleteAvatar(
+                uid,
+              );
               ref
                   .read(userProfilePicProvider(null).notifier)
                   .removeProfilePic();
@@ -98,14 +101,15 @@ class UserSettings extends ConsumerWidget {
           child: const Text("Delete profile picture"),
         ),
         const TextTitle("Your name"),
-        const UsernameNameWidget(),
+        UsernameNameWidget(userNameRepository: userNameRepository),
       ],
     );
   }
 }
 
 class UsernameNameWidget extends ConsumerStatefulWidget {
-  const UsernameNameWidget({super.key});
+  final UserNameRepository? userNameRepository;
+  const UsernameNameWidget({super.key, this.userNameRepository});
 
   @override
   ConsumerState<UsernameNameWidget> createState() => _UsernameNameWidgetState();
@@ -147,7 +151,7 @@ class _UsernameNameWidgetState extends ConsumerState<UsernameNameWidget> {
         ),
         ElevatedButton(
           onPressed: () async {
-            final repo = UserNameRepository();
+            final repo = widget.userNameRepository ?? UserNameRepository();
             try {
               if (username == null) {
                 return;
