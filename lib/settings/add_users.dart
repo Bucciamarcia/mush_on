@@ -8,7 +8,8 @@ import 'package:mush_on/shared/text_title.dart';
 
 class AddUsers extends ConsumerStatefulWidget {
   final String account;
-  const AddUsers({super.key, required this.account});
+  final SettingsRepository? repository;
+  const AddUsers({super.key, required this.account, this.repository});
 
   @override
   ConsumerState<AddUsers> createState() => _AddUsersState();
@@ -86,10 +87,12 @@ class _AddUsersState extends ConsumerState<AddUsers> {
             child: ElevatedButton(
               onPressed: () async {
                 try {
-                  await SettingsRepository(account: widget.account).addUser(
-                      email: _emailController.text,
-                      userLevel: userLevel,
-                      senderUser: userName);
+                  await (widget.repository ??
+                          SettingsRepository(account: widget.account))
+                      .addUser(
+                          email: _emailController.text,
+                          userLevel: userLevel,
+                          senderUser: userName);
                 } catch (e) {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(

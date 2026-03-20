@@ -7,7 +7,18 @@ import 'package:mush_on/services/models/username.dart';
 
 class UserNameRepository {
   final logger = BasicLogger();
-  final ref = FirebaseStorage.instance.ref();
+  final FirebaseStorage? _storage;
+  final FirebaseFirestore? _firestore;
+  FirebaseStorage get storage => _storage ?? FirebaseStorage.instance;
+  FirebaseFirestore get db => _firestore ?? FirebaseFirestore.instance;
+
+  UserNameRepository({
+    FirebaseStorage? storage,
+    FirebaseFirestore? firestore,
+  })  : _storage = storage,
+        _firestore = firestore;
+
+  Reference get ref => storage.ref();
 
   /// Gets the bytes of the user avatar.
   Future<Uint8List?> getAvatar(String uid) async {
@@ -70,7 +81,6 @@ class UserNameRepository {
   Future<void> setUsername(UserName username) async {
     String uid = username.uid;
     String path = "users/$uid";
-    final db = FirebaseFirestore.instance;
     try {
       await db.doc(path).set(username.toJson());
     } catch (e, s) {

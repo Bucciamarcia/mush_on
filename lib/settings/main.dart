@@ -14,7 +14,8 @@ import 'stripe/stripe_payment_settings.dart';
 
 class SettingsMain extends ConsumerStatefulWidget {
   static final BasicLogger logger = BasicLogger();
-  const SettingsMain({super.key});
+  final SettingsRepository Function(String account)? repositoryBuilder;
+  const SettingsMain({super.key, this.repositoryBuilder});
 
   @override
   ConsumerState<SettingsMain> createState() => _SettingsMainState();
@@ -23,15 +24,31 @@ class SettingsMain extends ConsumerStatefulWidget {
 class _SettingsMainState extends ConsumerState<SettingsMain> {
   @override
   Widget build(BuildContext context) {
+    final userAsync = ref.watch(userProvider);
     final settingsAsync = ref.watch(settingsProvider);
-    final user = ref.watch(userProvider).value!;
-    final userName = ref.watch(UserNameProvider(user.uid)).value!;
+    final user = userAsync.value;
+    if (user == null) {
+      if (userAsync.isLoading) {
+        return const Center(child: CircularProgressIndicator.adaptive());
+      }
+      return const Text("User is null");
+    }
+
+    final userNameAsync = ref.watch(UserNameProvider(user.uid));
+    final userName = userNameAsync.value;
+    if (userName == null) {
+      if (userNameAsync.isLoading) {
+        return const Center(child: CircularProgressIndicator.adaptive());
+      }
+      return const Text("Username is null");
+    }
+
     final account = ref.watch(accountProvider).value;
     if (account == null) return const Text("Account is null");
     return settingsAsync.when(
       data: (settings) {
-        final settingsRepo =
-            SettingsRepository(account: ref.watch(accountProvider).value ?? "");
+        final settingsRepo = widget.repositoryBuilder?.call(account) ??
+            SettingsRepository(account: account);
         return SingleChildScrollView(
           child: Align(
             alignment: Alignment.topCenter,
@@ -98,7 +115,10 @@ class _SettingsMainState extends ConsumerState<SettingsMain> {
                     : const PaymentSettingsWidget(),
                 userName.userLevel.rank < UserLevel.musher.rank
                     ? const SizedBox.shrink()
-                    : AddUsers(account: account),
+                    : AddUsers(
+                        account: account,
+                        repository: settingsRepo,
+                      ),
                 const UserSettings(),
               ],
             ),

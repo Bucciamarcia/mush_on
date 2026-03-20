@@ -12,11 +12,20 @@ part 'repository.freezed.dart';
 part 'repository.g.dart';
 
 class SettingsRepository {
-  final db = FirebaseFirestore.instance;
+  final FirebaseFirestore? _firestore;
+  final FirebaseFunctions? _functions;
   final String account;
   static BasicLogger logger = BasicLogger();
+  FirebaseFirestore get db => _firestore ?? FirebaseFirestore.instance;
+  FirebaseFunctions get functions =>
+      _functions ?? FirebaseFunctions.instanceFor(region: "europe-north1");
 
-  SettingsRepository({required this.account});
+  SettingsRepository({
+    required this.account,
+    FirebaseFirestore? firestore,
+    FirebaseFunctions? functions,
+  })  : _firestore = firestore,
+        _functions = functions;
 
   Future<void> addCustomField(
       CustomFieldTemplate cf, SettingsModel currentSettings) async {
@@ -115,7 +124,6 @@ class SettingsRepository {
         senderUid: senderUser.uid);
 
     // Send the email invitation
-    final functions = FirebaseFunctions.instanceFor(region: "europe-north1");
     try {
       await functions.httpsCallable("invite_user").call({
         "senderEmail": senderUser.email,
