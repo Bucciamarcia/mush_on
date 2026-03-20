@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/booking_custom_fields.dart';
 import 'package:mush_on/settings/stripe/customer_custom_fields.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:mush_on/settings/stripe/shopping_cart_settings_image.dart';
@@ -70,6 +71,9 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
           ref
               .read(tempCustomerFieldsProvider.notifier)
               .setInitialFields(kennelInfo.customerCustomFields);
+          ref
+              .read(tempBookingFieldsProvider.notifier)
+              .setInitialFields(kennelInfo.bookingCustomFields);
         }
       });
     });
@@ -77,6 +81,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
     final bookingManagerKennelInfo =
         ref.watch(bookingManagerKennelInfoProvider(account: null));
     final tempCustomerFields = ref.watch(tempCustomerFieldsProvider);
+    final tempBookingFields = ref.watch(tempBookingFieldsProvider);
 
     return bookingManagerKennelInfo.when(
         data: (kennelInfo) {
@@ -188,7 +193,12 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                       tempCustomerFields: tempCustomerFields,
                       kennelInfo: kennelInfo,
                       onSubmit: () => _submitForm(),
-                    )
+                    ),
+                    BookingCustomFieldsMain(
+                      tempBookingFields: tempBookingFields,
+                      kennelInfo: kennelInfo,
+                      onSubmit: () => _submitForm(),
+                    ),
                   ],
                 ),
               ),
@@ -218,11 +228,16 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
           email: _emailController.text,
           cancellationPolicy: _cancellationPolicyController.text,
           customerCustomFields: ref.read(tempCustomerFieldsProvider),
+          bookingCustomFields: ref.read(tempBookingFieldsProvider),
           vatRate: applyVat == false ? 0 : 0.255);
       try {
         final account = await ref.read(accountProvider.future);
         await StripeRepository(account: account)
             .saveBookingManagerKennelInfo(toSubmit);
+        ref
+            .read(isCustomerCustomFieldsEditedProvider.notifier)
+            .setEdited(false);
+        ref.read(isBookingCustomFieldsEditedProvider.notifier).setEdited(false);
         ScaffoldMessenger.of(context).showSnackBar(
             confirmationSnackbar(context, "Data saved correctly"));
       } catch (e) {

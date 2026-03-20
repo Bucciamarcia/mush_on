@@ -116,6 +116,58 @@ class IsCustomerCustomFieldsEdited extends _$IsCustomerCustomFieldsEdited {
   }
 }
 
+@riverpod
+class TempBookingFields extends _$TempBookingFields {
+  @override
+  List<BookingCustomField> build() {
+    return [];
+  }
+
+  void setInitialFields(List<BookingCustomField> fields) {
+    if (state.isEmpty && fields.isNotEmpty) {
+      state = fields;
+    }
+  }
+
+  void addField() {
+    state = [
+      ...state,
+      BookingCustomField(
+          id: const Uuid().v4(),
+          type: CustomerCustomFieldType.text,
+          name: '',
+          description: '',
+          isRequired: false)
+    ];
+  }
+
+  void removeField(int index) {
+    state = [
+      for (int i = 0; i < state.length; i++)
+        if (i != index) state[i],
+    ];
+  }
+
+  void updateField(int index, BookingCustomField updatedField) {
+    state = [
+      for (int i = 0; i < state.length; i++)
+        if (i == index) updatedField else state[i],
+    ];
+  }
+}
+
+@riverpod
+class IsBookingCustomFieldsEdited extends _$IsBookingCustomFieldsEdited {
+  @override
+  bool build() {
+    return false;
+  }
+
+  void setEdited(bool edited) {
+    state = edited;
+  }
+}
+
 @JsonEnum()
 enum CustomerCustomFieldType { text, dropdown }
 
@@ -131,4 +183,18 @@ sealed class CustomerCustomField with _$CustomerCustomField {
 
   factory CustomerCustomField.fromJson(Map<String, dynamic> json) =>
       _$CustomerCustomFieldFromJson(json);
+}
+
+@freezed
+sealed class BookingCustomField with _$BookingCustomField {
+  const factory BookingCustomField({
+    required String id,
+    required CustomerCustomFieldType type,
+    required String name,
+    required String description,
+    required bool isRequired,
+  }) = _BookingCustomField;
+
+  factory BookingCustomField.fromJson(Map<String, dynamic> json) =>
+      _$BookingCustomFieldFromJson(json);
 }

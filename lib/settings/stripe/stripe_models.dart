@@ -49,6 +49,7 @@ sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
     required String email,
     required String cancellationPolicy,
     @Default([]) List<CustomerCustomField> customerCustomFields,
+    @Default([]) List<BookingCustomField> bookingCustomFields,
 
     /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
     required double vatRate,
