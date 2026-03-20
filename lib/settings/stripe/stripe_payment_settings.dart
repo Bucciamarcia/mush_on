@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/section_shell.dart';
 import 'package:mush_on/settings/stripe/shopping_cart_settings.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'stripe_repository.dart';
@@ -24,7 +25,18 @@ class PaymentSettingsWidget extends ConsumerWidget {
       return stripeConnectionasync.when(
           data: (stripeConnection) {
             if (stripeConnection == null) {
-              return ConnectStripeButton(account: account);
+              return SettingsSectionShell(
+                title: "Payments",
+                description:
+                    "Connect Stripe to enable checkout and payment page configuration for your kennel.",
+                badge: "Commerce",
+                child: SettingsSurface(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: ConnectStripeButton(account: account),
+                  ),
+                ),
+              );
             } else {
               return const ShoppingCartSettings();
             }
@@ -46,46 +58,48 @@ class ConnectStripeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final logger = BasicLogger();
-    return ElevatedButton(
-        onPressed: () async {
-          try {
-            final response =
-                await FirebaseFunctions.instanceFor(region: "europe-north1")
-                    .httpsCallable("stripe_create_account")
-                    .call({});
-            final responseJson = response.data as Map<String, dynamic>;
-            final error = responseJson["error"];
-            if (error != null) {
-              throw Exception(error);
-            }
-            final accountId = responseJson["account"];
-            if (accountId == null) {
-              throw Exception("Account ID is null");
-            }
-            await StripeRepository(account: account)
-                .saveStripeAccountId(accountId);
-            final responseLink =
-                await FirebaseFunctions.instanceFor(region: "europe-north1")
-                    .httpsCallable("stripe_create_account_link")
-                    .call({"stripeAccount": accountId, "account": account});
-            final linkData = responseLink.data as Map<String, dynamic>;
-            if (linkData["error"] != null) {
-              throw Exception(linkData["error"]);
-            }
-            final url = linkData["url"];
-            if (url == null) {
-              throw Exception("URL is null");
-            }
-            await _launchStripeUrl(url);
-          } catch (e, s) {
-            logger.error("Couldn't call link", error: e, stackTrace: s);
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  errorSnackBar(context, "Couldn't connect Stripe account"));
-            }
+    return FilledButton.icon(
+      onPressed: () async {
+        try {
+          final response =
+              await FirebaseFunctions.instanceFor(region: "europe-north1")
+                  .httpsCallable("stripe_create_account")
+                  .call({});
+          final responseJson = response.data as Map<String, dynamic>;
+          final error = responseJson["error"];
+          if (error != null) {
+            throw Exception(error);
           }
-        },
-        child: const Text("Connect Stripe"));
+          final accountId = responseJson["account"];
+          if (accountId == null) {
+            throw Exception("Account ID is null");
+          }
+          await StripeRepository(account: account)
+              .saveStripeAccountId(accountId);
+          final responseLink =
+              await FirebaseFunctions.instanceFor(region: "europe-north1")
+                  .httpsCallable("stripe_create_account_link")
+                  .call({"stripeAccount": accountId, "account": account});
+          final linkData = responseLink.data as Map<String, dynamic>;
+          if (linkData["error"] != null) {
+            throw Exception(linkData["error"]);
+          }
+          final url = linkData["url"];
+          if (url == null) {
+            throw Exception("URL is null");
+          }
+          await _launchStripeUrl(url);
+        } catch (e, s) {
+          logger.error("Couldn't call link", error: e, stackTrace: s);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                errorSnackBar(context, "Couldn't connect Stripe account"));
+          }
+        }
+      },
+      icon: const Icon(Icons.account_balance_outlined),
+      label: const Text("Connect Stripe"),
+    );
   }
 
   Future<void> _launchStripeUrl(String url) async {
