@@ -8,6 +8,8 @@ part of 'riverpod.dart';
 
 _CustomerCustomField _$CustomerCustomFieldFromJson(Map<String, dynamic> json) =>
     _CustomerCustomField(
+      id: json['id'] as String,
+      type: $enumDecode(_$CustomerCustomFieldTypeEnumMap, json['type']),
       name: json['name'] as String,
       description: json['description'] as String,
       isRequired: json['isRequired'] as bool,
@@ -16,10 +18,17 @@ _CustomerCustomField _$CustomerCustomFieldFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$CustomerCustomFieldToJson(
         _CustomerCustomField instance) =>
     <String, dynamic>{
+      'id': instance.id,
+      'type': _$CustomerCustomFieldTypeEnumMap[instance.type]!,
       'name': instance.name,
       'description': instance.description,
       'isRequired': instance.isRequired,
     };
+
+const _$CustomerCustomFieldTypeEnumMap = {
+  CustomerCustomFieldType.text: 'text',
+  CustomerCustomFieldType.dropdown: 'dropdown',
+};
 
 // **************************************************************************
 // RiverpodGenerator
@@ -349,7 +358,7 @@ class _KennelImageProviderElement
 }
 
 String _$tempCustomerFieldsHash() =>
-    r'c0b1776a10bcda24c4e32e8cba3b7f0b588453d3';
+    r'76eaa8e0ce71bb2f95ad0615fe84fde858f36968';
 
 /// See also [TempCustomerFields].
 @ProviderFor(TempCustomerFields)
@@ -365,5 +374,22 @@ final tempCustomerFieldsProvider = AutoDisposeNotifierProvider<
 );
 
 typedef _$TempCustomerFields = AutoDisposeNotifier<List<CustomerCustomField>>;
+String _$isCustomerCustomFieldsEditedHash() =>
+    r'2346cddeb43766c3a00390fc016a831707af7664';
+
+/// See also [IsCustomerCustomFieldsEdited].
+@ProviderFor(IsCustomerCustomFieldsEdited)
+final isCustomerCustomFieldsEditedProvider =
+    AutoDisposeNotifierProvider<IsCustomerCustomFieldsEdited, bool>.internal(
+  IsCustomerCustomFieldsEdited.new,
+  name: r'isCustomerCustomFieldsEditedProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$isCustomerCustomFieldsEditedHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$IsCustomerCustomFieldsEdited = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

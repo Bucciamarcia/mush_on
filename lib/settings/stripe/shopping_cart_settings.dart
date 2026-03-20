@@ -184,9 +184,40 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                       ],
                     ),
                     CustomerCustomFieldsEditor(fields: tempCustomerFields),
-                    ElevatedButton(
-                        onPressed: () => _submitForm(),
-                        child: const Text("Submit")),
+                    ref.watch(isCustomerCustomFieldsEditedProvider)
+                        ? const Text(
+                            "You have unsaved changes in the customer custom fields.",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.red),
+                          )
+                        : const SizedBox.shrink(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                            onPressed: () async {
+                              await _submitForm();
+                              ref
+                                  .read(isCustomerCustomFieldsEditedProvider
+                                      .notifier)
+                                  .setEdited(false);
+                            },
+                            child: const Text("Save changes")),
+                        ElevatedButton(
+                            onPressed: () async {
+                              ref.invalidate(tempCustomerFieldsProvider);
+                              ref
+                                  .read(tempCustomerFieldsProvider.notifier)
+                                  .setInitialFields(
+                                      kennelInfo?.customerCustomFields ?? []);
+                              ref
+                                  .read(isCustomerCustomFieldsEditedProvider
+                                      .notifier)
+                                  .setEdited(false);
+                            },
+                            child: const Text("Reset changes")),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -252,17 +283,40 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
             ...fields.asMap().entries.map((entry) {
               final index = entry.key;
               final field = entry.value;
-              return FieldDisplayWidget(
-                field: field,
-                onChanged: (v) => ref
-                    .read(tempCustomerFieldsProvider.notifier)
-                    .updateField(index, v),
+              return SizedBox(
+                width: 400,
+                child: FieldDisplayWidget(
+                  field: field,
+                  onChanged: (v) {
+                    ref
+                        .read(tempCustomerFieldsProvider.notifier)
+                        .updateField(index, v);
+                    ref
+                        .read(isCustomerCustomFieldsEditedProvider.notifier)
+                        .setEdited(true);
+                  },
+                  onDeleted: () {
+                    ref
+                        .read(tempCustomerFieldsProvider.notifier)
+                        .removeField(index);
+                    ref
+                        .read(isCustomerCustomFieldsEditedProvider.notifier)
+                        .setEdited(true);
+                  },
+                ),
               );
             }),
-            IconButton(
-                onPressed: () =>
-                    ref.read(tempCustomerFieldsProvider.notifier).addField(),
-                icon: const Icon(Icons.add))
+            SizedBox(
+              width: 300,
+              child: IconButton(
+                  onPressed: () {
+                    ref.read(tempCustomerFieldsProvider.notifier).addField();
+                    ref
+                        .read(isCustomerCustomFieldsEditedProvider.notifier)
+                        .setEdited(true);
+                  },
+                  icon: const Icon(Icons.add)),
+            )
           ],
         ),
       ],
@@ -273,8 +327,12 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
 class FieldDisplayWidget extends StatefulWidget {
   final CustomerCustomField field;
   final Function(CustomerCustomField) onChanged;
+  final Function() onDeleted;
   const FieldDisplayWidget(
-      {super.key, required this.field, required this.onChanged});
+      {super.key,
+      required this.field,
+      required this.onChanged,
+      required this.onDeleted});
 
   @override
   State<FieldDisplayWidget> createState() => _FieldDisplayWidgetState();
@@ -300,69 +358,75 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Column(
-        children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 300,
-                child: TextField(
-                  decoration: const InputDecoration(hintText: "Name"),
-                  controller: nameController,
-                  enabled: canEditName,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: const InputDecoration(hintText: "Name"),
+                    controller: nameController,
+                    enabled: canEditName,
+                  ),
                 ),
-              ),
-              IconButton(
-                  onPressed: () {
-                    if (canEditName)
-                      widget.onChanged(
-                          widget.field.copyWith(name: nameController.text));
-                    setState(() {
-                      canEditName = !canEditName;
-                    });
-                  },
-                  icon: canEditName
-                      ? const Icon(Icons.check)
-                      : const Icon(Icons.edit)),
-            ],
-          ),
-          Row(
-            children: [
-              SizedBox(
-                width: 300,
-                child: TextField(
-                  decoration: const InputDecoration(hintText: "Description"),
-                  controller: descriptionController,
-                  maxLines: 3,
-                  enabled: canEditDescription,
+                IconButton(
+                    onPressed: () {
+                      if (canEditName) {
+                        widget.onChanged(
+                            widget.field.copyWith(name: nameController.text));
+                      }
+                      setState(() {
+                        canEditName = !canEditName;
+                      });
+                    },
+                    icon: canEditName
+                        ? const Icon(Icons.check)
+                        : const Icon(Icons.edit)),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: const InputDecoration(hintText: "Description"),
+                    controller: descriptionController,
+                    maxLines: 3,
+                    enabled: canEditDescription,
+                  ),
                 ),
-              ),
-              IconButton(
-                  onPressed: () {
-                    if (canEditDescription) {
-                      widget.onChanged(widget.field
-                          .copyWith(description: descriptionController.text));
-                    }
+                IconButton(
+                    onPressed: () {
+                      if (canEditDescription) {
+                        widget.onChanged(widget.field
+                            .copyWith(description: descriptionController.text));
+                      }
+                      setState(() {
+                        canEditDescription = !canEditDescription;
+                      });
+                    },
+                    icon: canEditDescription
+                        ? const Icon(Icons.check)
+                        : const Icon(Icons.edit)),
+              ],
+            ),
+            CheckboxListTile.adaptive(
+                value: isRequired,
+                title: const Text("Required"),
+                onChanged: (v) {
+                  if (v != null) {
+                    widget.onChanged(widget.field.copyWith(isRequired: v));
                     setState(() {
-                      canEditDescription = !canEditDescription;
+                      isRequired = v;
                     });
-                  },
-                  icon: canEditDescription
-                      ? const Icon(Icons.check)
-                      : const Icon(Icons.edit)),
-            ],
-          ),
-          CheckboxListTile.adaptive(
-              value: isRequired,
-              onChanged: (v) {
-                if (v != null) {
-                  widget.onChanged(widget.field.copyWith(isRequired: v));
-                  setState(() {
-                    isRequired = v;
-                  });
-                }
-              })
-        ],
+                  }
+                }),
+            ElevatedButton(
+                onPressed: () => widget.onDeleted(),
+                child: const Text("Delete"))
+          ],
+        ),
       ),
     );
   }
