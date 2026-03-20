@@ -17,28 +17,72 @@ class CustomerCustomFieldsMain extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
-        CustomerCustomFieldsEditor(fields: tempCustomerFields),
-        ref.watch(isCustomerCustomFieldsEditedProvider)
-            ? const Text(
-                "You have unsaved changes in the customer custom fields.",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.red),
-              )
-            : const SizedBox.shrink(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.45),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          CustomerCustomFieldsEditor(fields: tempCustomerFields),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: ref.watch(isCustomerCustomFieldsEditedProvider)
+                ? Container(
+                    key: const ValueKey('unsaved_customer_custom_fields'),
+                    margin: const EdgeInsets.only(top: 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.errorContainer,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: colorScheme.onErrorContainer,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "You have unsaved changes in the customer custom fields.",
+                            style: TextStyle(
+                              color: colorScheme.onErrorContainer,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+          const SizedBox(height: 20),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              FilledButton.icon(
                 onPressed: () async {
                   onSubmit();
                   ref
                       .read(isCustomerCustomFieldsEditedProvider.notifier)
                       .setEdited(false);
                 },
-                child: const Text("Save changes")),
-            ElevatedButton(
+                icon: const Icon(Icons.save_outlined),
+                label: const Text("Save changes"),
+              ),
+              OutlinedButton.icon(
                 onPressed: () async {
                   ref.invalidate(tempCustomerFieldsProvider);
                   ref
@@ -48,10 +92,13 @@ class CustomerCustomFieldsMain extends ConsumerWidget {
                       .read(isCustomerCustomFieldsEditedProvider.notifier)
                       .setEdited(false);
                 },
-                child: const Text("Reset changes")),
-          ],
-        ),
-      ],
+                icon: const Icon(Icons.restart_alt),
+                label: const Text("Reset changes"),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -62,54 +109,121 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TextTitle("Customer custom fields"),
-        const Text(
+        const SizedBox(height: 4),
+        Text(
           "Add custom fields to the checkout page. You can use these to ask for extra information from your customers, like their dog's name or dietary restrictions. You can also make the fields required.",
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            height: 1.45,
+          ),
         ),
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          alignment: WrapAlignment.center,
-          children: [
-            ...fields.asMap().entries.map((entry) {
-              final index = entry.key;
-              final field = entry.value;
-              return SizedBox(
-                width: 400,
-                child: FieldDisplayWidget(
-                  field: field,
-                  onChanged: (v) {
-                    ref
-                        .read(tempCustomerFieldsProvider.notifier)
-                        .updateField(index, v);
-                    ref
-                        .read(isCustomerCustomFieldsEditedProvider.notifier)
-                        .setEdited(true);
-                  },
-                  onDeleted: () {
-                    ref
-                        .read(tempCustomerFieldsProvider.notifier)
-                        .removeField(index);
-                    ref
-                        .read(isCustomerCustomFieldsEditedProvider.notifier)
-                        .setEdited(true);
-                  },
-                ),
-              );
-            }),
-            SizedBox(
-              width: 300,
-              child: IconButton(
+        const SizedBox(height: 24),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      "Configuration",
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "${fields.length} field${fields.length == 1 ? '' : 's'} configured",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              if (fields.isNotEmpty)
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: [
+                    ...fields.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final field = entry.value;
+                      return SizedBox(
+                        width: 420,
+                        child: FieldDisplayWidget(
+                          field: field,
+                          onChanged: (v) {
+                            ref
+                                .read(tempCustomerFieldsProvider.notifier)
+                                .updateField(index, v);
+                            ref
+                                .read(isCustomerCustomFieldsEditedProvider
+                                    .notifier)
+                                .setEdited(true);
+                          },
+                          onDeleted: () {
+                            ref
+                                .read(tempCustomerFieldsProvider.notifier)
+                                .removeField(index);
+                            ref
+                                .read(isCustomerCustomFieldsEditedProvider
+                                    .notifier)
+                                .setEdited(true);
+                          },
+                        ),
+                      );
+                    }),
+                  ],
+                )
+              else
+                _EmptyFieldsState(
                   onPressed: () {
                     ref.read(tempCustomerFieldsProvider.notifier).addField();
                     ref
                         .read(isCustomerCustomFieldsEditedProvider.notifier)
                         .setEdited(true);
                   },
-                  icon: const Icon(Icons.add)),
-            )
-          ],
+                ),
+              const SizedBox(height: 16),
+              _AddFieldButton(
+                onPressed: () {
+                  ref.read(tempCustomerFieldsProvider.notifier).addField();
+                  ref
+                      .read(isCustomerCustomFieldsEditedProvider.notifier)
+                      .setEdited(true);
+                },
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -136,6 +250,7 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
   late bool isRequired;
   late bool canEditName;
   late bool canEditDescription;
+
   @override
   void initState() {
     nameController = TextEditingController(text: widget.field.name);
@@ -148,75 +263,398 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
   }
 
   @override
+  void didUpdateWidget(covariant FieldDisplayWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.field.name != widget.field.name &&
+        nameController.text != widget.field.name &&
+        !canEditName) {
+      nameController.text = widget.field.name;
+    }
+    if (oldWidget.field.description != widget.field.description &&
+        descriptionController.text != widget.field.description &&
+        !canEditDescription) {
+      descriptionController.text = widget.field.description;
+    }
+    if (oldWidget.field.isRequired != widget.field.isRequired) {
+      isRequired = widget.field.isRequired;
+    }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Card(
+      elevation: 0,
+      color: colorScheme.surfaceContainerLowest,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+        side: BorderSide(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(18),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    Icons.notes_rounded,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(width: 14),
                 Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(hintText: "Name"),
-                    controller: nameController,
-                    enabled: canEditName,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        nameController.text.isEmpty
+                            ? "Unnamed field"
+                            : nameController.text,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          isRequired ? "Required" : "Optional",
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 IconButton(
-                    onPressed: () {
-                      if (canEditName) {
-                        widget.onChanged(
-                            widget.field.copyWith(name: nameController.text));
-                      }
-                      setState(() {
-                        canEditName = !canEditName;
-                      });
-                    },
-                    icon: canEditName
-                        ? const Icon(Icons.check)
-                        : const Icon(Icons.edit)),
+                  tooltip: "Delete field",
+                  onPressed: () => widget.onDeleted(),
+                  style: IconButton.styleFrom(
+                    backgroundColor:
+                        colorScheme.errorContainer.withValues(alpha: 0.55),
+                    foregroundColor: colorScheme.error,
+                  ),
+                  icon: const Icon(Icons.delete_outline),
+                ),
               ],
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(hintText: "Description"),
-                    controller: descriptionController,
-                    maxLines: 3,
-                    enabled: canEditDescription,
+            const SizedBox(height: 18),
+            _EditableFieldRow(
+              label: "Field name",
+              controller: nameController,
+              hintText: "Name",
+              enabled: canEditName,
+              maxLines: 1,
+              onToggle: () {
+                if (canEditName) {
+                  widget.onChanged(
+                      widget.field.copyWith(name: nameController.text));
+                }
+                setState(() {
+                  canEditName = !canEditName;
+                });
+              },
+            ),
+            const SizedBox(height: 14),
+            _EditableFieldRow(
+              label: "Description",
+              controller: descriptionController,
+              hintText: "Description",
+              enabled: canEditDescription,
+              maxLines: 3,
+              onToggle: () {
+                if (canEditDescription) {
+                  widget.onChanged(widget.field
+                      .copyWith(description: descriptionController.text));
+                }
+                setState(() {
+                  canEditDescription = !canEditDescription;
+                });
+              },
+            ),
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Required at checkout",
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "Customers must complete this field before booking.",
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Switch.adaptive(
+                    value: isRequired,
+                    onChanged: (v) {
+                      widget.onChanged(widget.field.copyWith(isRequired: v));
+                      setState(() {
+                        isRequired = v;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EditableFieldRow extends StatelessWidget {
+  final String label;
+  final TextEditingController controller;
+  final String hintText;
+  final bool enabled;
+  final int maxLines;
+  final VoidCallback onToggle;
+
+  const _EditableFieldRow({
+    required this.label,
+    required this.controller,
+    required this.hintText,
+    required this.enabled,
+    required this.maxLines,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: hintText,
+                  filled: true,
+                  fillColor: enabled
+                      ? colorScheme.surface
+                      : colorScheme.surfaceContainerLow,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                      color: colorScheme.outlineVariant,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.55),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                      color: colorScheme.primary,
+                      width: 1.5,
+                    ),
                   ),
                 ),
-                IconButton(
-                    onPressed: () {
-                      if (canEditDescription) {
-                        widget.onChanged(widget.field
-                            .copyWith(description: descriptionController.text));
-                      }
-                      setState(() {
-                        canEditDescription = !canEditDescription;
-                      });
-                    },
-                    icon: canEditDescription
-                        ? const Icon(Icons.check)
-                        : const Icon(Icons.edit)),
-              ],
+                controller: controller,
+                enabled: enabled,
+                maxLines: maxLines,
+              ),
             ),
-            CheckboxListTile.adaptive(
-                value: isRequired,
-                title: const Text("Required"),
-                onChanged: (v) {
-                  if (v != null) {
-                    widget.onChanged(widget.field.copyWith(isRequired: v));
-                    setState(() {
-                      isRequired = v;
-                    });
-                  }
-                }),
-            ElevatedButton(
-                onPressed: () => widget.onDeleted(),
-                child: const Text("Delete"))
+            const SizedBox(width: 10),
+            FilledButton.tonalIcon(
+              onPressed: onToggle,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(54, 56),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+              ),
+              icon: Icon(enabled ? Icons.check : Icons.edit_outlined),
+              label: Text(enabled ? "Save" : "Edit"),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _AddFieldButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _AddFieldButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onPressed,
+      child: Ink(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.45),
+            style: BorderStyle.solid,
+          ),
+          color: colorScheme.surfaceContainerLowest,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(Icons.add, color: colorScheme.primary),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Add new field",
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Create another question for your checkout form.",
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_rounded,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyFieldsState extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _EmptyFieldsState({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: onPressed,
+      child: Ink(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.55),
+          ),
+          color: colorScheme.surfaceContainerLowest,
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHigh,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.add_circle_outline,
+                color: colorScheme.primary,
+                size: 30,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              "No custom fields yet",
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              "Start with a question like dog's name, dietary restrictions or preferred contact details.",
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                height: 1.4,
+              ),
+            ),
           ],
         ),
       ),
