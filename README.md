@@ -130,3 +130,4 @@ A cool and open source CRM for sled dog kennels.
 ### 0.0.17
 
 - Adds read only button in create team.
+- Adds customer custom fields.
