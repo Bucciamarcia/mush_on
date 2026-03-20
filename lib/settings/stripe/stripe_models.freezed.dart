@@ -776,6 +776,7 @@ mixin _$BookingManagerKennelInfo {
   String get email;
   String get cancellationPolicy;
   List<CustomerCustomField> get customerCustomFields;
+  List<BookingCustomField> get bookingCustomFields;
 
   /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
   double get vatRate;
@@ -806,6 +807,8 @@ mixin _$BookingManagerKennelInfo {
                 other.cancellationPolicy == cancellationPolicy) &&
             const DeepCollectionEquality()
                 .equals(other.customerCustomFields, customerCustomFields) &&
+            const DeepCollectionEquality()
+                .equals(other.bookingCustomFields, bookingCustomFields) &&
             (identical(other.vatRate, vatRate) || other.vatRate == vatRate) &&
             (identical(other.commissionRate, commissionRate) ||
                 other.commissionRate == commissionRate));
@@ -820,12 +823,13 @@ mixin _$BookingManagerKennelInfo {
       email,
       cancellationPolicy,
       const DeepCollectionEquality().hash(customerCustomFields),
+      const DeepCollectionEquality().hash(bookingCustomFields),
       vatRate,
       commissionRate);
 
   @override
   String toString() {
-    return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, vatRate: $vatRate, commissionRate: $commissionRate)';
+    return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, bookingCustomFields: $bookingCustomFields, vatRate: $vatRate, commissionRate: $commissionRate)';
   }
 }
 
@@ -841,6 +845,7 @@ abstract mixin class $BookingManagerKennelInfoCopyWith<$Res> {
       String email,
       String cancellationPolicy,
       List<CustomerCustomField> customerCustomFields,
+      List<BookingCustomField> bookingCustomFields,
       double vatRate,
       double commissionRate});
 }
@@ -863,6 +868,7 @@ class _$BookingManagerKennelInfoCopyWithImpl<$Res>
     Object? email = null,
     Object? cancellationPolicy = null,
     Object? customerCustomFields = null,
+    Object? bookingCustomFields = null,
     Object? vatRate = null,
     Object? commissionRate = null,
   }) {
@@ -887,6 +893,10 @@ class _$BookingManagerKennelInfoCopyWithImpl<$Res>
           ? _self.customerCustomFields
           : customerCustomFields // ignore: cast_nullable_to_non_nullable
               as List<CustomerCustomField>,
+      bookingCustomFields: null == bookingCustomFields
+          ? _self.bookingCustomFields
+          : bookingCustomFields // ignore: cast_nullable_to_non_nullable
+              as List<BookingCustomField>,
       vatRate: null == vatRate
           ? _self.vatRate
           : vatRate // ignore: cast_nullable_to_non_nullable
@@ -996,6 +1006,7 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
             String email,
             String cancellationPolicy,
             List<CustomerCustomField> customerCustomFields,
+            List<BookingCustomField> bookingCustomFields,
             double vatRate,
             double commissionRate)?
         $default, {
@@ -1010,6 +1021,7 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
             _that.email,
             _that.cancellationPolicy,
             _that.customerCustomFields,
+            _that.bookingCustomFields,
             _that.vatRate,
             _that.commissionRate);
       case _:
@@ -1038,6 +1050,7 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
             String email,
             String cancellationPolicy,
             List<CustomerCustomField> customerCustomFields,
+            List<BookingCustomField> bookingCustomFields,
             double vatRate,
             double commissionRate)
         $default,
@@ -1051,6 +1064,7 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
             _that.email,
             _that.cancellationPolicy,
             _that.customerCustomFields,
+            _that.bookingCustomFields,
             _that.vatRate,
             _that.commissionRate);
     }
@@ -1076,6 +1090,7 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
             String email,
             String cancellationPolicy,
             List<CustomerCustomField> customerCustomFields,
+            List<BookingCustomField> bookingCustomFields,
             double vatRate,
             double commissionRate)?
         $default,
@@ -1089,6 +1104,7 @@ extension BookingManagerKennelInfoPatterns on BookingManagerKennelInfo {
             _that.email,
             _that.cancellationPolicy,
             _that.customerCustomFields,
+            _that.bookingCustomFields,
             _that.vatRate,
             _that.commissionRate);
       case _:
@@ -1107,9 +1123,11 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
       required this.email,
       required this.cancellationPolicy,
       final List<CustomerCustomField> customerCustomFields = const [],
+      final List<BookingCustomField> bookingCustomFields = const [],
       required this.vatRate,
       this.commissionRate = 0.035})
-      : _customerCustomFields = customerCustomFields;
+      : _customerCustomFields = customerCustomFields,
+        _bookingCustomFields = bookingCustomFields;
   factory _BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) =>
       _$BookingManagerKennelInfoFromJson(json);
 
@@ -1129,6 +1147,16 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
       return _customerCustomFields;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_customerCustomFields);
+  }
+
+  final List<BookingCustomField> _bookingCustomFields;
+  @override
+  @JsonKey()
+  List<BookingCustomField> get bookingCustomFields {
+    if (_bookingCustomFields is EqualUnmodifiableListView)
+      return _bookingCustomFields;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_bookingCustomFields);
   }
 
   /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
@@ -1168,6 +1196,8 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
                 other.cancellationPolicy == cancellationPolicy) &&
             const DeepCollectionEquality()
                 .equals(other._customerCustomFields, _customerCustomFields) &&
+            const DeepCollectionEquality()
+                .equals(other._bookingCustomFields, _bookingCustomFields) &&
             (identical(other.vatRate, vatRate) || other.vatRate == vatRate) &&
             (identical(other.commissionRate, commissionRate) ||
                 other.commissionRate == commissionRate));
@@ -1182,12 +1212,13 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
       email,
       cancellationPolicy,
       const DeepCollectionEquality().hash(_customerCustomFields),
+      const DeepCollectionEquality().hash(_bookingCustomFields),
       vatRate,
       commissionRate);
 
   @override
   String toString() {
-    return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, vatRate: $vatRate, commissionRate: $commissionRate)';
+    return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, bookingCustomFields: $bookingCustomFields, vatRate: $vatRate, commissionRate: $commissionRate)';
   }
 }
 
@@ -1205,6 +1236,7 @@ abstract mixin class _$BookingManagerKennelInfoCopyWith<$Res>
       String email,
       String cancellationPolicy,
       List<CustomerCustomField> customerCustomFields,
+      List<BookingCustomField> bookingCustomFields,
       double vatRate,
       double commissionRate});
 }
@@ -1227,6 +1259,7 @@ class __$BookingManagerKennelInfoCopyWithImpl<$Res>
     Object? email = null,
     Object? cancellationPolicy = null,
     Object? customerCustomFields = null,
+    Object? bookingCustomFields = null,
     Object? vatRate = null,
     Object? commissionRate = null,
   }) {
@@ -1251,6 +1284,10 @@ class __$BookingManagerKennelInfoCopyWithImpl<$Res>
           ? _self._customerCustomFields
           : customerCustomFields // ignore: cast_nullable_to_non_nullable
               as List<CustomerCustomField>,
+      bookingCustomFields: null == bookingCustomFields
+          ? _self._bookingCustomFields
+          : bookingCustomFields // ignore: cast_nullable_to_non_nullable
+              as List<BookingCustomField>,
       vatRate: null == vatRate
           ? _self.vatRate
           : vatRate // ignore: cast_nullable_to_non_nullable

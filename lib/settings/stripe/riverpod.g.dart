@@ -30,6 +30,24 @@ const _$CustomerCustomFieldTypeEnumMap = {
   CustomerCustomFieldType.dropdown: 'dropdown',
 };
 
+_BookingCustomField _$BookingCustomFieldFromJson(Map<String, dynamic> json) =>
+    _BookingCustomField(
+      id: json['id'] as String,
+      type: $enumDecode(_$CustomerCustomFieldTypeEnumMap, json['type']),
+      name: json['name'] as String,
+      description: json['description'] as String,
+      isRequired: json['isRequired'] as bool,
+    );
+
+Map<String, dynamic> _$BookingCustomFieldToJson(_BookingCustomField instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'type': _$CustomerCustomFieldTypeEnumMap[instance.type]!,
+      'name': instance.name,
+      'description': instance.description,
+      'isRequired': instance.isRequired,
+    };
+
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
@@ -391,5 +409,38 @@ final isCustomerCustomFieldsEditedProvider =
 );
 
 typedef _$IsCustomerCustomFieldsEdited = AutoDisposeNotifier<bool>;
+String _$tempBookingFieldsHash() => r'459d170d0fcad19189f544c4ce7032818c43f91b';
+
+/// See also [TempBookingFields].
+@ProviderFor(TempBookingFields)
+final tempBookingFieldsProvider = AutoDisposeNotifierProvider<TempBookingFields,
+    List<BookingCustomField>>.internal(
+  TempBookingFields.new,
+  name: r'tempBookingFieldsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$tempBookingFieldsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$TempBookingFields = AutoDisposeNotifier<List<BookingCustomField>>;
+String _$isBookingCustomFieldsEditedHash() =>
+    r'53402e753be3c909f45ede7e149ea164cdcd46ce';
+
+/// See also [IsBookingCustomFieldsEdited].
+@ProviderFor(IsBookingCustomFieldsEdited)
+final isBookingCustomFieldsEditedProvider =
+    AutoDisposeNotifierProvider<IsBookingCustomFieldsEdited, bool>.internal(
+  IsBookingCustomFieldsEdited.new,
+  name: r'isBookingCustomFieldsEditedProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$isBookingCustomFieldsEditedHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$IsBookingCustomFieldsEdited = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

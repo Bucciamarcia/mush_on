@@ -5,13 +5,13 @@ import 'package:mush_on/shared/text_title.dart';
 import 'riverpod.dart';
 import 'stripe_models.dart';
 
-class CustomerCustomFieldsMain extends ConsumerWidget {
-  final List<CustomerCustomField> tempCustomerFields;
+class BookingCustomFieldsMain extends ConsumerWidget {
+  final List<BookingCustomField> tempBookingFields;
   final BookingManagerKennelInfo? kennelInfo;
   final Future<void> Function() onSubmit;
-  const CustomerCustomFieldsMain(
+  const BookingCustomFieldsMain(
       {super.key,
-      required this.tempCustomerFields,
+      required this.tempBookingFields,
       required this.kennelInfo,
       required this.onSubmit});
 
@@ -32,12 +32,12 @@ class CustomerCustomFieldsMain extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          CustomerCustomFieldsEditor(fields: tempCustomerFields),
+          BookingCustomFieldsEditor(fields: tempBookingFields),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 180),
-            child: ref.watch(isCustomerCustomFieldsEditedProvider)
+            child: ref.watch(isBookingCustomFieldsEditedProvider)
                 ? Container(
-                    key: const ValueKey('unsaved_customer_custom_fields'),
+                    key: const ValueKey('unsaved_booking_custom_fields'),
                     margin: const EdgeInsets.only(top: 20),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 12),
@@ -54,7 +54,7 @@ class CustomerCustomFieldsMain extends ConsumerWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            "You have unsaved changes in the customer custom fields.",
+                            "You have unsaved changes in the booking custom fields.",
                             style: TextStyle(
                               color: colorScheme.onErrorContainer,
                               fontWeight: FontWeight.w600,
@@ -81,12 +81,12 @@ class CustomerCustomFieldsMain extends ConsumerWidget {
               ),
               OutlinedButton.icon(
                 onPressed: () async {
-                  ref.invalidate(tempCustomerFieldsProvider);
+                  ref.invalidate(tempBookingFieldsProvider);
                   ref
-                      .read(tempCustomerFieldsProvider.notifier)
-                      .setInitialFields(kennelInfo?.customerCustomFields ?? []);
+                      .read(tempBookingFieldsProvider.notifier)
+                      .setInitialFields(kennelInfo?.bookingCustomFields ?? []);
                   ref
-                      .read(isCustomerCustomFieldsEditedProvider.notifier)
+                      .read(isBookingCustomFieldsEditedProvider.notifier)
                       .setEdited(false);
                 },
                 icon: const Icon(Icons.restart_alt),
@@ -100,9 +100,9 @@ class CustomerCustomFieldsMain extends ConsumerWidget {
   }
 }
 
-class CustomerCustomFieldsEditor extends ConsumerWidget {
-  final List<CustomerCustomField> fields;
-  const CustomerCustomFieldsEditor({super.key, required this.fields});
+class BookingCustomFieldsEditor extends ConsumerWidget {
+  final List<BookingCustomField> fields;
+  const BookingCustomFieldsEditor({super.key, required this.fields});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -112,10 +112,10 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TextTitle("Customer custom fields"),
+        const TextTitle("Booking custom fields"),
         const SizedBox(height: 4),
         Text(
-          "Add custom fields to the checkout page. You can use these to ask for extra information from your customers, like their dog's name or dietary restrictions. You can also make the fields required.",
+          "Add custom fields for the overall booking. Use these for information that applies to the reservation itself, like pickup point, arrival notes or preferred drop-off time.",
           style: theme.textTheme.bodyMedium?.copyWith(
             color: colorScheme.onSurfaceVariant,
             height: 1.45,
@@ -176,23 +176,23 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
                       final field = entry.value;
                       return SizedBox(
                         width: 420,
-                        child: FieldDisplayWidget(
+                        child: _BookingFieldDisplayWidget(
                           field: field,
                           onChanged: (v) {
                             ref
-                                .read(tempCustomerFieldsProvider.notifier)
+                                .read(tempBookingFieldsProvider.notifier)
                                 .updateField(index, v);
                             ref
-                                .read(isCustomerCustomFieldsEditedProvider
+                                .read(isBookingCustomFieldsEditedProvider
                                     .notifier)
                                 .setEdited(true);
                           },
                           onDeleted: () {
                             ref
-                                .read(tempCustomerFieldsProvider.notifier)
+                                .read(tempBookingFieldsProvider.notifier)
                                 .removeField(index);
                             ref
-                                .read(isCustomerCustomFieldsEditedProvider
+                                .read(isBookingCustomFieldsEditedProvider
                                     .notifier)
                                 .setEdited(true);
                           },
@@ -202,20 +202,20 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
                   ],
                 )
               else
-                _EmptyFieldsState(
+                _BookingEmptyFieldsState(
                   onPressed: () {
-                    ref.read(tempCustomerFieldsProvider.notifier).addField();
+                    ref.read(tempBookingFieldsProvider.notifier).addField();
                     ref
-                        .read(isCustomerCustomFieldsEditedProvider.notifier)
+                        .read(isBookingCustomFieldsEditedProvider.notifier)
                         .setEdited(true);
                   },
                 ),
               const SizedBox(height: 16),
-              _AddFieldButton(
+              _BookingAddFieldButton(
                 onPressed: () {
-                  ref.read(tempCustomerFieldsProvider.notifier).addField();
+                  ref.read(tempBookingFieldsProvider.notifier).addField();
                   ref
-                      .read(isCustomerCustomFieldsEditedProvider.notifier)
+                      .read(isBookingCustomFieldsEditedProvider.notifier)
                       .setEdited(true);
                 },
               ),
@@ -227,21 +227,20 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
   }
 }
 
-class FieldDisplayWidget extends StatefulWidget {
-  final CustomerCustomField field;
-  final Function(CustomerCustomField) onChanged;
+class _BookingFieldDisplayWidget extends StatefulWidget {
+  final BookingCustomField field;
+  final Function(BookingCustomField) onChanged;
   final Function() onDeleted;
-  const FieldDisplayWidget(
-      {super.key,
-      required this.field,
-      required this.onChanged,
-      required this.onDeleted});
+  const _BookingFieldDisplayWidget(
+      {required this.field, required this.onChanged, required this.onDeleted});
 
   @override
-  State<FieldDisplayWidget> createState() => _FieldDisplayWidgetState();
+  State<_BookingFieldDisplayWidget> createState() =>
+      _BookingFieldDisplayWidgetState();
 }
 
-class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
+class _BookingFieldDisplayWidgetState
+    extends State<_BookingFieldDisplayWidget> {
   late TextEditingController nameController;
   late TextEditingController descriptionController;
   late bool isRequired;
@@ -260,7 +259,7 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
   }
 
   @override
-  void didUpdateWidget(covariant FieldDisplayWidget oldWidget) {
+  void didUpdateWidget(covariant _BookingFieldDisplayWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.field.name != widget.field.name &&
         nameController.text != widget.field.name &&
@@ -314,7 +313,7 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
-                    Icons.notes_rounded,
+                    Icons.assignment_outlined,
                     color: colorScheme.primary,
                   ),
                 ),
@@ -363,7 +362,7 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
               ],
             ),
             const SizedBox(height: 18),
-            _EditableFieldRow(
+            _BookingEditableFieldRow(
               label: "Field name",
               controller: nameController,
               hintText: "Name",
@@ -380,7 +379,7 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
               },
             ),
             const SizedBox(height: 14),
-            _EditableFieldRow(
+            _BookingEditableFieldRow(
               label: "Description",
               controller: descriptionController,
               hintText: "Description",
@@ -417,7 +416,7 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          "Customers must complete this field before booking.",
+                          "Customers must complete this field for the booking before checkout.",
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -445,7 +444,7 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
   }
 }
 
-class _EditableFieldRow extends StatelessWidget {
+class _BookingEditableFieldRow extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final String hintText;
@@ -453,7 +452,7 @@ class _EditableFieldRow extends StatelessWidget {
   final int maxLines;
   final VoidCallback onToggle;
 
-  const _EditableFieldRow({
+  const _BookingEditableFieldRow({
     required this.label,
     required this.controller,
     required this.hintText,
@@ -531,10 +530,10 @@ class _EditableFieldRow extends StatelessWidget {
   }
 }
 
-class _AddFieldButton extends StatelessWidget {
+class _BookingAddFieldButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const _AddFieldButton({required this.onPressed});
+  const _BookingAddFieldButton({required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -579,7 +578,7 @@ class _AddFieldButton extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    "Create another question for your checkout form.",
+                    "Create another booking-level question for your checkout form.",
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -598,10 +597,10 @@ class _AddFieldButton extends StatelessWidget {
   }
 }
 
-class _EmptyFieldsState extends StatelessWidget {
+class _BookingEmptyFieldsState extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const _EmptyFieldsState({required this.onPressed});
+  const _BookingEmptyFieldsState({required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -638,14 +637,14 @@ class _EmptyFieldsState extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              "No custom fields yet",
+              "No booking custom fields yet",
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 6),
             Text(
-              "Start with a question like dog's name, dietary restrictions or preferred contact details.",
+              "Start with a question like pickup point, arrival notes or preferred drop-off details.",
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
