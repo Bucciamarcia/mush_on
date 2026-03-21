@@ -69,6 +69,7 @@ sealed class Booking with _$Booking {
     String? city,
     String? country,
     @Default(PaymentStatus.unknown) PaymentStatus paymentStatus,
+    @Default(<String, String>{}) Map<String, String> otherBookingData,
   }) = _Booking;
 
   factory Booking.fromJson(Map<String, dynamic> json) =>

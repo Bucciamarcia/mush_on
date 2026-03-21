@@ -505,6 +505,7 @@ mixin _$Booking {
   String? get city;
   String? get country;
   PaymentStatus get paymentStatus;
+  Map<String, String> get otherBookingData;
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -533,17 +534,30 @@ mixin _$Booking {
             (identical(other.city, city) || other.city == city) &&
             (identical(other.country, country) || other.country == country) &&
             (identical(other.paymentStatus, paymentStatus) ||
-                other.paymentStatus == paymentStatus));
+                other.paymentStatus == paymentStatus) &&
+            const DeepCollectionEquality()
+                .equals(other.otherBookingData, otherBookingData));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, customerGroupId, phone,
-      email, streetAddress, zipCode, city, country, paymentStatus);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      customerGroupId,
+      phone,
+      email,
+      streetAddress,
+      zipCode,
+      city,
+      country,
+      paymentStatus,
+      const DeepCollectionEquality().hash(otherBookingData));
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, paymentStatus: $paymentStatus)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, paymentStatus: $paymentStatus, otherBookingData: $otherBookingData)';
   }
 }
 
@@ -562,7 +576,8 @@ abstract mixin class $BookingCopyWith<$Res> {
       String? zipCode,
       String? city,
       String? country,
-      PaymentStatus paymentStatus});
+      PaymentStatus paymentStatus,
+      Map<String, String> otherBookingData});
 }
 
 /// @nodoc
@@ -587,6 +602,7 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
     Object? city = freezed,
     Object? country = freezed,
     Object? paymentStatus = null,
+    Object? otherBookingData = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -629,6 +645,10 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
           ? _self.paymentStatus
           : paymentStatus // ignore: cast_nullable_to_non_nullable
               as PaymentStatus,
+      otherBookingData: null == otherBookingData
+          ? _self.otherBookingData
+          : otherBookingData // ignore: cast_nullable_to_non_nullable
+              as Map<String, String>,
     ));
   }
 }
@@ -734,7 +754,8 @@ extension BookingPatterns on Booking {
             String? zipCode,
             String? city,
             String? country,
-            PaymentStatus paymentStatus)?
+            PaymentStatus paymentStatus,
+            Map<String, String> otherBookingData)?
         $default, {
     required TResult orElse(),
   }) {
@@ -751,7 +772,8 @@ extension BookingPatterns on Booking {
             _that.zipCode,
             _that.city,
             _that.country,
-            _that.paymentStatus);
+            _that.paymentStatus,
+            _that.otherBookingData);
       case _:
         return orElse();
     }
@@ -782,7 +804,8 @@ extension BookingPatterns on Booking {
             String? zipCode,
             String? city,
             String? country,
-            PaymentStatus paymentStatus)
+            PaymentStatus paymentStatus,
+            Map<String, String> otherBookingData)
         $default,
   ) {
     final _that = this;
@@ -798,7 +821,8 @@ extension BookingPatterns on Booking {
             _that.zipCode,
             _that.city,
             _that.country,
-            _that.paymentStatus);
+            _that.paymentStatus,
+            _that.otherBookingData);
     }
   }
 
@@ -826,7 +850,8 @@ extension BookingPatterns on Booking {
             String? zipCode,
             String? city,
             String? country,
-            PaymentStatus paymentStatus)?
+            PaymentStatus paymentStatus,
+            Map<String, String> otherBookingData)?
         $default,
   ) {
     final _that = this;
@@ -842,7 +867,8 @@ extension BookingPatterns on Booking {
             _that.zipCode,
             _that.city,
             _that.country,
-            _that.paymentStatus);
+            _that.paymentStatus,
+            _that.otherBookingData);
       case _:
         return null;
     }
@@ -863,7 +889,9 @@ class _Booking implements Booking {
       this.zipCode,
       this.city,
       this.country,
-      this.paymentStatus = PaymentStatus.unknown});
+      this.paymentStatus = PaymentStatus.unknown,
+      final Map<String, String> otherBookingData = const <String, String>{}})
+      : _otherBookingData = otherBookingData;
   factory _Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
 
@@ -901,6 +929,14 @@ class _Booking implements Booking {
   @override
   @JsonKey()
   final PaymentStatus paymentStatus;
+  final Map<String, String> _otherBookingData;
+  @override
+  @JsonKey()
+  Map<String, String> get otherBookingData {
+    if (_otherBookingData is EqualUnmodifiableMapView) return _otherBookingData;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_otherBookingData);
+  }
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -934,17 +970,30 @@ class _Booking implements Booking {
             (identical(other.city, city) || other.city == city) &&
             (identical(other.country, country) || other.country == country) &&
             (identical(other.paymentStatus, paymentStatus) ||
-                other.paymentStatus == paymentStatus));
+                other.paymentStatus == paymentStatus) &&
+            const DeepCollectionEquality()
+                .equals(other._otherBookingData, _otherBookingData));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, name, customerGroupId, phone,
-      email, streetAddress, zipCode, city, country, paymentStatus);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      name,
+      customerGroupId,
+      phone,
+      email,
+      streetAddress,
+      zipCode,
+      city,
+      country,
+      paymentStatus,
+      const DeepCollectionEquality().hash(_otherBookingData));
 
   @override
   String toString() {
-    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, paymentStatus: $paymentStatus)';
+    return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, paymentStatus: $paymentStatus, otherBookingData: $otherBookingData)';
   }
 }
 
@@ -964,7 +1013,8 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
       String? zipCode,
       String? city,
       String? country,
-      PaymentStatus paymentStatus});
+      PaymentStatus paymentStatus,
+      Map<String, String> otherBookingData});
 }
 
 /// @nodoc
@@ -989,6 +1039,7 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
     Object? city = freezed,
     Object? country = freezed,
     Object? paymentStatus = null,
+    Object? otherBookingData = null,
   }) {
     return _then(_Booking(
       id: null == id
@@ -1031,6 +1082,10 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
           ? _self.paymentStatus
           : paymentStatus // ignore: cast_nullable_to_non_nullable
               as PaymentStatus,
+      otherBookingData: null == otherBookingData
+          ? _self._otherBookingData
+          : otherBookingData // ignore: cast_nullable_to_non_nullable
+              as Map<String, String>,
     ));
   }
 }

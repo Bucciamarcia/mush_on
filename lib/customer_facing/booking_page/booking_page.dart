@@ -155,6 +155,7 @@ class MainContent extends ConsumerWidget {
                                   constraints: constraints,
                                   tourType: tourType,
                                   account: account,
+                                  kennelInfo: kennelInfo,
                                 ),
                                 const SizedBox(height: 20),
                                 Align(
@@ -193,11 +194,13 @@ class DateSelectionWidget extends StatelessWidget {
   final BoxConstraints constraints;
   final TourType tourType;
   final String account;
+  final BookingManagerKennelInfo kennelInfo;
   const DateSelectionWidget({
     super.key,
     required this.constraints,
     required this.tourType,
     required this.account,
+    required this.kennelInfo,
   });
 
   @override
@@ -214,7 +217,10 @@ class DateSelectionWidget extends StatelessWidget {
           const SizedBox(width: 24),
           Expanded(
             flex: 4,
-            child: BookingSummaryColumn(tourType: tourType),
+            child: BookingSummaryColumn(
+              tourType: tourType,
+              kennelInfo: kennelInfo,
+            ),
           ),
         ],
       );
@@ -225,7 +231,10 @@ class DateSelectionWidget extends StatelessWidget {
       children: [
         BookingTimeAndDate(tourType: tourType, account: account),
         const SizedBox(height: 20),
-        BookingSummaryColumn(tourType: tourType),
+        BookingSummaryColumn(
+          tourType: tourType,
+          kennelInfo: kennelInfo,
+        ),
       ],
     );
   }
@@ -233,7 +242,9 @@ class DateSelectionWidget extends StatelessWidget {
 
 class BookingSummaryColumn extends ConsumerWidget {
   final TourType tourType;
-  const BookingSummaryColumn({super.key, required this.tourType});
+  final BookingManagerKennelInfo kennelInfo;
+  const BookingSummaryColumn(
+      {super.key, required this.tourType, required this.kennelInfo});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -372,6 +383,7 @@ class BookingSummaryColumn extends ConsumerWidget {
               selectedPricings: selectedPricings,
               pricings: pricings,
               tourType: tourType,
+              kennelInfo: kennelInfo,
             ),
             const SizedBox(height: 18),
             const SafetyIconsWrap(),
@@ -431,11 +443,13 @@ class ConfirmBookingButton extends ConsumerWidget {
   final List<BookingPricingNumberBooked> selectedPricings;
   final List<TourTypePricing> pricings;
   final TourType tourType;
+  final BookingManagerKennelInfo kennelInfo;
   const ConfirmBookingButton({
     super.key,
     required this.selectedPricings,
     required this.pricings,
     required this.tourType,
+    required this.kennelInfo,
   });
 
   bool _isActive() {
@@ -461,6 +475,7 @@ class ConfirmBookingButton extends ConsumerWidget {
                         tourType: tourType,
                         pricings: pricings,
                         selectedPricings: selectedPricings,
+                        kennelInfo: kennelInfo,
                       ),
                     ),
                   );
