@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
@@ -375,5 +376,18 @@ final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
   final passengersOk = customers.isNotEmpty &&
       customers.every((c) => filled(c.name) && c.age != null);
 
-  return contactOk && passengersOk;
+  final account = ref.watch(accountPublicProvider);
+  final kennelInfo = account == null
+      ? null
+      : ref
+          .watch(bookingManagerKennelInfoProvider(account: account))
+          .valueOrNull;
+
+  final requiredOtherInfoOk = kennelInfo == null
+      ? true
+      : kennelInfo.bookingCustomFields.where((field) => field.isRequired).every(
+            (field) => filled(booking.otherBookingData[field.name]),
+          );
+
+  return contactOk && passengersOk && requiredOtherInfoOk;
 });
