@@ -41,6 +41,11 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
       paymentStatus:
           $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']) ??
               PaymentStatus.unknown,
+      otherBookingData:
+          (json['otherBookingData'] as Map<String, dynamic>?)?.map(
+                (k, e) => MapEntry(k, e as String),
+              ) ??
+              const <String, String>{},
     );
 
 Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
@@ -54,6 +59,7 @@ Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
       'city': instance.city,
       'country': instance.country,
       'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
+      'otherBookingData': instance.otherBookingData,
     };
 
 const _$PaymentStatusEnumMap = {

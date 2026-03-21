@@ -10,6 +10,7 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
+import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:sealed_countries/sealed_countries.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
@@ -21,11 +22,13 @@ class CollectInfoPage extends StatelessWidget {
   final TourType tourType;
   final List<BookingPricingNumberBooked> selectedPricings;
   final List<TourTypePricing> pricings;
+  final BookingManagerKennelInfo kennelInfo;
   const CollectInfoPage({
     super.key,
     required this.tourType,
     required this.selectedPricings,
     required this.pricings,
+    required this.kennelInfo,
   });
 
   @override
@@ -71,6 +74,7 @@ class CollectInfoPage extends StatelessWidget {
                                       selectedPricings: selectedPricings,
                                       pricings: pricings,
                                       bookingId: bookingId,
+                                      kennelInfo: kennelInfo,
                                     ),
                                   ),
                                   const SizedBox(width: 24),
@@ -89,6 +93,7 @@ class CollectInfoPage extends StatelessWidget {
                                     selectedPricings: selectedPricings,
                                     pricings: pricings,
                                     bookingId: bookingId,
+                                    kennelInfo: kennelInfo,
                                   ),
                                   const SizedBox(height: 20),
                                   BookingSummaryImmobile(tourType: tourType),
@@ -113,11 +118,13 @@ class CollectInfoWidget extends ConsumerWidget {
   final List<BookingPricingNumberBooked> selectedPricings;
   final String bookingId;
   final List<TourTypePricing> pricings;
+  final BookingManagerKennelInfo kennelInfo;
   const CollectInfoWidget({
     super.key,
     required this.selectedPricings,
     required this.bookingId,
     required this.pricings,
+    required this.kennelInfo,
   });
 
   @override
@@ -145,7 +152,7 @@ class CollectInfoWidget extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const BookingInfoPage(),
+            BookingInfoPage(kennelInfo: kennelInfo),
             const SizedBox(height: 18),
             BookingSectionCard(
               stepNumber: "5",
@@ -359,7 +366,8 @@ class CustomerInfoWidget extends ConsumerWidget {
 }
 
 class BookingInfoPage extends ConsumerWidget {
-  const BookingInfoPage({super.key});
+  final BookingManagerKennelInfo kennelInfo;
+  const BookingInfoPage({super.key, required this.kennelInfo});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -383,12 +391,51 @@ class BookingInfoPage extends ConsumerWidget {
       return emailRegex.hasMatch(email.trim().toLowerCase());
     }
 
+    Map<int, bool> spoolOtherInfoFilled() {
+      Map<int, bool> toReturn = {};
+
+      for (var i = 0; i < kennelInfo.bookingCustomFields.length; i++) {
+        toReturn[i] = false;
+      }
+
+      return toReturn;
+    }
+
+    Map<int, bool> spoolOtherInfoError() {
+      Map<int, bool> toReturn = {};
+
+      for (var i = 0; i < kennelInfo.bookingCustomFields.length; i++) {
+        toReturn[i] = false;
+      }
+
+      return toReturn;
+    }
+
+    Map<String, String> spoolOtherInfoData() {
+      Map<String, String> toReturn = {};
+
+      for (final v in kennelInfo.bookingCustomFields) {
+        toReturn[v.name] = '';
+      }
+
+      return toReturn;
+    }
+
+    bool isOtherDataFilled(
+        String v, Map<String, String> data, BookingCustomField field) {
+      if (!field.isRequired) return true;
+      return filled(data[v]);
+    }
+
     final phoneFilled = filled(booking.phone);
     final emailFilled = isValidEmail(booking.email);
     final streetFilled = filled(booking.streetAddress);
     final zipFilled = filled(booking.zipCode);
     final cityFilled = filled(booking.city);
     final countryFilled = filled(booking.country);
+    final Map<int, bool> otherInfoFilled = spoolOtherInfoFilled();
+    final Map<int, bool> otherInfoError = spoolOtherInfoError();
+    final Map<String, String> otherInfoData = spoolOtherInfoData();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -571,6 +618,57 @@ class BookingInfoPage extends ConsumerWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+            kennelInfo.bookingCustomFields.isEmpty
+                ? const SizedBox.shrink()
+                : BookingSectionCard(
+                    stepNumber: "5",
+                    title: "Other information",
+                    subtitle: "Required for your booking.",
+                    child: Wrap(
+                      spacing: 16,
+                      runSpacing: 14,
+                      children: [
+                        ...kennelInfo.bookingCustomFields
+                            .asMap()
+                            .entries
+                            .map((entry) {
+                          final i = entry.key;
+                          final field = entry.value;
+                          return SizedBox(
+                            width: itemWidth,
+                            child: _BookingFormFieldShell(
+                              filled: otherInfoFilled[i] ?? true,
+                              hasError: otherInfoError[i] ?? false,
+                              child: TextField(
+                                decoration: bookingInputDecoration(
+                                  context: context,
+                                  label:
+                                      "${field.name} ${field.isRequired ? "(Required)" : "(Not required)"}",
+                                  icon: Icons.question_mark,
+                                  isFilled:
+                                      otherInfoData[field.name]?.isNotEmpty ??
+                                          true,
+                                  showError: showErrors &&
+                                      !isOtherDataFilled(
+                                        otherInfoData[field.name] ?? "",
+                                        otherInfoData,
+                                        field,
+                                      ),
+                                ),
+                                onChanged: (nv) {
+                                  otherInfoData[field.name] = nv;
+                                  ref.read(bookingInfoProvider.notifier).change(
+                                      booking.copyWith(
+                                          otherBookingData: otherInfoData));
+                                },
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
             const SizedBox(height: 16),
             Row(
               children: [
