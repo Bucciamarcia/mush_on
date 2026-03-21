@@ -391,40 +391,35 @@ class BookingInfoPage extends ConsumerWidget {
       return emailRegex.hasMatch(email.trim().toLowerCase());
     }
 
+    bool hasOtherDataValue(String? value) => filled(value);
+
     Map<int, bool> spoolOtherInfoFilled() {
-      Map<int, bool> toReturn = {};
+      final toReturn = <int, bool>{};
 
       for (var i = 0; i < kennelInfo.bookingCustomFields.length; i++) {
-        toReturn[i] = false;
+        final field = kennelInfo.bookingCustomFields[i];
+        final value = booking.otherBookingData[field.name];
+        toReturn[i] = hasOtherDataValue(value);
       }
 
       return toReturn;
     }
 
     Map<int, bool> spoolOtherInfoError() {
-      Map<int, bool> toReturn = {};
+      final toReturn = <int, bool>{};
 
       for (var i = 0; i < kennelInfo.bookingCustomFields.length; i++) {
-        toReturn[i] = false;
+        final field = kennelInfo.bookingCustomFields[i];
+        final value = booking.otherBookingData[field.name];
+        toReturn[i] = showErrors && field.isRequired && !filled(value);
       }
 
       return toReturn;
     }
 
-    Map<String, String> spoolOtherInfoData() {
-      Map<String, String> toReturn = {};
-
-      for (final v in kennelInfo.bookingCustomFields) {
-        toReturn[v.name] = '';
-      }
-
-      return toReturn;
-    }
-
-    bool isOtherDataFilled(
-        String v, Map<String, String> data, BookingCustomField field) {
+    bool isOtherDataValid(String? value, BookingCustomField field) {
       if (!field.isRequired) return true;
-      return filled(data[v]);
+      return hasOtherDataValue(value);
     }
 
     final phoneFilled = filled(booking.phone);
@@ -435,7 +430,7 @@ class BookingInfoPage extends ConsumerWidget {
     final countryFilled = filled(booking.country);
     final Map<int, bool> otherInfoFilled = spoolOtherInfoFilled();
     final Map<int, bool> otherInfoError = spoolOtherInfoError();
-    final Map<String, String> otherInfoData = spoolOtherInfoData();
+    final otherInfoData = Map<String, String>.from(booking.otherBookingData);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -646,21 +641,27 @@ class BookingInfoPage extends ConsumerWidget {
                                   label:
                                       "${field.name} ${field.isRequired ? "(Required)" : "(Not required)"}",
                                   icon: Icons.question_mark,
-                                  isFilled:
-                                      otherInfoData[field.name]?.isNotEmpty ??
-                                          true,
+                                  isFilled: hasOtherDataValue(
+                                      otherInfoData[field.name]),
                                   showError: showErrors &&
-                                      !isOtherDataFilled(
-                                        otherInfoData[field.name] ?? "",
-                                        otherInfoData,
+                                      !isOtherDataValid(
+                                        otherInfoData[field.name],
                                         field,
                                       ),
                                 ),
                                 onChanged: (nv) {
-                                  otherInfoData[field.name] = nv;
+                                  final updatedOtherInfoData =
+                                      Map<String, String>.from(
+                                    ref
+                                            .read(bookingInfoProvider)
+                                            ?.otherBookingData ??
+                                        const <String, String>{},
+                                  );
+                                  updatedOtherInfoData[field.name] = nv;
                                   ref.read(bookingInfoProvider.notifier).change(
                                       booking.copyWith(
-                                          otherBookingData: otherInfoData));
+                                          otherBookingData:
+                                              updatedOtherInfoData));
                                 },
                               ),
                             ),
