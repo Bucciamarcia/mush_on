@@ -66,8 +66,11 @@ class BookingPageRepository {
   /// Initial add to the db of the tour.
   Future<void> bookTour(Booking booking, List<Customer> customers) async {
     final ref = FirebaseFunctions.instanceFor(region: "europe-north1");
+    final bookingLabel = _getBookingLabel(booking, customers);
     final bookingData = booking.copyWith(
-        name: customers.first.name, paymentStatus: PaymentStatus.waiting);
+      name: bookingLabel,
+      paymentStatus: PaymentStatus.waiting,
+    );
     List<Map<String, dynamic>> customersData = [];
     for (final customer in customers) {
       final cData = customer.copyWith(bookingId: booking.id);
@@ -84,6 +87,17 @@ class BookingPageRepository {
       logger.error("Failed to book tour", error: e, stackTrace: s);
       rethrow;
     }
+  }
+
+  String _getBookingLabel(Booking booking, List<Customer> customers) {
+    if (booking.name.trim().isNotEmpty) return booking.name.trim();
+    for (final customer in customers) {
+      if (customer.name.trim().isNotEmpty) return customer.name.trim();
+      for (final value in customer.customerOtherInfo.values) {
+        if (value.trim().isNotEmpty) return value.trim();
+      }
+    }
+    return "Booking";
   }
 
   Future<StripeConnection> getStripeConnection() async {

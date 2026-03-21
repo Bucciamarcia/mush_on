@@ -34,6 +34,7 @@ sealed class Customer with _$Customer {
 
     /// The ID of the pricing for this customer.
     String? pricingId,
+    @Default(<String, String>{}) Map<String, String> customerOtherInfo,
   }) = _Customer;
 
   factory Customer.fromJson(Map<String, dynamic> json) =>

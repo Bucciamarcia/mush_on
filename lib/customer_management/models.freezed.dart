@@ -38,6 +38,7 @@ mixin _$Customer {
 
   /// The ID of the pricing for this customer.
   String? get pricingId;
+  Map<String, String> get customerOtherInfo;
 
   /// Create a copy of Customer
   /// with the given fields replaced by the non-null parameter values.
@@ -63,17 +64,28 @@ mixin _$Customer {
             (identical(other.weight, weight) || other.weight == weight) &&
             (identical(other.teamId, teamId) || other.teamId == teamId) &&
             (identical(other.pricingId, pricingId) ||
-                other.pricingId == pricingId));
+                other.pricingId == pricingId) &&
+            const DeepCollectionEquality()
+                .equals(other.customerOtherInfo, customerOtherInfo));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, bookingId, name, email, age, weight, teamId, pricingId);
+      runtimeType,
+      id,
+      bookingId,
+      name,
+      email,
+      age,
+      weight,
+      teamId,
+      pricingId,
+      const DeepCollectionEquality().hash(customerOtherInfo));
 
   @override
   String toString() {
-    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, weight: $weight, teamId: $teamId, pricingId: $pricingId)';
+    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, weight: $weight, teamId: $teamId, pricingId: $pricingId, customerOtherInfo: $customerOtherInfo)';
   }
 }
 
@@ -90,7 +102,8 @@ abstract mixin class $CustomerCopyWith<$Res> {
       int? age,
       int? weight,
       String? teamId,
-      String? pricingId});
+      String? pricingId,
+      Map<String, String> customerOtherInfo});
 }
 
 /// @nodoc
@@ -113,6 +126,7 @@ class _$CustomerCopyWithImpl<$Res> implements $CustomerCopyWith<$Res> {
     Object? weight = freezed,
     Object? teamId = freezed,
     Object? pricingId = freezed,
+    Object? customerOtherInfo = null,
   }) {
     return _then(_self.copyWith(
       id: null == id
@@ -147,6 +161,10 @@ class _$CustomerCopyWithImpl<$Res> implements $CustomerCopyWith<$Res> {
           ? _self.pricingId
           : pricingId // ignore: cast_nullable_to_non_nullable
               as String?,
+      customerOtherInfo: null == customerOtherInfo
+          ? _self.customerOtherInfo
+          : customerOtherInfo // ignore: cast_nullable_to_non_nullable
+              as Map<String, String>,
     ));
   }
 }
@@ -242,16 +260,32 @@ extension CustomerPatterns on Customer {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String id, String bookingId, String name, String? email,
-            int? age, int? weight, String? teamId, String? pricingId)?
+    TResult Function(
+            String id,
+            String bookingId,
+            String name,
+            String? email,
+            int? age,
+            int? weight,
+            String? teamId,
+            String? pricingId,
+            Map<String, String> customerOtherInfo)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _Customer() when $default != null:
-        return $default(_that.id, _that.bookingId, _that.name, _that.email,
-            _that.age, _that.weight, _that.teamId, _that.pricingId);
+        return $default(
+            _that.id,
+            _that.bookingId,
+            _that.name,
+            _that.email,
+            _that.age,
+            _that.weight,
+            _that.teamId,
+            _that.pricingId,
+            _that.customerOtherInfo);
       case _:
         return orElse();
     }
@@ -272,15 +306,31 @@ extension CustomerPatterns on Customer {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String id, String bookingId, String name, String? email,
-            int? age, int? weight, String? teamId, String? pricingId)
+    TResult Function(
+            String id,
+            String bookingId,
+            String name,
+            String? email,
+            int? age,
+            int? weight,
+            String? teamId,
+            String? pricingId,
+            Map<String, String> customerOtherInfo)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Customer():
-        return $default(_that.id, _that.bookingId, _that.name, _that.email,
-            _that.age, _that.weight, _that.teamId, _that.pricingId);
+        return $default(
+            _that.id,
+            _that.bookingId,
+            _that.name,
+            _that.email,
+            _that.age,
+            _that.weight,
+            _that.teamId,
+            _that.pricingId,
+            _that.customerOtherInfo);
     }
   }
 
@@ -298,15 +348,31 @@ extension CustomerPatterns on Customer {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String id, String bookingId, String name, String? email,
-            int? age, int? weight, String? teamId, String? pricingId)?
+    TResult? Function(
+            String id,
+            String bookingId,
+            String name,
+            String? email,
+            int? age,
+            int? weight,
+            String? teamId,
+            String? pricingId,
+            Map<String, String> customerOtherInfo)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Customer() when $default != null:
-        return $default(_that.id, _that.bookingId, _that.name, _that.email,
-            _that.age, _that.weight, _that.teamId, _that.pricingId);
+        return $default(
+            _that.id,
+            _that.bookingId,
+            _that.name,
+            _that.email,
+            _that.age,
+            _that.weight,
+            _that.teamId,
+            _that.pricingId,
+            _that.customerOtherInfo);
       case _:
         return null;
     }
@@ -324,7 +390,9 @@ class _Customer implements Customer {
       this.age,
       this.weight,
       this.teamId,
-      this.pricingId});
+      this.pricingId,
+      final Map<String, String> customerOtherInfo = const <String, String>{}})
+      : _customerOtherInfo = customerOtherInfo;
   factory _Customer.fromJson(Map<String, dynamic> json) =>
       _$CustomerFromJson(json);
 
@@ -361,6 +429,15 @@ class _Customer implements Customer {
   /// The ID of the pricing for this customer.
   @override
   final String? pricingId;
+  final Map<String, String> _customerOtherInfo;
+  @override
+  @JsonKey()
+  Map<String, String> get customerOtherInfo {
+    if (_customerOtherInfo is EqualUnmodifiableMapView)
+      return _customerOtherInfo;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_customerOtherInfo);
+  }
 
   /// Create a copy of Customer
   /// with the given fields replaced by the non-null parameter values.
@@ -391,17 +468,28 @@ class _Customer implements Customer {
             (identical(other.weight, weight) || other.weight == weight) &&
             (identical(other.teamId, teamId) || other.teamId == teamId) &&
             (identical(other.pricingId, pricingId) ||
-                other.pricingId == pricingId));
+                other.pricingId == pricingId) &&
+            const DeepCollectionEquality()
+                .equals(other._customerOtherInfo, _customerOtherInfo));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, bookingId, name, email, age, weight, teamId, pricingId);
+      runtimeType,
+      id,
+      bookingId,
+      name,
+      email,
+      age,
+      weight,
+      teamId,
+      pricingId,
+      const DeepCollectionEquality().hash(_customerOtherInfo));
 
   @override
   String toString() {
-    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, weight: $weight, teamId: $teamId, pricingId: $pricingId)';
+    return 'Customer(id: $id, bookingId: $bookingId, name: $name, email: $email, age: $age, weight: $weight, teamId: $teamId, pricingId: $pricingId, customerOtherInfo: $customerOtherInfo)';
   }
 }
 
@@ -420,7 +508,8 @@ abstract mixin class _$CustomerCopyWith<$Res>
       int? age,
       int? weight,
       String? teamId,
-      String? pricingId});
+      String? pricingId,
+      Map<String, String> customerOtherInfo});
 }
 
 /// @nodoc
@@ -443,6 +532,7 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
     Object? weight = freezed,
     Object? teamId = freezed,
     Object? pricingId = freezed,
+    Object? customerOtherInfo = null,
   }) {
     return _then(_Customer(
       id: null == id
@@ -477,6 +567,10 @@ class __$CustomerCopyWithImpl<$Res> implements _$CustomerCopyWith<$Res> {
           ? _self.pricingId
           : pricingId // ignore: cast_nullable_to_non_nullable
               as String?,
+      customerOtherInfo: null == customerOtherInfo
+          ? _self._customerOtherInfo
+          : customerOtherInfo // ignore: cast_nullable_to_non_nullable
+              as Map<String, String>,
     ));
   }
 }

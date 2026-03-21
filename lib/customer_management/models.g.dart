@@ -15,6 +15,11 @@ _Customer _$CustomerFromJson(Map<String, dynamic> json) => _Customer(
       weight: (json['weight'] as num?)?.toInt(),
       teamId: json['teamId'] as String?,
       pricingId: json['pricingId'] as String?,
+      customerOtherInfo:
+          (json['customerOtherInfo'] as Map<String, dynamic>?)?.map(
+                (k, e) => MapEntry(k, e as String),
+              ) ??
+              const <String, String>{},
     );
 
 Map<String, dynamic> _$CustomerToJson(_Customer instance) => <String, dynamic>{
@@ -26,6 +31,7 @@ Map<String, dynamic> _$CustomerToJson(_Customer instance) => <String, dynamic>{
       'weight': instance.weight,
       'teamId': instance.teamId,
       'pricingId': instance.pricingId,
+      'customerOtherInfo': instance.customerOtherInfo,
     };
 
 _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
