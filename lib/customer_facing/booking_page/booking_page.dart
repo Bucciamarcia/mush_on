@@ -831,7 +831,7 @@ class BookingPageHeader extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: const Text(
-                              "Customer Booking",
+                              "Book now",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 12,
@@ -848,15 +848,6 @@ class BookingPageHeader extends ConsumerWidget {
                               fontSize: 42,
                               height: 1.05,
                               fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            "A cleaner booking flow for guests: quiet visuals, clear hierarchy, and no distractions between selection and payment.",
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.84),
-                              fontSize: 15,
-                              height: 1.5,
                             ),
                           ),
                         ],
