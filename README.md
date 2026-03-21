@@ -119,13 +119,13 @@ A cool and open source CRM for sled dog kennels.
 
 ### 0.0.15
 
-- Adds payments
+- Adds payments.
 
 ### 0.0.16
 
-- Adds email login
-- Exports to excel
-- Fixed a bug where team name would not update correctly
+- Adds email login.
+- Exports to excel.
+- Fixed a bug where team name would not update correctly.
 
 ### 0.0.17
 
@@ -133,3 +133,4 @@ A cool and open source CRM for sled dog kennels.
 - Adds customer custom fields.
 - Adds booking custom fields.
 - Redesign settings page.
+- Improved layout of checkout page.
