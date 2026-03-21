@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_facing/booking_page/repository.dart';
-import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
-import 'calendar/main.dart';
 
+import 'calendar/main.dart';
 import 'info_page.dart';
 import 'riverpod.dart';
 
@@ -56,51 +54,52 @@ class _BookingPageState extends ConsumerState<BookingPage> {
       return const NoKennelOrTourIdErrorPage();
     }
 
-    /// Info about the tour type that is being booked.
-    final tourTypeAsync = ref.watch(tourTypeProvider(
+    final tourTypeAsync = ref.watch(
+      tourTypeProvider(
         account: widget.account!,
-        tourId: ref.watch(selectedTourIdProvider) ?? ""));
+        tourId: ref.watch(selectedTourIdProvider) ?? "",
+      ),
+    );
+
     return tourTypeAsync.when(
-        data: (tourType) {
-          if (tourType == null) {
-            return const NoKennelOrTourIdErrorPage();
-          }
-          return FutureBuilder(
-              future: BookingPageRepository(
-                      account: widget.account!, tourId: widget.tourId!)
-                  .getStripeConnection(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data != null) {
-                  final stripe = snapshot.data!;
-                  if (!stripe.isActive) {
-                    return const NotAvailable();
-                  }
-                  return MainContent(
-                      account: widget.account!,
-                      tourType: tourType,
-                      stripe: stripe);
-                } else if (snapshot.hasError) {
-                  return const NotAvailable();
-                } else {
-                  return const Scaffold(
-                      body: Center(
-                          child: Column(
-                    spacing: 10,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Loading the booking page, please wait..."),
-                      CircularProgressIndicator.adaptive(),
-                    ],
-                  )));
-                }
-              });
-        },
-        error: (e, s) {
-          logger.error("Error loading tour type for booking page",
-              error: e, stackTrace: s);
+      data: (tourType) {
+        if (tourType == null) {
           return const NoKennelOrTourIdErrorPage();
-        },
-        loading: () => const CircularProgressIndicator.adaptive());
+        }
+        return FutureBuilder(
+          future: BookingPageRepository(
+            account: widget.account!,
+            tourId: widget.tourId!,
+          ).getStripeConnection(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              final stripe = snapshot.data!;
+              if (!stripe.isActive) {
+                return const NotAvailable();
+              }
+              return MainContent(
+                account: widget.account!,
+                tourType: tourType,
+                stripe: stripe,
+              );
+            } else if (snapshot.hasError) {
+              return const NotAvailable();
+            } else {
+              return const BookingLoadingState();
+            }
+          },
+        );
+      },
+      error: (e, s) {
+        logger.error(
+          "Error loading tour type for booking page",
+          error: e,
+          stackTrace: s,
+        );
+        return const NoKennelOrTourIdErrorPage();
+      },
+      loading: () => const BookingLoadingState(),
+    );
   }
 }
 
@@ -108,52 +107,71 @@ class MainContent extends ConsumerWidget {
   final TourType tourType;
   final String account;
   final StripeConnection stripe;
-  const MainContent(
-      {super.key,
-      required this.tourType,
-      required this.account,
-      required this.stripe});
+  const MainContent({
+    super.key,
+    required this.tourType,
+    required this.account,
+    required this.stripe,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bookingManagerKennelInfoAsync =
         ref.watch(bookingManagerKennelInfoProvider(account: account));
     final logger = BasicLogger();
-    return bookingManagerKennelInfoAsync.when(data: (kennelInfo) {
-      if (kennelInfo == null) return const NotAvailable();
-      return Scaffold(
-          body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
-        return Center(
-          child: Container(
-            constraints: const BoxConstraints.expand(),
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-              BookingPageColors.mainBlue.color,
-              BookingPageColors.mainPurple.color
-            ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+
+    return bookingManagerKennelInfoAsync.when(
+      data: (kennelInfo) {
+        if (kennelInfo == null) return const NotAvailable();
+        return Scaffold(
+          backgroundColor: BookingPageColors.background.color,
+          body: SafeArea(
             child: Center(
-              child: Container(
-                margin: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20)),
-                constraints: const BoxConstraints(maxWidth: 1200),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1320),
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const BookingPageHeader(),
-                      BookingPageTopOverview(
-                        tourType: tourType,
+                      const SizedBox(height: 18),
+                      BookingPageTopOverview(tourType: tourType),
+                      const SizedBox(height: 18),
+                      BookingFlowFrame(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                const BookingProgressBanner(
+                                  currentStep: 1,
+                                  title: "Choose your date and guests",
+                                  subtitle:
+                                      "Select a day, pick a departure, and set the number of participants.",
+                                ),
+                                const SizedBox(height: 28),
+                                DateSelectionWidget(
+                                  constraints: constraints,
+                                  tourType: tourType,
+                                  account: account,
+                                ),
+                                const SizedBox(height: 20),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: TextButton.icon(
+                                    onPressed: () =>
+                                        context.pushNamed("/privacy_customer"),
+                                    icon:
+                                        const Icon(Icons.privacy_tip_outlined),
+                                    label: const Text("Privacy policy"),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       ),
-                      const Divider(),
-                      DateSelectionWidget(
-                          constraints: constraints,
-                          tourType: tourType,
-                          account: account),
-                      InkWell(
-                        child: const Text("Go to privacy policy"),
-                        onTap: () => context.pushNamed("/privacy_customer"),
-                      )
                     ],
                   ),
                 ),
@@ -161,22 +179,13 @@ class MainContent extends ConsumerWidget {
             ),
           ),
         );
-      })));
-    }, error: (e, s) {
-      logger.error("Couldn't get booking info", error: e, stackTrace: s);
-      return const NotAvailable();
-    }, loading: () {
-      return const Scaffold(
-          body: Center(
-              child: Column(
-        spacing: 10,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text("Loading the booking page, please wait..."),
-          CircularProgressIndicator.adaptive(),
-        ],
-      )));
-    });
+      },
+      error: (e, s) {
+        logger.error("Couldn't get booking info", error: e, stackTrace: s);
+        return const NotAvailable();
+      },
+      loading: () => const BookingLoadingState(),
+    );
   }
 }
 
@@ -184,40 +193,41 @@ class DateSelectionWidget extends StatelessWidget {
   final BoxConstraints constraints;
   final TourType tourType;
   final String account;
-  const DateSelectionWidget(
-      {super.key,
-      required this.constraints,
-      required this.tourType,
-      required this.account});
+  const DateSelectionWidget({
+    super.key,
+    required this.constraints,
+    required this.tourType,
+    required this.account,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final w = constraints.maxWidth;
-    if (w >= 768) {
+    final wide = constraints.maxWidth >= 980;
+    if (wide) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: BookingTimeAndDate(tourType: tourType, account: account),
-            ),
-          ),
-          BookingSummaryColumn(tourType: tourType)
-        ],
-      );
-    } else {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8),
+            flex: 8,
             child: BookingTimeAndDate(tourType: tourType, account: account),
           ),
-          BookingSummaryColumn(tourType: tourType)
+          const SizedBox(width: 24),
+          Expanded(
+            flex: 4,
+            child: BookingSummaryColumn(tourType: tourType),
+          ),
         ],
       );
     }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        BookingTimeAndDate(tourType: tourType, account: account),
+        const SizedBox(height: 20),
+        BookingSummaryColumn(tourType: tourType),
+      ],
+    );
   }
 }
 
@@ -240,119 +250,140 @@ class BookingSummaryColumn extends ConsumerWidget {
         logger.info('err: $e');
       },
     );
-    DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
-    String formatSelectedDate() {
-      if (selectedDate == null) return "No date selected";
-      return DateFormat("MMMM dd, yyyy").format(selectedDate);
-    }
 
-    CustomerGroup? selectedCustomerGroup =
+    final selectedDate = ref.watch(selectedDateInCalendarProvider);
+    final selectedCustomerGroup =
         ref.watch(selectedCustomerGroupInCalendarProvider);
-    String formatTimeOfSelectedCg() {
-      if (selectedCustomerGroup == null) return "No time selected";
-      return DateFormat("HH:mm").format(selectedCustomerGroup.datetime);
-    }
-
     final account = ref.watch(accountPublicProvider);
-    late final List<TourTypePricing> pricings;
-    if (account == null) {
-      pricings = [];
-    } else {
-      pricings = ref
-              .watch(tourTypePricesByTourIdProvider(
-                  tourId: tourType.id, account: account))
-              .value ??
-          [];
-    }
+
+    final pricings = account == null
+        ? <TourTypePricing>[]
+        : ref
+                .watch(
+                  tourTypePricesByTourIdProvider(
+                    tourId: tourType.id,
+                    account: account,
+                  ),
+                )
+                .value ??
+            [];
+
     final selectedPricings =
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
-    Map<String, int>? customersNumberByCgId =
+    final customersNumberByCgId =
         ref.watch(customersNumberByCustomerGroupIdBookingProvider).value;
-    int? maxCapacity = selectedCustomerGroup?.maxCapacity;
-    int? customersBooked = customersNumberByCgId?[selectedCustomerGroup?.id];
-    late final int availableSpots;
-    if (maxCapacity == null || customersBooked == null) {
-      availableSpots = 0;
-    } else {
-      availableSpots = maxCapacity - customersBooked;
-    }
+    final maxCapacity = selectedCustomerGroup?.maxCapacity;
+    final customersBooked = customersNumberByCgId?[selectedCustomerGroup?.id];
+    final availableSpots = maxCapacity == null || customersBooked == null
+        ? 0
+        : maxCapacity - customersBooked;
+
     int totalBooked() {
-      int toReturn = 0;
+      var total = 0;
       for (final sp in selectedPricings) {
-        toReturn += sp.numberBooked;
+        total += sp.numberBooked;
       }
-      return toReturn;
+      return total;
     }
 
-    bool maxBookingsSelected = totalBooked() >= availableSpots;
     double total() {
-      double toReturn = 0;
+      var amount = 0.0;
       for (final sp in selectedPricings) {
-        TourTypePricing pricing =
+        final pricing =
             pricings.firstWhere((p) => p.id == sp.tourTypePricingId);
-        toReturn += (pricing.priceCents.toDouble() / 100) * sp.numberBooked;
+        amount += (pricing.priceCents.toDouble() / 100) * sp.numberBooked;
       }
-      return toReturn;
+      return amount;
     }
 
-    double grandTotalToPay = total();
+    final maxBookingsSelected = totalBooked() >= availableSpots;
+    final grandTotalToPay = total();
 
     return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
-      width: 250,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 25,
-        children: [
-          const Text(
-            "Booking Summary",
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const BookingSummaryTitleText(text: "Tour Type"),
-              BookingSummaryValueText(text: tourType.displayName)
+      margin: const EdgeInsets.only(top: 4),
+      child: BookingSummaryCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Booking summary",
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: BookingPageColors.textStrong.color,
+                  ),
+            ),
+            const SizedBox(height: 24),
+            BookingSummaryInfoRow(
+              icon: Icons.pets_outlined,
+              label: "Experience",
+              value: tourType.displayName,
+            ),
+            const SizedBox(height: 18),
+            BookingSummaryInfoRow(
+              icon: Icons.calendar_today_outlined,
+              label: "Date",
+              value: selectedDate == null
+                  ? "Choose a date"
+                  : DateFormat("EEEE, MMM d, yyyy").format(selectedDate),
+            ),
+            const SizedBox(height: 18),
+            BookingSummaryInfoRow(
+              icon: Icons.schedule_outlined,
+              label: "Departure",
+              value: selectedCustomerGroup == null
+                  ? "Choose a time"
+                  : DateFormat("HH:mm").format(selectedCustomerGroup.datetime),
+            ),
+            if (selectedCustomerGroup != null) ...[
+              const SizedBox(height: 18),
+              BookingSummaryInfoRow(
+                icon: Icons.event_seat_outlined,
+                label: "Availability",
+                value: "$availableSpots spots left",
+              ),
             ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const BookingSummaryTitleText(text: "Date"),
-              BookingSummaryValueText(text: formatSelectedDate())
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const BookingSummaryTitleText(text: "Time"),
-              BookingSummaryValueText(text: formatTimeOfSelectedCg()),
-            ],
-          ),
-          ...pricings.map((pricing) => PricingOptionCounter(
+            const SizedBox(height: 24),
+            for (final pricing in pricings) ...[
+              PricingOptionCounter(
                 pricing: pricing,
                 available: availableSpots,
                 pricings: pricings,
                 maxBookingsSelected: maxBookingsSelected,
-              )),
-          ...pricings.map((pricing) => PricingOptionTotalPrice(
+              ),
+              const SizedBox(height: 12),
+            ],
+            const SizedBox(height: 4),
+            for (final pricing in pricings) ...[
+              PricingOptionTotalPrice(
                 bookingInfo: selectedPricings
                     .firstWhere((sp) => sp.tourTypePricingId == pricing.id),
                 pricing: pricing,
-              )),
-          GrandTotalSummaryRow(
+              ),
+              const SizedBox(height: 10),
+            ],
+            const SizedBox(height: 10),
+            GrandTotalSummaryRow(
               selectedPricings: selectedPricings,
               pricings: pricings,
-              grandTotalToPay: grandTotalToPay),
-          Center(
-            child: ConfirmBookingButton(
-                selectedPricings: selectedPricings,
-                pricings: pricings,
-                tourType: tourType),
-          ),
-          const SafetyIconsWrap(),
-          const SizedBox(height: 15),
-        ],
+              grandTotalToPay: grandTotalToPay,
+            ),
+            const SizedBox(height: 24),
+            ConfirmBookingButton(
+              selectedPricings: selectedPricings,
+              pricings: pricings,
+              tourType: tourType,
+            ),
+            const SizedBox(height: 18),
+            const SafetyIconsWrap(),
+            const SizedBox(height: 14),
+            Text(
+              "Secure checkout powered by Stripe",
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: BookingPageColors.textMuted.color,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -363,24 +394,34 @@ class SafetyIconsWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double h = 32;
-    return Wrap(
-      spacing: 15,
-      runSpacing: 15,
+    const h = 24.0;
+    return const Wrap(
+      spacing: 10,
+      runSpacing: 10,
       children: [
-        SvgPicture.asset(
-          "assets/images/visa.svg",
-          height: h,
-        ),
-        SvgPicture.asset(
-          "assets/images/mastercard.svg",
-          height: h,
-        ),
-        SvgPicture.asset(
-          "assets/images/amex.svg",
-          height: h,
-        ),
+        _PaymentBadge(asset: "assets/images/visa.svg", height: h),
+        _PaymentBadge(asset: "assets/images/mastercard.svg", height: h),
+        _PaymentBadge(asset: "assets/images/amex.svg", height: h),
       ],
+    );
+  }
+}
+
+class _PaymentBadge extends StatelessWidget {
+  final String asset;
+  final double height;
+  const _PaymentBadge({required this.asset, required this.height});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: BookingPageColors.outlineSoft.color),
+      ),
+      child: SvgPicture.asset(asset, height: height),
     );
   }
 }
@@ -390,11 +431,12 @@ class ConfirmBookingButton extends ConsumerWidget {
   final List<BookingPricingNumberBooked> selectedPricings;
   final List<TourTypePricing> pricings;
   final TourType tourType;
-  const ConfirmBookingButton(
-      {super.key,
-      required this.selectedPricings,
-      required this.pricings,
-      required this.tourType});
+  const ConfirmBookingButton({
+    super.key,
+    required this.selectedPricings,
+    required this.pricings,
+    required this.tourType,
+  });
 
   bool _isActive() {
     for (final sp in selectedPricings) {
@@ -405,29 +447,37 @@ class ConfirmBookingButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 150),
-      child: ElevatedButton(
+    return SizedBox(
+      width: double.infinity,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 180),
+        child: ElevatedButton.icon(
           key: ValueKey(_isActive()),
           onPressed: _isActive()
               ? () {
-                  Navigator.of(context).push(MaterialPageRoute(
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
                       builder: (context) => CollectInfoPage(
-                          tourType: tourType,
-                          pricings: pricings,
-                          selectedPricings: selectedPricings)));
+                        tourType: tourType,
+                        pricings: pricings,
+                        selectedPricings: selectedPricings,
+                      ),
+                    ),
+                  );
                 }
               : null,
-          style: ButtonStyle(
-              padding: const WidgetStatePropertyAll(
-                  EdgeInsets.symmetric(vertical: 20, horizontal: 30)),
-              backgroundColor: WidgetStatePropertyAll(_isActive()
-                  ? BookingPageColors.primaryDark.color
-                  : Colors.grey)),
-          child: const Text(
-            "Continue",
-            style: TextStyle(color: Colors.white),
-          )),
+          icon: const Icon(Icons.arrow_forward_rounded),
+          label: const Text("Continue"),
+          style: _isActive()
+              ? bookingPrimaryButtonStyle()
+              : bookingPrimaryButtonStyle().copyWith(
+                  backgroundColor: WidgetStatePropertyAll(
+                    BookingPageColors.outline.color,
+                  ),
+                  foregroundColor: const WidgetStatePropertyAll(Colors.white),
+                ),
+        ),
+      ),
     );
   }
 }
@@ -436,27 +486,51 @@ class GrandTotalSummaryRow extends StatelessWidget {
   final List<BookingPricingNumberBooked> selectedPricings;
   final List<TourTypePricing> pricings;
   final double grandTotalToPay;
-  const GrandTotalSummaryRow(
-      {super.key,
-      required this.selectedPricings,
-      required this.pricings,
-      required this.grandTotalToPay});
+  const GrandTotalSummaryRow({
+    super.key,
+    required this.selectedPricings,
+    required this.pricings,
+    required this.grandTotalToPay,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          "Total:",
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: BookingPageColors.outlineSoft.color),
         ),
-        Text("$grandTotalToPay€",
-            style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: BookingPageColors.primary.color,
-                fontSize: 16))
-      ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Total",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              Text(
+                "VAT included",
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: BookingPageColors.textMuted.color,
+                    ),
+              ),
+            ],
+          ),
+          Text(
+            formatEuro(grandTotalToPay),
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: BookingPageColors.primaryDark.color,
+                ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -464,20 +538,35 @@ class GrandTotalSummaryRow extends StatelessWidget {
 class PricingOptionTotalPrice extends StatelessWidget {
   final BookingPricingNumberBooked bookingInfo;
   final TourTypePricing pricing;
-  const PricingOptionTotalPrice(
-      {super.key, required this.bookingInfo, required this.pricing});
+  const PricingOptionTotalPrice({
+    super.key,
+    required this.bookingInfo,
+    required this.pricing,
+  });
 
   @override
   Widget build(BuildContext context) {
+    if (bookingInfo.numberBooked == 0) return const SizedBox.shrink();
+    final unitPrice = pricing.priceCents.toDouble() / 100;
+    final totalPrice = unitPrice * bookingInfo.numberBooked;
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        Expanded(
+          child: Text(
+            "${pricing.displayName} x${bookingInfo.numberBooked}",
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: BookingPageColors.textMuted.color,
+                ),
+          ),
+        ),
         Text(
-            "${pricing.displayName}: ${bookingInfo.numberBooked} x ${(pricing.priceCents.toDouble()) / 100}€"),
-        Text(
-          "${(pricing.priceCents.toDouble() / 100) * bookingInfo.numberBooked}€",
-          style: TextStyle(color: BookingPageColors.primary.color),
-        )
+          formatEuro(totalPrice),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: BookingPageColors.textStrong.color,
+              ),
+        ),
       ],
     );
   }
@@ -488,97 +577,122 @@ class PricingOptionCounter extends ConsumerWidget {
   final TourTypePricing pricing;
   final int available;
   final bool maxBookingsSelected;
-  const PricingOptionCounter(
-      {super.key,
-      required this.pricing,
-      required this.available,
-      required this.pricings,
-      required this.maxBookingsSelected});
+  const PricingOptionCounter({
+    super.key,
+    required this.pricing,
+    required this.available,
+    required this.pricings,
+    required this.maxBookingsSelected,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    String? account = ref.watch(accountPublicProvider);
+    final account = ref.watch(accountPublicProvider);
     if (account == null) return const SizedBox.shrink();
+
     final selectedPricings =
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
     final selectedPricing =
         selectedPricings.firstWhere((sp) => sp.tourTypePricingId == pricing.id);
     final notifier =
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings).notifier);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          children: [
-            SizedBox(
-                width: 100,
-                child: Text(
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: BookingPageColors.surfaceStrong.color,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: BookingPageColors.outlineSoft.color),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   pricing.displayName,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                  maxLines: 1,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: BookingPageColors.textStrong.color,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  pricing.displayDescription?.trim().isNotEmpty == true
+                      ? pricing.displayDescription!
+                      : "${formatEuro(pricing.priceCents / 100)} per guest",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: BookingPageColors.textMuted.color,
+                      ),
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                )),
-            SizedBox(
-              width: 100,
-              child: Text(pricing.displayDescription ?? "",
-                  style: const TextStyle(fontWeight: FontWeight.w400),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
-            )
-          ],
-        ),
-        IconButton.outlined(
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(
-              color: selectedPricing.numberBooked == 0
-                  ? Colors.grey
-                  : BookingPageColors.primary.color,
-              width: 2,
+                ),
+              ],
             ),
-            foregroundColor: BookingPageColors.primary.color,
-            disabledForegroundColor: Colors.grey,
-            disabledBackgroundColor: Colors.grey.shade200,
           ),
-          onPressed: selectedPricing.numberBooked == 0
-              ? null
-              : () {
-                  int currentNumber = selectedPricing.numberBooked;
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _QuantityButton(
+                icon: Icons.remove,
+                enabled: selectedPricing.numberBooked > 0,
+                onTap: () {
+                  final currentNumber = selectedPricing.numberBooked;
                   notifier.editSinglePricing(pricing.id, currentNumber - 1);
                 },
-          icon: Icon(
-            Icons.remove,
-            color: selectedPricing.numberBooked == 0
-                ? Colors.grey
-                : BookingPageColors.primary.color,
-          ),
-        ),
-        Text(selectedPricing.numberBooked.toString()),
-        IconButton.outlined(
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(
-              color: maxBookingsSelected
-                  ? Colors.grey
-                  : BookingPageColors.primary.color,
-              width: 2,
-            ),
-            foregroundColor: BookingPageColors.primary.color,
-            disabledForegroundColor: Colors.grey,
-            disabledBackgroundColor: Colors.grey.shade200,
-          ),
-          onPressed: maxBookingsSelected
-              ? null
-              : () {
-                  int currentNumber = selectedPricing.numberBooked;
+              ),
+              SizedBox(
+                width: 34,
+                child: Text(
+                  selectedPricing.numberBooked.toString(),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+              _QuantityButton(
+                icon: Icons.add,
+                enabled: !maxBookingsSelected,
+                onTap: () {
+                  final currentNumber = selectedPricing.numberBooked;
                   notifier.editSinglePricing(pricing.id, currentNumber + 1);
                 },
-          icon: Icon(
-            Icons.add,
-            color: maxBookingsSelected
-                ? Colors.grey
-                : BookingPageColors.primary.color,
+              ),
+            ],
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+}
+
+class _QuantityButton extends StatelessWidget {
+  final IconData icon;
+  final bool enabled;
+  final VoidCallback onTap;
+  const _QuantityButton({
+    required this.icon,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: enabled ? onTap : null,
+      style: IconButton.styleFrom(
+        backgroundColor: enabled
+            ? BookingPageColors.surface.color
+            : BookingPageColors.outlineSoft.color.withValues(alpha: 0.8),
+        foregroundColor: enabled
+            ? BookingPageColors.primaryDark.color
+            : BookingPageColors.textMuted.color,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        fixedSize: const Size(42, 42),
+      ),
+      icon: Icon(icon),
     );
   }
 }
@@ -591,8 +705,10 @@ class BookingSummaryTitleText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
-          fontSize: 12, fontWeight: FontWeight.w400, color: Colors.black54),
+      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: BookingPageColors.textMuted.color,
+            letterSpacing: 0.3,
+          ),
     );
   }
 }
@@ -605,10 +721,11 @@ class BookingSummaryValueText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          overflow: TextOverflow.clip),
+      textAlign: TextAlign.end,
+      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: BookingPageColors.textStrong.color,
+          ),
     );
   }
 }
@@ -622,32 +739,22 @@ class BookingPageTopOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+    return BookingFlowFrame(
+      padding: const EdgeInsets.all(20),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Card(
-            elevation: 5,
-            child: Padding(
-              padding:
-                  const EdgeInsets.only(left: 15, right: 15, top: 8, bottom: 8),
-              child: Text(
-                tourType.displayName,
-                style: TextStyle(
-                    color: BookingPageColors.primaryDark.color,
-                    fontWeight: FontWeight.w600),
-              ),
-            ),
+          BookingTag(
+            icon: Icons.pets_outlined,
+            text: tourType.displayName,
+            emphasized: true,
           ),
-          const SizedBox(width: 20),
-          FaIcon(
-            FontAwesomeIcons.stopwatch,
-            size: 18,
-            color: BookingPageColors.primary.color.withAlpha(200),
+          BookingTag(
+            icon: Icons.schedule_outlined,
+            text: "${tourType.duration} minutes",
           ),
-          const SizedBox(width: 10),
-          Text("${tourType.duration} minutes")
         ],
       ),
     );
@@ -655,55 +762,147 @@ class BookingPageTopOverview extends StatelessWidget {
 }
 
 class BookingPageHeader extends ConsumerWidget {
-  const BookingPageHeader({
-    super.key,
-  });
+  const BookingPageHeader({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final kennelImage = ref
         .watch(kennelImageProvider(account: ref.read(accountPublicProvider)))
         .value;
+
     return Container(
-      width: double.infinity,
       decoration: BoxDecoration(
-          boxShadow: const [
-            BoxShadow(
-                color: Colors.black26, blurRadius: 6, offset: Offset(0, 4))
+        borderRadius: BorderRadius.circular(36),
+        gradient: LinearGradient(
+          colors: [
+            BookingPageColors.heroTop.color,
+            BookingPageColors.heroBottom.color,
           ],
-          gradient: LinearGradient(colors: [
-            BookingPageColors.mainBlue.color,
-            BookingPageColors.mainPurple.color
-          ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-          border: BoxBorder.all(color: BookingPageColors.mainBlue.color),
-          borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20), topRight: Radius.circular(20))),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -40,
+            right: -20,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.14),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -65,
+            left: -15,
+            child: Container(
+              width: 210,
+              height: 210,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(28),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 900;
+                return Flex(
+                  direction: compact ? Axis.vertical : Axis.horizontal,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.16),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: const Text(
+                              "Customer Booking",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          const Text(
+                            "Book your adventure",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 42,
+                              height: 1.05,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            "A cleaner booking flow for guests: quiet visuals, clear hierarchy, and no distractions between selection and payment.",
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.84),
+                              fontSize: 15,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 20, height: 20),
+                    if (kennelImage != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Container(
+                          color: Colors.white.withValues(alpha: 0.94),
+                          width: compact ? double.infinity : 250,
+                          constraints: const BoxConstraints(maxHeight: 190),
+                          padding: const EdgeInsets.all(18),
+                          child: Image.memory(
+                            kennelImage,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BookingLoadingState extends StatelessWidget {
+  const BookingLoadingState({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: BookingPageColors.background.color,
+      body: const SafeArea(
         child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              kennelImage != null
-                  ? Image.memory(
-                      kennelImage,
-                      height: 200,
-                      fit: BoxFit.contain,
-                    )
-                  : const SizedBox.shrink(),
-              const Text(
-                "Book your adventure",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 34,
-                    fontWeight: FontWeight.w600),
-              ),
-              const Text(
-                "Select the date and time of your tour",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal),
-              )
+              CircularProgressIndicator.adaptive(),
+              SizedBox(height: 12),
+              Text("Loading the booking page, please wait..."),
             ],
           ),
         ),
@@ -717,9 +916,10 @@ class NoKennelOrTourIdErrorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SafeArea(
-          child: Text("Error: kennel or tourId are empty or not valid.")),
+    return const BookingMessageState(
+      title: "Booking unavailable",
+      message: "Kennel or tour id is missing or not valid.",
+      icon: Icons.error_outline_rounded,
     );
   }
 }
@@ -729,22 +929,350 @@ class NotAvailable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SafeArea(
-          child: Text("The booking system is not available right now.")),
+    return const BookingMessageState(
+      title: "Booking unavailable",
+      message: "The booking system is not available right now.",
+      icon: Icons.event_busy_outlined,
     );
   }
 }
 
+class BookingMessageState extends StatelessWidget {
+  final String title;
+  final String message;
+  final IconData icon;
+  const BookingMessageState({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: BookingPageColors.background.color,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: BookingFlowFrame(
+              child: Padding(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: BookingPageColors.surfaceStrong.color,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        icon,
+                        size: 30,
+                        color: BookingPageColors.primaryDark.color,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      title,
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      message,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: BookingPageColors.textMuted.color,
+                            height: 1.5,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BookingFlowFrame extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  const BookingFlowFrame({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(24),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: BookingPageColors.surface.color,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: BookingPageColors.outlineSoft.color),
+        boxShadow: [
+          BoxShadow(
+            color: BookingPageColors.shadow.color,
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: padding,
+        child: child,
+      ),
+    );
+  }
+}
+
+class BookingProgressBanner extends StatelessWidget {
+  final int currentStep;
+  final String title;
+  final String subtitle;
+  const BookingProgressBanner({
+    super.key,
+    required this.currentStep,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 760;
+        return Flex(
+          direction: compact ? Axis.vertical : Axis.horizontal,
+          crossAxisAlignment:
+              compact ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Step $currentStep of 3",
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: BookingPageColors.primaryDark.color,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: BookingPageColors.textStrong.color,
+                        ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: BookingPageColors.textMuted.color,
+                          height: 1.45,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: compact ? 0 : 24, height: compact ? 20 : 0),
+            SizedBox(
+              width: compact ? double.infinity : 220,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: LinearProgressIndicator(
+                  minHeight: 10,
+                  value: currentStep / 3,
+                  backgroundColor: BookingPageColors.surfaceStrong.color,
+                  color: BookingPageColors.primary.color,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class BookingTag extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final bool emphasized;
+  const BookingTag({
+    super.key,
+    required this.icon,
+    required this.text,
+    this.emphasized = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final background = emphasized
+        ? BookingPageColors.primary.color
+        : BookingPageColors.surfaceStrong.color;
+    final foreground =
+        emphasized ? Colors.white : BookingPageColors.textStrong.color;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: foreground),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(
+              color: foreground,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BookingSummaryCard extends StatelessWidget {
+  final Widget child;
+  const BookingSummaryCard({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: BookingPageColors.summaryBackground.color,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: BookingPageColors.outlineSoft.color),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: child,
+      ),
+    );
+  }
+}
+
+class BookingSummaryInfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  const BookingSummaryInfoRow({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: BookingPageColors.surfaceStrong.color,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(
+            icon,
+            size: 18,
+            color: BookingPageColors.primaryDark.color,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: BookingPageColors.textMuted.color,
+                    ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BookingPageColors.textStrong.color,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+ButtonStyle bookingPrimaryButtonStyle() {
+  return ElevatedButton.styleFrom(
+    elevation: 0,
+    backgroundColor: BookingPageColors.primaryDark.color,
+    foregroundColor: Colors.white,
+    disabledBackgroundColor: BookingPageColors.outline.color,
+    disabledForegroundColor: Colors.white,
+    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+  );
+}
+
+ButtonStyle bookingSecondaryButtonStyle() {
+  return OutlinedButton.styleFrom(
+    foregroundColor: BookingPageColors.textStrong.color,
+    side: BorderSide(color: BookingPageColors.outlineSoft.color),
+    padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+  );
+}
+
+String formatEuro(num amount) {
+  return "${amount.toStringAsFixed(2)}€";
+}
+
 enum BookingPageColors {
-  success(color: Color(0xff10b091)),
-  warning(color: Color(0xfff59e0b)),
-  danger(color: Color(0xffef4444)),
-  primary(color: Color(0xff2563eb)),
-  primaryDark(color: Color(0xff1e40af)),
-  primaryLight(color: Color(0xffdbeafe)),
-  mainBlue(color: Color(0xff667eea)),
-  mainPurple(color: Color(0xff764ba2));
+  success(color: Color(0xff2a9d6f)),
+  warning(color: Color(0xffd89b34)),
+  danger(color: Color(0xffcc5b5b)),
+  primary(color: Color(0xff8f739d)),
+  primaryDark(color: Color(0xff624f73)),
+  primaryLight(color: Color(0xffefe5f4)),
+  mainBlue(color: Color(0xffd4dce6)),
+  mainPurple(color: Color(0xffc3b3d6)),
+  background(color: Color(0xfff5f1eb)),
+  surface(color: Color(0xfffdfaf6)),
+  surfaceStrong(color: Color(0xfff1e8df)),
+  summaryBackground(color: Color(0xfff7efe7)),
+  textStrong(color: Color(0xff2b2623)),
+  textMuted(color: Color(0xff7b7168)),
+  outline(color: Color(0xffb7ab9f)),
+  outlineSoft(color: Color(0xffe2d7cc)),
+  shadow(color: Color(0x12000000)),
+  heroTop(color: Color(0xff8b709f)),
+  heroBottom(color: Color(0xffc7b7a4));
 
   final Color color;
 

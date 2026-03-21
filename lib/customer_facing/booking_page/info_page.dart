@@ -13,76 +13,99 @@ import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:sealed_countries/sealed_countries.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
+
 import 'booking_page.dart';
+import 'calendar/main.dart';
 
 class CollectInfoPage extends StatelessWidget {
   final TourType tourType;
   final List<BookingPricingNumberBooked> selectedPricings;
   final List<TourTypePricing> pricings;
-  const CollectInfoPage(
-      {super.key,
-      required this.tourType,
-      required this.selectedPricings,
-      required this.pricings});
+  const CollectInfoPage({
+    super.key,
+    required this.tourType,
+    required this.selectedPricings,
+    required this.pricings,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(child: LayoutBuilder(builder: (context, constraints) {
-      final w = constraints.maxWidth;
-      final String bookingId = const Uuid().v4();
-      return Center(
-        child: Container(
-          constraints: const BoxConstraints.expand(),
-          decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [
-            BookingPageColors.mainBlue.color,
-            BookingPageColors.mainPurple.color
-          ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-          child: Center(
-            child: Container(
-              margin: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(20)),
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const BookingPageHeader(),
-                    BookingPageTopOverview(
-                      tourType: tourType,
-                    ),
-                    const Divider(),
-                    w >= 768
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: CollectInfoWidget(
+      backgroundColor: BookingPageColors.background.color,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 980;
+            final bookingId = const Uuid().v4();
+
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1320),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const BookingPageHeader(),
+                      const SizedBox(height: 18),
+                      BookingPageTopOverview(tourType: tourType),
+                      const SizedBox(height: 18),
+                      BookingFlowFrame(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const BookingProgressBanner(
+                              currentStep: 2,
+                              title: "Add guest details",
+                              subtitle:
+                                  "Complete contact information and passenger details before checkout.",
+                            ),
+                            const SizedBox(height: 28),
+                            if (wide)
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 8,
+                                    child: CollectInfoWidget(
+                                      selectedPricings: selectedPricings,
+                                      pricings: pricings,
+                                      bookingId: bookingId,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 24),
+                                  Expanded(
+                                    flex: 4,
+                                    child: BookingSummaryImmobile(
+                                        tourType: tourType),
+                                  ),
+                                ],
+                              )
+                            else
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  CollectInfoWidget(
                                     selectedPricings: selectedPricings,
                                     pricings: pricings,
-                                    bookingId: bookingId),
+                                    bookingId: bookingId,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  BookingSummaryImmobile(tourType: tourType),
+                                ],
                               ),
-                              BookingSummaryImmobile(tourType: tourType)
-                            ],
-                          )
-                        : Column(
-                            children: [
-                              CollectInfoWidget(
-                                  selectedPricings: selectedPricings,
-                                  pricings: pricings,
-                                  bookingId: bookingId),
-                              BookingSummaryImmobile(tourType: tourType)
-                            ],
-                          )
-                  ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         ),
-      );
-    })));
+      ),
+    );
   }
 }
 
@@ -90,22 +113,20 @@ class CollectInfoWidget extends ConsumerWidget {
   final List<BookingPricingNumberBooked> selectedPricings;
   final String bookingId;
   final List<TourTypePricing> pricings;
-  const CollectInfoWidget(
-      {super.key,
-      required this.selectedPricings,
-      required this.bookingId,
-      required this.pricings});
+  const CollectInfoWidget({
+    super.key,
+    required this.selectedPricings,
+    required this.bookingId,
+    required this.pricings,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Read current customers from provider; initialize once if empty.
-    List<Customer> customers = ref.watch(customersInfoProvider);
+    var customers = ref.watch(customersInfoProvider);
 
     if (customers.isEmpty) {
       final initialCustomers = _getCustomerPricings();
-      // Initialize provider only once after the first frame to avoid rebuild loops.
       SchedulerBinding.instance.addPostFrameCallback((_) async {
-        // Guard again in case something else already initialized it.
         if (ref.read(customersInfoProvider).isEmpty) {
           ref.read(customersInfoProvider.notifier).changeAll(initialCustomers);
         }
@@ -113,130 +134,162 @@ class CollectInfoWidget extends ConsumerWidget {
       customers = initialCustomers;
     }
 
-    // Pricing lookup for labels.
-    Map<String, TourTypePricing> pricingById = _getPricingById();
-    return LayoutBuilder(builder: (context, constraints) {
-      final w = constraints.maxWidth;
-      final twoCols = w >= 700;
-      const spacing = 16.0;
-      const runSpacing = 12.0;
-      final itemWidth = twoCols ? (w - (spacing * 3)) / 2 : w - (spacing * 2);
-      final colorScheme = Theme.of(context).colorScheme;
+    final pricingById = _getPricingById();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 760;
+        const spacing = 16.0;
+        final itemWidth =
+            wide ? (constraints.maxWidth - spacing) / 2 : constraints.maxWidth;
 
-      Widget sectionCard({
-        required IconData icon,
-        required String title,
-        required List<Widget> children,
-      }) {
-        return Card(
-          elevation: 1,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(icon, color: colorScheme.primary),
-                    const SizedBox(width: 8),
-                    Text(
-                      title,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const BookingInfoPage(),
+            const SizedBox(height: 18),
+            BookingSectionCard(
+              stepNumber: "4",
+              title: "Passengers",
+              subtitle: "Add the required details for each guest.",
+              child: Column(
+                children: [
+                  for (final customerMap in customers.asMap().entries) ...[
+                    _PassengerBlock(
+                      index: customerMap.key,
+                      customer: customerMap.value,
+                      pricingLabel: pricingById[customerMap.value.pricingId]
+                              ?.displayName ??
+                          '',
+                      itemWidth: itemWidth,
                     ),
+                    if (customerMap.key != customers.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        child: Divider(
+                          color: BookingPageColors.outlineSoft.color,
+                          height: 1,
+                        ),
+                      ),
                   ],
-                ),
-                const SizedBox(height: 12),
-                ...children,
-                InkWell(
-                  child: const Text("Go to privacy policy"),
-                  onTap: () => context.pushNamed("/privacy_customer"),
-                )
-              ],
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      onPressed: () => context.pushNamed("/privacy_customer"),
+                      icon: const Icon(Icons.privacy_tip_outlined),
+                      label: const Text("Privacy policy"),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
         );
-      }
-
-      return Column(
-        children: [
-          const BookingInfoPage(),
-          sectionCard(
-            icon: Icons.group_outlined,
-            title: "Passengers information",
-            children: [
-              ...customers.asMap().entries.map((customerMap) {
-                final customer = customerMap.value;
-                final i = customerMap.key;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${i + 1} - Passenger: ${pricingById[customer.pricingId]?.displayName ?? ''}",
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: spacing,
-                      runSpacing: runSpacing,
-                      children: [
-                        SizedBox(
-                          width: itemWidth,
-                          child: CustomerInfoWidget(
-                            customer: customer,
-                            pricing: pricingById[customer.pricingId],
-                            i: i,
-                            itemWidth: itemWidth,
-                            field: CustomerField.name,
-                          ),
-                        ),
-                        SizedBox(
-                          width: itemWidth,
-                          child: CustomerInfoWidget(
-                            customer: customer,
-                            pricing: pricingById[customer.pricingId],
-                            i: i,
-                            itemWidth: itemWidth,
-                            field: CustomerField.age,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    if (i != customers.length - 1) const Divider(height: 24),
-                  ],
-                );
-              }),
-            ],
-          ),
-        ],
-      );
-    });
+      },
+    );
   }
 
   Map<String, TourTypePricing> _getPricingById() {
-    Map<String, TourTypePricing> toReturn = {};
+    final toReturn = <String, TourTypePricing>{};
     for (final p in pricings) {
-      toReturn.addAll({p.id: p});
+      toReturn[p.id] = p;
     }
     return toReturn;
   }
 
   List<Customer> _getCustomerPricings() {
     final toReturn = <Customer>[];
-
     for (final p in selectedPricings) {
       for (var i = 0; i < p.numberBooked; i++) {
-        toReturn.add(Customer(
+        toReturn.add(
+          Customer(
             id: const Uuid().v4(),
             bookingId: bookingId,
-            pricingId: p.tourTypePricingId));
+            pricingId: p.tourTypePricingId,
+          ),
+        );
       }
     }
-
     return toReturn;
+  }
+}
+
+class _PassengerBlock extends StatelessWidget {
+  final int index;
+  final Customer customer;
+  final String pricingLabel;
+  final double itemWidth;
+  const _PassengerBlock({
+    required this.index,
+    required this.customer,
+    required this.pricingLabel,
+    required this.itemWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: BookingPageColors.surfaceStrong.color,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Row(
+            children: [
+              Text(
+                "${index + 1}",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BookingPageColors.primaryDark.color,
+                    ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  pricingLabel.isEmpty
+                      ? "Passenger ${index + 1}"
+                      : "Passenger ${index + 1} • $pricingLabel",
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: BookingPageColors.textStrong.color,
+                      ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        Wrap(
+          spacing: 16,
+          runSpacing: 14,
+          children: [
+            SizedBox(
+              width: itemWidth,
+              child: CustomerInfoWidget(
+                customer: customer,
+                pricing: null,
+                i: index,
+                itemWidth: itemWidth,
+                field: CustomerField.name,
+              ),
+            ),
+            SizedBox(
+              width: itemWidth,
+              child: CustomerInfoWidget(
+                customer: customer,
+                pricing: null,
+                i: index,
+                itemWidth: itemWidth,
+                field: CustomerField.age,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
@@ -248,13 +301,14 @@ class CustomerInfoWidget extends ConsumerWidget {
   final int i;
   final double itemWidth;
   final CustomerField field;
-  const CustomerInfoWidget(
-      {super.key,
-      required this.customer,
-      required this.pricing,
-      required this.i,
-      required this.itemWidth,
-      required this.field});
+  const CustomerInfoWidget({
+    super.key,
+    required this.customer,
+    required this.pricing,
+    required this.i,
+    required this.itemWidth,
+    required this.field,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -264,75 +318,43 @@ class CustomerInfoWidget extends ConsumerWidget {
     final current = customers.firstWhere((c) => c.id == customer.id,
         orElse: () => customer);
 
-    bool nameFilled = (current.name).trim().isNotEmpty;
-    bool ageFilled = current.age != null;
-    bool filled = field == CustomerField.name ? nameFilled : ageFilled;
-    bool hasError = showErrors && !filled;
+    final nameFilled = current.name.trim().isNotEmpty;
+    final ageFilled = current.age != null;
+    final filled = field == CustomerField.name ? nameFilled : ageFilled;
+    final hasError = showErrors && !filled;
 
-    const green = Colors.green;
-    const baseBorder = OutlineInputBorder();
-    const successBorder = OutlineInputBorder(
-      borderSide: BorderSide(color: green, width: 1.5),
-      borderRadius: BorderRadius.all(Radius.circular(4)),
-    );
-    const errorBorder = OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.red, width: 1.5),
-      borderRadius: BorderRadius.all(Radius.circular(4)),
-    );
+    String label() => field == CustomerField.name ? "Name" : "Age";
 
-    InputDecoration deco(String label, IconData icon) => InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          border: baseBorder,
-          enabledBorder:
-              hasError ? errorBorder : (filled ? successBorder : baseBorder),
-          focusedBorder:
-              hasError ? errorBorder : (filled ? successBorder : baseBorder),
-          suffixIcon: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 150),
-            transitionBuilder: (child, anim) => FadeTransition(
-              opacity: anim,
-              child: ScaleTransition(scale: anim, child: child),
-            ),
-            child: filled
-                ? const Icon(Icons.check_circle,
-                    key: ValueKey('ok'), color: green)
-                : hasError
-                    ? const Icon(Icons.error_outline,
-                        key: ValueKey('err'), color: Colors.red)
-                    : const SizedBox.shrink(key: ValueKey('empty')),
-          ),
-        );
+    IconData icon() => field == CustomerField.name
+        ? Icons.person_outline
+        : Icons.cake_outlined;
 
-    Widget wrapField(Widget child) => AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: filled
-                ? Colors.green.withValues(alpha: 0.05)
-                : (hasError ? Colors.red.withValues(alpha: 0.05) : null),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: child,
-        );
-
-    switch (field) {
-      case CustomerField.name:
-        return wrapField(TextField(
-          onChanged: (v) {
+    return _BookingFormFieldShell(
+      filled: filled,
+      hasError: hasError,
+      child: TextField(
+        onChanged: (v) {
+          if (field == CustomerField.name) {
             notifier.changeSingle(customer.id, current.copyWith(name: v));
-          },
-          decoration: deco("Name", Icons.person_outline),
-        ));
-      case CustomerField.age:
-        return wrapField(TextField(
-          onChanged: (v) {
+          } else {
             notifier.changeSingle(
-                customer.id, current.copyWith(age: int.tryParse(v)));
-          },
-          keyboardType: TextInputType.number,
-          decoration: deco("Age", Icons.cake_outlined),
-        ));
-    }
+              customer.id,
+              current.copyWith(age: int.tryParse(v)),
+            );
+          }
+        },
+        keyboardType: field == CustomerField.age
+            ? TextInputType.number
+            : TextInputType.text,
+        decoration: bookingInputDecoration(
+          context: context,
+          label: label(),
+          icon: icon(),
+          isFilled: filled,
+          showError: hasError,
+        ),
+      ),
+    );
   }
 }
 
@@ -343,13 +365,12 @@ class BookingInfoPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final booking = ref.watch(bookingInfoProvider);
     if (booking == null) return const SizedBox.shrink();
-    List<String> countries =
-        WorldCountry.list.map((wc) => wc.name.name).toList();
+
+    var countries = WorldCountry.list.map((wc) => wc.name.name).toList();
     if (kDebugMode) {
       countries = ["One", "two"];
     }
 
-    final colorScheme = Theme.of(context).colorScheme;
     final showErrors = ref.watch(showValidationErrorsProvider);
 
     bool filled(String? v) => (v ?? '').trim().isNotEmpty;
@@ -369,123 +390,38 @@ class BookingInfoPage extends ConsumerWidget {
     final cityFilled = filled(booking.city);
     final countryFilled = filled(booking.country);
 
-    InputDecoration inputDecoration({
-      required String label,
-      IconData? icon,
-      required bool isFilled,
-    }) {
-      const green = Colors.green;
-      const baseBorder = OutlineInputBorder();
-      const successBorder = OutlineInputBorder(
-        borderSide: BorderSide(color: green, width: 1.5),
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-      );
-      const errorBorder = OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.red, width: 1.5),
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-      );
-      final hasError = showErrors && !isFilled;
-      return InputDecoration(
-        labelText: label,
-        prefixIcon: icon != null ? Icon(icon) : null,
-        border: baseBorder,
-        enabledBorder:
-            hasError ? errorBorder : (isFilled ? successBorder : baseBorder),
-        focusedBorder:
-            hasError ? errorBorder : (isFilled ? successBorder : baseBorder),
-        suffixIcon: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 150),
-          transitionBuilder: (child, anim) => FadeTransition(
-            opacity: anim,
-            child: ScaleTransition(scale: anim, child: child),
-          ),
-          child: isFilled
-              ? const Icon(Icons.check_circle,
-                  key: ValueKey('ok'), color: green)
-              : hasError
-                  ? const Icon(Icons.error_outline,
-                      key: ValueKey('err'), color: Colors.red)
-                  : const SizedBox.shrink(key: ValueKey('empty')),
-        ),
-      );
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= 760;
+        final itemWidth =
+            wide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
 
-    Widget sectionCard({
-      required IconData icon,
-      required String title,
-      required List<Widget> children,
-    }) {
-      return Card(
-        elevation: 1,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, color: colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Text(
-                    title,
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              ...children,
-            ],
-          ),
-        ),
-      );
-    }
-
-    return LayoutBuilder(builder: (context, constraints) {
-      final w = constraints.maxWidth;
-      final twoCols = w >= 700;
-      const spacing = 16.0;
-      const runSpacing = 12.0;
-      final itemWidth = twoCols ? (w - (spacing * 3)) / 2 : w - (spacing * 2);
-
-      Widget animatedField({required bool isFilled, required Widget child}) {
-        final hasError = showErrors && !isFilled;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          decoration: BoxDecoration(
-            color: isFilled
-                ? Colors.green.withOpacity(0.05)
-                : (hasError ? Colors.red.withOpacity(0.05) : null),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: child,
-        );
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 16,
-        children: [
-          sectionCard(
-            icon: Icons.person_outline,
-            title: "Contact information",
-            children: [
-              Wrap(
-                spacing: spacing,
-                runSpacing: runSpacing,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            BookingSectionCard(
+              stepNumber: "3",
+              title: "Contact details",
+              subtitle:
+                  "These details will be used for confirmations and receipts.",
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 14,
                 children: [
                   SizedBox(
                     width: itemWidth,
-                    child: animatedField(
-                      isFilled: phoneFilled,
+                    child: _BookingFormFieldShell(
+                      filled: phoneFilled,
+                      hasError: showErrors && !phoneFilled,
                       child: TextField(
                         keyboardType: TextInputType.phone,
-                        decoration: inputDecoration(
-                            label: "Phone number",
-                            icon: Icons.phone,
-                            isFilled: phoneFilled),
+                        decoration: bookingInputDecoration(
+                          context: context,
+                          label: "Phone number",
+                          icon: Icons.phone_outlined,
+                          isFilled: phoneFilled,
+                          showError: showErrors && !phoneFilled,
+                        ),
                         onChanged: (nv) {
                           ref
                               .read(bookingInfoProvider.notifier)
@@ -496,14 +432,18 @@ class BookingInfoPage extends ConsumerWidget {
                   ),
                   SizedBox(
                     width: itemWidth,
-                    child: animatedField(
-                      isFilled: emailFilled,
+                    child: _BookingFormFieldShell(
+                      filled: emailFilled,
+                      hasError: showErrors && !emailFilled,
                       child: TextField(
                         keyboardType: TextInputType.emailAddress,
-                        decoration: inputDecoration(
-                            label: "Email",
-                            icon: Icons.email_outlined,
-                            isFilled: emailFilled),
+                        decoration: bookingInputDecoration(
+                          context: context,
+                          label: "Email",
+                          icon: Icons.email_outlined,
+                          isFilled: emailFilled,
+                          showError: showErrors && !emailFilled,
+                        ),
                         onChanged: (nv) {
                           final normalizedEmail = nv.trim().toLowerCase();
                           ref
@@ -515,26 +455,30 @@ class BookingInfoPage extends ConsumerWidget {
                   ),
                 ],
               ),
-            ],
-          ),
-          sectionCard(
-            icon: Icons.home_outlined,
-            title: "Address",
-            children: [
-              Wrap(
-                spacing: spacing,
-                runSpacing: runSpacing,
+            ),
+            const SizedBox(height: 18),
+            BookingSectionCard(
+              stepNumber: "3",
+              title: "Billing address",
+              subtitle: "Required by the payment provider before checkout.",
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 14,
                 children: [
                   SizedBox(
                     width: itemWidth,
-                    child: animatedField(
-                      isFilled: streetFilled,
+                    child: _BookingFormFieldShell(
+                      filled: streetFilled,
+                      hasError: showErrors && !streetFilled,
                       child: TextField(
                         keyboardType: TextInputType.streetAddress,
-                        decoration: inputDecoration(
-                            label: "Street address",
-                            icon: Icons.home_work_outlined,
-                            isFilled: streetFilled),
+                        decoration: bookingInputDecoration(
+                          context: context,
+                          label: "Street address",
+                          icon: Icons.home_work_outlined,
+                          isFilled: streetFilled,
+                          showError: showErrors && !streetFilled,
+                        ),
                         onChanged: (nv) {
                           ref
                               .read(bookingInfoProvider.notifier)
@@ -545,13 +489,17 @@ class BookingInfoPage extends ConsumerWidget {
                   ),
                   SizedBox(
                     width: itemWidth,
-                    child: animatedField(
-                      isFilled: zipFilled,
+                    child: _BookingFormFieldShell(
+                      filled: zipFilled,
+                      hasError: showErrors && !zipFilled,
                       child: TextField(
-                        decoration: inputDecoration(
-                            label: "Zip code",
-                            icon: Icons.local_post_office,
-                            isFilled: zipFilled),
+                        decoration: bookingInputDecoration(
+                          context: context,
+                          label: "Zip code",
+                          icon: Icons.local_post_office_outlined,
+                          isFilled: zipFilled,
+                          showError: showErrors && !zipFilled,
+                        ),
                         onChanged: (nv) {
                           ref
                               .read(bookingInfoProvider.notifier)
@@ -562,13 +510,17 @@ class BookingInfoPage extends ConsumerWidget {
                   ),
                   SizedBox(
                     width: itemWidth,
-                    child: animatedField(
-                      isFilled: cityFilled,
+                    child: _BookingFormFieldShell(
+                      filled: cityFilled,
+                      hasError: showErrors && !cityFilled,
                       child: TextField(
-                        decoration: inputDecoration(
-                            label: "City",
-                            icon: Icons.location_city,
-                            isFilled: cityFilled),
+                        decoration: bookingInputDecoration(
+                          context: context,
+                          label: "City",
+                          icon: Icons.location_city_outlined,
+                          isFilled: cityFilled,
+                          showError: showErrors && !cityFilled,
+                        ),
                         onChanged: (nv) {
                           ref
                               .read(bookingInfoProvider.notifier)
@@ -579,44 +531,32 @@ class BookingInfoPage extends ConsumerWidget {
                   ),
                   SizedBox(
                     width: itemWidth,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      decoration: BoxDecoration(
-                        color: countryFilled
-                            ? Colors.green.withOpacity(0.05)
-                            : (showErrors && !countryFilled
-                                ? Colors.red.withOpacity(0.05)
-                                : null),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: showErrors && !countryFilled
-                              ? Colors.red
-                              : Colors.transparent,
-                          width: showErrors && !countryFilled ? 1.5 : 0.0,
-                        ),
-                      ),
-                      child: DropdownMenu(
+                    child: _BookingFormFieldShell(
+                      filled: countryFilled,
+                      hasError: showErrors && !countryFilled,
+                      child: DropdownMenu<String>(
                         label: const Text("Country"),
                         leadingIcon: const Icon(Icons.public),
-                        trailingIcon: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 150),
-                          transitionBuilder: (child, anim) => FadeTransition(
-                            opacity: anim,
-                            child: ScaleTransition(scale: anim, child: child),
-                          ),
-                          child: countryFilled
-                              ? const Icon(Icons.check_circle,
-                                  key: ValueKey('country-ok'),
-                                  color: Colors.green)
-                              : (showErrors && !countryFilled
-                                  ? const Icon(Icons.error_outline,
-                                      key: ValueKey('country-err'),
-                                      color: Colors.red)
-                                  : const Icon(Icons.arrow_drop_down,
-                                      key: ValueKey('country-empty'))),
+                        trailingIcon: bookingFieldStatusIcon(
+                          isFilled: countryFilled,
+                          showError: showErrors && !countryFilled,
                         ),
                         initialSelection: booking.country,
                         width: itemWidth,
+                        menuStyle: MenuStyle(
+                          backgroundColor: WidgetStatePropertyAll(
+                            BookingPageColors.surface.color,
+                          ),
+                          shape: WidgetStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                        inputDecorationTheme: bookingDropdownDecorationTheme(
+                          isFilled: countryFilled,
+                          showError: showErrors && !countryFilled,
+                        ),
                         onSelected: (v) {
                           ref
                               .read(bookingInfoProvider.notifier)
@@ -630,21 +570,28 @@ class BookingInfoPage extends ConsumerWidget {
                   ),
                 ],
               ),
-            ],
-          ),
-          Row(
-            children: [
-              Icon(Icons.lock_outline, size: 16, color: colorScheme.primary),
-              const SizedBox(width: 6),
-              Text(
-                "We keep your information private",
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          )
-        ],
-      );
-    });
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Icon(
+                  Icons.lock_outline_rounded,
+                  size: 16,
+                  color: BookingPageColors.primaryDark.color,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "We keep your information private.",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: BookingPageColors.textMuted.color,
+                      ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -654,220 +601,209 @@ class BookingSummaryImmobile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
-    bool isLoadingCart = ref.watch(isLoadingCartProvider);
-    String formatSelectedDate() {
-      if (selectedDate == null) return "No date selected";
-      return DateFormat("MMMM dd, yyyy").format(selectedDate);
-    }
-
-    CustomerGroup? selectedCustomerGroup =
+    final selectedDate = ref.watch(selectedDateInCalendarProvider);
+    final isLoadingCart = ref.watch(isLoadingCartProvider);
+    final selectedCustomerGroup =
         ref.watch(selectedCustomerGroupInCalendarProvider);
-    String formatTimeOfSelectedCg() {
-      if (selectedCustomerGroup == null) return "No time selected";
-      return DateFormat("HH:mm").format(selectedCustomerGroup.datetime);
-    }
-
     final account = ref.watch(accountPublicProvider);
-    late final List<TourTypePricing> pricings;
-    if (account == null) {
-      pricings = [];
-    } else {
-      pricings = ref
-              .watch(tourTypePricesByTourIdProvider(
-                  tourId: tourType.id, account: account))
-              .value ??
-          [];
-    }
+
+    final pricings = account == null
+        ? <TourTypePricing>[]
+        : ref
+                .watch(
+                  tourTypePricesByTourIdProvider(
+                    tourId: tourType.id,
+                    account: account,
+                  ),
+                )
+                .value ??
+            [];
+
     final selectedPricings =
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
-    Map<String, int>? customersNumberByCgId =
+    final customersNumberByCgId =
         ref.watch(customersNumberByCustomerGroupIdBookingProvider).value;
-    int? maxCapacity = selectedCustomerGroup?.maxCapacity;
-    int? customersBooked = customersNumberByCgId?[selectedCustomerGroup?.id];
-    late final int availableSpots;
-    if (maxCapacity == null || customersBooked == null) {
-      availableSpots = 0;
-    } else {
-      availableSpots = maxCapacity - customersBooked;
-    }
+    final maxCapacity = selectedCustomerGroup?.maxCapacity;
+    final customersBooked = customersNumberByCgId?[selectedCustomerGroup?.id];
+    final availableSpots = maxCapacity == null || customersBooked == null
+        ? 0
+        : maxCapacity - customersBooked;
+
     int totalBooked() {
-      int toReturn = 0;
+      var total = 0;
       for (final sp in selectedPricings) {
-        toReturn += sp.numberBooked;
+        total += sp.numberBooked;
       }
-      return toReturn;
+      return total;
     }
 
-    bool maxBookingsSelected = totalBooked() >= availableSpots;
     double total() {
-      double toReturn = 0;
+      var amount = 0.0;
       for (final sp in selectedPricings) {
-        TourTypePricing pricing =
+        final pricing =
             pricings.firstWhere((p) => p.id == sp.tourTypePricingId);
-        toReturn += (pricing.priceCents.toDouble() / 100) * sp.numberBooked;
+        amount += (pricing.priceCents.toDouble() / 100) * sp.numberBooked;
       }
-      return toReturn;
+      return amount;
     }
 
-    double grandTotalToPay = total();
-
+    final grandTotalToPay = total();
+    final maxBookingsSelected = totalBooked() >= availableSpots;
     final isComplete = ref.watch(bookingAllFieldsCompleteProvider);
 
-    return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
-      width: 250,
+    return BookingSummaryCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 25,
         children: [
-          const Text(
-            "Booking Summary",
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+          Text(
+            "Checkout summary",
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: BookingPageColors.textStrong.color,
+                ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const BookingSummaryTitleText(text: "Tour Type"),
-              BookingSummaryValueText(text: tourType.displayName)
-            ],
+          const SizedBox(height: 24),
+          BookingSummaryInfoRow(
+            icon: Icons.pets_outlined,
+            label: "Experience",
+            value: tourType.displayName,
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const BookingSummaryTitleText(text: "Date"),
-              BookingSummaryValueText(text: formatSelectedDate())
-            ],
+          const SizedBox(height: 18),
+          BookingSummaryInfoRow(
+            icon: Icons.calendar_today_outlined,
+            label: "Date",
+            value: selectedDate == null
+                ? "Choose a date"
+                : DateFormat("EEEE, MMM d, yyyy").format(selectedDate),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const BookingSummaryTitleText(text: "Time"),
-              BookingSummaryValueText(text: formatTimeOfSelectedCg()),
-            ],
+          const SizedBox(height: 18),
+          BookingSummaryInfoRow(
+            icon: Icons.schedule_outlined,
+            label: "Departure",
+            value: selectedCustomerGroup == null
+                ? "Choose a time"
+                : DateFormat("HH:mm").format(selectedCustomerGroup.datetime),
           ),
-          ...pricings.map((pricing) => PricingOptionCounterImmobile(
-                pricing: pricing,
-                available: availableSpots,
-                pricings: pricings,
-                maxBookingsSelected: maxBookingsSelected,
-              )),
-          ...pricings.map((pricing) => PricingOptionTotalPrice(
-                bookingInfo: selectedPricings
-                    .firstWhere((sp) => sp.tourTypePricingId == pricing.id),
-                pricing: pricing,
-              )),
-          GrandTotalSummaryRow(
-              selectedPricings: selectedPricings,
+          const SizedBox(height: 18),
+          BookingSummaryInfoRow(
+            icon: Icons.event_seat_outlined,
+            label: "Availability",
+            value: "$availableSpots spots left",
+          ),
+          const SizedBox(height: 24),
+          for (final pricing in pricings) ...[
+            PricingOptionCounterImmobile(
+              pricing: pricing,
+              available: availableSpots,
               pricings: pricings,
-              grandTotalToPay: grandTotalToPay),
+              maxBookingsSelected: maxBookingsSelected,
+            ),
+            const SizedBox(height: 12),
+          ],
+          const SizedBox(height: 4),
+          for (final pricing in pricings) ...[
+            PricingOptionTotalPrice(
+              bookingInfo: selectedPricings
+                  .firstWhere((sp) => sp.tourTypePricingId == pricing.id),
+              pricing: pricing,
+            ),
+            const SizedBox(height: 10),
+          ],
+          const SizedBox(height: 10),
+          GrandTotalSummaryRow(
+            selectedPricings: selectedPricings,
+            pricings: pricings,
+            grandTotalToPay: grandTotalToPay,
+          ),
+          const SizedBox(height: 14),
           const CancellationPolicySection(),
           const SizedBox(height: 20),
-          Center(
-            child: isLoadingCart
-                ? const Column(
-                    spacing: 10,
-                    children: [
-                      CircularProgressIndicator.adaptive(),
-                      Text("Please wait: loading secure payment system")
-                    ],
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          style: const ButtonStyle(
-                              backgroundColor:
-                                  WidgetStatePropertyAll(Colors.grey),
-                              padding: WidgetStatePropertyAll(
-                                  EdgeInsets.symmetric(
-                                      vertical: 20, horizontal: 30))),
-                          child: const Text(
-                            "Go back",
-                            style: TextStyle(color: Colors.black),
-                          )),
-                      account == null
-                          ? const SizedBox.shrink()
-                          : AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 150),
-                              child: ElevatedButton(
-                                  key: ValueKey(isComplete),
-                                  onPressed: () async {
-                                    ref
-                                        .read(isLoadingCartProvider.notifier)
-                                        .change(true);
-                                    final kennelInfo = await ref.watch(
-                                        bookingManagerKennelInfoProvider(
-                                                account: account)
-                                            .future);
-                                    if (kennelInfo == null) return;
-                                    if (!isComplete) {
-                                      ref
-                                          .read(showValidationErrorsProvider
-                                              .notifier)
-                                          .state = true;
-                                      return;
-                                    }
-                                    final repo = BookingPageRepository(
-                                        account: account, tourId: tourType.id);
-                                    try {
-                                      final booking =
-                                          ref.read(bookingInfoProvider);
-                                      final customers =
-                                          ref.read(customersInfoProvider);
-                                      if (booking != null) {
-                                        final url =
-                                            await repo.getStripePaymentUrl(
-                                                booking: booking,
-                                                customers: customers,
-                                                pricings: pricings,
-                                                kennelInfo: kennelInfo);
-                                        await _launchUrl(url);
-                                      }
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(errorSnackBar(context,
-                                                "Couldn't add booking: contact support."));
-                                      }
-                                    } finally {
-                                      ref
-                                          .read(isLoadingCartProvider.notifier)
-                                          .change(false);
-                                    }
-                                  },
-                                  style: ButtonStyle(
-                                      padding: const WidgetStatePropertyAll(
-                                          EdgeInsets.symmetric(
-                                              vertical: 20, horizontal: 30)),
-                                      backgroundColor: WidgetStatePropertyAll(
-                                          isComplete
-                                              ? BookingPageColors
-                                                  .primaryDark.color
-                                              : Colors.grey)),
-                                  child: const Text(
-                                    "Book now",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            )
-                    ],
+          if (isLoadingCart)
+            const Column(
+              children: [
+                CircularProgressIndicator.adaptive(),
+                SizedBox(height: 10),
+                Text("Please wait: loading secure payment system"),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: bookingSecondaryButtonStyle(),
+                    child: const Text("Go back"),
                   ),
-          ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: account == null
+                      ? const SizedBox.shrink()
+                      : ElevatedButton(
+                          onPressed: () async {
+                            if (!isComplete) {
+                              ref
+                                  .read(showValidationErrorsProvider.notifier)
+                                  .state = true;
+                              return;
+                            }
+                            ref
+                                .read(isLoadingCartProvider.notifier)
+                                .change(true);
+                            final kennelInfo = await ref.watch(
+                              bookingManagerKennelInfoProvider(account: account)
+                                  .future,
+                            );
+                            if (kennelInfo == null) return;
+                            final repo = BookingPageRepository(
+                              account: account,
+                              tourId: tourType.id,
+                            );
+                            try {
+                              final booking = ref.read(bookingInfoProvider);
+                              final customers = ref.read(customersInfoProvider);
+                              if (booking != null) {
+                                final url = await repo.getStripePaymentUrl(
+                                  booking: booking,
+                                  customers: customers,
+                                  pricings: pricings,
+                                  kennelInfo: kennelInfo,
+                                );
+                                await _launchUrl(url);
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  errorSnackBar(
+                                    context,
+                                    "Couldn't add booking: contact support.",
+                                  ),
+                                );
+                              }
+                            } finally {
+                              ref
+                                  .read(isLoadingCartProvider.notifier)
+                                  .change(false);
+                            }
+                          },
+                          style: bookingPrimaryButtonStyle(),
+                          child:
+                              Text(isComplete ? "Book now" : "Complete form"),
+                        ),
+                ),
+              ],
+            ),
+          const SizedBox(height: 18),
           const SafetyIconsWrap(),
-          const SizedBox(height: 15),
         ],
       ),
     );
   }
 
   Future<void> _launchUrl(String url) async {
-    final Uri uri = Uri.parse(url);
-
-    if (!await launchUrl(
-      uri,
-      mode: LaunchMode.inAppWebView,
-    )) {
+    final uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
       throw Exception("Could not launch $url");
     }
   }
@@ -878,44 +814,42 @@ class PricingOptionCounterImmobile extends ConsumerWidget {
   final TourTypePricing pricing;
   final int available;
   final bool maxBookingsSelected;
-  const PricingOptionCounterImmobile(
-      {super.key,
-      required this.pricing,
-      required this.available,
-      required this.pricings,
-      required this.maxBookingsSelected});
+  const PricingOptionCounterImmobile({
+    super.key,
+    required this.pricing,
+    required this.available,
+    required this.pricings,
+    required this.maxBookingsSelected,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    String? account = ref.watch(accountPublicProvider);
+    final account = ref.watch(accountPublicProvider);
     if (account == null) return const SizedBox.shrink();
     final selectedPricings =
         ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
     final selectedPricing =
         selectedPricings.firstWhere((sp) => sp.tourTypePricingId == pricing.id);
+
+    if (selectedPricing.numberBooked == 0) return const SizedBox.shrink();
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          children: [
-            SizedBox(
-                width: 100,
-                child: Text(
-                  pricing.displayName,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                )),
-            SizedBox(
-              width: 100,
-              child: Text(pricing.displayDescription ?? "",
-                  style: const TextStyle(fontWeight: FontWeight.w400),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
-            )
-          ],
+        Expanded(
+          child: Text(
+            pricing.displayName,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: BookingPageColors.textMuted.color,
+                ),
+          ),
         ),
-        Text(selectedPricing.numberBooked.toString()),
+        Text(
+          "x${selectedPricing.numberBooked}",
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: BookingPageColors.textStrong.color,
+              ),
+        ),
       ],
     );
   }
@@ -930,45 +864,172 @@ class CancellationPolicySection extends ConsumerWidget {
     if (account == null) return const Text("Error");
     final kennelInfo =
         ref.watch(bookingManagerKennelInfoProvider(account: account)).value;
+
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: BookingPageColors.primaryLight.color.withAlpha(100),
-        borderRadius: BorderRadius.circular(8),
+        color: BookingPageColors.surfaceStrong.color,
+        borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
         children: [
           Row(
             children: [
               Icon(
                 Icons.info_outline,
                 size: 18,
-                color: BookingPageColors.primary.color,
+                color: BookingPageColors.primaryDark.color,
               ),
               const SizedBox(width: 8),
               Text(
-                "Cancellation Policy",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: BookingPageColors.primaryDark.color,
-                ),
+                "Cancellation policy",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BookingPageColors.textStrong.color,
+                    ),
               ),
             ],
           ),
+          const SizedBox(height: 10),
           Text(
             kennelInfo?.cancellationPolicy ?? "",
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
-              color: Colors.black87,
-              height: 1.4,
-            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: BookingPageColors.textMuted.color,
+                  height: 1.5,
+                ),
           ),
         ],
       ),
     );
   }
+}
+
+class _BookingFormFieldShell extends StatelessWidget {
+  final bool filled;
+  final bool hasError;
+  final Widget child;
+  const _BookingFormFieldShell({
+    required this.filled,
+    required this.hasError,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final background = hasError
+        ? const Color(0xffffefef)
+        : filled
+            ? BookingPageColors.primaryLight.color.withValues(alpha: 0.55)
+            : BookingPageColors.surface.color;
+
+    final borderColor = hasError
+        ? BookingPageColors.danger.color
+        : filled
+            ? BookingPageColors.primary.color
+            : BookingPageColors.outlineSoft.color;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: borderColor),
+      ),
+      child: child,
+    );
+  }
+}
+
+InputDecoration bookingInputDecoration({
+  required BuildContext context,
+  required String label,
+  required IconData icon,
+  required bool isFilled,
+  required bool showError,
+}) {
+  OutlineInputBorder border(Color color) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(22),
+      borderSide: BorderSide(color: color),
+    );
+  }
+
+  final effectiveBorder = showError
+      ? BookingPageColors.danger.color
+      : isFilled
+          ? BookingPageColors.primary.color
+          : BookingPageColors.outlineSoft.color;
+
+  return InputDecoration(
+    labelText: label,
+    labelStyle: TextStyle(color: BookingPageColors.textMuted.color),
+    prefixIcon: Icon(icon, color: BookingPageColors.primaryDark.color),
+    suffixIcon: bookingFieldStatusIcon(
+      isFilled: isFilled,
+      showError: showError,
+    ),
+    filled: true,
+    fillColor: Colors.transparent,
+    border: border(effectiveBorder),
+    enabledBorder: border(effectiveBorder),
+    focusedBorder: border(effectiveBorder),
+    errorBorder: border(BookingPageColors.danger.color),
+    focusedErrorBorder: border(BookingPageColors.danger.color),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+  );
+}
+
+Widget bookingFieldStatusIcon({
+  required bool isFilled,
+  required bool showError,
+}) {
+  return AnimatedSwitcher(
+    duration: const Duration(milliseconds: 160),
+    child: isFilled
+        ? Icon(
+            Icons.check_circle,
+            key: const ValueKey('ok'),
+            color: BookingPageColors.success.color,
+          )
+        : showError
+            ? Icon(
+                Icons.error_outline,
+                key: const ValueKey('err'),
+                color: BookingPageColors.danger.color,
+              )
+            : Icon(
+                Icons.circle_outlined,
+                key: const ValueKey('empty'),
+                color: BookingPageColors.outline.color,
+              ),
+  );
+}
+
+InputDecorationTheme bookingDropdownDecorationTheme({
+  required bool isFilled,
+  required bool showError,
+}) {
+  OutlineInputBorder border(Color color) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(22),
+      borderSide: BorderSide(color: color),
+    );
+  }
+
+  final effectiveBorder = showError
+      ? BookingPageColors.danger.color
+      : isFilled
+          ? BookingPageColors.primary.color
+          : BookingPageColors.outlineSoft.color;
+
+  return InputDecorationTheme(
+    filled: true,
+    fillColor: Colors.transparent,
+    border: border(effectiveBorder),
+    enabledBorder: border(effectiveBorder),
+    focusedBorder: border(effectiveBorder),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+  );
 }
