@@ -148,7 +148,7 @@ class CollectInfoWidget extends ConsumerWidget {
             const BookingInfoPage(),
             const SizedBox(height: 18),
             BookingSectionCard(
-              stepNumber: "4",
+              stepNumber: "5",
               title: "Passengers",
               subtitle: "Add the required details for each guest.",
               child: Column(
@@ -458,7 +458,7 @@ class BookingInfoPage extends ConsumerWidget {
             ),
             const SizedBox(height: 18),
             BookingSectionCard(
-              stepNumber: "3",
+              stepNumber: "4",
               title: "Billing address",
               subtitle: "Required by the payment provider before checkout.",
               child: Wrap(
