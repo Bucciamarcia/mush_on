@@ -373,15 +373,24 @@ final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
       filled(booking.country);
 
   final customers = ref.watch(customersInfoProvider);
-  final passengersOk = customers.isNotEmpty &&
-      customers.every((c) => filled(c.name) && c.age != null);
-
   final account = ref.watch(accountPublicProvider);
   final kennelInfo = account == null
       ? null
       : ref
           .watch(bookingManagerKennelInfoProvider(account: account))
           .valueOrNull;
+
+  final requiredCustomerFields = kennelInfo?.customerCustomFields
+          .where((field) => field.isRequired)
+          .toList() ??
+      const <CustomerCustomField>[];
+
+  final passengersOk = customers.isNotEmpty &&
+      customers.every(
+        (customer) => requiredCustomerFields.every(
+          (field) => filled(customer.customerOtherInfo[field.name]),
+        ),
+      );
 
   final requiredOtherInfoOk = kennelInfo == null
       ? true

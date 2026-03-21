@@ -168,6 +168,7 @@ class CollectInfoWidget extends ConsumerWidget {
                               ?.displayName ??
                           '',
                       itemWidth: itemWidth,
+                      customerCustomFields: kennelInfo.customerCustomFields,
                     ),
                     if (customerMap.key != customers.length - 1)
                       Padding(
@@ -226,11 +227,13 @@ class _PassengerBlock extends StatelessWidget {
   final Customer customer;
   final String pricingLabel;
   final double itemWidth;
+  final List<CustomerCustomField> customerCustomFields;
   const _PassengerBlock({
     required this.index,
     required this.customer,
     required this.pricingLabel,
     required this.itemWidth,
+    required this.customerCustomFields,
   });
 
   @override
@@ -272,48 +275,29 @@ class _PassengerBlock extends StatelessWidget {
         Wrap(
           spacing: 16,
           runSpacing: 14,
-          children: [
-            SizedBox(
-              width: itemWidth,
-              child: CustomerInfoWidget(
-                customer: customer,
-                pricing: null,
-                i: index,
-                itemWidth: itemWidth,
-                field: CustomerField.name,
-              ),
-            ),
-            SizedBox(
-              width: itemWidth,
-              child: CustomerInfoWidget(
-                customer: customer,
-                pricing: null,
-                i: index,
-                itemWidth: itemWidth,
-                field: CustomerField.age,
-              ),
-            ),
-          ],
+          children: customerCustomFields
+              .map(
+                (field) => SizedBox(
+                  width: itemWidth,
+                  child: CustomerInfoWidget(
+                    customer: customer,
+                    field: field,
+                  ),
+                ),
+              )
+              .toList(),
         ),
       ],
     );
   }
 }
 
-enum CustomerField { name, age }
-
 class CustomerInfoWidget extends ConsumerWidget {
   final Customer customer;
-  final TourTypePricing? pricing;
-  final int i;
-  final double itemWidth;
-  final CustomerField field;
+  final CustomerCustomField field;
   const CustomerInfoWidget({
     super.key,
     required this.customer,
-    required this.pricing,
-    required this.i,
-    required this.itemWidth,
     required this.field,
   });
 
@@ -325,38 +309,32 @@ class CustomerInfoWidget extends ConsumerWidget {
     final current = customers.firstWhere((c) => c.id == customer.id,
         orElse: () => customer);
 
-    final nameFilled = current.name.trim().isNotEmpty;
-    final ageFilled = current.age != null;
-    final filled = field == CustomerField.name ? nameFilled : ageFilled;
-    final hasError = showErrors && !filled;
+    bool hasValue(String? value) => (value ?? '').trim().isNotEmpty;
 
-    String label() => field == CustomerField.name ? "Name" : "Age";
+    final value = current.customerOtherInfo[field.name];
+    final filled = hasValue(value);
+    final hasError = showErrors && field.isRequired && !filled;
 
-    IconData icon() => field == CustomerField.name
-        ? Icons.person_outline
-        : Icons.cake_outlined;
+    final label =
+        "${field.name} ${field.isRequired ? "(Required)" : "(Not required)"}";
 
     return _BookingFormFieldShell(
       filled: filled,
       hasError: hasError,
       child: TextField(
         onChanged: (v) {
-          if (field == CustomerField.name) {
-            notifier.changeSingle(customer.id, current.copyWith(name: v));
-          } else {
-            notifier.changeSingle(
-              customer.id,
-              current.copyWith(age: int.tryParse(v)),
-            );
-          }
+          final updatedOtherInfo =
+              Map<String, String>.from(current.customerOtherInfo);
+          updatedOtherInfo[field.name] = v;
+          notifier.changeSingle(
+            customer.id,
+            current.copyWith(customerOtherInfo: updatedOtherInfo),
+          );
         },
-        keyboardType: field == CustomerField.age
-            ? TextInputType.number
-            : TextInputType.text,
         decoration: bookingInputDecoration(
           context: context,
-          label: label(),
-          icon: icon(),
+          label: label,
+          icon: Icons.person_outline,
           isFilled: filled,
           showError: hasError,
         ),
