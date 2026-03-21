@@ -9,6 +9,9 @@ import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
 
+DateTime bookingDayKey(DateTime date) =>
+    DateTime(date.year, date.month, date.day);
+
 // Validation state for booking info + passengers
 final showValidationErrorsProvider = StateProvider<bool>((ref) => false);
 
@@ -157,11 +160,12 @@ Future<Map<DateTime, List<CustomerGroup>>> customerGroupsByDay(Ref ref) async {
       await ref.watch(visibleCustomerGroupsProvider.future);
   Map<DateTime, List<CustomerGroup>> toReturn = {};
   for (final date in visibleDates) {
-    toReturn[date] = customerGroups
+    final normalizedDate = bookingDayKey(date);
+    toReturn[normalizedDate] = customerGroups
         .where((cg) =>
-            cg.datetime.year == date.year &&
-            cg.datetime.month == date.month &&
-            cg.datetime.day == date.day)
+            cg.datetime.year == normalizedDate.year &&
+            cg.datetime.month == normalizedDate.month &&
+            cg.datetime.day == normalizedDate.day)
         .toList();
   }
   return toReturn;
@@ -223,7 +227,7 @@ class SelectedDateInCalendar extends _$SelectedDateInCalendar {
   }
 
   void change(DateTime newDate) {
-    state = newDate;
+    state = bookingDayKey(newDate);
   }
 }
 

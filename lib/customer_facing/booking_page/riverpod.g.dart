@@ -230,7 +230,7 @@ final visibleCustomersProvider =
 // ignore: unused_element
 typedef VisibleCustomersRef = AutoDisposeFutureProviderRef<List<Customer>>;
 String _$customerGroupsByDayHash() =>
-    r'58e550d1f1f3a607313291b57372623854bbb236';
+    r'bdda81b0e73500e480b165017466b23aa7ccad83';
 
 /// See also [customerGroupsByDay].
 @ProviderFor(customerGroupsByDay)
@@ -511,7 +511,7 @@ final selectedTourIdProvider =
 
 typedef _$SelectedTourId = AutoDisposeNotifier<String?>;
 String _$selectedDateInCalendarHash() =>
-    r'462e39d7ac188907fd9bb9423d3df8eabc886aa6';
+    r'b0fd1210031c18f0e27a0dccbd05a5df01e1768a';
 
 /// See also [SelectedDateInCalendar].
 @ProviderFor(SelectedDateInCalendar)

@@ -10,27 +10,33 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class BookingTimeAndDate extends StatelessWidget {
-  /// The tour type for this booking.
   final TourType tourType;
   final String account;
   static final logger = BasicLogger();
-  const BookingTimeAndDate(
-      {super.key, required this.tourType, required this.account});
+  const BookingTimeAndDate({
+    super.key,
+    required this.tourType,
+    required this.account,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const HeaderWithBubble(
-          number: "1",
+        const BookingSectionCard(
+          stepNumber: "1",
           title: "Select date",
-        ),
-        const Flexible(
-          fit: FlexFit.loose,
+          subtitle: "Choose the day that works best for your guests.",
           child: BookingCalendar(),
         ),
-        TimeSelectorByDate(tourType: tourType)
+        const SizedBox(height: 18),
+        BookingSectionCard(
+          stepNumber: "2",
+          title: "Choose time",
+          subtitle: "Available departures update based on the selected day.",
+          child: TimeSelectorByDate(tourType: tourType),
+        ),
       ],
     );
   }
@@ -42,121 +48,107 @@ class TimeSelectorByDate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Map<DateTime, List<CustomerGroup>>? customerGroupsByDay =
-        ref.watch(customerGroupsByDayProvider).value;
-    DateTime? selectedDate = ref.watch(selectedDateInCalendarProvider);
-    if (selectedDate == null) return const SizedBox.shrink();
-    List<CustomerGroup>? todayCustomerGroups =
-        customerGroupsByDay?[selectedDate];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const HeaderWithBubble(number: "2", title: "Choose time"),
-        const SizedBox(height: 15),
-        todayCustomerGroups == null || todayCustomerGroups.isEmpty
-            ? const Text("No groups today")
-            : Wrap(
-                alignment: WrapAlignment.start,
-                children: todayCustomerGroups
-                    .map((cg) => SingleCgSlotCard(cg: cg, tourType: tourType))
-                    .toList(),
-              )
-      ],
+    final customerGroupsByDay = ref.watch(customerGroupsByDayProvider).value;
+    final selectedDate = ref.watch(selectedDateInCalendarProvider);
+    if (selectedDate == null) {
+      return const _BookingHintState(
+        icon: Icons.calendar_today_outlined,
+        text: "Select a date to see available departures.",
+      );
+    }
+
+    final todayCustomerGroups =
+        customerGroupsByDay?[bookingDayKey(selectedDate)];
+    if (todayCustomerGroups == null || todayCustomerGroups.isEmpty) {
+      return const _BookingHintState(
+        icon: Icons.event_busy_outlined,
+        text: "No groups available for this date.",
+      );
+    }
+
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: todayCustomerGroups
+          .map((cg) => SingleCgSlotCard(cg: cg, tourType: tourType))
+          .toList(),
     );
   }
 }
 
-class SingleCgSlotCard extends ConsumerStatefulWidget {
+class SingleCgSlotCard extends ConsumerWidget {
   final CustomerGroup cg;
   final TourType tourType;
   const SingleCgSlotCard({super.key, required this.cg, required this.tourType});
 
   @override
-  ConsumerState<SingleCgSlotCard> createState() => _SingleCgSlotCardState();
-}
-
-class _SingleCgSlotCardState extends ConsumerState<SingleCgSlotCard> {
-  late BoxBorder hoverDecoration;
-  @override
-  void initState() {
-    super.initState();
-    hoverDecoration = BoxBorder.all(color: Colors.transparent, width: 2);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Map<String, int>? customersNumberByCgId =
+  Widget build(BuildContext context, WidgetRef ref) {
+    final customersNumberByCgId =
         ref.watch(customersNumberByCustomerGroupIdBookingProvider).value;
-    if (customersNumberByCgId == null ||
-        customersNumberByCgId[widget.cg.id] == null) {
+    if (customersNumberByCgId == null || customersNumberByCgId[cg.id] == null) {
       return const SizedBox.shrink();
     }
-    String formattedTime = DateFormat("HH:mm").format(widget.cg.datetime);
-    CustomerGroup? selectedCustomerGroup =
+
+    final formattedTime = DateFormat("HH:mm").format(cg.datetime);
+    final selectedCustomerGroup =
         ref.watch(selectedCustomerGroupInCalendarProvider);
-    int availableSpots =
-        widget.cg.maxCapacity - customersNumberByCgId[widget.cg.id]!;
-    bool isFull = customersNumberByCgId[widget.cg.id]! >= widget.cg.maxCapacity;
-    bool isSelected = selectedCustomerGroup != null &&
-        selectedCustomerGroup.id == widget.cg.id;
+    final availableSpots = cg.maxCapacity - customersNumberByCgId[cg.id]!;
+    final isFull = customersNumberByCgId[cg.id]! >= cg.maxCapacity;
+    final isSelected =
+        selectedCustomerGroup != null && selectedCustomerGroup.id == cg.id;
+
+    final backgroundColor = isSelected
+        ? BookingPageColors.primaryDark.color
+        : BookingPageColors.surfaceStrong.color;
+    final foregroundColor =
+        isSelected ? Colors.white : BookingPageColors.textStrong.color;
+
     return InkWell(
-      onHover: (isHovering) {
-        if (isHovering) {
-          setState(() {
-            hoverDecoration =
-                BoxBorder.all(color: BookingPageColors.primary.color, width: 2);
-          });
-        } else {
-          setState(() {
-            hoverDecoration =
-                BoxBorder.all(color: Colors.transparent, width: 2);
-          });
-        }
-      },
       onTap: isFull
           ? null
           : () {
               ref
                   .read(selectedCustomerGroupInCalendarProvider.notifier)
-                  .change(widget.cg);
+                  .change(cg);
               ref.invalidate(bookingDetailsSelectedPricingsProvider);
             },
+      borderRadius: BorderRadius.circular(24),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-        margin: const EdgeInsets.all(10),
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        width: 150,
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         decoration: BoxDecoration(
+          color: isFull ? BookingPageColors.outlineSoft.color : backgroundColor,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
             color: isSelected
-                ? BookingPageColors.primaryDark.color.withAlpha(240)
-                : null,
-            border: isSelected
-                ? BoxBorder.all(
-                    color: BookingPageColors.primaryDark.color, width: 2)
-                : hoverDecoration,
-            borderRadius: const BorderRadius.all(Radius.circular(5))),
+                ? BookingPageColors.primaryDark.color
+                : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               formattedTime,
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected
-                      ? Colors.white
-                      : isFull
-                          ? Colors.grey
-                          : null),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: isFull
+                        ? BookingPageColors.textMuted.color
+                        : foregroundColor,
+                  ),
             ),
+            const SizedBox(height: 8),
             Text(
-              "$availableSpots available",
-              style: TextStyle(
-                  fontWeight: FontWeight.w300,
-                  color: isSelected
-                      ? Colors.white
-                      : isFull
-                          ? Colors.grey
-                          : Colors.black87),
-            )
+              isFull ? "Fully booked" : "$availableSpots spots left",
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: isFull
+                        ? BookingPageColors.textMuted.color
+                        : foregroundColor.withValues(alpha: 0.82),
+                  ),
+            ),
           ],
         ),
       ),
@@ -170,103 +162,272 @@ class BookingCalendar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Map<DateTime, List<CustomerGroup>>? customerGroupsByDay =
-        ref.watch(customerGroupsByDayProvider).value;
-    Map<String, int>? customersNumberByCgId =
+    final customerGroupsByDay = ref.watch(customerGroupsByDayProvider).value;
+    final customersNumberByCgId =
         ref.watch(customersNumberByCustomerGroupIdBookingProvider).value;
-    return SfCalendar(
-      showWeekNumber: true,
-      showNavigationArrow: true,
-      showDatePickerButton: true,
-      selectionDecoration: const BoxDecoration(color: Colors.transparent),
-      allowViewNavigation: false,
-      initialDisplayDate:
-          DateTime(DateTime.now().year, DateTime.now().month, 1),
-      view: CalendarView.month,
-      firstDayOfWeek: 1,
-      monthCellBuilder: (BuildContext cellContext, MonthCellDetails details) {
-        List<CustomerGroup> todayCustomerGroups =
-            customerGroupsByDay?[details.date] ?? [];
-        Color cellColor =
-            _getCellColor(todayCustomerGroups, customersNumberByCgId);
-        bool isSelected =
-            details.date == ref.watch(selectedDateInCalendarProvider);
-
-        return InkWell(
-          onTap: todayCustomerGroups.isEmpty
-              ? null
-              : () {
-                  ref
-                      .read(selectedDateInCalendarProvider.notifier)
-                      .change(details.date);
-                  ref
-                      .read(selectedCustomerGroupInCalendarProvider.notifier)
-                      .change(null);
-                  ref.invalidate(bookingDetailsSelectedPricingsProvider);
-                },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            decoration: BoxDecoration(
-                border:
-                    BoxBorder.all(color: cellColor, width: isSelected ? 2 : 1),
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-                color: cellColor.withAlpha(isSelected ? 170 : 100)),
-            margin: const EdgeInsets.all(5),
-            child: Center(
-                child: Text(
-              DateFormat("dd").format(details.date),
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            )),
-          ),
+    final visibleDates = ref.watch(visibleDatesProvider);
+    final noDatesAvailableThisMonth = customerGroupsByDay != null &&
+        visibleDates.isNotEmpty &&
+        visibleDates.every(
+          (date) => (customerGroupsByDay[bookingDayKey(date)] ?? []).isEmpty,
         );
-      },
-      monthViewSettings: const MonthViewSettings(
-          showTrailingAndLeadingDates: false,
-          dayFormat: "EEE",
-          appointmentDisplayCount: 1,
-          appointmentDisplayMode: MonthAppointmentDisplayMode.none),
-      onViewChanged: (ViewChangedDetails details) {
-        if (!(context.mounted)) return;
-        SchedulerBinding.instance.addPostFrameCallback((_) async {
-          logger.info("Changing dates");
-          logger.debug(details.visibleDates);
-          ref.read(visibleDatesProvider.notifier).change(details.visibleDates);
-        });
-      },
+
+    return Theme(
+      data: Theme.of(context).copyWith(
+        colorScheme: Theme.of(context).colorScheme.copyWith(
+              primary: BookingPageColors.primaryDark.color,
+            ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: BookingPageColors.surface.color,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: BookingPageColors.outlineSoft.color),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: SfCalendar(
+              backgroundColor: Colors.transparent,
+              headerStyle: CalendarHeaderStyle(
+                textAlign: TextAlign.center,
+                backgroundColor: Colors.transparent,
+                textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BookingPageColors.textStrong.color,
+                    ),
+              ),
+              viewHeaderStyle: ViewHeaderStyle(
+                dayTextStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: BookingPageColors.textMuted.color,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              todayHighlightColor: BookingPageColors.primaryDark.color,
+              showNavigationArrow: true,
+              showDatePickerButton: true,
+              selectionDecoration:
+                  const BoxDecoration(color: Colors.transparent),
+              allowViewNavigation: false,
+              initialDisplayDate:
+                  DateTime(DateTime.now().year, DateTime.now().month, 1),
+              view: CalendarView.month,
+              firstDayOfWeek: 1,
+              monthCellBuilder:
+                  (BuildContext cellContext, MonthCellDetails details) {
+                final cellDate = bookingDayKey(details.date);
+                final todayCustomerGroups =
+                    customerGroupsByDay?[cellDate] ?? [];
+                final availability = _getAvailability(
+                    todayCustomerGroups, customersNumberByCgId);
+                final isSelected =
+                    cellDate == ref.watch(selectedDateInCalendarProvider);
+                final isEnabled = todayCustomerGroups.isNotEmpty;
+
+                final fillColor = switch (availability) {
+                  _BookingDayAvailability.available =>
+                    BookingPageColors.primaryLight.color,
+                  _BookingDayAvailability.full =>
+                    BookingPageColors.outlineSoft.color,
+                  _BookingDayAvailability.empty => Colors.transparent,
+                };
+
+                final dotColor = switch (availability) {
+                  _BookingDayAvailability.available =>
+                    BookingPageColors.success.color,
+                  _BookingDayAvailability.full =>
+                    BookingPageColors.danger.color,
+                  _BookingDayAvailability.empty => Colors.transparent,
+                };
+
+                return InkWell(
+                  onTap: !isEnabled
+                      ? null
+                      : () {
+                          ref
+                              .read(selectedDateInCalendarProvider.notifier)
+                              .change(cellDate);
+                          ref
+                              .read(selectedCustomerGroupInCalendarProvider
+                                  .notifier)
+                              .change(null);
+                          ref.invalidate(
+                              bookingDetailsSelectedPricingsProvider);
+                        },
+                  borderRadius: BorderRadius.circular(18),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 140),
+                    margin: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? BookingPageColors.primaryDark.color
+                          : fillColor,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: isSelected
+                            ? BookingPageColors.primaryDark.color
+                            : BookingPageColors.outlineSoft.color,
+                      ),
+                    ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final showDot = constraints.maxHeight >= 34;
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              DateFormat("d").format(cellDate),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: isSelected
+                                    ? Colors.white
+                                    : isEnabled
+                                        ? BookingPageColors.textStrong.color
+                                        : BookingPageColors.textMuted.color,
+                              ),
+                            ),
+                            if (showDot) ...[
+                              const SizedBox(height: 2),
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: isSelected ? Colors.white : dotColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
+              monthViewSettings: const MonthViewSettings(
+                showTrailingAndLeadingDates: false,
+                dayFormat: "EEE",
+                appointmentDisplayCount: 1,
+                appointmentDisplayMode: MonthAppointmentDisplayMode.none,
+              ),
+              onViewChanged: (ViewChangedDetails details) {
+                if (!context.mounted) return;
+                SchedulerBinding.instance.addPostFrameCallback((_) async {
+                  logger.info("Changing dates");
+                  logger.debug(details.visibleDates);
+                  ref
+                      .read(visibleDatesProvider.notifier)
+                      .change(details.visibleDates);
+                });
+              },
+            ),
+          ),
+          if (noDatesAvailableThisMonth) ...[
+            const SizedBox(height: 14),
+            const _BookingHintState(
+              icon: Icons.event_busy_outlined,
+              text: "No dates available this month.",
+            ),
+          ],
+        ],
+      ),
     );
   }
 
-  Color _getCellColor(List<CustomerGroup> dayCustomerGroups,
-      Map<String, int>? customersNumberByCgId) {
-    if (dayCustomerGroups.isEmpty) return Colors.white;
-    if (customersNumberByCgId == null) return Colors.white;
+  _BookingDayAvailability _getAvailability(
+    List<CustomerGroup> dayCustomerGroups,
+    Map<String, int>? customersNumberByCgId,
+  ) {
+    if (dayCustomerGroups.isEmpty || customersNumberByCgId == null) {
+      return _BookingDayAvailability.empty;
+    }
     for (final cg in dayCustomerGroups) {
       final n = customersNumberByCgId[cg.id];
       if (n == null) continue;
-      if (cg.maxCapacity > n) return BookingPageColors.success.color;
+      if (cg.maxCapacity > n) return _BookingDayAvailability.available;
     }
-    return BookingPageColors.danger.color;
+    return _BookingDayAvailability.full;
+  }
+}
+
+enum _BookingDayAvailability { empty, available, full }
+
+class BookingSectionCard extends StatelessWidget {
+  final String stepNumber;
+  final String title;
+  final String subtitle;
+  final Widget child;
+  const BookingSectionCard({
+    super.key,
+    required this.stepNumber,
+    required this.title,
+    required this.subtitle,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BookingFlowFrame(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          HeaderWithBubble(
+            number: stepNumber,
+            title: title,
+            subtitle: subtitle,
+          ),
+          const SizedBox(height: 20),
+          child,
+        ],
+      ),
+    );
   }
 }
 
 class HeaderWithBubble extends StatelessWidget {
   final String number;
   final String title;
-  const HeaderWithBubble(
-      {super.key, required this.number, required this.title});
+  final String? subtitle;
+  const HeaderWithBubble({
+    super.key,
+    required this.number,
+    required this.title,
+    this.subtitle,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(width: 20),
         BookingPageNumberBubble(content: number),
-        const SizedBox(width: 10),
-        Text(
-          title,
-          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-        )
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: BookingPageColors.textStrong.color,
+                    ),
+              ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  subtitle!,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: BookingPageColors.textMuted.color,
+                        height: 1.45,
+                      ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -279,15 +440,53 @@ class BookingPageNumberBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 38,
+      height: 38,
       decoration: BoxDecoration(
-          color: BookingPageColors.primaryDark.color, shape: BoxShape.circle),
-      child: Padding(
-        padding: const EdgeInsets.all(7),
-        child: Text(content,
-            style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white,
-                fontWeight: FontWeight.w500)),
+        color: BookingPageColors.primaryDark.color,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Center(
+        child: Text(
+          content,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BookingHintState extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _BookingHintState({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: BookingPageColors.surfaceStrong.color,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: BookingPageColors.primaryDark.color),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: BookingPageColors.textMuted.color,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }
