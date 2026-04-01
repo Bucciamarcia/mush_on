@@ -211,7 +211,8 @@ class DogsDataSource extends DataGridSource {
           iteratorDate.isAfter(lastDateMidnight)) {
         break;
       }
-      iteratorDate = iteratorDate.add(const Duration(days: 1));
+      iteratorDate =
+          DateTime(iteratorDate.year, iteratorDate.month, iteratorDate.day + 1);
     }
     toReturn.sort((a, b) => b.compareTo(a));
     return toReturn;
