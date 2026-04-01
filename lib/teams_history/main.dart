@@ -278,8 +278,8 @@ class TeamViewer extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   FilledButton.tonal(
-                    onPressed: () => context.pushNamed(
-                      "/createteam",
+                    onPressed: () => context.goNamed(
+                      "createTeam",
                       queryParameters: {"teamGroupId": item.id},
                     ),
                     style: FilledButton.styleFrom(

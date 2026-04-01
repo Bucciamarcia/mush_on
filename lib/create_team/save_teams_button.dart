@@ -73,7 +73,7 @@ class SaveTeamsButton extends ConsumerWidget {
                 : () {
                     ref.invalidate(createTeamGroupProvider);
                     ref.invalidate(distanceControllerProvider);
-                    context.goNamed("/createteam");
+                    context.pushReplacement("/createteam");
                   },
             child: const Text("Create a new team group")),
       ],

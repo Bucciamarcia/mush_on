@@ -259,8 +259,8 @@ class SingleDogDisplay extends ConsumerWidget {
       color: dog.id == focusDog.id ? Colors.red[100] : null,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => context.pushNamed(
-          "/dog",
+        onTap: () => context.goNamed(
+          "dog",
           queryParameters: {"dogId": dog.id},
         ),
         child: Padding(

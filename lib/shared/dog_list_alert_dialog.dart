@@ -19,8 +19,8 @@ class DogListAlertDialog extends StatelessWidget {
             .map(
               (dog) => ActionChip(
                 label: Text(dog.name),
-                onPressed: () => context.pushNamed(
-                  "/dog",
+                onPressed: () => context.goNamed(
+                  "dog?dogId=${dog.id}",
                   queryParameters: {"dogId": dog.id},
                 ),
               ),

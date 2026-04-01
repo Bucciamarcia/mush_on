@@ -71,8 +71,8 @@ class TourTypeCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: () => context.pushNamed(
-          "/tours_add",
+        onTap: () => context.goNamed(
+          "tours_add",
           queryParameters: {"tourId": tour.id},
         ),
         borderRadius: BorderRadius.circular(12),
