@@ -306,7 +306,7 @@ class HomePageScreenContent extends ConsumerWidget {
                     ),
                   ),
                   ElevatedButton.icon(
-                    onPressed: () => context.pushNamed("/createteam"),
+                    onPressed: () => context.go("/createteam"),
                     label: const Text("Build team"),
                     icon: const Icon(Icons.pets),
                   ),

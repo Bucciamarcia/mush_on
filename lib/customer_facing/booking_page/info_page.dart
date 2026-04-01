@@ -183,7 +183,7 @@ class CollectInfoWidget extends ConsumerWidget {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: TextButton.icon(
-                      onPressed: () => context.pushNamed("/privacy_customer"),
+                      onPressed: () => context.go("/privacy_customer"),
                       icon: const Icon(Icons.privacy_tip_outlined),
                       label: const Text("Privacy policy"),
                     ),

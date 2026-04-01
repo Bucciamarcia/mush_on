@@ -109,19 +109,27 @@ class MassAddCg extends ConsumerWidget {
         ElevatedButton(
           onPressed: canAddCgs
               ? () async {
-                  final repo = MassCgAdderRepository(
-                    ruleType: ref.read(selectedRuleTypeProvider),
-                    daysOfWeekSelected: ref.read(daysOfWeekSelectedProvider),
-                    dateRangeSelection:
-                        ref.read(dateRangeSelectedForWeekSelectionProvider),
-                    onSelectedDaysSelected:
-                        ref.read(onSelectedDaysSelectedProvider),
-                    cgName: ref.read(massCgEditorCgNameProvider),
-                    time: ref.read(massCgEditorCgTimeProvider),
-                    maxCapacity: ref.read(massCgEditorCgCapacityProvider)!,
-                    tourType: ref.read(massCgEditorTourTypeProvider)!,
-                    account: account,
-                  );
+                  late MassCgAdderRepository repo;
+                  try {
+                    repo = MassCgAdderRepository(
+                      ruleType: ref.read(selectedRuleTypeProvider),
+                      daysOfWeekSelected: ref.read(daysOfWeekSelectedProvider),
+                      dateRangeSelection:
+                          ref.read(dateRangeSelectedForWeekSelectionProvider),
+                      onSelectedDaysSelected:
+                          ref.read(onSelectedDaysSelectedProvider),
+                      cgName: ref.read(massCgEditorCgNameProvider),
+                      time: ref.read(massCgEditorCgTimeProvider),
+                      maxCapacity: ref.read(massCgEditorCgCapacityProvider)!,
+                      tourType: ref.read(massCgEditorTourTypeProvider)!,
+                      account: account,
+                    );
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
+                          context, "Error: couldn't create batch"));
+                    }
+                  }
                   try {
                     await repo.add();
                     if (context.mounted) {

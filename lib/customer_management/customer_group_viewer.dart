@@ -13,7 +13,7 @@ import 'tours/models.dart';
 import 'tours/riverpod.dart';
 
 class CustomerGroupViewerScreen extends StatelessWidget {
-  final String customerGroupId;
+  final String? customerGroupId;
   const CustomerGroupViewerScreen({super.key, required this.customerGroupId});
 
   @override
@@ -26,19 +26,24 @@ class CustomerGroupViewerScreen extends StatelessWidget {
 }
 
 class CustomerGroupViewer extends ConsumerWidget {
-  final String customerGroupId;
+  final String? customerGroupId;
   const CustomerGroupViewer({super.key, required this.customerGroupId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (customerGroupId == null) {
+      return const Center(
+        child: Text("No customer group ID provided."),
+      );
+    }
     final customerGroupAsync = ref.watch(
-      CustomerGroupByIdProvider(customerGroupId),
+      CustomerGroupByIdProvider(customerGroupId!),
     );
     final List<Booking> bookings =
-        ref.watch(bookingsByCustomerGroupIdProvider(customerGroupId)).value ??
+        ref.watch(bookingsByCustomerGroupIdProvider(customerGroupId!)).value ??
             [];
     final List<Customer> customers =
-        ref.watch(CustomersByCustomerGroupIdProvider(customerGroupId)).value ??
+        ref.watch(CustomersByCustomerGroupIdProvider(customerGroupId!)).value ??
             [];
     return customerGroupAsync.when(
       data: (customerGroup) {

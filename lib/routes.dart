@@ -17,6 +17,7 @@ import 'package:mush_on/stats/stats.dart';
 import 'package:mush_on/whiteboard/whiteboard.dart';
 import 'customer_facing/booking_page/booking_page.dart';
 import 'customer_facing/booking_page/success/booking_success.dart';
+import 'customer_management/customer_group_viewer.dart';
 import 'customer_management/customer_management.dart';
 import 'customer_management/tours/editor/editor.dart';
 import 'settings/stripe/stripe_connection_result.dart';
@@ -24,74 +25,74 @@ import 'settings/stripe/stripe_connection_result.dart';
 final goRoutes = GoRouter(
   routes: [
     GoRoute(
-      name: "/",
       path: "/",
       builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
-      name: "/editkennel",
       path: "/editkennel",
       builder: (context, state) => const EditKennelScreen(),
     ),
     GoRoute(
-      name: "/dog",
       path: "/dog",
+      name: "dog",
       builder: (context, state) {
         final dogId = state.uri.queryParameters["dogId"];
         return DogScreen(dog: dogId);
       },
     ),
     GoRoute(
-      name: "/adddog",
       path: "/adddog",
       builder: (context, state) => const AddDogScreen(),
     ),
     GoRoute(
-      name: "/createteam",
       path: "/createteam",
+      name: "createTeam",
       builder: (context, state) {
         final teamGroupId = state.uri.queryParameters["teamGroupId"];
         return CreateTeamScreen(loadedTeamId: teamGroupId);
       },
     ),
     GoRoute(
-      name: "/teamshistory",
       path: "/teamshistory",
       builder: (context, state) => const TeamsHistoryScreen(),
     ),
     GoRoute(
-      name: "/stats",
       path: "/stats",
       builder: (context, state) => const StatsScreen(),
     ),
     GoRoute(
-      name: "/settings",
       path: "/settings",
       builder: (context, state) => const SettingsScreen(),
     ),
     GoRoute(
-      name: "/tasks",
       path: "/tasks",
       builder: (context, state) => const TasksScreen(),
     ),
     GoRoute(
-      name: "/health_dashboard",
       path: "/health_dashboard",
       builder: (context, state) => const HealthScreen(),
     ),
     GoRoute(
-      name: "/client_management",
-      path: "/client_management",
-      builder: (context, state) => const ClientManagementScreen(),
-    ),
+        path: "/client_management",
+        builder: (context, state) => const ClientManagementScreen(),
+        routes: [
+          GoRoute(
+              path: "/customer_group_viewer",
+              name: "customerGroupViewer",
+              builder: (context, state) {
+                String? customerGroupId =
+                    state.uri.queryParameters["customerGroupId"];
+                return CustomerGroupViewerScreen(
+                    customerGroupId: customerGroupId);
+              })
+        ]),
     GoRoute(
       path: "/tours",
-      name: "/tours",
       builder: (context, state) => const ToursScreen(),
     ),
     GoRoute(
       path: "/tours/editor",
-      name: "/tours_add",
+      name: "tours_add",
       builder: (context, state) {
         String? tourId = state.uri.queryParameters["tourId"];
         return AddTourScreen(tourId: tourId);
@@ -99,22 +100,18 @@ final goRoutes = GoRouter(
     ),
     GoRoute(
       path: "/whiteboard",
-      name: "/whiteboard",
       builder: (context, state) => const WhiteboardScreen(),
     ),
     GoRoute(
       path: "/add_customer_group",
-      name: "/add_customer_group",
       builder: (context, state) => const CustomerGroupEditor(),
     ),
     GoRoute(
       path: "/mass_add_cg",
-      name: "/mass_add_cg",
       builder: (context, state) => const MassCgAdderScreen(),
     ),
     GoRoute(
       path: "/booking",
-      name: "/booking",
       builder: (context, state) {
         String? account = state.uri.queryParameters["kennel"];
         String? tourId = state.uri.queryParameters["tourId"];
@@ -123,7 +120,6 @@ final goRoutes = GoRouter(
     ),
     GoRoute(
         path: "/stripe_connection",
-        name: "/stripe_connection",
         builder: (context, state) {
           String? account = state.uri.queryParameters["kennel"];
 
@@ -134,7 +130,6 @@ final goRoutes = GoRouter(
         }),
     GoRoute(
         path: "/booking_success",
-        name: "/booking_success",
         builder: (context, state) {
           String? account = state.uri.queryParameters["account"];
           String? bookingId = state.uri.queryParameters["bookingId"];
@@ -142,13 +137,11 @@ final goRoutes = GoRouter(
         }),
     GoRoute(
         path: "/privacy_customer",
-        name: "/privacy_customer",
         builder: (context, state) {
           return const PrivacyPolicy();
         }),
     GoRoute(
         path: "/accept_invitation",
-        name: "/accept_invitation",
         builder: (context, state) {
           String? email = state.uri.queryParameters["email"];
           String? securityCode = state.uri.queryParameters["securityCode"];

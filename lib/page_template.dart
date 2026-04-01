@@ -65,11 +65,11 @@ class TemplateScreen extends ConsumerWidget {
           SpeedDialChild(
               child: const Icon(Icons.people_alt),
               label: "Add Customer Group",
-              onTap: () => context.pushNamed("/add_customer_group")),
+              onTap: () => context.go("/add_customer_group")),
           SpeedDialChild(
               child: const FaIcon(FontAwesomeIcons.calendarPlus),
               label: "Mass add Customer Groups",
-              onTap: () => context.pushNamed("/mass_add_cg"))
+              onTap: () => context.go("/mass_add_cg"))
         ],
       );
     }
@@ -77,13 +77,13 @@ class TemplateScreen extends ConsumerWidget {
       return FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          context.pushNamed("/adddog");
+          context.go("/adddog");
         },
       );
     }
     if (child is ToursMainScreen) {
       return FloatingActionButton(
-        onPressed: () => context.pushNamed("/tours_add"),
+        onPressed: () => context.go("/tours_add"),
         child: const Icon(Icons.add),
       );
     }
@@ -139,12 +139,12 @@ class TemplateScreen extends ConsumerWidget {
                         ),
                         ListTile(
                           leading: const Icon(Icons.home),
-                          onTap: () => context.pushNamed("/"),
+                          onTap: () => context.go("/"),
                           title: const Text("Home"),
                         ),
                         ListTile(
                           leading: const Icon(Icons.calendar_today),
-                          onTap: () => context.pushNamed("/whiteboard"),
+                          onTap: () => context.go("/whiteboard"),
                           title: const Text("Whiteboard"),
                         ),
                         const Divider(),
@@ -164,21 +164,21 @@ class TemplateScreen extends ConsumerWidget {
                         ),
                         ListTile(
                           leading: const Icon(Icons.group_add),
-                          onTap: () => context.pushNamed("/createteam"),
+                          onTap: () => context.go("/createteam"),
                           title: const Text(
                             "Create Team",
                           ),
                         ),
                         ListTile(
                           leading: const Icon(Icons.pets),
-                          onTap: () => context.pushNamed("/editkennel"),
+                          onTap: () => context.go("/editkennel"),
                           title: const Text(
                             "Kennel",
                           ),
                         ),
                         ListTile(
                           leading: const Icon(Icons.history),
-                          onTap: () => context.pushNamed("/teamshistory"),
+                          onTap: () => context.go("/teamshistory"),
                           title: const Text(
                             "Teams history",
                           ),
@@ -200,14 +200,14 @@ class TemplateScreen extends ConsumerWidget {
                         ),
                         ListTile(
                           leading: const Icon(Icons.person_2),
-                          onTap: () => context.pushNamed("/client_management"),
+                          onTap: () => context.go("/client_management"),
                           title: const Text(
                             "Manage bookings",
                           ),
                         ),
                         ListTile(
                           leading: const Icon(Icons.tour),
-                          onTap: () => context.pushNamed("/tours"),
+                          onTap: () => context.go("/tours"),
                           title: const Text(
                             "Tours",
                           ),
@@ -229,17 +229,9 @@ class TemplateScreen extends ConsumerWidget {
                         ),
                         ListTile(
                           leading: const Icon(Icons.query_stats),
-                          onTap: () => context.pushNamed("/stats"),
+                          onTap: () => context.go("/stats"),
                           title: const Text(
                             "Stats",
-                          ),
-                        ),
-                        ListTile(
-                          leading: const FaIcon(
-                              FontAwesomeIcons.magnifyingGlassChart),
-                          onTap: () => context.pushNamed("/insights"),
-                          title: const Text(
-                            "Insights",
                           ),
                         ),
                         const Divider(),
@@ -259,21 +251,21 @@ class TemplateScreen extends ConsumerWidget {
                         ),
                         ListTile(
                           leading: const Icon(Icons.task),
-                          onTap: () => context.pushNamed("/tasks"),
+                          onTap: () => context.go("/tasks"),
                           title: const Text(
                             "Tasks",
                           ),
                         ),
                         ListTile(
                           leading: const Icon(Icons.settings),
-                          onTap: () => context.pushNamed("/settings"),
+                          onTap: () => context.go("/settings"),
                           title: const Text(
                             "Settings",
                           ),
                         ),
                         ListTile(
                           leading: const Icon(Icons.health_and_safety),
-                          onTap: () => context.pushNamed("/health_dashboard"),
+                          onTap: () => context.go("/health_dashboard"),
                           title: const Text(
                             "Health dashboard",
                           ),
