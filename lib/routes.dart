@@ -10,6 +10,10 @@ import 'package:mush_on/kennel/add_dog/add_dog.dart';
 import 'package:mush_on/kennel/dog/dog.dart';
 import 'package:mush_on/kennel/kennel.dart';
 import 'package:mush_on/main.dart';
+import 'package:mush_on/settings/sections/billing.dart';
+import 'package:mush_on/settings/sections/profile.dart';
+import 'package:mush_on/settings/sections/team.dart';
+import 'package:mush_on/settings/sections/workspace.dart';
 import 'package:mush_on/settings/settings.dart';
 import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
@@ -63,6 +67,24 @@ final goRoutes = GoRouter(
     GoRoute(
       path: "/settings",
       builder: (context, state) => const SettingsScreen(),
+      routes: [
+        GoRoute(
+          path: "profile",
+          builder: (context, state) => const ProfileSettingsPage(),
+        ),
+        GoRoute(
+          path: "workspace",
+          builder: (context, state) => const WorkspaceSettingsPage(),
+        ),
+        GoRoute(
+          path: "team",
+          builder: (context, state) => const TeamSettingsPage(),
+        ),
+        GoRoute(
+          path: "billing",
+          builder: (context, state) => const BillingSettingsPage(),
+        ),
+      ],
     ),
     GoRoute(
       path: "/tasks",
