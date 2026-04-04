@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/elements/days_of_month_selector.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/models.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/repository.dart';
@@ -136,7 +137,7 @@ class MassAddCg extends ConsumerWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                           confirmationSnackbar(
                               context, "All Customer Groups added"));
-                      Navigator.of(context).pop();
+                      context.go("/client_management");
                     }
                   } on TooManyDatesException catch (e) {
                     if (context.mounted) {

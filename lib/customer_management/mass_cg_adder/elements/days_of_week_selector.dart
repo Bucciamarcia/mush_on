@@ -38,7 +38,8 @@ class DayOfWeekSelector extends ConsumerWidget {
                   .read(dateRangeSelectedForWeekSelectionProvider.notifier)
                   .change(DateRangeSelectedValues(
                       initialDay: selectedRange.startDate,
-                      finalDay: selectedRange.endDate));
+                      finalDay:
+                          selectedRange.endDate ?? selectedRange.startDate));
             }
           },
         ),
