@@ -273,6 +273,7 @@ class TemplateScreen extends ConsumerWidget {
                         ListTile(
                           leading: const Icon(Icons.logout),
                           onTap: () async {
+                            context.go("/");
                             await AuthService().signOut();
                           },
                           title: const Text(
