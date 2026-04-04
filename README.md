@@ -135,3 +135,8 @@ A cool and open source CRM for sled dog kennels.
 - Redesign settings page.
 - Improved layout of checkout page.
 - Fixes DST bug happening in april in stats page.
+
+### 0.0.18
+
+- Fixes bug in mass adding customer groups.
+- Splits settings into multiple sections.
