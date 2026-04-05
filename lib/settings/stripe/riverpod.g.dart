@@ -426,5 +426,42 @@ final isBookingCustomFieldsEditedProvider =
     );
 
 typedef _$IsBookingCustomFieldsEdited = AutoDisposeNotifier<bool>;
+String _$tempBookingRemindersHash() =>
+    r'4a733fbace5245329131cb5170debe2851a21c0a';
+
+/// See also [TempBookingReminders].
+@ProviderFor(TempBookingReminders)
+final tempBookingRemindersProvider =
+    AutoDisposeNotifierProvider<
+      TempBookingReminders,
+      List<BookingReminder>
+    >.internal(
+      TempBookingReminders.new,
+      name: r'tempBookingRemindersProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$tempBookingRemindersHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+typedef _$TempBookingReminders = AutoDisposeNotifier<List<BookingReminder>>;
+String _$isBookingRemindersEditedHash() =>
+    r'48015ece15b3cc183a32b725e55488498eb410ef';
+
+/// See also [IsBookingRemindersEdited].
+@ProviderFor(IsBookingRemindersEdited)
+final isBookingRemindersEditedProvider =
+    AutoDisposeNotifierProvider<IsBookingRemindersEdited, bool>.internal(
+      IsBookingRemindersEdited.new,
+      name: r'isBookingRemindersEditedProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$isBookingRemindersEditedHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+typedef _$IsBookingRemindersEdited = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

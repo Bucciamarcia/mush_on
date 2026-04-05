@@ -168,6 +168,48 @@ class IsBookingCustomFieldsEdited extends _$IsBookingCustomFieldsEdited {
   }
 }
 
+@riverpod
+class TempBookingReminders extends _$TempBookingReminders {
+  @override
+  List<BookingReminder> build() {
+    return [];
+  }
+
+  void setInitialReminders(List<BookingReminder> reminders) {
+    if (state.isEmpty && reminders.isNotEmpty) {
+      state = reminders;
+    }
+  }
+
+  void addReminder() {
+    state = [...state, const BookingReminder(daysBefore: 1)];
+  }
+
+  void removeReminder(int index) {
+    state = [
+      for (int i = 0; i < state.length; i++)
+        if (i != index) state[i],
+    ];
+  }
+
+  void updateReminder(int index, BookingReminder updated) {
+    state = [
+      for (int i = 0; i < state.length; i++)
+        if (i == index) updated else state[i],
+    ];
+  }
+}
+
+@riverpod
+class IsBookingRemindersEdited extends _$IsBookingRemindersEdited {
+  @override
+  bool build() => false;
+
+  void setEdited(bool edited) {
+    state = edited;
+  }
+}
+
 @JsonEnum()
 enum CustomerCustomFieldType { text, dropdown }
 

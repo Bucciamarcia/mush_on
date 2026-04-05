@@ -58,6 +58,11 @@ _BookingManagerKennelInfo _$BookingManagerKennelInfoFromJson(
           ?.map((e) => BookingCustomField.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const [],
+  bookingReminders:
+      (json['bookingReminders'] as List<dynamic>?)
+          ?.map((e) => BookingReminder.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
   vatRate: (json['vatRate'] as num).toDouble(),
   commissionRate: (json['commissionRate'] as num?)?.toDouble() ?? 0.035,
 );
@@ -75,6 +80,13 @@ Map<String, dynamic> _$BookingManagerKennelInfoToJson(
   'bookingCustomFields': instance.bookingCustomFields
       .map((e) => e.toJson())
       .toList(),
+  'bookingReminders': instance.bookingReminders.map((e) => e.toJson()).toList(),
   'vatRate': instance.vatRate,
   'commissionRate': instance.commissionRate,
 };
+
+_BookingReminder _$BookingReminderFromJson(Map<String, dynamic> json) =>
+    _BookingReminder(daysBefore: (json['daysBefore'] as num).toInt());
+
+Map<String, dynamic> _$BookingReminderToJson(_BookingReminder instance) =>
+    <String, dynamic>{'daysBefore': instance.daysBefore};
