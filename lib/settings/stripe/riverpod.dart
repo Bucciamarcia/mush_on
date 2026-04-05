@@ -175,15 +175,17 @@ class IsBookingCustomFieldsEdited extends _$IsBookingCustomFieldsEdited {
 
 @riverpod
 class TempBookingReminders extends _$TempBookingReminders {
+  bool _initialized = false;
+
   @override
   List<BookingReminder> build() {
     return [];
   }
 
   void setInitialReminders(List<BookingReminder> reminders) {
-    if (state.isEmpty && reminders.isNotEmpty) {
-      state = reminders;
-    }
+    if (_initialized) return;
+    _initialized = true;
+    state = reminders;
   }
 
   void addReminder() {

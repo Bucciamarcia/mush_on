@@ -30,12 +30,13 @@ class EmailRemindersSettings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen(bookingManagerKennelInfoProvider(account: null), (_, next) {
-      next.whenData((kennelInfo) {
-        ref
-            .read(tempBookingRemindersProvider.notifier)
-            .setInitialReminders(kennelInfo?.bookingReminders ?? []);
-      });
+    // Seed from the already-loaded value (listen only fires on subsequent changes).
+    ref
+        .watch(bookingManagerKennelInfoProvider(account: null))
+        .whenData((kennelInfo) {
+      ref
+          .read(tempBookingRemindersProvider.notifier)
+          .setInitialReminders(kennelInfo?.bookingReminders ?? []);
     });
 
     final reminders = ref.watch(tempBookingRemindersProvider);
@@ -109,6 +110,7 @@ class EmailRemindersSettings extends ConsumerWidget {
                       final index = entry.key;
                       final reminder = entry.value;
                       return Padding(
+                        key: ValueKey(reminder.uid),
                         padding: const EdgeInsets.only(bottom: 12),
                         child: _ReminderRow(
                           reminder: reminder,
