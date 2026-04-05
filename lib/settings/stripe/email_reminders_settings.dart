@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/shared/text_title.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
@@ -7,8 +10,22 @@ import 'package:mush_on/settings/stripe/stripe_models.dart';
 class EmailRemindersSettings extends ConsumerWidget {
   const EmailRemindersSettings({super.key});
 
-  void _save(List<BookingReminder> reminders) {
-    // TODO: implement save logic
+  void _save(List<BookingReminder> reminders, String account) async {
+    final db = FirebaseFirestore.instance;
+    final path = "accounts/$account/data/bookingManager";
+    final ref = db.doc(path);
+    final remindersDoc = reminders.map((r) => r.toJson()).toList();
+    final toSet = {"bookingReminders": remindersDoc};
+    try {
+      await ref.update(toSet);
+    } catch (e, s) {
+      BasicLogger().error(
+        "Couldn't update email reminders",
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
   }
 
   @override
@@ -58,8 +75,10 @@ class EmailRemindersSettings extends ConsumerWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(999),
@@ -144,7 +163,9 @@ class EmailRemindersSettings extends ConsumerWidget {
                   key: const ValueKey('unsaved_reminders'),
                   margin: const EdgeInsets.only(top: 20),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 12),
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: colorScheme.errorContainer,
                     borderRadius: BorderRadius.circular(16),
@@ -178,7 +199,17 @@ class EmailRemindersSettings extends ConsumerWidget {
             runSpacing: 12,
             children: [
               FilledButton.icon(
-                onPressed: () => _save(reminders),
+                onPressed: () async {
+                  final account = ref.watch(accountProvider).value;
+                  if (account == null) {
+                    BasicLogger().error("Account ID not found");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      errorSnackBar(context, "Error: account not found"),
+                    );
+                    return;
+                  }
+                  _save(reminders, account);
+                },
                 icon: const Icon(Icons.save_outlined),
                 label: const Text("Save changes"),
               ),
@@ -264,8 +295,9 @@ class _ReminderRow extends StatelessWidget {
             tooltip: "Remove reminder",
             onPressed: onDeleted,
             style: IconButton.styleFrom(
-              backgroundColor:
-                  colorScheme.errorContainer.withValues(alpha: 0.55),
+              backgroundColor: colorScheme.errorContainer.withValues(
+                alpha: 0.55,
+              ),
               foregroundColor: colorScheme.error,
             ),
             icon: const Icon(Icons.delete_outline, size: 20),
@@ -346,8 +378,7 @@ class _AddReminderButton extends StatelessWidget {
       onTap: onPressed,
       child: Ink(
         width: double.infinity,
-        padding:
-            const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
