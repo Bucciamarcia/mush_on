@@ -24,54 +24,57 @@ _CheckoutSession _$CheckoutSessionFromJson(Map<String, dynamic> json) =>
       account: json['account'] as String,
       bookingId: json['bookingId'] as String,
       stripeId: json['stripeId'] as String,
-      createdAt: const NonNullableTimestampConverter()
-          .fromJson(json['createdAt'] as Timestamp),
+      createdAt: const NonNullableTimestampConverter().fromJson(
+        json['createdAt'] as Timestamp,
+      ),
       webhookProcessed: json['webhookProcessed'] as bool,
     );
 
-Map<String, dynamic> _$CheckoutSessionToJson(_CheckoutSession instance) =>
-    <String, dynamic>{
-      'checkoutSessionId': instance.checkoutSessionId,
-      'account': instance.account,
-      'bookingId': instance.bookingId,
-      'stripeId': instance.stripeId,
-      'createdAt':
-          const NonNullableTimestampConverter().toJson(instance.createdAt),
-      'webhookProcessed': instance.webhookProcessed,
-    };
+Map<String, dynamic> _$CheckoutSessionToJson(
+  _CheckoutSession instance,
+) => <String, dynamic>{
+  'checkoutSessionId': instance.checkoutSessionId,
+  'account': instance.account,
+  'bookingId': instance.bookingId,
+  'stripeId': instance.stripeId,
+  'createdAt': const NonNullableTimestampConverter().toJson(instance.createdAt),
+  'webhookProcessed': instance.webhookProcessed,
+};
 
 _BookingManagerKennelInfo _$BookingManagerKennelInfoFromJson(
-        Map<String, dynamic> json) =>
-    _BookingManagerKennelInfo(
-      name: json['name'] as String,
-      url: json['url'] as String,
-      email: json['email'] as String,
-      cancellationPolicy: json['cancellationPolicy'] as String,
-      customerCustomFields: (json['customerCustomFields'] as List<dynamic>?)
-              ?.map((e) =>
-                  CustomerCustomField.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      bookingCustomFields: (json['bookingCustomFields'] as List<dynamic>?)
-              ?.map(
-                  (e) => BookingCustomField.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      vatRate: (json['vatRate'] as num).toDouble(),
-      commissionRate: (json['commissionRate'] as num?)?.toDouble() ?? 0.035,
-    );
+  Map<String, dynamic> json,
+) => _BookingManagerKennelInfo(
+  name: json['name'] as String,
+  url: json['url'] as String,
+  email: json['email'] as String,
+  cancellationPolicy: json['cancellationPolicy'] as String,
+  customerCustomFields:
+      (json['customerCustomFields'] as List<dynamic>?)
+          ?.map((e) => CustomerCustomField.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  bookingCustomFields:
+      (json['bookingCustomFields'] as List<dynamic>?)
+          ?.map((e) => BookingCustomField.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  vatRate: (json['vatRate'] as num).toDouble(),
+  commissionRate: (json['commissionRate'] as num?)?.toDouble() ?? 0.035,
+);
 
 Map<String, dynamic> _$BookingManagerKennelInfoToJson(
-        _BookingManagerKennelInfo instance) =>
-    <String, dynamic>{
-      'name': instance.name,
-      'url': instance.url,
-      'email': instance.email,
-      'cancellationPolicy': instance.cancellationPolicy,
-      'customerCustomFields':
-          instance.customerCustomFields.map((e) => e.toJson()).toList(),
-      'bookingCustomFields':
-          instance.bookingCustomFields.map((e) => e.toJson()).toList(),
-      'vatRate': instance.vatRate,
-      'commissionRate': instance.commissionRate,
-    };
+  _BookingManagerKennelInfo instance,
+) => <String, dynamic>{
+  'name': instance.name,
+  'url': instance.url,
+  'email': instance.email,
+  'cancellationPolicy': instance.cancellationPolicy,
+  'customerCustomFields': instance.customerCustomFields
+      .map((e) => e.toJson())
+      .toList(),
+  'bookingCustomFields': instance.bookingCustomFields
+      .map((e) => e.toJson())
+      .toList(),
+  'vatRate': instance.vatRate,
+  'commissionRate': instance.commissionRate,
+};

@@ -14,244 +14,206 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$CustomField {
-  /// The ID of the template this custom field is assigned to.
-  String get templateId;
-  CustomFieldValue get value;
 
-  /// Create a copy of CustomField
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $CustomFieldCopyWith<CustomField> get copyWith =>
-      _$CustomFieldCopyWithImpl<CustomField>(this as CustomField, _$identity);
+/// The ID of the template this custom field is assigned to.
+ String get templateId; CustomFieldValue get value;
+/// Create a copy of CustomField
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CustomFieldCopyWith<CustomField> get copyWith => _$CustomFieldCopyWithImpl<CustomField>(this as CustomField, _$identity);
 
   /// Serializes this CustomField to a JSON map.
   Map<String, dynamic> toJson();
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is CustomField &&
-            (identical(other.templateId, templateId) ||
-                other.templateId == templateId) &&
-            (identical(other.value, value) || other.value == value));
-  }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, templateId, value);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CustomField&&(identical(other.templateId, templateId) || other.templateId == templateId)&&(identical(other.value, value) || other.value == value));
+}
 
-  @override
-  String toString() {
-    return 'CustomField(templateId: $templateId, value: $value)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,templateId,value);
+
+@override
+String toString() {
+  return 'CustomField(templateId: $templateId, value: $value)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $CustomFieldCopyWith<$Res> {
-  factory $CustomFieldCopyWith(
-          CustomField value, $Res Function(CustomField) _then) =
-      _$CustomFieldCopyWithImpl;
-  @useResult
-  $Res call({String templateId, CustomFieldValue value});
+abstract mixin class $CustomFieldCopyWith<$Res>  {
+  factory $CustomFieldCopyWith(CustomField value, $Res Function(CustomField) _then) = _$CustomFieldCopyWithImpl;
+@useResult
+$Res call({
+ String templateId, CustomFieldValue value
+});
 
-  $CustomFieldValueCopyWith<$Res> get value;
+
+$CustomFieldValueCopyWith<$Res> get value;
+
 }
-
 /// @nodoc
-class _$CustomFieldCopyWithImpl<$Res> implements $CustomFieldCopyWith<$Res> {
+class _$CustomFieldCopyWithImpl<$Res>
+    implements $CustomFieldCopyWith<$Res> {
   _$CustomFieldCopyWithImpl(this._self, this._then);
 
   final CustomField _self;
   final $Res Function(CustomField) _then;
 
-  /// Create a copy of CustomField
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? templateId = null,
-    Object? value = null,
-  }) {
-    return _then(_self.copyWith(
-      templateId: null == templateId
-          ? _self.templateId
-          : templateId // ignore: cast_nullable_to_non_nullable
-              as String,
-      value: null == value
-          ? _self.value
-          : value // ignore: cast_nullable_to_non_nullable
-              as CustomFieldValue,
-    ));
-  }
-
-  /// Create a copy of CustomField
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $CustomFieldValueCopyWith<$Res> get value {
-    return $CustomFieldValueCopyWith<$Res>(_self.value, (value) {
-      return _then(_self.copyWith(value: value));
-    });
-  }
+/// Create a copy of CustomField
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? templateId = null,Object? value = null,}) {
+  return _then(_self.copyWith(
+templateId: null == templateId ? _self.templateId : templateId // ignore: cast_nullable_to_non_nullable
+as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as CustomFieldValue,
+  ));
 }
+/// Create a copy of CustomField
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CustomFieldValueCopyWith<$Res> get value {
+  
+  return $CustomFieldValueCopyWith<$Res>(_self.value, (value) {
+    return _then(_self.copyWith(value: value));
+  });
+}
+}
+
 
 /// Adds pattern-matching-related methods to [CustomField].
 extension CustomFieldPatterns on CustomField {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>(
-    TResult Function(_CustomField value)? $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _CustomField() when $default != null:
-        return $default(_that);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CustomField value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CustomField() when $default != null:
+return $default(_that);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>(
-    TResult Function(_CustomField value) $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _CustomField():
-        return $default(_that);
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CustomField value)  $default,){
+final _that = this;
+switch (_that) {
+case _CustomField():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
 
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_CustomField value)? $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _CustomField() when $default != null:
-        return $default(_that);
-      case _:
-        return null;
-    }
-  }
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CustomField value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CustomField() when $default != null:
+return $default(_that);case _:
+  return null;
 
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String templateId, CustomFieldValue value)? $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _CustomField() when $default != null:
-        return $default(_that.templateId, _that.value);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String templateId,  CustomFieldValue value)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CustomField() when $default != null:
+return $default(_that.templateId,_that.value);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>(
-    TResult Function(String templateId, CustomFieldValue value) $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _CustomField():
-        return $default(_that.templateId, _that.value);
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String templateId,  CustomFieldValue value)  $default,) {final _that = this;
+switch (_that) {
+case _CustomField():
+return $default(_that.templateId,_that.value);case _:
+  throw StateError('Unexpected subclass');
 
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String templateId, CustomFieldValue value)? $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _CustomField() when $default != null:
-        return $default(_that.templateId, _that.value);
-      case _:
-        return null;
-    }
-  }
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String templateId,  CustomFieldValue value)?  $default,) {final _that = this;
+switch (_that) {
+case _CustomField() when $default != null:
+return $default(_that.templateId,_that.value);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
@@ -259,156 +221,129 @@ extension CustomFieldPatterns on CustomField {
 @JsonSerializable(explicitToJson: true)
 class _CustomField implements CustomField {
   const _CustomField({required this.templateId, required this.value});
-  factory _CustomField.fromJson(Map<String, dynamic> json) =>
-      _$CustomFieldFromJson(json);
+  factory _CustomField.fromJson(Map<String, dynamic> json) => _$CustomFieldFromJson(json);
 
-  /// The ID of the template this custom field is assigned to.
-  @override
-  final String templateId;
-  @override
-  final CustomFieldValue value;
+/// The ID of the template this custom field is assigned to.
+@override final  String templateId;
+@override final  CustomFieldValue value;
 
-  /// Create a copy of CustomField
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$CustomFieldCopyWith<_CustomField> get copyWith =>
-      __$CustomFieldCopyWithImpl<_CustomField>(this, _$identity);
+/// Create a copy of CustomField
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CustomFieldCopyWith<_CustomField> get copyWith => __$CustomFieldCopyWithImpl<_CustomField>(this, _$identity);
 
-  @override
-  Map<String, dynamic> toJson() {
-    return _$CustomFieldToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$CustomFieldToJson(this, );
+}
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _CustomField &&
-            (identical(other.templateId, templateId) ||
-                other.templateId == templateId) &&
-            (identical(other.value, value) || other.value == value));
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CustomField&&(identical(other.templateId, templateId) || other.templateId == templateId)&&(identical(other.value, value) || other.value == value));
+}
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, templateId, value);
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,templateId,value);
 
-  @override
-  String toString() {
-    return 'CustomField(templateId: $templateId, value: $value)';
-  }
+@override
+String toString() {
+  return 'CustomField(templateId: $templateId, value: $value)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class _$CustomFieldCopyWith<$Res>
-    implements $CustomFieldCopyWith<$Res> {
-  factory _$CustomFieldCopyWith(
-          _CustomField value, $Res Function(_CustomField) _then) =
-      __$CustomFieldCopyWithImpl;
-  @override
-  @useResult
-  $Res call({String templateId, CustomFieldValue value});
+abstract mixin class _$CustomFieldCopyWith<$Res> implements $CustomFieldCopyWith<$Res> {
+  factory _$CustomFieldCopyWith(_CustomField value, $Res Function(_CustomField) _then) = __$CustomFieldCopyWithImpl;
+@override @useResult
+$Res call({
+ String templateId, CustomFieldValue value
+});
 
-  @override
-  $CustomFieldValueCopyWith<$Res> get value;
+
+@override $CustomFieldValueCopyWith<$Res> get value;
+
 }
-
 /// @nodoc
-class __$CustomFieldCopyWithImpl<$Res> implements _$CustomFieldCopyWith<$Res> {
+class __$CustomFieldCopyWithImpl<$Res>
+    implements _$CustomFieldCopyWith<$Res> {
   __$CustomFieldCopyWithImpl(this._self, this._then);
 
   final _CustomField _self;
   final $Res Function(_CustomField) _then;
 
-  /// Create a copy of CustomField
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? templateId = null,
-    Object? value = null,
-  }) {
-    return _then(_CustomField(
-      templateId: null == templateId
-          ? _self.templateId
-          : templateId // ignore: cast_nullable_to_non_nullable
-              as String,
-      value: null == value
-          ? _self.value
-          : value // ignore: cast_nullable_to_non_nullable
-              as CustomFieldValue,
-    ));
-  }
-
-  /// Create a copy of CustomField
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $CustomFieldValueCopyWith<$Res> get value {
-    return $CustomFieldValueCopyWith<$Res>(_self.value, (value) {
-      return _then(_self.copyWith(value: value));
-    });
-  }
+/// Create a copy of CustomField
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? templateId = null,Object? value = null,}) {
+  return _then(_CustomField(
+templateId: null == templateId ? _self.templateId : templateId // ignore: cast_nullable_to_non_nullable
+as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as CustomFieldValue,
+  ));
 }
+
+/// Create a copy of CustomField
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CustomFieldValueCopyWith<$Res> get value {
+  
+  return $CustomFieldValueCopyWith<$Res>(_self.value, (value) {
+    return _then(_self.copyWith(value: value));
+  });
+}
+}
+
 
 /// @nodoc
 mixin _$CustomFieldTemplate {
-  CustomFieldType get type;
-  String get name;
-  String get id;
 
-  /// ADDED: A list of options for a dropdown.
-  /// Must not be empty if type is [CustomFieldType.typeDropdown].
-  /// This is ignored for other types.
-  List<String>? get options;
-
-  /// Create a copy of CustomFieldTemplate
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $CustomFieldTemplateCopyWith<CustomFieldTemplate> get copyWith =>
-      _$CustomFieldTemplateCopyWithImpl<CustomFieldTemplate>(
-          this as CustomFieldTemplate, _$identity);
+ CustomFieldType get type; String get name; String get id;/// ADDED: A list of options for a dropdown.
+/// Must not be empty if type is [CustomFieldType.typeDropdown].
+/// This is ignored for other types.
+ List<String>? get options;
+/// Create a copy of CustomFieldTemplate
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$CustomFieldTemplateCopyWith<CustomFieldTemplate> get copyWith => _$CustomFieldTemplateCopyWithImpl<CustomFieldTemplate>(this as CustomFieldTemplate, _$identity);
 
   /// Serializes this CustomFieldTemplate to a JSON map.
   Map<String, dynamic> toJson();
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is CustomFieldTemplate &&
-            (identical(other.type, type) || other.type == type) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.id, id) || other.id == id) &&
-            const DeepCollectionEquality().equals(other.options, options));
-  }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, type, name, id,
-      const DeepCollectionEquality().hash(options));
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CustomFieldTemplate&&(identical(other.type, type) || other.type == type)&&(identical(other.name, name) || other.name == name)&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other.options, options));
+}
 
-  @override
-  String toString() {
-    return 'CustomFieldTemplate(type: $type, name: $name, id: $id, options: $options)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,type,name,id,const DeepCollectionEquality().hash(options));
+
+@override
+String toString() {
+  return 'CustomFieldTemplate(type: $type, name: $name, id: $id, options: $options)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $CustomFieldTemplateCopyWith<$Res> {
-  factory $CustomFieldTemplateCopyWith(
-          CustomFieldTemplate value, $Res Function(CustomFieldTemplate) _then) =
-      _$CustomFieldTemplateCopyWithImpl;
-  @useResult
-  $Res call(
-      {CustomFieldType type, String name, String id, List<String>? options});
-}
+abstract mixin class $CustomFieldTemplateCopyWith<$Res>  {
+  factory $CustomFieldTemplateCopyWith(CustomFieldTemplate value, $Res Function(CustomFieldTemplate) _then) = _$CustomFieldTemplateCopyWithImpl;
+@useResult
+$Res call({
+ CustomFieldType type, String name, String id, List<String>? options
+});
 
+
+
+
+}
 /// @nodoc
 class _$CustomFieldTemplateCopyWithImpl<$Res>
     implements $CustomFieldTemplateCopyWith<$Res> {
@@ -417,286 +352,217 @@ class _$CustomFieldTemplateCopyWithImpl<$Res>
   final CustomFieldTemplate _self;
   final $Res Function(CustomFieldTemplate) _then;
 
-  /// Create a copy of CustomFieldTemplate
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? type = null,
-    Object? name = null,
-    Object? id = null,
-    Object? options = freezed,
-  }) {
-    return _then(_self.copyWith(
-      type: null == type
-          ? _self.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as CustomFieldType,
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      options: freezed == options
-          ? _self.options
-          : options // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-    ));
-  }
+/// Create a copy of CustomFieldTemplate
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? name = null,Object? id = null,Object? options = freezed,}) {
+  return _then(_self.copyWith(
+type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as CustomFieldType,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,options: freezed == options ? _self.options : options // ignore: cast_nullable_to_non_nullable
+as List<String>?,
+  ));
 }
+
+}
+
 
 /// Adds pattern-matching-related methods to [CustomFieldTemplate].
 extension CustomFieldTemplatePatterns on CustomFieldTemplate {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>(
-    TResult Function(_CustomFieldTemplate value)? $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _CustomFieldTemplate() when $default != null:
-        return $default(_that);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _CustomFieldTemplate value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CustomFieldTemplate() when $default != null:
+return $default(_that);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>(
-    TResult Function(_CustomFieldTemplate value) $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _CustomFieldTemplate():
-        return $default(_that);
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _CustomFieldTemplate value)  $default,){
+final _that = this;
+switch (_that) {
+case _CustomFieldTemplate():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
 
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_CustomFieldTemplate value)? $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _CustomFieldTemplate() when $default != null:
-        return $default(_that);
-      case _:
-        return null;
-    }
-  }
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _CustomFieldTemplate value)?  $default,){
+final _that = this;
+switch (_that) {
+case _CustomFieldTemplate() when $default != null:
+return $default(_that);case _:
+  return null;
 
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>(
-    TResult Function(CustomFieldType type, String name, String id,
-            List<String>? options)?
-        $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _CustomFieldTemplate() when $default != null:
-        return $default(_that.type, _that.name, _that.id, _that.options);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CustomFieldType type,  String name,  String id,  List<String>? options)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CustomFieldTemplate() when $default != null:
+return $default(_that.type,_that.name,_that.id,_that.options);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>(
-    TResult Function(
-            CustomFieldType type, String name, String id, List<String>? options)
-        $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _CustomFieldTemplate():
-        return $default(_that.type, _that.name, _that.id, _that.options);
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CustomFieldType type,  String name,  String id,  List<String>? options)  $default,) {final _that = this;
+switch (_that) {
+case _CustomFieldTemplate():
+return $default(_that.type,_that.name,_that.id,_that.options);case _:
+  throw StateError('Unexpected subclass');
 
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(CustomFieldType type, String name, String id,
-            List<String>? options)?
-        $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _CustomFieldTemplate() when $default != null:
-        return $default(_that.type, _that.name, _that.id, _that.options);
-      case _:
-        return null;
-    }
-  }
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CustomFieldType type,  String name,  String id,  List<String>? options)?  $default,) {final _that = this;
+switch (_that) {
+case _CustomFieldTemplate() when $default != null:
+return $default(_that.type,_that.name,_that.id,_that.options);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 @JsonSerializable()
+
 class _CustomFieldTemplate implements CustomFieldTemplate {
-  const _CustomFieldTemplate(
-      {required this.type,
-      required this.name,
-      required this.id,
-      final List<String>? options})
-      : _options = options;
-  factory _CustomFieldTemplate.fromJson(Map<String, dynamic> json) =>
-      _$CustomFieldTemplateFromJson(json);
+  const _CustomFieldTemplate({required this.type, required this.name, required this.id, final  List<String>? options}): _options = options;
+  factory _CustomFieldTemplate.fromJson(Map<String, dynamic> json) => _$CustomFieldTemplateFromJson(json);
 
-  @override
-  final CustomFieldType type;
-  @override
-  final String name;
-  @override
-  final String id;
+@override final  CustomFieldType type;
+@override final  String name;
+@override final  String id;
+/// ADDED: A list of options for a dropdown.
+/// Must not be empty if type is [CustomFieldType.typeDropdown].
+/// This is ignored for other types.
+ final  List<String>? _options;
+/// ADDED: A list of options for a dropdown.
+/// Must not be empty if type is [CustomFieldType.typeDropdown].
+/// This is ignored for other types.
+@override List<String>? get options {
+  final value = _options;
+  if (value == null) return null;
+  if (_options is EqualUnmodifiableListView) return _options;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
 
-  /// ADDED: A list of options for a dropdown.
-  /// Must not be empty if type is [CustomFieldType.typeDropdown].
-  /// This is ignored for other types.
-  final List<String>? _options;
 
-  /// ADDED: A list of options for a dropdown.
-  /// Must not be empty if type is [CustomFieldType.typeDropdown].
-  /// This is ignored for other types.
-  @override
-  List<String>? get options {
-    final value = _options;
-    if (value == null) return null;
-    if (_options is EqualUnmodifiableListView) return _options;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
+/// Create a copy of CustomFieldTemplate
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$CustomFieldTemplateCopyWith<_CustomFieldTemplate> get copyWith => __$CustomFieldTemplateCopyWithImpl<_CustomFieldTemplate>(this, _$identity);
 
-  /// Create a copy of CustomFieldTemplate
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$CustomFieldTemplateCopyWith<_CustomFieldTemplate> get copyWith =>
-      __$CustomFieldTemplateCopyWithImpl<_CustomFieldTemplate>(
-          this, _$identity);
+@override
+Map<String, dynamic> toJson() {
+  return _$CustomFieldTemplateToJson(this, );
+}
 
-  @override
-  Map<String, dynamic> toJson() {
-    return _$CustomFieldTemplateToJson(
-      this,
-    );
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CustomFieldTemplate&&(identical(other.type, type) || other.type == type)&&(identical(other.name, name) || other.name == name)&&(identical(other.id, id) || other.id == id)&&const DeepCollectionEquality().equals(other._options, _options));
+}
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _CustomFieldTemplate &&
-            (identical(other.type, type) || other.type == type) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.id, id) || other.id == id) &&
-            const DeepCollectionEquality().equals(other._options, _options));
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,type,name,id,const DeepCollectionEquality().hash(_options));
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, type, name, id,
-      const DeepCollectionEquality().hash(_options));
+@override
+String toString() {
+  return 'CustomFieldTemplate(type: $type, name: $name, id: $id, options: $options)';
+}
 
-  @override
-  String toString() {
-    return 'CustomFieldTemplate(type: $type, name: $name, id: $id, options: $options)';
-  }
+
 }
 
 /// @nodoc
-abstract mixin class _$CustomFieldTemplateCopyWith<$Res>
-    implements $CustomFieldTemplateCopyWith<$Res> {
-  factory _$CustomFieldTemplateCopyWith(_CustomFieldTemplate value,
-          $Res Function(_CustomFieldTemplate) _then) =
-      __$CustomFieldTemplateCopyWithImpl;
-  @override
-  @useResult
-  $Res call(
-      {CustomFieldType type, String name, String id, List<String>? options});
-}
+abstract mixin class _$CustomFieldTemplateCopyWith<$Res> implements $CustomFieldTemplateCopyWith<$Res> {
+  factory _$CustomFieldTemplateCopyWith(_CustomFieldTemplate value, $Res Function(_CustomFieldTemplate) _then) = __$CustomFieldTemplateCopyWithImpl;
+@override @useResult
+$Res call({
+ CustomFieldType type, String name, String id, List<String>? options
+});
 
+
+
+
+}
 /// @nodoc
 class __$CustomFieldTemplateCopyWithImpl<$Res>
     implements _$CustomFieldTemplateCopyWith<$Res> {
@@ -705,487 +571,416 @@ class __$CustomFieldTemplateCopyWithImpl<$Res>
   final _CustomFieldTemplate _self;
   final $Res Function(_CustomFieldTemplate) _then;
 
-  /// Create a copy of CustomFieldTemplate
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? type = null,
-    Object? name = null,
-    Object? id = null,
-    Object? options = freezed,
-  }) {
-    return _then(_CustomFieldTemplate(
-      type: null == type
-          ? _self.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as CustomFieldType,
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      options: freezed == options
-          ? _self._options
-          : options // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-    ));
-  }
+/// Create a copy of CustomFieldTemplate
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? name = null,Object? id = null,Object? options = freezed,}) {
+  return _then(_CustomFieldTemplate(
+type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as CustomFieldType,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,options: freezed == options ? _self._options : options // ignore: cast_nullable_to_non_nullable
+as List<String>?,
+  ));
 }
 
-CustomFieldValue _$CustomFieldValueFromJson(Map<String, dynamic> json) {
-  switch (json['runtimeType']) {
-    case 'stringValue':
-      return StringValue.fromJson(json);
-    case 'intValue':
-      return IntValue.fromJson(json);
-    case 'dropdownValue':
-      return DropdownValue.fromJson(json);
 
-    default:
-      throw CheckedFromJsonException(json, 'runtimeType', 'CustomFieldValue',
-          'Invalid union type "${json['runtimeType']}"!');
-  }
+}
+
+CustomFieldValue _$CustomFieldValueFromJson(
+  Map<String, dynamic> json
+) {
+        switch (json['runtimeType']) {
+                  case 'stringValue':
+          return StringValue.fromJson(
+            json
+          );
+                case 'intValue':
+          return IntValue.fromJson(
+            json
+          );
+                case 'dropdownValue':
+          return DropdownValue.fromJson(
+            json
+          );
+        
+          default:
+            throw CheckedFromJsonException(
+  json,
+  'runtimeType',
+  'CustomFieldValue',
+  'Invalid union type "${json['runtimeType']}"!'
+);
+        }
+      
 }
 
 /// @nodoc
 mixin _$CustomFieldValue {
-  Object get value;
+
+ Object get value;
 
   /// Serializes this CustomFieldValue to a JSON map.
   Map<String, dynamic> toJson();
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is CustomFieldValue &&
-            const DeepCollectionEquality().equals(other.value, value));
-  }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(value));
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CustomFieldValue&&const DeepCollectionEquality().equals(other.value, value));
+}
 
-  @override
-  String toString() {
-    return 'CustomFieldValue(value: $value)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(value));
+
+@override
+String toString() {
+  return 'CustomFieldValue(value: $value)';
+}
+
+
 }
 
 /// @nodoc
-class $CustomFieldValueCopyWith<$Res> {
-  $CustomFieldValueCopyWith(
-      CustomFieldValue _, $Res Function(CustomFieldValue) __);
+class $CustomFieldValueCopyWith<$Res>  {
+$CustomFieldValueCopyWith(CustomFieldValue _, $Res Function(CustomFieldValue) __);
 }
+
 
 /// Adds pattern-matching-related methods to [CustomFieldValue].
 extension CustomFieldValuePatterns on CustomFieldValue {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(StringValue value)? stringValue,
-    TResult Function(IntValue value)? intValue,
-    TResult Function(DropdownValue value)? dropdownValue,
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case StringValue() when stringValue != null:
-        return stringValue(_that);
-      case IntValue() when intValue != null:
-        return intValue(_that);
-      case DropdownValue() when dropdownValue != null:
-        return dropdownValue(_that);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( StringValue value)?  stringValue,TResult Function( IntValue value)?  intValue,TResult Function( DropdownValue value)?  dropdownValue,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case StringValue() when stringValue != null:
+return stringValue(_that);case IntValue() when intValue != null:
+return intValue(_that);case DropdownValue() when dropdownValue != null:
+return dropdownValue(_that);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(StringValue value) stringValue,
-    required TResult Function(IntValue value) intValue,
-    required TResult Function(DropdownValue value) dropdownValue,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case StringValue():
-        return stringValue(_that);
-      case IntValue():
-        return intValue(_that);
-      case DropdownValue():
-        return dropdownValue(_that);
-    }
-  }
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( StringValue value)  stringValue,required TResult Function( IntValue value)  intValue,required TResult Function( DropdownValue value)  dropdownValue,}){
+final _that = this;
+switch (_that) {
+case StringValue():
+return stringValue(_that);case IntValue():
+return intValue(_that);case DropdownValue():
+return dropdownValue(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( StringValue value)?  stringValue,TResult? Function( IntValue value)?  intValue,TResult? Function( DropdownValue value)?  dropdownValue,}){
+final _that = this;
+switch (_that) {
+case StringValue() when stringValue != null:
+return stringValue(_that);case IntValue() when intValue != null:
+return intValue(_that);case DropdownValue() when dropdownValue != null:
+return dropdownValue(_that);case _:
+  return null;
 
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(StringValue value)? stringValue,
-    TResult? Function(IntValue value)? intValue,
-    TResult? Function(DropdownValue value)? dropdownValue,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case StringValue() when stringValue != null:
-        return stringValue(_that);
-      case IntValue() when intValue != null:
-        return intValue(_that);
-      case DropdownValue() when dropdownValue != null:
-        return dropdownValue(_that);
-      case _:
-        return null;
-    }
-  }
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String value)?  stringValue,TResult Function( int value)?  intValue,TResult Function( String value)?  dropdownValue,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case StringValue() when stringValue != null:
+return stringValue(_that.value);case IntValue() when intValue != null:
+return intValue(_that.value);case DropdownValue() when dropdownValue != null:
+return dropdownValue(_that.value);case _:
+  return orElse();
 
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String value)? stringValue,
-    TResult Function(int value)? intValue,
-    TResult Function(String value)? dropdownValue,
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case StringValue() when stringValue != null:
-        return stringValue(_that.value);
-      case IntValue() when intValue != null:
-        return intValue(_that.value);
-      case DropdownValue() when dropdownValue != null:
-        return dropdownValue(_that.value);
-      case _:
-        return orElse();
-    }
-  }
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String value)  stringValue,required TResult Function( int value)  intValue,required TResult Function( String value)  dropdownValue,}) {final _that = this;
+switch (_that) {
+case StringValue():
+return stringValue(_that.value);case IntValue():
+return intValue(_that.value);case DropdownValue():
+return dropdownValue(_that.value);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String value) stringValue,
-    required TResult Function(int value) intValue,
-    required TResult Function(String value) dropdownValue,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case StringValue():
-        return stringValue(_that.value);
-      case IntValue():
-        return intValue(_that.value);
-      case DropdownValue():
-        return dropdownValue(_that.value);
-    }
-  }
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String value)?  stringValue,TResult? Function( int value)?  intValue,TResult? Function( String value)?  dropdownValue,}) {final _that = this;
+switch (_that) {
+case StringValue() when stringValue != null:
+return stringValue(_that.value);case IntValue() when intValue != null:
+return intValue(_that.value);case DropdownValue() when dropdownValue != null:
+return dropdownValue(_that.value);case _:
+  return null;
 
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
 
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String value)? stringValue,
-    TResult? Function(int value)? intValue,
-    TResult? Function(String value)? dropdownValue,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case StringValue() when stringValue != null:
-        return stringValue(_that.value);
-      case IntValue() when intValue != null:
-        return intValue(_that.value);
-      case DropdownValue() when dropdownValue != null:
-        return dropdownValue(_that.value);
-      case _:
-        return null;
-    }
-  }
 }
 
 /// @nodoc
 @JsonSerializable()
+
 class StringValue extends CustomFieldValue {
-  const StringValue(this.value, {final String? $type})
-      : $type = $type ?? 'stringValue',
-        super._();
-  factory StringValue.fromJson(Map<String, dynamic> json) =>
-      _$StringValueFromJson(json);
+  const StringValue(this.value, {final  String? $type}): $type = $type ?? 'stringValue',super._();
+  factory StringValue.fromJson(Map<String, dynamic> json) => _$StringValueFromJson(json);
 
-  @override
-  final String value;
+@override final  String value;
 
-  @JsonKey(name: 'runtimeType')
-  final String $type;
+@JsonKey(name: 'runtimeType')
+final String $type;
 
-  /// Create a copy of CustomFieldValue
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $StringValueCopyWith<StringValue> get copyWith =>
-      _$StringValueCopyWithImpl<StringValue>(this, _$identity);
 
-  @override
-  Map<String, dynamic> toJson() {
-    return _$StringValueToJson(
-      this,
-    );
-  }
+/// Create a copy of CustomFieldValue
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StringValueCopyWith<StringValue> get copyWith => _$StringValueCopyWithImpl<StringValue>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is StringValue &&
-            (identical(other.value, value) || other.value == value));
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$StringValueToJson(this, );
+}
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, value);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StringValue&&(identical(other.value, value) || other.value == value));
+}
 
-  @override
-  String toString() {
-    return 'CustomFieldValue.stringValue(value: $value)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,value);
+
+@override
+String toString() {
+  return 'CustomFieldValue.stringValue(value: $value)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $StringValueCopyWith<$Res>
-    implements $CustomFieldValueCopyWith<$Res> {
-  factory $StringValueCopyWith(
-          StringValue value, $Res Function(StringValue) _then) =
-      _$StringValueCopyWithImpl;
-  @useResult
-  $Res call({String value});
-}
+abstract mixin class $StringValueCopyWith<$Res> implements $CustomFieldValueCopyWith<$Res> {
+  factory $StringValueCopyWith(StringValue value, $Res Function(StringValue) _then) = _$StringValueCopyWithImpl;
+@useResult
+$Res call({
+ String value
+});
 
+
+
+
+}
 /// @nodoc
-class _$StringValueCopyWithImpl<$Res> implements $StringValueCopyWith<$Res> {
+class _$StringValueCopyWithImpl<$Res>
+    implements $StringValueCopyWith<$Res> {
   _$StringValueCopyWithImpl(this._self, this._then);
 
   final StringValue _self;
   final $Res Function(StringValue) _then;
 
-  /// Create a copy of CustomFieldValue
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? value = null,
-  }) {
-    return _then(StringValue(
-      null == value
-          ? _self.value
-          : value // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+/// Create a copy of CustomFieldValue
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? value = null,}) {
+  return _then(StringValue(
+null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 /// @nodoc
 @JsonSerializable()
+
 class IntValue extends CustomFieldValue {
-  const IntValue(this.value, {final String? $type})
-      : $type = $type ?? 'intValue',
-        super._();
-  factory IntValue.fromJson(Map<String, dynamic> json) =>
-      _$IntValueFromJson(json);
+  const IntValue(this.value, {final  String? $type}): $type = $type ?? 'intValue',super._();
+  factory IntValue.fromJson(Map<String, dynamic> json) => _$IntValueFromJson(json);
 
-  @override
-  final int value;
+@override final  int value;
 
-  @JsonKey(name: 'runtimeType')
-  final String $type;
+@JsonKey(name: 'runtimeType')
+final String $type;
 
-  /// Create a copy of CustomFieldValue
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $IntValueCopyWith<IntValue> get copyWith =>
-      _$IntValueCopyWithImpl<IntValue>(this, _$identity);
 
-  @override
-  Map<String, dynamic> toJson() {
-    return _$IntValueToJson(
-      this,
-    );
-  }
+/// Create a copy of CustomFieldValue
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$IntValueCopyWith<IntValue> get copyWith => _$IntValueCopyWithImpl<IntValue>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is IntValue &&
-            (identical(other.value, value) || other.value == value));
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$IntValueToJson(this, );
+}
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, value);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is IntValue&&(identical(other.value, value) || other.value == value));
+}
 
-  @override
-  String toString() {
-    return 'CustomFieldValue.intValue(value: $value)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,value);
+
+@override
+String toString() {
+  return 'CustomFieldValue.intValue(value: $value)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $IntValueCopyWith<$Res>
-    implements $CustomFieldValueCopyWith<$Res> {
-  factory $IntValueCopyWith(IntValue value, $Res Function(IntValue) _then) =
-      _$IntValueCopyWithImpl;
-  @useResult
-  $Res call({int value});
-}
+abstract mixin class $IntValueCopyWith<$Res> implements $CustomFieldValueCopyWith<$Res> {
+  factory $IntValueCopyWith(IntValue value, $Res Function(IntValue) _then) = _$IntValueCopyWithImpl;
+@useResult
+$Res call({
+ int value
+});
 
+
+
+
+}
 /// @nodoc
-class _$IntValueCopyWithImpl<$Res> implements $IntValueCopyWith<$Res> {
+class _$IntValueCopyWithImpl<$Res>
+    implements $IntValueCopyWith<$Res> {
   _$IntValueCopyWithImpl(this._self, this._then);
 
   final IntValue _self;
   final $Res Function(IntValue) _then;
 
-  /// Create a copy of CustomFieldValue
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? value = null,
-  }) {
-    return _then(IntValue(
-      null == value
-          ? _self.value
-          : value // ignore: cast_nullable_to_non_nullable
-              as int,
-    ));
-  }
+/// Create a copy of CustomFieldValue
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? value = null,}) {
+  return _then(IntValue(
+null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
 }
 
 /// @nodoc
 @JsonSerializable()
+
 class DropdownValue extends CustomFieldValue {
-  const DropdownValue(this.value, {final String? $type})
-      : $type = $type ?? 'dropdownValue',
-        super._();
-  factory DropdownValue.fromJson(Map<String, dynamic> json) =>
-      _$DropdownValueFromJson(json);
+  const DropdownValue(this.value, {final  String? $type}): $type = $type ?? 'dropdownValue',super._();
+  factory DropdownValue.fromJson(Map<String, dynamic> json) => _$DropdownValueFromJson(json);
 
-  @override
-  final String value;
+@override final  String value;
 
-  @JsonKey(name: 'runtimeType')
-  final String $type;
+@JsonKey(name: 'runtimeType')
+final String $type;
 
-  /// Create a copy of CustomFieldValue
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $DropdownValueCopyWith<DropdownValue> get copyWith =>
-      _$DropdownValueCopyWithImpl<DropdownValue>(this, _$identity);
 
-  @override
-  Map<String, dynamic> toJson() {
-    return _$DropdownValueToJson(
-      this,
-    );
-  }
+/// Create a copy of CustomFieldValue
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DropdownValueCopyWith<DropdownValue> get copyWith => _$DropdownValueCopyWithImpl<DropdownValue>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is DropdownValue &&
-            (identical(other.value, value) || other.value == value));
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$DropdownValueToJson(this, );
+}
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, value);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DropdownValue&&(identical(other.value, value) || other.value == value));
+}
 
-  @override
-  String toString() {
-    return 'CustomFieldValue.dropdownValue(value: $value)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,value);
+
+@override
+String toString() {
+  return 'CustomFieldValue.dropdownValue(value: $value)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $DropdownValueCopyWith<$Res>
-    implements $CustomFieldValueCopyWith<$Res> {
-  factory $DropdownValueCopyWith(
-          DropdownValue value, $Res Function(DropdownValue) _then) =
-      _$DropdownValueCopyWithImpl;
-  @useResult
-  $Res call({String value});
-}
+abstract mixin class $DropdownValueCopyWith<$Res> implements $CustomFieldValueCopyWith<$Res> {
+  factory $DropdownValueCopyWith(DropdownValue value, $Res Function(DropdownValue) _then) = _$DropdownValueCopyWithImpl;
+@useResult
+$Res call({
+ String value
+});
 
+
+
+
+}
 /// @nodoc
 class _$DropdownValueCopyWithImpl<$Res>
     implements $DropdownValueCopyWith<$Res> {
@@ -1194,19 +989,16 @@ class _$DropdownValueCopyWithImpl<$Res>
   final DropdownValue _self;
   final $Res Function(DropdownValue) _then;
 
-  /// Create a copy of CustomFieldValue
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? value = null,
-  }) {
-    return _then(DropdownValue(
-      null == value
-          ? _self.value
-          : value // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+/// Create a copy of CustomFieldValue
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? value = null,}) {
+  return _then(DropdownValue(
+null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 // dart format on

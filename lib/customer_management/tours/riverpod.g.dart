@@ -47,21 +47,15 @@ class AllTourTypesFamily extends Family<AsyncValue<List<TourType>>> {
   /// A list of every tour type.
   ///
   /// Copied from [allTourTypes].
-  AllTourTypesProvider call({
-    bool showArchived = false,
-  }) {
-    return AllTourTypesProvider(
-      showArchived: showArchived,
-    );
+  AllTourTypesProvider call({bool showArchived = false}) {
+    return AllTourTypesProvider(showArchived: showArchived);
   }
 
   @override
   AllTourTypesProvider getProviderOverride(
     covariant AllTourTypesProvider provider,
   ) {
-    return call(
-      showArchived: provider.showArchived,
-    );
+    return call(showArchived: provider.showArchived);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -86,24 +80,20 @@ class AllTourTypesProvider extends AutoDisposeStreamProvider<List<TourType>> {
   /// A list of every tour type.
   ///
   /// Copied from [allTourTypes].
-  AllTourTypesProvider({
-    bool showArchived = false,
-  }) : this._internal(
-          (ref) => allTourTypes(
-            ref as AllTourTypesRef,
-            showArchived: showArchived,
-          ),
-          from: allTourTypesProvider,
-          name: r'allTourTypesProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$allTourTypesHash,
-          dependencies: AllTourTypesFamily._dependencies,
-          allTransitiveDependencies:
-              AllTourTypesFamily._allTransitiveDependencies,
-          showArchived: showArchived,
-        );
+  AllTourTypesProvider({bool showArchived = false})
+    : this._internal(
+        (ref) =>
+            allTourTypes(ref as AllTourTypesRef, showArchived: showArchived),
+        from: allTourTypesProvider,
+        name: r'allTourTypesProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$allTourTypesHash,
+        dependencies: AllTourTypesFamily._dependencies,
+        allTransitiveDependencies:
+            AllTourTypesFamily._allTransitiveDependencies,
+        showArchived: showArchived,
+      );
 
   AllTourTypesProvider._internal(
     super._createNotifier, {
@@ -190,21 +180,15 @@ class TourTypeByIdFamily extends Family<AsyncValue<TourType>> {
   /// Gets the tour type object from its id.
   ///
   /// Copied from [tourTypeById].
-  TourTypeByIdProvider call(
-    String id,
-  ) {
-    return TourTypeByIdProvider(
-      id,
-    );
+  TourTypeByIdProvider call(String id) {
+    return TourTypeByIdProvider(id);
   }
 
   @override
   TourTypeByIdProvider getProviderOverride(
     covariant TourTypeByIdProvider provider,
   ) {
-    return call(
-      provider.id,
-    );
+    return call(provider.id);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -229,24 +213,19 @@ class TourTypeByIdProvider extends AutoDisposeFutureProvider<TourType> {
   /// Gets the tour type object from its id.
   ///
   /// Copied from [tourTypeById].
-  TourTypeByIdProvider(
-    String id,
-  ) : this._internal(
-          (ref) => tourTypeById(
-            ref as TourTypeByIdRef,
-            id,
-          ),
-          from: tourTypeByIdProvider,
-          name: r'tourTypeByIdProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$tourTypeByIdHash,
-          dependencies: TourTypeByIdFamily._dependencies,
-          allTransitiveDependencies:
-              TourTypeByIdFamily._allTransitiveDependencies,
-          id: id,
-        );
+  TourTypeByIdProvider(String id)
+    : this._internal(
+        (ref) => tourTypeById(ref as TourTypeByIdRef, id),
+        from: tourTypeByIdProvider,
+        name: r'tourTypeByIdProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$tourTypeByIdHash,
+        dependencies: TourTypeByIdFamily._dependencies,
+        allTransitiveDependencies:
+            TourTypeByIdFamily._allTransitiveDependencies,
+        id: id,
+      );
 
   TourTypeByIdProvider._internal(
     super._createNotifier, {
@@ -305,7 +284,8 @@ mixin TourTypeByIdRef on AutoDisposeFutureProviderRef<TourType> {
 }
 
 class _TourTypeByIdProviderElement
-    extends AutoDisposeFutureProviderElement<TourType> with TourTypeByIdRef {
+    extends AutoDisposeFutureProviderElement<TourType>
+    with TourTypeByIdRef {
   _TourTypeByIdProviderElement(super.provider);
 
   @override
@@ -333,24 +313,15 @@ class TourTypePricingByIdFamily extends Family<AsyncValue<TourTypePricing?>> {
   /// Returns the pricing model for a specific id
   ///
   /// Copied from [tourTypePricingById].
-  TourTypePricingByIdProvider call(
-    String pricingId,
-    String tourId,
-  ) {
-    return TourTypePricingByIdProvider(
-      pricingId,
-      tourId,
-    );
+  TourTypePricingByIdProvider call(String pricingId, String tourId) {
+    return TourTypePricingByIdProvider(pricingId, tourId);
   }
 
   @override
   TourTypePricingByIdProvider getProviderOverride(
     covariant TourTypePricingByIdProvider provider,
   ) {
-    return call(
-      provider.pricingId,
-      provider.tourId,
-    );
+    return call(provider.pricingId, provider.tourId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -376,27 +347,24 @@ class TourTypePricingByIdProvider
   /// Returns the pricing model for a specific id
   ///
   /// Copied from [tourTypePricingById].
-  TourTypePricingByIdProvider(
-    String pricingId,
-    String tourId,
-  ) : this._internal(
-          (ref) => tourTypePricingById(
-            ref as TourTypePricingByIdRef,
-            pricingId,
-            tourId,
-          ),
-          from: tourTypePricingByIdProvider,
-          name: r'tourTypePricingByIdProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$tourTypePricingByIdHash,
-          dependencies: TourTypePricingByIdFamily._dependencies,
-          allTransitiveDependencies:
-              TourTypePricingByIdFamily._allTransitiveDependencies,
-          pricingId: pricingId,
-          tourId: tourId,
-        );
+  TourTypePricingByIdProvider(String pricingId, String tourId)
+    : this._internal(
+        (ref) => tourTypePricingById(
+          ref as TourTypePricingByIdRef,
+          pricingId,
+          tourId,
+        ),
+        from: tourTypePricingByIdProvider,
+        name: r'tourTypePricingByIdProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$tourTypePricingByIdHash,
+        dependencies: TourTypePricingByIdFamily._dependencies,
+        allTransitiveDependencies:
+            TourTypePricingByIdFamily._allTransitiveDependencies,
+        pricingId: pricingId,
+        tourId: tourId,
+      );
 
   TourTypePricingByIdProvider._internal(
     super._createNotifier, {
@@ -505,24 +473,15 @@ class TourTypePricesFamily extends Family<AsyncValue<List<TourTypePricing>>> {
   /// Gets the tour prices from the tour id.
   ///
   /// Copied from [TourTypePrices].
-  TourTypePricesProvider call(
-    String tourId, {
-    bool getArchived = false,
-  }) {
-    return TourTypePricesProvider(
-      tourId,
-      getArchived: getArchived,
-    );
+  TourTypePricesProvider call(String tourId, {bool getArchived = false}) {
+    return TourTypePricesProvider(tourId, getArchived: getArchived);
   }
 
   @override
   TourTypePricesProvider getProviderOverride(
     covariant TourTypePricesProvider provider,
   ) {
-    return call(
-      provider.tourId,
-      getArchived: provider.getArchived,
-    );
+    return call(provider.tourId, getArchived: provider.getArchived);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -543,30 +502,31 @@ class TourTypePricesFamily extends Family<AsyncValue<List<TourTypePricing>>> {
 /// Gets the tour prices from the tour id.
 ///
 /// Copied from [TourTypePrices].
-class TourTypePricesProvider extends AutoDisposeStreamNotifierProviderImpl<
-    TourTypePrices, List<TourTypePricing>> {
+class TourTypePricesProvider
+    extends
+        AutoDisposeStreamNotifierProviderImpl<
+          TourTypePrices,
+          List<TourTypePricing>
+        > {
   /// Gets the tour prices from the tour id.
   ///
   /// Copied from [TourTypePrices].
-  TourTypePricesProvider(
-    String tourId, {
-    bool getArchived = false,
-  }) : this._internal(
-          () => TourTypePrices()
-            ..tourId = tourId
-            ..getArchived = getArchived,
-          from: tourTypePricesProvider,
-          name: r'tourTypePricesProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$tourTypePricesHash,
-          dependencies: TourTypePricesFamily._dependencies,
-          allTransitiveDependencies:
-              TourTypePricesFamily._allTransitiveDependencies,
-          tourId: tourId,
-          getArchived: getArchived,
-        );
+  TourTypePricesProvider(String tourId, {bool getArchived = false})
+    : this._internal(
+        () => TourTypePrices()
+          ..tourId = tourId
+          ..getArchived = getArchived,
+        from: tourTypePricesProvider,
+        name: r'tourTypePricesProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$tourTypePricesHash,
+        dependencies: TourTypePricesFamily._dependencies,
+        allTransitiveDependencies:
+            TourTypePricesFamily._allTransitiveDependencies,
+        tourId: tourId,
+        getArchived: getArchived,
+      );
 
   TourTypePricesProvider._internal(
     super._createNotifier, {
@@ -586,10 +546,7 @@ class TourTypePricesProvider extends AutoDisposeStreamNotifierProviderImpl<
   Stream<List<TourTypePricing>> runNotifierBuild(
     covariant TourTypePrices notifier,
   ) {
-    return notifier.build(
-      tourId,
-      getArchived: getArchived,
-    );
+    return notifier.build(tourId, getArchived: getArchived);
   }
 
   @override
@@ -612,8 +569,11 @@ class TourTypePricesProvider extends AutoDisposeStreamNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeStreamNotifierProviderElement<TourTypePrices,
-      List<TourTypePricing>> createElement() {
+  AutoDisposeStreamNotifierProviderElement<
+    TourTypePrices,
+    List<TourTypePricing>
+  >
+  createElement() {
     return _TourTypePricesProviderElement(this);
   }
 
@@ -646,8 +606,12 @@ mixin TourTypePricesRef
 }
 
 class _TourTypePricesProviderElement
-    extends AutoDisposeStreamNotifierProviderElement<TourTypePrices,
-        List<TourTypePricing>> with TourTypePricesRef {
+    extends
+        AutoDisposeStreamNotifierProviderElement<
+          TourTypePrices,
+          List<TourTypePricing>
+        >
+    with TourTypePricesRef {
   _TourTypePricesProviderElement(super.provider);
 
   @override
@@ -655,5 +619,6 @@ class _TourTypePricesProviderElement
   @override
   bool get getArchived => (origin as TourTypePricesProvider).getArchived;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -13,14 +13,14 @@ String _$dogsWithBlockingTagsHash() =>
 @ProviderFor(dogsWithBlockingTags)
 final dogsWithBlockingTagsProvider =
     AutoDisposeStreamProvider<List<Dog>>.internal(
-  dogsWithBlockingTags,
-  name: r'dogsWithBlockingTagsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$dogsWithBlockingTagsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      dogsWithBlockingTags,
+      name: r'dogsWithBlockingTagsProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$dogsWithBlockingTagsHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element

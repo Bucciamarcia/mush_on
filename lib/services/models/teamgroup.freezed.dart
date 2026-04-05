@@ -14,435 +14,279 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$TeamGroup {
-  String get id;
 
-  /// The name of the entire group.
-  String get name;
-  @NonNullableTimestampConverter()
-  DateTime get date;
-
-  /// The distance ran in km.
-  /// Used for stats.
-  double get distance;
-  String get notes;
-  TeamGroupRunType get runType;
-
-  /// Create a copy of TeamGroup
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $TeamGroupCopyWith<TeamGroup> get copyWith =>
-      _$TeamGroupCopyWithImpl<TeamGroup>(this as TeamGroup, _$identity);
+ String get id;/// The name of the entire group.
+ String get name;@NonNullableTimestampConverter() DateTime get date;/// The distance ran in km.
+/// Used for stats.
+ double get distance; String get notes; TeamGroupRunType get runType;
+/// Create a copy of TeamGroup
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TeamGroupCopyWith<TeamGroup> get copyWith => _$TeamGroupCopyWithImpl<TeamGroup>(this as TeamGroup, _$identity);
 
   /// Serializes this TeamGroup to a JSON map.
   Map<String, dynamic> toJson();
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is TeamGroup &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.date, date) || other.date == date) &&
-            (identical(other.distance, distance) ||
-                other.distance == distance) &&
-            (identical(other.notes, notes) || other.notes == notes) &&
-            (identical(other.runType, runType) || other.runType == runType));
-  }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, date, distance, notes, runType);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TeamGroup&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.date, date) || other.date == date)&&(identical(other.distance, distance) || other.distance == distance)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.runType, runType) || other.runType == runType));
+}
 
-  @override
-  String toString() {
-    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, runType: $runType)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,name,date,distance,notes,runType);
+
+@override
+String toString() {
+  return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, runType: $runType)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $TeamGroupCopyWith<$Res> {
-  factory $TeamGroupCopyWith(TeamGroup value, $Res Function(TeamGroup) _then) =
-      _$TeamGroupCopyWithImpl;
-  @useResult
-  $Res call(
-      {String id,
-      String name,
-      @NonNullableTimestampConverter() DateTime date,
-      double distance,
-      String notes,
-      TeamGroupRunType runType});
-}
+abstract mixin class $TeamGroupCopyWith<$Res>  {
+  factory $TeamGroupCopyWith(TeamGroup value, $Res Function(TeamGroup) _then) = _$TeamGroupCopyWithImpl;
+@useResult
+$Res call({
+ String id, String name,@NonNullableTimestampConverter() DateTime date, double distance, String notes, TeamGroupRunType runType
+});
 
+
+
+
+}
 /// @nodoc
-class _$TeamGroupCopyWithImpl<$Res> implements $TeamGroupCopyWith<$Res> {
+class _$TeamGroupCopyWithImpl<$Res>
+    implements $TeamGroupCopyWith<$Res> {
   _$TeamGroupCopyWithImpl(this._self, this._then);
 
   final TeamGroup _self;
   final $Res Function(TeamGroup) _then;
 
-  /// Create a copy of TeamGroup
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? date = null,
-    Object? distance = null,
-    Object? notes = null,
-    Object? runType = null,
-  }) {
-    return _then(_self.copyWith(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      date: null == date
-          ? _self.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      distance: null == distance
-          ? _self.distance
-          : distance // ignore: cast_nullable_to_non_nullable
-              as double,
-      notes: null == notes
-          ? _self.notes
-          : notes // ignore: cast_nullable_to_non_nullable
-              as String,
-      runType: null == runType
-          ? _self.runType
-          : runType // ignore: cast_nullable_to_non_nullable
-              as TeamGroupRunType,
-    ));
-  }
+/// Create a copy of TeamGroup
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? date = null,Object? distance = null,Object? notes = null,Object? runType = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
+as DateTime,distance: null == distance ? _self.distance : distance // ignore: cast_nullable_to_non_nullable
+as double,notes: null == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
+as String,runType: null == runType ? _self.runType : runType // ignore: cast_nullable_to_non_nullable
+as TeamGroupRunType,
+  ));
 }
+
+}
+
 
 /// Adds pattern-matching-related methods to [TeamGroup].
 extension TeamGroupPatterns on TeamGroup {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>(
-    TResult Function(_TeamGroup value)? $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _TeamGroup() when $default != null:
-        return $default(_that);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _TeamGroup value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _TeamGroup() when $default != null:
+return $default(_that);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>(
-    TResult Function(_TeamGroup value) $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _TeamGroup():
-        return $default(_that);
-    }
-  }
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _TeamGroup value)  $default,){
+final _that = this;
+switch (_that) {
+case _TeamGroup():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _TeamGroup value)?  $default,){
+final _that = this;
+switch (_that) {
+case _TeamGroup() when $default != null:
+return $default(_that);case _:
+  return null;
 
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_TeamGroup value)? $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _TeamGroup() when $default != null:
-        return $default(_that);
-      case _:
-        return null;
-    }
-  }
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name, @NonNullableTimestampConverter()  DateTime date,  double distance,  String notes,  TeamGroupRunType runType)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _TeamGroup() when $default != null:
+return $default(_that.id,_that.name,_that.date,_that.distance,_that.notes,_that.runType);case _:
+  return orElse();
 
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>(
-    TResult Function(
-            String id,
-            String name,
-            @NonNullableTimestampConverter() DateTime date,
-            double distance,
-            String notes,
-            TeamGroupRunType runType)?
-        $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _TeamGroup() when $default != null:
-        return $default(_that.id, _that.name, _that.date, _that.distance,
-            _that.notes, _that.runType);
-      case _:
-        return orElse();
-    }
-  }
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name, @NonNullableTimestampConverter()  DateTime date,  double distance,  String notes,  TeamGroupRunType runType)  $default,) {final _that = this;
+switch (_that) {
+case _TeamGroup():
+return $default(_that.id,_that.name,_that.date,_that.distance,_that.notes,_that.runType);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>(
-    TResult Function(
-            String id,
-            String name,
-            @NonNullableTimestampConverter() DateTime date,
-            double distance,
-            String notes,
-            TeamGroupRunType runType)
-        $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _TeamGroup():
-        return $default(_that.id, _that.name, _that.date, _that.distance,
-            _that.notes, _that.runType);
-    }
-  }
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name, @NonNullableTimestampConverter()  DateTime date,  double distance,  String notes,  TeamGroupRunType runType)?  $default,) {final _that = this;
+switch (_that) {
+case _TeamGroup() when $default != null:
+return $default(_that.id,_that.name,_that.date,_that.distance,_that.notes,_that.runType);case _:
+  return null;
 
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
 
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(
-            String id,
-            String name,
-            @NonNullableTimestampConverter() DateTime date,
-            double distance,
-            String notes,
-            TeamGroupRunType runType)?
-        $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _TeamGroup() when $default != null:
-        return $default(_that.id, _that.name, _that.date, _that.distance,
-            _that.notes, _that.runType);
-      case _:
-        return null;
-    }
-  }
 }
 
 /// @nodoc
 
 @JsonSerializable(explicitToJson: true)
 class _TeamGroup extends TeamGroup {
-  const _TeamGroup(
-      {this.id = "",
-      this.name = "",
-      @NonNullableTimestampConverter() required this.date,
-      this.distance = 0,
-      this.notes = "",
-      this.runType = TeamGroupRunType.unknown})
-      : super._();
-  factory _TeamGroup.fromJson(Map<String, dynamic> json) =>
-      _$TeamGroupFromJson(json);
+  const _TeamGroup({this.id = "", this.name = "", @NonNullableTimestampConverter() required this.date, this.distance = 0, this.notes = "", this.runType = TeamGroupRunType.unknown}): super._();
+  factory _TeamGroup.fromJson(Map<String, dynamic> json) => _$TeamGroupFromJson(json);
 
-  @override
-  @JsonKey()
-  final String id;
+@override@JsonKey() final  String id;
+/// The name of the entire group.
+@override@JsonKey() final  String name;
+@override@NonNullableTimestampConverter() final  DateTime date;
+/// The distance ran in km.
+/// Used for stats.
+@override@JsonKey() final  double distance;
+@override@JsonKey() final  String notes;
+@override@JsonKey() final  TeamGroupRunType runType;
 
-  /// The name of the entire group.
-  @override
-  @JsonKey()
-  final String name;
-  @override
-  @NonNullableTimestampConverter()
-  final DateTime date;
+/// Create a copy of TeamGroup
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$TeamGroupCopyWith<_TeamGroup> get copyWith => __$TeamGroupCopyWithImpl<_TeamGroup>(this, _$identity);
 
-  /// The distance ran in km.
-  /// Used for stats.
-  @override
-  @JsonKey()
-  final double distance;
-  @override
-  @JsonKey()
-  final String notes;
-  @override
-  @JsonKey()
-  final TeamGroupRunType runType;
+@override
+Map<String, dynamic> toJson() {
+  return _$TeamGroupToJson(this, );
+}
 
-  /// Create a copy of TeamGroup
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$TeamGroupCopyWith<_TeamGroup> get copyWith =>
-      __$TeamGroupCopyWithImpl<_TeamGroup>(this, _$identity);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TeamGroup&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.date, date) || other.date == date)&&(identical(other.distance, distance) || other.distance == distance)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.runType, runType) || other.runType == runType));
+}
 
-  @override
-  Map<String, dynamic> toJson() {
-    return _$TeamGroupToJson(
-      this,
-    );
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,name,date,distance,notes,runType);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _TeamGroup &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.date, date) || other.date == date) &&
-            (identical(other.distance, distance) ||
-                other.distance == distance) &&
-            (identical(other.notes, notes) || other.notes == notes) &&
-            (identical(other.runType, runType) || other.runType == runType));
-  }
+@override
+String toString() {
+  return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, runType: $runType)';
+}
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, date, distance, notes, runType);
 
-  @override
-  String toString() {
-    return 'TeamGroup(id: $id, name: $name, date: $date, distance: $distance, notes: $notes, runType: $runType)';
-  }
 }
 
 /// @nodoc
-abstract mixin class _$TeamGroupCopyWith<$Res>
-    implements $TeamGroupCopyWith<$Res> {
-  factory _$TeamGroupCopyWith(
-          _TeamGroup value, $Res Function(_TeamGroup) _then) =
-      __$TeamGroupCopyWithImpl;
-  @override
-  @useResult
-  $Res call(
-      {String id,
-      String name,
-      @NonNullableTimestampConverter() DateTime date,
-      double distance,
-      String notes,
-      TeamGroupRunType runType});
-}
+abstract mixin class _$TeamGroupCopyWith<$Res> implements $TeamGroupCopyWith<$Res> {
+  factory _$TeamGroupCopyWith(_TeamGroup value, $Res Function(_TeamGroup) _then) = __$TeamGroupCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String name,@NonNullableTimestampConverter() DateTime date, double distance, String notes, TeamGroupRunType runType
+});
 
+
+
+
+}
 /// @nodoc
-class __$TeamGroupCopyWithImpl<$Res> implements _$TeamGroupCopyWith<$Res> {
+class __$TeamGroupCopyWithImpl<$Res>
+    implements _$TeamGroupCopyWith<$Res> {
   __$TeamGroupCopyWithImpl(this._self, this._then);
 
   final _TeamGroup _self;
   final $Res Function(_TeamGroup) _then;
 
-  /// Create a copy of TeamGroup
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? date = null,
-    Object? distance = null,
-    Object? notes = null,
-    Object? runType = null,
-  }) {
-    return _then(_TeamGroup(
-      id: null == id
-          ? _self.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      date: null == date
-          ? _self.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      distance: null == distance
-          ? _self.distance
-          : distance // ignore: cast_nullable_to_non_nullable
-              as double,
-      notes: null == notes
-          ? _self.notes
-          : notes // ignore: cast_nullable_to_non_nullable
-              as String,
-      runType: null == runType
-          ? _self.runType
-          : runType // ignore: cast_nullable_to_non_nullable
-              as TeamGroupRunType,
-    ));
-  }
+/// Create a copy of TeamGroup
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? date = null,Object? distance = null,Object? notes = null,Object? runType = null,}) {
+  return _then(_TeamGroup(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
+as DateTime,distance: null == distance ? _self.distance : distance // ignore: cast_nullable_to_non_nullable
+as double,notes: null == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
+as String,runType: null == runType ? _self.runType : runType // ignore: cast_nullable_to_non_nullable
+as TeamGroupRunType,
+  ));
+}
+
+
 }
 
 // dart format on

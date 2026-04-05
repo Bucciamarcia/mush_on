@@ -7,47 +7,50 @@ part of 'dog.dart';
 // **************************************************************************
 
 _Dog _$DogFromJson(Map<String, dynamic> json) => _Dog(
-      name: json['name'] as String? ?? "",
-      sex: $enumDecodeNullable(_$DogSexEnumMap, json['sex']) ?? DogSex.none,
-      id: json['id'] as String? ?? "",
-      positions: json['positions'] == null
-          ? const DogPositions()
-          : DogPositions.fromJson(json['positions'] as Map<String, dynamic>),
-      tags: (json['tags'] as List<dynamic>?)
-              ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      customFields: (json['customFields'] as List<dynamic>?)
-              ?.map((e) => CustomField.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      notes: (json['notes'] as List<dynamic>?)
-              ?.map((e) => SingleDogNote.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      distanceWarnings: (json['distanceWarnings'] as List<dynamic>?)
-              ?.map((e) => DistanceWarning.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
-      fatherId: json['fatherId'] as String?,
-      motherId: json['motherId'] as String?,
-      birth: const TimestampConverter().fromJson(json['birth'] as Timestamp?),
-    );
+  name: json['name'] as String? ?? "",
+  sex: $enumDecodeNullable(_$DogSexEnumMap, json['sex']) ?? DogSex.none,
+  id: json['id'] as String? ?? "",
+  positions: json['positions'] == null
+      ? const DogPositions()
+      : DogPositions.fromJson(json['positions'] as Map<String, dynamic>),
+  tags:
+      (json['tags'] as List<dynamic>?)
+          ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  customFields:
+      (json['customFields'] as List<dynamic>?)
+          ?.map((e) => CustomField.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  notes:
+      (json['notes'] as List<dynamic>?)
+          ?.map((e) => SingleDogNote.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  distanceWarnings:
+      (json['distanceWarnings'] as List<dynamic>?)
+          ?.map((e) => DistanceWarning.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  fatherId: json['fatherId'] as String?,
+  motherId: json['motherId'] as String?,
+  birth: const TimestampConverter().fromJson(json['birth'] as Timestamp?),
+);
 
 Map<String, dynamic> _$DogToJson(_Dog instance) => <String, dynamic>{
-      'name': instance.name,
-      'sex': _$DogSexEnumMap[instance.sex]!,
-      'id': instance.id,
-      'positions': instance.positions.toJson(),
-      'tags': instance.tags.map((e) => e.toJson()).toList(),
-      'customFields': instance.customFields.map((e) => e.toJson()).toList(),
-      'notes': instance.notes.map((e) => e.toJson()).toList(),
-      'distanceWarnings':
-          instance.distanceWarnings.map((e) => e.toJson()).toList(),
-      'fatherId': instance.fatherId,
-      'motherId': instance.motherId,
-      'birth': const TimestampConverter().toJson(instance.birth),
-    };
+  'name': instance.name,
+  'sex': _$DogSexEnumMap[instance.sex]!,
+  'id': instance.id,
+  'positions': instance.positions.toJson(),
+  'tags': instance.tags.map((e) => e.toJson()).toList(),
+  'customFields': instance.customFields.map((e) => e.toJson()).toList(),
+  'notes': instance.notes.map((e) => e.toJson()).toList(),
+  'distanceWarnings': instance.distanceWarnings.map((e) => e.toJson()).toList(),
+  'fatherId': instance.fatherId,
+  'motherId': instance.motherId,
+  'birth': const TimestampConverter().toJson(instance.birth),
+};
 
 const _$DogSexEnumMap = {
   DogSex.male: 'male',
@@ -72,24 +75,23 @@ Map<String, dynamic> _$DogPositionsToJson(_DogPositions instance) =>
     };
 
 _Tag _$TagFromJson(Map<String, dynamic> json) => _Tag(
-      id: json['id'] as String? ?? "",
-      name: json['name'] as String? ?? "",
-      preventFromRun: json['preventFromRun'] as bool? ?? false,
-      showInTeamBuilder: json['showInTeamBuilder'] as bool? ?? false,
-      created: DateTime.parse(json['created'] as String),
-      color: json['color'] == null
-          ? Colors.green
-          : const ColorConverter().fromJson((json['color'] as num).toInt()),
-      expired:
-          const TimestampConverter().fromJson(json['expired'] as Timestamp?),
-    );
+  id: json['id'] as String? ?? "",
+  name: json['name'] as String? ?? "",
+  preventFromRun: json['preventFromRun'] as bool? ?? false,
+  showInTeamBuilder: json['showInTeamBuilder'] as bool? ?? false,
+  created: DateTime.parse(json['created'] as String),
+  color: json['color'] == null
+      ? Colors.green
+      : const ColorConverter().fromJson((json['color'] as num).toInt()),
+  expired: const TimestampConverter().fromJson(json['expired'] as Timestamp?),
+);
 
 Map<String, dynamic> _$TagToJson(_Tag instance) => <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'preventFromRun': instance.preventFromRun,
-      'showInTeamBuilder': instance.showInTeamBuilder,
-      'created': instance.created.toIso8601String(),
-      'color': const ColorConverter().toJson(instance.color),
-      'expired': const TimestampConverter().toJson(instance.expired),
-    };
+  'id': instance.id,
+  'name': instance.name,
+  'preventFromRun': instance.preventFromRun,
+  'showInTeamBuilder': instance.showInTeamBuilder,
+  'created': instance.created.toIso8601String(),
+  'color': const ColorConverter().toJson(instance.color),
+  'expired': const TimestampConverter().toJson(instance.expired),
+};

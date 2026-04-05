@@ -12,14 +12,14 @@ String _$filterConditionsHash() => r'ca67a63f34fd9109cab63ee918b0455ceeaf906a';
 @ProviderFor(FilterConditions)
 final filterConditionsProvider =
     AutoDisposeNotifierProvider<FilterConditions, ConditionsGroup>.internal(
-  FilterConditions.new,
-  name: r'filterConditionsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$filterConditionsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      FilterConditions.new,
+      name: r'filterConditionsProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$filterConditionsHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$FilterConditions = AutoDisposeNotifier<ConditionsGroup>;
 // ignore_for_file: type=lint

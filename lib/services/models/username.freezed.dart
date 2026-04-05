@@ -14,416 +14,275 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$UserName {
-  @TimestampConverter()
-  DateTime? get lastLogin;
-  String? get account;
-  String get uid;
-  String get email;
-  String get name;
 
-  /// Used to restrict access to sensitive info.
-  UserLevel get userLevel;
-
-  /// Create a copy of UserName
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $UserNameCopyWith<UserName> get copyWith =>
-      _$UserNameCopyWithImpl<UserName>(this as UserName, _$identity);
+@TimestampConverter() DateTime? get lastLogin; String? get account; String get uid; String get email; String get name;/// Used to restrict access to sensitive info.
+ UserLevel get userLevel;
+/// Create a copy of UserName
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$UserNameCopyWith<UserName> get copyWith => _$UserNameCopyWithImpl<UserName>(this as UserName, _$identity);
 
   /// Serializes this UserName to a JSON map.
   Map<String, dynamic> toJson();
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is UserName &&
-            (identical(other.lastLogin, lastLogin) ||
-                other.lastLogin == lastLogin) &&
-            (identical(other.account, account) || other.account == account) &&
-            (identical(other.uid, uid) || other.uid == uid) &&
-            (identical(other.email, email) || other.email == email) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.userLevel, userLevel) ||
-                other.userLevel == userLevel));
-  }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, lastLogin, account, uid, email, name, userLevel);
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserName&&(identical(other.lastLogin, lastLogin) || other.lastLogin == lastLogin)&&(identical(other.account, account) || other.account == account)&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.email, email) || other.email == email)&&(identical(other.name, name) || other.name == name)&&(identical(other.userLevel, userLevel) || other.userLevel == userLevel));
+}
 
-  @override
-  String toString() {
-    return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email, name: $name, userLevel: $userLevel)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,lastLogin,account,uid,email,name,userLevel);
+
+@override
+String toString() {
+  return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email, name: $name, userLevel: $userLevel)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $UserNameCopyWith<$Res> {
-  factory $UserNameCopyWith(UserName value, $Res Function(UserName) _then) =
-      _$UserNameCopyWithImpl;
-  @useResult
-  $Res call(
-      {@TimestampConverter() DateTime? lastLogin,
-      String? account,
-      String uid,
-      String email,
-      String name,
-      UserLevel userLevel});
-}
+abstract mixin class $UserNameCopyWith<$Res>  {
+  factory $UserNameCopyWith(UserName value, $Res Function(UserName) _then) = _$UserNameCopyWithImpl;
+@useResult
+$Res call({
+@TimestampConverter() DateTime? lastLogin, String? account, String uid, String email, String name, UserLevel userLevel
+});
 
+
+
+
+}
 /// @nodoc
-class _$UserNameCopyWithImpl<$Res> implements $UserNameCopyWith<$Res> {
+class _$UserNameCopyWithImpl<$Res>
+    implements $UserNameCopyWith<$Res> {
   _$UserNameCopyWithImpl(this._self, this._then);
 
   final UserName _self;
   final $Res Function(UserName) _then;
 
-  /// Create a copy of UserName
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? lastLogin = freezed,
-    Object? account = freezed,
-    Object? uid = null,
-    Object? email = null,
-    Object? name = null,
-    Object? userLevel = null,
-  }) {
-    return _then(_self.copyWith(
-      lastLogin: freezed == lastLogin
-          ? _self.lastLogin
-          : lastLogin // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      account: freezed == account
-          ? _self.account
-          : account // ignore: cast_nullable_to_non_nullable
-              as String?,
-      uid: null == uid
-          ? _self.uid
-          : uid // ignore: cast_nullable_to_non_nullable
-              as String,
-      email: null == email
-          ? _self.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      userLevel: null == userLevel
-          ? _self.userLevel
-          : userLevel // ignore: cast_nullable_to_non_nullable
-              as UserLevel,
-    ));
-  }
+/// Create a copy of UserName
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? lastLogin = freezed,Object? account = freezed,Object? uid = null,Object? email = null,Object? name = null,Object? userLevel = null,}) {
+  return _then(_self.copyWith(
+lastLogin: freezed == lastLogin ? _self.lastLogin : lastLogin // ignore: cast_nullable_to_non_nullable
+as DateTime?,account: freezed == account ? _self.account : account // ignore: cast_nullable_to_non_nullable
+as String?,uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
+as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,userLevel: null == userLevel ? _self.userLevel : userLevel // ignore: cast_nullable_to_non_nullable
+as UserLevel,
+  ));
 }
+
+}
+
 
 /// Adds pattern-matching-related methods to [UserName].
 extension UserNamePatterns on UserName {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>(
-    TResult Function(_UserName value)? $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _UserName() when $default != null:
-        return $default(_that);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _UserName value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _UserName() when $default != null:
+return $default(_that);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>(
-    TResult Function(_UserName value) $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _UserName():
-        return $default(_that);
-    }
-  }
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _UserName value)  $default,){
+final _that = this;
+switch (_that) {
+case _UserName():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _UserName value)?  $default,){
+final _that = this;
+switch (_that) {
+case _UserName() when $default != null:
+return $default(_that);case _:
+  return null;
 
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_UserName value)? $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _UserName() when $default != null:
-        return $default(_that);
-      case _:
-        return null;
-    }
-  }
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@TimestampConverter()  DateTime? lastLogin,  String? account,  String uid,  String email,  String name,  UserLevel userLevel)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _UserName() when $default != null:
+return $default(_that.lastLogin,_that.account,_that.uid,_that.email,_that.name,_that.userLevel);case _:
+  return orElse();
 
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>(
-    TResult Function(@TimestampConverter() DateTime? lastLogin, String? account,
-            String uid, String email, String name, UserLevel userLevel)?
-        $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _UserName() when $default != null:
-        return $default(_that.lastLogin, _that.account, _that.uid, _that.email,
-            _that.name, _that.userLevel);
-      case _:
-        return orElse();
-    }
-  }
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@TimestampConverter()  DateTime? lastLogin,  String? account,  String uid,  String email,  String name,  UserLevel userLevel)  $default,) {final _that = this;
+switch (_that) {
+case _UserName():
+return $default(_that.lastLogin,_that.account,_that.uid,_that.email,_that.name,_that.userLevel);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>(
-    TResult Function(@TimestampConverter() DateTime? lastLogin, String? account,
-            String uid, String email, String name, UserLevel userLevel)
-        $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _UserName():
-        return $default(_that.lastLogin, _that.account, _that.uid, _that.email,
-            _that.name, _that.userLevel);
-    }
-  }
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@TimestampConverter()  DateTime? lastLogin,  String? account,  String uid,  String email,  String name,  UserLevel userLevel)?  $default,) {final _that = this;
+switch (_that) {
+case _UserName() when $default != null:
+return $default(_that.lastLogin,_that.account,_that.uid,_that.email,_that.name,_that.userLevel);case _:
+  return null;
 
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
 
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(
-            @TimestampConverter() DateTime? lastLogin,
-            String? account,
-            String uid,
-            String email,
-            String name,
-            UserLevel userLevel)?
-        $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _UserName() when $default != null:
-        return $default(_that.lastLogin, _that.account, _that.uid, _that.email,
-            _that.name, _that.userLevel);
-      case _:
-        return null;
-    }
-  }
 }
 
 /// @nodoc
 @JsonSerializable()
+
 class _UserName extends UserName {
-  const _UserName(
-      {@TimestampConverter() this.lastLogin,
-      this.account,
-      required this.uid,
-      required this.email,
-      this.name = "",
-      this.userLevel = UserLevel.handler})
-      : super._();
-  factory _UserName.fromJson(Map<String, dynamic> json) =>
-      _$UserNameFromJson(json);
+  const _UserName({@TimestampConverter() this.lastLogin, this.account, required this.uid, required this.email, this.name = "", this.userLevel = UserLevel.handler}): super._();
+  factory _UserName.fromJson(Map<String, dynamic> json) => _$UserNameFromJson(json);
 
-  @override
-  @TimestampConverter()
-  final DateTime? lastLogin;
-  @override
-  final String? account;
-  @override
-  final String uid;
-  @override
-  final String email;
-  @override
-  @JsonKey()
-  final String name;
+@override@TimestampConverter() final  DateTime? lastLogin;
+@override final  String? account;
+@override final  String uid;
+@override final  String email;
+@override@JsonKey() final  String name;
+/// Used to restrict access to sensitive info.
+@override@JsonKey() final  UserLevel userLevel;
 
-  /// Used to restrict access to sensitive info.
-  @override
-  @JsonKey()
-  final UserLevel userLevel;
+/// Create a copy of UserName
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UserNameCopyWith<_UserName> get copyWith => __$UserNameCopyWithImpl<_UserName>(this, _$identity);
 
-  /// Create a copy of UserName
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$UserNameCopyWith<_UserName> get copyWith =>
-      __$UserNameCopyWithImpl<_UserName>(this, _$identity);
+@override
+Map<String, dynamic> toJson() {
+  return _$UserNameToJson(this, );
+}
 
-  @override
-  Map<String, dynamic> toJson() {
-    return _$UserNameToJson(
-      this,
-    );
-  }
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserName&&(identical(other.lastLogin, lastLogin) || other.lastLogin == lastLogin)&&(identical(other.account, account) || other.account == account)&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.email, email) || other.email == email)&&(identical(other.name, name) || other.name == name)&&(identical(other.userLevel, userLevel) || other.userLevel == userLevel));
+}
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _UserName &&
-            (identical(other.lastLogin, lastLogin) ||
-                other.lastLogin == lastLogin) &&
-            (identical(other.account, account) || other.account == account) &&
-            (identical(other.uid, uid) || other.uid == uid) &&
-            (identical(other.email, email) || other.email == email) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.userLevel, userLevel) ||
-                other.userLevel == userLevel));
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,lastLogin,account,uid,email,name,userLevel);
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, lastLogin, account, uid, email, name, userLevel);
+@override
+String toString() {
+  return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email, name: $name, userLevel: $userLevel)';
+}
 
-  @override
-  String toString() {
-    return 'UserName(lastLogin: $lastLogin, account: $account, uid: $uid, email: $email, name: $name, userLevel: $userLevel)';
-  }
+
 }
 
 /// @nodoc
-abstract mixin class _$UserNameCopyWith<$Res>
-    implements $UserNameCopyWith<$Res> {
-  factory _$UserNameCopyWith(_UserName value, $Res Function(_UserName) _then) =
-      __$UserNameCopyWithImpl;
-  @override
-  @useResult
-  $Res call(
-      {@TimestampConverter() DateTime? lastLogin,
-      String? account,
-      String uid,
-      String email,
-      String name,
-      UserLevel userLevel});
-}
+abstract mixin class _$UserNameCopyWith<$Res> implements $UserNameCopyWith<$Res> {
+  factory _$UserNameCopyWith(_UserName value, $Res Function(_UserName) _then) = __$UserNameCopyWithImpl;
+@override @useResult
+$Res call({
+@TimestampConverter() DateTime? lastLogin, String? account, String uid, String email, String name, UserLevel userLevel
+});
 
+
+
+
+}
 /// @nodoc
-class __$UserNameCopyWithImpl<$Res> implements _$UserNameCopyWith<$Res> {
+class __$UserNameCopyWithImpl<$Res>
+    implements _$UserNameCopyWith<$Res> {
   __$UserNameCopyWithImpl(this._self, this._then);
 
   final _UserName _self;
   final $Res Function(_UserName) _then;
 
-  /// Create a copy of UserName
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? lastLogin = freezed,
-    Object? account = freezed,
-    Object? uid = null,
-    Object? email = null,
-    Object? name = null,
-    Object? userLevel = null,
-  }) {
-    return _then(_UserName(
-      lastLogin: freezed == lastLogin
-          ? _self.lastLogin
-          : lastLogin // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      account: freezed == account
-          ? _self.account
-          : account // ignore: cast_nullable_to_non_nullable
-              as String?,
-      uid: null == uid
-          ? _self.uid
-          : uid // ignore: cast_nullable_to_non_nullable
-              as String,
-      email: null == email
-          ? _self.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      name: null == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      userLevel: null == userLevel
-          ? _self.userLevel
-          : userLevel // ignore: cast_nullable_to_non_nullable
-              as UserLevel,
-    ));
-  }
+/// Create a copy of UserName
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? lastLogin = freezed,Object? account = freezed,Object? uid = null,Object? email = null,Object? name = null,Object? userLevel = null,}) {
+  return _then(_UserName(
+lastLogin: freezed == lastLogin ? _self.lastLogin : lastLogin // ignore: cast_nullable_to_non_nullable
+as DateTime?,account: freezed == account ? _self.account : account // ignore: cast_nullable_to_non_nullable
+as String?,uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
+as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,userLevel: null == userLevel ? _self.userLevel : userLevel // ignore: cast_nullable_to_non_nullable
+as UserLevel,
+  ));
+}
+
+
 }
 
 // dart format on
