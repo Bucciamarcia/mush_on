@@ -10,7 +10,7 @@ import 'package:mush_on/settings/stripe/stripe_models.dart';
 class EmailRemindersSettings extends ConsumerWidget {
   const EmailRemindersSettings({super.key});
 
-  void _save(List<BookingReminder> reminders, String account) async {
+  Future<void> _save(List<BookingReminder> reminders, String account) async {
     final db = FirebaseFirestore.instance;
     final path = "accounts/$account/data/bookingManager";
     final ref = db.doc(path);
@@ -31,9 +31,9 @@ class EmailRemindersSettings extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Seed from the already-loaded value (listen only fires on subsequent changes).
-    ref
-        .watch(bookingManagerKennelInfoProvider(account: null))
-        .whenData((kennelInfo) {
+    ref.watch(bookingManagerKennelInfoProvider(account: null)).whenData((
+      kennelInfo,
+    ) {
       ref
           .read(tempBookingRemindersProvider.notifier)
           .setInitialReminders(kennelInfo?.bookingReminders ?? []);
@@ -210,7 +210,29 @@ class EmailRemindersSettings extends ConsumerWidget {
                     );
                     return;
                   }
-                  _save(reminders, account);
+                  try {
+                    await _save(reminders, account);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationSnackbar(
+                          context,
+                          "Email reminders saved successfully",
+                        ),
+                      );
+                    }
+                    ref
+                        .read(isBookingRemindersEditedProvider.notifier)
+                        .setEdited(false);
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(
+                          context,
+                          "Error: couldn't save reminders",
+                        ),
+                      );
+                    }
+                  }
                 },
                 icon: const Icon(Icons.save_outlined),
                 label: const Text("Save changes"),
