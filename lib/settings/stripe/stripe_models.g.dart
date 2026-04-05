@@ -86,7 +86,10 @@ Map<String, dynamic> _$BookingManagerKennelInfoToJson(
 };
 
 _BookingReminder _$BookingReminderFromJson(Map<String, dynamic> json) =>
-    _BookingReminder(daysBefore: (json['daysBefore'] as num).toInt());
+    _BookingReminder(
+      uid: json['uid'] as String,
+      daysBefore: (json['daysBefore'] as num).toInt(),
+    );
 
 Map<String, dynamic> _$BookingReminderToJson(_BookingReminder instance) =>
-    <String, dynamic>{'daysBefore': instance.daysBefore};
+    <String, dynamic>{'uid': instance.uid, 'daysBefore': instance.daysBefore};

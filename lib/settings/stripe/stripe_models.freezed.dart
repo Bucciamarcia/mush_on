@@ -859,7 +859,8 @@ as double,
 /// @nodoc
 mixin _$BookingReminder {
 
-/// How many days before to send the reminder.
+/// UID of the reminder.
+ String get uid;/// How many days before to send the reminder.
 /// 0 is the day of the trip, 1 is 1 day before etc.
  int get daysBefore;
 /// Create a copy of BookingReminder
@@ -874,16 +875,16 @@ $BookingReminderCopyWith<BookingReminder> get copyWith => _$BookingReminderCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookingReminder&&(identical(other.daysBefore, daysBefore) || other.daysBefore == daysBefore));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookingReminder&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.daysBefore, daysBefore) || other.daysBefore == daysBefore));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,daysBefore);
+int get hashCode => Object.hash(runtimeType,uid,daysBefore);
 
 @override
 String toString() {
-  return 'BookingReminder(daysBefore: $daysBefore)';
+  return 'BookingReminder(uid: $uid, daysBefore: $daysBefore)';
 }
 
 
@@ -894,7 +895,7 @@ abstract mixin class $BookingReminderCopyWith<$Res>  {
   factory $BookingReminderCopyWith(BookingReminder value, $Res Function(BookingReminder) _then) = _$BookingReminderCopyWithImpl;
 @useResult
 $Res call({
- int daysBefore
+ String uid, int daysBefore
 });
 
 
@@ -911,9 +912,10 @@ class _$BookingReminderCopyWithImpl<$Res>
 
 /// Create a copy of BookingReminder
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? daysBefore = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? uid = null,Object? daysBefore = null,}) {
   return _then(_self.copyWith(
-daysBefore: null == daysBefore ? _self.daysBefore : daysBefore // ignore: cast_nullable_to_non_nullable
+uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
+as String,daysBefore: null == daysBefore ? _self.daysBefore : daysBefore // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -996,10 +998,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int daysBefore)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uid,  int daysBefore)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BookingReminder() when $default != null:
-return $default(_that.daysBefore);case _:
+return $default(_that.uid,_that.daysBefore);case _:
   return orElse();
 
 }
@@ -1017,10 +1019,10 @@ return $default(_that.daysBefore);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int daysBefore)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uid,  int daysBefore)  $default,) {final _that = this;
 switch (_that) {
 case _BookingReminder():
-return $default(_that.daysBefore);}
+return $default(_that.uid,_that.daysBefore);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -1034,10 +1036,10 @@ return $default(_that.daysBefore);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int daysBefore)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uid,  int daysBefore)?  $default,) {final _that = this;
 switch (_that) {
 case _BookingReminder() when $default != null:
-return $default(_that.daysBefore);case _:
+return $default(_that.uid,_that.daysBefore);case _:
   return null;
 
 }
@@ -1049,9 +1051,11 @@ return $default(_that.daysBefore);case _:
 @JsonSerializable()
 
 class _BookingReminder implements BookingReminder {
-  const _BookingReminder({required this.daysBefore});
+  const _BookingReminder({required this.uid, required this.daysBefore});
   factory _BookingReminder.fromJson(Map<String, dynamic> json) => _$BookingReminderFromJson(json);
 
+/// UID of the reminder.
+@override final  String uid;
 /// How many days before to send the reminder.
 /// 0 is the day of the trip, 1 is 1 day before etc.
 @override final  int daysBefore;
@@ -1069,16 +1073,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookingReminder&&(identical(other.daysBefore, daysBefore) || other.daysBefore == daysBefore));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookingReminder&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.daysBefore, daysBefore) || other.daysBefore == daysBefore));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,daysBefore);
+int get hashCode => Object.hash(runtimeType,uid,daysBefore);
 
 @override
 String toString() {
-  return 'BookingReminder(daysBefore: $daysBefore)';
+  return 'BookingReminder(uid: $uid, daysBefore: $daysBefore)';
 }
 
 
@@ -1089,7 +1093,7 @@ abstract mixin class _$BookingReminderCopyWith<$Res> implements $BookingReminder
   factory _$BookingReminderCopyWith(_BookingReminder value, $Res Function(_BookingReminder) _then) = __$BookingReminderCopyWithImpl;
 @override @useResult
 $Res call({
- int daysBefore
+ String uid, int daysBefore
 });
 
 
@@ -1106,9 +1110,10 @@ class __$BookingReminderCopyWithImpl<$Res>
 
 /// Create a copy of BookingReminder
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? daysBefore = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? uid = null,Object? daysBefore = null,}) {
   return _then(_BookingReminder(
-daysBefore: null == daysBefore ? _self.daysBefore : daysBefore // ignore: cast_nullable_to_non_nullable
+uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
+as String,daysBefore: null == daysBefore ? _self.daysBefore : daysBefore // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

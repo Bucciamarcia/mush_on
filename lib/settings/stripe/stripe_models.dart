@@ -69,6 +69,9 @@ sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
 @freezed
 sealed class BookingReminder with _$BookingReminder {
   const factory BookingReminder({
+    /// UID of the reminder.
+    required String uid,
+
     /// How many days before to send the reminder.
     /// 0 is the day of the trip, 1 is 1 day before etc.
     required int daysBefore,

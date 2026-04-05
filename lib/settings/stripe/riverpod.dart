@@ -38,7 +38,8 @@ class KennelImage extends _$KennelImage {
     logger.debug("Fetching kennel image for account: $account");
     final data = await StripeRepository(account: account).getKennelImage();
     logger.debug(
-        "KennelImage provider returning data: ${data?.length ?? 0} bytes");
+      "KennelImage provider returning data: ${data?.length ?? 0} bytes",
+    );
     return data;
   }
 
@@ -48,8 +49,10 @@ class KennelImage extends _$KennelImage {
 }
 
 @riverpod
-Stream<BookingManagerKennelInfo?> bookingManagerKennelInfo(Ref ref,
-    {String? account}) async* {
+Stream<BookingManagerKennelInfo?> bookingManagerKennelInfo(
+  Ref ref, {
+  String? account,
+}) async* {
   account ??= await ref.watch(accountProvider.future);
   final path = "accounts/$account/data/bookingManager";
   final db = FirebaseFirestore.instance;
@@ -81,11 +84,12 @@ class TempCustomerFields extends _$TempCustomerFields {
     state = [
       ...state,
       CustomerCustomField(
-          id: const Uuid().v4(),
-          type: CustomerCustomFieldType.text,
-          name: '',
-          description: '',
-          isRequired: false)
+        id: const Uuid().v4(),
+        type: CustomerCustomFieldType.text,
+        name: '',
+        description: '',
+        isRequired: false,
+      ),
     ];
   }
 
@@ -133,11 +137,12 @@ class TempBookingFields extends _$TempBookingFields {
     state = [
       ...state,
       BookingCustomField(
-          id: const Uuid().v4(),
-          type: CustomerCustomFieldType.text,
-          name: '',
-          description: '',
-          isRequired: false)
+        id: const Uuid().v4(),
+        type: CustomerCustomFieldType.text,
+        name: '',
+        description: '',
+        isRequired: false,
+      ),
     ];
   }
 
@@ -182,7 +187,7 @@ class TempBookingReminders extends _$TempBookingReminders {
   }
 
   void addReminder() {
-    state = [...state, const BookingReminder(daysBefore: 1)];
+    state = [...state, BookingReminder(daysBefore: 1, uid: const Uuid().v4())];
   }
 
   void removeReminder(int index) {

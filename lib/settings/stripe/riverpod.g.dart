@@ -427,7 +427,7 @@ final isBookingCustomFieldsEditedProvider =
 
 typedef _$IsBookingCustomFieldsEdited = AutoDisposeNotifier<bool>;
 String _$tempBookingRemindersHash() =>
-    r'4a733fbace5245329131cb5170debe2851a21c0a';
+    r'a52e3ba04d876450327ccd2b0ebde4dea5da9b30';
 
 /// See also [TempBookingReminders].
 @ProviderFor(TempBookingReminders)
