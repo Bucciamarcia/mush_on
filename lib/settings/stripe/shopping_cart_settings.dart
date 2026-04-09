@@ -29,6 +29,24 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
   late TextEditingController _emailController;
   late TextEditingController _cancellationPolicyController;
   bool? applyVat;
+  String? _selectedTimezone;
+
+  static const _timezones = [
+    ("Europe/Helsinki", "Helsinki (UTC+2/+3)"),
+    ("Europe/Stockholm", "Stockholm, Sweden (UTC+1/+2)"),
+    ("Europe/Oslo", "Oslo, Norway (UTC+1/+2)"),
+    ("Europe/Berlin", "Berlin / Paris (UTC+1/+2)"),
+    ("Europe/London", "London (UTC+0/+1)"),
+    ("America/New_York", "New York (UTC-5/-4)"),
+    ("America/Chicago", "Chicago (UTC-6/-5)"),
+    ("America/Denver", "Denver (UTC-7/-6)"),
+    ("America/Los_Angeles", "Los Angeles (UTC-8/-7)"),
+    ("America/Anchorage", "Anchorage (UTC-9/-8)"),
+    ("America/Toronto", "Toronto (UTC-5/-4)"),
+    ("America/Vancouver", "Vancouver (UTC-8/-7)"),
+    ("UTC", "UTC"),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -67,7 +85,10 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
             _urlController.text = kennelInfo.url;
             _emailController.text = kennelInfo.email;
             _cancellationPolicyController.text = kennelInfo.cancellationPolicy;
-            setState(() => applyVat = kennelInfo.vatRate != 0);
+            setState(() {
+              applyVat = kennelInfo.vatRate != 0;
+              _selectedTimezone ??= kennelInfo.timezone;
+            });
           }
 
           // Initialize the other provider safely
@@ -95,6 +116,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
           _emailController.text = kennelInfo.email;
           _cancellationPolicyController.text = kennelInfo.cancellationPolicy;
           applyVat ??= kennelInfo.vatRate != 0;
+          _selectedTimezone ??= kennelInfo.timezone;
         }
         return Column(
           children: [
@@ -192,6 +214,19 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                       ),
                     ],
                   ),
+                  DropdownMenuFormField<String>(
+                    dropdownMenuEntries: _timezones
+                        .map((t) => DropdownMenuEntry(
+                              value: t.$1,
+                              label: t.$2,
+                            ))
+                        .toList(),
+                    onSelected: (v) => setState(() => _selectedTimezone = v),
+                    initialSelection:
+                        _selectedTimezone ?? kennelInfo?.timezone,
+                    validator: (v) => v == null ? "Select a timezone" : null,
+                    label: const Text("Kennel timezone"),
+                  ),
                   CustomerCustomFieldsMain(
                     tempCustomerFields: tempCustomerFields,
                     kennelInfo: kennelInfo,
@@ -235,6 +270,8 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
         cancellationPolicy: _cancellationPolicyController.text,
         customerCustomFields: ref.read(tempCustomerFieldsProvider),
         bookingCustomFields: ref.read(tempBookingFieldsProvider),
+        bookingReminders: ref.read(tempBookingRemindersProvider),
+        timezone: _selectedTimezone ?? "Europe/Helsinki",
         vatRate: applyVat == false ? 0 : 0.255,
       );
       try {

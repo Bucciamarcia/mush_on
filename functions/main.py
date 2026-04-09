@@ -2,7 +2,7 @@
 # To get started, simply uncomment the below code or create your own.
 # Deploy with `firebase deploy`
 
-from firebase_functions import https_fn
+from firebase_functions import https_fn, scheduler_fn
 from firebase_functions.options import set_global_options
 from firebase_admin import initialize_app, firestore
 from flask import json
@@ -17,6 +17,7 @@ from firebase_functions import https_fn
 from firebase_admin import firestore
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Dict, Any
+from lib.booking_reminders import send_booking_reminders
 from lib.send_invitation_email import SendInvitationEmail
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import get_stripe_data
@@ -460,3 +461,11 @@ def rebuild_teamgroup_teams_snapshot(req: https_fn.CallableRequest[dict]) -> dic
         )
     except Exception as exc:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INTERNAL, str(exc))
+
+
+# Run once a day at midnight to send booking reminder emails.
+# Manually trigger at https://console.cloud.google.com/cloudscheduler
+@scheduler_fn.on_schedule(schedule="every day 00:00", region="europe-west1")
+def send_daily_booking_reminders(event: scheduler_fn.ScheduledEvent) -> None:
+    """Send reminder emails to customers for upcoming bookings based on per-account reminder rules."""
+    send_booking_reminders()

@@ -55,6 +55,10 @@ sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
     /// The reminders the customer will receive before the trip.
     @Default([]) List<BookingReminder> bookingReminders,
 
+    /// IANA timezone identifier for this kennel's location, used to display
+    /// booking times correctly in emails (e.g. "Europe/Helsinki").
+    @Default("Europe/Helsinki") String timezone,
+
     /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
     required double vatRate,
 

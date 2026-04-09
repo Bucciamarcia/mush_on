@@ -1,6 +1,7 @@
 from firebase_admin import firestore
 from pydantic import BaseModel, Field
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import os
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 import requests
@@ -42,6 +43,7 @@ class BookingInfo(BaseModel):
     email: str
     name: str
     url: str
+    timezone: str = "Europe/Helsinki"
 
 
 def add_checkout_session_to_db(
@@ -127,6 +129,7 @@ def payment_processed(
         account=account,
         kennel_name=booking_info.name,
         booking_date=cg.datetime,
+        timezone=booking_info.timezone,
         total_amount=total,
         currency="€",
         receipt_url=receipt_url,
@@ -141,6 +144,7 @@ def send_postmark_email(
     account: str,
     kennel_name: str,
     booking_date: datetime,
+    timezone: str,
     total_amount: int,
     currency: str,
     receipt_url: str,
@@ -152,7 +156,8 @@ def send_postmark_email(
     authorization = os.getenv("ZEPTOMAIL_AUTHORIZATION")
     if authorization is None:
         raise Exception("No ZeptoMail authorization token set in env")
-    booking_date_string = booking_date.strftime("%B %d, %Y")
+    local_dt = booking_date.astimezone(ZoneInfo(timezone))
+    booking_date_string = local_dt.strftime("%B %-d, %Y at %H:%M")
     picture_url = f"https://firebasestorage.googleapis.com/v0/b/mush-on.firebasestorage.app/o/accounts%2F{account}%2FbookingManager%2Fbanner?alt=media"
     url = "https://api.zeptomail.eu/v1.1/email/template"
     body = {
