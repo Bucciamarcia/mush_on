@@ -131,12 +131,10 @@ class CollectInfoWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var customers = ref.watch(customersInfoProvider);
 
-    if (customers.isEmpty) {
+    if (customers.isEmpty || !_customersMatchExpected(customers)) {
       final initialCustomers = _getCustomerPricings();
       SchedulerBinding.instance.addPostFrameCallback((_) async {
-        if (ref.read(customersInfoProvider).isEmpty) {
-          ref.read(customersInfoProvider.notifier).changeAll(initialCustomers);
-        }
+        ref.read(customersInfoProvider.notifier).changeAll(initialCustomers);
       });
       customers = initialCustomers;
     }
@@ -195,6 +193,20 @@ class CollectInfoWidget extends ConsumerWidget {
         );
       },
     );
+  }
+
+  bool _customersMatchExpected(List<Customer> customers) {
+    final expected = <String, int>{};
+    for (final p in selectedPricings) {
+      if (p.numberBooked > 0) expected[p.tourTypePricingId] = p.numberBooked;
+    }
+    final actual = <String, int>{};
+    for (final c in customers) {
+      final id = c.pricingId;
+      if (id == null) continue;
+      actual[id] = (actual[id] ?? 0) + 1;
+    }
+    return mapEquals(expected, actual);
   }
 
   Map<String, TourTypePricing> _getPricingById() {
