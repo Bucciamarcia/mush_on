@@ -149,50 +149,42 @@ def send_postmark_email(
     sender_email: str,
     cancellation_policy: str,
 ) -> None:
-    server_token = os.getenv("POSTMARK_SERVER_TOKEN")
-    account_token = os.getenv("POSTMARK_ACCOUNT_TOKEN")
+    authorization = os.getenv("ZEPTOMAIL_AUTHORIZATION")
+    if authorization is None:
+        raise Exception("No ZeptoMail authorization token set in env")
     booking_date_string = booking_date.strftime("%B %d, %Y")
-    if server_token is None:
-        raise Exception("No Postmark server token set in env")
-    if account_token is None:
-        raise Exception("No Postmark account token set in env")
-    url = "https://api.postmarkapp.com/email/withTemplate"
     picture_url = f"https://firebasestorage.googleapis.com/v0/b/mush-on.firebasestorage.app/o/accounts%2F{account}%2FbookingManager%2Fbanner?alt=media"
-    kennel_name_escaped = kennel_name.replace('"', '\\"')
-    template_model = {
-        "kennel_header_picture_url": picture_url,
-        "kennel_name": kennel_name,
-        "cancellation_policy": cancellation_policy,
-        "booking_date": booking_date_string,
-        "total_amount_number": str(total_amount / 100.0),
-        "total_amout_currency": currency,
-        "receipt_url": receipt_url,
-        "kennel_url": kennel_url,
-    }
+    url = "https://api.zeptomail.eu/v1.1/email/template"
     body = {
-        "TemplateId": "41742284",
-        "TemplateModel": template_model,
-        "From": f"{kennel_name_escaped} <confirmations@mush-on.com>",
-        "To": receiver_email,
-        "ReplyTo": sender_email,
+        "template_key": "13ef.6aad5fef53bb6a8.k1.c71e9720-30e9-11f1-96bc-66e0c45c7bae.19d5d960192",
+        "from": {"address": "noreply@mush-on.com", "name": kennel_name},
+        "to": [{"email_address": {"address": receiver_email, "name": ""}}],
+        "reply_to": [{"address": sender_email}],
+        "merge_info": {
+            "kennel_header_picture_url": picture_url,
+            "kennel_name": kennel_name,
+            "cancellation_policy": cancellation_policy,
+            "booking_date": booking_date_string,
+            "total_amount_number": str(total_amount / 100.0),
+            "total_amout_currency": currency,
+            "receipt_url": receipt_url,
+            "kennel_url": kennel_url,
+        },
     }
-    header = {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "X-Postmark-Server-Token": server_token,
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": authorization,
     }
     try:
-        response = requests.post(url, headers=header, json=body)
+        response = requests.post(url, headers=headers, json=body)
         response.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        if response.status_code == 422:
-            print(f"Postmark API error (422): {response.json()}")
-        else:
-            print(f"HTTP error sending email via Postmark: {e}")
-            print(f"Response body: {response.text}")
+        print(f"HTTP error sending email via ZeptoMail: {e}")
+        print(f"Response body: {response.text}")
         raise e
     except Exception as e:
-        print(f"Error sending email via Postmark: {e}")
+        print(f"Error sending email via ZeptoMail: {e}")
         raise e
 
 
