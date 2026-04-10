@@ -16,14 +16,14 @@ _CustomerCustomField _$CustomerCustomFieldFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$CustomerCustomFieldToJson(
-        _CustomerCustomField instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'type': _$CustomerCustomFieldTypeEnumMap[instance.type]!,
-      'name': instance.name,
-      'description': instance.description,
-      'isRequired': instance.isRequired,
-    };
+  _CustomerCustomField instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'type': _$CustomerCustomFieldTypeEnumMap[instance.type]!,
+  'name': instance.name,
+  'description': instance.description,
+  'isRequired': instance.isRequired,
+};
 
 const _$CustomerCustomFieldTypeEnumMap = {
   CustomerCustomFieldType.text: 'text',
@@ -58,14 +58,14 @@ String _$stripeConnectionHash() => r'4baf134e47218c68ccac010d58c3eae9c5f4a7d4';
 @ProviderFor(stripeConnection)
 final stripeConnectionProvider =
     AutoDisposeStreamProvider<StripeConnection?>.internal(
-  stripeConnection,
-  name: r'stripeConnectionProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$stripeConnectionHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      stripeConnection,
+      name: r'stripeConnectionProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$stripeConnectionHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
@@ -105,21 +105,15 @@ class BookingManagerKennelInfoFamily
   const BookingManagerKennelInfoFamily();
 
   /// See also [bookingManagerKennelInfo].
-  BookingManagerKennelInfoProvider call({
-    String? account,
-  }) {
-    return BookingManagerKennelInfoProvider(
-      account: account,
-    );
+  BookingManagerKennelInfoProvider call({String? account}) {
+    return BookingManagerKennelInfoProvider(account: account);
   }
 
   @override
   BookingManagerKennelInfoProvider getProviderOverride(
     covariant BookingManagerKennelInfoProvider provider,
   ) {
-    return call(
-      account: provider.account,
-    );
+    return call(account: provider.account);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -141,24 +135,22 @@ class BookingManagerKennelInfoFamily
 class BookingManagerKennelInfoProvider
     extends AutoDisposeStreamProvider<BookingManagerKennelInfo?> {
   /// See also [bookingManagerKennelInfo].
-  BookingManagerKennelInfoProvider({
-    String? account,
-  }) : this._internal(
-          (ref) => bookingManagerKennelInfo(
-            ref as BookingManagerKennelInfoRef,
-            account: account,
-          ),
-          from: bookingManagerKennelInfoProvider,
-          name: r'bookingManagerKennelInfoProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$bookingManagerKennelInfoHash,
-          dependencies: BookingManagerKennelInfoFamily._dependencies,
-          allTransitiveDependencies:
-              BookingManagerKennelInfoFamily._allTransitiveDependencies,
+  BookingManagerKennelInfoProvider({String? account})
+    : this._internal(
+        (ref) => bookingManagerKennelInfo(
+          ref as BookingManagerKennelInfoRef,
           account: account,
-        );
+        ),
+        from: bookingManagerKennelInfoProvider,
+        name: r'bookingManagerKennelInfoProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$bookingManagerKennelInfoHash,
+        dependencies: BookingManagerKennelInfoFamily._dependencies,
+        allTransitiveDependencies:
+            BookingManagerKennelInfoFamily._allTransitiveDependencies,
+        account: account,
+      );
 
   BookingManagerKennelInfoProvider._internal(
     super._createNotifier, {
@@ -175,8 +167,9 @@ class BookingManagerKennelInfoProvider
   @override
   Override overrideWith(
     Stream<BookingManagerKennelInfo?> Function(
-            BookingManagerKennelInfoRef provider)
-        create,
+      BookingManagerKennelInfoRef provider,
+    )
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -235,9 +228,7 @@ abstract class _$KennelImage
     extends BuildlessAutoDisposeAsyncNotifier<Uint8List?> {
   late final String? account;
 
-  FutureOr<Uint8List?> build({
-    String? account,
-  });
+  FutureOr<Uint8List?> build({String? account});
 }
 
 /// See also [KennelImage].
@@ -250,21 +241,15 @@ class KennelImageFamily extends Family<AsyncValue<Uint8List?>> {
   const KennelImageFamily();
 
   /// See also [KennelImage].
-  KennelImageProvider call({
-    String? account,
-  }) {
-    return KennelImageProvider(
-      account: account,
-    );
+  KennelImageProvider call({String? account}) {
+    return KennelImageProvider(account: account);
   }
 
   @override
   KennelImageProvider getProviderOverride(
     covariant KennelImageProvider provider,
   ) {
-    return call(
-      account: provider.account,
-    );
+    return call(account: provider.account);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -286,21 +271,18 @@ class KennelImageFamily extends Family<AsyncValue<Uint8List?>> {
 class KennelImageProvider
     extends AutoDisposeAsyncNotifierProviderImpl<KennelImage, Uint8List?> {
   /// See also [KennelImage].
-  KennelImageProvider({
-    String? account,
-  }) : this._internal(
-          () => KennelImage()..account = account,
-          from: kennelImageProvider,
-          name: r'kennelImageProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$kennelImageHash,
-          dependencies: KennelImageFamily._dependencies,
-          allTransitiveDependencies:
-              KennelImageFamily._allTransitiveDependencies,
-          account: account,
-        );
+  KennelImageProvider({String? account})
+    : this._internal(
+        () => KennelImage()..account = account,
+        from: kennelImageProvider,
+        name: r'kennelImageProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$kennelImageHash,
+        dependencies: KennelImageFamily._dependencies,
+        allTransitiveDependencies: KennelImageFamily._allTransitiveDependencies,
+        account: account,
+      );
 
   KennelImageProvider._internal(
     super._createNotifier, {
@@ -315,12 +297,8 @@ class KennelImageProvider
   final String? account;
 
   @override
-  FutureOr<Uint8List?> runNotifierBuild(
-    covariant KennelImage notifier,
-  ) {
-    return notifier.build(
-      account: account,
-    );
+  FutureOr<Uint8List?> runNotifierBuild(covariant KennelImage notifier) {
+    return notifier.build(account: account);
   }
 
   @override
@@ -341,7 +319,7 @@ class KennelImageProvider
 
   @override
   AutoDisposeAsyncNotifierProviderElement<KennelImage, Uint8List?>
-      createElement() {
+  createElement() {
     return _KennelImageProviderElement(this);
   }
 
@@ -380,16 +358,19 @@ String _$tempCustomerFieldsHash() =>
 
 /// See also [TempCustomerFields].
 @ProviderFor(TempCustomerFields)
-final tempCustomerFieldsProvider = AutoDisposeNotifierProvider<
-    TempCustomerFields, List<CustomerCustomField>>.internal(
-  TempCustomerFields.new,
-  name: r'tempCustomerFieldsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$tempCustomerFieldsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final tempCustomerFieldsProvider =
+    AutoDisposeNotifierProvider<
+      TempCustomerFields,
+      List<CustomerCustomField>
+    >.internal(
+      TempCustomerFields.new,
+      name: r'tempCustomerFieldsProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$tempCustomerFieldsHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$TempCustomerFields = AutoDisposeNotifier<List<CustomerCustomField>>;
 String _$isCustomerCustomFieldsEditedHash() =>
@@ -399,30 +380,33 @@ String _$isCustomerCustomFieldsEditedHash() =>
 @ProviderFor(IsCustomerCustomFieldsEdited)
 final isCustomerCustomFieldsEditedProvider =
     AutoDisposeNotifierProvider<IsCustomerCustomFieldsEdited, bool>.internal(
-  IsCustomerCustomFieldsEdited.new,
-  name: r'isCustomerCustomFieldsEditedProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$isCustomerCustomFieldsEditedHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      IsCustomerCustomFieldsEdited.new,
+      name: r'isCustomerCustomFieldsEditedProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$isCustomerCustomFieldsEditedHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$IsCustomerCustomFieldsEdited = AutoDisposeNotifier<bool>;
 String _$tempBookingFieldsHash() => r'459d170d0fcad19189f544c4ce7032818c43f91b';
 
 /// See also [TempBookingFields].
 @ProviderFor(TempBookingFields)
-final tempBookingFieldsProvider = AutoDisposeNotifierProvider<TempBookingFields,
-    List<BookingCustomField>>.internal(
-  TempBookingFields.new,
-  name: r'tempBookingFieldsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$tempBookingFieldsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final tempBookingFieldsProvider =
+    AutoDisposeNotifierProvider<
+      TempBookingFields,
+      List<BookingCustomField>
+    >.internal(
+      TempBookingFields.new,
+      name: r'tempBookingFieldsProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$tempBookingFieldsHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$TempBookingFields = AutoDisposeNotifier<List<BookingCustomField>>;
 String _$isBookingCustomFieldsEditedHash() =>
@@ -432,14 +416,14 @@ String _$isBookingCustomFieldsEditedHash() =>
 @ProviderFor(IsBookingCustomFieldsEdited)
 final isBookingCustomFieldsEditedProvider =
     AutoDisposeNotifierProvider<IsBookingCustomFieldsEdited, bool>.internal(
-  IsBookingCustomFieldsEdited.new,
-  name: r'isBookingCustomFieldsEditedProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$isBookingCustomFieldsEditedHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      IsBookingCustomFieldsEdited.new,
+      name: r'isBookingCustomFieldsEditedProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$isBookingCustomFieldsEditedHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$IsBookingCustomFieldsEdited = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint

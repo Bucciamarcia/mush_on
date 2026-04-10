@@ -35,9 +35,13 @@ class _SystemHash {
 const bookingDataSuccessProvider = BookingDataSuccessFamily();
 
 /// See also [bookingDataSuccess].
-class BookingDataSuccessFamily extends Family<
-    AsyncValue<
-        (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>> {
+class BookingDataSuccessFamily
+    extends
+        Family<
+          AsyncValue<
+            (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)
+          >
+        > {
   /// See also [bookingDataSuccess].
   const BookingDataSuccessFamily();
 
@@ -46,20 +50,14 @@ class BookingDataSuccessFamily extends Family<
     required String bookingId,
     required String account,
   }) {
-    return BookingDataSuccessProvider(
-      bookingId: bookingId,
-      account: account,
-    );
+    return BookingDataSuccessProvider(bookingId: bookingId, account: account);
   }
 
   @override
   BookingDataSuccessProvider getProviderOverride(
     covariant BookingDataSuccessProvider provider,
   ) {
-    return call(
-      bookingId: provider.bookingId,
-      account: provider.account,
-    );
+    return call(bookingId: provider.bookingId, account: provider.account);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -78,30 +76,32 @@ class BookingDataSuccessFamily extends Family<
 }
 
 /// See also [bookingDataSuccess].
-class BookingDataSuccessProvider extends AutoDisposeFutureProvider<
-    (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)> {
+class BookingDataSuccessProvider
+    extends
+        AutoDisposeFutureProvider<
+          (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)
+        > {
   /// See also [bookingDataSuccess].
   BookingDataSuccessProvider({
     required String bookingId,
     required String account,
   }) : this._internal(
-          (ref) => bookingDataSuccess(
-            ref as BookingDataSuccessRef,
-            bookingId: bookingId,
-            account: account,
-          ),
-          from: bookingDataSuccessProvider,
-          name: r'bookingDataSuccessProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$bookingDataSuccessHash,
-          dependencies: BookingDataSuccessFamily._dependencies,
-          allTransitiveDependencies:
-              BookingDataSuccessFamily._allTransitiveDependencies,
-          bookingId: bookingId,
-          account: account,
-        );
+         (ref) => bookingDataSuccess(
+           ref as BookingDataSuccessRef,
+           bookingId: bookingId,
+           account: account,
+         ),
+         from: bookingDataSuccessProvider,
+         name: r'bookingDataSuccessProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$bookingDataSuccessHash,
+         dependencies: BookingDataSuccessFamily._dependencies,
+         allTransitiveDependencies:
+             BookingDataSuccessFamily._allTransitiveDependencies,
+         bookingId: bookingId,
+         account: account,
+       );
 
   BookingDataSuccessProvider._internal(
     super._createNotifier, {
@@ -120,8 +120,8 @@ class BookingDataSuccessProvider extends AutoDisposeFutureProvider<
   @override
   Override overrideWith(
     FutureOr<(Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>
-            Function(BookingDataSuccessRef provider)
-        create,
+    Function(BookingDataSuccessRef provider)
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -140,8 +140,9 @@ class BookingDataSuccessProvider extends AutoDisposeFutureProvider<
 
   @override
   AutoDisposeFutureProviderElement<
-          (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>
-      createElement() {
+    (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)
+  >
+  createElement() {
     return _BookingDataSuccessProviderElement(this);
   }
 
@@ -164,8 +165,11 @@ class BookingDataSuccessProvider extends AutoDisposeFutureProvider<
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin BookingDataSuccessRef on AutoDisposeFutureProviderRef<
-    (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)> {
+mixin BookingDataSuccessRef
+    on
+        AutoDisposeFutureProviderRef<
+          (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)
+        > {
   /// The parameter `bookingId` of this provider.
   String get bookingId;
 
@@ -174,8 +178,10 @@ mixin BookingDataSuccessRef on AutoDisposeFutureProviderRef<
 }
 
 class _BookingDataSuccessProviderElement
-    extends AutoDisposeFutureProviderElement<
-        (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>
+    extends
+        AutoDisposeFutureProviderElement<
+          (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)
+        >
     with BookingDataSuccessRef {
   _BookingDataSuccessProviderElement(super.provider);
 
@@ -197,21 +203,15 @@ class ReceiptUrlFamily extends Family<AsyncValue<UrlAndAmount>> {
   const ReceiptUrlFamily();
 
   /// See also [receiptUrl].
-  ReceiptUrlProvider call(
-    String bookingId,
-  ) {
-    return ReceiptUrlProvider(
-      bookingId,
-    );
+  ReceiptUrlProvider call(String bookingId) {
+    return ReceiptUrlProvider(bookingId);
   }
 
   @override
   ReceiptUrlProvider getProviderOverride(
     covariant ReceiptUrlProvider provider,
   ) {
-    return call(
-      provider.bookingId,
-    );
+    return call(provider.bookingId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -232,24 +232,18 @@ class ReceiptUrlFamily extends Family<AsyncValue<UrlAndAmount>> {
 /// See also [receiptUrl].
 class ReceiptUrlProvider extends AutoDisposeFutureProvider<UrlAndAmount> {
   /// See also [receiptUrl].
-  ReceiptUrlProvider(
-    String bookingId,
-  ) : this._internal(
-          (ref) => receiptUrl(
-            ref as ReceiptUrlRef,
-            bookingId,
-          ),
-          from: receiptUrlProvider,
-          name: r'receiptUrlProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$receiptUrlHash,
-          dependencies: ReceiptUrlFamily._dependencies,
-          allTransitiveDependencies:
-              ReceiptUrlFamily._allTransitiveDependencies,
-          bookingId: bookingId,
-        );
+  ReceiptUrlProvider(String bookingId)
+    : this._internal(
+        (ref) => receiptUrl(ref as ReceiptUrlRef, bookingId),
+        from: receiptUrlProvider,
+        name: r'receiptUrlProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$receiptUrlHash,
+        dependencies: ReceiptUrlFamily._dependencies,
+        allTransitiveDependencies: ReceiptUrlFamily._allTransitiveDependencies,
+        bookingId: bookingId,
+      );
 
   ReceiptUrlProvider._internal(
     super._createNotifier, {
@@ -308,11 +302,13 @@ mixin ReceiptUrlRef on AutoDisposeFutureProviderRef<UrlAndAmount> {
 }
 
 class _ReceiptUrlProviderElement
-    extends AutoDisposeFutureProviderElement<UrlAndAmount> with ReceiptUrlRef {
+    extends AutoDisposeFutureProviderElement<UrlAndAmount>
+    with ReceiptUrlRef {
   _ReceiptUrlProviderElement(super.provider);
 
   @override
   String get bookingId => (origin as ReceiptUrlProvider).bookingId;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
