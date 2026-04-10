@@ -7,9 +7,6 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const TemplateScreen(
-      title: "Settings",
-      child: SettingsMain(),
-    );
+    return const TemplateScreen(title: "Settings", child: SettingsMain());
   }
 }

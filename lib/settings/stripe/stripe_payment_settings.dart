@@ -23,30 +23,34 @@ class PaymentSettingsWidget extends ConsumerWidget {
     } else {
       final stripeConnectionasync = ref.watch(stripeConnectionProvider);
       return stripeConnectionasync.when(
-          data: (stripeConnection) {
-            if (stripeConnection == null) {
-              return SettingsSectionShell(
-                title: "Payments",
-                description:
-                    "Connect Stripe to enable checkout and payment page configuration for your kennel.",
-                badge: "Commerce",
-                child: SettingsSurface(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: ConnectStripeButton(account: account),
-                  ),
+        data: (stripeConnection) {
+          if (stripeConnection == null) {
+            return SettingsSectionShell(
+              title: "Payments",
+              description:
+                  "Connect Stripe to enable checkout and payment page configuration for your kennel.",
+              badge: "Commerce",
+              child: SettingsSurface(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: ConnectStripeButton(account: account),
                 ),
-              );
-            } else {
-              return const ShoppingCartSettings();
-            }
-          },
-          error: (e, s) {
-            logger.error("Error loading stripe connection",
-                error: e, stackTrace: s);
-            return Text("Error loading stripe connection: $e");
-          },
-          loading: () => const CircularProgressIndicator.adaptive());
+              ),
+            );
+          } else {
+            return const ShoppingCartSettings();
+          }
+        },
+        error: (e, s) {
+          logger.error(
+            "Error loading stripe connection",
+            error: e,
+            stackTrace: s,
+          );
+          return Text("Error loading stripe connection: $e");
+        },
+        loading: () => const CircularProgressIndicator.adaptive(),
+      );
     }
   }
 }
@@ -61,10 +65,9 @@ class ConnectStripeButton extends StatelessWidget {
     return FilledButton.icon(
       onPressed: () async {
         try {
-          final response =
-              await FirebaseFunctions.instanceFor(region: "europe-north1")
-                  .httpsCallable("stripe_create_account")
-                  .call({});
+          final response = await FirebaseFunctions.instanceFor(
+            region: "europe-north1",
+          ).httpsCallable("stripe_create_account").call({});
           final responseJson = response.data as Map<String, dynamic>;
           final error = responseJson["error"];
           if (error != null) {
@@ -74,8 +77,9 @@ class ConnectStripeButton extends StatelessWidget {
           if (accountId == null) {
             throw Exception("Account ID is null");
           }
-          await StripeRepository(account: account)
-              .saveStripeAccountId(accountId);
+          await StripeRepository(
+            account: account,
+          ).saveStripeAccountId(accountId);
           final responseLink =
               await FirebaseFunctions.instanceFor(region: "europe-north1")
                   .httpsCallable("stripe_create_account_link")
@@ -93,7 +97,8 @@ class ConnectStripeButton extends StatelessWidget {
           logger.error("Couldn't call link", error: e, stackTrace: s);
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-                errorSnackBar(context, "Couldn't connect Stripe account"));
+              errorSnackBar(context, "Couldn't connect Stripe account"),
+            );
           }
         }
       },
@@ -105,10 +110,7 @@ class ConnectStripeButton extends StatelessWidget {
   Future<void> _launchStripeUrl(String url) async {
     final Uri uri = Uri.parse(url);
 
-    if (!await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    )) {
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       throw Exception("Could not launch $url");
     }
   }

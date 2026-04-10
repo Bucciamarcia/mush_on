@@ -6,10 +6,12 @@ class SingleWarningDisplayWidget extends StatefulWidget {
   final Function(String) onDistanceWarningRemoved;
   final Function(DistanceWarning) onDistanceWarningEdited;
 
-  const SingleWarningDisplayWidget(this.warning,
-      {super.key,
-      required this.onDistanceWarningRemoved,
-      required this.onDistanceWarningEdited});
+  const SingleWarningDisplayWidget(
+    this.warning, {
+    super.key,
+    required this.onDistanceWarningRemoved,
+    required this.onDistanceWarningEdited,
+  });
 
   @override
   State<SingleWarningDisplayWidget> createState() =>
@@ -32,10 +34,12 @@ class _SingleWarningDisplayWidgetState
   }
 
   void _resetControllers() {
-    _daysController =
-        TextEditingController(text: widget.warning.daysInterval.toString());
-    _distanceController =
-        TextEditingController(text: widget.warning.distance.toString());
+    _daysController = TextEditingController(
+      text: widget.warning.daysInterval.toString(),
+    );
+    _distanceController = TextEditingController(
+      text: widget.warning.distance.toString(),
+    );
     _selectedType = widget.warning.distanceWarningType;
   }
 
@@ -94,7 +98,9 @@ class _SingleWarningDisplayWidgetState
                             labelText: 'Distance (km)',
                             isDense: true,
                             contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 8),
+                              horizontal: 8,
+                              vertical: 8,
+                            ),
                           ),
                           onChanged: (_) => setState(() => _isEditing = true),
                         ),
@@ -108,7 +114,9 @@ class _SingleWarningDisplayWidgetState
                             labelText: 'Days',
                             isDense: true,
                             contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 8),
+                              horizontal: 8,
+                              vertical: 8,
+                            ),
                           ),
                           onChanged: (_) => setState(() => _isEditing = true),
                         ),
@@ -121,8 +129,10 @@ class _SingleWarningDisplayWidgetState
                     decoration: const InputDecoration(
                       labelText: 'Type',
                       isDense: true,
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
                     ),
                     items: DistanceWarningType.values.map((type) {
                       return DropdownMenuItem(

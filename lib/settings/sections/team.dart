@@ -29,10 +29,7 @@ class TeamSettingsPage extends ConsumerWidget {
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1080),
-            child: AddUsers(
-              account: account,
-              repository: settingsRepo,
-            ),
+            child: AddUsers(account: account, repository: settingsRepo),
           ),
         ),
       ),

@@ -6,22 +6,22 @@ class CustomThemeOptions {
   static ButtonStyle responsiveButtonStylePrimary(BuildContext context) {
     ColorScheme colorScheme = Theme.of(context).colorScheme;
     return ButtonStyle(
-      backgroundColor: WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.disabled)) {
-            return colorScheme.primary.withValues(alpha: 0.4);
-          }
-          return colorScheme.primary;
-        },
-      ),
-      foregroundColor: WidgetStateProperty.resolveWith<Color?>(
-        (Set<WidgetState> states) {
-          if (states.contains(WidgetState.disabled)) {
-            return colorScheme.onPrimary.withValues(alpha: 0.4);
-          }
-          return colorScheme.onPrimary;
-        },
-      ),
+      backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
+          return colorScheme.primary.withValues(alpha: 0.4);
+        }
+        return colorScheme.primary;
+      }),
+      foregroundColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
+          return colorScheme.onPrimary.withValues(alpha: 0.4);
+        }
+        return colorScheme.onPrimary;
+      }),
     );
   }
 }

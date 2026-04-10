@@ -8,6 +8,8 @@ class WhiteboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const TemplateScreen(
-        title: "Whiteboard", child: GeneralWhiteboard());
+      title: "Whiteboard",
+      child: GeneralWhiteboard(),
+    );
   }
 }

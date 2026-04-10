@@ -50,7 +50,9 @@ class SettingsSectionShell extends StatelessWidget {
                     if (badge != null) ...[
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 6),
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(999),
@@ -98,11 +100,7 @@ class SettingsSurface extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
 
-  const SettingsSurface({
-    super.key,
-    required this.child,
-    this.padding,
-  });
+  const SettingsSurface({super.key, required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {

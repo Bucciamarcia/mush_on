@@ -81,7 +81,8 @@ class CollectInfoPage extends StatelessWidget {
                                   Expanded(
                                     flex: 4,
                                     child: BookingSummaryImmobile(
-                                        tourType: tourType),
+                                      tourType: tourType,
+                                    ),
                                   ),
                                 ],
                               )
@@ -144,8 +145,9 @@ class CollectInfoWidget extends ConsumerWidget {
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 760;
         const spacing = 16.0;
-        final itemWidth =
-            wide ? (constraints.maxWidth - spacing) / 2 : constraints.maxWidth;
+        final itemWidth = wide
+            ? (constraints.maxWidth - spacing) / 2
+            : constraints.maxWidth;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -162,7 +164,8 @@ class CollectInfoWidget extends ConsumerWidget {
                     _PassengerBlock(
                       index: customerMap.key,
                       customer: customerMap.value,
-                      pricingLabel: pricingById[customerMap.value.pricingId]
+                      pricingLabel:
+                          pricingById[customerMap.value.pricingId]
                               ?.displayName ??
                           '',
                       itemWidth: itemWidth,
@@ -264,9 +267,9 @@ class _PassengerBlock extends StatelessWidget {
               Text(
                 "${index + 1}",
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BookingPageColors.primaryDark.color,
-                    ),
+                  fontWeight: FontWeight.w700,
+                  color: BookingPageColors.primaryDark.color,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -275,9 +278,9 @@ class _PassengerBlock extends StatelessWidget {
                       ? "Passenger ${index + 1}"
                       : "Passenger ${index + 1} • $pricingLabel",
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: BookingPageColors.textStrong.color,
-                      ),
+                    fontWeight: FontWeight.w700,
+                    color: BookingPageColors.textStrong.color,
+                  ),
                 ),
               ),
             ],
@@ -291,10 +294,7 @@ class _PassengerBlock extends StatelessWidget {
               .map(
                 (field) => SizedBox(
                   width: itemWidth,
-                  child: CustomerInfoWidget(
-                    customer: customer,
-                    field: field,
-                  ),
+                  child: CustomerInfoWidget(customer: customer, field: field),
                 ),
               )
               .toList(),
@@ -318,8 +318,10 @@ class CustomerInfoWidget extends ConsumerWidget {
     final customers = ref.watch(customersInfoProvider);
     final notifier = ref.read(customersInfoProvider.notifier);
     final showErrors = ref.watch(showValidationErrorsProvider);
-    final current = customers.firstWhere((c) => c.id == customer.id,
-        orElse: () => customer);
+    final current = customers.firstWhere(
+      (c) => c.id == customer.id,
+      orElse: () => customer,
+    );
 
     bool hasValue(String? value) => (value ?? '').trim().isNotEmpty;
 
@@ -335,8 +337,9 @@ class CustomerInfoWidget extends ConsumerWidget {
       hasError: hasError,
       child: TextField(
         onChanged: (v) {
-          final updatedOtherInfo =
-              Map<String, String>.from(current.customerOtherInfo);
+          final updatedOtherInfo = Map<String, String>.from(
+            current.customerOtherInfo,
+          );
           updatedOtherInfo[field.name] = v;
           notifier.changeSingle(
             customer.id,
@@ -425,8 +428,9 @@ class BookingInfoPage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final wide = constraints.maxWidth >= 760;
-        final itemWidth =
-            wide ? (constraints.maxWidth - 16) / 2 : constraints.maxWidth;
+        final itemWidth = wide
+            ? (constraints.maxWidth - 16) / 2
+            : constraints.maxWidth;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -614,10 +618,9 @@ class BookingInfoPage extends ConsumerWidget {
                       spacing: 16,
                       runSpacing: 14,
                       children: [
-                        ...kennelInfo.bookingCustomFields
-                            .asMap()
-                            .entries
-                            .map((entry) {
+                        ...kennelInfo.bookingCustomFields.asMap().entries.map((
+                          entry,
+                        ) {
                           final i = entry.key;
                           final field = entry.value;
                           return SizedBox(
@@ -632,8 +635,10 @@ class BookingInfoPage extends ConsumerWidget {
                                       "${field.name} ${field.isRequired ? "(Required)" : "(Not required)"}",
                                   icon: Icons.question_mark,
                                   isFilled: hasOtherDataValue(
-                                      otherInfoData[field.name]),
-                                  showError: showErrors &&
+                                    otherInfoData[field.name],
+                                  ),
+                                  showError:
+                                      showErrors &&
                                       !isOtherDataValid(
                                         otherInfoData[field.name],
                                         field,
@@ -642,16 +647,20 @@ class BookingInfoPage extends ConsumerWidget {
                                 onChanged: (nv) {
                                   final updatedOtherInfoData =
                                       Map<String, String>.from(
-                                    ref
-                                            .read(bookingInfoProvider)
-                                            ?.otherBookingData ??
-                                        const <String, String>{},
-                                  );
+                                        ref
+                                                .read(bookingInfoProvider)
+                                                ?.otherBookingData ??
+                                            const <String, String>{},
+                                      );
                                   updatedOtherInfoData[field.name] = nv;
-                                  ref.read(bookingInfoProvider.notifier).change(
-                                      booking.copyWith(
+                                  ref
+                                      .read(bookingInfoProvider.notifier)
+                                      .change(
+                                        booking.copyWith(
                                           otherBookingData:
-                                              updatedOtherInfoData));
+                                              updatedOtherInfoData,
+                                        ),
+                                      );
                                 },
                               ),
                             ),
@@ -672,8 +681,8 @@ class BookingInfoPage extends ConsumerWidget {
                 Text(
                   "We keep your information private.",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: BookingPageColors.textMuted.color,
-                      ),
+                    color: BookingPageColors.textMuted.color,
+                  ),
                 ),
               ],
             ),
@@ -692,26 +701,29 @@ class BookingSummaryImmobile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = ref.watch(selectedDateInCalendarProvider);
     final isLoadingCart = ref.watch(isLoadingCartProvider);
-    final selectedCustomerGroup =
-        ref.watch(selectedCustomerGroupInCalendarProvider);
+    final selectedCustomerGroup = ref.watch(
+      selectedCustomerGroupInCalendarProvider,
+    );
     final account = ref.watch(accountPublicProvider);
 
     final pricings = account == null
         ? <TourTypePricing>[]
         : ref
-                .watch(
-                  tourTypePricesByTourIdProvider(
-                    tourId: tourType.id,
-                    account: account,
-                  ),
-                )
-                .value ??
-            [];
+                  .watch(
+                    tourTypePricesByTourIdProvider(
+                      tourId: tourType.id,
+                      account: account,
+                    ),
+                  )
+                  .value ??
+              [];
 
-    final selectedPricings =
-        ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
-    final customersNumberByCgId =
-        ref.watch(customersNumberByCustomerGroupIdBookingProvider).value;
+    final selectedPricings = ref.watch(
+      bookingDetailsSelectedPricingsProvider(pricings),
+    );
+    final customersNumberByCgId = ref
+        .watch(customersNumberByCustomerGroupIdBookingProvider)
+        .value;
     final maxCapacity = selectedCustomerGroup?.maxCapacity;
     final customersBooked = customersNumberByCgId?[selectedCustomerGroup?.id];
     final availableSpots = maxCapacity == null || customersBooked == null
@@ -729,8 +741,9 @@ class BookingSummaryImmobile extends ConsumerWidget {
     double total() {
       var amount = 0.0;
       for (final sp in selectedPricings) {
-        final pricing =
-            pricings.firstWhere((p) => p.id == sp.tourTypePricingId);
+        final pricing = pricings.firstWhere(
+          (p) => p.id == sp.tourTypePricingId,
+        );
         amount += (pricing.priceCents.toDouble() / 100) * sp.numberBooked;
       }
       return amount;
@@ -747,9 +760,9 @@ class BookingSummaryImmobile extends ConsumerWidget {
           Text(
             "Checkout summary",
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: BookingPageColors.textStrong.color,
-                ),
+              fontWeight: FontWeight.w700,
+              color: BookingPageColors.textStrong.color,
+            ),
           ),
           const SizedBox(height: 24),
           BookingSummaryInfoRow(
@@ -792,8 +805,9 @@ class BookingSummaryImmobile extends ConsumerWidget {
           const SizedBox(height: 4),
           for (final pricing in pricings) ...[
             PricingOptionTotalPrice(
-              bookingInfo: selectedPricings
-                  .firstWhere((sp) => sp.tourTypePricingId == pricing.id),
+              bookingInfo: selectedPricings.firstWhere(
+                (sp) => sp.tourTypePricingId == pricing.id,
+              ),
               pricing: pricing,
             ),
             const SizedBox(height: 10),
@@ -833,16 +847,20 @@ class BookingSummaryImmobile extends ConsumerWidget {
                           onPressed: () async {
                             if (!isComplete) {
                               ref
-                                  .read(showValidationErrorsProvider.notifier)
-                                  .state = true;
+                                      .read(
+                                        showValidationErrorsProvider.notifier,
+                                      )
+                                      .state =
+                                  true;
                               return;
                             }
                             ref
                                 .read(isLoadingCartProvider.notifier)
                                 .change(true);
                             final kennelInfo = await ref.watch(
-                              bookingManagerKennelInfoProvider(account: account)
-                                  .future,
+                              bookingManagerKennelInfoProvider(
+                                account: account,
+                              ).future,
                             );
                             if (kennelInfo == null) return;
                             final repo = BookingPageRepository(
@@ -877,8 +895,9 @@ class BookingSummaryImmobile extends ConsumerWidget {
                             }
                           },
                           style: bookingPrimaryButtonStyle(),
-                          child:
-                              Text(isComplete ? "Book now" : "Complete form"),
+                          child: Text(
+                            isComplete ? "Book now" : "Complete form",
+                          ),
                         ),
                 ),
               ],
@@ -915,10 +934,12 @@ class PricingOptionCounterImmobile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final account = ref.watch(accountPublicProvider);
     if (account == null) return const SizedBox.shrink();
-    final selectedPricings =
-        ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
-    final selectedPricing =
-        selectedPricings.firstWhere((sp) => sp.tourTypePricingId == pricing.id);
+    final selectedPricings = ref.watch(
+      bookingDetailsSelectedPricingsProvider(pricings),
+    );
+    final selectedPricing = selectedPricings.firstWhere(
+      (sp) => sp.tourTypePricingId == pricing.id,
+    );
 
     if (selectedPricing.numberBooked == 0) return const SizedBox.shrink();
 
@@ -928,16 +949,16 @@ class PricingOptionCounterImmobile extends ConsumerWidget {
           child: Text(
             pricing.displayName,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: BookingPageColors.textMuted.color,
-                ),
+              color: BookingPageColors.textMuted.color,
+            ),
           ),
         ),
         Text(
           "x${selectedPricing.numberBooked}",
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: BookingPageColors.textStrong.color,
-              ),
+            fontWeight: FontWeight.w700,
+            color: BookingPageColors.textStrong.color,
+          ),
         ),
       ],
     );
@@ -951,8 +972,9 @@ class CancellationPolicySection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final account = ref.watch(accountPublicProvider);
     if (account == null) return const Text("Error");
-    final kennelInfo =
-        ref.watch(bookingManagerKennelInfoProvider(account: account)).value;
+    final kennelInfo = ref
+        .watch(bookingManagerKennelInfoProvider(account: account))
+        .value;
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -974,9 +996,9 @@ class CancellationPolicySection extends ConsumerWidget {
               Text(
                 "Cancellation policy",
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BookingPageColors.textStrong.color,
-                    ),
+                  fontWeight: FontWeight.w700,
+                  color: BookingPageColors.textStrong.color,
+                ),
               ),
             ],
           ),
@@ -984,9 +1006,9 @@ class CancellationPolicySection extends ConsumerWidget {
           Text(
             kennelInfo?.cancellationPolicy ?? "",
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: BookingPageColors.textMuted.color,
-                  height: 1.5,
-                ),
+              color: BookingPageColors.textMuted.color,
+              height: 1.5,
+            ),
           ),
         ],
       ),
@@ -1009,14 +1031,14 @@ class _BookingFormFieldShell extends StatelessWidget {
     final background = hasError
         ? const Color(0xffffefef)
         : filled
-            ? BookingPageColors.primaryLight.color.withValues(alpha: 0.55)
-            : BookingPageColors.surface.color;
+        ? BookingPageColors.primaryLight.color.withValues(alpha: 0.55)
+        : BookingPageColors.surface.color;
 
     final borderColor = hasError
         ? BookingPageColors.danger.color
         : filled
-            ? BookingPageColors.primary.color
-            : BookingPageColors.outlineSoft.color;
+        ? BookingPageColors.primary.color
+        : BookingPageColors.outlineSoft.color;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 180),
@@ -1048,8 +1070,8 @@ InputDecoration bookingInputDecoration({
   final effectiveBorder = showError
       ? BookingPageColors.danger.color
       : isFilled
-          ? BookingPageColors.primary.color
-          : BookingPageColors.outlineSoft.color;
+      ? BookingPageColors.primary.color
+      : BookingPageColors.outlineSoft.color;
 
   return InputDecoration(
     labelText: label,
@@ -1083,16 +1105,16 @@ Widget bookingFieldStatusIcon({
             color: BookingPageColors.success.color,
           )
         : showError
-            ? Icon(
-                Icons.error_outline,
-                key: const ValueKey('err'),
-                color: BookingPageColors.danger.color,
-              )
-            : Icon(
-                Icons.circle_outlined,
-                key: const ValueKey('empty'),
-                color: BookingPageColors.outline.color,
-              ),
+        ? Icon(
+            Icons.error_outline,
+            key: const ValueKey('err'),
+            color: BookingPageColors.danger.color,
+          )
+        : Icon(
+            Icons.circle_outlined,
+            key: const ValueKey('empty'),
+            color: BookingPageColors.outline.color,
+          ),
   );
 }
 
@@ -1110,8 +1132,8 @@ InputDecorationTheme bookingDropdownDecorationTheme({
   final effectiveBorder = showError
       ? BookingPageColors.danger.color
       : isFilled
-          ? BookingPageColors.primary.color
-          : BookingPageColors.outlineSoft.color;
+      ? BookingPageColors.primary.color
+      : BookingPageColors.outlineSoft.color;
 
   return InputDecorationTheme(
     filled: true,

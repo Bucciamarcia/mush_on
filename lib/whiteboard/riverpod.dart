@@ -11,7 +11,9 @@ Stream<List<WhiteboardElement>> permanentWhiteboardElements(Ref ref) async* {
   String path = "accounts/$account/data/whiteboard/elements";
   final db = FirebaseFirestore.instance;
   final collection = db.collection(path);
-  yield* collection.snapshots().map((snapshot) => snapshot.docs
-      .map((doc) => WhiteboardElement.fromJson(doc.data()))
-      .toList());
+  yield* collection.snapshots().map(
+    (snapshot) => snapshot.docs
+        .map((doc) => WhiteboardElement.fromJson(doc.data()))
+        .toList(),
+  );
 }

@@ -10,10 +10,7 @@ import 'package:searchfield/searchfield.dart';
 class AddTaskElevatedButton extends ConsumerWidget {
   final Task? task;
   static final BasicLogger logger = BasicLogger();
-  const AddTaskElevatedButton({
-    super.key,
-    this.task,
-  });
+  const AddTaskElevatedButton({super.key, this.task});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,18 +50,25 @@ class AddTaskElevatedButton extends ConsumerWidget {
                     if (task == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         confirmationSnackbar(
-                            context, "Task added successfully!"),
+                          context,
+                          "Task added successfully!",
+                        ),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        confirmationSnackbar(context,
-                            "Task edited successfully: ${task?.title}"),
+                        confirmationSnackbar(
+                          context,
+                          "Task edited successfully: ${task?.title}",
+                        ),
                       );
                     }
                   }
                 } catch (e, s) {
-                  logger.error("Couldn't add the task",
-                      error: e, stackTrace: s);
+                  logger.error(
+                    "Couldn't add the task",
+                    error: e,
+                    stackTrace: s,
+                  );
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       errorSnackBar(context, "Couldn't add the task."),
@@ -75,12 +79,16 @@ class AddTaskElevatedButton extends ConsumerWidget {
               onTaskDeleted: (tid) async {
                 try {
                   await TaskRepository.delete(
-                      tid, await ref.watch(accountProvider.future));
+                    tid,
+                    await ref.watch(accountProvider.future),
+                  );
 
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       confirmationSnackbar(
-                          context, "Task removed successfully."),
+                        context,
+                        "Task removed successfully.",
+                      ),
                     );
                   }
                 } catch (e, s) {
@@ -108,13 +116,14 @@ class TaskEditorDialog extends StatefulWidget {
   final Task? task;
   final TaskEditorType taskEditorType;
   final Function(String) onTaskDeleted;
-  const TaskEditorDialog(
-      {super.key,
-      required this.onTaskAdded,
-      required this.dogs,
-      this.task,
-      required this.taskEditorType,
-      required this.onTaskDeleted});
+  const TaskEditorDialog({
+    super.key,
+    required this.onTaskAdded,
+    required this.dogs,
+    this.task,
+    required this.taskEditorType,
+    required this.onTaskDeleted,
+  });
 
   @override
   State<TaskEditorDialog> createState() => _AddTaskDialogState();
@@ -139,8 +148,9 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
       }
     }
     _titleController = TextEditingController(text: widget.task?.title ?? "");
-    _descriptionController =
-        TextEditingController(text: widget.task?.description ?? "");
+    _descriptionController = TextEditingController(
+      text: widget.task?.description ?? "",
+    );
     _dogIdController = TextEditingController(text: widget.task?.dogId ?? "");
     if (widget.task != null) {
       if (widget.task!.dogId != null) {
@@ -165,16 +175,16 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
     return AlertDialog.adaptive(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
           Icon(Icons.add_task, color: colorScheme.primary),
           const SizedBox(width: 12),
-          Text(widget.taskEditorType == TaskEditorType.newTask
-              ? "Add New Task"
-              : "Edit task"),
+          Text(
+            widget.taskEditorType == TaskEditorType.newTask
+                ? "Add New Task"
+                : "Edit task",
+          ),
         ],
       ),
       content: Container(
@@ -227,10 +237,14 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
       elevation: 0,
       color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       child: SwitchListTile(
-        title: const Text("Urgent Task",
-            style: TextStyle(fontWeight: FontWeight.w600)),
-        secondary: Icon(Icons.priority_high,
-            color: _isUrgent ? colorScheme.error : colorScheme.primary),
+        title: const Text(
+          "Urgent Task",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        secondary: Icon(
+          Icons.priority_high,
+          color: _isUrgent ? colorScheme.error : colorScheme.primary,
+        ),
         value: _isUrgent,
         onChanged: (v) => setState(() => _isUrgent = v),
         activeThumbColor: colorScheme.error,
@@ -247,8 +261,10 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
       color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       child: ListTile(
         leading: Icon(Icons.repeat, color: colorScheme.primary),
-        title:
-            const Text("Repeat", style: TextStyle(fontWeight: FontWeight.w600)),
+        title: const Text(
+          "Repeat",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
@@ -263,11 +279,12 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
               if (value != null) setState(() => _recurringType = value);
             },
             items: RecurringType.values
-                .map((v) => DropdownMenuItem(
-                      value: v,
-                      child:
-                          Text(v.name[0].toUpperCase() + v.name.substring(1)),
-                    ))
+                .map(
+                  (v) => DropdownMenuItem(
+                    value: v,
+                    child: Text(v.name[0].toUpperCase() + v.name.substring(1)),
+                  ),
+                )
                 .toList(),
           ),
         ),
@@ -282,9 +299,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -311,8 +326,10 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
                   child: SearchField<Dog>(
                     searchInputDecoration: SearchInputDecoration(
                       hint: const Text("Search for a dog..."),
-                      prefixIcon:
-                          Icon(Icons.search, color: colorScheme.primary),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        color: colorScheme.primary,
+                      ),
                       filled: true,
                       fillColor: colorScheme.surface,
                       border: OutlineInputBorder(
@@ -351,15 +368,20 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.pets,
-                            size: 20, color: colorScheme.onPrimaryContainer),
+                        Icon(
+                          Icons.pets,
+                          size: 20,
+                          color: colorScheme.onPrimaryContainer,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           _selectedDog!.name,
@@ -394,9 +416,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
     return FilledButton.icon(
       style: FilledButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       onPressed: isEnabled
           ? () {
@@ -415,17 +435,22 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
                       _expiration == null ? RecurringType.none : _recurringType,
                   expiration: _expiration == null
                       ? null
-                      : DateTime.utc(_expiration!.year, _expiration!.month,
-                          _expiration!.day),
+                      : DateTime.utc(
+                          _expiration!.year,
+                          _expiration!.month,
+                          _expiration!.day,
+                        ),
                 ),
               );
               Navigator.of(context).pop();
             }
           : null,
       icon: const Icon(Icons.add),
-      label: Text(widget.taskEditorType == TaskEditorType.newTask
-          ? "Add Task"
-          : "Edit task"),
+      label: Text(
+        widget.taskEditorType == TaskEditorType.newTask
+            ? "Add Task"
+            : "Edit task",
+      ),
     );
   }
 
@@ -433,15 +458,10 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
     return TextButton(
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       onPressed: () => Navigator.of(context).pop(),
-      child: Text(
-        "Cancel",
-        style: TextStyle(color: colorScheme.error),
-      ),
+      child: Text("Cancel", style: TextStyle(color: colorScheme.error)),
     );
   }
 
@@ -453,9 +473,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
         labelText: "Description (optional)",
         hintText: "Additional details",
         prefixIcon: const Icon(Icons.description_outlined),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         filled: true,
       ),
     );
@@ -473,9 +491,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
           labelText: "Task Title",
           hintText: "Enter task title",
           prefixIcon: const Icon(Icons.title),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           filled: true,
         ),
       ),
@@ -488,9 +504,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -567,12 +581,13 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
                 child: FilledButton.tonalIcon(
                   onPressed: () async {
                     await _selectDate(
-                        context: context,
-                        onDatePicked: (newDate) {
-                          setState(() {
-                            _expiration = newDate;
-                          });
+                      context: context,
+                      onDatePicked: (newDate) {
+                        setState(() {
+                          _expiration = newDate;
                         });
+                      },
+                    );
                   },
                   icon: Icon(_expiration != null ? Icons.edit : Icons.add),
                   label: Text(_expiration != null ? "Change Date" : "Set Date"),
@@ -585,23 +600,25 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
     );
   }
 
-  Future<void> _selectDate(
-      {required BuildContext context,
-      required Function(DateTime) onDatePicked}) async {
+  Future<void> _selectDate({
+    required BuildContext context,
+    required Function(DateTime) onDatePicked,
+  }) async {
     final DateTime? picked = await showDatePicker(
-        context: context,
-        firstDate: DateTime.now(),
-        lastDate: DateTime.now().add(const Duration(days: 900)),
-        builder: (context, child) {
-          return Theme(
-            data: Theme.of(context).copyWith(
-              dialogTheme: DialogThemeData(
-                backgroundColor: Theme.of(context).colorScheme.surface,
-              ),
+      context: context,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 900)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogTheme: DialogThemeData(
+              backgroundColor: Theme.of(context).colorScheme.surface,
             ),
-            child: child!,
-          );
-        });
+          ),
+          child: child!,
+        );
+      },
+    );
     if (picked != null) {
       onDatePicked(picked);
     }
@@ -609,11 +626,12 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
 
   TextButton _buildDeleteTaskButton({required Function() onTaskDeleted}) {
     return TextButton(
-        onPressed: () {
-          onTaskDeleted();
-          Navigator.of(context).pop();
-        },
-        child: const Text("Delete task"));
+      onPressed: () {
+        onTaskDeleted();
+        Navigator.of(context).pop();
+      },
+      child: const Text("Delete task"),
+    );
   }
 }
 

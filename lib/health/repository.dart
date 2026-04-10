@@ -43,8 +43,11 @@ class HealthEventRepository {
     try {
       collection.doc(event.id).set(payload);
     } catch (e, s) {
-      logger.error("Couldn't set the new document health event",
-          error: e, stackTrace: s);
+      logger.error(
+        "Couldn't set the new document health event",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -70,7 +73,8 @@ class VaccinationRepository {
     if (accountValue == null) {
       logger.error('Could not add vaccination: User account is not available.');
       throw Exception(
-          "Could not add vaccination: User account is not available.");
+        "Could not add vaccination: User account is not available.",
+      );
     }
 
     logger.debug('Adding vaccination for account: $accountValue');
@@ -80,8 +84,11 @@ class VaccinationRepository {
     try {
       collection.doc(vaccination.id).set(payload);
     } catch (e, s) {
-      logger.error("Couldn't set the new document vaccination",
-          error: e, stackTrace: s);
+      logger.error(
+        "Couldn't set the new document vaccination",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -107,7 +114,8 @@ class HeatCycleRepository {
     if (accountValue == null) {
       logger.error('Could not add heat cycle: User account is not available.');
       throw Exception(
-          "Could not add heat cycle: User account is not available.");
+        "Could not add heat cycle: User account is not available.",
+      );
     }
 
     logger.debug('Adding heat cycle for account: $accountValue');
@@ -117,8 +125,11 @@ class HeatCycleRepository {
     try {
       collection.doc(heatCycle.id).set(payload);
     } catch (e, s) {
-      logger.error("Couldn't set the new document heat cycle",
-          error: e, stackTrace: s);
+      logger.error(
+        "Couldn't set the new document heat cycle",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }

@@ -9,11 +9,12 @@ class BookingCustomFieldsMain extends ConsumerWidget {
   final List<BookingCustomField> tempBookingFields;
   final BookingManagerKennelInfo? kennelInfo;
   final Future<void> Function() onSubmit;
-  const BookingCustomFieldsMain(
-      {super.key,
-      required this.tempBookingFields,
-      required this.kennelInfo,
-      required this.onSubmit});
+  const BookingCustomFieldsMain({
+    super.key,
+    required this.tempBookingFields,
+    required this.kennelInfo,
+    required this.onSubmit,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,7 +41,9 @@ class BookingCustomFieldsMain extends ConsumerWidget {
                     key: const ValueKey('unsaved_booking_custom_fields'),
                     margin: const EdgeInsets.only(top: 20),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: colorScheme.errorContainer,
                       borderRadius: BorderRadius.circular(16),
@@ -141,8 +144,10 @@ class BookingCustomFieldsEditor extends ConsumerWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(999),
@@ -183,8 +188,9 @@ class BookingCustomFieldsEditor extends ConsumerWidget {
                                 .read(tempBookingFieldsProvider.notifier)
                                 .updateField(index, v);
                             ref
-                                .read(isBookingCustomFieldsEditedProvider
-                                    .notifier)
+                                .read(
+                                  isBookingCustomFieldsEditedProvider.notifier,
+                                )
                                 .setEdited(true);
                           },
                           onDeleted: () {
@@ -192,8 +198,9 @@ class BookingCustomFieldsEditor extends ConsumerWidget {
                                 .read(tempBookingFieldsProvider.notifier)
                                 .removeField(index);
                             ref
-                                .read(isBookingCustomFieldsEditedProvider
-                                    .notifier)
+                                .read(
+                                  isBookingCustomFieldsEditedProvider.notifier,
+                                )
                                 .setEdited(true);
                           },
                         ),
@@ -231,8 +238,11 @@ class _BookingFieldDisplayWidget extends StatefulWidget {
   final BookingCustomField field;
   final Function(BookingCustomField) onChanged;
   final Function() onDeleted;
-  const _BookingFieldDisplayWidget(
-      {required this.field, required this.onChanged, required this.onDeleted});
+  const _BookingFieldDisplayWidget({
+    required this.field,
+    required this.onChanged,
+    required this.onDeleted,
+  });
 
   @override
   State<_BookingFieldDisplayWidget> createState() =>
@@ -250,8 +260,9 @@ class _BookingFieldDisplayWidgetState
   @override
   void initState() {
     nameController = TextEditingController(text: widget.field.name);
-    descriptionController =
-        TextEditingController(text: widget.field.description);
+    descriptionController = TextEditingController(
+      text: widget.field.description,
+    );
     isRequired = widget.field.isRequired;
     canEditName = false;
     canEditDescription = false;
@@ -333,7 +344,9 @@ class _BookingFieldDisplayWidgetState
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(999),
@@ -353,8 +366,9 @@ class _BookingFieldDisplayWidgetState
                   tooltip: "Delete field",
                   onPressed: () => widget.onDeleted(),
                   style: IconButton.styleFrom(
-                    backgroundColor:
-                        colorScheme.errorContainer.withValues(alpha: 0.55),
+                    backgroundColor: colorScheme.errorContainer.withValues(
+                      alpha: 0.55,
+                    ),
                     foregroundColor: colorScheme.error,
                   ),
                   icon: const Icon(Icons.delete_outline),
@@ -371,7 +385,8 @@ class _BookingFieldDisplayWidgetState
               onToggle: () {
                 if (canEditName) {
                   widget.onChanged(
-                      widget.field.copyWith(name: nameController.text));
+                    widget.field.copyWith(name: nameController.text),
+                  );
                 }
                 setState(() {
                   canEditName = !canEditName;
@@ -387,8 +402,11 @@ class _BookingFieldDisplayWidgetState
               maxLines: 3,
               onToggle: () {
                 if (canEditDescription) {
-                  widget.onChanged(widget.field
-                      .copyWith(description: descriptionController.text));
+                  widget.onChanged(
+                    widget.field.copyWith(
+                      description: descriptionController.text,
+                    ),
+                  );
                 }
                 setState(() {
                   canEditDescription = !canEditDescription;
@@ -490,9 +508,7 @@ class _BookingEditableFieldRow extends StatelessWidget {
                       : colorScheme.surfaceContainerLow,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(
-                      color: colorScheme.outlineVariant,
-                    ),
+                    borderSide: BorderSide(color: colorScheme.outlineVariant),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),

@@ -118,7 +118,6 @@ class MassCgEditorTourType extends _$MassCgEditorTourType {
 }
 
 @riverpod
-
 /// Checks whether all the data has been correctly set and the mass CG can be added.
 bool canAddCgs(Ref ref) {
   final ruletype = ref.watch(selectedRuleTypeProvider);

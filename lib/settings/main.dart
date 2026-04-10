@@ -47,22 +47,23 @@ class SettingsMain extends ConsumerWidget {
                   children: [
                     Text(
                       "Settings",
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       "Manage your profile, workspace configuration, and team access.",
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 32),
                     GridView.count(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: MediaQuery.of(context).size.width < 700 ? 1 : 2,
+                      crossAxisCount: MediaQuery.of(context).size.width < 700
+                          ? 1
+                          : 2,
                       mainAxisSpacing: 20,
                       crossAxisSpacing: 20,
                       childAspectRatio: 1.4,
@@ -79,7 +80,8 @@ class SettingsMain extends ConsumerWidget {
                           description:
                               "Configure custom fields and global distance warnings.",
                           icon: Icons.work_outline_rounded,
-                          status: "${settings.customFieldTemplates.length} fields",
+                          status:
+                              "${settings.customFieldTemplates.length} fields",
                           onTap: () => context.go("/settings/workspace"),
                         ),
                         if (userName.userLevel.rank >= UserLevel.musher.rank)

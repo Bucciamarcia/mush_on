@@ -13,7 +13,9 @@ class HomePageScreen extends ConsumerWidget {
     return asyncAccount.when(
       data: (account) {
         return const TemplateScreen(
-            title: "Kennel", child: HomePageScreenContent());
+          title: "Kennel",
+          child: HomePageScreenContent(),
+        );
       },
       error: (e, s) => const Text("Error getting account"),
       loading: () => const CircularProgressIndicator.adaptive(),

@@ -19,51 +19,57 @@ class EditKennelMain extends ConsumerWidget {
     // INFO: It treats no filter and empty filter the same way.
     // INFO: Keep in mind if want different behaviour in future.
     return dogsAsync.when(
-        data: (dogs) {
-          ref.listen<AsyncValue<List<Dog>>>(dogsProvider, (previous, next) {
-            // When we get new data (and not a repeat), update the display list.
-            if (next.hasValue) {
-              ref.read(dogsDisplayListProvider.notifier).setDogs(next.value!);
-            }
-          });
-          var customFieldTemplates = ref.watch(settingsProvider).valueOrNull;
-          return ListView(
-            children: [
-              Card(
-                child: ExpansionTile(
-                  title: const Text("Filter dogs"),
-                  children: [
-                    DogFilterWidget(
-                      dogs: dogs,
-                      templates:
-                          customFieldTemplates?.customFieldTemplates ?? [],
-                      onResult: (v) {
-                        logger.debug("Len of list: ${v.length}");
-                        // TODO: This now only orders by alpabetical order.
-                        // TODO: Ordering should be done by dog fiter.
-                        ref.read(dogsDisplayListProvider.notifier).setDogs(v);
-                        if (v.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              errorSnackBar(context,
-                                  "Search came up empty. Showing all dogs"));
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              ...ref.watch(dogsDisplayListProvider).map(
-                    (dog) => DogCard(dog: dog),
+      data: (dogs) {
+        ref.listen<AsyncValue<List<Dog>>>(dogsProvider, (previous, next) {
+          // When we get new data (and not a repeat), update the display list.
+          if (next.hasValue) {
+            ref.read(dogsDisplayListProvider.notifier).setDogs(next.value!);
+          }
+        });
+        var customFieldTemplates = ref.watch(settingsProvider).valueOrNull;
+        return ListView(
+          children: [
+            Card(
+              child: ExpansionTile(
+                title: const Text("Filter dogs"),
+                children: [
+                  DogFilterWidget(
+                    dogs: dogs,
+                    templates: customFieldTemplates?.customFieldTemplates ?? [],
+                    onResult: (v) {
+                      logger.debug("Len of list: ${v.length}");
+                      // TODO: This now only orders by alpabetical order.
+                      // TODO: Ordering should be done by dog fiter.
+                      ref.read(dogsDisplayListProvider.notifier).setDogs(v);
+                      if (v.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(
+                            context,
+                            "Search came up empty. Showing all dogs",
+                          ),
+                        );
+                      }
+                    },
                   ),
-            ],
-          );
-        },
-        error: (e, s) {
-          BasicLogger()
-              .error("Error while loading dogs", error: e, stackTrace: s);
-          return const Text("ERROR: couldn't load dogs");
-        },
-        loading: () => const CircularProgressIndicator.adaptive());
+                ],
+              ),
+            ),
+            ...ref
+                .watch(dogsDisplayListProvider)
+                .map((dog) => DogCard(dog: dog)),
+          ],
+        );
+      },
+      error: (e, s) {
+        BasicLogger().error(
+          "Error while loading dogs",
+          error: e,
+          stackTrace: s,
+        );
+        return const Text("ERROR: couldn't load dogs");
+      },
+      loading: () => const CircularProgressIndicator.adaptive(),
+    );
   }
 }
 
@@ -74,10 +80,9 @@ class DogCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-        onPressed: () => context.goNamed(
-              "dog",
-              queryParameters: {"dogId": dog.id},
-            ),
-        child: Text(dog.name));
+      onPressed: () =>
+          context.goNamed("dog", queryParameters: {"dogId": dog.id}),
+      child: Text(dog.name),
+    );
   }
 }

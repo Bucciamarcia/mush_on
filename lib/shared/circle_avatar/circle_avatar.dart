@@ -27,10 +27,7 @@ class CircleAvatarWidget extends ConsumerWidget {
     if (nameFirstLetter != null) {
       noAvatarPlaceholder = Text(
         nameFirstLetter,
-        style: TextStyle(
-          fontSize: radius * 0.6,
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(fontSize: radius * 0.6, fontWeight: FontWeight.bold),
       );
     } else {
       noAvatarPlaceholder = Icon(Icons.person, size: radius);

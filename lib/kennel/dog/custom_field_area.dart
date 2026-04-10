@@ -9,12 +9,13 @@ class CustomFieldArea extends StatelessWidget {
   final List<CustomField> dogCustomFields;
   final Function(CustomField) onCustomFieldSaved;
   final Function(String) onCustomFieldDeleted;
-  const CustomFieldArea(
-      {super.key,
-      required this.customFieldTemplates,
-      required this.dogCustomFields,
-      required this.onCustomFieldSaved,
-      required this.onCustomFieldDeleted});
+  const CustomFieldArea({
+    super.key,
+    required this.customFieldTemplates,
+    required this.dogCustomFields,
+    required this.onCustomFieldSaved,
+    required this.onCustomFieldDeleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +39,13 @@ class CustomFieldsWidget extends StatelessWidget {
   final List<CustomField> dogCustomFields;
   final Function(CustomField) onCustomFieldSaved;
   final Function(String) onCustomFieldDeleted;
-  const CustomFieldsWidget(
-      {super.key,
-      required this.customFieldTemplates,
-      required this.dogCustomFields,
-      required this.onCustomFieldSaved,
-      required this.onCustomFieldDeleted});
+  const CustomFieldsWidget({
+    super.key,
+    required this.customFieldTemplates,
+    required this.dogCustomFields,
+    required this.onCustomFieldSaved,
+    required this.onCustomFieldDeleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +53,15 @@ class CustomFieldsWidget extends StatelessWidget {
       return Wrap(
         spacing: 10,
         children: customFieldTemplates!
-            .map((t) => DogCustomFieldCard(
-                  customFieldTemplate: t,
-                  dogCustomFields: dogCustomFields,
-                  onCustomFieldSaved: (r) => onCustomFieldSaved(r),
-                  onCustomFieldDeleted: (templateId) =>
-                      onCustomFieldDeleted(templateId),
-                ))
+            .map(
+              (t) => DogCustomFieldCard(
+                customFieldTemplate: t,
+                dogCustomFields: dogCustomFields,
+                onCustomFieldSaved: (r) => onCustomFieldSaved(r),
+                onCustomFieldDeleted: (templateId) =>
+                    onCustomFieldDeleted(templateId),
+              ),
+            )
             .toList(),
       );
     } else {
@@ -71,12 +75,13 @@ class DogCustomFieldCard extends StatefulWidget {
   final List<CustomField> dogCustomFields;
   final Function(CustomField) onCustomFieldSaved;
   final Function(String) onCustomFieldDeleted;
-  const DogCustomFieldCard(
-      {super.key,
-      required this.customFieldTemplate,
-      required this.dogCustomFields,
-      required this.onCustomFieldSaved,
-      required this.onCustomFieldDeleted});
+  const DogCustomFieldCard({
+    super.key,
+    required this.customFieldTemplate,
+    required this.dogCustomFields,
+    required this.onCustomFieldSaved,
+    required this.onCustomFieldDeleted,
+  });
 
   @override
   State<DogCustomFieldCard> createState() => _DogCustomFieldCardState();
@@ -97,7 +102,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
     _controller = TextEditingController();
     _controller.text =
         _getCurrentValue(widget.customFieldTemplate, widget.dogCustomFields) ??
-            "";
+        "";
     logger.debug("CONTROLLER CUSTOMFIELDS: ${_controller.text}");
   }
 
@@ -105,11 +110,15 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
   void didUpdateWidget(covariant DogCustomFieldCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.dogCustomFields != widget.dogCustomFields) {
-      _controller.text = _getCurrentValue(
-              widget.customFieldTemplate, widget.dogCustomFields) ??
+      _controller.text =
+          _getCurrentValue(
+            widget.customFieldTemplate,
+            widget.dogCustomFields,
+          ) ??
           "";
       logger.debug(
-          "Updated controller with new custom fields: ${_controller.text}");
+        "Updated controller with new custom fields: ${_controller.text}",
+      );
     }
   }
 
@@ -129,14 +138,15 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
               Text(
                 widget.customFieldTemplate.name,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Flexible(
-                    child: widget.customFieldTemplate.type ==
+                    child:
+                        widget.customFieldTemplate.type ==
                             CustomFieldType.typeDropdown
                         ? DropdownMenu(
                             controller: _controller,
@@ -151,7 +161,8 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                             dropdownMenuEntries: [
                               const DropdownMenuEntry(value: "", label: ""),
                               ...widget.customFieldTemplate.options!.map(
-                                  (o) => DropdownMenuEntry(value: o, label: o))
+                                (o) => DropdownMenuEntry(value: o, label: o),
+                              ),
                             ],
                           )
                         : TextField(
@@ -160,15 +171,15 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.outline),
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: BorderSide(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    width: 2),
+                                  color: Theme.of(context).colorScheme.primary,
+                                  width: 2,
+                                ),
                               ),
                             ),
                             inputFormatters: _inputFormatters(),
@@ -188,9 +199,11 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                     onPressed: hasChanged
                         ? () {
                             setState(() {
-                              _controller.text = _getCurrentValue(
-                                      widget.customFieldTemplate,
-                                      widget.dogCustomFields) ??
+                              _controller.text =
+                                  _getCurrentValue(
+                                    widget.customFieldTemplate,
+                                    widget.dogCustomFields,
+                                  ) ??
                                   "";
                               hasChanged = false;
                             });
@@ -208,7 +221,8 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                             try {
                               if (_controller.text.isEmpty) {
                                 widget.onCustomFieldDeleted(
-                                    widget.customFieldTemplate.id);
+                                  widget.customFieldTemplate.id,
+                                );
                               } else {
                                 widget.onCustomFieldSaved(_createCustomField());
                               }
@@ -216,14 +230,22 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                                 hasChanged = false;
                               });
                             } catch (e, s) {
-                              logger.error("Couldn't change custom field",
-                                  error: e, stackTrace: s);
+                              logger.error(
+                                "Couldn't change custom field",
+                                error: e,
+                                stackTrace: s,
+                              );
                               ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(context,
-                                      "Couldn't update the field. Reverting."));
-                              _controller.text = _getCurrentValue(
-                                      widget.customFieldTemplate,
-                                      widget.dogCustomFields) ??
+                                errorSnackBar(
+                                  context,
+                                  "Couldn't update the field. Reverting.",
+                                ),
+                              );
+                              _controller.text =
+                                  _getCurrentValue(
+                                    widget.customFieldTemplate,
+                                    widget.dogCustomFields,
+                                  ) ??
                                   "";
                               hasChanged = false;
                             }
@@ -234,7 +256,7 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
                     color: Theme.of(context).colorScheme.primary,
                     iconSize: 18,
                     visualDensity: VisualDensity.compact,
-                  )
+                  ),
                 ],
               ),
             ],
@@ -280,7 +302,9 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
           value = CustomFieldValue.stringValue(_controller.text);
       }
       return CustomField(
-          templateId: widget.customFieldTemplate.id, value: value);
+        templateId: widget.customFieldTemplate.id,
+        value: value,
+      );
     } catch (e, s) {
       logger.error("Couldn't create custom field.", error: e, stackTrace: s);
       rethrow;
@@ -289,7 +313,9 @@ class _DogCustomFieldCardState extends State<DogCustomFieldCard> {
 }
 
 String? _getCurrentValue(
-    CustomFieldTemplate template, List<CustomField> dogCustomFields) {
+  CustomFieldTemplate template,
+  List<CustomField> dogCustomFields,
+) {
   if (dogCustomFields.any((cf) => cf.templateId == template.id)) {
     int i = dogCustomFields.indexWhere((cf) => cf.templateId == template.id);
     var customField = dogCustomFields[i];

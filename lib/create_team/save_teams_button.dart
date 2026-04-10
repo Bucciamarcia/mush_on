@@ -35,12 +35,14 @@ class SaveTeamsButton extends ConsumerWidget {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
                           content: Text(
                             "Teams saved",
                             style: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary),
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ),
                           behavior: SnackBarBehavior.floating,
                         ),
@@ -50,32 +52,39 @@ class SaveTeamsButton extends ConsumerWidget {
                         .read(canPopTeamGroupProvider.notifier)
                         .changeState(true);
                   } catch (e, s) {
-                    logger.error("Couldn't save team to db",
-                        error: e, stackTrace: s);
+                    logger.error(
+                      "Couldn't save team to db",
+                      error: e,
+                      stackTrace: s,
+                    );
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         errorSnackBar(
-                            context, "Couldn't save team to database"),
+                          context,
+                          "Couldn't save team to database",
+                        ),
                       );
                     }
                   }
                 },
           style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
           child: Text(
             "Save team group",
             style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
           ),
         ),
         ElevatedButton(
-            onPressed: isReadOnly
-                ? null
-                : () {
-                    ref.invalidate(createTeamGroupProvider);
-                    ref.invalidate(distanceControllerProvider);
-                    context.pushReplacement("/createteam");
-                  },
-            child: const Text("Create a new team group")),
+          onPressed: isReadOnly
+              ? null
+              : () {
+                  ref.invalidate(createTeamGroupProvider);
+                  ref.invalidate(distanceControllerProvider);
+                  context.pushReplacement("/createteam");
+                },
+          child: const Text("Create a new team group"),
+        ),
       ],
     );
   }
@@ -85,10 +94,7 @@ class SaveTeamsButton extends ConsumerWidget {
       var db = FirebaseFirestore.instance;
       String path = "accounts/$account/data/teams/history";
       var ref = db.collection(path);
-      var query = ref.where(
-        "date",
-        isEqualTo: newDate,
-      );
+      var query = ref.where("date", isEqualTo: newDate);
       QuerySnapshot snapshot = await query.get();
       return snapshot;
     } catch (e, s) {
@@ -98,10 +104,14 @@ class SaveTeamsButton extends ConsumerWidget {
   }
 
   Future<void> saveCustomersToDb(
-      TeamGroupWorkspace newtg, String account, WidgetRef ref) async {
+    TeamGroupWorkspace newtg,
+    String account,
+    WidgetRef ref,
+  ) async {
     logger.info("Starting sctdb");
-    CustomerGroupWorkspace? customerGroup =
-        await ref.watch(customerAssignProvider(newtg.id).future);
+    CustomerGroupWorkspace? customerGroup = await ref.watch(
+      customerAssignProvider(newtg.id).future,
+    );
     if (customerGroup == null) {
       return;
     }
@@ -111,8 +121,11 @@ class SaveTeamsButton extends ConsumerWidget {
       try {
         await repo.setCustomer(customer);
       } catch (e, s) {
-        logger.error("Error while saving customer ${customer.id} to db",
-            error: e, stackTrace: s);
+        logger.error(
+          "Error while saving customer ${customer.id} to db",
+          error: e,
+          stackTrace: s,
+        );
         rethrow;
       }
     }
@@ -120,7 +133,10 @@ class SaveTeamsButton extends ConsumerWidget {
 }
 
 Future<void> saveToDb(
-    TeamGroupWorkspace newtg, String account, WidgetRef ref) async {
+  TeamGroupWorkspace newtg,
+  String account,
+  WidgetRef ref,
+) async {
   final logger = BasicLogger();
   logger.info("Saving to db the teamgroup workspace");
   var db = FirebaseFirestore.instance;
@@ -147,7 +163,9 @@ Future<void> saveToDb(
 
   logger.info("starting the save with id: ${newtg.id}");
   batch.set(
-      db.doc("accounts/$account/data/teams/history/${newtg.id}"), newtgObject);
+    db.doc("accounts/$account/data/teams/history/${newtg.id}"),
+    newtgObject,
+  );
 
   var newteamsObject = [];
   for (var (i, team) in newtg.teams.indexed) {
@@ -160,17 +178,21 @@ Future<void> saveToDb(
   // Then re-set them all.
   for (var team in newtg.teams) {
     batch.set(
-        db.doc(
-            "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}"),
-        newteamsObject.firstWhere((o) => o["id"] == team.id));
+      db.doc(
+        "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}",
+      ),
+      newteamsObject.firstWhere((o) => o["id"] == team.id),
+    );
     // Re-set all dogpairs for this team
     for (var (i, dogPair) in team.dogPairs.indexed) {
       var dogPairData = dogPair.toJson();
       dogPairData.addAll({"rank": i});
       batch.set(
-          db.doc(
-              "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}"),
-          dogPairData);
+        db.doc(
+          "accounts/$account/data/teams/history/${newtg.id}/teams/${team.id}/dogPairs/${dogPair.id}",
+        ),
+        dogPairData,
+      );
     }
   }
   try {
@@ -206,15 +228,19 @@ Map<String, dynamic> _buildTeamsSnapshot(TeamGroupWorkspace teamGroup) {
 }
 
 Future<void> _removeCustomerGroups(
-    String teamId, String account, DateTime newTeamDate) async {
+  String teamId,
+  String account,
+  DateTime newTeamDate,
+) async {
   final logger = BasicLogger();
   logger.debug("Checking remove cg");
   String path = "accounts/$account/data/bookingManager/customerGroups";
   final db = FirebaseFirestore.instance;
   var collection = db.collection(path).where("teamGroupId", isEqualTo: teamId);
   var data = await collection.get();
-  List<CustomerGroup> cgs =
-      data.docs.map((doc) => CustomerGroup.fromJson(doc.data())).toList();
+  List<CustomerGroup> cgs = data.docs
+      .map((doc) => CustomerGroup.fromJson(doc.data()))
+      .toList();
   if (cgs.isEmpty) {
     logger.debug("None to remove");
     return;

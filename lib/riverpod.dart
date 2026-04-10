@@ -40,7 +40,6 @@ Future<DocumentSnapshot<Map<String, dynamic>>> _getDocumentWithRetry(
 }
 
 @Riverpod(keepAlive: true)
-
 /// This provider streams a user from firestore. Use UID to determine which, or null for self.
 /// If it returns null, it couldn't find it.
 Stream<UserName?> userName(Ref ref, String? uid) async* {
@@ -122,12 +121,17 @@ Stream<List<Task>> tasksWithExpiration(Ref ref, int? days) async* {
   String path = "accounts/$account/data/misc/tasks";
   var collection = FirebaseFirestore.instance.collection(path);
   yield* collection
-      .where("expiration",
-          isGreaterThanOrEqualTo:
-              DateTime.now().subtract(Duration(days: days ?? 30)))
+      .where(
+        "expiration",
+        isGreaterThanOrEqualTo: DateTime.now().subtract(
+          Duration(days: days ?? 30),
+        ),
+      )
       .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((t) => Task.fromJson(t.data())).toList());
+      .map(
+        (snapshot) =>
+            snapshot.docs.map((t) => Task.fromJson(t.data())).toList(),
+      );
 }
 
 @Riverpod(keepAlive: true)
@@ -135,8 +139,13 @@ Stream<List<Task>> tasksNoExpiration(Ref ref) async* {
   String account = await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/misc/tasks";
   var collection = FirebaseFirestore.instance.collection(path);
-  yield* collection.where("expiration", isNull: true).snapshots().map(
-      (snapshot) => snapshot.docs.map((t) => Task.fromJson(t.data())).toList());
+  yield* collection
+      .where("expiration", isNull: true)
+      .snapshots()
+      .map(
+        (snapshot) =>
+            snapshot.docs.map((t) => Task.fromJson(t.data())).toList(),
+      );
 }
 
 @Riverpod(keepAlive: true)
@@ -149,35 +158,39 @@ Stream<TasksInMemory> tasks(Ref ref, int? days) async* {
   final expirationStream = collection
       .where(
         "expiration",
-        isGreaterThanOrEqualTo:
-            DateTime.now().subtract(Duration(days: days ?? 30)),
+        isGreaterThanOrEqualTo: DateTime.now().subtract(
+          Duration(days: days ?? 30),
+        ),
       )
       .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((t) => Task.fromJson(t.data())).toList());
+      .map(
+        (snapshot) =>
+            snapshot.docs.map((t) => Task.fromJson(t.data())).toList(),
+      );
 
   // Query 2: Tasks with no expiration date
   final noExpirationStream = collection
       .where("expiration", isNull: true)
       .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((t) => Task.fromJson(t.data())).toList());
+      .map(
+        (snapshot) =>
+            snapshot.docs.map((t) => Task.fromJson(t.data())).toList(),
+      );
 
   // Combine the latest results from both streams
-  yield* Rx.combineLatest2(
-    expirationStream,
-    noExpirationStream,
-    (List<Task> withExp, List<Task> noExp) {
-      final combined = [...withExp, ...noExp]
-        ..sort((a, b) => a.title.compareTo(b.title));
+  yield* Rx.combineLatest2(expirationStream, noExpirationStream, (
+    List<Task> withExp,
+    List<Task> noExp,
+  ) {
+    final combined = [...withExp, ...noExp]
+      ..sort((a, b) => a.title.compareTo(b.title));
 
-      return TasksInMemory(
-        tasks: combined,
-        oldestFetched: DateTime.now().subtract(Duration(days: days ?? 30)),
-        noExpirationFetched: true,
-      );
-    },
-  );
+    return TasksInMemory(
+      tasks: combined,
+      oldestFetched: DateTime.now().subtract(Duration(days: days ?? 30)),
+      noExpirationFetched: true,
+    );
+  });
 }
 
 @Riverpod(keepAlive: true)
@@ -187,5 +200,6 @@ Stream<List<Dog>> dogs(Ref ref) async* {
   String path = "accounts/$account/data/kennel/dogs";
   var query = db.collection(path).orderBy("name");
   yield* query.snapshots().map(
-      (snapshot) => snapshot.docs.map((d) => Dog.fromJson(d.data())).toList());
+    (snapshot) => snapshot.docs.map((d) => Dog.fromJson(d.data())).toList(),
+  );
 }

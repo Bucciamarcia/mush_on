@@ -6,7 +6,6 @@ part 'username.g.dart';
 part 'username.freezed.dart';
 
 @freezed
-
 /// This class represents a user in the database.
 sealed class UserName with _$UserName {
   const factory UserName({

@@ -25,8 +25,9 @@ class HomePageScreenContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<HomePageRiverpodResults> riverpodAsync =
-        ref.watch(homePageRiverpodProvider);
+    final AsyncValue<HomePageRiverpodResults> riverpodAsync = ref.watch(
+      homePageRiverpodProvider,
+    );
     return riverpodAsync.when(
       data: (riverpod) {
         String? account = ref.watch(accountProvider).value;
@@ -40,10 +41,15 @@ class HomePageScreenContent extends ConsumerWidget {
         for (final dog in dogs) {
           final notes = dogNotes.where((n) => n.dogId == dog.id);
 
-          final hasFatal = notes.any((n) =>
-              n.dogNoteMessage.any((m) => m.type.noteType == NoteType.fatal));
-          final hasWarning = notes.any((n) =>
-              n.dogNoteMessage.any((m) => m.type.noteType == NoteType.warning));
+          final hasFatal = notes.any(
+            (n) =>
+                n.dogNoteMessage.any((m) => m.type.noteType == NoteType.fatal),
+          );
+          final hasWarning = notes.any(
+            (n) => n.dogNoteMessage.any(
+              (m) => m.type.noteType == NoteType.warning,
+            ),
+          );
 
           if (hasFatal) {
             unavailable++;
@@ -55,116 +61,161 @@ class HomePageScreenContent extends ConsumerWidget {
         }
 
         final canRun = ok + warningOnly; // ready-to-run number
-        List<WhiteboardElement> whiteboardElements = riverpod.whiteboardElements
-            .toList()
-          ..sort((a, b) => a.date.compareTo(b.date));
+        List<WhiteboardElement> whiteboardElements =
+            riverpod.whiteboardElements.toList()
+              ..sort((a, b) => a.date.compareTo(b.date));
         return ListView(
           children: [
             (kDebugMode) ? const ConvertTeamGroup() : const SizedBox.shrink(),
             Card(
               color: Theme.of(context).colorScheme.surfaceContainer,
               child: ExpansionTile(
-                  initiallyExpanded: true,
-                  title: const Row(
-                    children: [
-                      Tooltip(
-                        showDuration: Duration(seconds: 5),
-                        triggerMode: TooltipTriggerMode.tap,
-                        message:
-                            "A quick whiteboard that refreshes every day. For easy communication.",
-                        child: Icon(Icons.question_mark),
-                      ),
-                      TextTitle("Daily whiteboard"),
-                    ],
-                  ),
+                initiallyExpanded: true,
+                title: const Row(
                   children: [
-                    AddWhiteboardElementDisplayWidget(
-                      onDeleted: (id) {
-                        if (account == null) {
-                          logger.warning("Couldn't load account in home page");
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              errorSnackBar(
-                                  context, "Error: couldn't load account"));
-                        } else {
-                          try {
-                            WhiteboardElementRepository(account: account)
-                                .deleteElement(id);
-                          } catch (e, s) {
-                            logger.error("couldn't delete element",
-                                error: e, stackTrace: s);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                errorSnackBar(
-                                    context, "Error: couldn't delete element"));
-                          }
-                        }
-                      },
-                      onSaved: (e) {
-                        if (account == null) {
-                          logger.warning("Couldn't load account in home page");
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              errorSnackBar(
-                                  context, "Error: couldn't load account"));
-                        } else {
-                          try {
-                            WhiteboardElementRepository(account: account)
-                                .addElement(e);
-                          } catch (e, s) {
-                            logger.error("couldn't add element",
-                                error: e, stackTrace: s);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                errorSnackBar(
-                                    context, "Error: couldn't add element"));
-                          }
-                        }
-                      },
+                    Tooltip(
+                      showDuration: Duration(seconds: 5),
+                      triggerMode: TooltipTriggerMode.tap,
+                      message:
+                          "A quick whiteboard that refreshes every day. For easy communication.",
+                      child: Icon(Icons.question_mark),
                     ),
-                    ...whiteboardElements.map((element) => SizedBox(
-                          width: double.infinity,
-                          child: WhiteboardElementDisplayWidget(
-                            element: element,
-                            onDeleted: (id) {
-                              if (account == null) {
-                                logger.warning(
-                                    "Couldn't load account in home page");
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    errorSnackBar(context,
-                                        "Error: couldn't load account"));
-                              } else {
-                                try {
-                                  WhiteboardElementRepository(account: account)
-                                      .deleteElement(id);
-                                } catch (e, s) {
-                                  logger.error("couldn't delete element",
-                                      error: e, stackTrace: s);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      errorSnackBar(context,
-                                          "Error: couldn't delete element"));
-                                }
-                              }
-                            },
-                            onSaved: (e) {
-                              if (account == null) {
-                                logger.warning(
-                                    "Couldn't load account in home page");
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    errorSnackBar(context,
-                                        "Error: couldn't load account"));
-                              } else {
-                                try {
-                                  WhiteboardElementRepository(account: account)
-                                      .addElement(e);
-                                } catch (e, s) {
-                                  logger.error("couldn't add element",
-                                      error: e, stackTrace: s);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      errorSnackBar(context,
-                                          "Error: couldn't add element"));
-                                }
-                              }
-                            },
+                    TextTitle("Daily whiteboard"),
+                  ],
+                ),
+                children: [
+                  AddWhiteboardElementDisplayWidget(
+                    onDeleted: (id) {
+                      if (account == null) {
+                        logger.warning("Couldn't load account in home page");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(
+                            context,
+                            "Error: couldn't load account",
                           ),
-                        ))
-                  ]),
+                        );
+                      } else {
+                        try {
+                          WhiteboardElementRepository(
+                            account: account,
+                          ).deleteElement(id);
+                        } catch (e, s) {
+                          logger.error(
+                            "couldn't delete element",
+                            error: e,
+                            stackTrace: s,
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(
+                              context,
+                              "Error: couldn't delete element",
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    onSaved: (e) {
+                      if (account == null) {
+                        logger.warning("Couldn't load account in home page");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(
+                            context,
+                            "Error: couldn't load account",
+                          ),
+                        );
+                      } else {
+                        try {
+                          WhiteboardElementRepository(
+                            account: account,
+                          ).addElement(e);
+                        } catch (e, s) {
+                          logger.error(
+                            "couldn't add element",
+                            error: e,
+                            stackTrace: s,
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(
+                              context,
+                              "Error: couldn't add element",
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                  ...whiteboardElements.map(
+                    (element) => SizedBox(
+                      width: double.infinity,
+                      child: WhiteboardElementDisplayWidget(
+                        element: element,
+                        onDeleted: (id) {
+                          if (account == null) {
+                            logger.warning(
+                              "Couldn't load account in home page",
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(
+                                context,
+                                "Error: couldn't load account",
+                              ),
+                            );
+                          } else {
+                            try {
+                              WhiteboardElementRepository(
+                                account: account,
+                              ).deleteElement(id);
+                            } catch (e, s) {
+                              logger.error(
+                                "couldn't delete element",
+                                error: e,
+                                stackTrace: s,
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                errorSnackBar(
+                                  context,
+                                  "Error: couldn't delete element",
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        onSaved: (e) {
+                          if (account == null) {
+                            logger.warning(
+                              "Couldn't load account in home page",
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(
+                                context,
+                                "Error: couldn't load account",
+                              ),
+                            );
+                          } else {
+                            try {
+                              WhiteboardElementRepository(
+                                account: account,
+                              ).addElement(e);
+                            } catch (e, s) {
+                              logger.error(
+                                "couldn't add element",
+                                error: e,
+                                stackTrace: s,
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                errorSnackBar(
+                                  context,
+                                  "Error: couldn't add element",
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             Card(
               color: Theme.of(context).colorScheme.surfaceContainer,
@@ -172,14 +223,19 @@ class HomePageScreenContent extends ConsumerWidget {
                 title: const TextTitle("Today's tasks"),
                 children: [
                   SfScheduleView(
-                      tasks: tasks.dueToday,
-                      onFetchOlderTasks: (date) {},
-                      onTaskDeleted: (tid) async => TaskRepository.delete(
-                          tid, await ref.watch(accountProvider.future)),
-                      dogs: dogs,
-                      date: DateTime.now(),
-                      onTaskEdited: (t) async => TaskRepository.addOrUpdate(
-                          t, await ref.watch(accountProvider.future)))
+                    tasks: tasks.dueToday,
+                    onFetchOlderTasks: (date) {},
+                    onTaskDeleted: (tid) async => TaskRepository.delete(
+                      tid,
+                      await ref.watch(accountProvider.future),
+                    ),
+                    dogs: dogs,
+                    date: DateTime.now(),
+                    onTaskEdited: (t) async => TaskRepository.addOrUpdate(
+                      t,
+                      await ref.watch(accountProvider.future),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -192,41 +248,31 @@ class HomePageScreenContent extends ConsumerWidget {
                     series: <CircularSeries>[
                       PieSeries<ReadyDogData, String>(
                         dataSource: <ReadyDogData>[
-                          ReadyDogData(
-                            "OK",
-                            ok,
-                            Colors.green,
-                          ),
-                          ReadyDogData(
-                            "Warning",
-                            warningOnly,
-                            Colors.orange,
-                          ),
-                          ReadyDogData(
-                            "Unavailable",
-                            unavailable,
-                            Colors.red,
-                          ),
+                          ReadyDogData("OK", ok, Colors.green),
+                          ReadyDogData("Warning", warningOnly, Colors.orange),
+                          ReadyDogData("Unavailable", unavailable, Colors.red),
                         ],
                         xValueMapper: (ReadyDogData data, _) => data.x,
                         yValueMapper: (ReadyDogData data, _) => data.y,
-                        dataLabelSettings:
-                            const DataLabelSettings(isVisible: true),
+                        dataLabelSettings: const DataLabelSettings(
+                          isVisible: true,
+                        ),
                         pointColorMapper: (ReadyDogData data, _) => data.color,
-                      )
+                      ),
                     ],
                     legend: const Legend(isVisible: true),
                   ),
                   ListTile(
                     leading: const Icon(Icons.directions_run),
-                    title: const Text(
-                      "Ready to Run",
+                    title: const Text("Ready to Run"),
+                    trailing: Text(
+                      "$canRun/${dogs.length} dogs",
+                      style: TextStyle(
+                        color: _getTextColor(canRun, dogs.length),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    trailing: Text("$canRun/${dogs.length} dogs",
-                        style: TextStyle(
-                            color: _getTextColor(canRun, dogs.length),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold)),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -260,7 +306,8 @@ class HomePageScreenContent extends ConsumerWidget {
                         ),
                         ActionChip(
                           label: Text(
-                              "${riverpod.healthEvents.active.length} active health events"),
+                            "${riverpod.healthEvents.active.length} active health events",
+                          ),
                           backgroundColor: Colors.amber[100],
                           onPressed: () {
                             final events = riverpod.healthEvents.active;
@@ -282,7 +329,8 @@ class HomePageScreenContent extends ConsumerWidget {
                         ),
                         ActionChip(
                           label: Text(
-                              "${riverpod.heatCycles.active.length} in heat"),
+                            "${riverpod.heatCycles.active.length} in heat",
+                          ),
                           backgroundColor: Colors.purple[100],
                           onPressed: () {
                             final events = riverpod.heatCycles.active;
@@ -318,13 +366,14 @@ class HomePageScreenContent extends ConsumerWidget {
         );
       },
       error: (e, s) {
-        BasicLogger().error("Couldn't load warning dogs async in home page",
-            error: e, stackTrace: s);
+        BasicLogger().error(
+          "Couldn't load warning dogs async in home page",
+          error: e,
+          stackTrace: s,
+        );
         return const Text("Couldn't load the page! Try to reload");
       },
-      loading: () => const Center(
-        child: CircularProgressIndicator.adaptive(),
-      ),
+      loading: () => const Center(child: CircularProgressIndicator.adaptive()),
     );
   }
 
@@ -358,29 +407,26 @@ class _ConvertTeamGroupState extends State<ConvertTeamGroup> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        SizedBox(
-          width: 400,
-          child: TextField(
-            controller: c,
-          ),
-        ),
+        SizedBox(width: 400, child: TextField(controller: c)),
         ElevatedButton(
-            onPressed: () async {
-              final functions =
-                  FirebaseFunctions.instanceFor(region: "europe-north1");
-              try {
-                final response = await functions
-                    .httpsCallable("rebuild_teamgroup_teams_snapshot")
-                    .call({
-                  "teamgroupPath":
-                      "accounts/test-stefano/data/teams/history/${c.text}"
-                });
-                BasicLogger().debug(response.data);
-              } catch (e, s) {
-                BasicLogger().error("Couldn't do it", error: e, stackTrace: s);
-              }
-            },
-            child: const Text("gogo"))
+          onPressed: () async {
+            final functions = FirebaseFunctions.instanceFor(
+              region: "europe-north1",
+            );
+            try {
+              final response = await functions
+                  .httpsCallable("rebuild_teamgroup_teams_snapshot")
+                  .call({
+                    "teamgroupPath":
+                        "accounts/test-stefano/data/teams/history/${c.text}",
+                  });
+              BasicLogger().debug(response.data);
+            } catch (e, s) {
+              BasicLogger().error("Couldn't do it", error: e, stackTrace: s);
+            }
+          },
+          child: const Text("gogo"),
+        ),
       ],
     );
   }

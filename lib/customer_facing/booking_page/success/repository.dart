@@ -23,11 +23,14 @@ class SuccessPageRepository {
   }
 
   Future<List<Customer>> fetchCustomers(
-      String account, String bookingId) async {
+    String account,
+    String bookingId,
+  ) async {
     try {
       final path = "accounts/$account/data/bookingManager/customers";
-      final collection =
-          db.collection(path).where("bookingId", isEqualTo: bookingId);
+      final collection = db
+          .collection(path)
+          .where("bookingId", isEqualTo: bookingId);
       final snapshot = await collection.get();
       final docs = snapshot.docs;
       return docs.map((doc) => Customer.fromJson(doc.data())).toList();
@@ -52,7 +55,8 @@ class SuccessPageRepository {
   }
 
   Future<CheckoutSession> getCheckoutSessionFromBookingId(
-      String bookingId) async {
+    String bookingId,
+  ) async {
     final db = FirebaseFirestore.instance;
     const path = "checkoutSessions";
     final ref = db.collection(path).where("bookingId", isEqualTo: bookingId);

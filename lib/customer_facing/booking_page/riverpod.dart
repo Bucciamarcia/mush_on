@@ -17,8 +17,11 @@ DateTime bookingDayKey(DateTime date) =>
 final showValidationErrorsProvider = StateProvider<bool>((ref) => false);
 
 @riverpod
-Stream<TourType?> tourType(Ref ref,
-    {required String account, required String tourId}) async* {
+Stream<TourType?> tourType(
+  Ref ref, {
+  required String account,
+  required String tourId,
+}) async* {
   if (account.isEmpty) {
     yield null;
     return;
@@ -90,8 +93,10 @@ Future<List<CustomerGroup>> visibleCustomerGroups(Ref ref) async {
   final collection = db
       .collection("accounts/$account/data/bookingManager/customerGroups")
       .where("datetime", isGreaterThanOrEqualTo: visibleDates.first)
-      .where("datetime",
-          isLessThan: visibleDates.last.add(const Duration(days: 1)))
+      .where(
+        "datetime",
+        isLessThan: visibleDates.last.add(const Duration(days: 1)),
+      )
       .where("tourTypeId", isEqualTo: tourId);
   final snapshot = await collection.get();
   return snapshot.docs
@@ -109,8 +114,11 @@ Future<List<Booking>> visibleBookings(Ref ref) async {
   final db = FirebaseFirestore.instance;
   final col = db.collection("accounts/$account/data/bookingManager/bookings");
 
-  final cgIds =
-      cgs.map((e) => e.id).where((id) => id.isNotEmpty).toSet().toList();
+  final cgIds = cgs
+      .map((e) => e.id)
+      .where((id) => id.isNotEmpty)
+      .toSet()
+      .toList();
   if (cgIds.isEmpty) return const [];
 
   const batchSize = 25;
@@ -118,7 +126,9 @@ Future<List<Booking>> visibleBookings(Ref ref) async {
 
   for (var i = 0; i < cgIds.length; i += batchSize) {
     final batch = cgIds.sublist(
-        i, i + batchSize > cgIds.length ? cgIds.length : i + batchSize);
+      i,
+      i + batchSize > cgIds.length ? cgIds.length : i + batchSize,
+    );
     futures.add(col.where("customerGroupId", whereIn: batch).get());
   }
 
@@ -137,13 +147,18 @@ Future<List<Customer>> visibleCustomers(Ref ref) async {
   if (account == null || account.isEmpty) return [];
   final db = FirebaseFirestore.instance;
   final col = db.collection("accounts/$account/data/bookingManager/customers");
-  final bookingIds =
-      bookings.map((b) => b.id).where((id) => id.isNotEmpty).toSet().toList();
+  final bookingIds = bookings
+      .map((b) => b.id)
+      .where((id) => id.isNotEmpty)
+      .toSet()
+      .toList();
   const batchSize = 25;
   final futures = <Future<QuerySnapshot<Map<String, dynamic>>>>[];
   for (var i = 0; i < bookingIds.length; i += batchSize) {
-    final batch = bookingIds.sublist(i,
-        i + batchSize > bookingIds.length ? bookingIds.length : i + batchSize);
+    final batch = bookingIds.sublist(
+      i,
+      i + batchSize > bookingIds.length ? bookingIds.length : i + batchSize,
+    );
     futures.add(col.where("bookingId", whereIn: batch).get());
   }
 
@@ -157,16 +172,19 @@ Future<List<Customer>> visibleCustomers(Ref ref) async {
 @riverpod
 Future<Map<DateTime, List<CustomerGroup>>> customerGroupsByDay(Ref ref) async {
   List<DateTime> visibleDates = ref.watch(visibleDatesProvider);
-  List<CustomerGroup> customerGroups =
-      await ref.watch(visibleCustomerGroupsProvider.future);
+  List<CustomerGroup> customerGroups = await ref.watch(
+    visibleCustomerGroupsProvider.future,
+  );
   Map<DateTime, List<CustomerGroup>> toReturn = {};
   for (final date in visibleDates) {
     final normalizedDate = bookingDayKey(date);
     toReturn[normalizedDate] = customerGroups
-        .where((cg) =>
-            cg.datetime.year == normalizedDate.year &&
-            cg.datetime.month == normalizedDate.month &&
-            cg.datetime.day == normalizedDate.day)
+        .where(
+          (cg) =>
+              cg.datetime.year == normalizedDate.year &&
+              cg.datetime.month == normalizedDate.month &&
+              cg.datetime.day == normalizedDate.day,
+        )
         .toList();
   }
   return toReturn;
@@ -174,13 +192,15 @@ Future<Map<DateTime, List<CustomerGroup>>> customerGroupsByDay(Ref ref) async {
 
 @riverpod
 Future<Map<String, List<Booking>>> bookingsByCustomerGroupId(Ref ref) async {
-  List<CustomerGroup> customerGroups =
-      await ref.watch(visibleCustomerGroupsProvider.future);
+  List<CustomerGroup> customerGroups = await ref.watch(
+    visibleCustomerGroupsProvider.future,
+  );
   Map<String, List<Booking>> toReturn = {};
   List<Booking> bookings = await ref.watch(visibleBookingsProvider.future);
   for (final cg in customerGroups) {
-    toReturn[cg.id] =
-        bookings.where((booking) => booking.customerGroupId == cg.id).toList();
+    toReturn[cg.id] = bookings
+        .where((booking) => booking.customerGroupId == cg.id)
+        .toList();
   }
   return toReturn;
 }
@@ -199,14 +219,16 @@ Future<Map<String, List<Customer>>> customersByBookingId(Ref ref) async {
 }
 
 @riverpod
-
 /// How many customers are in each customer group, summing all bookings.
 Future<Map<String, int>> customersNumberByCustomerGroupIdBooking(
-    Ref ref) async {
-  Map<String, List<Booking>> bookingsByCgId =
-      await ref.watch(bookingsByCustomerGroupIdProvider.future);
-  Map<String, List<Customer>> customersByBookingId =
-      await ref.watch(customersByBookingIdProvider.future);
+  Ref ref,
+) async {
+  Map<String, List<Booking>> bookingsByCgId = await ref.watch(
+    bookingsByCustomerGroupIdProvider.future,
+  );
+  Map<String, List<Customer>> customersByBookingId = await ref.watch(
+    customersByBookingIdProvider.future,
+  );
   Map<String, int> toReturn = {};
   for (final cgId in bookingsByCgId.keys) {
     final bookings = bookingsByCgId[cgId] ?? [];
@@ -246,23 +268,23 @@ class SelectedCustomerGroupInCalendar
 }
 
 @riverpod
-Future<List<TourTypePricing>> tourTypePricesByTourId(Ref ref,
-    {required String tourId, required String account}) async {
+Future<List<TourTypePricing>> tourTypePricesByTourId(
+  Ref ref, {
+  required String tourId,
+  required String account,
+}) async {
   String path = "accounts/$account/data/bookingManager/tours/$tourId/prices";
   var db = FirebaseFirestore.instance;
-  final collection =
-      await db.collection(path).where("isArchived", isEqualTo: false).get();
+  final collection = await db
+      .collection(path)
+      .where("isArchived", isEqualTo: false)
+      .get();
   return collection.docs
-      .map(
-        (doc) => TourTypePricing.fromJson(
-          doc.data(),
-        ),
-      )
+      .map((doc) => TourTypePricing.fromJson(doc.data()))
       .toList();
 }
 
 @riverpod
-
 /// The number of each pricing tier that the customer has selected. Data for stripe.
 class BookingDetailsSelectedPricings extends _$BookingDetailsSelectedPricings {
   @override
@@ -284,7 +306,6 @@ class BookingDetailsSelectedPricings extends _$BookingDetailsSelectedPricings {
 }
 
 @Riverpod(keepAlive: true)
-
 /// Stores the info of the customers that are booking
 class CustomersInfo extends _$CustomersInfo {
   @override
@@ -306,18 +327,15 @@ class CustomersInfo extends _$CustomersInfo {
 }
 
 @Riverpod(keepAlive: true)
-
 /// Stores the booking to be saved
 class BookingInfo extends _$BookingInfo {
   @override
   Booking? build() {
-    CustomerGroup? selectedCg =
-        ref.watch(selectedCustomerGroupInCalendarProvider);
-    if (selectedCg == null) return null;
-    return Booking(
-      id: const Uuid().v4(),
-      customerGroupId: selectedCg.id,
+    CustomerGroup? selectedCg = ref.watch(
+      selectedCustomerGroupInCalendarProvider,
     );
+    if (selectedCg == null) return null;
+    return Booking(id: const Uuid().v4(), customerGroupId: selectedCg.id);
   }
 
   void change(Booking nb) {
@@ -326,7 +344,6 @@ class BookingInfo extends _$BookingInfo {
 }
 
 @riverpod
-
 /// Used to know whether to show the loading indicator and disable the buttons in the info page,
 /// when the backend is loading the stripe cart.
 class IsLoadingCart extends _$IsLoadingCart {
@@ -341,7 +358,6 @@ class IsLoadingCart extends _$IsLoadingCart {
 }
 
 @freezed
-
 /// A simple utility class that puts together the pricing tier and how many people are booked on it.
 sealed class BookingPricingNumberBooked with _$BookingPricingNumberBooked {
   const factory BookingPricingNumberBooked({
@@ -376,7 +392,8 @@ final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
     return emailRegex.hasMatch(email.trim().toLowerCase());
   }
 
-  final contactOk = filled(booking.phone) &&
+  final contactOk =
+      filled(booking.phone) &&
       isValidEmail(booking.email) &&
       filled(booking.streetAddress) &&
       filled(booking.zipCode) &&
@@ -388,15 +405,17 @@ final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
   final kennelInfo = account == null
       ? null
       : ref
-          .watch(bookingManagerKennelInfoProvider(account: account))
-          .valueOrNull;
+            .watch(bookingManagerKennelInfoProvider(account: account))
+            .valueOrNull;
 
-  final requiredCustomerFields = kennelInfo?.customerCustomFields
+  final requiredCustomerFields =
+      kennelInfo?.customerCustomFields
           .where((field) => field.isRequired)
           .toList() ??
       const <CustomerCustomField>[];
 
-  final passengersOk = customers.isNotEmpty &&
+  final passengersOk =
+      customers.isNotEmpty &&
       customers.every(
         (customer) => requiredCustomerFields.every(
           (field) => filled(customer.customerOtherInfo[field.name]),
@@ -405,9 +424,9 @@ final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
 
   final requiredOtherInfoOk = kennelInfo == null
       ? true
-      : kennelInfo.bookingCustomFields.where((field) => field.isRequired).every(
-            (field) => filled(booking.otherBookingData[field.name]),
-          );
+      : kennelInfo.bookingCustomFields
+            .where((field) => field.isRequired)
+            .every((field) => filled(booking.otherBookingData[field.name]));
 
   return contactOk && passengersOk && requiredOtherInfoOk;
 });

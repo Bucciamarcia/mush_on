@@ -7,7 +7,6 @@ part "tasks.g.dart";
 part "tasks.freezed.dart";
 
 @freezed
-
 /// A task of the todo system
 abstract class Task with _$Task {
   @JsonSerializable(explicitToJson: true)
@@ -76,9 +75,10 @@ class TaskRepository {
       await doc.set(payload);
     } catch (e, s) {
       BasicLogger().error(
-          "Couldn't set the document: addOrUpdate TaskRespository",
-          error: e,
-          stackTrace: s);
+        "Couldn't set the document: addOrUpdate TaskRespository",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -92,9 +92,10 @@ class TaskRepository {
       await doc.delete();
     } catch (e, s) {
       BasicLogger().error(
-          "Couldn't delete the document: addOrUpdate TaskRespository",
-          error: e,
-          stackTrace: s);
+        "Couldn't delete the document: addOrUpdate TaskRespository",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -106,7 +107,8 @@ extension TaskListExtension on List<Task> {
     final now = DateTime.now();
     return where((t) {
       bool hasExpiration = t.expiration != null;
-      bool isToday = hasExpiration &&
+      bool isToday =
+          hasExpiration &&
           t.expiration!.year == now.year &&
           t.expiration!.month == now.month &&
           t.expiration!.day == now.day;
@@ -120,14 +122,16 @@ extension TaskListExtension on List<Task> {
     final now = DateTime.now();
     return where((t) {
       bool hasExpiration = t.expiration != null;
-      bool isToday = hasExpiration &&
+      bool isToday =
+          hasExpiration &&
           t.expiration!.year == now.year &&
           t.expiration!.month == now.month &&
           t.expiration!.day == now.day;
 
       bool hasExpirationAndToday = hasExpiration && isToday;
 
-      bool isOverdue = t.expiration != null &&
+      bool isOverdue =
+          t.expiration != null &&
           t.expiration!.isBefore(DateTime.now()) &&
           t.isDone == false;
 
@@ -137,8 +141,11 @@ extension TaskListExtension on List<Task> {
 
   /// Filters only tasks that are overdue.
   List<Task> get overdueTasks {
-    final now =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final now = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
     return where((t) {
       bool hasExpiration = t.expiration != null;
       bool isOverdue =
@@ -216,7 +223,6 @@ extension TaskListExtension on List<Task> {
 }
 
 @freezed
-
 /// Holds the tasks fetched from the db alongside the date range fetched.
 abstract class TasksInMemory with _$TasksInMemory {
   const factory TasksInMemory({
@@ -237,11 +243,14 @@ abstract class TasksInMemory with _$TasksInMemory {
 extension TasksInMemoryExtension on TasksInMemory {
   TasksInMemory get dueToday {
     return copyWith(
-        tasks: tasks
-            .where((t) =>
+      tasks: tasks
+          .where(
+            (t) =>
                 t.expiration?.year == DateTime.now().year &&
                 t.expiration?.month == DateTime.now().month &&
-                t.expiration?.day == DateTime.now().day)
-            .toList());
+                t.expiration?.day == DateTime.now().day,
+          )
+          .toList(),
+    );
   }
 }

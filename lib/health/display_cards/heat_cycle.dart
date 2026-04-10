@@ -52,10 +52,7 @@ class HeatCycleDisplayCard extends ConsumerWidget {
       child: InkWell(
         onTap: () => showDialog(
           context: context,
-          builder: (context) => HeatCycleEditorAlert(
-            event: event,
-            dogs: dogs,
-          ),
+          builder: (context) => HeatCycleEditorAlert(event: event, dogs: dogs),
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -103,7 +100,9 @@ class HeatCycleDisplayCard extends ConsumerWidget {
                   if (event.preventFromRunning && isActive)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: colorScheme.error,
                         borderRadius: BorderRadius.circular(12),
@@ -111,8 +110,11 @@ class HeatCycleDisplayCard extends ConsumerWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.block,
-                              size: 12, color: colorScheme.onError),
+                          Icon(
+                            Icons.block,
+                            size: 12,
+                            color: colorScheme.onError,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             "CAN'T RUN",
@@ -128,7 +130,9 @@ class HeatCycleDisplayCard extends ConsumerWidget {
                   else if (isActive)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.pink,
                         borderRadius: BorderRadius.circular(12),
@@ -185,11 +189,7 @@ class HeatCycleDisplayCard extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(
-                      Icons.access_time,
-                      size: 14,
-                      color: accentColor,
-                    ),
+                    Icon(Icons.access_time, size: 14, color: accentColor),
                     const SizedBox(width: 4),
                     Text(
                       daysSinceStart == 0
@@ -207,8 +207,10 @@ class HeatCycleDisplayCard extends ConsumerWidget {
               if (event.notes.isNotEmpty) ...[
                 const SizedBox(height: 4),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: textColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),

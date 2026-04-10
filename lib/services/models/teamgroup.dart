@@ -8,7 +8,6 @@ part 'teamgroup.g.dart';
 part 'teamgroup.freezed.dart';
 
 @freezed
-
 /// A class representing a group of teams with associated metadata.
 /// It is equivalent to a "start", meaning all the teams of a convoy of sleds.
 ///
@@ -50,26 +49,33 @@ sealed class TeamGroup with _$TeamGroup {
 @JsonEnum()
 enum TeamGroupRunType {
   training(
-      backgroundColor: Colors.yellow,
-      label: "For training the dogs for the season or a race",
-      icon: FaIcon(FontAwesomeIcons.dog)),
+    backgroundColor: Colors.yellow,
+    label: "For training the dogs for the season or a race",
+    icon: FaIcon(FontAwesomeIcons.dog),
+  ),
   race(
-      backgroundColor: Colors.red,
-      label: "A race. Good luck!",
-      icon: FaIcon(FontAwesomeIcons.exclamation)),
+    backgroundColor: Colors.red,
+    label: "A race. Good luck!",
+    icon: FaIcon(FontAwesomeIcons.exclamation),
+  ),
   tour(
-      backgroundColor: Colors.green,
-      label: "A tour with customers",
-      icon: FaIcon(FontAwesomeIcons.peopleLine)),
+    backgroundColor: Colors.green,
+    label: "A tour with customers",
+    icon: FaIcon(FontAwesomeIcons.peopleLine),
+  ),
   unknown(
-      backgroundColor: Colors.grey,
-      label: "Unknown run type",
-      icon: FaIcon(FontAwesomeIcons.question));
+    backgroundColor: Colors.grey,
+    label: "Unknown run type",
+    icon: FaIcon(FontAwesomeIcons.question),
+  );
 
   final Color backgroundColor;
   final String label;
   final FaIcon icon;
 
-  const TeamGroupRunType(
-      {required this.backgroundColor, required this.label, required this.icon});
+  const TeamGroupRunType({
+    required this.backgroundColor,
+    required this.label,
+    required this.icon,
+  });
 }

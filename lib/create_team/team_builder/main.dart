@@ -18,11 +18,12 @@ class TeamBuilderWidget extends ConsumerStatefulWidget {
   final CustomerGroupWorkspace customerGroupWorkspace;
   final String? providerKey;
 
-  const TeamBuilderWidget(
-      {super.key,
-      required this.teamGroup,
-      required this.customerGroupWorkspace,
-      required this.providerKey});
+  const TeamBuilderWidget({
+    super.key,
+    required this.teamGroup,
+    required this.customerGroupWorkspace,
+    required this.providerKey,
+  });
 
   @override
   ConsumerState<TeamBuilderWidget> createState() => _TeamBuilderWidgetState();
@@ -49,10 +50,12 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
   @override
   Widget build(BuildContext context) {
     var runningDogs = ref.watch(runningDogsProvider(widget.teamGroup));
-    var dogNotes =
-        ref.watch(dogNotesProvider(latestDate: widget.teamGroup.date));
-    var notifier =
-        ref.read(createTeamGroupProvider(widget.providerKey).notifier);
+    var dogNotes = ref.watch(
+      dogNotesProvider(latestDate: widget.teamGroup.date),
+    );
+    var notifier = ref.read(
+      createTeamGroupProvider(widget.providerKey).notifier,
+    );
     List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
     SettingsModel? settings = ref.watch(settingsProvider).value;
     bool isReadOnly = ref.watch(isReadOnlyProvider);
@@ -60,16 +63,18 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
       child: Column(
         children: [
           CheckboxListTile.adaptive(
-              title: const Text(
-                  "Read only: when selected. you can't edit anything (for safety).",
-                  maxLines: 3,
-                  textAlign: TextAlign.end),
-              value: isReadOnly,
-              onChanged: (v) {
-                if (v != null) {
-                  ref.read(isReadOnlyProvider.notifier).newValue(v);
-                }
-              }),
+            title: const Text(
+              "Read only: when selected. you can't edit anything (for safety).",
+              maxLines: 3,
+              textAlign: TextAlign.end,
+            ),
+            value: isReadOnly,
+            onChanged: (v) {
+              if (v != null) {
+                ref.read(isReadOnlyProvider.notifier).newValue(v);
+              }
+            },
+          ),
           Card(
             color: Theme.of(context).colorScheme.primaryContainer,
             child: isReadOnly
@@ -78,23 +83,26 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                     title: const Center(child: Text("Filter dogs")),
                     children: [
                       DogFilterWidget(
-                          dogs: allDogs,
-                          templates: settings?.customFieldTemplates ?? [],
-                          onResult: (dogs) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Filter successful",
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary),
+                        dogs: allDogs,
+                        templates: settings?.customFieldTemplates ?? [],
+                        onResult: (dogs) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Filter successful",
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
                                 ),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
                               ),
-                            );
-                          }),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
           ),
@@ -139,16 +147,21 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                 ),
                 label: const Text("Run type"),
                 dropdownMenuEntries: TeamGroupRunType.values
-                    .map((v) => DropdownMenuEntry<TeamGroupRunType>(
+                    .map(
+                      (v) => DropdownMenuEntry<TeamGroupRunType>(
                         style: ButtonStyle(
-                            backgroundColor: WidgetStatePropertyAll(
-                                v.backgroundColor.withValues(alpha: 0.5))),
+                          backgroundColor: WidgetStatePropertyAll(
+                            v.backgroundColor.withValues(alpha: 0.5),
+                          ),
+                        ),
                         value: v,
                         label: v.name,
                         labelWidget: Row(
                           spacing: 10,
                           children: [v.icon, Text(v.name)],
-                        )))
+                        ),
+                      ),
+                    )
                     .toList(),
                 initialSelection: widget.teamGroup.runType,
                 onSelected: (newRunType) {
@@ -158,56 +171,56 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                 },
               ),
               Text(
-                  "Total capacity: ${widget.teamGroup.teams.fold(0, (sum, e) => sum + e.capacity)}/${widget.customerGroupWorkspace.customers.length}"),
+                "Total capacity: ${widget.teamGroup.teams.fold(0, (sum, e) => sum + e.capacity)}/${widget.customerGroupWorkspace.customers.length}",
+              ),
             ],
           ),
-          const SizedBox(
-            width: double.infinity,
-          ),
-          ...widget.teamGroup.teams.asMap().entries.map(
-            (entry) {
-              return Column(
-                children: [
-                  const Divider(),
-                  TeamRetriever(
-                    isReadOnly: isReadOnly,
-                    teamNumber: entry.key,
-                    teamGroupId: widget.providerKey,
-                    dogs: allDogs,
-                    runningDogs: runningDogs,
-                    teams: widget.teamGroup.teams,
-                    notes: dogNotes,
-                    onDogSelected: (DogSelection newDog) {
-                      notifier.changePosition(
-                          dogId: newDog.dog.id,
-                          teamNumber: newDog.teamNumber,
-                          rowNumber: newDog.rowNumber,
-                          positionNumber: newDog.dogPosition);
-                    },
-                    onTeamNameChanged: (int teamNumber, String newName) =>
-                        notifier.changeTeamName(
-                            teamNumber: teamNumber, newName: newName),
-                    onRowRemoved: (int teamNumber, int rowNumber) =>
-                        notifier.removeRow(
-                            teamNumber: teamNumber, rowNumber: rowNumber),
-                    onAddRow: (int teamNumber) =>
-                        notifier.addRow(teamNumber: teamNumber),
-                    onDogRemoved:
-                        (int teamNumber, int rowNumber, int dogPosition) =>
-                            notifier.changePosition(
-                                dogId: "",
-                                teamNumber: teamNumber,
-                                rowNumber: rowNumber,
-                                positionNumber: dogPosition),
-                    onAddTeam: (teamNumber) =>
-                        notifier.addTeam(teamNumber: teamNumber),
-                    onRemoveTeam: (teamNumber) =>
-                        notifier.removeTeam(teamNumber: teamNumber),
-                  ),
-                ],
-              );
-            },
-          ),
+          const SizedBox(width: double.infinity),
+          ...widget.teamGroup.teams.asMap().entries.map((entry) {
+            return Column(
+              children: [
+                const Divider(),
+                TeamRetriever(
+                  isReadOnly: isReadOnly,
+                  teamNumber: entry.key,
+                  teamGroupId: widget.providerKey,
+                  dogs: allDogs,
+                  runningDogs: runningDogs,
+                  teams: widget.teamGroup.teams,
+                  notes: dogNotes,
+                  onDogSelected: (DogSelection newDog) {
+                    notifier.changePosition(
+                      dogId: newDog.dog.id,
+                      teamNumber: newDog.teamNumber,
+                      rowNumber: newDog.rowNumber,
+                      positionNumber: newDog.dogPosition,
+                    );
+                  },
+                  onTeamNameChanged: (int teamNumber, String newName) =>
+                      notifier.changeTeamName(
+                        teamNumber: teamNumber,
+                        newName: newName,
+                      ),
+                  onRowRemoved: (int teamNumber, int rowNumber) => notifier
+                      .removeRow(teamNumber: teamNumber, rowNumber: rowNumber),
+                  onAddRow: (int teamNumber) =>
+                      notifier.addRow(teamNumber: teamNumber),
+                  onDogRemoved:
+                      (int teamNumber, int rowNumber, int dogPosition) =>
+                          notifier.changePosition(
+                            dogId: "",
+                            teamNumber: teamNumber,
+                            rowNumber: rowNumber,
+                            positionNumber: dogPosition,
+                          ),
+                  onAddTeam: (teamNumber) =>
+                      notifier.addTeam(teamNumber: teamNumber),
+                  onRemoveTeam: (teamNumber) =>
+                      notifier.removeTeam(teamNumber: teamNumber),
+                ),
+              ],
+            );
+          }),
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: isReadOnly
@@ -219,7 +232,8 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                     await Clipboard.setData(ClipboardData(text: teamString));
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          confirmationSnackbar(context, "Teams copied"));
+                        confirmationSnackbar(context, "Teams copied"),
+                      );
                     }
                   },
             child: const Text("Copy team group"),

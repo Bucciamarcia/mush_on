@@ -16,8 +16,10 @@ class SingleDogHealthEventsWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<SingleDogHealthEvent> events =
-        _getSingleDogHealthEvents(dogId: dogId, ref: ref);
+    List<SingleDogHealthEvent> events = _getSingleDogHealthEvents(
+      dogId: dogId,
+      ref: ref,
+    );
 
     return Column(
       children: [
@@ -25,9 +27,7 @@ class SingleDogHealthEventsWidget extends ConsumerWidget {
           alignment: Alignment.topCenter,
           child: TextTitle("Health events"),
         ),
-        ...events.map(
-          (e) => DisplaySingleEvent(event: e),
-        ),
+        ...events.map((e) => DisplaySingleEvent(event: e)),
       ],
     );
   }
@@ -43,14 +43,16 @@ class SingleDogHealthEventsWidget extends ConsumerWidget {
     }
   }
 
-  List<SingleDogHealthEvent> _getSingleDogHealthEvents(
-      {required String dogId, required WidgetRef ref}) {
+  List<SingleDogHealthEvent> _getSingleDogHealthEvents({
+    required String dogId,
+    required WidgetRef ref,
+  }) {
     List<HealthEvent> healthEvents =
         ref.watch(dogHealthEventsProvider(dogId: dogId, cutoff: null)).value ??
-            [];
+        [];
     List<Vaccination> vaccinations =
         ref.watch(dogVaccinationsProvider(dogId: dogId, cutoff: null)).value ??
-            [];
+        [];
     List<HeatCycle> heats =
         ref.watch(dogHeatsProvider(dogId: dogId, cutoff: null)).value ?? [];
     List<SingleDogHealthEvent> events = [
@@ -81,7 +83,6 @@ class DisplaySingleEvent extends StatelessWidget {
 }
 
 @freezed
-
 /// Union type class that only allows events related to the health of a dog.
 sealed class SingleDogHealthEvent with _$SingleDogHealthEvent {
   const factory SingleDogHealthEvent.healthEvent(HealthEvent event) =

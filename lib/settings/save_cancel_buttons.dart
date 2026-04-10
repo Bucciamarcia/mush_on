@@ -4,11 +4,12 @@ class SaveCancelButtons extends StatelessWidget {
   final Function() onCancelPressed;
   final Function() onSavePressed;
   final bool didSomethingChange;
-  const SaveCancelButtons(
-      {super.key,
-      required this.onSavePressed,
-      required this.onCancelPressed,
-      required this.didSomethingChange});
+  const SaveCancelButtons({
+    super.key,
+    required this.onSavePressed,
+    required this.onCancelPressed,
+    required this.didSomethingChange,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,15 +20,17 @@ class SaveCancelButtons extends StatelessWidget {
         ElevatedButton(
           onPressed: () => onCancelPressed(),
           style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-              foregroundColor: Theme.of(context).colorScheme.onError),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            foregroundColor: Theme.of(context).colorScheme.onError,
+          ),
           child: const Text("Cancel"),
         ),
         ElevatedButton(
           onPressed: () => didSomethingChange ? onSavePressed() : null,
           style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          ),
           child: const Text("Save"),
         ),
       ],

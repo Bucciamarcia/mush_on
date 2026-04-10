@@ -28,7 +28,8 @@ class AddDogButton extends ConsumerWidget {
         if (dog.name == "") {
           LoadingOverlay.hide();
           ScaffoldMessenger.of(context).showSnackBar(
-              errorSnackBar(context, "You forgot to add the dog name"));
+            errorSnackBar(context, "You forgot to add the dog name"),
+          );
           return;
         }
         try {
@@ -36,8 +37,9 @@ class AddDogButton extends ConsumerWidget {
           await FirestoreService().addDogToDb(dog, imageData, account);
         } catch (e) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(errorSnackBar(context, "Couldnt add dog to db"));
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(errorSnackBar(context, "Couldnt add dog to db"));
           }
         }
         LoadingOverlay.hide();
@@ -46,8 +48,9 @@ class AddDogButton extends ConsumerWidget {
             SnackBar(
               content: Text(
                 "Dog has been added",
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
               ),
               backgroundColor: Theme.of(context).colorScheme.primary,
             ),

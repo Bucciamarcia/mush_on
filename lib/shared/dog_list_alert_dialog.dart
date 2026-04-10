@@ -6,8 +6,11 @@ import 'package:mush_on/services/models/dog.dart';
 class DogListAlertDialog extends StatelessWidget {
   final List<Dog> dogs;
   final String title;
-  const DogListAlertDialog(
-      {super.key, required this.dogs, required this.title});
+  const DogListAlertDialog({
+    super.key,
+    required this.dogs,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +32,9 @@ class DogListAlertDialog extends StatelessWidget {
       ),
       actions: [
         ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Close"))
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Close"),
+        ),
       ],
     );
   }

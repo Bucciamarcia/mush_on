@@ -43,7 +43,8 @@ class AddDogMain extends ConsumerWidget {
         TagsWidget(
           tags: dogData.dog.tags,
           allTags: TagRepository.getAllTagsFromDogs(
-              ref.watch(dogsProvider).value ?? []),
+            ref.watch(dogsProvider).value ?? [],
+          ),
           onTagAdded: (Tag tag) async {
             dogNotifier.addTag(tag);
             logger.debug("Initiating adding a tag: ${tag.name}");
@@ -58,8 +59,9 @@ class AddDogMain extends ConsumerWidget {
         const SizedBox(height: 20),
         DogInfoWidget(
           name: dogData.dog.name,
-          birthday:
-              (dogData.dog.birth == null) ? null : dogData.dog.birth!.toUtc(),
+          birthday: (dogData.dog.birth == null)
+              ? null
+              : dogData.dog.birth!.toUtc(),
           sex: dogData.dog.sex,
           customFields: dogData.dog.customFields,
           onBirthdayChanged: (newBirthday) async {
@@ -71,18 +73,21 @@ class AddDogMain extends ConsumerWidget {
         ),
         const SizedBox(height: 20),
         DistanceWarningWidget(
-            warnings: dogData.dog.distanceWarnings,
-            onWarningAdded: (w) => dogNotifier.addDistanceWarning(w),
-            onWarningEdited: (w) {
-              dogNotifier.updateWarning(w);
-            },
-            onWarningRemoved: (id) {
-              dogNotifier.removeWarning(id);
-            }),
+          warnings: dogData.dog.distanceWarnings,
+          onWarningAdded: (w) => dogNotifier.addDistanceWarning(w),
+          onWarningEdited: (w) {
+            dogNotifier.updateWarning(w);
+          },
+          onWarningRemoved: (id) {
+            dogNotifier.removeWarning(id);
+          },
+        ),
         const SizedBox(height: 20),
         CustomFieldArea(
-          customFieldTemplates:
-              ref.watch(settingsProvider).value?.customFieldTemplates,
+          customFieldTemplates: ref
+              .watch(settingsProvider)
+              .value
+              ?.customFieldTemplates,
           dogCustomFields: dogData.dog.customFields,
           onCustomFieldSaved: (cf) => dogNotifier.editCustomFields(cf),
           onCustomFieldDeleted: (templateId) =>
@@ -90,9 +95,10 @@ class AddDogMain extends ConsumerWidget {
         ),
         const SizedBox(height: 20),
         SingleDogNotesWidget(
-            dogNotes: dogData.dog.notes,
-            onNoteAdded: (newNote) => dogNotifier.addNote(newNote),
-            onNoteDeleted: (id) => dogNotifier.deleteNote(id)),
+          dogNotes: dogData.dog.notes,
+          onNoteAdded: (newNote) => dogNotifier.addNote(newNote),
+          onNoteDeleted: (id) => dogNotifier.deleteNote(id),
+        ),
         const SizedBox(height: 20),
         AddDogButton(
           dog: dogData.dog,

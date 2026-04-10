@@ -20,7 +20,8 @@ class FirestoreService {
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
   Future<Iterable<Map<String, dynamic>>> getCollection(
-      String collectionPath) async {
+    String collectionPath,
+  ) async {
     var ref = db.collection(collectionPath);
     var snapshot = await ref.get();
     var data = snapshot.docs.map((s) => s.data());
@@ -39,10 +40,11 @@ class FirestoreService {
   }
 
   /// Adds a doc to the db.
-  Future<void> addDocToDb(
-      {required Map<String, dynamic> payload,
-      required String path,
-      required bool merge}) async {
+  Future<void> addDocToDb({
+    required Map<String, dynamic> payload,
+    required String path,
+    required bool merge,
+  }) async {
     try {
       await db.doc(path).set(payload, SetOptions(merge: merge));
     } catch (e, s) {
@@ -57,14 +59,17 @@ class FirestoreService {
     }
     try {
       if (imageFile != null) {
-        DogPhotoCardUtils utils =
-            DogPhotoCardUtils(id: dog.id, account: account);
+        DogPhotoCardUtils utils = DogPhotoCardUtils(
+          id: dog.id,
+          account: account,
+        );
         String extension = path.extension(imageFile.path);
 
         await utils.deleteCurrentImage();
         await StorageService().uploadFromFile(
-            file: imageFile,
-            path: "accounts/$account/dogs/${dog.id}/image$extension");
+          file: imageFile,
+          path: "accounts/$account/dogs/${dog.id}/image$extension",
+        );
       }
       String dogpath = "accounts/$account/data/kennel/dogs/${dog.id}";
       logger.debug("path: $dogpath");
@@ -72,9 +77,7 @@ class FirestoreService {
 
       var data = dog.toJson();
 
-      await ref.set(
-        data,
-      );
+      await ref.set(data);
     } catch (e, s) {
       logger.error("Couldn't add dog to db", error: e, stackTrace: s);
       rethrow;
@@ -136,7 +139,9 @@ class DogsDbOperations {
   /// Gets a Map with a list of dog ID -> Dog object starting from
   /// just a list of Dog Ids.
   Future<Map<String, Dog>> getDogsByIds(
-      List<String> dogIds, String account) async {
+    List<String> dogIds,
+    String account,
+  ) async {
     try {
       String path = "accounts/$account/data/kennel/dogs";
       List<QueryDocumentSnapshot<Map<String, dynamic>>> allDocSnapshots = [];
@@ -151,8 +156,9 @@ class DogsDbOperations {
         var ref = db.collection(path);
         var query = ref.where(FieldPath.documentId, whereIn: batch);
         var toAdd = await query.get();
-        allDocSnapshots
-            .addAll(toAdd.docs); // Directly add to the flattened list
+        allDocSnapshots.addAll(
+          toAdd.docs,
+        ); // Directly add to the flattened list
       }
 
       return _processGetDogsByIds(allDocSnapshots);
@@ -163,7 +169,8 @@ class DogsDbOperations {
   }
 
   Map<String, Dog> _processGetDogsByIds(
-      List<QueryDocumentSnapshot<Map<String, dynamic>>> docSnapshots) {
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docSnapshots,
+  ) {
     Map<String, Dog> toReturn = {};
     for (var doc in docSnapshots) {
       toReturn[doc.id] = Dog.fromJson(doc.data());
@@ -171,8 +178,10 @@ class DogsDbOperations {
     return toReturn;
   }
 
-  Future<TeamGroupWorkspace> getTeamGroupWorkspace(
-      {required String account, required String id}) async {
+  Future<TeamGroupWorkspace> getTeamGroupWorkspace({
+    required String account,
+    required String id,
+  }) async {
     var doc = db.doc("accounts/$account/data/teams/history/$id");
     var snapshot = await doc.get();
     var tg = Map<String, dynamic>.from(snapshot.data() ?? {});
@@ -194,15 +203,18 @@ class DogsDbOperations {
       // Now handle all its dogpairs
       var dpCollection = db
           .collection(
-              "accounts/$account/data/teams/history/$id/teams/${tempTeam.id}/dogPairs")
+            "accounts/$account/data/teams/history/$id/teams/${tempTeam.id}/dogPairs",
+          )
           .orderBy("rank");
       var dpSnapshot = await dpCollection.get();
       var dpDocs = dpSnapshot.docs;
       for (var dp in dpDocs) {
-        tempTeam = tempTeam.copyWith(dogPairs: [
-          ...tempTeam.dogPairs,
-          DogPairWorkspace.fromJson(dp.data())
-        ]);
+        tempTeam = tempTeam.copyWith(
+          dogPairs: [
+            ...tempTeam.dogPairs,
+            DogPairWorkspace.fromJson(dp.data()),
+          ],
+        );
       }
       teams = [...teams, tempTeam];
     }
@@ -210,10 +222,11 @@ class DogsDbOperations {
     return toReturn;
   }
 
-  Future<void> updateDogPositions(
-      {required DogPositions newPositions,
-      required String id,
-      required String account}) async {
+  Future<void> updateDogPositions({
+    required DogPositions newPositions,
+    required String id,
+    required String account,
+  }) async {
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
     Map<String, dynamic> positionsMap = newPositions.toJson();
@@ -230,10 +243,11 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> updateMotherId(
-      {required String motherId,
-      required String id,
-      required String account}) async {
+  Future<void> updateMotherId({
+    required String motherId,
+    required String id,
+    required String account,
+  }) async {
     try {
       String path = "accounts/$account/data/kennel/dogs/$id";
       var doc = db.doc(path);
@@ -244,10 +258,11 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> updateFatherId(
-      {required String fatherId,
-      required String id,
-      required String account}) async {
+  Future<void> updateFatherId({
+    required String fatherId,
+    required String id,
+    required String account,
+  }) async {
     try {
       String path = "accounts/$account/data/kennel/dogs/$id";
       var doc = db.doc(path);
@@ -258,10 +273,11 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> changeDogName(
-      {required String newName,
-      required String id,
-      required String account}) async {
+  Future<void> changeDogName({
+    required String newName,
+    required String id,
+    required String account,
+  }) async {
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
     try {
@@ -272,13 +288,17 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> changeDogTags(
-      {required List<Tag> tags,
-      required String id,
-      required String account}) async {
+  Future<void> changeDogTags({
+    required List<Tag> tags,
+    required String id,
+    required String account,
+  }) async {
     try {} catch (e, s) {
-      logger.error("Couldn't fetch account in changeDogName",
-          error: e, stackTrace: s);
+      logger.error(
+        "Couldn't fetch account in changeDogName",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
     String path = "accounts/$account/data/kennel/dogs/$id";
@@ -291,8 +311,11 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> addTag(
-      {required Tag tag, required String id, required String account}) async {
+  Future<void> addTag({
+    required Tag tag,
+    required String id,
+    required String account,
+  }) async {
     try {} catch (e, s) {
       logger.error("Couldn't fetch account in addTag", error: e, stackTrace: s);
       rethrow;
@@ -315,8 +338,9 @@ class DogsDbOperations {
       }
       dogTags.add(tag);
 
-      List<Map<String, dynamic>> tagsList =
-          dogTags.map((t) => t.toJson()).toList();
+      List<Map<String, dynamic>> tagsList = dogTags
+          .map((t) => t.toJson())
+          .toList();
 
       await doc.update({"tags": tagsList});
     } catch (e, s) {
@@ -325,8 +349,11 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> deleteTag(
-      {required Tag tag, required String id, required String account}) async {
+  Future<void> deleteTag({
+    required Tag tag,
+    required String id,
+    required String account,
+  }) async {
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
     try {
@@ -343,8 +370,9 @@ class DogsDbOperations {
       }
       dogTags.remove(tag);
 
-      List<Map<String, dynamic>> tagsList =
-          dogTags.map((t) => t.toJson()).toList();
+      List<Map<String, dynamic>> tagsList = dogTags
+          .map((t) => t.toJson())
+          .toList();
 
       await doc.update({"tags": tagsList});
       logger.debug("Tag ${tag.name} removed successfully");
@@ -354,8 +382,11 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> editTag(
-      {required Tag tag, required String id, required String account}) async {
+  Future<void> editTag({
+    required Tag tag,
+    required String id,
+    required String account,
+  }) async {
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
 
@@ -373,8 +404,9 @@ class DogsDbOperations {
           newTags.add(oldTag);
         }
       }
-      List<Map<String, dynamic>> tagsList =
-          newTags.map((t) => t.toJson()).toList();
+      List<Map<String, dynamic>> tagsList = newTags
+          .map((t) => t.toJson())
+          .toList();
       await doc.update({"tags": tagsList});
     } catch (e, s) {
       logger.error("Couldn't edit tag", error: e, stackTrace: s);
@@ -382,10 +414,11 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> changeBirthday(
-      {required DateTime birthday,
-      required String id,
-      required String account}) async {
+  Future<void> changeBirthday({
+    required DateTime birthday,
+    required String id,
+    required String account,
+  }) async {
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
 
@@ -397,10 +430,11 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> changeSex(
-      {required DogSex sex,
-      required String id,
-      required String account}) async {
+  Future<void> changeSex({
+    required DogSex sex,
+    required String id,
+    required String account,
+  }) async {
     String path = "accounts/$account/data/kennel/dogs/$id";
     var doc = db.doc(path);
 
@@ -425,8 +459,11 @@ class DogsDbOperations {
         await StorageService().deleteFile("$imagesPath/$file");
       }
     } catch (e, s) {
-      BasicLogger()
-          .error("Couldn't delete dog's files", error: e, stackTrace: s);
+      BasicLogger().error(
+        "Couldn't delete dog's files",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
     // Reference to the 'dogs' collection
@@ -441,8 +478,10 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> updateCustomFields(
-      {required String dogId, required List<CustomField> customFields}) async {
+  Future<void> updateCustomFields({
+    required String dogId,
+    required List<CustomField> customFields,
+  }) async {
     String path = "accounts/$account/data/kennel/dogs";
     var dogsRef = FirebaseFirestore.instance.collection(path);
     var doc = dogsRef.doc(dogId);
@@ -458,8 +497,10 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> updateNotes(
-      {required String dogId, required List<SingleDogNote> notes}) async {
+  Future<void> updateNotes({
+    required String dogId,
+    required List<SingleDogNote> notes,
+  }) async {
     String path = "accounts/$account/data/kennel/dogs";
     var dogsRef = FirebaseFirestore.instance.collection(path);
     var doc = dogsRef.doc(dogId);
@@ -475,8 +516,10 @@ class DogsDbOperations {
     }
   }
 
-  Future<void> updateDistanceWarnings(
-      {required List<DistanceWarning> warnings, required String dogId}) async {
+  Future<void> updateDistanceWarnings({
+    required List<DistanceWarning> warnings,
+    required String dogId,
+  }) async {
     String path = "accounts/$account/data/kennel/dogs";
     var dogsRef = FirebaseFirestore.instance.collection(path);
     var doc = dogsRef.doc(dogId);
@@ -487,8 +530,11 @@ class DogsDbOperations {
     try {
       await doc.update({"distanceWarnings": payload});
     } catch (e, s) {
-      logger.error("Couldn't update distance warnings",
-          error: e, stackTrace: s);
+      logger.error(
+        "Couldn't update distance warnings",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }

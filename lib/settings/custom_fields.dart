@@ -8,11 +8,12 @@ class CustomFieldsOptions extends StatelessWidget {
   final List<CustomFieldTemplate> customFieldTemplates;
   final Function(CustomFieldTemplate) onCustomFieldAdded;
   final Function(String) onCustomFieldDeleted;
-  const CustomFieldsOptions(
-      {super.key,
-      required this.customFieldTemplates,
-      required this.onCustomFieldAdded,
-      required this.onCustomFieldDeleted});
+  const CustomFieldsOptions({
+    super.key,
+    required this.customFieldTemplates,
+    required this.onCustomFieldAdded,
+    required this.onCustomFieldDeleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +32,10 @@ class CustomFieldsOptions extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.secondaryContainer,
                     borderRadius: BorderRadius.circular(999),
@@ -40,18 +43,16 @@ class CustomFieldsOptions extends StatelessWidget {
                   child: Text(
                     "${customFieldTemplates.length} template${customFieldTemplates.length == 1 ? '' : 's'}",
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSecondaryContainer,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 Text(
                   "These templates are used whenever you add custom fields to forms.",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -61,17 +62,16 @@ class CustomFieldsOptions extends StatelessWidget {
                 spacing: 12,
                 runSpacing: 12,
                 children: customFieldTemplates
-                    .map((t) => CustomFieldTemplateCard(
-                          template: t,
-                          onCustomFieldDeleted: () =>
-                              onCustomFieldDeleted(t.id),
-                        ))
+                    .map(
+                      (t) => CustomFieldTemplateCard(
+                        template: t,
+                        onCustomFieldDeleted: () => onCustomFieldDeleted(t.id),
+                      ),
+                    )
                     .toList(),
               )
             else
-              _EmptyCustomFieldsState(
-                onPressed: () {},
-              ),
+              _EmptyCustomFieldsState(onPressed: () {}),
             const SizedBox(height: 20),
             AddTemplateButton(
               onCustomFieldAdded: (cf) => onCustomFieldAdded(cf),
@@ -105,23 +105,20 @@ class _EmptyCustomFieldsState extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.tune_rounded,
-            color: colorScheme.primary,
-          ),
+          Icon(Icons.tune_rounded, color: colorScheme.primary),
           const SizedBox(height: 12),
           Text(
             "No templates yet",
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(
             "Create the first field to standardize extra information collected across the account.",
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -133,8 +130,11 @@ class CustomFieldTemplateCard extends StatelessWidget {
   static final BasicLogger logger = BasicLogger();
   final CustomFieldTemplate template;
   final Function() onCustomFieldDeleted;
-  const CustomFieldTemplateCard(
-      {super.key, required this.template, required this.onCustomFieldDeleted});
+  const CustomFieldTemplateCard({
+    super.key,
+    required this.template,
+    required this.onCustomFieldDeleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -160,16 +160,16 @@ class CustomFieldTemplateCard extends StatelessWidget {
               children: [
                 Text(
                   template.name,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   template.type.showToUser,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),

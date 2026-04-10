@@ -5,7 +5,6 @@ part 'models.g.dart';
 part 'models.freezed.dart';
 
 @freezed
-
 /// A single customer, who is a person.
 /// Can be part of a larger group or come alone.
 sealed class Customer with _$Customer {
@@ -42,7 +41,6 @@ sealed class Customer with _$Customer {
 }
 
 @freezed
-
 /// Represent a single booking, made of multipe people.
 /// These people pay together and stay together. Like a single family.
 sealed class Booking with _$Booking {
@@ -79,9 +77,11 @@ sealed class Booking with _$Booking {
 
 extension BookingsExtension on List<Booking> {
   /// Only returns bookings that either have been already paid or are deferred.
-  List<Booking> get active => where((b) =>
-      b.paymentStatus == PaymentStatus.paid ||
-      b.paymentStatus == PaymentStatus.deferredPayment).toList();
+  List<Booking> get active => where(
+    (b) =>
+        b.paymentStatus == PaymentStatus.paid ||
+        b.paymentStatus == PaymentStatus.deferredPayment,
+  ).toList();
 }
 
 @JsonEnum()
@@ -104,11 +104,10 @@ enum PaymentStatus {
 
   /// Payment status not known. Means there's been an error.
   @JsonValue("unknown")
-  unknown;
+  unknown,
 }
 
 @freezed
-
 /// The entire group that will start together, and is considered a single unit.
 /// Will be assigned to a TeamGroup 1=1 ot make sure all customers have a sled.
 ///

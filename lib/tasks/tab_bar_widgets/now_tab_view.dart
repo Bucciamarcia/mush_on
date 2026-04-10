@@ -13,13 +13,14 @@ class NowTabView extends StatelessWidget {
   final Function(Task) onTaskEdited;
   final Function(DateTime) onFetchOlderTasks;
   final Function(String) onTaskDeleted;
-  const NowTabView(
-      {super.key,
-      required this.tasksInMemory,
-      required this.onTaskEdited,
-      required this.dogs,
-      required this.onFetchOlderTasks,
-      required this.onTaskDeleted});
+  const NowTabView({
+    super.key,
+    required this.tasksInMemory,
+    required this.onTaskEdited,
+    required this.dogs,
+    required this.onFetchOlderTasks,
+    required this.onTaskDeleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +31,9 @@ class NowTabView extends StatelessWidget {
     if (firstOverdueTask != null) {
       daysToDisplay = DateTime.now().difference(firstOverdueTask);
     }
-    TasksInMemory overdueTasksInMemory =
-        tasksInMemory.copyWith(tasks: overdueTasks);
+    TasksInMemory overdueTasksInMemory = tasksInMemory.copyWith(
+      tasks: overdueTasks,
+    );
     return SingleChildScrollView(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 500),
@@ -42,20 +44,23 @@ class NowTabView extends StatelessWidget {
                 : Card(
                     child: ExpansionTile(
                       initiallyExpanded: true,
-                      title:
-                          TextTitle("Overdue tasks (${overdueTasks.length})"),
+                      title: TextTitle(
+                        "Overdue tasks (${overdueTasks.length})",
+                      ),
                       children: [
                         SfScheduleView(
-                            tasks: overdueTasksInMemory,
-                            daysToDisplay: daysToDisplay.inDays +
-                                3, // Use the calculated days
-                            onFetchOlderTasks: onFetchOlderTasks,
-                            dogs: dogs,
-                            onTaskDeleted: (tid) => onTaskDeleted(tid),
-                            date: firstOverdueTask.subtract(const Duration(
-                                days:
-                                    1)), // Use the actual first overdue task date
-                            onTaskEdited: onTaskEdited)
+                          tasks: overdueTasksInMemory,
+                          daysToDisplay:
+                              daysToDisplay.inDays +
+                              3, // Use the calculated days
+                          onFetchOlderTasks: onFetchOlderTasks,
+                          dogs: dogs,
+                          onTaskDeleted: (tid) => onTaskDeleted(tid),
+                          date: firstOverdueTask.subtract(
+                            const Duration(days: 1),
+                          ), // Use the actual first overdue task date
+                          onTaskEdited: onTaskEdited,
+                        ),
                       ],
                     ),
                   ),
@@ -63,15 +68,17 @@ class NowTabView extends StatelessWidget {
               child: ExpansionTile(
                 initiallyExpanded: firstOverdueTask == null ? true : false,
                 title: TextTitle(
-                    "Today's tasks (${tasksInMemory.tasks.dueToday.notDone.length})"),
+                  "Today's tasks (${tasksInMemory.tasks.dueToday.notDone.length})",
+                ),
                 children: [
                   SfScheduleView(
-                      tasks: tasksInMemory.dueToday,
-                      onFetchOlderTasks: (date) => onFetchOlderTasks(date),
-                      onTaskDeleted: (tid) => onTaskDeleted(tid),
-                      dogs: dogs,
-                      date: DateTime.now(),
-                      onTaskEdited: onTaskEdited),
+                    tasks: tasksInMemory.dueToday,
+                    onFetchOlderTasks: (date) => onFetchOlderTasks(date),
+                    onTaskDeleted: (tid) => onTaskDeleted(tid),
+                    dogs: dogs,
+                    date: DateTime.now(),
+                    onTaskEdited: onTaskEdited,
+                  ),
                 ],
               ),
             ),
@@ -88,13 +95,14 @@ class TaskElement extends StatelessWidget {
   final List<Dog> dogs;
   final Function(Task) onTaskEdited;
   final Function(String) onTaskDeleted;
-  const TaskElement(
-      {super.key,
-      required this.task,
-      required this.onTaskEdited,
-      this.dog,
-      required this.dogs,
-      required this.onTaskDeleted});
+  const TaskElement({
+    super.key,
+    required this.task,
+    required this.onTaskEdited,
+    this.dog,
+    required this.dogs,
+    required this.onTaskDeleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +112,13 @@ class TaskElement extends StatelessWidget {
     // Check task state
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final isExpired = task.expiration != null &&
-        DateTime(task.expiration!.year, task.expiration!.month,
-                task.expiration!.day)
-            .isBefore(today);
+    final isExpired =
+        task.expiration != null &&
+        DateTime(
+          task.expiration!.year,
+          task.expiration!.month,
+          task.expiration!.day,
+        ).isBefore(today);
 
     // Determine the appropriate color based on task state
     Color? getCheckboxColor() {
@@ -177,15 +188,20 @@ class TaskElement extends StatelessWidget {
 
       // Always show description first if present
       if (task.description.isNotEmpty) {
-        spans.add(TextSpan(
-          text: task.description,
-          style: TextStyle(
-            color: getTitleColor()?.withValues(alpha: 0.8) ??
-                colorScheme.onSurfaceVariant,
-            fontWeight: task.isUrgent && !task.isDone ? FontWeight.w500 : null,
-            decoration: task.isDone ? TextDecoration.lineThrough : null,
+        spans.add(
+          TextSpan(
+            text: task.description,
+            style: TextStyle(
+              color:
+                  getTitleColor()?.withValues(alpha: 0.8) ??
+                  colorScheme.onSurfaceVariant,
+              fontWeight: task.isUrgent && !task.isDone
+                  ? FontWeight.w500
+                  : null,
+              decoration: task.isDone ? TextDecoration.lineThrough : null,
+            ),
           ),
-        ));
+        );
       }
 
       // Build metadata parts
@@ -229,16 +245,19 @@ class TaskElement extends StatelessWidget {
           metaColor = colorScheme.onSurfaceVariant.withValues(alpha: 0.7);
         }
 
-        spans.add(TextSpan(
-          text: metaParts.join(' • '),
-          style: TextStyle(
-            color: metaColor,
-            fontSize: 12,
-            fontWeight:
-                isExpired && !task.isDone ? FontWeight.w600 : FontWeight.normal,
-            decoration: task.isDone ? TextDecoration.lineThrough : null,
+        spans.add(
+          TextSpan(
+            text: metaParts.join(' • '),
+            style: TextStyle(
+              color: metaColor,
+              fontSize: 12,
+              fontWeight: isExpired && !task.isDone
+                  ? FontWeight.w600
+                  : FontWeight.normal,
+              decoration: task.isDone ? TextDecoration.lineThrough : null,
+            ),
           ),
-        ));
+        );
       }
 
       if (spans.isEmpty) return null;
@@ -276,11 +295,12 @@ class TaskElement extends StatelessWidget {
         showDialog(
           context: context,
           builder: (BuildContext context) => TaskEditorDialog(
-              onTaskAdded: (t) => onTaskEdited(t),
-              dogs: dogs,
-              task: task,
-              onTaskDeleted: (tid) => onTaskDeleted(tid),
-              taskEditorType: TaskEditorType.editTask),
+            onTaskAdded: (t) => onTaskEdited(t),
+            dogs: dogs,
+            task: task,
+            onTaskDeleted: (tid) => onTaskDeleted(tid),
+            taskEditorType: TaskEditorType.editTask,
+          ),
         );
       },
     );

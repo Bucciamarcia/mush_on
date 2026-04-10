@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 class NameWidget extends StatelessWidget {
   final String name;
   final Function(String) onNameChanged;
-  const NameWidget(
-      {super.key, required this.name, required this.onNameChanged});
+  const NameWidget({
+    super.key,
+    required this.name,
+    required this.onNameChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,19 +15,22 @@ class NameWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       spacing: 20,
       children: [
-        Text(name,
-            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+        Text(
+          name,
+          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        ),
         IconButton.outlined(
-            onPressed: () {
-              showAdaptiveDialog(
-                context: context,
-                builder: (BuildContext context) => DogNameEditor(
-                  currentName: name,
-                  onNameChanged: (String newName) => onNameChanged(newName),
-                ),
-              );
-            },
-            icon: const Icon(Icons.edit)),
+          onPressed: () {
+            showAdaptiveDialog(
+              context: context,
+              builder: (BuildContext context) => DogNameEditor(
+                currentName: name,
+                onNameChanged: (String newName) => onNameChanged(newName),
+              ),
+            );
+          },
+          icon: const Icon(Icons.edit),
+        ),
       ],
     );
   }
@@ -33,8 +39,11 @@ class NameWidget extends StatelessWidget {
 class DogNameEditor extends StatefulWidget {
   final String currentName;
   final Function(String) onNameChanged;
-  const DogNameEditor(
-      {super.key, required this.currentName, required this.onNameChanged});
+  const DogNameEditor({
+    super.key,
+    required this.currentName,
+    required this.onNameChanged,
+  });
 
   @override
   State<DogNameEditor> createState() => _DogNameEditorState();
@@ -53,9 +62,7 @@ class _DogNameEditorState extends State<DogNameEditor> {
   Widget build(BuildContext context) {
     return AlertDialog.adaptive(
       title: const Text("Change dog name"),
-      content: TextField(
-        controller: _controller,
-      ),
+      content: TextField(controller: _controller),
       actions: [
         TextButton(
           child: const Text("Cancel"),
@@ -67,7 +74,7 @@ class _DogNameEditorState extends State<DogNameEditor> {
             widget.onNameChanged(_controller.text);
             Navigator.of(context).pop();
           },
-        )
+        ),
       ],
     );
   }

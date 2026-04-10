@@ -27,64 +27,78 @@ class KennelImageCard extends ConsumerWidget {
         spacing: 10,
         children: [
           SizedBox(
-              height: 150,
-              width: 150,
-              child: (isLoading)
-                  ? const CircularProgressIndicator()
-                  : (image != null)
-                      ? Image.memory(image!, fit: BoxFit.cover)
-                      : const Placeholder()),
+            height: 150,
+            width: 150,
+            child: (isLoading)
+                ? const CircularProgressIndicator()
+                : (image != null)
+                ? Image.memory(image!, fit: BoxFit.cover)
+                : const Placeholder(),
+          ),
           Column(
             children: [
               IconButton.outlined(
-                  onPressed: () async {
-                    final account = await ref.read(accountProvider.future);
-                    final notifier =
-                        ref.read(kennelImageProvider(account: null).notifier);
-                    try {
-                      final newData = await _onEditPressed(account);
-                      notifier.change(newData);
-                    } on FileSizeException catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            errorSnackBar(context, "Max file size is 10mb"));
-                        logger.info("File uploaded is too large", error: e);
-                      }
-                    } on NoFileSelectedException catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            errorSnackBar(context, "No file selected"));
-                        logger.info("No file selected", error: e);
-                      }
-                    } catch (e, s) {
-                      if (context.mounted) {
-                        logger.error("Couldn't upload file in shopping cart",
-                            error: e, stackTrace: s);
-                        ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
-                            context,
-                            "Error: couldn't upload file in shopping cart"));
-                      }
+                onPressed: () async {
+                  final account = await ref.read(accountProvider.future);
+                  final notifier = ref.read(
+                    kennelImageProvider(account: null).notifier,
+                  );
+                  try {
+                    final newData = await _onEditPressed(account);
+                    notifier.change(newData);
+                  } on FileSizeException catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Max file size is 10mb"),
+                      );
+                      logger.info("File uploaded is too large", error: e);
                     }
-                  },
-                  icon: const Icon(Icons.edit)),
+                  } on NoFileSelectedException catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "No file selected"),
+                      );
+                      logger.info("No file selected", error: e);
+                    }
+                  } catch (e, s) {
+                    if (context.mounted) {
+                      logger.error(
+                        "Couldn't upload file in shopping cart",
+                        error: e,
+                        stackTrace: s,
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(
+                          context,
+                          "Error: couldn't upload file in shopping cart",
+                        ),
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.edit),
+              ),
               IconButton.outlined(
-                  onPressed: () async {
-                    final account = await ref.read(accountProvider.future);
-                    final notifier =
-                        ref.read(kennelImageProvider(account: null).notifier);
-                    try {
-                      await StripeRepository(account: account)
-                          .deleteKennelImage();
-                      notifier.change(null);
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            errorSnackBar(
-                                context, "Couldn't delete the image"));
-                      }
+                onPressed: () async {
+                  final account = await ref.read(accountProvider.future);
+                  final notifier = ref.read(
+                    kennelImageProvider(account: null).notifier,
+                  );
+                  try {
+                    await StripeRepository(
+                      account: account,
+                    ).deleteKennelImage();
+                    notifier.change(null);
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Couldn't delete the image"),
+                      );
                     }
-                  },
-                  icon: const Icon(Icons.delete))
+                  }
+                },
+                icon: const Icon(Icons.delete),
+              ),
             ],
           ),
         ],
@@ -98,7 +112,10 @@ class KennelImageCard extends ConsumerWidget {
     late FilePickerResult? result;
     try {
       result = await FilePicker.platform.pickFiles(
-          allowMultiple: false, type: FileType.image, withData: true);
+        allowMultiple: false,
+        type: FileType.image,
+        withData: true,
+      );
     } catch (e, s) {
       logger.error("Couldn't pick file", error: e, stackTrace: s);
       rethrow;

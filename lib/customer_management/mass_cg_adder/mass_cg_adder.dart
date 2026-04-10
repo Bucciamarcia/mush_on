@@ -8,6 +8,8 @@ class MassCgAdderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const TemplateScreen(
-        title: "Mass add Customer groups", child: MassAddCg());
+      title: "Mass add Customer groups",
+      child: MassAddCg(),
+    );
   }
 }

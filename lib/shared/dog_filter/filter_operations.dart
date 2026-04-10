@@ -11,11 +11,12 @@ class FilterOperations {
   final dynamic filter;
   static BasicLogger logger = BasicLogger();
 
-  FilterOperations(
-      {required this.dogs,
-      required this.conditionSelection,
-      required this.operationSelection,
-      required this.filter});
+  FilterOperations({
+    required this.dogs,
+    required this.conditionSelection,
+    required this.operationSelection,
+    required this.filter,
+  });
 
   List<Dog> run() {
     List<Dog> toReturn;
@@ -47,8 +48,9 @@ class FilterOperations {
         final filterValue = filter.value.getStringValue().toLowerCase();
 
         return dogs.where((dog) {
-          final selectedCustomField = dog.customFields
-              .firstWhereOrNull((cf) => cf.templateId == filter.template.id);
+          final selectedCustomField = dog.customFields.firstWhereOrNull(
+            (cf) => cf.templateId == filter.template.id,
+          );
 
           // If a dog doesn't have the field, it can't match.
           if (selectedCustomField == null) {
@@ -56,8 +58,9 @@ class FilterOperations {
             return operationSelection == OperationSelection.equalsNot;
           }
 
-          final dogValue =
-              selectedCustomField.value.getStringValue().toLowerCase();
+          final dogValue = selectedCustomField.value
+              .getStringValue()
+              .toLowerCase();
 
           return switch (operationSelection) {
             OperationSelection.equals => dogValue == filterValue,
@@ -76,14 +79,16 @@ class FilterOperations {
         final int filterValueNum = switch (filter.value) {
           IntValue(:final value) => value,
           _ => throw IllegalFilterException(
-              message:
-                  "A non-number value was provided for a numeric comparison."),
+            message:
+                "A non-number value was provided for a numeric comparison.",
+          ),
         };
 
         // 2. LOOP CLEANLY
         return dogs.where((dog) {
-          final selectedCustomField = dog.customFields
-              .firstWhereOrNull((cf) => cf.templateId == filter.template.id);
+          final selectedCustomField = dog.customFields.firstWhereOrNull(
+            (cf) => cf.templateId == filter.template.id,
+          );
 
           if (selectedCustomField == null) return false;
 
@@ -111,11 +116,13 @@ class FilterOperations {
       case OperationSelection.moreThan:
         logger.error("Illegal operation");
         throw IllegalOperationException(
-            message: "Selected illegal operation: moreThan");
+          message: "Selected illegal operation: moreThan",
+        );
       case OperationSelection.lessThan:
         logger.error("Illegal operation");
         throw IllegalOperationException(
-            message: "Selected illegal operation: lessthan");
+          message: "Selected illegal operation: lessthan",
+        );
       case OperationSelection.equals:
         try {
           return dogs.where((dog) {
@@ -124,14 +131,18 @@ class FilterOperations {
             return false;
           }).toList();
         } catch (e, s) {
-          logger.error("Error in process position equals operation",
-              error: e, stackTrace: s);
+          logger.error(
+            "Error in process position equals operation",
+            error: e,
+            stackTrace: s,
+          );
           rethrow;
         }
       case OperationSelection.contains:
         logger.error("Illegal operation");
         throw IllegalOperationException(
-            message: "Selected illegal operation: contains");
+          message: "Selected illegal operation: contains",
+        );
       case OperationSelection.equalsNot:
         try {
           return dogs.where((dog) {
@@ -140,8 +151,11 @@ class FilterOperations {
             return true;
           }).toList();
         } catch (e, s) {
-          logger.error("Error in process position equals operation",
-              error: e, stackTrace: s);
+          logger.error(
+            "Error in process position equals operation",
+            error: e,
+            stackTrace: s,
+          );
           rethrow;
         }
     }
@@ -157,20 +171,24 @@ class FilterOperations {
       case OperationSelection.contains:
         return dogs
             .where(
-                (dog) => dog.name.toLowerCase().contains(filter.toLowerCase()))
+              (dog) => dog.name.toLowerCase().contains(filter.toLowerCase()),
+            )
             .toList();
       case OperationSelection.moreThan:
         logger.error("Illegal operation in processname");
         throw IllegalOperationException(
-            message: "Selected illegal operation: moreThan");
+          message: "Selected illegal operation: moreThan",
+        );
       case OperationSelection.lessThan:
         logger.error("Illegal operation in processname");
         throw IllegalOperationException(
-            message: "Selected illegal operation: lessthan");
+          message: "Selected illegal operation: lessthan",
+        );
       case OperationSelection.equalsNot:
         return dogs
             .where(
-                (dog) => !dog.name.toLowerCase().contains(filter.toLowerCase()))
+              (dog) => !dog.name.toLowerCase().contains(filter.toLowerCase()),
+            )
             .toList();
     }
   }
@@ -182,7 +200,8 @@ class FilterOperations {
       case OperationSelection.contains:
         logger.error("Illegal operation in processname");
         throw IllegalOperationException(
-            message: "Selected illegal operation: contains");
+          message: "Selected illegal operation: contains",
+        );
       case OperationSelection.moreThan:
         return dogs
             .where((dog) => (dog.years == null) ? false : dog.years! > filter)
@@ -208,15 +227,18 @@ class FilterOperations {
       case OperationSelection.contains:
         logger.error("Illegal operation in processname");
         throw IllegalOperationException(
-            message: "Selected illegal operation: contains");
+          message: "Selected illegal operation: contains",
+        );
       case OperationSelection.moreThan:
         logger.error("Illegal operation in processname");
         throw IllegalOperationException(
-            message: "Selected illegal operation: moreThan");
+          message: "Selected illegal operation: moreThan",
+        );
       case OperationSelection.lessThan:
         logger.error("Illegal operation in processname");
         throw IllegalOperationException(
-            message: "Selected illegal operation: lessthan");
+          message: "Selected illegal operation: lessthan",
+        );
       case OperationSelection.equalsNot:
         return dogs.where((dog) {
           for (Tag tag in dog.tags.available) {
@@ -236,15 +258,18 @@ class FilterOperations {
       case OperationSelection.contains:
         logger.error("Illegal operation in processname");
         throw IllegalOperationException(
-            message: "Selected illegal operation: contains");
+          message: "Selected illegal operation: contains",
+        );
       case OperationSelection.moreThan:
         logger.error("Illegal operation in processname");
         throw IllegalOperationException(
-            message: "Selected illegal operation: moreThan");
+          message: "Selected illegal operation: moreThan",
+        );
       case OperationSelection.lessThan:
         logger.error("Illegal operation in processname");
         throw IllegalOperationException(
-            message: "Selected illegal operation: lessThan");
+          message: "Selected illegal operation: lessThan",
+        );
     }
   }
 }

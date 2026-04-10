@@ -39,77 +39,89 @@ class _PedigreeinfoState extends ConsumerState<PedigreeInfo> {
     final allDogsAsync = ref.watch(dogsProvider);
     String account = ref.watch(accountProvider).value ?? "";
     return allDogsAsync.when(
-        data: (allDogs) {
-          return Column(
-            children: [
-              const TextTitle("Pedigree info"),
-              Row(
-                children: [
-                  DropdownMenu(
-                      initialSelection:
-                          allDogs.getDogFromId(widget.dog.motherId ?? ""),
-                      label: const Text("Mother"),
-                      controller: motherController,
-                      onSelected: (mother) async {
-                        if (mother != null) {
-                          motherController.text = mother.name;
-                          await DogsDbOperations().updateMotherId(
-                              motherId: mother.id,
-                              id: widget.dog.id,
-                              account: account);
-                        }
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              confirmationSnackbar(
-                                  context, "Dog mother updated"));
-                        }
-                      },
-                      dropdownMenuEntries: allDogs
-                          .where((d) => d.sex != DogSex.male)
-                          .where((d) => d.id != widget.dog.id)
-                          .map(
-                              (d) => DropdownMenuEntry(value: d, label: d.name))
-                          .toList()),
-                  DropdownMenu(
-                      initialSelection:
-                          allDogs.getDogFromId(widget.dog.fatherId ?? ""),
-                      label: const Text("Father"),
-                      controller: fatherController,
-                      onSelected: (father) async {
-                        if (father != null) {
-                          fatherController.text = father.name;
-                          await DogsDbOperations().updateFatherId(
-                              fatherId: father.id,
-                              id: widget.dog.id,
-                              account: account);
-                        }
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              confirmationSnackbar(
-                                  context, "Dog father updated"));
-                        }
-                      },
-                      dropdownMenuEntries: allDogs
-                          .where((d) => d.sex != DogSex.female)
-                          .where((d) => d.id != widget.dog.id)
-                          .map(
-                              (d) => DropdownMenuEntry(value: d, label: d.name))
-                          .toList()),
-                ],
+      data: (allDogs) {
+        return Column(
+          children: [
+            const TextTitle("Pedigree info"),
+            Row(
+              children: [
+                DropdownMenu(
+                  initialSelection: allDogs.getDogFromId(
+                    widget.dog.motherId ?? "",
+                  ),
+                  label: const Text("Mother"),
+                  controller: motherController,
+                  onSelected: (mother) async {
+                    if (mother != null) {
+                      motherController.text = mother.name;
+                      await DogsDbOperations().updateMotherId(
+                        motherId: mother.id,
+                        id: widget.dog.id,
+                        account: account,
+                      );
+                    }
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationSnackbar(context, "Dog mother updated"),
+                      );
+                    }
+                  },
+                  dropdownMenuEntries: allDogs
+                      .where((d) => d.sex != DogSex.male)
+                      .where((d) => d.id != widget.dog.id)
+                      .map((d) => DropdownMenuEntry(value: d, label: d.name))
+                      .toList(),
+                ),
+                DropdownMenu(
+                  initialSelection: allDogs.getDogFromId(
+                    widget.dog.fatherId ?? "",
+                  ),
+                  label: const Text("Father"),
+                  controller: fatherController,
+                  onSelected: (father) async {
+                    if (father != null) {
+                      fatherController.text = father.name;
+                      await DogsDbOperations().updateFatherId(
+                        fatherId: father.id,
+                        id: widget.dog.id,
+                        account: account,
+                      );
+                    }
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationSnackbar(context, "Dog father updated"),
+                      );
+                    }
+                  },
+                  dropdownMenuEntries: allDogs
+                      .where((d) => d.sex != DogSex.female)
+                      .where((d) => d.id != widget.dog.id)
+                      .map((d) => DropdownMenuEntry(value: d, label: d.name))
+                      .toList(),
+                ),
+              ],
+            ),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => PedigreeScreen(dog: widget.dog),
+                ),
               ),
-              ElevatedButton.icon(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => PedigreeScreen(dog: widget.dog))),
-                  label: const Text("View pedigree chart"),
-                  icon: const FaIcon(FontAwesomeIcons.dog)),
-            ],
-          );
-        },
-        error: (e, s) {
-          logger.error("Couldn't load dogs in pedigree info",
-              error: e, stackTrace: s);
-          return const Text("Error: couldn't load dogs");
-        },
-        loading: () => const CircularProgressIndicator.adaptive());
+              label: const Text("View pedigree chart"),
+              icon: const FaIcon(FontAwesomeIcons.dog),
+            ),
+          ],
+        );
+      },
+      error: (e, s) {
+        logger.error(
+          "Couldn't load dogs in pedigree info",
+          error: e,
+          stackTrace: s,
+        );
+        return const Text("Error: couldn't load dogs");
+      },
+      loading: () => const CircularProgressIndicator.adaptive(),
+    );
   }
 }

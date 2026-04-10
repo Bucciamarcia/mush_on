@@ -24,153 +24,164 @@ class MassAddCg extends ConsumerWidget {
     List<TourType> tours =
         ref.watch(allTourTypesProvider(showArchived: false)).value ?? [];
     return SingleChildScrollView(
-        child: Column(
-      spacing: 25,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text(
-          "Select the repeat rule",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        const Wrap(
-          alignment: WrapAlignment.center,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 15,
-          children: [
-            Text("This rule should"),
-            RuleTypeDropdownSelector(),
-          ],
-        ),
-        _pickSelectorBasedOnRule(ref.watch(selectedRuleTypeProvider)),
-        TextField(
-          onChanged: (s) {
-            ref.read(massCgEditorCgNameProvider.notifier).change(s);
-          },
-          decoration: InputDecoration(
-            labelText: "Customer Group Name",
-            hintText: "Internal name (not shown to customers)",
-            prefixIcon: const Icon(Icons.edit),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            filled: true,
+      child: Column(
+        spacing: 25,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            "Select the repeat rule",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
-        ),
-        Text("Selected time: ${ref.watch(massCgEditorCgTimeProvider)}"),
-        ElevatedButton(
+          const Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 15,
+            children: [Text("This rule should"), RuleTypeDropdownSelector()],
+          ),
+          _pickSelectorBasedOnRule(ref.watch(selectedRuleTypeProvider)),
+          TextField(
+            onChanged: (s) {
+              ref.read(massCgEditorCgNameProvider.notifier).change(s);
+            },
+            decoration: InputDecoration(
+              labelText: "Customer Group Name",
+              hintText: "Internal name (not shown to customers)",
+              prefixIcon: const Icon(Icons.edit),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              filled: true,
+            ),
+          ),
+          Text("Selected time: ${ref.watch(massCgEditorCgTimeProvider)}"),
+          ElevatedButton(
             onPressed: () async {
               final TimeOfDay? newTime = await showTimePicker(
-                  context: context,
-                  initialTime: ref.read(massCgEditorCgTimeProvider));
+                context: context,
+                initialTime: ref.read(massCgEditorCgTimeProvider),
+              );
               if (newTime != null) {
                 ref.read(massCgEditorCgTimeProvider.notifier).change(newTime);
               }
             },
-            child: const Text("Pick time")),
-        TextField(
-          onChanged: (v) => ref
-              .read(massCgEditorCgCapacityProvider.notifier)
-              .change(int.tryParse(v)),
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-          ],
-          decoration: InputDecoration(
-            labelText: "Max Capacity",
-            hintText: "Maximum number of people in this group",
-            prefixIcon: const Icon(Icons.people),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            filled: true,
+            child: const Text("Pick time"),
           ),
-        ),
-        DropdownMenu<TourType>(
-          label: const Text("Select tour type"),
-          expandedInsets: EdgeInsets.zero,
-          inputDecorationTheme: InputDecorationTheme(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+          TextField(
+            onChanged: (v) => ref
+                .read(massCgEditorCgCapacityProvider.notifier)
+                .change(int.tryParse(v)),
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            decoration: InputDecoration(
+              labelText: "Max Capacity",
+              hintText: "Maximum number of people in this group",
+              prefixIcon: const Icon(Icons.people),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              filled: true,
             ),
-            filled: true,
           ),
-          onSelected: (s) {
-            if (s != null) {
-              ref.read(massCgEditorTourTypeProvider.notifier).change(s);
-            }
-          },
-          dropdownMenuEntries: tours
-              .map(
-                (tour) => DropdownMenuEntry(
-                    value: tour, label: "${tour.name} - ${tour.distance} km"),
-              )
-              .toList(),
-        ),
-        ElevatedButton(
-          onPressed: canAddCgs
-              ? () async {
-                  late MassCgAdderRepository repo;
-                  try {
-                    repo = MassCgAdderRepository(
-                      ruleType: ref.read(selectedRuleTypeProvider),
-                      daysOfWeekSelected: ref.read(daysOfWeekSelectedProvider),
-                      dateRangeSelection:
-                          ref.read(dateRangeSelectedForWeekSelectionProvider),
-                      onSelectedDaysSelected:
-                          ref.read(onSelectedDaysSelectedProvider),
-                      cgName: ref.read(massCgEditorCgNameProvider),
-                      time: ref.read(massCgEditorCgTimeProvider),
-                      maxCapacity: ref.read(massCgEditorCgCapacityProvider)!,
-                      tourType: ref.read(massCgEditorTourTypeProvider)!,
-                      account: account,
-                    );
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
-                          context, "Error: couldn't create batch"));
+          DropdownMenu<TourType>(
+            label: const Text("Select tour type"),
+            expandedInsets: EdgeInsets.zero,
+            inputDecorationTheme: InputDecorationTheme(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              filled: true,
+            ),
+            onSelected: (s) {
+              if (s != null) {
+                ref.read(massCgEditorTourTypeProvider.notifier).change(s);
+              }
+            },
+            dropdownMenuEntries: tours
+                .map(
+                  (tour) => DropdownMenuEntry(
+                    value: tour,
+                    label: "${tour.name} - ${tour.distance} km",
+                  ),
+                )
+                .toList(),
+          ),
+          ElevatedButton(
+            onPressed: canAddCgs
+                ? () async {
+                    late MassCgAdderRepository repo;
+                    try {
+                      repo = MassCgAdderRepository(
+                        ruleType: ref.read(selectedRuleTypeProvider),
+                        daysOfWeekSelected: ref.read(
+                          daysOfWeekSelectedProvider,
+                        ),
+                        dateRangeSelection: ref.read(
+                          dateRangeSelectedForWeekSelectionProvider,
+                        ),
+                        onSelectedDaysSelected: ref.read(
+                          onSelectedDaysSelectedProvider,
+                        ),
+                        cgName: ref.read(massCgEditorCgNameProvider),
+                        time: ref.read(massCgEditorCgTimeProvider),
+                        maxCapacity: ref.read(massCgEditorCgCapacityProvider)!,
+                        tourType: ref.read(massCgEditorTourTypeProvider)!,
+                        account: account,
+                      );
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(
+                            context,
+                            "Error: couldn't create batch",
+                          ),
+                        );
+                      }
                     }
-                  }
-                  try {
-                    await repo.add();
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
+                    try {
+                      await repo.add();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
                           confirmationSnackbar(
-                              context, "All Customer Groups added"));
-                      context.go("/client_management");
-                    }
-                  } on TooManyDatesException catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(errorSnackBar(context, e.toString()));
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          errorSnackBar(context, "Error: couldn't add batch"));
+                            context,
+                            "All Customer Groups added",
+                          ),
+                        );
+                        context.go("/client_management");
+                      }
+                    } on TooManyDatesException catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(errorSnackBar(context, e.toString()));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "Error: couldn't add batch"),
+                        );
+                      }
                     }
                   }
-                }
-              : null,
-          style: ButtonStyle(
-            foregroundColor: WidgetStateProperty.all(
-              canAddCgs
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Colors.black,
+                : null,
+            style: ButtonStyle(
+              foregroundColor: WidgetStateProperty.all(
+                canAddCgs
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Colors.black,
+              ),
+              backgroundColor: WidgetStateProperty.all(
+                canAddCgs
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey[400],
+              ),
+              textStyle: WidgetStateProperty.all(const TextStyle(fontSize: 16)),
             ),
-            backgroundColor: WidgetStateProperty.all(
-              canAddCgs
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.grey[400],
-            ),
-            textStyle: WidgetStateProperty.all(
-              const TextStyle(fontSize: 16),
-            ),
+            child: const Text("Add Customer Groups"),
           ),
-          child: const Text("Add Customer Groups"),
-        )
-      ],
-    ));
+        ],
+      ),
+    );
   }
 
   Widget _pickSelectorBasedOnRule(AddCgRuleType rule) {

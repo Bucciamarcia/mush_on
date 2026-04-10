@@ -8,6 +8,8 @@ class TeamsHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const TemplateScreen(
-        title: "Teams History", child: TeamsHistoryMain());
+      title: "Teams History",
+      child: TeamsHistoryMain(),
+    );
   }
 }

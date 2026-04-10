@@ -40,9 +40,7 @@ class _SingleDogNotesWidgetState extends State<SingleDogNotesWidget> {
     return Card(
       elevation: 2.0,
       margin: const EdgeInsets.all(8.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -69,10 +67,9 @@ class _SingleDogNotesWidgetState extends State<SingleDogNotesWidget> {
                       vertical: 2.0,
                     ),
                     decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: Text(
@@ -103,8 +100,8 @@ class _SingleDogNotesWidgetState extends State<SingleDogNotesWidget> {
                       Text(
                         "No notes for this dog yet",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
@@ -159,7 +156,9 @@ class _SingleDogNotesWidgetState extends State<SingleDogNotesWidget> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 24.0, vertical: 12.0),
+                          horizontal: 24.0,
+                          vertical: 12.0,
+                        ),
                       ),
                     ),
                   ),
@@ -300,9 +299,9 @@ class _SingleDogNoteWidgetState extends State<SingleDogNoteWidget> {
                     if (widget.isFirst) const SizedBox(width: 8),
                     Text(
                       _formatDate(widget.note.date),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -345,7 +344,8 @@ class _SingleDogNoteWidgetState extends State<SingleDogNoteWidget> {
                           builder: (context) => AlertDialog(
                             title: const Text("Delete Note"),
                             content: const Text(
-                                "Are you sure you want to delete this note?"),
+                              "Are you sure you want to delete this note?",
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
@@ -499,9 +499,7 @@ class _AddSingleNoteWidgetState extends State<AddSingleNoteWidget> {
               fillColor: Colors.white,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide(
-                  color: Colors.grey[300]!,
-                ),
+                borderSide: BorderSide(color: Colors.grey[300]!),
               ),
             ),
           ),

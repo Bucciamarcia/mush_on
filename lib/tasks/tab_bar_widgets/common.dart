@@ -1,10 +1,11 @@
 import 'package:mush_on/services/models/tasks.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-void fetchNewTasks(
-    {required ViewChangedDetails details,
-    required TasksInMemory tasks,
-    required Function(DateTime) onFetchOlderTasks}) {
+void fetchNewTasks({
+  required ViewChangedDetails details,
+  required TasksInMemory tasks,
+  required Function(DateTime) onFetchOlderTasks,
+}) {
   if (tasks.oldestFetched == null) {
     return; // If null, it fetched everything.
   }

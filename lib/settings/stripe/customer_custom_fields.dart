@@ -9,11 +9,12 @@ class CustomerCustomFieldsMain extends ConsumerWidget {
   final List<CustomerCustomField> tempCustomerFields;
   final BookingManagerKennelInfo? kennelInfo;
   final Future<void> Function() onSubmit;
-  const CustomerCustomFieldsMain(
-      {super.key,
-      required this.tempCustomerFields,
-      required this.kennelInfo,
-      required this.onSubmit});
+  const CustomerCustomFieldsMain({
+    super.key,
+    required this.tempCustomerFields,
+    required this.kennelInfo,
+    required this.onSubmit,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,7 +41,9 @@ class CustomerCustomFieldsMain extends ConsumerWidget {
                     key: const ValueKey('unsaved_customer_custom_fields'),
                     margin: const EdgeInsets.only(top: 20),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: colorScheme.errorContainer,
                       borderRadius: BorderRadius.circular(16),
@@ -141,8 +144,10 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(999),
@@ -183,8 +188,9 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
                                 .read(tempCustomerFieldsProvider.notifier)
                                 .updateField(index, v);
                             ref
-                                .read(isCustomerCustomFieldsEditedProvider
-                                    .notifier)
+                                .read(
+                                  isCustomerCustomFieldsEditedProvider.notifier,
+                                )
                                 .setEdited(true);
                           },
                           onDeleted: () {
@@ -192,8 +198,9 @@ class CustomerCustomFieldsEditor extends ConsumerWidget {
                                 .read(tempCustomerFieldsProvider.notifier)
                                 .removeField(index);
                             ref
-                                .read(isCustomerCustomFieldsEditedProvider
-                                    .notifier)
+                                .read(
+                                  isCustomerCustomFieldsEditedProvider.notifier,
+                                )
                                 .setEdited(true);
                           },
                         ),
@@ -231,11 +238,12 @@ class FieldDisplayWidget extends StatefulWidget {
   final CustomerCustomField field;
   final Function(CustomerCustomField) onChanged;
   final Function() onDeleted;
-  const FieldDisplayWidget(
-      {super.key,
-      required this.field,
-      required this.onChanged,
-      required this.onDeleted});
+  const FieldDisplayWidget({
+    super.key,
+    required this.field,
+    required this.onChanged,
+    required this.onDeleted,
+  });
 
   @override
   State<FieldDisplayWidget> createState() => _FieldDisplayWidgetState();
@@ -251,8 +259,9 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
   @override
   void initState() {
     nameController = TextEditingController(text: widget.field.name);
-    descriptionController =
-        TextEditingController(text: widget.field.description);
+    descriptionController = TextEditingController(
+      text: widget.field.description,
+    );
     isRequired = widget.field.isRequired;
     canEditName = false;
     canEditDescription = false;
@@ -313,10 +322,7 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
                     color: colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(
-                    Icons.notes_rounded,
-                    color: colorScheme.primary,
-                  ),
+                  child: Icon(Icons.notes_rounded, color: colorScheme.primary),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -334,7 +340,9 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(999),
@@ -354,8 +362,9 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
                   tooltip: "Delete field",
                   onPressed: () => widget.onDeleted(),
                   style: IconButton.styleFrom(
-                    backgroundColor:
-                        colorScheme.errorContainer.withValues(alpha: 0.55),
+                    backgroundColor: colorScheme.errorContainer.withValues(
+                      alpha: 0.55,
+                    ),
                     foregroundColor: colorScheme.error,
                   ),
                   icon: const Icon(Icons.delete_outline),
@@ -372,7 +381,8 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
               onToggle: () {
                 if (canEditName) {
                   widget.onChanged(
-                      widget.field.copyWith(name: nameController.text));
+                    widget.field.copyWith(name: nameController.text),
+                  );
                 }
                 setState(() {
                   canEditName = !canEditName;
@@ -388,8 +398,11 @@ class _FieldDisplayWidgetState extends State<FieldDisplayWidget> {
               maxLines: 3,
               onToggle: () {
                 if (canEditDescription) {
-                  widget.onChanged(widget.field
-                      .copyWith(description: descriptionController.text));
+                  widget.onChanged(
+                    widget.field.copyWith(
+                      description: descriptionController.text,
+                    ),
+                  );
                 }
                 setState(() {
                   canEditDescription = !canEditDescription;
@@ -491,9 +504,7 @@ class _EditableFieldRow extends StatelessWidget {
                       : colorScheme.surfaceContainerLow,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(
-                      color: colorScheme.outlineVariant,
-                    ),
+                    borderSide: BorderSide(color: colorScheme.outlineVariant),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),

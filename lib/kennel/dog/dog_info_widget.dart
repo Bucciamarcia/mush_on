@@ -41,7 +41,10 @@ class DogInfoWidget extends StatelessWidget {
                   initialDate: (birthday == null)
                       ? DateTime.now().toUtc()
                       : DateTime.utc(
-                          birthday!.year, birthday!.month, birthday!.day),
+                          birthday!.year,
+                          birthday!.month,
+                          birthday!.day,
+                        ),
                 );
                 if (datePicked != null) {
                   final selectedUtcDate = DateTime.utc(
@@ -54,12 +57,7 @@ class DogInfoWidget extends StatelessWidget {
               },
               icon: const Icon(Icons.edit),
             ),
-            Expanded(
-              child: DogInfoRow(
-                "Birthday",
-                formatBirth(),
-              ),
-            ),
+            Expanded(child: DogInfoRow("Birthday", formatBirth())),
           ],
         ),
         const Divider(),
@@ -68,11 +66,12 @@ class DogInfoWidget extends StatelessWidget {
           children: [
             IconButton.outlined(
               onPressed: () => showAdaptiveDialog(
-                  context: context,
-                  builder: (BuildContext context) => SexChangeWidget(
-                        onSexChanged: (DogSex newSex) => onSexChanged(newSex),
-                        currentSex: sex,
-                      )),
+                context: context,
+                builder: (BuildContext context) => SexChangeWidget(
+                  onSexChanged: (DogSex newSex) => onSexChanged(newSex),
+                  currentSex: sex,
+                ),
+              ),
               icon: const Icon(Icons.edit),
             ),
             Expanded(child: DogInfoRow("Sex", getDogSex())),
@@ -137,8 +136,11 @@ class DogInfoRow extends StatelessWidget {
 class SexChangeWidget extends StatefulWidget {
   final DogSex currentSex;
   final Function(DogSex) onSexChanged;
-  const SexChangeWidget(
-      {super.key, required this.currentSex, required this.onSexChanged});
+  const SexChangeWidget({
+    super.key,
+    required this.currentSex,
+    required this.onSexChanged,
+  });
 
   @override
   State<SexChangeWidget> createState() => _SexChangeWidgetState();
@@ -160,46 +162,51 @@ class _SexChangeWidgetState extends State<SexChangeWidget> {
       content: Column(
         children: [
           RadioListTile.adaptive(
-              title: const Text("Male"),
-              value: DogSex.male,
-              groupValue: _newSex,
-              onChanged: (n) {
-                setState(() {
-                  _newSex = n;
-                });
-              }),
+            title: const Text("Male"),
+            value: DogSex.male,
+            groupValue: _newSex,
+            onChanged: (n) {
+              setState(() {
+                _newSex = n;
+              });
+            },
+          ),
           RadioListTile.adaptive(
-              title: const Text("Female"),
-              value: DogSex.female,
-              groupValue: _newSex,
-              onChanged: (n) {
-                setState(() {
-                  _newSex = n;
-                });
-              }),
+            title: const Text("Female"),
+            value: DogSex.female,
+            groupValue: _newSex,
+            onChanged: (n) {
+              setState(() {
+                _newSex = n;
+              });
+            },
+          ),
           RadioListTile.adaptive(
-              title: const Text("None"),
-              value: DogSex.none,
-              groupValue: _newSex,
-              onChanged: (n) {
-                setState(() {
-                  _newSex = n;
-                });
-              })
+            title: const Text("None"),
+            value: DogSex.none,
+            groupValue: _newSex,
+            onChanged: (n) {
+              setState(() {
+                _newSex = n;
+              });
+            },
+          ),
         ],
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Cancel")),
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Cancel"),
+        ),
         TextButton(
-            onPressed: () {
-              if (_newSex != null) {
-                widget.onSexChanged(_newSex!);
-              }
-              Navigator.of(context).pop();
-            },
-            child: const Text("OK")),
+          onPressed: () {
+            if (_newSex != null) {
+              widget.onSexChanged(_newSex!);
+            }
+            Navigator.of(context).pop();
+          },
+          child: const Text("OK"),
+        ),
       ],
     );
   }

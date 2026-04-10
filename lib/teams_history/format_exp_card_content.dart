@@ -12,15 +12,13 @@ class FormatObject extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
       width: double.infinity,
-      child: Text(
-        formatMap(ref),
-        textAlign: TextAlign.left,
-      ),
+      child: Text(formatMap(ref), textAlign: TextAlign.left),
     );
   }
 
   String formatMap(WidgetRef ref) {
-    List<Team> teams = ref.watch(teamsInTeamgroupProvider(item.id)).value ??
+    List<Team> teams =
+        ref.watch(teamsInTeamgroupProvider(item.id)).value ??
         [const Team(id: "adfkshbg", rank: 0)];
     String toReturn = item.name;
     for (Team teamItem in teams) {

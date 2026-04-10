@@ -62,8 +62,10 @@ class CustomerManagementRepository {
     var batch = _db.batch();
     batch.delete(doc);
     String cusPath = "accounts/$account/data/bookingManager/customers";
-    var col =
-        await _db.collection(cusPath).where("bookingId", isEqualTo: id).get();
+    var col = await _db
+        .collection(cusPath)
+        .where("bookingId", isEqualTo: id)
+        .get();
     for (var c in col.docs) {
       batch.delete(_db.doc("$cusPath/${c.id}"));
     }
@@ -132,8 +134,11 @@ class CustomerManagementRepository {
     try {
       await batch.commit();
     } catch (e, s) {
-      logger.error("Couldn't set customers for group.",
-          error: e, stackTrace: s);
+      logger.error(
+        "Couldn't set customers for group.",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }

@@ -61,12 +61,14 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
     for (final sibiling in sibilings) {
       dogLayouts.add(DogLayout(dog: sibiling, rank: 0));
     }
-    _processDogDown(dogsWithChildren, DogLayout(dog: widget.dog, rank: 0),
-        (processedDog) {
+    _processDogDown(dogsWithChildren, DogLayout(dog: widget.dog, rank: 0), (
+      processedDog,
+    ) {
       dogLayouts.add(processedDog);
     });
-    _processDogUp(dogswithParents, DogLayout(dog: widget.dog, rank: 0),
-        (processedDog) {
+    _processDogUp(dogswithParents, DogLayout(dog: widget.dog, rank: 0), (
+      processedDog,
+    ) {
       dogLayouts.add(processedDog);
     });
     dogLayouts.sort((a, b) => a.rank.compareTo(b.rank));
@@ -82,21 +84,24 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
       final rowDogs = byRank[r] ?? const [];
       if (rowDogs.isEmpty) {
         rows.add(
-            const SizedBox(height: 40)); // optional spacer for empty generation
+          const SizedBox(height: 40),
+        ); // optional spacer for empty generation
         continue;
       }
       rows.add(
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: rowDogs
-              .map((lir) => Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: SingleDogDisplay(
-                      key: lir.dog.id == widget.dog.id ? _focusKey : null,
-                      dog: lir.dog,
-                      focusDog: widget.dog,
-                    ),
-                  ))
+              .map(
+                (lir) => Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: SingleDogDisplay(
+                    key: lir.dog.id == widget.dog.id ? _focusKey : null,
+                    dog: lir.dog,
+                    focusDog: widget.dog,
+                  ),
+                ),
+              )
               .toList(),
         ),
       );
@@ -145,8 +150,12 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
     for (final child in kids) {
       final childLayout = DogLayout(dog: child, rank: dog.rank + 1);
       onDogProcessed(childLayout);
-      _processDogDown(childrenByParent, childLayout, onDogProcessed,
-          visited: visited);
+      _processDogDown(
+        childrenByParent,
+        childLayout,
+        onDogProcessed,
+        visited: visited,
+      );
     }
   }
 
@@ -165,8 +174,12 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
     for (final parent in parents) {
       final parentLayout = DogLayout(dog: parent, rank: dog.rank - 1);
       onDogProcessed(parentLayout);
-      _processDogUp(parentsOfDog, parentLayout, onDogProcessed,
-          visited: visited);
+      _processDogUp(
+        parentsOfDog,
+        parentLayout,
+        onDogProcessed,
+        visited: visited,
+      );
     }
   }
 
@@ -224,8 +237,11 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
 class SingleDogDisplay extends ConsumerWidget {
   final Dog dog;
   final Dog focusDog;
-  const SingleDogDisplay(
-      {super.key, required this.dog, required this.focusDog});
+  const SingleDogDisplay({
+    super.key,
+    required this.dog,
+    required this.focusDog,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -233,8 +249,9 @@ class SingleDogDisplay extends ConsumerWidget {
 
     Widget avatar = const CircleAvatar(child: Icon(Icons.pets));
     if (accountAsync.hasValue) {
-      final imgAsync =
-          ref.watch(singleDogImageProvider(accountAsync.value ?? "", dog.id));
+      final imgAsync = ref.watch(
+        singleDogImageProvider(accountAsync.value ?? "", dog.id),
+      );
       avatar = imgAsync.when(
         data: (bytes) => CircleAvatar(
           radius: 24,
@@ -259,10 +276,7 @@ class SingleDogDisplay extends ConsumerWidget {
       color: dog.id == focusDog.id ? Colors.red[100] : null,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => context.goNamed(
-          "dog",
-          queryParameters: {"dogId": dog.id},
-        ),
+        onTap: () => context.goNamed("dog", queryParameters: {"dogId": dog.id}),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
@@ -280,9 +294,7 @@ class SingleDogDisplay extends ConsumerWidget {
                     children: [
                       Text(
                         dog.name,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
+                        style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(width: 6),

@@ -28,8 +28,11 @@ class PermanentWhiteboardRepository {
     try {
       await collection.doc(id).delete();
     } catch (e, s) {
-      logger.error("Couldn't delete permanent element",
-          error: e, stackTrace: s);
+      logger.error(
+        "Couldn't delete permanent element",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }

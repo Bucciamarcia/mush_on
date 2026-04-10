@@ -32,19 +32,17 @@ class CustomerGroupViewer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (customerGroupId == null) {
-      return const Center(
-        child: Text("No customer group ID provided."),
-      );
+      return const Center(child: Text("No customer group ID provided."));
     }
     final customerGroupAsync = ref.watch(
       CustomerGroupByIdProvider(customerGroupId!),
     );
     final List<Booking> bookings =
         ref.watch(bookingsByCustomerGroupIdProvider(customerGroupId!)).value ??
-            [];
+        [];
     final List<Customer> customers =
         ref.watch(CustomersByCustomerGroupIdProvider(customerGroupId!)).value ??
-            [];
+        [];
     return customerGroupAsync.when(
       data: (customerGroup) {
         //Handle unknown errors.
@@ -56,8 +54,9 @@ class CustomerGroupViewer extends ConsumerWidget {
         // Define the customers.
         TourType? tour;
         if (customerGroup.tourTypeId != null) {
-          tour =
-              ref.watch(tourTypeByIdProvider(customerGroup.tourTypeId!)).value;
+          tour = ref
+              .watch(tourTypeByIdProvider(customerGroup.tourTypeId!))
+              .value;
         }
         List<TourTypePricing>? pricings;
         if (tour != null) {
@@ -81,9 +80,7 @@ class CustomerGroupViewer extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           customerGroup.name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
+                          style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: colorScheme.onPrimaryContainer,
@@ -95,9 +92,8 @@ class CustomerGroupViewer extends ConsumerWidget {
                       ElevatedButton.icon(
                         onPressed: () => showDialog(
                           context: context,
-                          builder: (_) => CustomerGroupEditor(
-                            customerGroup: customerGroup,
-                          ),
+                          builder: (_) =>
+                              CustomerGroupEditor(customerGroup: customerGroup),
                         ),
                         icon: const Icon(Icons.edit, size: 18),
                         label: const Text("Edit"),
@@ -115,8 +111,9 @@ class CustomerGroupViewer extends ConsumerWidget {
               // Overview
               Card(
                 elevation: 0,
-                color:
-                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.3,
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -128,12 +125,8 @@ class CustomerGroupViewer extends ConsumerWidget {
                           const SizedBox(width: 8),
                           Text(
                             "Overview",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
@@ -141,12 +134,16 @@ class CustomerGroupViewer extends ConsumerWidget {
                       // Date & Time
                       Row(
                         children: [
-                          Icon(Icons.event,
-                              color: colorScheme.onSurfaceVariant, size: 20),
+                          Icon(
+                            Icons.event,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Text(
-                            DateFormat("EEEE, MMMM d, yyyy")
-                                .format(customerGroup.datetime),
+                            DateFormat(
+                              "EEEE, MMMM d, yyyy",
+                            ).format(customerGroup.datetime),
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ],
@@ -154,8 +151,11 @@ class CustomerGroupViewer extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.schedule,
-                              color: colorScheme.onSurfaceVariant, size: 20),
+                          Icon(
+                            Icons.schedule,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             DateFormat("HH:mm").format(customerGroup.datetime),
@@ -166,8 +166,11 @@ class CustomerGroupViewer extends ConsumerWidget {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.people,
-                              color: colorScheme.onSurfaceVariant, size: 20),
+                          Icon(
+                            Icons.people,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             "Customers: ${customers.length}/${customerGroup.maxCapacity}",
@@ -198,9 +201,7 @@ class CustomerGroupViewer extends ConsumerWidget {
                             const SizedBox(width: 8),
                             Text(
                               "No tour selected",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(
                                     color: colorScheme.onErrorContainer,
                                     fontWeight: FontWeight.w500,
@@ -212,8 +213,9 @@ class CustomerGroupViewer extends ConsumerWidget {
                     )
                   : Card(
                       elevation: 0,
-                      color: colorScheme.surfaceContainerHighest
-                          .withValues(alpha: 0.3),
+                      color: colorScheme.surfaceContainerHighest.withValues(
+                        alpha: 0.3,
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -225,12 +227,8 @@ class CustomerGroupViewer extends ConsumerWidget {
                                 const SizedBox(width: 8),
                                 Text(
                                   "Tour: ${tour.name}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -239,9 +237,11 @@ class CustomerGroupViewer extends ConsumerWidget {
                             const SizedBox(height: 12),
                             Row(
                               children: [
-                                Icon(Icons.straighten,
-                                    color: colorScheme.onSurfaceVariant,
-                                    size: 20),
+                                Icon(
+                                  Icons.straighten,
+                                  color: colorScheme.onSurfaceVariant,
+                                  size: 20,
+                                ),
                                 const SizedBox(width: 8),
                                 Text(
                                   "Distance: ${tour.distance} km",
@@ -252,9 +252,11 @@ class CustomerGroupViewer extends ConsumerWidget {
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                Icon(Icons.schedule,
-                                    color: colorScheme.onSurfaceVariant,
-                                    size: 20),
+                                Icon(
+                                  Icons.schedule,
+                                  color: colorScheme.onSurfaceVariant,
+                                  size: 20,
+                                ),
                                 const SizedBox(width: 8),
                                 Text(
                                   "Duration: ${minutesToHoursMinutes(tour.duration)}",
@@ -268,16 +270,18 @@ class CustomerGroupViewer extends ConsumerWidget {
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.notes,
-                                      color: colorScheme.onSurfaceVariant,
-                                      size: 20),
+                                  Icon(
+                                    Icons.notes,
+                                    color: colorScheme.onSurfaceVariant,
+                                    size: 20,
+                                  ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: Text(
                                       tour.notes!,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium,
                                       maxLines: 3,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -295,20 +299,21 @@ class CustomerGroupViewer extends ConsumerWidget {
               bookings.isEmpty
                   ? Card(
                       elevation: 0,
-                      color: colorScheme.surfaceContainerHighest
-                          .withValues(alpha: 0.2),
+                      color: colorScheme.surfaceContainerHighest.withValues(
+                        alpha: 0.2,
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           children: [
-                            Icon(Icons.event_busy,
-                                color: colorScheme.onSurfaceVariant),
+                            Icon(
+                              Icons.event_busy,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               "No bookings for this group",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(
                                     color: colorScheme.onSurfaceVariant,
                                     fontWeight: FontWeight.w500,
@@ -323,8 +328,9 @@ class CustomerGroupViewer extends ConsumerWidget {
                       children: [
                         Card(
                           elevation: 0,
-                          color: colorScheme.surfaceContainerHighest
-                              .withValues(alpha: 0.3),
+                          color: colorScheme.surfaceContainerHighest.withValues(
+                            alpha: 0.3,
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Row(
@@ -333,12 +339,8 @@ class CustomerGroupViewer extends ConsumerWidget {
                                 const SizedBox(width: 8),
                                 Text(
                                   "Bookings (${bookings.length})",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
                                 ),
                               ],
                             ),
@@ -352,9 +354,13 @@ class CustomerGroupViewer extends ConsumerWidget {
                               selectedCustomerGroup: customerGroup,
                               pricings: pricings,
                               booking: booking,
-                              customers: ref
-                                      .watch(customersByBookingIdProvider(
-                                          booking.id))
+                              customers:
+                                  ref
+                                      .watch(
+                                        customersByBookingIdProvider(
+                                          booking.id,
+                                        ),
+                                      )
                                       .value ??
                                   [],
                             ),
@@ -367,10 +373,14 @@ class CustomerGroupViewer extends ConsumerWidget {
         );
       },
       error: (e, s) {
-        BasicLogger().error("Error loading customer group: $customerGroupId",
-            error: e, stackTrace: s);
+        BasicLogger().error(
+          "Error loading customer group: $customerGroupId",
+          error: e,
+          stackTrace: s,
+        );
         return const Center(
-            child: Text("Error: couldn't load the customer group."));
+          child: Text("Error: couldn't load the customer group."),
+        );
       },
       loading: () => const Center(
         child: SizedBox.square(
@@ -387,12 +397,13 @@ class BookingCard extends ConsumerWidget {
   final List<Customer> customers;
   final List<TourTypePricing>? pricings;
   final CustomerGroup selectedCustomerGroup;
-  const BookingCard(
-      {super.key,
-      required this.booking,
-      required this.customers,
-      required this.pricings,
-      required this.selectedCustomerGroup});
+  const BookingCard({
+    super.key,
+    required this.booking,
+    required this.customers,
+    required this.pricings,
+    required this.selectedCustomerGroup,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -405,7 +416,9 @@ class BookingCard extends ConsumerWidget {
           onBookingDeleted: () async {
             final String account = await ref.watch(accountProvider.future);
             final customerRepo = CustomerManagementRepository(account: account);
-            return await customerRepo.deleteBooking(booking.id).catchError(
+            return await customerRepo
+                .deleteBooking(booking.id)
+                .catchError(
                   (e) => ScaffoldMessenger.of(context).showSnackBar(
                     errorSnackBar(context, "Failed to delete booking."),
                   ),
@@ -437,37 +450,46 @@ class BookingCard extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.bookmark,
-                      color: colorScheme.onSecondaryContainer, size: 20),
+                  Icon(
+                    Icons.bookmark,
+                    color: colorScheme.onSecondaryContainer,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       booking.name,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSecondaryContainer,
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSecondaryContainer,
+                      ),
                     ),
                   ),
-                  Icon(Icons.edit,
-                      color: colorScheme.onSecondaryContainer
-                          .withValues(alpha: 0.7),
-                      size: 16),
+                  Icon(
+                    Icons.edit,
+                    color: colorScheme.onSecondaryContainer.withValues(
+                      alpha: 0.7,
+                    ),
+                    size: 16,
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.people_outline,
-                      color: colorScheme.onSecondaryContainer
-                          .withValues(alpha: 0.8),
-                      size: 18),
+                  Icon(
+                    Icons.people_outline,
+                    color: colorScheme.onSecondaryContainer.withValues(
+                      alpha: 0.8,
+                    ),
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     "People: ${customers.length}",
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSecondaryContainer,
-                        ),
+                      color: colorScheme.onSecondaryContainer,
+                    ),
                   ),
                 ],
               ),
@@ -492,26 +514,30 @@ Widget getPricings(List<Customer> customers, List<TourTypePricing> pricings) {
         .toList();
     if (customerWithPrice.isNotEmpty) {
       pricingWidgets.add(
-        Builder(builder: (context) {
-          final colorScheme = Theme.of(context).colorScheme;
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(
-              children: [
-                Icon(Icons.local_offer,
+        Builder(
+          builder: (context) {
+            final colorScheme = Theme.of(context).colorScheme;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.local_offer,
                     color: colorScheme.onSurface.withValues(alpha: 0.6),
-                    size: 16),
-                const SizedBox(width: 8),
-                Text(
-                  "${price.name}: ${customerWithPrice.length}",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurface.withValues(alpha: 0.8),
-                      ),
-                ),
-              ],
-            ),
-          );
-        }),
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "${price.name}: ${customerWithPrice.length}",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurface.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       );
     }
   }

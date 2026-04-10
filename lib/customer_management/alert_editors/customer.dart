@@ -13,12 +13,13 @@ class CustomerEditorAlert extends ConsumerStatefulWidget {
   final String bookingId;
   final CustomerGroup? customerGroup;
   final Function(Customer) onCustomerEdited;
-  const CustomerEditorAlert(
-      {super.key,
-      this.customer,
-      required this.onCustomerEdited,
-      required this.bookingId,
-      required this.customerGroup});
+  const CustomerEditorAlert({
+    super.key,
+    this.customer,
+    required this.onCustomerEdited,
+    required this.bookingId,
+    required this.customerGroup,
+  });
 
   @override
   ConsumerState<CustomerEditorAlert> createState() =>
@@ -45,10 +46,12 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
     id = widget.customer?.id ?? const Uuid().v4();
     nameController = TextEditingController(text: widget.customer?.name);
     emailController = TextEditingController(text: widget.customer?.email);
-    ageController =
-        TextEditingController(text: widget.customer?.age?.toString());
-    weightController =
-        TextEditingController(text: widget.customer?.weight?.toString());
+    ageController = TextEditingController(
+      text: widget.customer?.age?.toString(),
+    );
+    weightController = TextEditingController(
+      text: widget.customer?.weight?.toString(),
+    );
     pricingController = TextEditingController();
   }
 
@@ -61,11 +64,13 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
         widget.customerGroup!.tourTypeId != null &&
         tourType == null) {
       logger.debug(
-          "Fetching tour type with ID: ${widget.customerGroup!.tourTypeId} for customer group: ${widget.customerGroup!.id}");
+        "Fetching tour type with ID: ${widget.customerGroup!.tourTypeId} for customer group: ${widget.customerGroup!.id}",
+      );
 
       // This should fetch the tour type by its ID
-      var tourTypeAsync =
-          ref.watch(tourTypeByIdProvider(widget.customerGroup!.tourTypeId!));
+      var tourTypeAsync = ref.watch(
+        tourTypeByIdProvider(widget.customerGroup!.tourTypeId!),
+      );
 
       if (tourTypeAsync.hasValue && tourTypeAsync.value != null) {
         tourType = tourTypeAsync.value;
@@ -78,32 +83,34 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
         tourType != null &&
         !pricingLoaded) {
       logger.debug(
-          "Fetching pricing with ID: ${widget.customer!.pricingId} for tour type: ${tourType!.id}");
-
-      var selectedPricingAsync = ref.watch(tourTypePricingByIdProvider(
-          widget.customer!.pricingId!, tourType!.id));
-
-      selectedPricingAsync.whenData(
-        (data) {
-          if (data != null && !pricingLoaded) {
-            logger.debug(
-                "Pricing loaded successfully: ${data.name} (${data.id})");
-            // Use WidgetsBinding to ensure setState is called after build
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                setState(() {
-                  selectedPricing = data;
-                  pricingController.text = data.name;
-                  pricingLoaded = true;
-                });
-              }
-            });
-          } else if (data == null) {
-            logger.debug(
-                "WARNING: Pricing with ID ${widget.customer!.pricingId} not found for tour type ${tourType!.id}");
-          }
-        },
+        "Fetching pricing with ID: ${widget.customer!.pricingId} for tour type: ${tourType!.id}",
       );
+
+      var selectedPricingAsync = ref.watch(
+        tourTypePricingByIdProvider(widget.customer!.pricingId!, tourType!.id),
+      );
+
+      selectedPricingAsync.whenData((data) {
+        if (data != null && !pricingLoaded) {
+          logger.debug(
+            "Pricing loaded successfully: ${data.name} (${data.id})",
+          );
+          // Use WidgetsBinding to ensure setState is called after build
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                selectedPricing = data;
+                pricingController.text = data.name;
+                pricingLoaded = true;
+              });
+            }
+          });
+        } else if (data == null) {
+          logger.debug(
+            "WARNING: Pricing with ID ${widget.customer!.pricingId} not found for tour type ${tourType!.id}",
+          );
+        }
+      });
     }
 
     // Fetch all available prices for the tour type
@@ -126,7 +133,8 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
           );
 
           logger.debug(
-              "Found matching pricing in prices list: ${matchingPricing.name}");
+            "Found matching pricing in prices list: ${matchingPricing.name}",
+          );
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && !pricingLoaded) {
               setState(() {
@@ -144,9 +152,7 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
 
     var colorScheme = Theme.of(context).colorScheme;
     return AlertDialog.adaptive(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       scrollable: true,
       title: Row(
         children: [
@@ -219,7 +225,8 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
               DropdownMenu<TourTypePricing>(
                 // Add a key that changes when pricing is loaded to force rebuild
                 key: ValueKey(
-                    'dropdown_${selectedPricing?.id ?? "empty"}_${prices.length}'),
+                  'dropdown_${selectedPricing?.id ?? "empty"}_${prices.length}',
+                ),
                 width: double.infinity,
                 initialSelection: selectedPricing,
                 controller: pricingController,
@@ -257,10 +264,7 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
             ),
           ),
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            "Cancel",
-            style: TextStyle(color: colorScheme.error),
-          ),
+          child: Text("Cancel", style: TextStyle(color: colorScheme.error)),
         ),
         FilledButton.icon(
           style: FilledButton.styleFrom(
@@ -272,7 +276,8 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
           onPressed: nameController.text.isNotEmpty
               ? () {
                   logger.debug(
-                      "Saving customer: ${nameController.text} with pricing: ${selectedPricing?.id}");
+                    "Saving customer: ${nameController.text} with pricing: ${selectedPricing?.id}",
+                  );
                   widget.onCustomerEdited(
                     Customer(
                       id: id,
@@ -294,8 +299,9 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
                 }
               : null,
           icon: const Icon(Icons.save),
-          label:
-              Text(widget.customer == null ? "Add Customer" : "Save Changes"),
+          label: Text(
+            widget.customer == null ? "Add Customer" : "Save Changes",
+          ),
         ),
       ],
     );

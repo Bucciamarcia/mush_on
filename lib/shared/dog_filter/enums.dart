@@ -2,42 +2,57 @@ import 'package:mush_on/services/models/dog.dart';
 import 'package:mush_on/services/models/settings/custom_field.dart';
 
 enum ConditionSelection {
-  name(type: String, allowedOperations: [
-    OperationSelection.contains,
-  ]),
-  age(type: int, allowedOperations: [
-    OperationSelection.equals,
-    OperationSelection.moreThan,
-    OperationSelection.equalsNot,
-    OperationSelection.lessThan
-  ]),
-  position(type: DogPositions, allowedOperations: [
-    OperationSelection.equals,
-    OperationSelection.equalsNot
-  ]),
-  tag(type: Tag, allowedOperations: [
-    OperationSelection.equals,
-    OperationSelection.equalsNot
-  ]),
-  sex(type: DogSex, allowedOperations: [
-    OperationSelection.equals,
-    OperationSelection.equalsNot
-  ]),
-  customField(type: CustomFieldTemplate, allowedOperations: [
-    OperationSelection.equals,
-    OperationSelection.equalsNot,
-    OperationSelection.moreThan,
-    OperationSelection.lessThan,
-    OperationSelection.contains
-  ]);
+  name(type: String, allowedOperations: [OperationSelection.contains]),
+  age(
+    type: int,
+    allowedOperations: [
+      OperationSelection.equals,
+      OperationSelection.moreThan,
+      OperationSelection.equalsNot,
+      OperationSelection.lessThan,
+    ],
+  ),
+  position(
+    type: DogPositions,
+    allowedOperations: [
+      OperationSelection.equals,
+      OperationSelection.equalsNot,
+    ],
+  ),
+  tag(
+    type: Tag,
+    allowedOperations: [
+      OperationSelection.equals,
+      OperationSelection.equalsNot,
+    ],
+  ),
+  sex(
+    type: DogSex,
+    allowedOperations: [
+      OperationSelection.equals,
+      OperationSelection.equalsNot,
+    ],
+  ),
+  customField(
+    type: CustomFieldTemplate,
+    allowedOperations: [
+      OperationSelection.equals,
+      OperationSelection.equalsNot,
+      OperationSelection.moreThan,
+      OperationSelection.lessThan,
+      OperationSelection.contains,
+    ],
+  );
 
   /// The type of the filter when this condition is used
   final Type type;
 
   /// The operations supported by this condition
   final List<OperationSelection> allowedOperations;
-  const ConditionSelection(
-      {required this.type, required this.allowedOperations});
+  const ConditionSelection({
+    required this.type,
+    required this.allowedOperations,
+  });
 }
 
 /// A helper class that joins together the value and template of

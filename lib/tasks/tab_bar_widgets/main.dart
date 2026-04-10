@@ -38,17 +38,18 @@ class TabBarViewWidget extends StatelessWidget {
         Column(
           children: [
             TextTitle(
-                "Non-expiring tasks (${tasks.tasks.dontExpire.notDone.length})"),
+              "Non-expiring tasks (${tasks.tasks.dontExpire.notDone.length})",
+            ),
             ...tasks.tasks.notDone.dontExpire.urgentFirst().map(
-                  (t) => TaskElement(
-                    dogs: dogs,
-                    key: ValueKey(t.id),
-                    dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
-                    task: t,
-                    onTaskDeleted: (t) => onTaskDeleted(t),
-                    onTaskEdited: (t) => onTaskEdited(t),
-                  ),
-                )
+              (t) => TaskElement(
+                dogs: dogs,
+                key: ValueKey(t.id),
+                dog: dogs.firstWhereOrNull((d) => d.id == t.dogId),
+                task: t,
+                onTaskDeleted: (t) => onTaskDeleted(t),
+                onTaskEdited: (t) => onTaskEdited(t),
+              ),
+            ),
           ],
         ),
         CalendarTabWidget(
@@ -58,7 +59,7 @@ class TabBarViewWidget extends StatelessWidget {
           onTaskEdited: (t) => onTaskEdited(t),
           onTaskDeleted: (t) => onTaskDeleted(t),
           onTaskAdded: (t) => onTaskAdded(t),
-        )
+        ),
       ],
     );
   }

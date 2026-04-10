@@ -28,15 +28,17 @@ import 'package:url_strategy/url_strategy.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseFirestore.instance.settings = const Settings(
-      persistenceEnabled: true, cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED);
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
   await FirebaseAppCheck.instance.activate(
-      webProvider:
-          ReCaptchaV3Provider("6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G"),
-      androidProvider: AndroidProvider.debug);
+    webProvider: ReCaptchaV3Provider(
+      "6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G",
+    ),
+    androidProvider: AndroidProvider.debug,
+  );
   FirebaseUIAuth.configureProviders([]);
 
   if (!kDebugMode) {
@@ -104,74 +106,89 @@ class _CreateKennelTextAndButtonState extends State<CreateKennelTextAndButton> {
           decoration: const InputDecoration(hint: Text("Kennel name")),
         ),
         ElevatedButton(
-            onPressed: () async {
+          onPressed: () async {
+            setState(() {
+              _isUpdating = true;
+            });
+            if (_controller.text.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                errorSnackBar(context, "The name must not be empty"),
+              );
               setState(() {
-                _isUpdating = true;
+                _isUpdating = false;
               });
-              if (_controller.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    errorSnackBar(context, "The name must not be empty"));
-                setState(() {
-                  _isUpdating = false;
-                });
-                return;
-              }
-              var value = _controller.text;
-              value = value.trim();
-              value = value.replaceAll(" ", "-");
-              final db = FirebaseFirestore.instance;
+              return;
+            }
+            var value = _controller.text;
+            value = value.trim();
+            value = value.replaceAll(" ", "-");
+            final db = FirebaseFirestore.instance;
 
-              // Let's first check no kennel with this name exists
-              try {
-                final functions =
-                    FirebaseFunctions.instanceFor(region: "europe-north1");
-                final response = await functions
-                    .httpsCallable("get_list_of_accounts")
-                    .call();
-                final responseData = response.data as Map<String, dynamic>;
-                final accounts = List<String>.from(responseData["accounts"]);
-                for (final account in accounts) {
-                  if (account == value) {
-                    BasicLogger().debug("Name taken");
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
-                          context, "This kennel name is already taken"));
-                    }
-                    return;
+            // Let's first check no kennel with this name exists
+            try {
+              final functions = FirebaseFunctions.instanceFor(
+                region: "europe-north1",
+              );
+              final response = await functions
+                  .httpsCallable("get_list_of_accounts")
+                  .call();
+              final responseData = response.data as Map<String, dynamic>;
+              final accounts = List<String>.from(responseData["accounts"]);
+              for (final account in accounts) {
+                if (account == value) {
+                  BasicLogger().debug("Name taken");
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      errorSnackBar(
+                        context,
+                        "This kennel name is already taken",
+                      ),
+                    );
                   }
+                  return;
                 }
-              } catch (e, s) {
-                BasicLogger().error("Couldn't get existing accounts",
-                    error: e, stackTrace: s);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      errorSnackBar(context, "Error: contact support"));
-                }
-                return;
-              } finally {
-                setState(() {
-                  _isUpdating = false;
-                });
               }
-              final doc = db.doc("users/${widget.userName.uid}");
-              try {
-                await doc.update({"account": value});
-                await db.doc("accounts/$value").set({"a": "a"});
-              } catch (e, s) {
-                BasicLogger()
-                    .error("Couldn't create account", error: e, stackTrace: s);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      errorSnackBar(context, "Couldn't create kennel: $e"));
-                }
-                return;
-              } finally {
-                setState(() {
-                  _isUpdating = false;
-                });
+            } catch (e, s) {
+              BasicLogger().error(
+                "Couldn't get existing accounts",
+                error: e,
+                stackTrace: s,
+              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Error: contact support"),
+                );
               }
-            },
-            child: const Text("Create kennel"))
+              return;
+            } finally {
+              setState(() {
+                _isUpdating = false;
+              });
+            }
+            final doc = db.doc("users/${widget.userName.uid}");
+            try {
+              await doc.update({"account": value});
+              await db.doc("accounts/$value").set({"a": "a"});
+            } catch (e, s) {
+              BasicLogger().error(
+                "Couldn't create account",
+                error: e,
+                stackTrace: s,
+              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Couldn't create kennel: $e"),
+                );
+              }
+              return;
+            } finally {
+              setState(() {
+                _isUpdating = false;
+              });
+            }
+          },
+          child: const Text("Create kennel"),
+        ),
       ],
     );
   }
@@ -185,63 +202,69 @@ class HomeScreen extends rp.ConsumerWidget {
   Widget build(BuildContext context, rp.WidgetRef ref) {
     rp.AsyncValue<User?> userAsync = ref.watch(userProvider);
     return userAsync.when(
-        data: (user) {
-          if (user == null) {
-            return const LoginScreen();
-          } else {
-            logger.info("Logging in!");
-            final userNameAsync = ref.watch(userNameProvider(null));
-            return userNameAsync.when(
-              data: (userName) {
-                if (userName == null) {
-                  final ref =
-                      FirebaseFirestore.instance.doc("users/${user.uid}");
+      data: (user) {
+        if (user == null) {
+          return const LoginScreen();
+        } else {
+          logger.info("Logging in!");
+          final userNameAsync = ref.watch(userNameProvider(null));
+          return userNameAsync.when(
+            data: (userName) {
+              if (userName == null) {
+                final ref = FirebaseFirestore.instance.doc("users/${user.uid}");
 
-                  ref.set(
-                    UserName(
-                      uid: user.uid,
-                      email: user.email ?? "",
-                      account: null,
-                      lastLogin: DateTime.now(),
-                      userLevel: UserLevel.musher,
-                    ).toJson(),
-                  );
-                  return const Text("Creating user");
-                } else if (userName.account == null) {
-                  return Scaffold(
-                    body: Center(
-                      child: Column(
-                        children: [
-                          const TextTitle("Create a kennel"),
-                          const Text(
-                              "You are not assigned to any kennel. Create a kennel and start using Mush on!"),
-                          const Text(
-                              "If you are an employee of a kennel already on Mush On, ask an administrator to send you an invite"),
-                          CreateKennelTextAndButton(userName: userName),
-                        ],
-                      ),
+                ref.set(
+                  UserName(
+                    uid: user.uid,
+                    email: user.email ?? "",
+                    account: null,
+                    lastLogin: DateTime.now(),
+                    userLevel: UserLevel.musher,
+                  ).toJson(),
+                );
+                return const Text("Creating user");
+              } else if (userName.account == null) {
+                return Scaffold(
+                  body: Center(
+                    child: Column(
+                      children: [
+                        const TextTitle("Create a kennel"),
+                        const Text(
+                          "You are not assigned to any kennel. Create a kennel and start using Mush on!",
+                        ),
+                        const Text(
+                          "If you are an employee of a kennel already on Mush On, ask an administrator to send you an invite",
+                        ),
+                        CreateKennelTextAndButton(userName: userName),
+                      ],
                     ),
-                  );
-                } else {
-                  return const HomePageScreen();
-                }
-              },
-              error: (e, s) {
-                logger.error("Error in fetching username",
-                    error: e, stackTrace: s);
-                return Text("Error: $e");
-              },
-              loading: () => const CircularProgressIndicator.adaptive(),
-            );
-          }
-        },
-        error: (e, s) {
-          logger.error("Error in authStateChangesProvider",
-              error: e, stackTrace: s);
-          return Center(
-            child: Text("Error: $e"),
+                  ),
+                );
+              } else {
+                return const HomePageScreen();
+              }
+            },
+            error: (e, s) {
+              logger.error(
+                "Error in fetching username",
+                error: e,
+                stackTrace: s,
+              );
+              return Text("Error: $e");
+            },
+            loading: () => const CircularProgressIndicator.adaptive(),
           );
-        },
-        loading: () => const CircularProgressIndicator.adaptive());
+        }
+      },
+      error: (e, s) {
+        logger.error(
+          "Error in authStateChangesProvider",
+          error: e,
+          stackTrace: s,
+        );
+        return Center(child: Text("Error: $e"));
+      },
+      loading: () => const CircularProgressIndicator.adaptive(),
+    );
   }
 }

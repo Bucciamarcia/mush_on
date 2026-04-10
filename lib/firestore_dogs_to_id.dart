@@ -19,12 +19,14 @@ class DbIdChanger extends ConsumerWidget {
       onPressed: () {
         // Create a defensive copy of the map to avoid potential issues if the
         // provider's map were to change unexpectedly during the script's run.
-        final Map<String, Dog> dogsMapFromProvider =
-            Map.from(ref.watch(dogsProvider).value?.getAllDogsById() ?? {});
+        final Map<String, Dog> dogsMapFromProvider = Map.from(
+          ref.watch(dogsProvider).value?.getAllDogsById() ?? {},
+        );
 
         if (dogsMapFromProvider.isEmpty) {
           logger.error(
-              "DogProvider has no dog data. Cannot proceed with ID conversion.");
+            "DogProvider has no dog data. Cannot proceed with ID conversion.",
+          );
           ScaffoldMessenger.of(context).showSnackBar(
             errorSnackBar(context, 'Error: DogProvider is empty!'),
           );
@@ -39,9 +41,10 @@ class DbIdChanger extends ConsumerWidget {
             return AlertDialog(
               title: const Text('Confirm Data Modification'),
               content: const Text(
-                  'This script will read team history, attempt to replace dog names with IDs based on the current DogProvider data, and log the results.\n\n'
-                  'IMPORTANT: Database uploads are COMMENTED OUT for safety. Review logs carefully before enabling uploads.\n\n'
-                  'Proceed?'),
+                'This script will read team history, attempt to replace dog names with IDs based on the current DogProvider data, and log the results.\n\n'
+                'IMPORTANT: Database uploads are COMMENTED OUT for safety. Review logs carefully before enabling uploads.\n\n'
+                'Proceed?',
+              ),
               actions: <Widget>[
                 TextButton(
                   child: const Text('Cancel'),
@@ -55,25 +58,34 @@ class DbIdChanger extends ConsumerWidget {
                     Navigator.of(ctx).pop(); // Close the dialog first
                     // --- Pass the snapshot of the dogs map into the processing function ---
                     logger.info("Starting script execution...");
-                    _processTeamHistory(dogsMapFromProvider).then((_) {
-                      logger.info("Script execution finished.");
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content:
-                                  Text('Processing complete. Check logs.')),
-                        );
-                      }
-                    }).catchError((e, s) {
-                      logger.error('Unhandled error during processing',
-                          error: e, stackTrace: s);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          errorSnackBar(context,
-                              'An critical error occurred: $e. Check logs.'),
-                        );
-                      }
-                    });
+                    _processTeamHistory(dogsMapFromProvider)
+                        .then((_) {
+                          logger.info("Script execution finished.");
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Processing complete. Check logs.',
+                                ),
+                              ),
+                            );
+                          }
+                        })
+                        .catchError((e, s) {
+                          logger.error(
+                            'Unhandled error during processing',
+                            error: e,
+                            stackTrace: s,
+                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(
+                                context,
+                                'An critical error occurred: $e. Check logs.',
+                              ),
+                            );
+                          }
+                        });
                   },
                 ),
               ],
@@ -101,12 +113,14 @@ class DbIdChanger extends ConsumerWidget {
       // Basic check for null or empty names, adjust as needed
       if (dog.name.trim().isEmpty) {
         logger.warning(
-            "Dog with ID '$id' has an empty name. It cannot be mapped.");
+          "Dog with ID '$id' has an empty name. It cannot be mapped.",
+        );
         return; // Skip this dog
       }
       if (nameToIdMap.containsKey(dog.name)) {
         logger.warning(
-            "Duplicate dog name found: '${dog.name}'. ID '$id' will overwrite mapping for previously found ID '${nameToIdMap[dog.name]}'.");
+          "Duplicate dog name found: '${dog.name}'. ID '$id' will overwrite mapping for previously found ID '${nameToIdMap[dog.name]}'.",
+        );
         // Consider your strategy for duplicates: keep first, keep last (current), error out, store list?
         duplicateCount++;
       }
@@ -115,15 +129,18 @@ class DbIdChanger extends ConsumerWidget {
 
     if (duplicateCount > 0) {
       logger.warning(
-          "Processed $duplicateCount duplicate dog name(s). The last encountered ID for each name was kept.");
+        "Processed $duplicateCount duplicate dog name(s). The last encountered ID for each name was kept.",
+      );
     }
     if (nameToIdMap.isEmpty && dogsMap.isNotEmpty) {
       logger.error(
-          "Failed to build a usable name-to-ID map, though dogs exist in provider. Check dog names.");
+        "Failed to build a usable name-to-ID map, though dogs exist in provider. Check dog names.",
+      );
       // Depending on severity, you might want to return or throw here.
     } else {
       logger.info(
-          "Name-to-ID map built successfully with ${nameToIdMap.length} unique names.");
+        "Name-to-ID map built successfully with ${nameToIdMap.length} unique names.",
+      );
       logger.debug("Complete map:\n\n$nameToIdMap");
     }
     // --- End of lookup map building ---
@@ -146,13 +163,15 @@ class DbIdChanger extends ConsumerWidget {
         logger.info("Processing document ID: ${doc.id}");
         Map<String, dynamic> originalData = doc.data();
         // Create a modifiable copy
-        Map<String, dynamic> dataToModify =
-            Map<String, dynamic>.from(originalData);
+        Map<String, dynamic> dataToModify = Map<String, dynamic>.from(
+          originalData,
+        );
 
         // --- Safely access and process the 'teams' list ---
         if (dataToModify['teams'] is! List) {
           logger.warning(
-              "Document ${doc.id}: 'teams' field is missing or not a List. Skipping document's team processing.");
+            "Document ${doc.id}: 'teams' field is missing or not a List. Skipping document's team processing.",
+          );
           continue;
         }
 
@@ -169,7 +188,8 @@ class DbIdChanger extends ConsumerWidget {
           }).toList();
         } catch (e) {
           logger.error(
-              "Document ${doc.id}: Error casting elements within 'teams' list. Skipping document's team processing. Error: $e");
+            "Document ${doc.id}: Error casting elements within 'teams' list. Skipping document's team processing. Error: $e",
+          );
           continue;
         }
 
@@ -182,27 +202,31 @@ class DbIdChanger extends ConsumerWidget {
 
           if (teamMap['dogs'] is! Map) {
             logger.warning(
-                "Document ${doc.id}, Team index $teamIndex: Missing 'dogs' map or not a Map. Skipping this team.");
+              "Document ${doc.id}, Team index $teamIndex: Missing 'dogs' map or not a Map. Skipping this team.",
+            );
             continue;
           }
-          Map<String, dynamic> dogsMap =
-              Map<String, dynamic>.from(teamMap['dogs'] as Map);
+          Map<String, dynamic> dogsMap = Map<String, dynamic>.from(
+            teamMap['dogs'] as Map,
+          );
 
           // --- Iterate through rows (e.g., "row_0", "row_1") ---
-          List<String> rowKeys =
-              dogsMap.keys.toList(); // Iterate over keys safely
+          List<String> rowKeys = dogsMap.keys
+              .toList(); // Iterate over keys safely
           for (var rowKey in rowKeys) {
             if (dogsMap[rowKey] is! Map) {
               logger.warning(
-                  "Document ${doc.id}, Team index $teamIndex, Row '$rowKey': Value is not a Map. Skipping row.");
+                "Document ${doc.id}, Team index $teamIndex, Row '$rowKey': Value is not a Map. Skipping row.",
+              );
               continue;
             }
-            Map<String, dynamic> rowMap =
-                Map<String, dynamic>.from(dogsMap[rowKey] as Map);
+            Map<String, dynamic> rowMap = Map<String, dynamic>.from(
+              dogsMap[rowKey] as Map,
+            );
 
             // --- Iterate through positions (e.g., "position_1", "position_2") ---
-            List<String> positionKeys =
-                rowMap.keys.toList(); // Iterate over keys safely
+            List<String> positionKeys = rowMap.keys
+                .toList(); // Iterate over keys safely
             for (var positionKey in positionKeys) {
               var dogValue = rowMap[positionKey]; // Get value before check
 
@@ -210,7 +234,8 @@ class DbIdChanger extends ConsumerWidget {
                 String originalDogName = dogValue;
                 if (originalDogName.trim().isEmpty) {
                   logger.warning(
-                      "Document ${doc.id}, Team $teamIndex, $rowKey.$positionKey: Found empty dog name string. Skipping conversion.");
+                    "Document ${doc.id}, Team $teamIndex, $rowKey.$positionKey: Found empty dog name string. Skipping conversion.",
+                  );
                   continue;
                 }
 
@@ -227,13 +252,15 @@ class DbIdChanger extends ConsumerWidget {
                 } else {
                   // Log error if ID wasn't found, but continue processing other dogs
                   logger.error(
-                      "Document ${doc.id}: Could not find ID for dog name '$originalDogName' at Team $teamIndex -> $rowKey.$positionKey. VALUE NOT CHANGED.");
+                    "Document ${doc.id}: Could not find ID for dog name '$originalDogName' at Team $teamIndex -> $rowKey.$positionKey. VALUE NOT CHANGED.",
+                  );
                   // Consider if you need to handle this case differently (e.g., set to null, stop script)
                 }
               } else {
                 // Log if the value wasn't a string as expected
                 logger.warning(
-                    "Document ${doc.id}, Team $teamIndex, $rowKey.$positionKey: Expected String but found ${dogValue?.runtimeType ?? 'null'}. Skipping conversion.");
+                  "Document ${doc.id}, Team $teamIndex, $rowKey.$positionKey: Expected String but found ${dogValue?.runtimeType ?? 'null'}. Skipping conversion.",
+                );
               }
             } // End position loop
             // Update the dogsMap with the potentially modified rowMap
@@ -252,23 +279,28 @@ class DbIdChanger extends ConsumerWidget {
           logger.info("-----------------------------------------");
           logger.info("MODIFIED Document ID: ${doc.id}");
           logger.debug(
-              "Original Data for doc ${doc.id}:"); // Optional: Log original for comparison
+            "Original Data for doc ${doc.id}:",
+          ); // Optional: Log original for comparison
           logger.debug(originalData.toString());
           logger.info(
-              "Modified Data for doc ${doc.id} (Upload is Commented Out):");
+            "Modified Data for doc ${doc.id} (Upload is Commented Out):",
+          );
           logger.info(dataToModify.toString());
           logger.info("-----------------------------------------");
 
           // Option 2: Batch Update (All or nothing)
-          batch.update(collectionRef.doc(doc.id),
-              {'teams': dataToModify['teams']}); // Update only 'teams'
+          batch.update(collectionRef.doc(doc.id), {
+            'teams': dataToModify['teams'],
+          }); // Update only 'teams'
           batchHasOperations = true; // Mark that the batch should be committed
           logger.info(
-              "Added update for document ${doc.id} to batch (Commit is commented out).");
+            "Added update for document ${doc.id} to batch (Commit is commented out).",
+          );
           // --- !!! END OF DANGER ZONE !!! ---
         } else {
           logger.info(
-              "Document ${doc.id}: No modifications were needed or possible.");
+            "Document ${doc.id}: No modifications were needed or possible.",
+          );
         }
       } // End of document loop
 
@@ -279,8 +311,11 @@ class DbIdChanger extends ConsumerWidget {
           await batch.commit();
           logger.info("Batch update complete.");
         } catch (e, s) {
-          logger.error("!!! FAILED TO COMMIT BATCH UPDATE !!!",
-              error: e, stackTrace: s);
+          logger.error(
+            "!!! FAILED TO COMMIT BATCH UPDATE !!!",
+            error: e,
+            stackTrace: s,
+          );
           // Handle batch commit failure (all operations in the batch failed)
         }
       } else {
@@ -289,9 +324,10 @@ class DbIdChanger extends ConsumerWidget {
       // --- !!! END OF BATCH COMMIT !!! ---
     } catch (e, s) {
       logger.error(
-          "An error occurred during the Firestore operation or main processing loop:",
-          error: e,
-          stackTrace: s);
+        "An error occurred during the Firestore operation or main processing loop:",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -310,7 +346,8 @@ class DbIdChanger extends ConsumerWidget {
 
     if (id == null) {
       logger.warning(
-          "Dog name '$cleanedName' not found in the pre-built name-to-ID map.");
+        "Dog name '$cleanedName' not found in the pre-built name-to-ID map.",
+      );
       return "UNKNOWN_ID"; // Explicit placeholder for not found
     }
     // logger.info("Found ID '$id' for name '$cleanedName'.");

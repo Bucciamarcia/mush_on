@@ -4,7 +4,6 @@ part 'custom_field.freezed.dart';
 part 'custom_field.g.dart';
 
 @freezed
-
 /// Class representing a single custom field value for a single dog.
 /// Must be assigned to a template ID.
 ///
@@ -22,7 +21,6 @@ abstract class CustomField with _$CustomField {
 }
 
 @freezed
-
 /// Class with all the custom field types created by the user.
 ///
 /// This is the TEMPLATE, the one set in the settings. A CustomField must have a template.
@@ -54,7 +52,9 @@ sealed class CustomFieldValue with _$CustomFieldValue {
 
   /// Will return CustomFieldValue of the appropriate type depending on the template.
   static CustomFieldValue formatCustomFieldValue(
-      CustomFieldTemplate template, String value) {
+    CustomFieldTemplate template,
+    String value,
+  ) {
     switch (template.type) {
       case CustomFieldType.typeString:
         return CustomFieldValue.stringValue(value);
@@ -62,8 +62,11 @@ sealed class CustomFieldValue with _$CustomFieldValue {
         try {
           return CustomFieldValue.intValue(int.parse(value));
         } catch (e, s) {
-          logger.error("Couldn't parse int from string.",
-              error: e, stackTrace: s);
+          logger.error(
+            "Couldn't parse int from string.",
+            error: e,
+            stackTrace: s,
+          );
           rethrow;
         }
       case CustomFieldType.typeDropdown:
@@ -71,7 +74,8 @@ sealed class CustomFieldValue with _$CustomFieldValue {
         // You might want to add validation to ensure the value is in template.options.
         if (template.options?.contains(value) == false) {
           logger.warning(
-              "The value '$value' is not a valid option for this dropdown.");
+            "The value '$value' is not a valid option for this dropdown.",
+          );
         }
         return CustomFieldValue.dropdownValue(value);
     }
@@ -92,9 +96,9 @@ sealed class CustomFieldValue with _$CustomFieldValue {
     // FIXED: The switch statement is now exhaustive.
     return switch (this) {
       IntValue(:final value) => value,
-      StringValue() ||
-      DropdownValue() =>
-        throw Exception("The value is not an int! It is a $runtimeType"),
+      StringValue() || DropdownValue() => throw Exception(
+        "The value is not an int! It is a $runtimeType",
+      ),
     };
   }
 

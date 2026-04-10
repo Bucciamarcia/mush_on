@@ -13,19 +13,15 @@ class CustomerGroupsCard extends ConsumerWidget {
       child: Column(
         children: [
           const TextTitle("Customer Group"),
-          Text(
-            "Bookings: ${customerGroupWorkspace.bookings.length}",
-          ),
-          Text(
-            "Customers: ${customerGroupWorkspace.customers.length}",
-          ),
+          Text("Bookings: ${customerGroupWorkspace.bookings.length}"),
+          Text("Customers: ${customerGroupWorkspace.customers.length}"),
           Text(
             "Assigned customers: ${_assignedCustomers()}/${customerGroupWorkspace.customers.length}",
             style: TextStyle(
               color: _areAllAssigned() ? Colors.green : Colors.red,
               fontWeight: FontWeight.w600,
             ),
-          )
+          ),
         ],
       ),
     );

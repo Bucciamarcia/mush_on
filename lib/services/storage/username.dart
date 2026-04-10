@@ -12,11 +12,9 @@ class UserNameRepository {
   FirebaseStorage get storage => _storage ?? FirebaseStorage.instance;
   FirebaseFirestore get db => _firestore ?? FirebaseFirestore.instance;
 
-  UserNameRepository({
-    FirebaseStorage? storage,
-    FirebaseFirestore? firestore,
-  })  : _storage = storage,
-        _firestore = firestore;
+  UserNameRepository({FirebaseStorage? storage, FirebaseFirestore? firestore})
+    : _storage = storage,
+      _firestore = firestore;
 
   Reference get ref => storage.ref();
 
@@ -48,8 +46,11 @@ class UserNameRepository {
         await r.delete();
       }
     } catch (e, s) {
-      logger.error("Error deleting avatar for user $uid",
-          error: e, stackTrace: s);
+      logger.error(
+        "Error deleting avatar for user $uid",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -64,16 +65,22 @@ class UserNameRepository {
         await r.delete();
       }
     } catch (e, s) {
-      logger.error("Error deleting old avatar for user $uid:",
-          error: e, stackTrace: s);
+      logger.error(
+        "Error deleting old avatar for user $uid:",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
     final child = ref.child("$path/$fileName");
     try {
       await child.putData(data);
     } catch (e, s) {
-      logger.error("Error uploading avatar for user $uid:",
-          error: e, stackTrace: s);
+      logger.error(
+        "Error uploading avatar for user $uid:",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -84,8 +91,11 @@ class UserNameRepository {
     try {
       await db.doc(path).set(username.toJson());
     } catch (e, s) {
-      logger.error("Error setting username for user $uid:",
-          error: e, stackTrace: s);
+      logger.error(
+        "Error setting username for user $uid:",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }

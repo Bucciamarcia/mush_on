@@ -26,22 +26,23 @@ class DistanceWarningWidget extends StatelessWidget {
           label: const Text("Add new warning"),
           onPressed: () {
             showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AddDistanceWarningAlertDialog(
-                    onDistanceWarningAdded: (w) => onWarningAdded(w),
-                  );
-                });
+              context: context,
+              builder: (BuildContext context) {
+                return AddDistanceWarningAlertDialog(
+                  onDistanceWarningAdded: (w) => onWarningAdded(w),
+                );
+              },
+            );
           },
         ),
         ...warnings.sortByTypeAndDistance().map(
-              (w) => SingleWarningDisplayWidget(
-                w,
-                key: ValueKey(w.id),
-                onDistanceWarningRemoved: (id) => onWarningRemoved(id),
-                onDistanceWarningEdited: (w) => onWarningEdited(w),
-              ),
-            )
+          (w) => SingleWarningDisplayWidget(
+            w,
+            key: ValueKey(w.id),
+            onDistanceWarningRemoved: (id) => onWarningRemoved(id),
+            onDistanceWarningEdited: (w) => onWarningEdited(w),
+          ),
+        ),
       ],
     );
   }

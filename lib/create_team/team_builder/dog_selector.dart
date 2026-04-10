@@ -50,15 +50,20 @@ class _DogSelectorState extends State<DogSelector> {
         widget.rowNumber >= widget.teams[widget.teamNumber].dogPairs.length) {
       // Handle invalid index case, perhaps return null or log an error
       logger.warning(
-          "Invalid indices in _getCurrentValue: T${widget.teamNumber}, R${widget.rowNumber}");
+        "Invalid indices in _getCurrentValue: T${widget.teamNumber}, R${widget.rowNumber}",
+      );
       return null;
     }
     if (widget.positionNumber == 0) {
       return widget
-          .teams[widget.teamNumber].dogPairs[widget.rowNumber].firstDogId;
+          .teams[widget.teamNumber]
+          .dogPairs[widget.rowNumber]
+          .firstDogId;
     } else {
       return widget
-          .teams[widget.teamNumber].dogPairs[widget.rowNumber].secondDogId;
+          .teams[widget.teamNumber]
+          .dogPairs[widget.rowNumber]
+          .secondDogId;
     }
   }
 
@@ -99,8 +104,12 @@ class _DogSelectorState extends State<DogSelector> {
       _errorShown = true;
       logger.error("The dog with ID '$currentValue' is not in the _dogsById");
 
-      ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(context,
-          "Some dogs from the loaded team are no longer available. They have been removed."));
+      ScaffoldMessenger.of(context).showSnackBar(
+        errorSnackBar(
+          context,
+          "Some dogs from the loaded team are no longer available. They have been removed.",
+        ),
+      );
 
       // Automatically remove the invalid dog reference
       widget.onDogRemoved(widget.teamNumber, widget.rowNumber);
@@ -115,17 +124,20 @@ class _DogSelectorState extends State<DogSelector> {
     if (currentValue != null && currentValue.isNotEmpty) {
       if (_dogsById[currentValue] == null) {
         logger.warning(
-            "Dog with ID '$currentValue' not found, showing empty selector");
+          "Dog with ID '$currentValue' not found, showing empty selector",
+        );
         // Don't show error here - it will be handled in the post-frame callback
         currentValue = null; // Treat as empty
       }
     }
 
     final autoCompleteKey = ValueKey(
-        '${widget.teamNumber}_${widget.rowNumber}_${widget.positionNumber}_$currentValue');
+      '${widget.teamNumber}_${widget.rowNumber}_${widget.positionNumber}_$currentValue',
+    );
 
     return Expanded(
-      child: (currentValue != null &&
+      child:
+          (currentValue != null &&
               currentValue.isNotEmpty &&
               _dogsById[currentValue] != null)
           // If a Dog is selected and exists, show the interface with chip and notes.
@@ -148,7 +160,8 @@ class _DogSelectorState extends State<DogSelector> {
               isReadOnly: widget.isReadOnly,
               onDogSelected: widget.onDogSelected,
               dogs: widget.dogs,
-              runningDogs: widget.runningDogs),
+              runningDogs: widget.runningDogs,
+            ),
     );
   }
 }
@@ -159,12 +172,13 @@ class IconDeleteDog extends StatelessWidget {
   final int positionNumber;
   final Function(int, int) onDogRemoved;
 
-  const IconDeleteDog(
-      {super.key,
-      required this.teamNumber,
-      required this.rowNumber,
-      required this.positionNumber,
-      required this.onDogRemoved});
+  const IconDeleteDog({
+    super.key,
+    required this.teamNumber,
+    required this.rowNumber,
+    required this.positionNumber,
+    required this.onDogRemoved,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -175,7 +189,8 @@ class IconDeleteDog extends StatelessWidget {
         onPressed: () => onDogRemoved(teamNumber, rowNumber),
         icon: Icon(
           key: Key(
-              "Icon delete dog: $teamNumber - $rowNumber - $positionNumber"),
+            "Icon delete dog: $teamNumber - $rowNumber - $positionNumber",
+          ),
           Icons.delete,
           size: 25,
           color: Theme.of(context).colorScheme.error,

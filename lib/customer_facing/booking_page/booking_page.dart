@@ -117,8 +117,9 @@ class MainContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bookingManagerKennelInfoAsync =
-        ref.watch(bookingManagerKennelInfoProvider(account: account));
+    final bookingManagerKennelInfoAsync = ref.watch(
+      bookingManagerKennelInfoProvider(account: account),
+    );
     final logger = BasicLogger();
 
     return bookingManagerKennelInfoAsync.when(
@@ -164,8 +165,9 @@ class MainContent extends ConsumerWidget {
                                   child: TextButton.icon(
                                     onPressed: () =>
                                         context.go("/privacy_customer"),
-                                    icon:
-                                        const Icon(Icons.privacy_tip_outlined),
+                                    icon: const Icon(
+                                      Icons.privacy_tip_outlined,
+                                    ),
                                     label: const Text("Privacy policy"),
                                   ),
                                 ),
@@ -232,10 +234,7 @@ class DateSelectionWidget extends StatelessWidget {
       children: [
         BookingTimeAndDate(tourType: tourType, account: account),
         const SizedBox(height: 20),
-        BookingSummaryColumn(
-          tourType: tourType,
-          kennelInfo: kennelInfo,
-        ),
+        BookingSummaryColumn(tourType: tourType, kennelInfo: kennelInfo),
       ],
     );
   }
@@ -244,8 +243,11 @@ class DateSelectionWidget extends StatelessWidget {
 class BookingSummaryColumn extends ConsumerWidget {
   final TourType tourType;
   final BookingManagerKennelInfo kennelInfo;
-  const BookingSummaryColumn(
-      {super.key, required this.tourType, required this.kennelInfo});
+  const BookingSummaryColumn({
+    super.key,
+    required this.tourType,
+    required this.kennelInfo,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -254,8 +256,9 @@ class BookingSummaryColumn extends ConsumerWidget {
     logger.info('watched provider runtimeType: ${async.runtimeType}');
     async.when(
       data: (m) {
-        logger
-            .info('map valueType sample: ${m.values.firstOrNull?.runtimeType}');
+        logger.info(
+          'map valueType sample: ${m.values.firstOrNull?.runtimeType}',
+        );
       },
       loading: () {},
       error: (e, s) {
@@ -264,8 +267,9 @@ class BookingSummaryColumn extends ConsumerWidget {
     );
 
     final selectedDate = ref.watch(selectedDateInCalendarProvider);
-    final selectedCustomerGroup =
-        ref.watch(selectedCustomerGroupInCalendarProvider);
+    final selectedCustomerGroup = ref.watch(
+      selectedCustomerGroupInCalendarProvider,
+    );
     final account = ref.watch(accountPublicProvider);
     final timezoneStr = ref.watch(kennelTimezoneProvider);
     final tzLocation = tz.getLocation(timezoneStr);
@@ -273,19 +277,21 @@ class BookingSummaryColumn extends ConsumerWidget {
     final pricings = account == null
         ? <TourTypePricing>[]
         : ref
-                .watch(
-                  tourTypePricesByTourIdProvider(
-                    tourId: tourType.id,
-                    account: account,
-                  ),
-                )
-                .value ??
-            [];
+                  .watch(
+                    tourTypePricesByTourIdProvider(
+                      tourId: tourType.id,
+                      account: account,
+                    ),
+                  )
+                  .value ??
+              [];
 
-    final selectedPricings =
-        ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
-    final customersNumberByCgId =
-        ref.watch(customersNumberByCustomerGroupIdBookingProvider).value;
+    final selectedPricings = ref.watch(
+      bookingDetailsSelectedPricingsProvider(pricings),
+    );
+    final customersNumberByCgId = ref
+        .watch(customersNumberByCustomerGroupIdBookingProvider)
+        .value;
     final maxCapacity = selectedCustomerGroup?.maxCapacity;
     final customersBooked = customersNumberByCgId?[selectedCustomerGroup?.id];
     final availableSpots = maxCapacity == null || customersBooked == null
@@ -303,8 +309,9 @@ class BookingSummaryColumn extends ConsumerWidget {
     double total() {
       var amount = 0.0;
       for (final sp in selectedPricings) {
-        final pricing =
-            pricings.firstWhere((p) => p.id == sp.tourTypePricingId);
+        final pricing = pricings.firstWhere(
+          (p) => p.id == sp.tourTypePricingId,
+        );
         amount += (pricing.priceCents.toDouble() / 100) * sp.numberBooked;
       }
       return amount;
@@ -322,9 +329,9 @@ class BookingSummaryColumn extends ConsumerWidget {
             Text(
               "Booking summary",
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: BookingPageColors.textStrong.color,
-                  ),
+                fontWeight: FontWeight.w700,
+                color: BookingPageColors.textStrong.color,
+              ),
             ),
             const SizedBox(height: 24),
             BookingSummaryInfoRow(
@@ -374,8 +381,9 @@ class BookingSummaryColumn extends ConsumerWidget {
             const SizedBox(height: 4),
             for (final pricing in pricings) ...[
               PricingOptionTotalPrice(
-                bookingInfo: selectedPricings
-                    .firstWhere((sp) => sp.tourTypePricingId == pricing.id),
+                bookingInfo: selectedPricings.firstWhere(
+                  (sp) => sp.tourTypePricingId == pricing.id,
+                ),
                 pricing: pricing,
               ),
               const SizedBox(height: 10),
@@ -399,8 +407,8 @@ class BookingSummaryColumn extends ConsumerWidget {
             Text(
               "Secure checkout powered by Stripe",
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: BookingPageColors.textMuted.color,
-                  ),
+                color: BookingPageColors.textMuted.color,
+              ),
             ),
           ],
         ),
@@ -533,24 +541,24 @@ class GrandTotalSummaryRow extends StatelessWidget {
             children: [
               Text(
                 "Total",
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 "VAT included",
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: BookingPageColors.textMuted.color,
-                    ),
+                  color: BookingPageColors.textMuted.color,
+                ),
               ),
             ],
           ),
           Text(
             formatEuro(grandTotalToPay),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: BookingPageColors.primaryDark.color,
-                ),
+              fontWeight: FontWeight.w800,
+              color: BookingPageColors.primaryDark.color,
+            ),
           ),
         ],
       ),
@@ -579,16 +587,16 @@ class PricingOptionTotalPrice extends StatelessWidget {
           child: Text(
             "${pricing.displayName} x${bookingInfo.numberBooked}",
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: BookingPageColors.textMuted.color,
-                ),
+              color: BookingPageColors.textMuted.color,
+            ),
           ),
         ),
         Text(
           formatEuro(totalPrice),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: BookingPageColors.textStrong.color,
-              ),
+            fontWeight: FontWeight.w700,
+            color: BookingPageColors.textStrong.color,
+          ),
         ),
       ],
     );
@@ -613,12 +621,15 @@ class PricingOptionCounter extends ConsumerWidget {
     final account = ref.watch(accountPublicProvider);
     if (account == null) return const SizedBox.shrink();
 
-    final selectedPricings =
-        ref.watch(bookingDetailsSelectedPricingsProvider(pricings));
-    final selectedPricing =
-        selectedPricings.firstWhere((sp) => sp.tourTypePricingId == pricing.id);
-    final notifier =
-        ref.watch(bookingDetailsSelectedPricingsProvider(pricings).notifier);
+    final selectedPricings = ref.watch(
+      bookingDetailsSelectedPricingsProvider(pricings),
+    );
+    final selectedPricing = selectedPricings.firstWhere(
+      (sp) => sp.tourTypePricingId == pricing.id,
+    );
+    final notifier = ref.watch(
+      bookingDetailsSelectedPricingsProvider(pricings).notifier,
+    );
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -636,9 +647,9 @@ class PricingOptionCounter extends ConsumerWidget {
                 Text(
                   pricing.displayName,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: BookingPageColors.textStrong.color,
-                      ),
+                    fontWeight: FontWeight.w700,
+                    color: BookingPageColors.textStrong.color,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -646,8 +657,8 @@ class PricingOptionCounter extends ConsumerWidget {
                       ? pricing.displayDescription!
                       : "${formatEuro(pricing.priceCents / 100)} per guest",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: BookingPageColors.textMuted.color,
-                      ),
+                    color: BookingPageColors.textMuted.color,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -671,8 +682,8 @@ class PricingOptionCounter extends ConsumerWidget {
                   selectedPricing.numberBooked.toString(),
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               _QuantityButton(
@@ -729,9 +740,9 @@ class BookingSummaryTitleText extends StatelessWidget {
     return Text(
       text,
       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: BookingPageColors.textMuted.color,
-            letterSpacing: 0.3,
-          ),
+        color: BookingPageColors.textMuted.color,
+        letterSpacing: 0.3,
+      ),
     );
   }
 }
@@ -746,19 +757,16 @@ class BookingSummaryValueText extends StatelessWidget {
       text,
       textAlign: TextAlign.end,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: BookingPageColors.textStrong.color,
-          ),
+        fontWeight: FontWeight.w700,
+        color: BookingPageColors.textStrong.color,
+      ),
     );
   }
 }
 
 class BookingPageTopOverview extends StatelessWidget {
   final TourType tourType;
-  const BookingPageTopOverview({
-    super.key,
-    required this.tourType,
-  });
+  const BookingPageTopOverview({super.key, required this.tourType});
 
   @override
   Widget build(BuildContext context) {
@@ -885,10 +893,7 @@ class BookingPageHeader extends ConsumerWidget {
                           width: compact ? double.infinity : 250,
                           constraints: const BoxConstraints(maxHeight: 190),
                           padding: const EdgeInsets.all(18),
-                          child: Image.memory(
-                            kennelImage,
-                            fit: BoxFit.contain,
-                          ),
+                          child: Image.memory(kennelImage, fit: BoxFit.contain),
                         ),
                       ),
                   ],
@@ -992,19 +997,17 @@ class BookingMessageState extends StatelessWidget {
                     const SizedBox(height: 18),
                     Text(
                       title,
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 10),
                     Text(
                       message,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: BookingPageColors.textMuted.color,
-                            height: 1.5,
-                          ),
+                        color: BookingPageColors.textMuted.color,
+                        height: 1.5,
+                      ),
                     ),
                   ],
                 ),
@@ -1041,10 +1044,7 @@ class BookingFlowFrame extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
-        padding: padding,
-        child: child,
-      ),
+      child: Padding(padding: padding, child: child),
     );
   }
 }
@@ -1067,8 +1067,9 @@ class BookingProgressBanner extends StatelessWidget {
         final compact = constraints.maxWidth < 760;
         return Flex(
           direction: compact ? Axis.vertical : Axis.horizontal,
-          crossAxisAlignment:
-              compact ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+          crossAxisAlignment: compact
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.center,
           children: [
             Expanded(
               child: Column(
@@ -1077,25 +1078,25 @@ class BookingProgressBanner extends StatelessWidget {
                   Text(
                     "Step $currentStep of 3",
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: BookingPageColors.primaryDark.color,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      color: BookingPageColors.primaryDark.color,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     title,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: BookingPageColors.textStrong.color,
-                        ),
+                      fontWeight: FontWeight.w700,
+                      color: BookingPageColors.textStrong.color,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: BookingPageColors.textMuted.color,
-                          height: 1.45,
-                        ),
+                      color: BookingPageColors.textMuted.color,
+                      height: 1.45,
+                    ),
                   ),
                 ],
               ),
@@ -1136,8 +1137,9 @@ class BookingTag extends StatelessWidget {
     final background = emphasized
         ? BookingPageColors.primary.color
         : BookingPageColors.surfaceStrong.color;
-    final foreground =
-        emphasized ? Colors.white : BookingPageColors.textStrong.color;
+    final foreground = emphasized
+        ? Colors.white
+        : BookingPageColors.textStrong.color;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -1176,10 +1178,7 @@ class BookingSummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(30),
         border: Border.all(color: BookingPageColors.outlineSoft.color),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: child,
-      ),
+      child: Padding(padding: const EdgeInsets.all(24), child: child),
     );
   }
 }
@@ -1221,16 +1220,16 @@ class BookingSummaryInfoRow extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: BookingPageColors.textMuted.color,
-                    ),
+                  color: BookingPageColors.textMuted.color,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: BookingPageColors.textStrong.color,
-                    ),
+                  fontWeight: FontWeight.w700,
+                  color: BookingPageColors.textStrong.color,
+                ),
               ),
             ],
           ),

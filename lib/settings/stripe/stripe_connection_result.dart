@@ -6,30 +6,34 @@ import 'stripe_repository.dart';
 class StripeConnectionResultWidget extends StatelessWidget {
   final String? account;
   final String? resultString;
-  const StripeConnectionResultWidget(
-      {super.key, required this.account, required this.resultString});
+  const StripeConnectionResultWidget({
+    super.key,
+    required this.account,
+    required this.resultString,
+  });
 
   @override
   Widget build(BuildContext context) {
     final result = ResultTypeX.fromString(resultString);
     return Scaffold(
       body: SafeArea(
-          child: Center(
-        child: (result == ResultType.none || account == null)
-            ? Column(
-                children: [
-                  Text(resultString ?? "none"),
-                  StripeConnectionError(
-                    account: account,
-                    resultType: result,
-                    resultString: resultString,
-                  ),
-                ],
-              )
-            : (result == ResultType.failed)
-                ? StripeConnectionFailed(account: account!)
-                : StripeConnectionSuccess(account: account!),
-      )),
+        child: Center(
+          child: (result == ResultType.none || account == null)
+              ? Column(
+                  children: [
+                    Text(resultString ?? "none"),
+                    StripeConnectionError(
+                      account: account,
+                      resultType: result,
+                      resultString: resultString,
+                    ),
+                  ],
+                )
+              : (result == ResultType.failed)
+              ? StripeConnectionFailed(account: account!)
+              : StripeConnectionSuccess(account: account!),
+        ),
+      ),
     );
   }
 }
@@ -38,16 +42,18 @@ class StripeConnectionError extends StatelessWidget {
   final String? account;
   final ResultType resultType;
   final String? resultString;
-  const StripeConnectionError(
-      {super.key,
-      required this.account,
-      required this.resultType,
-      required this.resultString});
+  const StripeConnectionError({
+    super.key,
+    required this.account,
+    required this.resultType,
+    required this.resultString,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Text(
-        "Error 2: account or result type is null: $account - $resultType - $resultString");
+      "Error 2: account or result type is null: $account - $resultType - $resultString",
+    );
   }
 }
 
@@ -58,16 +64,17 @@ class StripeConnectionFailed extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: StripeRepository(account: account).removeStripeAccountId(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return Text("Error: ${snapshot.error}");
-          } else {
-            return const Text("Operation failed, Please try again.");
-          }
-        });
+      future: StripeRepository(account: account).removeStripeAccountId(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text("Error: ${snapshot.error}");
+        } else {
+          return const Text("Operation failed, Please try again.");
+        }
+      },
+    );
   }
 }
 
@@ -78,18 +85,20 @@ class StripeConnectionSuccess extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: StripeRepository(account: account)
-            .changeStripeIntegrationActivation(true),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return const Text("Stripe account connected successfully!");
-          } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else {
-            BasicLogger().error(snapshot.error.toString());
-            return Text("Error in stripeconnectionsuccess: ${snapshot.error}");
-          }
-        });
+      future: StripeRepository(
+        account: account,
+      ).changeStripeIntegrationActivation(true),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return const Text("Stripe account connected successfully!");
+        } else if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else {
+          BasicLogger().error(snapshot.error.toString());
+          return Text("Error in stripeconnectionsuccess: ${snapshot.error}");
+        }
+      },
+    );
   }
 }
 

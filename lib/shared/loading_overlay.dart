@@ -16,9 +16,7 @@ class LoadingOverlay {
           // Semi-transparent black background to block interaction
           ModalBarrier(dismissible: false, color: Colors.black54),
           // Centered loading indicator
-          Center(
-            child: CircularProgressIndicator(),
-          ),
+          Center(child: CircularProgressIndicator()),
         ],
       ),
     );

@@ -37,7 +37,8 @@ class _AddUsersState extends ConsumerState<AddUsers> {
     }
     if (userName.email.isEmpty) {
       return const Text(
-          "Your email is empty. You must add a valid email on your profile first.");
+        "Your email is empty. You must add a valid email on your profile first.",
+      );
     }
     return SettingsSectionShell(
       title: "Add new user",
@@ -90,20 +91,22 @@ class _AddUsersState extends ConsumerState<AddUsers> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
                         "Sender: ${userName.email}",
-                        style:
-                            Theme.of(context).textTheme.labelMedium?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                              fontWeight: FontWeight.w700,
+                            ),
                       ),
                     ),
                   ],
@@ -132,13 +135,15 @@ class _AddUsersState extends ConsumerState<AddUsers> {
                         await (widget.repository ??
                                 SettingsRepository(account: widget.account))
                             .addUser(
-                                email: _emailController.text,
-                                userLevel: userLevel,
-                                senderUser: userName);
+                              email: _emailController.text,
+                              userLevel: userLevel,
+                              senderUser: userName,
+                            );
                       } catch (e) {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                              errorSnackBar(context, "Couldn't invite user"));
+                            errorSnackBar(context, "Couldn't invite user"),
+                          );
                         }
                       }
                     },

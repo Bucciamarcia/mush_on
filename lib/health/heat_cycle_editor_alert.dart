@@ -39,7 +39,8 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
     _selectedDog = widget.dogs?.getDogFromId(widget.event?.dogId ?? "");
     _notesController = TextEditingController(text: widget.event?.notes);
     _selectedDogNameController = TextEditingController(
-        text: widget.dogs?.getNameFromId(widget.event?.dogId ?? ""));
+      text: widget.dogs?.getNameFromId(widget.event?.dogId ?? ""),
+    );
     _startDate = widget.event?.startDate ?? DateTimeUtils.today();
     _endDate = widget.event?.endDate;
     _preventFromRunning = widget.event?.preventFromRunning ?? true;
@@ -146,9 +147,7 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                             _endDate == null
                                 ? "Ongoing"
                                 : DateFormat("MMM dd, yyyy").format(_endDate!),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
                                   color: _endDate == null
                                       ? colorScheme.primary
@@ -194,8 +193,8 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                       child: Text(
                         "Duration: ${_endDate!.difference(_startDate).inDays} days",
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: colorScheme.primary,
-                            ),
+                          color: colorScheme.primary,
+                        ),
                       ),
                     ),
                 ],
@@ -217,8 +216,9 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                 }
               },
               title: const Text("Prevent from running"),
-              subtitle:
-                  const Text("Dog should not participate in training or races"),
+              subtitle: const Text(
+                "Dog should not participate in training or races",
+              ),
               secondary: Icon(
                 Icons.block,
                 color: _preventFromRunning ? Colors.orange : null,
@@ -258,17 +258,19 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                   });
                   var repository = ref.read(heatCycleRepositoryProvider);
                   try {
-                    await repository.addHeatCycle(HeatCycle(
-                      id: _id ?? const Uuid().v4(),
-                      dogId: _selectedDog!.id,
-                      startDate: _startDate,
-                      endDate: _endDate,
-                      preventFromRunning: _preventFromRunning,
-                      notes: _notesController.text,
-                      createdAt:
-                          widget.event?.createdAt ?? DateTimeUtils.today(),
-                      lastUpdated: DateTimeUtils.today(),
-                    ));
+                    await repository.addHeatCycle(
+                      HeatCycle(
+                        id: _id ?? const Uuid().v4(),
+                        dogId: _selectedDog!.id,
+                        startDate: _startDate,
+                        endDate: _endDate,
+                        preventFromRunning: _preventFromRunning,
+                        notes: _notesController.text,
+                        createdAt:
+                            widget.event?.createdAt ?? DateTimeUtils.today(),
+                        lastUpdated: DateTimeUtils.today(),
+                      ),
+                    );
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         confirmationSnackbar(context, "Heat cycle added"),
@@ -276,8 +278,11 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
                       Navigator.of(context).pop();
                     }
                   } catch (e, s) {
-                    BasicLogger().error("Couldn't add heat cycle",
-                        error: e, stackTrace: s);
+                    BasicLogger().error(
+                      "Couldn't add heat cycle",
+                      error: e,
+                      stackTrace: s,
+                    );
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         errorSnackBar(context, "Couldn't add heat cycle"),

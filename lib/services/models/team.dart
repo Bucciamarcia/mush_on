@@ -4,7 +4,6 @@ part 'team.g.dart';
 part 'team.freezed.dart';
 
 @freezed
-
 /// A class representing a team of sled dogs.
 /// A [Team] consists of a name and a list of [DogPair] objects.
 /// Each [DogPair] object represents a pair of dogs in the team.
