@@ -8,6 +8,7 @@ import 'package:mush_on/customer_management/tours/tours.dart';
 import 'package:mush_on/health/health.dart';
 import 'package:mush_on/kennel/add_dog/add_dog.dart';
 import 'package:mush_on/kennel/dog/dog.dart';
+import 'package:mush_on/kennel/import_dogs/import_dogs.dart';
 import 'package:mush_on/kennel/kennel.dart';
 import 'package:mush_on/main.dart';
 import 'package:mush_on/settings/sections/billing.dart';
@@ -159,6 +160,12 @@ final goRoutes = GoRouter(
         String? email = state.uri.queryParameters["email"];
         String? securityCode = state.uri.queryParameters["securityCode"];
         return ConfirmInvitation(email: email, securityCode: securityCode);
+      },
+    ),
+    GoRoute(
+      path: "/import_dogs_from_file",
+      builder: (context, state) {
+        return const ImportDogsScreen();
       },
     ),
   ],
