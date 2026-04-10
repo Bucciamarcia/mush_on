@@ -39,21 +39,13 @@ class SingleDogFamily extends Family<AsyncValue<Dog>> {
   const SingleDogFamily();
 
   /// See also [singleDog].
-  SingleDogProvider call(
-    String dogId,
-  ) {
-    return SingleDogProvider(
-      dogId,
-    );
+  SingleDogProvider call(String dogId) {
+    return SingleDogProvider(dogId);
   }
 
   @override
-  SingleDogProvider getProviderOverride(
-    covariant SingleDogProvider provider,
-  ) {
-    return call(
-      provider.dogId,
-    );
+  SingleDogProvider getProviderOverride(covariant SingleDogProvider provider) {
+    return call(provider.dogId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -74,23 +66,18 @@ class SingleDogFamily extends Family<AsyncValue<Dog>> {
 /// See also [singleDog].
 class SingleDogProvider extends AutoDisposeStreamProvider<Dog> {
   /// See also [singleDog].
-  SingleDogProvider(
-    String dogId,
-  ) : this._internal(
-          (ref) => singleDog(
-            ref as SingleDogRef,
-            dogId,
-          ),
-          from: singleDogProvider,
-          name: r'singleDogProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$singleDogHash,
-          dependencies: SingleDogFamily._dependencies,
-          allTransitiveDependencies: SingleDogFamily._allTransitiveDependencies,
-          dogId: dogId,
-        );
+  SingleDogProvider(String dogId)
+    : this._internal(
+        (ref) => singleDog(ref as SingleDogRef, dogId),
+        from: singleDogProvider,
+        name: r'singleDogProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$singleDogHash,
+        dependencies: SingleDogFamily._dependencies,
+        allTransitiveDependencies: SingleDogFamily._allTransitiveDependencies,
+        dogId: dogId,
+      );
 
   SingleDogProvider._internal(
     super._createNotifier, {
@@ -105,9 +92,7 @@ class SingleDogProvider extends AutoDisposeStreamProvider<Dog> {
   final String dogId;
 
   @override
-  Override overrideWith(
-    Stream<Dog> Function(SingleDogRef provider) create,
-  ) {
+  Override overrideWith(Stream<Dog> Function(SingleDogRef provider) create) {
     return ProviderOverride(
       origin: this,
       override: SingleDogProvider._internal(
@@ -184,24 +169,13 @@ class DogTotalFamily extends Family<AsyncValue<List<DogTotal>>> {
   /// Defaults to 30 days.
   ///
   /// Copied from [dogTotal].
-  DogTotalProvider call({
-    required String dogId,
-    DateTime? cutoff,
-  }) {
-    return DogTotalProvider(
-      dogId: dogId,
-      cutoff: cutoff,
-    );
+  DogTotalProvider call({required String dogId, DateTime? cutoff}) {
+    return DogTotalProvider(dogId: dogId, cutoff: cutoff);
   }
 
   @override
-  DogTotalProvider getProviderOverride(
-    covariant DogTotalProvider provider,
-  ) {
-    return call(
-      dogId: provider.dogId,
-      cutoff: provider.cutoff,
-    );
+  DogTotalProvider getProviderOverride(covariant DogTotalProvider provider) {
+    return call(dogId: provider.dogId, cutoff: provider.cutoff);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -230,26 +204,19 @@ class DogTotalProvider extends AutoDisposeStreamProvider<List<DogTotal>> {
   /// Defaults to 30 days.
   ///
   /// Copied from [dogTotal].
-  DogTotalProvider({
-    required String dogId,
-    DateTime? cutoff,
-  }) : this._internal(
-          (ref) => dogTotal(
-            ref as DogTotalRef,
-            dogId: dogId,
-            cutoff: cutoff,
-          ),
-          from: dogTotalProvider,
-          name: r'dogTotalProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$dogTotalHash,
-          dependencies: DogTotalFamily._dependencies,
-          allTransitiveDependencies: DogTotalFamily._allTransitiveDependencies,
-          dogId: dogId,
-          cutoff: cutoff,
-        );
+  DogTotalProvider({required String dogId, DateTime? cutoff})
+    : this._internal(
+        (ref) => dogTotal(ref as DogTotalRef, dogId: dogId, cutoff: cutoff),
+        from: dogTotalProvider,
+        name: r'dogTotalProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$dogTotalHash,
+        dependencies: DogTotalFamily._dependencies,
+        allTransitiveDependencies: DogTotalFamily._allTransitiveDependencies,
+        dogId: dogId,
+        cutoff: cutoff,
+      );
 
   DogTotalProvider._internal(
     super._createNotifier, {
@@ -317,7 +284,8 @@ mixin DogTotalRef on AutoDisposeStreamProviderRef<List<DogTotal>> {
 }
 
 class _DogTotalProviderElement
-    extends AutoDisposeStreamProviderElement<List<DogTotal>> with DogTotalRef {
+    extends AutoDisposeStreamProviderElement<List<DogTotal>>
+    with DogTotalRef {
   _DogTotalProviderElement(super.provider);
 
   @override
@@ -346,24 +314,15 @@ class DogHealthEventsFamily extends Family<AsyncValue<List<HealthEvent>>> {
   /// All the health events related to a single dog. Cutoff default to 90 days.
   ///
   /// Copied from [dogHealthEvents].
-  DogHealthEventsProvider call({
-    required String dogId,
-    DateTime? cutoff,
-  }) {
-    return DogHealthEventsProvider(
-      dogId: dogId,
-      cutoff: cutoff,
-    );
+  DogHealthEventsProvider call({required String dogId, DateTime? cutoff}) {
+    return DogHealthEventsProvider(dogId: dogId, cutoff: cutoff);
   }
 
   @override
   DogHealthEventsProvider getProviderOverride(
     covariant DogHealthEventsProvider provider,
   ) {
-    return call(
-      dogId: provider.dogId,
-      cutoff: provider.cutoff,
-    );
+    return call(dogId: provider.dogId, cutoff: provider.cutoff);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -389,27 +348,24 @@ class DogHealthEventsProvider
   /// All the health events related to a single dog. Cutoff default to 90 days.
   ///
   /// Copied from [dogHealthEvents].
-  DogHealthEventsProvider({
-    required String dogId,
-    DateTime? cutoff,
-  }) : this._internal(
-          (ref) => dogHealthEvents(
-            ref as DogHealthEventsRef,
-            dogId: dogId,
-            cutoff: cutoff,
-          ),
-          from: dogHealthEventsProvider,
-          name: r'dogHealthEventsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$dogHealthEventsHash,
-          dependencies: DogHealthEventsFamily._dependencies,
-          allTransitiveDependencies:
-              DogHealthEventsFamily._allTransitiveDependencies,
+  DogHealthEventsProvider({required String dogId, DateTime? cutoff})
+    : this._internal(
+        (ref) => dogHealthEvents(
+          ref as DogHealthEventsRef,
           dogId: dogId,
           cutoff: cutoff,
-        );
+        ),
+        from: dogHealthEventsProvider,
+        name: r'dogHealthEventsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$dogHealthEventsHash,
+        dependencies: DogHealthEventsFamily._dependencies,
+        allTransitiveDependencies:
+            DogHealthEventsFamily._allTransitiveDependencies,
+        dogId: dogId,
+        cutoff: cutoff,
+      );
 
   DogHealthEventsProvider._internal(
     super._createNotifier, {
@@ -507,24 +463,15 @@ class DogVaccinationsFamily extends Family<AsyncValue<List<Vaccination>>> {
   /// All the vaccinations related to a single dog. Cutoff default to 90 days.
   ///
   /// Copied from [dogVaccinations].
-  DogVaccinationsProvider call({
-    required String dogId,
-    DateTime? cutoff,
-  }) {
-    return DogVaccinationsProvider(
-      dogId: dogId,
-      cutoff: cutoff,
-    );
+  DogVaccinationsProvider call({required String dogId, DateTime? cutoff}) {
+    return DogVaccinationsProvider(dogId: dogId, cutoff: cutoff);
   }
 
   @override
   DogVaccinationsProvider getProviderOverride(
     covariant DogVaccinationsProvider provider,
   ) {
-    return call(
-      dogId: provider.dogId,
-      cutoff: provider.cutoff,
-    );
+    return call(dogId: provider.dogId, cutoff: provider.cutoff);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -550,27 +497,24 @@ class DogVaccinationsProvider
   /// All the vaccinations related to a single dog. Cutoff default to 90 days.
   ///
   /// Copied from [dogVaccinations].
-  DogVaccinationsProvider({
-    required String dogId,
-    DateTime? cutoff,
-  }) : this._internal(
-          (ref) => dogVaccinations(
-            ref as DogVaccinationsRef,
-            dogId: dogId,
-            cutoff: cutoff,
-          ),
-          from: dogVaccinationsProvider,
-          name: r'dogVaccinationsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$dogVaccinationsHash,
-          dependencies: DogVaccinationsFamily._dependencies,
-          allTransitiveDependencies:
-              DogVaccinationsFamily._allTransitiveDependencies,
+  DogVaccinationsProvider({required String dogId, DateTime? cutoff})
+    : this._internal(
+        (ref) => dogVaccinations(
+          ref as DogVaccinationsRef,
           dogId: dogId,
           cutoff: cutoff,
-        );
+        ),
+        from: dogVaccinationsProvider,
+        name: r'dogVaccinationsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$dogVaccinationsHash,
+        dependencies: DogVaccinationsFamily._dependencies,
+        allTransitiveDependencies:
+            DogVaccinationsFamily._allTransitiveDependencies,
+        dogId: dogId,
+        cutoff: cutoff,
+      );
 
   DogVaccinationsProvider._internal(
     super._createNotifier, {
@@ -668,24 +612,13 @@ class DogHeatsFamily extends Family<AsyncValue<List<HeatCycle>>> {
   /// All the heats related to a single dog. Cutoff default to 90 days.
   ///
   /// Copied from [dogHeats].
-  DogHeatsProvider call({
-    required String dogId,
-    DateTime? cutoff,
-  }) {
-    return DogHeatsProvider(
-      dogId: dogId,
-      cutoff: cutoff,
-    );
+  DogHeatsProvider call({required String dogId, DateTime? cutoff}) {
+    return DogHeatsProvider(dogId: dogId, cutoff: cutoff);
   }
 
   @override
-  DogHeatsProvider getProviderOverride(
-    covariant DogHeatsProvider provider,
-  ) {
-    return call(
-      dogId: provider.dogId,
-      cutoff: provider.cutoff,
-    );
+  DogHeatsProvider getProviderOverride(covariant DogHeatsProvider provider) {
+    return call(dogId: provider.dogId, cutoff: provider.cutoff);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -710,26 +643,19 @@ class DogHeatsProvider extends AutoDisposeStreamProvider<List<HeatCycle>> {
   /// All the heats related to a single dog. Cutoff default to 90 days.
   ///
   /// Copied from [dogHeats].
-  DogHeatsProvider({
-    required String dogId,
-    DateTime? cutoff,
-  }) : this._internal(
-          (ref) => dogHeats(
-            ref as DogHeatsRef,
-            dogId: dogId,
-            cutoff: cutoff,
-          ),
-          from: dogHeatsProvider,
-          name: r'dogHeatsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$dogHeatsHash,
-          dependencies: DogHeatsFamily._dependencies,
-          allTransitiveDependencies: DogHeatsFamily._allTransitiveDependencies,
-          dogId: dogId,
-          cutoff: cutoff,
-        );
+  DogHeatsProvider({required String dogId, DateTime? cutoff})
+    : this._internal(
+        (ref) => dogHeats(ref as DogHeatsRef, dogId: dogId, cutoff: cutoff),
+        from: dogHeatsProvider,
+        name: r'dogHeatsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$dogHeatsHash,
+        dependencies: DogHeatsFamily._dependencies,
+        allTransitiveDependencies: DogHeatsFamily._allTransitiveDependencies,
+        dogId: dogId,
+        cutoff: cutoff,
+      );
 
   DogHeatsProvider._internal(
     super._createNotifier, {
@@ -797,7 +723,8 @@ mixin DogHeatsRef on AutoDisposeStreamProviderRef<List<HeatCycle>> {
 }
 
 class _DogHeatsProviderElement
-    extends AutoDisposeStreamProviderElement<List<HeatCycle>> with DogHeatsRef {
+    extends AutoDisposeStreamProviderElement<List<HeatCycle>>
+    with DogHeatsRef {
   _DogHeatsProviderElement(super.provider);
 
   @override
@@ -813,10 +740,7 @@ abstract class _$SingleDogImage
   late final String account;
   late final String dogId;
 
-  FutureOr<Uint8List?> build(
-    String account,
-    String dogId,
-  );
+  FutureOr<Uint8List?> build(String account, String dogId);
 }
 
 /// See also [SingleDogImage].
@@ -829,24 +753,15 @@ class SingleDogImageFamily extends Family<AsyncValue<Uint8List?>> {
   const SingleDogImageFamily();
 
   /// See also [SingleDogImage].
-  SingleDogImageProvider call(
-    String account,
-    String dogId,
-  ) {
-    return SingleDogImageProvider(
-      account,
-      dogId,
-    );
+  SingleDogImageProvider call(String account, String dogId) {
+    return SingleDogImageProvider(account, dogId);
   }
 
   @override
   SingleDogImageProvider getProviderOverride(
     covariant SingleDogImageProvider provider,
   ) {
-    return call(
-      provider.account,
-      provider.dogId,
-    );
+    return call(provider.account, provider.dogId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -868,25 +783,22 @@ class SingleDogImageFamily extends Family<AsyncValue<Uint8List?>> {
 class SingleDogImageProvider
     extends AutoDisposeAsyncNotifierProviderImpl<SingleDogImage, Uint8List?> {
   /// See also [SingleDogImage].
-  SingleDogImageProvider(
-    String account,
-    String dogId,
-  ) : this._internal(
-          () => SingleDogImage()
-            ..account = account
-            ..dogId = dogId,
-          from: singleDogImageProvider,
-          name: r'singleDogImageProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$singleDogImageHash,
-          dependencies: SingleDogImageFamily._dependencies,
-          allTransitiveDependencies:
-              SingleDogImageFamily._allTransitiveDependencies,
-          account: account,
-          dogId: dogId,
-        );
+  SingleDogImageProvider(String account, String dogId)
+    : this._internal(
+        () => SingleDogImage()
+          ..account = account
+          ..dogId = dogId,
+        from: singleDogImageProvider,
+        name: r'singleDogImageProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$singleDogImageHash,
+        dependencies: SingleDogImageFamily._dependencies,
+        allTransitiveDependencies:
+            SingleDogImageFamily._allTransitiveDependencies,
+        account: account,
+        dogId: dogId,
+      );
 
   SingleDogImageProvider._internal(
     super._createNotifier, {
@@ -903,13 +815,8 @@ class SingleDogImageProvider
   final String dogId;
 
   @override
-  FutureOr<Uint8List?> runNotifierBuild(
-    covariant SingleDogImage notifier,
-  ) {
-    return notifier.build(
-      account,
-      dogId,
-    );
+  FutureOr<Uint8List?> runNotifierBuild(covariant SingleDogImage notifier) {
+    return notifier.build(account, dogId);
   }
 
   @override
@@ -933,7 +840,7 @@ class SingleDogImageProvider
 
   @override
   AutoDisposeAsyncNotifierProviderElement<SingleDogImage, Uint8List?>
-      createElement() {
+  createElement() {
     return _SingleDogImageProviderElement(this);
   }
 
@@ -974,5 +881,6 @@ class _SingleDogImageProviderElement
   @override
   String get dogId => (origin as SingleDogImageProvider).dogId;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

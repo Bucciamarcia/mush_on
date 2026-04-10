@@ -350,6 +350,17 @@ sealed class BookingPricingNumberBooked with _$BookingPricingNumberBooked {
   }) = _BookingPricingNumberBooked;
 }
 
+/// The kennel's IANA timezone string, used to display booking times in kennel-local time.
+final kennelTimezoneProvider = Provider<String>((ref) {
+  final account = ref.watch(accountPublicProvider);
+  if (account == null || account.isEmpty) return "UTC";
+  return ref
+          .watch(bookingManagerKennelInfoProvider(account: account))
+          .valueOrNull
+          ?.timezone ??
+      "UTC";
+});
+
 /// Derived flag: true when all required fields are filled for booking + passengers
 final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
   final booking = ref.watch(bookingInfoProvider);

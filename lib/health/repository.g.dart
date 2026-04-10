@@ -13,19 +13,19 @@ String _$healthEventRepositoryHash() =>
 @ProviderFor(healthEventRepository)
 final healthEventRepositoryProvider =
     AutoDisposeProvider<HealthEventRepository>.internal(
-  healthEventRepository,
-  name: r'healthEventRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$healthEventRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      healthEventRepository,
+      name: r'healthEventRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$healthEventRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef HealthEventRepositoryRef
-    = AutoDisposeProviderRef<HealthEventRepository>;
+typedef HealthEventRepositoryRef =
+    AutoDisposeProviderRef<HealthEventRepository>;
 String _$vaccinationRepositoryHash() =>
     r'53b583906fc8378061b32cc4061c811058a71a45';
 
@@ -33,19 +33,19 @@ String _$vaccinationRepositoryHash() =>
 @ProviderFor(vaccinationRepository)
 final vaccinationRepositoryProvider =
     AutoDisposeProvider<VaccinationRepository>.internal(
-  vaccinationRepository,
-  name: r'vaccinationRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$vaccinationRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      vaccinationRepository,
+      name: r'vaccinationRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$vaccinationRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef VaccinationRepositoryRef
-    = AutoDisposeProviderRef<VaccinationRepository>;
+typedef VaccinationRepositoryRef =
+    AutoDisposeProviderRef<VaccinationRepository>;
 String _$heatCycleRepositoryHash() =>
     r'4eb0e917838a2baca364392b94ddc0b38bbd19d0';
 
@@ -53,14 +53,14 @@ String _$heatCycleRepositoryHash() =>
 @ProviderFor(heatCycleRepository)
 final heatCycleRepositoryProvider =
     AutoDisposeProvider<HeatCycleRepository>.internal(
-  heatCycleRepository,
-  name: r'heatCycleRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$heatCycleRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      heatCycleRepository,
+      name: r'heatCycleRepositoryProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$heatCycleRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element

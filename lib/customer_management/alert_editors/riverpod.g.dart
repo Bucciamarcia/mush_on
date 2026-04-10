@@ -13,14 +13,14 @@ String _$isRefundProcessingHash() =>
 @ProviderFor(IsRefundProcessing)
 final isRefundProcessingProvider =
     AutoDisposeNotifierProvider<IsRefundProcessing, bool>.internal(
-  IsRefundProcessing.new,
-  name: r'isRefundProcessingProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$isRefundProcessingHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      IsRefundProcessing.new,
+      name: r'isRefundProcessingProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$isRefundProcessingHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$IsRefundProcessing = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint

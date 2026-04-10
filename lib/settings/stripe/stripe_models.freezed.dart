@@ -553,7 +553,10 @@ as bool,
 /// @nodoc
 mixin _$BookingManagerKennelInfo {
 
- String get name; String get url; String get email; String get cancellationPolicy; List<CustomerCustomField> get customerCustomFields; List<BookingCustomField> get bookingCustomFields;/// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
+ String get name; String get url; String get email; String get cancellationPolicy; List<CustomerCustomField> get customerCustomFields; List<BookingCustomField> get bookingCustomFields;/// The reminders the customer will receive before the trip.
+ List<BookingReminder> get bookingReminders;/// IANA timezone identifier for this kennel's location, used to display
+/// booking times correctly in emails (e.g. "Europe/Helsinki").
+ String get timezone;/// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
  double get vatRate;/// The commission rate of the platform on payments. Defaults to 3.5%.
  double get commissionRate;
 /// Create a copy of BookingManagerKennelInfo
@@ -568,16 +571,16 @@ $BookingManagerKennelInfoCopyWith<BookingManagerKennelInfo> get copyWith => _$Bo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookingManagerKennelInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.email, email) || other.email == email)&&(identical(other.cancellationPolicy, cancellationPolicy) || other.cancellationPolicy == cancellationPolicy)&&const DeepCollectionEquality().equals(other.customerCustomFields, customerCustomFields)&&const DeepCollectionEquality().equals(other.bookingCustomFields, bookingCustomFields)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate)&&(identical(other.commissionRate, commissionRate) || other.commissionRate == commissionRate));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookingManagerKennelInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.email, email) || other.email == email)&&(identical(other.cancellationPolicy, cancellationPolicy) || other.cancellationPolicy == cancellationPolicy)&&const DeepCollectionEquality().equals(other.customerCustomFields, customerCustomFields)&&const DeepCollectionEquality().equals(other.bookingCustomFields, bookingCustomFields)&&const DeepCollectionEquality().equals(other.bookingReminders, bookingReminders)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate)&&(identical(other.commissionRate, commissionRate) || other.commissionRate == commissionRate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,url,email,cancellationPolicy,const DeepCollectionEquality().hash(customerCustomFields),const DeepCollectionEquality().hash(bookingCustomFields),vatRate,commissionRate);
+int get hashCode => Object.hash(runtimeType,name,url,email,cancellationPolicy,const DeepCollectionEquality().hash(customerCustomFields),const DeepCollectionEquality().hash(bookingCustomFields),const DeepCollectionEquality().hash(bookingReminders),timezone,vatRate,commissionRate);
 
 @override
 String toString() {
-  return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, bookingCustomFields: $bookingCustomFields, vatRate: $vatRate, commissionRate: $commissionRate)';
+  return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, bookingCustomFields: $bookingCustomFields, bookingReminders: $bookingReminders, timezone: $timezone, vatRate: $vatRate, commissionRate: $commissionRate)';
 }
 
 
@@ -588,7 +591,7 @@ abstract mixin class $BookingManagerKennelInfoCopyWith<$Res>  {
   factory $BookingManagerKennelInfoCopyWith(BookingManagerKennelInfo value, $Res Function(BookingManagerKennelInfo) _then) = _$BookingManagerKennelInfoCopyWithImpl;
 @useResult
 $Res call({
- String name, String url, String email, String cancellationPolicy, List<CustomerCustomField> customerCustomFields, List<BookingCustomField> bookingCustomFields, double vatRate, double commissionRate
+ String name, String url, String email, String cancellationPolicy, List<CustomerCustomField> customerCustomFields, List<BookingCustomField> bookingCustomFields, List<BookingReminder> bookingReminders, String timezone, double vatRate, double commissionRate
 });
 
 
@@ -605,7 +608,7 @@ class _$BookingManagerKennelInfoCopyWithImpl<$Res>
 
 /// Create a copy of BookingManagerKennelInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? url = null,Object? email = null,Object? cancellationPolicy = null,Object? customerCustomFields = null,Object? bookingCustomFields = null,Object? vatRate = null,Object? commissionRate = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? url = null,Object? email = null,Object? cancellationPolicy = null,Object? customerCustomFields = null,Object? bookingCustomFields = null,Object? bookingReminders = null,Object? timezone = null,Object? vatRate = null,Object? commissionRate = null,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
@@ -613,7 +616,9 @@ as String,email: null == email ? _self.email : email // ignore: cast_nullable_to
 as String,cancellationPolicy: null == cancellationPolicy ? _self.cancellationPolicy : cancellationPolicy // ignore: cast_nullable_to_non_nullable
 as String,customerCustomFields: null == customerCustomFields ? _self.customerCustomFields : customerCustomFields // ignore: cast_nullable_to_non_nullable
 as List<CustomerCustomField>,bookingCustomFields: null == bookingCustomFields ? _self.bookingCustomFields : bookingCustomFields // ignore: cast_nullable_to_non_nullable
-as List<BookingCustomField>,vatRate: null == vatRate ? _self.vatRate : vatRate // ignore: cast_nullable_to_non_nullable
+as List<BookingCustomField>,bookingReminders: null == bookingReminders ? _self.bookingReminders : bookingReminders // ignore: cast_nullable_to_non_nullable
+as List<BookingReminder>,timezone: null == timezone ? _self.timezone : timezone // ignore: cast_nullable_to_non_nullable
+as String,vatRate: null == vatRate ? _self.vatRate : vatRate // ignore: cast_nullable_to_non_nullable
 as double,commissionRate: null == commissionRate ? _self.commissionRate : commissionRate // ignore: cast_nullable_to_non_nullable
 as double,
   ));
@@ -697,10 +702,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  double vatRate,  double commissionRate)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  List<BookingReminder> bookingReminders,  String timezone,  double vatRate,  double commissionRate)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BookingManagerKennelInfo() when $default != null:
-return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.vatRate,_that.commissionRate);case _:
+return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.bookingReminders,_that.timezone,_that.vatRate,_that.commissionRate);case _:
   return orElse();
 
 }
@@ -718,10 +723,10 @@ return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  double vatRate,  double commissionRate)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  List<BookingReminder> bookingReminders,  String timezone,  double vatRate,  double commissionRate)  $default,) {final _that = this;
 switch (_that) {
 case _BookingManagerKennelInfo():
-return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.vatRate,_that.commissionRate);}
+return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.bookingReminders,_that.timezone,_that.vatRate,_that.commissionRate);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -735,10 +740,10 @@ return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  double vatRate,  double commissionRate)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  List<BookingReminder> bookingReminders,  String timezone,  double vatRate,  double commissionRate)?  $default,) {final _that = this;
 switch (_that) {
 case _BookingManagerKennelInfo() when $default != null:
-return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.vatRate,_that.commissionRate);case _:
+return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.bookingReminders,_that.timezone,_that.vatRate,_that.commissionRate);case _:
   return null;
 
 }
@@ -750,7 +755,7 @@ return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.
 
 @JsonSerializable(explicitToJson: true)
 class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
-  const _BookingManagerKennelInfo({required this.name, required this.url, required this.email, required this.cancellationPolicy, final  List<CustomerCustomField> customerCustomFields = const [], final  List<BookingCustomField> bookingCustomFields = const [], required this.vatRate, this.commissionRate = 0.035}): _customerCustomFields = customerCustomFields,_bookingCustomFields = bookingCustomFields;
+  const _BookingManagerKennelInfo({required this.name, required this.url, required this.email, required this.cancellationPolicy, final  List<CustomerCustomField> customerCustomFields = const [], final  List<BookingCustomField> bookingCustomFields = const [], final  List<BookingReminder> bookingReminders = const [], this.timezone = "Europe/Helsinki", required this.vatRate, this.commissionRate = 0.035}): _customerCustomFields = customerCustomFields,_bookingCustomFields = bookingCustomFields,_bookingReminders = bookingReminders;
   factory _BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) => _$BookingManagerKennelInfoFromJson(json);
 
 @override final  String name;
@@ -771,6 +776,18 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
   return EqualUnmodifiableListView(_bookingCustomFields);
 }
 
+/// The reminders the customer will receive before the trip.
+ final  List<BookingReminder> _bookingReminders;
+/// The reminders the customer will receive before the trip.
+@override@JsonKey() List<BookingReminder> get bookingReminders {
+  if (_bookingReminders is EqualUnmodifiableListView) return _bookingReminders;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_bookingReminders);
+}
+
+/// IANA timezone identifier for this kennel's location, used to display
+/// booking times correctly in emails (e.g. "Europe/Helsinki").
+@override@JsonKey() final  String timezone;
 /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
 @override final  double vatRate;
 /// The commission rate of the platform on payments. Defaults to 3.5%.
@@ -789,16 +806,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookingManagerKennelInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.email, email) || other.email == email)&&(identical(other.cancellationPolicy, cancellationPolicy) || other.cancellationPolicy == cancellationPolicy)&&const DeepCollectionEquality().equals(other._customerCustomFields, _customerCustomFields)&&const DeepCollectionEquality().equals(other._bookingCustomFields, _bookingCustomFields)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate)&&(identical(other.commissionRate, commissionRate) || other.commissionRate == commissionRate));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookingManagerKennelInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.email, email) || other.email == email)&&(identical(other.cancellationPolicy, cancellationPolicy) || other.cancellationPolicy == cancellationPolicy)&&const DeepCollectionEquality().equals(other._customerCustomFields, _customerCustomFields)&&const DeepCollectionEquality().equals(other._bookingCustomFields, _bookingCustomFields)&&const DeepCollectionEquality().equals(other._bookingReminders, _bookingReminders)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate)&&(identical(other.commissionRate, commissionRate) || other.commissionRate == commissionRate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,url,email,cancellationPolicy,const DeepCollectionEquality().hash(_customerCustomFields),const DeepCollectionEquality().hash(_bookingCustomFields),vatRate,commissionRate);
+int get hashCode => Object.hash(runtimeType,name,url,email,cancellationPolicy,const DeepCollectionEquality().hash(_customerCustomFields),const DeepCollectionEquality().hash(_bookingCustomFields),const DeepCollectionEquality().hash(_bookingReminders),timezone,vatRate,commissionRate);
 
 @override
 String toString() {
-  return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, bookingCustomFields: $bookingCustomFields, vatRate: $vatRate, commissionRate: $commissionRate)';
+  return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, bookingCustomFields: $bookingCustomFields, bookingReminders: $bookingReminders, timezone: $timezone, vatRate: $vatRate, commissionRate: $commissionRate)';
 }
 
 
@@ -809,7 +826,7 @@ abstract mixin class _$BookingManagerKennelInfoCopyWith<$Res> implements $Bookin
   factory _$BookingManagerKennelInfoCopyWith(_BookingManagerKennelInfo value, $Res Function(_BookingManagerKennelInfo) _then) = __$BookingManagerKennelInfoCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String url, String email, String cancellationPolicy, List<CustomerCustomField> customerCustomFields, List<BookingCustomField> bookingCustomFields, double vatRate, double commissionRate
+ String name, String url, String email, String cancellationPolicy, List<CustomerCustomField> customerCustomFields, List<BookingCustomField> bookingCustomFields, List<BookingReminder> bookingReminders, String timezone, double vatRate, double commissionRate
 });
 
 
@@ -826,7 +843,7 @@ class __$BookingManagerKennelInfoCopyWithImpl<$Res>
 
 /// Create a copy of BookingManagerKennelInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? url = null,Object? email = null,Object? cancellationPolicy = null,Object? customerCustomFields = null,Object? bookingCustomFields = null,Object? vatRate = null,Object? commissionRate = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? url = null,Object? email = null,Object? cancellationPolicy = null,Object? customerCustomFields = null,Object? bookingCustomFields = null,Object? bookingReminders = null,Object? timezone = null,Object? vatRate = null,Object? commissionRate = null,}) {
   return _then(_BookingManagerKennelInfo(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
@@ -834,9 +851,277 @@ as String,email: null == email ? _self.email : email // ignore: cast_nullable_to
 as String,cancellationPolicy: null == cancellationPolicy ? _self.cancellationPolicy : cancellationPolicy // ignore: cast_nullable_to_non_nullable
 as String,customerCustomFields: null == customerCustomFields ? _self._customerCustomFields : customerCustomFields // ignore: cast_nullable_to_non_nullable
 as List<CustomerCustomField>,bookingCustomFields: null == bookingCustomFields ? _self._bookingCustomFields : bookingCustomFields // ignore: cast_nullable_to_non_nullable
-as List<BookingCustomField>,vatRate: null == vatRate ? _self.vatRate : vatRate // ignore: cast_nullable_to_non_nullable
+as List<BookingCustomField>,bookingReminders: null == bookingReminders ? _self._bookingReminders : bookingReminders // ignore: cast_nullable_to_non_nullable
+as List<BookingReminder>,timezone: null == timezone ? _self.timezone : timezone // ignore: cast_nullable_to_non_nullable
+as String,vatRate: null == vatRate ? _self.vatRate : vatRate // ignore: cast_nullable_to_non_nullable
 as double,commissionRate: null == commissionRate ? _self.commissionRate : commissionRate // ignore: cast_nullable_to_non_nullable
 as double,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$BookingReminder {
+
+/// UID of the reminder.
+ String get uid;/// How many days before to send the reminder.
+/// 0 is the day of the trip, 1 is 1 day before etc.
+ int get daysBefore;
+/// Create a copy of BookingReminder
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$BookingReminderCopyWith<BookingReminder> get copyWith => _$BookingReminderCopyWithImpl<BookingReminder>(this as BookingReminder, _$identity);
+
+  /// Serializes this BookingReminder to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookingReminder&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.daysBefore, daysBefore) || other.daysBefore == daysBefore));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,uid,daysBefore);
+
+@override
+String toString() {
+  return 'BookingReminder(uid: $uid, daysBefore: $daysBefore)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $BookingReminderCopyWith<$Res>  {
+  factory $BookingReminderCopyWith(BookingReminder value, $Res Function(BookingReminder) _then) = _$BookingReminderCopyWithImpl;
+@useResult
+$Res call({
+ String uid, int daysBefore
+});
+
+
+
+
+}
+/// @nodoc
+class _$BookingReminderCopyWithImpl<$Res>
+    implements $BookingReminderCopyWith<$Res> {
+  _$BookingReminderCopyWithImpl(this._self, this._then);
+
+  final BookingReminder _self;
+  final $Res Function(BookingReminder) _then;
+
+/// Create a copy of BookingReminder
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? uid = null,Object? daysBefore = null,}) {
+  return _then(_self.copyWith(
+uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
+as String,daysBefore: null == daysBefore ? _self.daysBefore : daysBefore // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [BookingReminder].
+extension BookingReminderPatterns on BookingReminder {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _BookingReminder value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _BookingReminder() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _BookingReminder value)  $default,){
+final _that = this;
+switch (_that) {
+case _BookingReminder():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _BookingReminder value)?  $default,){
+final _that = this;
+switch (_that) {
+case _BookingReminder() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String uid,  int daysBefore)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _BookingReminder() when $default != null:
+return $default(_that.uid,_that.daysBefore);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String uid,  int daysBefore)  $default,) {final _that = this;
+switch (_that) {
+case _BookingReminder():
+return $default(_that.uid,_that.daysBefore);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String uid,  int daysBefore)?  $default,) {final _that = this;
+switch (_that) {
+case _BookingReminder() when $default != null:
+return $default(_that.uid,_that.daysBefore);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _BookingReminder implements BookingReminder {
+  const _BookingReminder({required this.uid, required this.daysBefore});
+  factory _BookingReminder.fromJson(Map<String, dynamic> json) => _$BookingReminderFromJson(json);
+
+/// UID of the reminder.
+@override final  String uid;
+/// How many days before to send the reminder.
+/// 0 is the day of the trip, 1 is 1 day before etc.
+@override final  int daysBefore;
+
+/// Create a copy of BookingReminder
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$BookingReminderCopyWith<_BookingReminder> get copyWith => __$BookingReminderCopyWithImpl<_BookingReminder>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$BookingReminderToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookingReminder&&(identical(other.uid, uid) || other.uid == uid)&&(identical(other.daysBefore, daysBefore) || other.daysBefore == daysBefore));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,uid,daysBefore);
+
+@override
+String toString() {
+  return 'BookingReminder(uid: $uid, daysBefore: $daysBefore)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$BookingReminderCopyWith<$Res> implements $BookingReminderCopyWith<$Res> {
+  factory _$BookingReminderCopyWith(_BookingReminder value, $Res Function(_BookingReminder) _then) = __$BookingReminderCopyWithImpl;
+@override @useResult
+$Res call({
+ String uid, int daysBefore
+});
+
+
+
+
+}
+/// @nodoc
+class __$BookingReminderCopyWithImpl<$Res>
+    implements _$BookingReminderCopyWith<$Res> {
+  __$BookingReminderCopyWithImpl(this._self, this._then);
+
+  final _BookingReminder _self;
+  final $Res Function(_BookingReminder) _then;
+
+/// Create a copy of BookingReminder
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? uid = null,Object? daysBefore = null,}) {
+  return _then(_BookingReminder(
+uid: null == uid ? _self.uid : uid // ignore: cast_nullable_to_non_nullable
+as String,daysBefore: null == daysBefore ? _self.daysBefore : daysBefore // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

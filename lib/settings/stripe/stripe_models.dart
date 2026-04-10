@@ -17,30 +17,31 @@ sealed class StripeConnection with _$StripeConnection {
 }
 
 @freezed
-
 /// Represent a Stripe payment intent, used to associate it with account and booking.
 /// When the webook for success payment intent arrives, search this db to
 /// find which account and booking it refers to.
 sealed class CheckoutSession with _$CheckoutSession {
-  const factory CheckoutSession(
-      {required String checkoutSessionId,
+  const factory CheckoutSession({
+    required String checkoutSessionId,
 
-      /// The name of the account that this payment goes to.
-      required String account,
+    /// The name of the account that this payment goes to.
+    required String account,
 
-      /// The ID of the booking
-      required String bookingId,
+    /// The ID of the booking
+    required String bookingId,
 
-      /// The Stripe ID of the account.
-      required String stripeId,
-      @NonNullableTimestampConverter() required DateTime createdAt,
-      required bool webhookProcessed}) = _CheckoutSession;
+    /// The Stripe ID of the account.
+    required String stripeId,
+    @NonNullableTimestampConverter() required DateTime createdAt,
+    required bool webhookProcessed,
+  }) = _CheckoutSession;
 
   factory CheckoutSession.fromJson(Map<String, dynamic> json) =>
       _$CheckoutSessionFromJson(json);
 }
 
 @freezed
+/// Information about the kennel manager booking settings.
 sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
   @JsonSerializable(explicitToJson: true)
   const factory BookingManagerKennelInfo({
@@ -51,6 +52,13 @@ sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
     @Default([]) List<CustomerCustomField> customerCustomFields,
     @Default([]) List<BookingCustomField> bookingCustomFields,
 
+    /// The reminders the customer will receive before the trip.
+    @Default([]) List<BookingReminder> bookingReminders,
+
+    /// IANA timezone identifier for this kennel's location, used to display
+    /// booking times correctly in emails (e.g. "Europe/Helsinki").
+    @Default("Europe/Helsinki") String timezone,
+
     /// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
     required double vatRate,
 
@@ -60,4 +68,19 @@ sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
 
   factory BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) =>
       _$BookingManagerKennelInfoFromJson(json);
+}
+
+@freezed
+sealed class BookingReminder with _$BookingReminder {
+  const factory BookingReminder({
+    /// UID of the reminder.
+    required String uid,
+
+    /// How many days before to send the reminder.
+    /// 0 is the day of the trip, 1 is 1 day before etc.
+    required int daysBefore,
+  }) = _BookingReminder;
+
+  factory BookingReminder.fromJson(Map<String, dynamic> json) =>
+      _$BookingReminderFromJson(json);
 }

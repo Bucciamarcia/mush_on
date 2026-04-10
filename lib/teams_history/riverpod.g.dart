@@ -51,10 +51,7 @@ class TeamGroupsFamily extends Family<AsyncValue<List<TeamGroup>>> {
     required DateTime earliestDate,
     DateTime? finalDate,
   }) {
-    return TeamGroupsProvider(
-      earliestDate: earliestDate,
-      finalDate: finalDate,
-    );
+    return TeamGroupsProvider(earliestDate: earliestDate, finalDate: finalDate);
   }
 
   @override
@@ -89,27 +86,23 @@ class TeamGroupsProvider extends AutoDisposeStreamProvider<List<TeamGroup>> {
   /// Returns a list of teamgroups to display based on the date range specified.
   ///
   /// Copied from [teamGroups].
-  TeamGroupsProvider({
-    required DateTime earliestDate,
-    DateTime? finalDate,
-  }) : this._internal(
-          (ref) => teamGroups(
-            ref as TeamGroupsRef,
-            earliestDate: earliestDate,
-            finalDate: finalDate,
-          ),
-          from: teamGroupsProvider,
-          name: r'teamGroupsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$teamGroupsHash,
-          dependencies: TeamGroupsFamily._dependencies,
-          allTransitiveDependencies:
-              TeamGroupsFamily._allTransitiveDependencies,
+  TeamGroupsProvider({required DateTime earliestDate, DateTime? finalDate})
+    : this._internal(
+        (ref) => teamGroups(
+          ref as TeamGroupsRef,
           earliestDate: earliestDate,
           finalDate: finalDate,
-        );
+        ),
+        from: teamGroupsProvider,
+        name: r'teamGroupsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$teamGroupsHash,
+        dependencies: TeamGroupsFamily._dependencies,
+        allTransitiveDependencies: TeamGroupsFamily._allTransitiveDependencies,
+        earliestDate: earliestDate,
+        finalDate: finalDate,
+      );
 
   TeamGroupsProvider._internal(
     super._createNotifier, {
@@ -207,21 +200,15 @@ class HasCustomerGroupFamily extends Family<AsyncValue<bool>> {
   /// Returns whether the team group has a customer group assigned to it.
   ///
   /// Copied from [hasCustomerGroup].
-  HasCustomerGroupProvider call(
-    String teamGroupId,
-  ) {
-    return HasCustomerGroupProvider(
-      teamGroupId,
-    );
+  HasCustomerGroupProvider call(String teamGroupId) {
+    return HasCustomerGroupProvider(teamGroupId);
   }
 
   @override
   HasCustomerGroupProvider getProviderOverride(
     covariant HasCustomerGroupProvider provider,
   ) {
-    return call(
-      provider.teamGroupId,
-    );
+    return call(provider.teamGroupId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -246,24 +233,19 @@ class HasCustomerGroupProvider extends AutoDisposeStreamProvider<bool> {
   /// Returns whether the team group has a customer group assigned to it.
   ///
   /// Copied from [hasCustomerGroup].
-  HasCustomerGroupProvider(
-    String teamGroupId,
-  ) : this._internal(
-          (ref) => hasCustomerGroup(
-            ref as HasCustomerGroupRef,
-            teamGroupId,
-          ),
-          from: hasCustomerGroupProvider,
-          name: r'hasCustomerGroupProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$hasCustomerGroupHash,
-          dependencies: HasCustomerGroupFamily._dependencies,
-          allTransitiveDependencies:
-              HasCustomerGroupFamily._allTransitiveDependencies,
-          teamGroupId: teamGroupId,
-        );
+  HasCustomerGroupProvider(String teamGroupId)
+    : this._internal(
+        (ref) => hasCustomerGroup(ref as HasCustomerGroupRef, teamGroupId),
+        from: hasCustomerGroupProvider,
+        name: r'hasCustomerGroupProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$hasCustomerGroupHash,
+        dependencies: HasCustomerGroupFamily._dependencies,
+        allTransitiveDependencies:
+            HasCustomerGroupFamily._allTransitiveDependencies,
+        teamGroupId: teamGroupId,
+      );
 
   HasCustomerGroupProvider._internal(
     super._createNotifier, {
@@ -323,11 +305,13 @@ mixin HasCustomerGroupRef on AutoDisposeStreamProviderRef<bool> {
 }
 
 class _HasCustomerGroupProviderElement
-    extends AutoDisposeStreamProviderElement<bool> with HasCustomerGroupRef {
+    extends AutoDisposeStreamProviderElement<bool>
+    with HasCustomerGroupRef {
   _HasCustomerGroupProviderElement(super.provider);
 
   @override
   String get teamGroupId => (origin as HasCustomerGroupProvider).teamGroupId;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

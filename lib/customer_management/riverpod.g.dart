@@ -47,21 +47,15 @@ class TeamGroupsByDateFamily extends Family<AsyncValue<List<TeamGroup>>> {
   /// Returns a list of teamgroups that have he same date and time as the input
   ///
   /// Copied from [teamGroupsByDate].
-  TeamGroupsByDateProvider call(
-    DateTime date,
-  ) {
-    return TeamGroupsByDateProvider(
-      date,
-    );
+  TeamGroupsByDateProvider call(DateTime date) {
+    return TeamGroupsByDateProvider(date);
   }
 
   @override
   TeamGroupsByDateProvider getProviderOverride(
     covariant TeamGroupsByDateProvider provider,
   ) {
-    return call(
-      provider.date,
-    );
+    return call(provider.date);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -87,24 +81,19 @@ class TeamGroupsByDateProvider
   /// Returns a list of teamgroups that have he same date and time as the input
   ///
   /// Copied from [teamGroupsByDate].
-  TeamGroupsByDateProvider(
-    DateTime date,
-  ) : this._internal(
-          (ref) => teamGroupsByDate(
-            ref as TeamGroupsByDateRef,
-            date,
-          ),
-          from: teamGroupsByDateProvider,
-          name: r'teamGroupsByDateProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$teamGroupsByDateHash,
-          dependencies: TeamGroupsByDateFamily._dependencies,
-          allTransitiveDependencies:
-              TeamGroupsByDateFamily._allTransitiveDependencies,
-          date: date,
-        );
+  TeamGroupsByDateProvider(DateTime date)
+    : this._internal(
+        (ref) => teamGroupsByDate(ref as TeamGroupsByDateRef, date),
+        from: teamGroupsByDateProvider,
+        name: r'teamGroupsByDateProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$teamGroupsByDateHash,
+        dependencies: TeamGroupsByDateFamily._dependencies,
+        allTransitiveDependencies:
+            TeamGroupsByDateFamily._allTransitiveDependencies,
+        date: date,
+      );
 
   TeamGroupsByDateProvider._internal(
     super._createNotifier, {
@@ -189,20 +178,14 @@ class CustomerGroupsByDateRangeFamily
     List<DateTime> visibleDates, {
     String? account,
   }) {
-    return CustomerGroupsByDateRangeProvider(
-      visibleDates,
-      account: account,
-    );
+    return CustomerGroupsByDateRangeProvider(visibleDates, account: account);
   }
 
   @override
   CustomerGroupsByDateRangeProvider getProviderOverride(
     covariant CustomerGroupsByDateRangeProvider provider,
   ) {
-    return call(
-      provider.visibleDates,
-      account: provider.account,
-    );
+    return call(provider.visibleDates, account: provider.account);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -228,23 +211,22 @@ class CustomerGroupsByDateRangeProvider
     List<DateTime> visibleDates, {
     String? account,
   }) : this._internal(
-          (ref) => customerGroupsByDateRange(
-            ref as CustomerGroupsByDateRangeRef,
-            visibleDates,
-            account: account,
-          ),
-          from: customerGroupsByDateRangeProvider,
-          name: r'customerGroupsByDateRangeProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$customerGroupsByDateRangeHash,
-          dependencies: CustomerGroupsByDateRangeFamily._dependencies,
-          allTransitiveDependencies:
-              CustomerGroupsByDateRangeFamily._allTransitiveDependencies,
-          visibleDates: visibleDates,
-          account: account,
-        );
+         (ref) => customerGroupsByDateRange(
+           ref as CustomerGroupsByDateRangeRef,
+           visibleDates,
+           account: account,
+         ),
+         from: customerGroupsByDateRangeProvider,
+         name: r'customerGroupsByDateRangeProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$customerGroupsByDateRangeHash,
+         dependencies: CustomerGroupsByDateRangeFamily._dependencies,
+         allTransitiveDependencies:
+             CustomerGroupsByDateRangeFamily._allTransitiveDependencies,
+         visibleDates: visibleDates,
+         account: account,
+       );
 
   CustomerGroupsByDateRangeProvider._internal(
     super._createNotifier, {
@@ -263,7 +245,7 @@ class CustomerGroupsByDateRangeProvider
   @override
   Override overrideWith(
     Stream<List<CustomerGroup>> Function(CustomerGroupsByDateRangeRef provider)
-        create,
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -345,21 +327,15 @@ class CustomerGroupByIdFamily extends Family<AsyncValue<CustomerGroup?>> {
   /// Streams the Customer Group object associated with the ID provided.
   ///
   /// Copied from [customerGroupById].
-  CustomerGroupByIdProvider call(
-    String id,
-  ) {
-    return CustomerGroupByIdProvider(
-      id,
-    );
+  CustomerGroupByIdProvider call(String id) {
+    return CustomerGroupByIdProvider(id);
   }
 
   @override
   CustomerGroupByIdProvider getProviderOverride(
     covariant CustomerGroupByIdProvider provider,
   ) {
-    return call(
-      provider.id,
-    );
+    return call(provider.id);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -385,24 +361,19 @@ class CustomerGroupByIdProvider
   /// Streams the Customer Group object associated with the ID provided.
   ///
   /// Copied from [customerGroupById].
-  CustomerGroupByIdProvider(
-    String id,
-  ) : this._internal(
-          (ref) => customerGroupById(
-            ref as CustomerGroupByIdRef,
-            id,
-          ),
-          from: customerGroupByIdProvider,
-          name: r'customerGroupByIdProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$customerGroupByIdHash,
-          dependencies: CustomerGroupByIdFamily._dependencies,
-          allTransitiveDependencies:
-              CustomerGroupByIdFamily._allTransitiveDependencies,
-          id: id,
-        );
+  CustomerGroupByIdProvider(String id)
+    : this._internal(
+        (ref) => customerGroupById(ref as CustomerGroupByIdRef, id),
+        from: customerGroupByIdProvider,
+        name: r'customerGroupByIdProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$customerGroupByIdHash,
+        dependencies: CustomerGroupByIdFamily._dependencies,
+        allTransitiveDependencies:
+            CustomerGroupByIdFamily._allTransitiveDependencies,
+        id: id,
+      );
 
   CustomerGroupByIdProvider._internal(
     super._createNotifier, {
@@ -491,21 +462,15 @@ class CustomerGroupsByDateFamily
   /// Returns a list of customer groups that have the same date and time as the input.
   ///
   /// Copied from [customerGroupsByDate].
-  CustomerGroupsByDateProvider call(
-    DateTime date,
-  ) {
-    return CustomerGroupsByDateProvider(
-      date,
-    );
+  CustomerGroupsByDateProvider call(DateTime date) {
+    return CustomerGroupsByDateProvider(date);
   }
 
   @override
   CustomerGroupsByDateProvider getProviderOverride(
     covariant CustomerGroupsByDateProvider provider,
   ) {
-    return call(
-      provider.date,
-    );
+    return call(provider.date);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -531,24 +496,19 @@ class CustomerGroupsByDateProvider
   /// Returns a list of customer groups that have the same date and time as the input.
   ///
   /// Copied from [customerGroupsByDate].
-  CustomerGroupsByDateProvider(
-    DateTime date,
-  ) : this._internal(
-          (ref) => customerGroupsByDate(
-            ref as CustomerGroupsByDateRef,
-            date,
-          ),
-          from: customerGroupsByDateProvider,
-          name: r'customerGroupsByDateProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$customerGroupsByDateHash,
-          dependencies: CustomerGroupsByDateFamily._dependencies,
-          allTransitiveDependencies:
-              CustomerGroupsByDateFamily._allTransitiveDependencies,
-          date: date,
-        );
+  CustomerGroupsByDateProvider(DateTime date)
+    : this._internal(
+        (ref) => customerGroupsByDate(ref as CustomerGroupsByDateRef, date),
+        from: customerGroupsByDateProvider,
+        name: r'customerGroupsByDateProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$customerGroupsByDateHash,
+        dependencies: CustomerGroupsByDateFamily._dependencies,
+        allTransitiveDependencies:
+            CustomerGroupsByDateFamily._allTransitiveDependencies,
+        date: date,
+      );
 
   CustomerGroupsByDateProvider._internal(
     super._createNotifier, {
@@ -565,7 +525,7 @@ class CustomerGroupsByDateProvider
   @override
   Override overrideWith(
     Stream<List<CustomerGroup>> Function(CustomerGroupsByDateRef provider)
-        create,
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -643,20 +603,14 @@ class CustomerGroupsByDayFamily
     required DateTime date,
     required bool showEmpty,
   }) {
-    return CustomerGroupsByDayProvider(
-      date: date,
-      showEmpty: showEmpty,
-    );
+    return CustomerGroupsByDayProvider(date: date, showEmpty: showEmpty);
   }
 
   @override
   CustomerGroupsByDayProvider getProviderOverride(
     covariant CustomerGroupsByDayProvider provider,
   ) {
-    return call(
-      date: provider.date,
-      showEmpty: provider.showEmpty,
-    );
+    return call(date: provider.date, showEmpty: provider.showEmpty);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -682,27 +636,24 @@ class CustomerGroupsByDayProvider
   /// Returns a list of customer groups that have the same date.
   ///
   /// Copied from [customerGroupsByDay].
-  CustomerGroupsByDayProvider({
-    required DateTime date,
-    required bool showEmpty,
-  }) : this._internal(
-          (ref) => customerGroupsByDay(
-            ref as CustomerGroupsByDayRef,
-            date: date,
-            showEmpty: showEmpty,
-          ),
-          from: customerGroupsByDayProvider,
-          name: r'customerGroupsByDayProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$customerGroupsByDayHash,
-          dependencies: CustomerGroupsByDayFamily._dependencies,
-          allTransitiveDependencies:
-              CustomerGroupsByDayFamily._allTransitiveDependencies,
+  CustomerGroupsByDayProvider({required DateTime date, required bool showEmpty})
+    : this._internal(
+        (ref) => customerGroupsByDay(
+          ref as CustomerGroupsByDayRef,
           date: date,
           showEmpty: showEmpty,
-        );
+        ),
+        from: customerGroupsByDayProvider,
+        name: r'customerGroupsByDayProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$customerGroupsByDayHash,
+        dependencies: CustomerGroupsByDayFamily._dependencies,
+        allTransitiveDependencies:
+            CustomerGroupsByDayFamily._allTransitiveDependencies,
+        date: date,
+        showEmpty: showEmpty,
+      );
 
   CustomerGroupsByDayProvider._internal(
     super._createNotifier, {
@@ -721,7 +672,7 @@ class CustomerGroupsByDayProvider
   @override
   Override overrideWith(
     Stream<List<CustomerGroup>> Function(CustomerGroupsByDayRef provider)
-        create,
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -803,24 +754,15 @@ class CustomersByBookingIdFamily extends Family<AsyncValue<List<Customer>>> {
   /// Gets all the customers assigned to a certain booking
   ///
   /// Copied from [customersByBookingId].
-  CustomersByBookingIdProvider call(
-    String bookingId, {
-    String? account,
-  }) {
-    return CustomersByBookingIdProvider(
-      bookingId,
-      account: account,
-    );
+  CustomersByBookingIdProvider call(String bookingId, {String? account}) {
+    return CustomersByBookingIdProvider(bookingId, account: account);
   }
 
   @override
   CustomersByBookingIdProvider getProviderOverride(
     covariant CustomersByBookingIdProvider provider,
   ) {
-    return call(
-      provider.bookingId,
-      account: provider.account,
-    );
+    return call(provider.bookingId, account: provider.account);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -846,27 +788,24 @@ class CustomersByBookingIdProvider
   /// Gets all the customers assigned to a certain booking
   ///
   /// Copied from [customersByBookingId].
-  CustomersByBookingIdProvider(
-    String bookingId, {
-    String? account,
-  }) : this._internal(
-          (ref) => customersByBookingId(
-            ref as CustomersByBookingIdRef,
-            bookingId,
-            account: account,
-          ),
-          from: customersByBookingIdProvider,
-          name: r'customersByBookingIdProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$customersByBookingIdHash,
-          dependencies: CustomersByBookingIdFamily._dependencies,
-          allTransitiveDependencies:
-              CustomersByBookingIdFamily._allTransitiveDependencies,
-          bookingId: bookingId,
+  CustomersByBookingIdProvider(String bookingId, {String? account})
+    : this._internal(
+        (ref) => customersByBookingId(
+          ref as CustomersByBookingIdRef,
+          bookingId,
           account: account,
-        );
+        ),
+        from: customersByBookingIdProvider,
+        name: r'customersByBookingIdProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$customersByBookingIdHash,
+        dependencies: CustomersByBookingIdFamily._dependencies,
+        allTransitiveDependencies:
+            CustomersByBookingIdFamily._allTransitiveDependencies,
+        bookingId: bookingId,
+        account: account,
+      );
 
   CustomersByBookingIdProvider._internal(
     super._createNotifier, {
@@ -980,10 +919,7 @@ class CustomersByCustomerGroupIdFamily
   CustomersByCustomerGroupIdProvider getProviderOverride(
     covariant CustomersByCustomerGroupIdProvider provider,
   ) {
-    return call(
-      provider.customerGroupId,
-      account: provider.account,
-    );
+    return call(provider.customerGroupId, account: provider.account);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -1009,27 +945,24 @@ class CustomersByCustomerGroupIdProvider
   /// Gets all the customers assigned to a customer group
   ///
   /// Copied from [customersByCustomerGroupId].
-  CustomersByCustomerGroupIdProvider(
-    String customerGroupId, {
-    String? account,
-  }) : this._internal(
-          (ref) => customersByCustomerGroupId(
-            ref as CustomersByCustomerGroupIdRef,
-            customerGroupId,
-            account: account,
-          ),
-          from: customersByCustomerGroupIdProvider,
-          name: r'customersByCustomerGroupIdProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$customersByCustomerGroupIdHash,
-          dependencies: CustomersByCustomerGroupIdFamily._dependencies,
-          allTransitiveDependencies:
-              CustomersByCustomerGroupIdFamily._allTransitiveDependencies,
-          customerGroupId: customerGroupId,
+  CustomersByCustomerGroupIdProvider(String customerGroupId, {String? account})
+    : this._internal(
+        (ref) => customersByCustomerGroupId(
+          ref as CustomersByCustomerGroupIdRef,
+          customerGroupId,
           account: account,
-        );
+        ),
+        from: customersByCustomerGroupIdProvider,
+        name: r'customersByCustomerGroupIdProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$customersByCustomerGroupIdHash,
+        dependencies: CustomersByCustomerGroupIdFamily._dependencies,
+        allTransitiveDependencies:
+            CustomersByCustomerGroupIdFamily._allTransitiveDependencies,
+        customerGroupId: customerGroupId,
+        account: account,
+      );
 
   CustomersByCustomerGroupIdProvider._internal(
     super._createNotifier, {
@@ -1048,7 +981,7 @@ class CustomersByCustomerGroupIdProvider
   @override
   Override overrideWith(
     Stream<List<Customer>> Function(CustomersByCustomerGroupIdRef provider)
-        create,
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -1124,24 +1057,15 @@ class BookingsByCustomerGroupIdFamily
   const BookingsByCustomerGroupIdFamily();
 
   /// See also [bookingsByCustomerGroupId].
-  BookingsByCustomerGroupIdProvider call(
-    String id, {
-    String? account,
-  }) {
-    return BookingsByCustomerGroupIdProvider(
-      id,
-      account: account,
-    );
+  BookingsByCustomerGroupIdProvider call(String id, {String? account}) {
+    return BookingsByCustomerGroupIdProvider(id, account: account);
   }
 
   @override
   BookingsByCustomerGroupIdProvider getProviderOverride(
     covariant BookingsByCustomerGroupIdProvider provider,
   ) {
-    return call(
-      provider.id,
-      account: provider.account,
-    );
+    return call(provider.id, account: provider.account);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -1163,27 +1087,24 @@ class BookingsByCustomerGroupIdFamily
 class BookingsByCustomerGroupIdProvider
     extends AutoDisposeStreamProvider<List<Booking>> {
   /// See also [bookingsByCustomerGroupId].
-  BookingsByCustomerGroupIdProvider(
-    String id, {
-    String? account,
-  }) : this._internal(
-          (ref) => bookingsByCustomerGroupId(
-            ref as BookingsByCustomerGroupIdRef,
-            id,
-            account: account,
-          ),
-          from: bookingsByCustomerGroupIdProvider,
-          name: r'bookingsByCustomerGroupIdProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$bookingsByCustomerGroupIdHash,
-          dependencies: BookingsByCustomerGroupIdFamily._dependencies,
-          allTransitiveDependencies:
-              BookingsByCustomerGroupIdFamily._allTransitiveDependencies,
-          id: id,
+  BookingsByCustomerGroupIdProvider(String id, {String? account})
+    : this._internal(
+        (ref) => bookingsByCustomerGroupId(
+          ref as BookingsByCustomerGroupIdRef,
+          id,
           account: account,
-        );
+        ),
+        from: bookingsByCustomerGroupIdProvider,
+        name: r'bookingsByCustomerGroupIdProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$bookingsByCustomerGroupIdHash,
+        dependencies: BookingsByCustomerGroupIdFamily._dependencies,
+        allTransitiveDependencies:
+            BookingsByCustomerGroupIdFamily._allTransitiveDependencies,
+        id: id,
+        account: account,
+      );
 
   BookingsByCustomerGroupIdProvider._internal(
     super._createNotifier, {
@@ -1202,7 +1123,7 @@ class BookingsByCustomerGroupIdProvider
   @override
   Override overrideWith(
     Stream<List<Booking>> Function(BookingsByCustomerGroupIdRef provider)
-        create,
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -1291,10 +1212,7 @@ class FutureCustomerGroupsFamily
   FutureCustomerGroupsProvider getProviderOverride(
     covariant FutureCustomerGroupsProvider provider,
   ) {
-    return call(
-      untilDate: provider.untilDate,
-      showEmpty: provider.showEmpty,
-    );
+    return call(untilDate: provider.untilDate, showEmpty: provider.showEmpty);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -1320,23 +1238,22 @@ class FutureCustomerGroupsProvider
     required DateTime? untilDate,
     required bool showEmpty,
   }) : this._internal(
-          (ref) => futureCustomerGroups(
-            ref as FutureCustomerGroupsRef,
-            untilDate: untilDate,
-            showEmpty: showEmpty,
-          ),
-          from: futureCustomerGroupsProvider,
-          name: r'futureCustomerGroupsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$futureCustomerGroupsHash,
-          dependencies: FutureCustomerGroupsFamily._dependencies,
-          allTransitiveDependencies:
-              FutureCustomerGroupsFamily._allTransitiveDependencies,
-          untilDate: untilDate,
-          showEmpty: showEmpty,
-        );
+         (ref) => futureCustomerGroups(
+           ref as FutureCustomerGroupsRef,
+           untilDate: untilDate,
+           showEmpty: showEmpty,
+         ),
+         from: futureCustomerGroupsProvider,
+         name: r'futureCustomerGroupsProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$futureCustomerGroupsHash,
+         dependencies: FutureCustomerGroupsFamily._dependencies,
+         allTransitiveDependencies:
+             FutureCustomerGroupsFamily._allTransitiveDependencies,
+         untilDate: untilDate,
+         showEmpty: showEmpty,
+       );
 
   FutureCustomerGroupsProvider._internal(
     super._createNotifier, {
@@ -1355,7 +1272,7 @@ class FutureCustomerGroupsProvider
   @override
   Override overrideWith(
     Stream<List<CustomerGroup>> Function(FutureCustomerGroupsRef provider)
-        create,
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -1415,5 +1332,6 @@ class _FutureCustomerGroupsProviderElement
   @override
   bool get showEmpty => (origin as FutureCustomerGroupsProvider).showEmpty;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

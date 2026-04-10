@@ -10,17 +10,19 @@ _TeamGroupWorkspace _$TeamGroupWorkspaceFromJson(Map<String, dynamic> json) =>
     _TeamGroupWorkspace(
       id: json['id'] as String? ?? "",
       name: json['name'] as String? ?? "",
-      date: const NonNullableTimestampConverter()
-          .fromJson(json['date'] as Timestamp),
+      date: const NonNullableTimestampConverter().fromJson(
+        json['date'] as Timestamp,
+      ),
       distance: (json['distance'] as num?)?.toDouble() ?? 0,
       notes: json['notes'] as String? ?? "",
-      teams: (json['teams'] as List<dynamic>?)
+      teams:
+          (json['teams'] as List<dynamic>?)
               ?.map((e) => TeamWorkspace.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
       runType:
           $enumDecodeNullable(_$TeamGroupRunTypeEnumMap, json['runType']) ??
-              TeamGroupRunType.unknown,
+          TeamGroupRunType.unknown,
     );
 
 Map<String, dynamic> _$TeamGroupWorkspaceToJson(_TeamGroupWorkspace instance) =>
@@ -46,7 +48,8 @@ _TeamWorkspace _$TeamWorkspaceFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String? ?? "",
       id: json['id'] as String,
       capacity: (json['capacity'] as num?)?.toInt() ?? 0,
-      dogPairs: (json['dogPairs'] as List<dynamic>?)
+      dogPairs:
+          (json['dogPairs'] as List<dynamic>?)
               ?.map((e) => DogPairWorkspace.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
@@ -128,21 +131,15 @@ class TeamGroupByIdFamily extends Family<AsyncValue<TeamGroup?>> {
   const TeamGroupByIdFamily();
 
   /// See also [teamGroupById].
-  TeamGroupByIdProvider call(
-    String id,
-  ) {
-    return TeamGroupByIdProvider(
-      id,
-    );
+  TeamGroupByIdProvider call(String id) {
+    return TeamGroupByIdProvider(id);
   }
 
   @override
   TeamGroupByIdProvider getProviderOverride(
     covariant TeamGroupByIdProvider provider,
   ) {
-    return call(
-      provider.id,
-    );
+    return call(provider.id);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -163,24 +160,19 @@ class TeamGroupByIdFamily extends Family<AsyncValue<TeamGroup?>> {
 /// See also [teamGroupById].
 class TeamGroupByIdProvider extends AutoDisposeFutureProvider<TeamGroup?> {
   /// See also [teamGroupById].
-  TeamGroupByIdProvider(
-    String id,
-  ) : this._internal(
-          (ref) => teamGroupById(
-            ref as TeamGroupByIdRef,
-            id,
-          ),
-          from: teamGroupByIdProvider,
-          name: r'teamGroupByIdProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$teamGroupByIdHash,
-          dependencies: TeamGroupByIdFamily._dependencies,
-          allTransitiveDependencies:
-              TeamGroupByIdFamily._allTransitiveDependencies,
-          id: id,
-        );
+  TeamGroupByIdProvider(String id)
+    : this._internal(
+        (ref) => teamGroupById(ref as TeamGroupByIdRef, id),
+        from: teamGroupByIdProvider,
+        name: r'teamGroupByIdProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$teamGroupByIdHash,
+        dependencies: TeamGroupByIdFamily._dependencies,
+        allTransitiveDependencies:
+            TeamGroupByIdFamily._allTransitiveDependencies,
+        id: id,
+      );
 
   TeamGroupByIdProvider._internal(
     super._createNotifier, {
@@ -239,7 +231,8 @@ mixin TeamGroupByIdRef on AutoDisposeFutureProviderRef<TeamGroup?> {
 }
 
 class _TeamGroupByIdProviderElement
-    extends AutoDisposeFutureProviderElement<TeamGroup?> with TeamGroupByIdRef {
+    extends AutoDisposeFutureProviderElement<TeamGroup?>
+    with TeamGroupByIdRef {
   _TeamGroupByIdProviderElement(super.provider);
 
   @override
@@ -268,21 +261,15 @@ class CustomerGroupForTeamgroupFamily
   /// Gets all the customer groups assigned to this teamgroup.
   ///
   /// Copied from [customerGroupForTeamgroup].
-  CustomerGroupForTeamgroupProvider call(
-    String teamGroupId,
-  ) {
-    return CustomerGroupForTeamgroupProvider(
-      teamGroupId,
-    );
+  CustomerGroupForTeamgroupProvider call(String teamGroupId) {
+    return CustomerGroupForTeamgroupProvider(teamGroupId);
   }
 
   @override
   CustomerGroupForTeamgroupProvider getProviderOverride(
     covariant CustomerGroupForTeamgroupProvider provider,
   ) {
-    return call(
-      provider.teamGroupId,
-    );
+    return call(provider.teamGroupId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -308,24 +295,22 @@ class CustomerGroupForTeamgroupProvider
   /// Gets all the customer groups assigned to this teamgroup.
   ///
   /// Copied from [customerGroupForTeamgroup].
-  CustomerGroupForTeamgroupProvider(
-    String teamGroupId,
-  ) : this._internal(
-          (ref) => customerGroupForTeamgroup(
-            ref as CustomerGroupForTeamgroupRef,
-            teamGroupId,
-          ),
-          from: customerGroupForTeamgroupProvider,
-          name: r'customerGroupForTeamgroupProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$customerGroupForTeamgroupHash,
-          dependencies: CustomerGroupForTeamgroupFamily._dependencies,
-          allTransitiveDependencies:
-              CustomerGroupForTeamgroupFamily._allTransitiveDependencies,
-          teamGroupId: teamGroupId,
-        );
+  CustomerGroupForTeamgroupProvider(String teamGroupId)
+    : this._internal(
+        (ref) => customerGroupForTeamgroup(
+          ref as CustomerGroupForTeamgroupRef,
+          teamGroupId,
+        ),
+        from: customerGroupForTeamgroupProvider,
+        name: r'customerGroupForTeamgroupProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$customerGroupForTeamgroupHash,
+        dependencies: CustomerGroupForTeamgroupFamily._dependencies,
+        allTransitiveDependencies:
+            CustomerGroupForTeamgroupFamily._allTransitiveDependencies,
+        teamGroupId: teamGroupId,
+      );
 
   CustomerGroupForTeamgroupProvider._internal(
     super._createNotifier, {
@@ -342,7 +327,7 @@ class CustomerGroupForTeamgroupProvider
   @override
   Override overrideWith(
     Stream<CustomerGroup?> Function(CustomerGroupForTeamgroupRef provider)
-        create,
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -402,14 +387,14 @@ String _$canPopTeamGroupHash() => r'c9af7216c65b52eed3154435651dc810e0585519';
 @ProviderFor(CanPopTeamGroup)
 final canPopTeamGroupProvider =
     AutoDisposeNotifierProvider<CanPopTeamGroup, bool>.internal(
-  CanPopTeamGroup.new,
-  name: r'canPopTeamGroupProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$canPopTeamGroupHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      CanPopTeamGroup.new,
+      name: r'canPopTeamGroupProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$canPopTeamGroupHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$CanPopTeamGroup = AutoDisposeNotifier<bool>;
 String _$customerAssignHash() => r'15eeed45ea1712fa986f1eae1a2380cd6591de91';
@@ -418,9 +403,7 @@ abstract class _$CustomerAssign
     extends BuildlessAutoDisposeAsyncNotifier<CustomerGroupWorkspace?> {
   late final String? teamGroupId;
 
-  FutureOr<CustomerGroupWorkspace?> build(
-    String? teamGroupId,
-  );
+  FutureOr<CustomerGroupWorkspace?> build(String? teamGroupId);
 }
 
 /// See also [CustomerAssign].
@@ -433,21 +416,15 @@ class CustomerAssignFamily extends Family<AsyncValue<CustomerGroupWorkspace?>> {
   const CustomerAssignFamily();
 
   /// See also [CustomerAssign].
-  CustomerAssignProvider call(
-    String? teamGroupId,
-  ) {
-    return CustomerAssignProvider(
-      teamGroupId,
-    );
+  CustomerAssignProvider call(String? teamGroupId) {
+    return CustomerAssignProvider(teamGroupId);
   }
 
   @override
   CustomerAssignProvider getProviderOverride(
     covariant CustomerAssignProvider provider,
   ) {
-    return call(
-      provider.teamGroupId,
-    );
+    return call(provider.teamGroupId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -466,24 +443,26 @@ class CustomerAssignFamily extends Family<AsyncValue<CustomerGroupWorkspace?>> {
 }
 
 /// See also [CustomerAssign].
-class CustomerAssignProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    CustomerAssign, CustomerGroupWorkspace?> {
+class CustomerAssignProvider
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          CustomerAssign,
+          CustomerGroupWorkspace?
+        > {
   /// See also [CustomerAssign].
-  CustomerAssignProvider(
-    String? teamGroupId,
-  ) : this._internal(
-          () => CustomerAssign()..teamGroupId = teamGroupId,
-          from: customerAssignProvider,
-          name: r'customerAssignProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$customerAssignHash,
-          dependencies: CustomerAssignFamily._dependencies,
-          allTransitiveDependencies:
-              CustomerAssignFamily._allTransitiveDependencies,
-          teamGroupId: teamGroupId,
-        );
+  CustomerAssignProvider(String? teamGroupId)
+    : this._internal(
+        () => CustomerAssign()..teamGroupId = teamGroupId,
+        from: customerAssignProvider,
+        name: r'customerAssignProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$customerAssignHash,
+        dependencies: CustomerAssignFamily._dependencies,
+        allTransitiveDependencies:
+            CustomerAssignFamily._allTransitiveDependencies,
+        teamGroupId: teamGroupId,
+      );
 
   CustomerAssignProvider._internal(
     super._createNotifier, {
@@ -501,9 +480,7 @@ class CustomerAssignProvider extends AutoDisposeAsyncNotifierProviderImpl<
   FutureOr<CustomerGroupWorkspace?> runNotifierBuild(
     covariant CustomerAssign notifier,
   ) {
-    return notifier.build(
-      teamGroupId,
-    );
+    return notifier.build(teamGroupId);
   }
 
   @override
@@ -523,8 +500,11 @@ class CustomerAssignProvider extends AutoDisposeAsyncNotifierProviderImpl<
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<CustomerAssign,
-      CustomerGroupWorkspace?> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<
+    CustomerAssign,
+    CustomerGroupWorkspace?
+  >
+  createElement() {
     return _CustomerAssignProviderElement(this);
   }
 
@@ -551,8 +531,12 @@ mixin CustomerAssignRef
 }
 
 class _CustomerAssignProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<CustomerAssign,
-        CustomerGroupWorkspace?> with CustomerAssignRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          CustomerAssign,
+          CustomerGroupWorkspace?
+        >
+    with CustomerAssignRef {
   _CustomerAssignProviderElement(super.provider);
 
   @override
@@ -565,9 +549,7 @@ abstract class _$CreateTeamGroup
     extends BuildlessAutoDisposeAsyncNotifier<TeamGroupWorkspace> {
   late final String? teamGroupId;
 
-  FutureOr<TeamGroupWorkspace> build(
-    String? teamGroupId,
-  );
+  FutureOr<TeamGroupWorkspace> build(String? teamGroupId);
 }
 
 /// The teamgroup that is being built.
@@ -588,21 +570,15 @@ class CreateTeamGroupFamily extends Family<AsyncValue<TeamGroupWorkspace>> {
   /// The teamgroup that is being built.
   ///
   /// Copied from [CreateTeamGroup].
-  CreateTeamGroupProvider call(
-    String? teamGroupId,
-  ) {
-    return CreateTeamGroupProvider(
-      teamGroupId,
-    );
+  CreateTeamGroupProvider call(String? teamGroupId) {
+    return CreateTeamGroupProvider(teamGroupId);
   }
 
   @override
   CreateTeamGroupProvider getProviderOverride(
     covariant CreateTeamGroupProvider provider,
   ) {
-    return call(
-      provider.teamGroupId,
-    );
+    return call(provider.teamGroupId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -623,26 +599,28 @@ class CreateTeamGroupFamily extends Family<AsyncValue<TeamGroupWorkspace>> {
 /// The teamgroup that is being built.
 ///
 /// Copied from [CreateTeamGroup].
-class CreateTeamGroupProvider extends AutoDisposeAsyncNotifierProviderImpl<
-    CreateTeamGroup, TeamGroupWorkspace> {
+class CreateTeamGroupProvider
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          CreateTeamGroup,
+          TeamGroupWorkspace
+        > {
   /// The teamgroup that is being built.
   ///
   /// Copied from [CreateTeamGroup].
-  CreateTeamGroupProvider(
-    String? teamGroupId,
-  ) : this._internal(
-          () => CreateTeamGroup()..teamGroupId = teamGroupId,
-          from: createTeamGroupProvider,
-          name: r'createTeamGroupProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$createTeamGroupHash,
-          dependencies: CreateTeamGroupFamily._dependencies,
-          allTransitiveDependencies:
-              CreateTeamGroupFamily._allTransitiveDependencies,
-          teamGroupId: teamGroupId,
-        );
+  CreateTeamGroupProvider(String? teamGroupId)
+    : this._internal(
+        () => CreateTeamGroup()..teamGroupId = teamGroupId,
+        from: createTeamGroupProvider,
+        name: r'createTeamGroupProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$createTeamGroupHash,
+        dependencies: CreateTeamGroupFamily._dependencies,
+        allTransitiveDependencies:
+            CreateTeamGroupFamily._allTransitiveDependencies,
+        teamGroupId: teamGroupId,
+      );
 
   CreateTeamGroupProvider._internal(
     super._createNotifier, {
@@ -660,9 +638,7 @@ class CreateTeamGroupProvider extends AutoDisposeAsyncNotifierProviderImpl<
   FutureOr<TeamGroupWorkspace> runNotifierBuild(
     covariant CreateTeamGroup notifier,
   ) {
-    return notifier.build(
-      teamGroupId,
-    );
+    return notifier.build(teamGroupId);
   }
 
   @override
@@ -683,7 +659,7 @@ class CreateTeamGroupProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   AutoDisposeAsyncNotifierProviderElement<CreateTeamGroup, TeamGroupWorkspace>
-      createElement() {
+  createElement() {
     return _CreateTeamGroupProviderElement(this);
   }
 
@@ -710,8 +686,12 @@ mixin CreateTeamGroupRef
 }
 
 class _CreateTeamGroupProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<CreateTeamGroup,
-        TeamGroupWorkspace> with CreateTeamGroupRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          CreateTeamGroup,
+          TeamGroupWorkspace
+        >
+    with CreateTeamGroupRef {
   _CreateTeamGroupProviderElement(super.provider);
 
   @override
@@ -724,9 +704,7 @@ abstract class _$RunningDogs
     extends BuildlessAutoDisposeNotifier<List<String>> {
   late final TeamGroupWorkspace group;
 
-  List<String> build(
-    TeamGroupWorkspace group,
-  );
+  List<String> build(TeamGroupWorkspace group);
 }
 
 /// The ids of the dogs that are currently running.
@@ -755,21 +733,15 @@ class RunningDogsFamily extends Family<List<String>> {
   /// Used to make the unavailable in the dropdown selection.
   ///
   /// Copied from [RunningDogs].
-  RunningDogsProvider call(
-    TeamGroupWorkspace group,
-  ) {
-    return RunningDogsProvider(
-      group,
-    );
+  RunningDogsProvider call(TeamGroupWorkspace group) {
+    return RunningDogsProvider(group);
   }
 
   @override
   RunningDogsProvider getProviderOverride(
     covariant RunningDogsProvider provider,
   ) {
-    return call(
-      provider.group,
-    );
+    return call(provider.group);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -799,21 +771,18 @@ class RunningDogsProvider
   /// Used to make the unavailable in the dropdown selection.
   ///
   /// Copied from [RunningDogs].
-  RunningDogsProvider(
-    TeamGroupWorkspace group,
-  ) : this._internal(
-          () => RunningDogs()..group = group,
-          from: runningDogsProvider,
-          name: r'runningDogsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$runningDogsHash,
-          dependencies: RunningDogsFamily._dependencies,
-          allTransitiveDependencies:
-              RunningDogsFamily._allTransitiveDependencies,
-          group: group,
-        );
+  RunningDogsProvider(TeamGroupWorkspace group)
+    : this._internal(
+        () => RunningDogs()..group = group,
+        from: runningDogsProvider,
+        name: r'runningDogsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$runningDogsHash,
+        dependencies: RunningDogsFamily._dependencies,
+        allTransitiveDependencies: RunningDogsFamily._allTransitiveDependencies,
+        group: group,
+      );
 
   RunningDogsProvider._internal(
     super._createNotifier, {
@@ -828,12 +797,8 @@ class RunningDogsProvider
   final TeamGroupWorkspace group;
 
   @override
-  List<String> runNotifierBuild(
-    covariant RunningDogs notifier,
-  ) {
-    return notifier.build(
-      group,
-    );
+  List<String> runNotifierBuild(covariant RunningDogs notifier) {
+    return notifier.build(group);
   }
 
   @override
@@ -854,7 +819,7 @@ class RunningDogsProvider
 
   @override
   AutoDisposeNotifierProviderElement<RunningDogs, List<String>>
-      createElement() {
+  createElement() {
     return _RunningDogsProviderElement(this);
   }
 
@@ -893,16 +858,19 @@ String _$distanceControllerHash() =>
 
 /// See also [DistanceController].
 @ProviderFor(DistanceController)
-final distanceControllerProvider = AutoDisposeNotifierProvider<
-    DistanceController, TextEditingController>.internal(
-  DistanceController.new,
-  name: r'distanceControllerProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$distanceControllerHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final distanceControllerProvider =
+    AutoDisposeNotifierProvider<
+      DistanceController,
+      TextEditingController
+    >.internal(
+      DistanceController.new,
+      name: r'distanceControllerProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$distanceControllerHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$DistanceController = AutoDisposeNotifier<TextEditingController>;
 String _$isReadOnlyHash() => r'8700cc1278bf20045d8a914afa379a489b8a9504';
@@ -911,13 +879,14 @@ String _$isReadOnlyHash() => r'8700cc1278bf20045d8a914afa379a489b8a9504';
 @ProviderFor(IsReadOnly)
 final isReadOnlyProvider =
     AutoDisposeNotifierProvider<IsReadOnly, bool>.internal(
-  IsReadOnly.new,
-  name: r'isReadOnlyProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$isReadOnlyHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      IsReadOnly.new,
+      name: r'isReadOnlyProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$isReadOnlyHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$IsReadOnly = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint

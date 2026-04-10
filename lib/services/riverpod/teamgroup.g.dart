@@ -47,21 +47,15 @@ class TeamGroupFromIdFamily extends Family<AsyncValue<TeamGroup>> {
   /// Returns the TeamGroup element from its id from the db
   ///
   /// Copied from [teamGroupFromId].
-  TeamGroupFromIdProvider call(
-    String id,
-  ) {
-    return TeamGroupFromIdProvider(
-      id,
-    );
+  TeamGroupFromIdProvider call(String id) {
+    return TeamGroupFromIdProvider(id);
   }
 
   @override
   TeamGroupFromIdProvider getProviderOverride(
     covariant TeamGroupFromIdProvider provider,
   ) {
-    return call(
-      provider.id,
-    );
+    return call(provider.id);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -86,24 +80,19 @@ class TeamGroupFromIdProvider extends AutoDisposeStreamProvider<TeamGroup> {
   /// Returns the TeamGroup element from its id from the db
   ///
   /// Copied from [teamGroupFromId].
-  TeamGroupFromIdProvider(
-    String id,
-  ) : this._internal(
-          (ref) => teamGroupFromId(
-            ref as TeamGroupFromIdRef,
-            id,
-          ),
-          from: teamGroupFromIdProvider,
-          name: r'teamGroupFromIdProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$teamGroupFromIdHash,
-          dependencies: TeamGroupFromIdFamily._dependencies,
-          allTransitiveDependencies:
-              TeamGroupFromIdFamily._allTransitiveDependencies,
-          id: id,
-        );
+  TeamGroupFromIdProvider(String id)
+    : this._internal(
+        (ref) => teamGroupFromId(ref as TeamGroupFromIdRef, id),
+        from: teamGroupFromIdProvider,
+        name: r'teamGroupFromIdProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$teamGroupFromIdHash,
+        dependencies: TeamGroupFromIdFamily._dependencies,
+        allTransitiveDependencies:
+            TeamGroupFromIdFamily._allTransitiveDependencies,
+        id: id,
+      );
 
   TeamGroupFromIdProvider._internal(
     super._createNotifier, {
@@ -190,21 +179,15 @@ class TeamsInTeamgroupFamily extends Family<AsyncValue<List<Team>>> {
   /// The list of teams in a teamgroup
   ///
   /// Copied from [teamsInTeamgroup].
-  TeamsInTeamgroupProvider call(
-    String teamgroupId,
-  ) {
-    return TeamsInTeamgroupProvider(
-      teamgroupId,
-    );
+  TeamsInTeamgroupProvider call(String teamgroupId) {
+    return TeamsInTeamgroupProvider(teamgroupId);
   }
 
   @override
   TeamsInTeamgroupProvider getProviderOverride(
     covariant TeamsInTeamgroupProvider provider,
   ) {
-    return call(
-      provider.teamgroupId,
-    );
+    return call(provider.teamgroupId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -229,24 +212,19 @@ class TeamsInTeamgroupProvider extends AutoDisposeStreamProvider<List<Team>> {
   /// The list of teams in a teamgroup
   ///
   /// Copied from [teamsInTeamgroup].
-  TeamsInTeamgroupProvider(
-    String teamgroupId,
-  ) : this._internal(
-          (ref) => teamsInTeamgroup(
-            ref as TeamsInTeamgroupRef,
-            teamgroupId,
-          ),
-          from: teamsInTeamgroupProvider,
-          name: r'teamsInTeamgroupProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$teamsInTeamgroupHash,
-          dependencies: TeamsInTeamgroupFamily._dependencies,
-          allTransitiveDependencies:
-              TeamsInTeamgroupFamily._allTransitiveDependencies,
-          teamgroupId: teamgroupId,
-        );
+  TeamsInTeamgroupProvider(String teamgroupId)
+    : this._internal(
+        (ref) => teamsInTeamgroup(ref as TeamsInTeamgroupRef, teamgroupId),
+        from: teamsInTeamgroupProvider,
+        name: r'teamsInTeamgroupProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$teamsInTeamgroupHash,
+        dependencies: TeamsInTeamgroupFamily._dependencies,
+        allTransitiveDependencies:
+            TeamsInTeamgroupFamily._allTransitiveDependencies,
+        teamgroupId: teamgroupId,
+      );
 
   TeamsInTeamgroupProvider._internal(
     super._createNotifier, {
@@ -334,24 +312,15 @@ class DogPairsInTeamFamily extends Family<AsyncValue<List<DogPair>>> {
   /// The list of dogpairs in a team
   ///
   /// Copied from [dogPairsInTeam].
-  DogPairsInTeamProvider call(
-    String teamgroupId,
-    String teamId,
-  ) {
-    return DogPairsInTeamProvider(
-      teamgroupId,
-      teamId,
-    );
+  DogPairsInTeamProvider call(String teamgroupId, String teamId) {
+    return DogPairsInTeamProvider(teamgroupId, teamId);
   }
 
   @override
   DogPairsInTeamProvider getProviderOverride(
     covariant DogPairsInTeamProvider provider,
   ) {
-    return call(
-      provider.teamgroupId,
-      provider.teamId,
-    );
+    return call(provider.teamgroupId, provider.teamId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -376,27 +345,20 @@ class DogPairsInTeamProvider extends AutoDisposeStreamProvider<List<DogPair>> {
   /// The list of dogpairs in a team
   ///
   /// Copied from [dogPairsInTeam].
-  DogPairsInTeamProvider(
-    String teamgroupId,
-    String teamId,
-  ) : this._internal(
-          (ref) => dogPairsInTeam(
-            ref as DogPairsInTeamRef,
-            teamgroupId,
-            teamId,
-          ),
-          from: dogPairsInTeamProvider,
-          name: r'dogPairsInTeamProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$dogPairsInTeamHash,
-          dependencies: DogPairsInTeamFamily._dependencies,
-          allTransitiveDependencies:
-              DogPairsInTeamFamily._allTransitiveDependencies,
-          teamgroupId: teamgroupId,
-          teamId: teamId,
-        );
+  DogPairsInTeamProvider(String teamgroupId, String teamId)
+    : this._internal(
+        (ref) => dogPairsInTeam(ref as DogPairsInTeamRef, teamgroupId, teamId),
+        from: dogPairsInTeamProvider,
+        name: r'dogPairsInTeamProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$dogPairsInTeamHash,
+        dependencies: DogPairsInTeamFamily._dependencies,
+        allTransitiveDependencies:
+            DogPairsInTeamFamily._allTransitiveDependencies,
+        teamgroupId: teamgroupId,
+        teamId: teamId,
+      );
 
   DogPairsInTeamProvider._internal(
     super._createNotifier, {
@@ -473,5 +435,6 @@ class _DogPairsInTeamProviderElement
   @override
   String get teamId => (origin as DogPairsInTeamProvider).teamId;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
