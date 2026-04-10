@@ -127,105 +127,142 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  KennelImageCard(image: image, isLoading: isLoading),
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(labelText: "Kennel name"),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Enter the kennel name";
-                      } else {
-                        return null;
-                      }
-                    },
-                  ),
-                  TextFormField(
-                    controller: _urlController,
-                    keyboardType: TextInputType.url,
-                    decoration: const InputDecoration(labelText: "Kennel URL"),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Enter the kennel URL";
-                      } else {
-                        return null;
-                      }
-                    },
-                  ),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: "Contact email",
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Enter the contact email";
-                      } else if (!value.contains("@") || !value.contains(".")) {
-                        return "Enter a valid email address";
-                      } else {
-                        return null;
-                      }
-                    },
-                  ),
-                  TextFormField(
-                    controller: _cancellationPolicyController,
-                    decoration: const InputDecoration(
-                      labelText: "Cancellation policy",
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Enter the cancellation policy";
-                      } else {
-                        return null;
-                      }
-                    },
-                  ),
-                  Row(
-                    children: [
-                      DropdownMenuFormField(
-                        dropdownMenuEntries: const [
-                          DropdownMenuEntry(value: true, label: "Yes"),
-                          DropdownMenuEntry(value: false, label: "No"),
-                        ],
-                        onSelected: (v) {
-                          setState(() {
-                            applyVat = v;
-                          });
-                        },
-                        validator: (v) {
-                          if (v == null) {
-                            return "Select if VAT should be applied";
-                          } else {
-                            return null;
-                          }
-                        },
-                        initialSelection: applyVat,
-                        label: const Text("Apply Finnish 25,5% VAT"),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .outlineVariant
+                            .withValues(alpha: 0.45),
                       ),
-                      const Tooltip(
-                        message:
-                            "Select YES if your business is in Finland to be charged VAT for your payments to Mush On. Select NO if you want reverse VAT.",
-                        triggerMode: TooltipTriggerMode.tap,
-                        child: Icon(
-                          Icons.help_outline,
-                          size: 20,
-                          color: Colors.grey,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 10,
+                      children: [
+                        KennelImageCard(image: image, isLoading: isLoading),
+                        TextFormField(
+                          controller: _nameController,
+                          decoration:
+                              const InputDecoration(labelText: "Kennel name"),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter the kennel name";
+                            } else {
+                              return null;
+                            }
+                          },
                         ),
-                      ),
-                    ],
-                  ),
-                  DropdownMenuFormField<String>(
-                    dropdownMenuEntries: _timezones
-                        .map((t) => DropdownMenuEntry(
-                              value: t.$1,
-                              label: t.$2,
-                            ))
-                        .toList(),
-                    onSelected: (v) => setState(() => _selectedTimezone = v),
-                    initialSelection:
-                        _selectedTimezone ?? kennelInfo?.timezone,
-                    validator: (v) => v == null ? "Select a timezone" : null,
-                    label: const Text("Kennel timezone"),
+                        TextFormField(
+                          controller: _urlController,
+                          keyboardType: TextInputType.url,
+                          decoration:
+                              const InputDecoration(labelText: "Kennel URL"),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter the kennel URL";
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(
+                            labelText: "Contact email",
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter the contact email";
+                            } else if (!value.contains("@") ||
+                                !value.contains(".")) {
+                              return "Enter a valid email address";
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
+                        TextFormField(
+                          controller: _cancellationPolicyController,
+                          decoration: const InputDecoration(
+                            labelText: "Cancellation policy",
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter the cancellation policy";
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
+                        Row(
+                          children: [
+                            DropdownMenuFormField(
+                              dropdownMenuEntries: const [
+                                DropdownMenuEntry(value: true, label: "Yes"),
+                                DropdownMenuEntry(value: false, label: "No"),
+                              ],
+                              onSelected: (v) {
+                                setState(() {
+                                  applyVat = v;
+                                });
+                              },
+                              validator: (v) {
+                                if (v == null) {
+                                  return "Select if VAT should be applied";
+                                } else {
+                                  return null;
+                                }
+                              },
+                              initialSelection: applyVat,
+                              label: const Text("Apply Finnish 25,5% VAT"),
+                            ),
+                            const Tooltip(
+                              message:
+                                  "Select YES if your business is in Finland to be charged VAT for your payments to Mush On. Select NO if you want reverse VAT.",
+                              triggerMode: TooltipTriggerMode.tap,
+                              child: Icon(
+                                Icons.help_outline,
+                                size: 20,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                        DropdownMenuFormField<String>(
+                          dropdownMenuEntries: _timezones
+                              .map((t) => DropdownMenuEntry(
+                                    value: t.$1,
+                                    label: t.$2,
+                                  ))
+                              .toList(),
+                          onSelected: (v) =>
+                              setState(() => _selectedTimezone = v),
+                          initialSelection:
+                              _selectedTimezone ?? kennelInfo?.timezone,
+                          validator: (v) =>
+                              v == null ? "Select a timezone" : null,
+                          label: const Text("Kennel timezone"),
+                        ),
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            FilledButton.icon(
+                              onPressed: () async => await _submitForm(),
+                              icon: const Icon(Icons.save_outlined),
+                              label: const Text("Save changes"),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   CustomerCustomFieldsMain(
                     tempCustomerFields: tempCustomerFields,
