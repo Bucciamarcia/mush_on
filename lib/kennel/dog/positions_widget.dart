@@ -6,8 +6,11 @@ import 'package:mush_on/shared/text_title.dart';
 class PositionsWidget extends StatelessWidget {
   final DogPositions positions;
   final Function(DogPositions) onPositionsChanged;
-  const PositionsWidget(
-      {super.key, required this.positions, required this.onPositionsChanged});
+  const PositionsWidget({
+    super.key,
+    required this.positions,
+    required this.onPositionsChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,22 +27,21 @@ class PositionsWidget extends StatelessWidget {
           children: [
             const TextTitle("Positions"),
             IconButton.outlined(
-                onPressed: () {
-                  showAdaptiveDialog(
-                      context: context,
-                      builder: (BuildContext context) => EditPositionsWidget(
-                            positions: positions,
-                            onPositionsChanged: (newPositions) =>
-                                onPositionsChanged(newPositions),
-                          ));
-                },
-                icon: const Icon(Icons.edit)),
+              onPressed: () {
+                showAdaptiveDialog(
+                  context: context,
+                  builder: (BuildContext context) => EditPositionsWidget(
+                    positions: positions,
+                    onPositionsChanged: (newPositions) =>
+                        onPositionsChanged(newPositions),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.edit),
+            ),
           ],
         ),
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          children: positionCards,
-        ),
+        Wrap(alignment: WrapAlignment.spaceBetween, children: positionCards),
       ],
     );
   }
@@ -48,8 +50,11 @@ class PositionsWidget extends StatelessWidget {
 class EditPositionsWidget extends StatelessWidget {
   final DogPositions positions;
   final Function(DogPositions) onPositionsChanged;
-  const EditPositionsWidget(
-      {super.key, required this.positions, required this.onPositionsChanged});
+  const EditPositionsWidget({
+    super.key,
+    required this.positions,
+    required this.onPositionsChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -64,15 +69,16 @@ class EditPositionsWidget extends StatelessWidget {
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Cancel")),
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Cancel"),
+        ),
         TextButton(
           onPressed: () {
             onPositionsChanged(newPositions);
             Navigator.of(context).pop();
           },
           child: const Text("OK"),
-        )
+        ),
       ],
     );
   }
@@ -81,8 +87,11 @@ class EditPositionsWidget extends StatelessWidget {
 class PositionToggleWidget extends StatefulWidget {
   final DogPositions positions;
   final Function(DogPositions) onPositionToggled;
-  const PositionToggleWidget(
-      {super.key, required this.positions, required this.onPositionToggled});
+  const PositionToggleWidget({
+    super.key,
+    required this.positions,
+    required this.onPositionToggled,
+  });
 
   @override
   State<PositionToggleWidget> createState() => _PositionToggleWidgetState();
@@ -121,13 +130,16 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
                     isLead = newValue;
                   });
                   logger.debug("New position for lead: $isLead");
-                  widget.onPositionToggled(DogPositions(
+                  widget.onPositionToggled(
+                    DogPositions(
                       lead: isLead,
                       swing: isSwing,
                       team: isTeam,
-                      wheel: isWheel));
+                      wheel: isWheel,
+                    ),
+                  );
                 },
-              )
+              ),
             ],
           ),
           const Divider(),
@@ -143,13 +155,16 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
                     isSwing = newValue;
                   });
                   logger.debug("New position for swing: $isSwing");
-                  widget.onPositionToggled(DogPositions(
+                  widget.onPositionToggled(
+                    DogPositions(
                       lead: isLead,
                       swing: isSwing,
                       team: isTeam,
-                      wheel: isWheel));
+                      wheel: isWheel,
+                    ),
+                  );
                 },
-              )
+              ),
             ],
           ),
           const Divider(),
@@ -165,13 +180,16 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
                     isTeam = newValue;
                   });
                   logger.debug("New position for team: $isTeam");
-                  widget.onPositionToggled(DogPositions(
+                  widget.onPositionToggled(
+                    DogPositions(
                       lead: isLead,
                       swing: isSwing,
                       team: isTeam,
-                      wheel: isWheel));
+                      wheel: isWheel,
+                    ),
+                  );
                 },
-              )
+              ),
             ],
           ),
           const Divider(),
@@ -187,15 +205,18 @@ class _PositionToggleWidgetState extends State<PositionToggleWidget> {
                     isWheel = newValue;
                   });
                   logger.debug("New position for wheel: $isWheel");
-                  widget.onPositionToggled(DogPositions(
+                  widget.onPositionToggled(
+                    DogPositions(
                       lead: isLead,
                       swing: isSwing,
                       team: isTeam,
-                      wheel: isWheel));
+                      wheel: isWheel,
+                    ),
+                  );
                 },
-              )
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -216,10 +237,7 @@ class PositionCard extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              Text(
-                position,
-                style: const TextStyle(fontSize: 16),
-              ),
+              Text(position, style: const TextStyle(fontSize: 16)),
               const SizedBox(width: 5),
               (canRun)
                   ? const Icon(Icons.check)

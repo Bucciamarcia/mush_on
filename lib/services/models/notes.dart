@@ -5,7 +5,6 @@ part "notes.freezed.dart";
 part "notes.g.dart";
 
 @freezed
-
 /// A dog note.
 abstract class SingleDogNote with _$SingleDogNote {
   const factory SingleDogNote({

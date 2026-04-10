@@ -75,7 +75,6 @@ class CanPopTeamGroup extends _$CanPopTeamGroup {
 }
 
 @freezed
-
 /// Incldues all the customer groups, bookings and customers involved in this teamgroup.
 sealed class CustomerGroupWorkspace with _$CustomerGroupWorkspace {
   const factory CustomerGroupWorkspace({
@@ -94,18 +93,23 @@ class CustomerAssign extends _$CustomerAssign {
     if (teamGroupId == null) {
       return null;
     }
-    CustomerGroup? customerGroup =
-        await ref.watch(customerGroupForTeamgroupProvider(teamGroupId).future);
+    CustomerGroup? customerGroup = await ref.watch(
+      customerGroupForTeamgroupProvider(teamGroupId).future,
+    );
     if (customerGroup == null) {
       return null;
     }
     List<Booking> bookings = [];
     List<Customer> customers = [];
-    var b = await ref
-        .watch(bookingsByCustomerGroupIdProvider(customerGroup.id).future);
+    var b = await ref.watch(
+      bookingsByCustomerGroupIdProvider(customerGroup.id).future,
+    );
     bookings.addAll(b);
-    customers.addAll(await ref
-        .watch(customersByCustomerGroupIdProvider(customerGroup.id).future));
+    customers.addAll(
+      await ref.watch(
+        customersByCustomerGroupIdProvider(customerGroup.id).future,
+      ),
+    );
     return CustomerGroupWorkspace(
       customerGroup: customerGroup,
       bookings: bookings,
@@ -113,10 +117,11 @@ class CustomerAssign extends _$CustomerAssign {
     );
   }
 
-  void createCustomerGroup(
-      {required DateTime dateTime,
-      required String teamGroupId,
-      required String tourTypeId}) {
+  void createCustomerGroup({
+    required DateTime dateTime,
+    required String teamGroupId,
+    required String tourTypeId,
+  }) {
     state = state.whenData(
       (data) => CustomerGroupWorkspace(
         customerGroup: CustomerGroup(
@@ -146,28 +151,25 @@ class CustomerAssign extends _$CustomerAssign {
   void removeCustomersFromTeam(String teamId) {
     var logger = BasicLogger();
     logger.info("Removing customers from team: $teamId");
-    state = state.whenData(
-      (data) {
-        if (data == null) {
-          return null;
+    state = state.whenData((data) {
+      if (data == null) {
+        return null;
+      }
+      List<Customer> customers = data.customers;
+      List<Customer> newCustomers = [];
+      for (var customer in customers) {
+        if (customer.teamId == teamId) {
+          newCustomers.add(customer.copyWith(teamId: null));
+        } else {
+          newCustomers.add(customer);
         }
-        List<Customer> customers = data.customers;
-        List<Customer> newCustomers = [];
-        for (var customer in customers) {
-          if (customer.teamId == teamId) {
-            newCustomers.add(customer.copyWith(teamId: null));
-          } else {
-            newCustomers.add(customer);
-          }
-        }
-        return data.copyWith(customers: newCustomers);
-      },
-    );
+      }
+      return data.copyWith(customers: newCustomers);
+    });
   }
 }
 
 @riverpod
-
 /// The teamgroup that is being built.
 class CreateTeamGroup extends _$CreateTeamGroup {
   @override
@@ -194,8 +196,10 @@ class CreateTeamGroup extends _$CreateTeamGroup {
       );
     } else {
       String account = await ref.watch(accountProvider.future);
-      return await DogsDbOperations()
-          .getTeamGroupWorkspace(account: account, id: teamGroupId);
+      return await DogsDbOperations().getTeamGroupWorkspace(
+        account: account,
+        id: teamGroupId,
+      );
     }
   }
 
@@ -244,16 +248,18 @@ class CreateTeamGroup extends _$CreateTeamGroup {
                   for (int j = 0; j < data.teams[i].dogPairs.length; j++)
                     if (j == rowNumber)
                       positionNumber == 0
-                          ? data.teams[i].dogPairs[j]
-                              .copyWith(firstDogId: dogId)
-                          : data.teams[i].dogPairs[j]
-                              .copyWith(secondDogId: dogId)
+                          ? data.teams[i].dogPairs[j].copyWith(
+                              firstDogId: dogId,
+                            )
+                          : data.teams[i].dogPairs[j].copyWith(
+                              secondDogId: dogId,
+                            )
                     else
-                      data.teams[i].dogPairs[j]
+                      data.teams[i].dogPairs[j],
                 ],
               )
             else
-              data.teams[i]
+              data.teams[i],
         ],
       ),
     );
@@ -268,7 +274,7 @@ class CreateTeamGroup extends _$CreateTeamGroup {
             if (i == teamNumber)
               data.teams[i].copyWith(name: newName)
             else
-              data.teams[i]
+              data.teams[i],
         ],
       ),
     );
@@ -276,20 +282,22 @@ class CreateTeamGroup extends _$CreateTeamGroup {
 
   void removeRow({required int teamNumber, required int rowNumber}) {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
-    state = state.whenData((data) => data.copyWith(
-          teams: [
-            for (int i = 0; i < data.teams.length; i++)
-              if (i == teamNumber)
-                data.teams[i].copyWith(
-                  dogPairs: [
-                    for (int j = 0; j < data.teams[i].dogPairs.length; j++)
-                      if (j != rowNumber) data.teams[i].dogPairs[j]
-                  ],
-                )
-              else
-                data.teams[i]
-          ],
-        ));
+    state = state.whenData(
+      (data) => data.copyWith(
+        teams: [
+          for (int i = 0; i < data.teams.length; i++)
+            if (i == teamNumber)
+              data.teams[i].copyWith(
+                dogPairs: [
+                  for (int j = 0; j < data.teams[i].dogPairs.length; j++)
+                    if (j != rowNumber) data.teams[i].dogPairs[j],
+                ],
+              )
+            else
+              data.teams[i],
+        ],
+      ),
+    );
   }
 
   /// Adds a row at the end of the team.
@@ -297,8 +305,9 @@ class CreateTeamGroup extends _$CreateTeamGroup {
     ref.read(canPopTeamGroupProvider.notifier).changeState(false);
     state = state.whenData((data) {
       var teamToEdit = data.teams[teamNumber];
-      var newRows =
-          List<DogPairWorkspace>.from(data.teams[teamNumber].dogPairs);
+      var newRows = List<DogPairWorkspace>.from(
+        data.teams[teamNumber].dogPairs,
+      );
       newRows.add(DogPairWorkspace(id: const Uuid().v4()));
       var editedTeam = teamToEdit.copyWith(dogPairs: newRows);
       var newTeams = List<TeamWorkspace>.from(data.teams);
@@ -314,11 +323,14 @@ class CreateTeamGroup extends _$CreateTeamGroup {
       var newTeams = List<TeamWorkspace>.from(data.teams);
       newTeams.insert(
         teamNumber,
-        TeamWorkspace(dogPairs: [
-          DogPairWorkspace(id: const Uuid().v4()),
-          DogPairWorkspace(id: const Uuid().v4()),
-          DogPairWorkspace(id: const Uuid().v4()),
-        ], id: const Uuid().v4()),
+        TeamWorkspace(
+          dogPairs: [
+            DogPairWorkspace(id: const Uuid().v4()),
+            DogPairWorkspace(id: const Uuid().v4()),
+            DogPairWorkspace(id: const Uuid().v4()),
+          ],
+          id: const Uuid().v4(),
+        ),
       );
       return data.copyWith(teams: newTeams);
     });
@@ -350,7 +362,6 @@ class CreateTeamGroup extends _$CreateTeamGroup {
 }
 
 @riverpod
-
 /// The ids of the dogs that are currently running.
 ///
 /// Used to make the unavailable in the dropdown selection.
@@ -429,22 +440,22 @@ Future<TeamGroup?> teamGroupById(Ref ref, String id) async {
 }
 
 @riverpod
-
 /// Gets all the customer groups assigned to this teamgroup.
 Stream<CustomerGroup?> customerGroupForTeamgroup(
-    Ref ref, String teamGroupId) async* {
+  Ref ref,
+  String teamGroupId,
+) async* {
   final db = FirebaseFirestore.instance;
   String account = await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/bookingManager/customerGroups";
-  final collection =
-      db.collection(path).where("teamGroupId", isEqualTo: teamGroupId);
-  yield* collection.snapshots().map((snapshot) => snapshot.docs
-      .map(
-        (doc) => CustomerGroup.fromJson(
-          doc.data(),
-        ),
-      )
-      .firstOrNull);
+  final collection = db
+      .collection(path)
+      .where("teamGroupId", isEqualTo: teamGroupId);
+  yield* collection.snapshots().map(
+    (snapshot) => snapshot.docs
+        .map((doc) => CustomerGroup.fromJson(doc.data()))
+        .firstOrNull,
+  );
 }
 
 @riverpod

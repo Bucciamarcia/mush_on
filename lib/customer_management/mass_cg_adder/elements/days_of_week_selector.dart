@@ -10,8 +10,9 @@ class DayOfWeekSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<DaysOfWeekSelection> daysOfWeekSelected =
-        ref.watch(daysOfWeekSelectedProvider);
+    List<DaysOfWeekSelection> daysOfWeekSelected = ref.watch(
+      daysOfWeekSelectedProvider,
+    );
     return Column(
       spacing: 10,
       children: [
@@ -20,10 +21,12 @@ class DayOfWeekSelector extends ConsumerWidget {
           spacing: 5,
           runSpacing: 5,
           children: DaysOfWeekSelection.values
-              .map((dayEnum) => DayEnumBubble(
-                    dayEnum,
-                    isActive: daysOfWeekSelected.contains(dayEnum),
-                  ))
+              .map(
+                (dayEnum) => DayEnumBubble(
+                  dayEnum,
+                  isActive: daysOfWeekSelected.contains(dayEnum),
+                ),
+              )
               .toList(),
         ),
         const Text("Choose the date range this rule applies to"),
@@ -36,14 +39,17 @@ class DayOfWeekSelector extends ConsumerWidget {
               final selectedRange = args.value as PickerDateRange;
               ref
                   .read(dateRangeSelectedForWeekSelectionProvider.notifier)
-                  .change(DateRangeSelectedValues(
+                  .change(
+                    DateRangeSelectedValues(
                       initialDay: selectedRange.startDate,
                       finalDay:
-                          selectedRange.endDate ?? selectedRange.startDate));
+                          selectedRange.endDate ?? selectedRange.startDate,
+                    ),
+                  );
             }
           },
         ),
-        Text(ref.watch(dateRangeSelectedForWeekSelectionProvider).toString())
+        Text(ref.watch(dateRangeSelectedForWeekSelectionProvider).toString()),
       ],
     );
   }
@@ -57,20 +63,20 @@ class DayEnumBubble extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
-        splashFactory: InkSplash.splashFactory,
-        onTap: () =>
-            ref.read(daysOfWeekSelectedProvider.notifier).flipday(dayEnum),
-        child: Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-              color: isActive ? Colors.green : Colors.red,
-              shape: BoxShape.circle),
-          child: Center(
-              child: Text(
-            dayEnum.letter,
-            style: const TextStyle(fontSize: 20),
-          )),
-        ));
+      splashFactory: InkSplash.splashFactory,
+      onTap: () =>
+          ref.read(daysOfWeekSelectedProvider.notifier).flipday(dayEnum),
+      child: Container(
+        width: 60,
+        height: 60,
+        decoration: BoxDecoration(
+          color: isActive ? Colors.green : Colors.red,
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Text(dayEnum.letter, style: const TextStyle(fontSize: 20)),
+        ),
+      ),
+    );
   }
 }

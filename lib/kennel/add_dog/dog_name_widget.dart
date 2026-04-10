@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class DogNameWidget extends StatefulWidget {
   final Function(String) onChanged;
 
-  const DogNameWidget({
-    super.key,
-    required this.onChanged,
-  });
+  const DogNameWidget({super.key, required this.onChanged});
 
   @override
   State<DogNameWidget> createState() => _DogNameWidgetState();

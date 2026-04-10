@@ -8,8 +8,8 @@ class WhiteboardElementRepository {
   static final logger = BasicLogger();
 
   WhiteboardElementRepository({required String account})
-      : _db = FirebaseFirestore.instance,
-        collection = "accounts/$account/data/homePage/whiteboardElements";
+    : _db = FirebaseFirestore.instance,
+      collection = "accounts/$account/data/homePage/whiteboardElements";
 
   /// Adds an element to the database. If it exists, it will be OVERWRITTEN.
   Future<void> addElement(WhiteboardElement element) async {
@@ -18,8 +18,11 @@ class WhiteboardElementRepository {
     try {
       await doc.set(element.toJson());
     } catch (e, s) {
-      logger.error("Failed to add whiteboard element.",
-          error: e, stackTrace: s);
+      logger.error(
+        "Failed to add whiteboard element.",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -29,8 +32,11 @@ class WhiteboardElementRepository {
     try {
       await doc.delete();
     } catch (e, s) {
-      logger.error("Failed to delete whiteboard element.",
-          error: e, stackTrace: s);
+      logger.error(
+        "Failed to delete whiteboard element.",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }

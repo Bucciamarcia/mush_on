@@ -21,11 +21,12 @@ class TemplateScreen extends ConsumerWidget {
   /// Minimum user level for the user level to access this page.
   final UserLevel minUserRank;
 
-  const TemplateScreen(
-      {super.key,
-      required this.child,
-      required this.title,
-      this.minUserRank = UserLevel.guest});
+  const TemplateScreen({
+    super.key,
+    required this.child,
+    required this.title,
+    this.minUserRank = UserLevel.guest,
+  });
 
   Widget? _getFab(BuildContext context, WidgetRef ref) {
     if (child is HealthMain) {
@@ -63,13 +64,15 @@ class TemplateScreen extends ConsumerWidget {
         backgroundColor: Colors.blue,
         children: [
           SpeedDialChild(
-              child: const Icon(Icons.people_alt),
-              label: "Add Customer Group",
-              onTap: () => context.go("/add_customer_group")),
+            child: const Icon(Icons.people_alt),
+            label: "Add Customer Group",
+            onTap: () => context.go("/add_customer_group"),
+          ),
           SpeedDialChild(
-              child: const FaIcon(FontAwesomeIcons.calendarPlus),
-              label: "Mass add Customer Groups",
-              onTap: () => context.go("/mass_add_cg"))
+            child: const FaIcon(FontAwesomeIcons.calendarPlus),
+            label: "Mass add Customer Groups",
+            onTap: () => context.go("/mass_add_cg"),
+          ),
         ],
       );
     }
@@ -95,11 +98,15 @@ class TemplateScreen extends ConsumerWidget {
     var authState = ref.watch(userProvider);
     return authState.when(
       error: (e, s) {
-        BasicLogger().error("Couldn't get auth state in template",
-            error: e, stackTrace: s);
+        BasicLogger().error(
+          "Couldn't get auth state in template",
+          error: e,
+          stackTrace: s,
+        );
         return const Scaffold(
           body: Text(
-              "Error in getting user. This shouldn't happen: contact an admin."),
+            "Error in getting user. This shouldn't happen: contact an admin.",
+          ),
         );
       },
       loading: () => const CircularProgressIndicator.adaptive(),
@@ -109,270 +116,261 @@ class TemplateScreen extends ConsumerWidget {
         } else {
           final userNameAsync = ref.watch(userNameProvider(data.uid));
           return userNameAsync.when(
-              data: (userName) {
-                if (userName == null) {
-                  return const Text("Error: username not valid");
-                }
-                if (userName.userLevel.rank < minUserRank.rank) {
-                  return const Scaffold(
-                    body: Text("You don't have access to this page."),
-                  );
-                }
-                return Scaffold(
-                  floatingActionButton: _getFab(context, ref),
-                  drawer: Drawer(
-                    child: ListView(
-                      padding: EdgeInsets.zero,
+            data: (userName) {
+              if (userName == null) {
+                return const Text("Error: username not valid");
+              }
+              if (userName.userLevel.rank < minUserRank.rank) {
+                return const Scaffold(
+                  body: Text("You don't have access to this page."),
+                );
+              }
+              return Scaffold(
+                floatingActionButton: _getFab(context, ref),
+                drawer: Drawer(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      DrawerHeader(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                        ),
+                        child: Text(
+                          "Menu",
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.home),
+                        onTap: () => context.go("/"),
+                        title: const Text("Home"),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.calendar_today),
+                        onTap: () => context.go("/whiteboard"),
+                        title: const Text("Whiteboard"),
+                      ),
+                      const Divider(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          16.0,
+                          16.0,
+                          16.0,
+                          8.0,
+                        ),
+                        child: Text(
+                          "Dogs and teams",
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.group_add),
+                        onTap: () => context.go("/createteam"),
+                        title: const Text("Create Team"),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.pets),
+                        onTap: () => context.go("/editkennel"),
+                        title: const Text("Kennel"),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.history),
+                        onTap: () => context.go("/teamshistory"),
+                        title: const Text("Teams history"),
+                      ),
+                      const Divider(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          16.0,
+                          16.0,
+                          16.0,
+                          8.0,
+                        ),
+                        child: Text(
+                          "Booking manager",
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.person_2),
+                        onTap: () => context.go("/client_management"),
+                        title: const Text("Manage bookings"),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.tour),
+                        onTap: () => context.go("/tours"),
+                        title: const Text("Tours"),
+                      ),
+                      const Divider(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          16.0,
+                          16.0,
+                          16.0,
+                          8.0,
+                        ),
+                        child: Text(
+                          "Data",
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.query_stats),
+                        onTap: () => context.go("/stats"),
+                        title: const Text("Stats"),
+                      ),
+                      const Divider(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          16.0,
+                          16.0,
+                          16.0,
+                          8.0,
+                        ),
+                        child: Text(
+                          "Other",
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.task),
+                        onTap: () => context.go("/tasks"),
+                        title: const Text("Tasks"),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.settings),
+                        onTap: () => context.go("/settings"),
+                        title: const Text("Settings"),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.health_and_safety),
+                        onTap: () => context.go("/health_dashboard"),
+                        title: const Text("Health dashboard"),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.logout),
+                        onTap: () async {
+                          context.go("/");
+                          await AuthService().signOut();
+                        },
+                        title: const Text("Log out"),
+                      ),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+                appBar: AppBar(
+                  title: Text(title),
+                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                ),
+                body: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: child,
+                  ),
+                ),
+              );
+            },
+            error: (e, s) {
+              BasicLogger().error(
+                "Couldn't fetch username",
+                error: e,
+                stackTrace: s,
+              );
+              return Scaffold(
+                appBar: AppBar(
+                  title: const Text("Error"),
+                  backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                ),
+                body: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        DrawerHeader(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer),
-                          child: Text("Menu",
-                              style: TextStyle(
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer)),
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.error,
                         ),
-                        ListTile(
-                          leading: const Icon(Icons.home),
-                          onTap: () => context.go("/"),
-                          title: const Text("Home"),
+                        const SizedBox(height: 24),
+                        Text(
+                          "Unable to Load User Data",
+                          style: Theme.of(context).textTheme.headlineSmall,
+                          textAlign: TextAlign.center,
                         ),
-                        ListTile(
-                          leading: const Icon(Icons.calendar_today),
-                          onTap: () => context.go("/whiteboard"),
-                          title: const Text("Whiteboard"),
+                        const SizedBox(height: 16),
+                        Text(
+                          "There was a problem loading your user information. This could be a temporary connection issue. Try reloading the page.",
+                          style: Theme.of(context).textTheme.bodyMedium,
+                          textAlign: TextAlign.center,
                         ),
-                        const Divider(),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                          child: Text(
-                            "Dogs and teams",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
+                        const SizedBox(height: 32),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            // Force a provider refresh
+                            ref.invalidate(userNameProvider(data.uid));
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text("Retry"),
                         ),
-                        ListTile(
-                          leading: const Icon(Icons.group_add),
-                          onTap: () => context.go("/createteam"),
-                          title: const Text(
-                            "Create Team",
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.pets),
-                          onTap: () => context.go("/editkennel"),
-                          title: const Text(
-                            "Kennel",
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.history),
-                          onTap: () => context.go("/teamshistory"),
-                          title: const Text(
-                            "Teams history",
-                          ),
-                        ),
-                        const Divider(),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                          child: Text(
-                            "Booking manager",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.person_2),
-                          onTap: () => context.go("/client_management"),
-                          title: const Text(
-                            "Manage bookings",
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.tour),
-                          onTap: () => context.go("/tours"),
-                          title: const Text(
-                            "Tours",
-                          ),
-                        ),
-                        const Divider(),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                          child: Text(
-                            "Data",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.query_stats),
-                          onTap: () => context.go("/stats"),
-                          title: const Text(
-                            "Stats",
-                          ),
-                        ),
-                        const Divider(),
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-                          child: Text(
-                            "Other",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.task),
-                          onTap: () => context.go("/tasks"),
-                          title: const Text(
-                            "Tasks",
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.settings),
-                          onTap: () => context.go("/settings"),
-                          title: const Text(
-                            "Settings",
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.health_and_safety),
-                          onTap: () => context.go("/health_dashboard"),
-                          title: const Text(
-                            "Health dashboard",
-                          ),
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.logout),
-                          onTap: () async {
-                            context.go("/");
+                        const SizedBox(height: 16),
+                        OutlinedButton.icon(
+                          onPressed: () async {
                             await AuthService().signOut();
                           },
-                          title: const Text(
-                            "Log out",
-                          ),
+                          icon: const Icon(Icons.logout),
+                          label: const Text("Sign Out"),
                         ),
-                        const SizedBox(height: 100),
+                        const SizedBox(height: 24),
+                        ExpansionTile(
+                          title: const Text("Error Details"),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: SelectableText(
+                                e.toString(),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      fontFamily: 'monospace',
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-                  appBar: AppBar(
-                    title: Text(title),
-                    backgroundColor:
-                        Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                  body: SafeArea(
-                      child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: child,
-                  )),
-                );
-              },
-              error: (e, s) {
-                BasicLogger()
-                    .error("Couldn't fetch username", error: e, stackTrace: s);
-                return Scaffold(
-                  appBar: AppBar(
-                    title: const Text("Error"),
-                    backgroundColor:
-                        Theme.of(context).colorScheme.errorContainer,
-                  ),
-                  body: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 64,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            "Unable to Load User Data",
-                            style: Theme.of(context).textTheme.headlineSmall,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            "There was a problem loading your user information. This could be a temporary connection issue. Try reloading the page.",
-                            style: Theme.of(context).textTheme.bodyMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 32),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              // Force a provider refresh
-                              ref.invalidate(userNameProvider(data.uid));
-                            },
-                            icon: const Icon(Icons.refresh),
-                            label: const Text("Retry"),
-                          ),
-                          const SizedBox(height: 16),
-                          OutlinedButton.icon(
-                            onPressed: () async {
-                              await AuthService().signOut();
-                            },
-                            icon: const Icon(Icons.logout),
-                            label: const Text("Sign Out"),
-                          ),
-                          const SizedBox(height: 24),
-                          ExpansionTile(
-                            title: const Text("Error Details"),
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: SelectableText(
-                                  e.toString(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        fontFamily: 'monospace',
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant,
-                                      ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-              loading: () => const CircularProgressIndicator.adaptive());
+                ),
+              );
+            },
+            loading: () => const CircularProgressIndicator.adaptive(),
+          );
         }
       },
     );

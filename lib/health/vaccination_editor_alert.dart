@@ -44,10 +44,12 @@ class _VaccinationEditorAlertState
     _selectedDog = widget.dogs?.getDogFromId(widget.event?.dogId ?? "");
     _titleController = TextEditingController(text: widget.event?.title);
     _notesController = TextEditingController(text: widget.event?.notes);
-    _vaccinationTypeController =
-        TextEditingController(text: widget.event?.vaccinationType);
+    _vaccinationTypeController = TextEditingController(
+      text: widget.event?.vaccinationType,
+    );
     _selectedDogNameController = TextEditingController(
-        text: widget.dogs?.getNameFromId(widget.event?.dogId ?? ""));
+      text: widget.dogs?.getNameFromId(widget.event?.dogId ?? ""),
+    );
     _daysBeforeExpirationReminderController = TextEditingController(text: "0");
     _dateAdministered = widget.event?.dateAdministered ?? DateTimeUtils.today();
     _expirationDate = widget.event?.expirationDate;
@@ -137,8 +139,9 @@ class _VaccinationEditorAlertState
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           Text(
-                            DateFormat("MMM dd, yyyy")
-                                .format(_dateAdministered),
+                            DateFormat(
+                              "MMM dd, yyyy",
+                            ).format(_dateAdministered),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ],
@@ -174,17 +177,15 @@ class _VaccinationEditorAlertState
                           Text(
                             _expirationDate == null
                                 ? "No expiration"
-                                : DateFormat("MMM dd, yyyy")
-                                    .format(_expirationDate!),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                                : DateFormat(
+                                    "MMM dd, yyyy",
+                                  ).format(_expirationDate!),
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
                                   color: _expirationDate == null
-                                      ? Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.color
+                                      ? Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium?.color
                                       : null,
                                 ),
                           ),
@@ -244,7 +245,8 @@ class _VaccinationEditorAlertState
                           _addReminderCheckboxValue = v;
                           if (v &&
                               _daysBeforeExpirationReminderController
-                                  .text.isEmpty) {
+                                  .text
+                                  .isEmpty) {
                             _daysBeforeExpirationReminderController.text = "30";
                           }
                         }
@@ -308,7 +310,8 @@ class _VaccinationEditorAlertState
                   });
                   var repository = ref.read(vaccinationRepositoryProvider);
                   try {
-                    await repository.addVaccination(Vaccination(
+                    await repository.addVaccination(
+                      Vaccination(
                         title: _titleController.text,
                         dateAdministered: _dateAdministered,
                         vaccinationType: _vaccinationTypeController.text,
@@ -318,28 +321,32 @@ class _VaccinationEditorAlertState
                         notes: _notesController.text,
                         createdAt:
                             widget.event?.createdAt ?? DateTimeUtils.today(),
-                        lastUpdated: DateTimeUtils.today()));
+                        lastUpdated: DateTimeUtils.today(),
+                      ),
+                    );
                     if (_expirationDate != null &&
                         _addReminderCheckboxValue == true) {
                       await TaskRepository.addOrUpdate(
-                          Task(
-                              id: const Uuid().v4(),
-                              title: "Vaccination expiration",
-                              dogId: _selectedDog!.id,
-                              isDone: false,
-                              isAllDay: true,
-                              isUrgent: false,
-                              recurring: RecurringType.none,
-                              expiration: _expirationDate!.subtract(
-                                Duration(
-                                  days: int.parse(
-                                      _daysBeforeExpirationReminderController
-                                          .text),
-                                ),
+                        Task(
+                          id: const Uuid().v4(),
+                          title: "Vaccination expiration",
+                          dogId: _selectedDog!.id,
+                          isDone: false,
+                          isAllDay: true,
+                          isUrgent: false,
+                          recurring: RecurringType.none,
+                          expiration: _expirationDate!.subtract(
+                            Duration(
+                              days: int.parse(
+                                _daysBeforeExpirationReminderController.text,
                               ),
-                              description:
-                                  "Automatically added vaccination expiration: ${_titleController.text} - Expires on: ${DateFormat("yyyy-MM-dd").format(_expirationDate!)} - Vaccination type: ${_vaccinationTypeController.text}"),
-                          ref.watch(accountProvider).value ?? "");
+                            ),
+                          ),
+                          description:
+                              "Automatically added vaccination expiration: ${_titleController.text} - Expires on: ${DateFormat("yyyy-MM-dd").format(_expirationDate!)} - Vaccination type: ${_vaccinationTypeController.text}",
+                        ),
+                        ref.watch(accountProvider).value ?? "",
+                      );
                     }
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -348,8 +355,11 @@ class _VaccinationEditorAlertState
                     }
                     Navigator.of(context).pop();
                   } catch (e, s) {
-                    BasicLogger().error("Couldn't add new vaccination",
-                        error: e, stackTrace: s);
+                    BasicLogger().error(
+                      "Couldn't add new vaccination",
+                      error: e,
+                      stackTrace: s,
+                    );
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         errorSnackBar(context, "Couldn't add new vaccination"),
@@ -379,26 +389,28 @@ class _VaccinationEditorAlertState
     );
   }
 
-  Future<void> _selectDate(
-      {required BuildContext context,
-      required Function(DateTime) onDatePicked,
-      DateTime? minDate}) async {
+  Future<void> _selectDate({
+    required BuildContext context,
+    required Function(DateTime) onDatePicked,
+    DateTime? minDate,
+  }) async {
     final DateTime? picked = await showDatePicker(
-        initialDate: minDate,
-        context: context,
-        firstDate: minDate ??
-            DateTimeUtils.today().subtract(const Duration(days: 900)),
-        lastDate: DateTimeUtils.today().add(const Duration(days: 900)),
-        builder: (context, child) {
-          return Theme(
-            data: Theme.of(context).copyWith(
-              dialogTheme: DialogThemeData(
-                backgroundColor: Theme.of(context).colorScheme.surface,
-              ),
+      initialDate: minDate,
+      context: context,
+      firstDate:
+          minDate ?? DateTimeUtils.today().subtract(const Duration(days: 900)),
+      lastDate: DateTimeUtils.today().add(const Duration(days: 900)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogTheme: DialogThemeData(
+              backgroundColor: Theme.of(context).colorScheme.surface,
             ),
-            child: child!,
-          );
-        });
+          ),
+          child: child!,
+        );
+      },
+    );
     if (picked != null) {
       onDatePicked(picked);
     }

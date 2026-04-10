@@ -4,9 +4,7 @@ import 'package:mush_on/customer_management/mass_cg_adder/models.dart';
 import 'package:mush_on/customer_management/mass_cg_adder/riverpod.dart';
 
 class RuleTypeDropdownSelector extends ConsumerWidget {
-  const RuleTypeDropdownSelector({
-    super.key,
-  });
+  const RuleTypeDropdownSelector({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -14,10 +12,7 @@ class RuleTypeDropdownSelector extends ConsumerWidget {
 
     return SegmentedButton<AddCgRuleType>(
       segments: AddCgRuleType.values
-          .map((v) => ButtonSegment(
-                value: v,
-                label: Text(v.description),
-              ))
+          .map((v) => ButtonSegment(value: v, label: Text(v.description)))
           .toList(),
       selected: {selectedRuleType},
       onSelectionChanged: (Set<AddCgRuleType> selection) {

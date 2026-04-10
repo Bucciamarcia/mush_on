@@ -43,8 +43,10 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
               inputDecorationTheme: const InputDecorationTheme(
                 isCollapsed: true,
                 isDense: true,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 8.0, vertical: 0),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 0,
+                ),
                 border: OutlineInputBorder(),
               ),
               requestFocusOnTap: false,
@@ -74,25 +76,33 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
               if (details.appointments!.isEmpty) return;
               if (details.appointments!.length == 1) {
                 CustomerGroup cg = details.appointments!.first;
-                context.goNamed("customerGroupViewer",
-                    queryParameters: {"customerGroupId": cg.id});
+                context.goNamed(
+                  "customerGroupViewer",
+                  queryParameters: {"customerGroupId": cg.id},
+                );
               }
             },
             monthViewSettings: const MonthViewSettings(
-                appointmentDisplayCount: 3, showAgenda: true),
+              appointmentDisplayCount: 3,
+              showAgenda: true,
+            ),
             monthCellBuilder: viewLength == CalendarView.month
                 ? (BuildContext context, MonthCellDetails details) {
                     final List<CustomerGroup> dayAppointments = customerGroups
-                        .where((cg) =>
-                            cg.datetime.year == details.date.year &&
-                            cg.datetime.month == details.date.month &&
-                            cg.datetime.day == details.date.day)
+                        .where(
+                          (cg) =>
+                              cg.datetime.year == details.date.year &&
+                              cg.datetime.month == details.date.month &&
+                              cg.datetime.day == details.date.day,
+                        )
                         .toList();
 
                     return Container(
                       decoration: BoxDecoration(
-                        border:
-                            Border.all(color: Colors.grey.shade300, width: 0.5),
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 0.5,
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +114,8 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                               details.date.day.toString(),
                               style: TextStyle(
                                 fontSize: 12,
-                                color: details.date.month ==
+                                color:
+                                    details.date.month ==
                                         details.visibleDates.first.month
                                     ? Colors.black
                                     : Colors.grey,
@@ -126,18 +137,24 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                                       )
                                       .value;
                                 }
-                                List<Customer> customers = ref
+                                List<Customer> customers =
+                                    ref
                                         .watch(
-                                            customersByCustomerGroupIdProvider(
-                                                cg.id))
+                                          customersByCustomerGroupIdProvider(
+                                            cg.id,
+                                          ),
+                                        )
                                         .value ??
                                     [];
                                 return Container(
                                   margin: const EdgeInsets.symmetric(
-                                      horizontal: 1, vertical: 1),
+                                    horizontal: 1,
+                                    vertical: 1,
+                                  ),
                                   padding: const EdgeInsets.all(2),
                                   decoration: BoxDecoration(
-                                    color: tourType?.backgroundColor ??
+                                    color:
+                                        tourType?.backgroundColor ??
                                         Theme.of(context).colorScheme.primary,
                                     borderRadius: BorderRadius.circular(2),
                                   ),
@@ -183,21 +200,29 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                     }
 
                     // Get notes using the data source method
-                    final dataSource =
-                        BookingsDataSource(source: customerGroups, ref: ref);
+                    final dataSource = BookingsDataSource(
+                      source: customerGroups,
+                      ref: ref,
+                    );
                     final int index = customerGroups.indexOf(customerGroup);
-                    final String? notes =
-                        index >= 0 ? dataSource.getNotes(index) : null;
+                    final String? notes = index >= 0
+                        ? dataSource.getNotes(index)
+                        : null;
                     TourType? tourType;
                     if (customerGroup.tourTypeId != null) {
                       tourType = ref
                           .watch(
-                              tourTypeByIdProvider(customerGroup.tourTypeId!))
+                            tourTypeByIdProvider(customerGroup.tourTypeId!),
+                          )
                           .value;
                     }
-                    List<Customer> customers = ref
-                            .watch(customersByCustomerGroupIdProvider(
-                                customerGroup.id))
+                    List<Customer> customers =
+                        ref
+                            .watch(
+                              customersByCustomerGroupIdProvider(
+                                customerGroup.id,
+                              ),
+                            )
                             .value ??
                         [];
 
@@ -205,7 +230,8 @@ class _BookingCalendarState extends ConsumerState<BookingCalendar> {
                     return Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: tourType?.backgroundColor ??
+                        color:
+                            tourType?.backgroundColor ??
                             Theme.of(context).colorScheme.primary,
                         borderRadius: BorderRadius.circular(4),
                       ),
@@ -284,7 +310,8 @@ class BookingsDataSource extends CalendarDataSource<CustomerGroup> {
 
   @override
   String getSubject(int index) {
-    List<Customer> customers = ref
+    List<Customer> customers =
+        ref
             .watch(customersByCustomerGroupIdProvider(appointments![index].id))
             .value ??
         [];
@@ -315,11 +342,13 @@ class BookingsDataSource extends CalendarDataSource<CustomerGroup> {
     if (tour == null) {
       return null;
     }
-    List<Customer>? customers =
-        ref.watch(CustomersByCustomerGroupIdProvider(cg.id)).value;
+    List<Customer>? customers = ref
+        .watch(CustomersByCustomerGroupIdProvider(cg.id))
+        .value;
     if (customers == null) return null;
-    List<TourTypePricing>? pricings =
-        ref.watch(tourTypePricesProvider(tour.id)).value;
+    List<TourTypePricing>? pricings = ref
+        .watch(tourTypePricesProvider(tour.id))
+        .value;
     if (pricings == null) return null;
     String toReturn = "${customers.length}/${cg.maxCapacity}\n";
     for (var price in pricings) {

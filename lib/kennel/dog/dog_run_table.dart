@@ -12,23 +12,30 @@ class DogrunTableWidget extends StatelessWidget {
     dogTotals.sort((a, b) => b.date.compareTo(a.date));
     var dataSource = DogTotalDataSource(dogTotals);
     return Card(
-      child: ExpansionTile(title: const Text("View data"), children: [
-        SfDataGrid(
-          shrinkWrapRows: true,
-          source: dataSource,
-          columnWidthMode: ColumnWidthMode.fill,
-          columns: [
-            GridColumn(
-                columnName: "Date", label: const Center(child: Text("Date"))),
-            GridColumn(
-                columnName: "Run", label: const Center(child: Text("Run"))),
-          ],
-          // These are correct for nested scrolling -
-          // they tell the grid NOT to scroll itself.
-          verticalScrollPhysics: const NeverScrollableScrollPhysics(),
-          horizontalScrollPhysics: const NeverScrollableScrollPhysics(),
-        ),
-      ]),
+      child: ExpansionTile(
+        title: const Text("View data"),
+        children: [
+          SfDataGrid(
+            shrinkWrapRows: true,
+            source: dataSource,
+            columnWidthMode: ColumnWidthMode.fill,
+            columns: [
+              GridColumn(
+                columnName: "Date",
+                label: const Center(child: Text("Date")),
+              ),
+              GridColumn(
+                columnName: "Run",
+                label: const Center(child: Text("Run")),
+              ),
+            ],
+            // These are correct for nested scrolling -
+            // they tell the grid NOT to scroll itself.
+            verticalScrollPhysics: const NeverScrollableScrollPhysics(),
+            horizontalScrollPhysics: const NeverScrollableScrollPhysics(),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -40,8 +47,9 @@ class DogTotalDataSource extends DataGridSource {
           (dogTotal) => DataGridRow(
             cells: [
               DataGridCell<String>(
-                  columnName: "Date",
-                  value: DateFormat("yyyy-MM-dd").format(dogTotal.date)),
+                columnName: "Date",
+                value: DateFormat("yyyy-MM-dd").format(dogTotal.date),
+              ),
               DataGridCell<double>(columnName: "Run", value: dogTotal.distance),
             ],
           ),
@@ -56,15 +64,17 @@ class DogTotalDataSource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-        cells: row.getCells().map<Widget>((dataGridCell) {
-      return Container(
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        return Container(
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             formatCell(dataGridCell.value.toString()),
             overflow: TextOverflow.ellipsis,
-          ));
-    }).toList());
+          ),
+        );
+      }).toList(),
+    );
   }
 
   String formatCell(String n) {

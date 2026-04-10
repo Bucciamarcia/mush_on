@@ -12,12 +12,13 @@ class DogSelectedInterface extends StatelessWidget {
   final bool isReadOnly;
   final Function() onDogRemoved;
 
-  const DogSelectedInterface(
-      {super.key,
-      required this.dog,
-      required this.notes,
-      required this.isReadOnly,
-      required this.onDogRemoved});
+  const DogSelectedInterface({
+    super.key,
+    required this.dog,
+    required this.notes,
+    required this.isReadOnly,
+    required this.onDogRemoved,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,21 +44,24 @@ class DogSelectedChip extends StatelessWidget {
   final bool isReadOnly;
   final Function() onDogRemoved;
   static final BasicLogger logger = BasicLogger();
-  const DogSelectedChip(
-      {super.key,
-      required this.dog,
-      required this.isReadOnly,
-      required this.onDogRemoved,
-      required this.dogNote});
+  const DogSelectedChip({
+    super.key,
+    required this.dog,
+    required this.isReadOnly,
+    required this.onDogRemoved,
+    required this.dogNote,
+  });
 
   @override
   Widget build(BuildContext context) {
     NoteType noteType = DogNoteRepository.worstNoteType(
-        dogNote == null ? [] : dogNote!.dogNoteMessage);
+      dogNote == null ? [] : dogNote!.dogNoteMessage,
+    );
     return InputChip(
       padding: const EdgeInsets.all(10),
-      backgroundColor:
-          _isOnlyFilteredOut(dogNote) ? NoteType.none.color : noteType.color,
+      backgroundColor: _isOnlyFilteredOut(dogNote)
+          ? NoteType.none.color
+          : noteType.color,
       key: Key("DogSelectedChip - ${dog.id}"),
       label: Text(
         dog.name,
@@ -83,10 +87,7 @@ class NotesList extends StatelessWidget {
       if (notes.dogNoteMessage.isEmpty) return const SizedBox.shrink();
       return Column(
         children: notes.dogNoteMessage
-            .map((e) => Text(
-                  e.message,
-                  style: TextStyle(color: e.type.color),
-                ))
+            .map((e) => Text(e.message, style: TextStyle(color: e.type.color)))
             .toList(),
       );
     }

@@ -39,8 +39,11 @@ class RunTable extends StatelessWidget {
                 );
               }
             } catch (e, s) {
-              BasicLogger()
-                  .error("Couldn't save the file", error: e, stackTrace: s);
+              BasicLogger().error(
+                "Couldn't save the file",
+                error: e,
+                stackTrace: s,
+              );
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   errorSnackBar(context, "Couldn't save the file"),
@@ -51,9 +54,10 @@ class RunTable extends StatelessWidget {
           child: const Text("Export to excel"),
         ),
         SfDataGrid(
-            key: sfKey,
-            source: DogsDataSource(dogs: dogs, teamGroups: sortedTeamGroups),
-            columns: _fetchGridcolumns()),
+          key: sfKey,
+          source: DogsDataSource(dogs: dogs, teamGroups: sortedTeamGroups),
+          columns: _fetchGridcolumns(),
+        ),
       ],
     );
   }
@@ -61,8 +65,9 @@ class RunTable extends StatelessWidget {
   List<GridColumn> _fetchGridcolumns() {
     List<GridColumn> toReturn = [
       GridColumn(columnName: "Date", label: const Text("Date")),
-      ...dogs
-          .map((dog) => GridColumn(columnName: dog.name, label: Text(dog.name)))
+      ...dogs.map(
+        (dog) => GridColumn(columnName: dog.name, label: Text(dog.name)),
+      ),
     ];
     return toReturn;
   }
@@ -84,9 +89,10 @@ class DogsDataSource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-        cells: row.getCells().map<Widget>((dataGridCell) {
-      return Container(
-          alignment: (dataGridCell.columnName == 'id' ||
+      cells: row.getCells().map<Widget>((dataGridCell) {
+        return Container(
+          alignment:
+              (dataGridCell.columnName == 'id' ||
                   dataGridCell.columnName == 'salary')
               ? Alignment.centerRight
               : Alignment.centerLeft,
@@ -94,8 +100,10 @@ class DogsDataSource extends DataGridSource {
           child: Text(
             dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
-          ));
-    }).toList());
+          ),
+        );
+      }).toList(),
+    );
   }
 
   List<DataGridRow> _buildDataGridRows(
@@ -111,30 +119,42 @@ class DogsDataSource extends DataGridSource {
     toReturn.add(_buildTotalSummaryRow(runTableByDog: runTableByDog));
 
     // Summary for the first month
-    toReturn.add(_buildMonthSummaryRow(
-      runTableByDog: runTableByDog,
-      month: previousDate.month,
-      year: previousDate.year,
-    ));
+    toReturn.add(
+      _buildMonthSummaryRow(
+        runTableByDog: runTableByDog,
+        month: previousDate.month,
+        year: previousDate.year,
+      ),
+    );
 
     for (final date in allDates) {
       if (previousDate.month != date.month || previousDate.year != date.year) {
         // Month (or year) changed → summary row for the new month
-        toReturn.add(_buildMonthSummaryRow(
-          runTableByDog: runTableByDog,
-          month: date.month,
-          year: date.year,
-        ));
+        toReturn.add(
+          _buildMonthSummaryRow(
+            runTableByDog: runTableByDog,
+            month: date.month,
+            year: date.year,
+          ),
+        );
       }
 
-      toReturn.add(DataGridRow(cells: [
-        DataGridCell(
-            columnName: "Date", value: DateFormat("dd-MM-yy").format(date)),
-        ...dogs.map((dog) => DataGridCell(
-              columnName: dog.name,
-              value: runTableByDog[date]?[dog.name] ?? 0.0,
-            )),
-      ]));
+      toReturn.add(
+        DataGridRow(
+          cells: [
+            DataGridCell(
+              columnName: "Date",
+              value: DateFormat("dd-MM-yy").format(date),
+            ),
+            ...dogs.map(
+              (dog) => DataGridCell(
+                columnName: dog.name,
+                value: runTableByDog[date]?[dog.name] ?? 0.0,
+              ),
+            ),
+          ],
+        ),
+      );
 
       previousDate = date;
     }
@@ -142,8 +162,9 @@ class DogsDataSource extends DataGridSource {
     return toReturn;
   }
 
-  DataGridRow _buildTotalSummaryRow(
-      {required Map<DateTime, Map<String, double>> runTableByDog}) {
+  DataGridRow _buildTotalSummaryRow({
+    required Map<DateTime, Map<String, double>> runTableByDog,
+  }) {
     Map<String, double> dogTotals = {};
     for (final dog in dogs) {
       dogTotals[dog.name] = 0.0;
@@ -160,16 +181,19 @@ class DogsDataSource extends DataGridSource {
     dogTotals.forEach((dogName, ran) {
       cells.add(DataGridCell(columnName: dogName, value: ran.toString()));
     });
-    return DataGridRow(cells: [
-      const DataGridCell(columnName: "Date", value: "Total"),
-      ...cells
-    ]);
+    return DataGridRow(
+      cells: [
+        const DataGridCell(columnName: "Date", value: "Total"),
+        ...cells,
+      ],
+    );
   }
 
-  DataGridRow _buildMonthSummaryRow(
-      {required Map<DateTime, Map<String, double>> runTableByDog,
-      required int month,
-      required int year}) {
+  DataGridRow _buildMonthSummaryRow({
+    required Map<DateTime, Map<String, double>> runTableByDog,
+    required int month,
+    required int year,
+  }) {
     Map<String, double> dogTotals = {};
     for (final dog in dogs) {
       dogTotals[dog.name] = 0.0;
@@ -190,11 +214,15 @@ class DogsDataSource extends DataGridSource {
       cells.add(DataGridCell(columnName: dogName, value: ran.toString()));
     });
 
-    return DataGridRow(cells: [
-      DataGridCell(
-          columnName: "Date", value: DateFormat("MMM yy").format(firstOfMonth)),
-      ...cells
-    ]);
+    return DataGridRow(
+      cells: [
+        DataGridCell(
+          columnName: "Date",
+          value: DateFormat("MMM yy").format(firstOfMonth),
+        ),
+        ...cells,
+      ],
+    );
   }
 
   List<DateTime> _getAllDates() {
@@ -203,16 +231,22 @@ class DogsDataSource extends DataGridSource {
     final firstDate = teamGroups.first.date;
     var iteratorDate = DateTime(firstDate.year, firstDate.month, firstDate.day);
     final lastDate = teamGroups.last.date;
-    final lastDateMidnight =
-        DateTime(lastDate.year, lastDate.month, lastDate.day);
+    final lastDateMidnight = DateTime(
+      lastDate.year,
+      lastDate.month,
+      lastDate.day,
+    );
     while (true) {
       toReturn.add(iteratorDate);
       if (iteratorDate.isAtSameMomentAs(lastDateMidnight) ||
           iteratorDate.isAfter(lastDateMidnight)) {
         break;
       }
-      iteratorDate =
-          DateTime(iteratorDate.year, iteratorDate.month, iteratorDate.day + 1);
+      iteratorDate = DateTime(
+        iteratorDate.year,
+        iteratorDate.month,
+        iteratorDate.day + 1,
+      );
     }
     toReturn.sort((a, b) => b.compareTo(a));
     return toReturn;
@@ -229,7 +263,8 @@ class DogsDataSource extends DataGridSource {
   /// }
   /// Optimized: Pre-group teamGroups by date
   Map<DateTime, Map<String, double>> _getRunTableByDog(
-      List<DateTime> allDates) {
+    List<DateTime> allDates,
+  ) {
     // Sort newest to oldest for display
     allDates.sort((a, b) => b.compareTo(a));
 

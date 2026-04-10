@@ -10,9 +10,8 @@ class CreateTeamScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TemplateScreen(
-        title: "Create team",
-        child: CreateTeamMain(
-          loadedTeamId: loadedTeamId,
-        ));
+      title: "Create team",
+      child: CreateTeamMain(loadedTeamId: loadedTeamId),
+    );
   }
 }

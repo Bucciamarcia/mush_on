@@ -14,6 +14,7 @@ part 'dog_notes.g.dart';
 @riverpod
 List<DogNote> dogNotes(
   Ref ref, {
+
   /// The latest date to consider. Useful for team builder when building in the future.
   required DateTime? latestDate,
 }) {
@@ -28,10 +29,11 @@ List<DogNote> dogNotes(
   for (final warning in distanceWarnings) {
     final noteType =
         warning.distanceWarning.distanceWarningType == DistanceWarningType.soft
-            ? DogNoteType.distanceWarning
-            : DogNoteType.distanceError;
+        ? DogNoteType.distanceWarning
+        : DogNoteType.distanceError;
 
-    final details = "${warning.distanceRan.toStringAsFixed(0)}/"
+    final details =
+        "${warning.distanceRan.toStringAsFixed(0)}/"
         "${warning.distanceWarning.distance}km "
         "${warning.distanceWarning.daysInterval}d";
 
@@ -76,13 +78,19 @@ List<DogNote> dogNotes(
           (existing) => existing.copyWith(
             dogNoteMessage: [
               ...existing.dogNoteMessage,
-              DogNoteMessage(type: DogNoteType.tagPreventing, details: tag.name)
+              DogNoteMessage(
+                type: DogNoteType.tagPreventing,
+                details: tag.name,
+              ),
             ],
           ),
           ifAbsent: () => DogNote(
             dogId: dog.id,
             dogNoteMessage: [
-              DogNoteMessage(type: DogNoteType.tagPreventing, details: tag.name)
+              DogNoteMessage(
+                type: DogNoteType.tagPreventing,
+                details: tag.name,
+              ),
             ],
           ),
         );
@@ -90,16 +98,22 @@ List<DogNote> dogNotes(
       if (tag.showInTeamBuilder == true) {
         dogNotesMap.update(
           dog.id,
-          (existing) => existing.copyWith(dogNoteMessage: [
-            ...existing.dogNoteMessage,
-            DogNoteMessage(
-                type: DogNoteType.showTagInBuilder, details: tag.name)
-          ]),
+          (existing) => existing.copyWith(
+            dogNoteMessage: [
+              ...existing.dogNoteMessage,
+              DogNoteMessage(
+                type: DogNoteType.showTagInBuilder,
+                details: tag.name,
+              ),
+            ],
+          ),
           ifAbsent: () => DogNote(
             dogId: dog.id,
             dogNoteMessage: [
               DogNoteMessage(
-                  type: DogNoteType.showTagInBuilder, details: tag.name)
+                type: DogNoteType.showTagInBuilder,
+                details: tag.name,
+              ),
             ],
           ),
         );
@@ -118,14 +132,18 @@ List<DogNote> dogNotes(
             dogNoteMessage: [
               ...existing.dogNoteMessage,
               DogNoteMessage(
-                  type: DogNoteType.healthEventError, details: event.title),
+                type: DogNoteType.healthEventError,
+                details: event.title,
+              ),
             ],
           ),
           ifAbsent: () => DogNote(
             dogId: event.dogId,
             dogNoteMessage: [
               DogNoteMessage(
-                  type: DogNoteType.healthEventError, details: event.title),
+                type: DogNoteType.healthEventError,
+                details: event.title,
+              ),
             ],
           ),
         );
@@ -164,18 +182,12 @@ List<DogNote> dogNotes(
         (existing) => existing.copyWith(
           dogNoteMessage: [
             ...existing.dogNoteMessage,
-            DogNoteMessage(
-              type: DogNoteType.heatLight,
-            ),
+            DogNoteMessage(type: DogNoteType.heatLight),
           ],
         ),
         ifAbsent: () => DogNote(
           dogId: heat.dogId,
-          dogNoteMessage: [
-            DogNoteMessage(
-              type: DogNoteType.heatLight,
-            ),
-          ],
+          dogNoteMessage: [DogNoteMessage(type: DogNoteType.heatLight)],
         ),
       );
     }

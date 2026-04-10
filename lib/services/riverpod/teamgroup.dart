@@ -8,7 +8,6 @@ part 'teamgroup.g.dart';
 part 'teamgroup.freezed.dart';
 
 @riverpod
-
 /// Returns the TeamGroup element from its id from the db
 Stream<TeamGroup> teamGroupFromId(Ref ref, String id) async* {
   String account = await ref.watch(accountProvider.future);
@@ -16,47 +15,48 @@ Stream<TeamGroup> teamGroupFromId(Ref ref, String id) async* {
   var db = FirebaseFirestore.instance;
   var collection = db.collection(path);
   var snapshots = collection.where("id", isEqualTo: id).snapshots();
-  yield* snapshots
-      .map((snapshot) => TeamGroup.fromJson(snapshot.docs.first.data()));
+  yield* snapshots.map(
+    (snapshot) => TeamGroup.fromJson(snapshot.docs.first.data()),
+  );
 }
 
 @riverpod
-
 /// The list of teams in a teamgroup
 Stream<List<Team>> teamsInTeamgroup(Ref ref, String teamgroupId) async* {
   String account = await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/teams/history/$teamgroupId/teams";
   var db = FirebaseFirestore.instance;
   var snapshots = db.collection(path).orderBy("rank").snapshots();
-  yield* snapshots.map(
-    (snapshot) {
-      return snapshot.docs.map(
-        (doc) {
-          return Team.fromJson(
-            doc.data(),
-          );
-        },
-      ).toList();
-    },
-  );
+  yield* snapshots.map((snapshot) {
+    return snapshot.docs.map((doc) {
+      return Team.fromJson(doc.data());
+    }).toList();
+  });
 }
 
 @riverpod
-
 /// The list of dogpairs in a team
 Stream<List<DogPair>> dogPairsInTeam(
-    Ref ref, String teamgroupId, String teamId) async* {
+  Ref ref,
+  String teamgroupId,
+  String teamId,
+) async* {
   String account = await ref.watch(accountProvider.future);
   String path =
       "accounts/$account/data/teams/history/$teamgroupId/teams/$teamId/dogPairs";
   var db = FirebaseFirestore.instance;
   var snapshots = db.collection(path).orderBy("rank").snapshots();
-  yield* snapshots.map((snapshot) =>
-      snapshot.docs.map((doc) => DogPair.fromJson(doc.data())).toList());
+  yield* snapshots.map(
+    (snapshot) =>
+        snapshot.docs.map((doc) => DogPair.fromJson(doc.data())).toList(),
+  );
 }
 
 Future<DogPairsReference> getDogPairsReference(
-    String teamGroupId, String teamId, String account) async {
+  String teamGroupId,
+  String teamId,
+  String account,
+) async {
   final db = FirebaseFirestore.instance;
   final path =
       "accounts/$account/data/teams/history/$teamGroupId/teams/$teamId/dogPairs";
@@ -64,13 +64,13 @@ Future<DogPairsReference> getDogPairsReference(
   final snap = await collection.get();
   final docs = snap.docs;
   return DogPairsReference(
-      teamId: teamId,
-      teamGroupId: teamGroupId,
-      dogPairs: docs.map((doc) => DogPair.fromJson(doc.data())).toList());
+    teamId: teamId,
+    teamGroupId: teamGroupId,
+    dogPairs: docs.map((doc) => DogPair.fromJson(doc.data())).toList(),
+  );
 }
 
 @freezed
-
 /// Used to store the team group id and the team id for future fetching.
 sealed class TeamReference with _$TeamReference {
   const factory TeamReference({

@@ -71,20 +71,14 @@ class _TeamsHistoryMainState extends ConsumerState<TeamsHistoryMain> {
                           const SizedBox(height: 12),
                           Text(
                             "No Team History",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: colorScheme.outline,
-                                ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(color: colorScheme.outline),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             "Create and save teams to see them here",
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: colorScheme.outline,
-                                    ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: colorScheme.outline),
                           ),
                         ],
                       ),
@@ -94,8 +88,9 @@ class _TeamsHistoryMainState extends ConsumerState<TeamsHistoryMain> {
                   // Group teams by date
                   Map<String, List<TeamGroup>> groupedByDate = {};
                   for (var group in groups) {
-                    String dateKey =
-                        DateFormat('yyyy-MM-dd').format(group.date);
+                    String dateKey = DateFormat(
+                      'yyyy-MM-dd',
+                    ).format(group.date);
                     if (!groupedByDate.containsKey(dateKey)) {
                       groupedByDate[dateKey] = [];
                     }
@@ -112,8 +107,12 @@ class _TeamsHistoryMainState extends ConsumerState<TeamsHistoryMain> {
 
                     // Add teams for this date
                     for (int i = 0; i < dayGroups.length; i++) {
-                      items.add(TeamViewer(
-                          item: dayGroups[i], key: ValueKey(dayGroups[i].id)));
+                      items.add(
+                        TeamViewer(
+                          item: dayGroups[i],
+                          key: ValueKey(dayGroups[i].id),
+                        ),
+                      );
                       if (i < dayGroups.length - 1) {
                         items.add(const SizedBox(height: 4));
                       }
@@ -124,17 +123,25 @@ class _TeamsHistoryMainState extends ConsumerState<TeamsHistoryMain> {
                   });
 
                   return ListView(
-                      padding: const EdgeInsets.all(12), children: items);
+                    padding: const EdgeInsets.all(12),
+                    children: items,
+                  );
                 },
                 error: (e, s) {
-                  BasicLogger().error("Couldn't load teamgroups.",
-                      error: e, stackTrace: s);
+                  BasicLogger().error(
+                    "Couldn't load teamgroups.",
+                    error: e,
+                    stackTrace: s,
+                  );
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.error_outline,
-                            size: 48, color: colorScheme.error),
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: colorScheme.error,
+                        ),
                         const SizedBox(height: 12),
                         Text(
                           "Error loading team groups",
@@ -144,9 +151,8 @@ class _TeamsHistoryMainState extends ConsumerState<TeamsHistoryMain> {
                     ),
                   );
                 },
-                loading: () => const Center(
-                  child: CircularProgressIndicator.adaptive(),
-                ),
+                loading: () =>
+                    const Center(child: CircularProgressIndicator.adaptive()),
               ),
         ),
       ],
@@ -154,7 +160,10 @@ class _TeamsHistoryMainState extends ConsumerState<TeamsHistoryMain> {
   }
 
   Widget _buildDateHeader(
-      BuildContext context, DateTime date, ColorScheme colorScheme) {
+    BuildContext context,
+    DateTime date,
+    ColorScheme colorScheme,
+  ) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
@@ -227,8 +236,9 @@ class TeamViewer extends ConsumerWidget {
               ),
             ),
             child: ExpansionTile(
-              backgroundColor:
-                  colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+              backgroundColor: colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.4,
+              ),
               collapsedBackgroundColor: Colors.transparent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -236,8 +246,10 @@ class TeamViewer extends ConsumerWidget {
               title: Row(
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: colorScheme.secondaryContainer,
                       borderRadius: BorderRadius.circular(8),
@@ -284,7 +296,9 @@ class TeamViewer extends ConsumerWidget {
                     ),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       minimumSize: const Size(0, 32),
                     ),
                     child: const Text("Load", style: TextStyle(fontSize: 12)),
@@ -307,19 +321,20 @@ class TeamViewer extends ConsumerWidget {
                       color: colorScheme.error,
                     ),
                     tooltip: "Delete team group",
-                    constraints:
-                        const BoxConstraints(minWidth: 32, minHeight: 32),
-                  )
+                    constraints: const BoxConstraints(
+                      minWidth: 32,
+                      minHeight: 32,
+                    ),
+                  ),
                 ],
               ),
-              tilePadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              tilePadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
+              ),
               childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               children: [
-                FormatObject(
-                  item,
-                  dogs.getAllDogsById(),
-                ),
+                FormatObject(item, dogs.getAllDogsById()),
                 const SizedBox(height: 12),
                 Align(
                   alignment: Alignment.centerRight,
@@ -327,17 +342,20 @@ class TeamViewer extends ConsumerWidget {
                     onPressed: () async {
                       try {
                         var teamGroupJson = item.toJson();
-                        TeamGroupWorkspace newTgs =
-                            TeamGroupWorkspace.fromJson(teamGroupJson);
-                        List<Team> teams = await ref
-                            .watch(teamsInTeamgroupProvider(item.id).future);
+                        TeamGroupWorkspace newTgs = TeamGroupWorkspace.fromJson(
+                          teamGroupJson,
+                        );
+                        List<Team> teams = await ref.watch(
+                          teamsInTeamgroupProvider(item.id).future,
+                        );
                         List<TeamWorkspace> tw = [];
                         for (Team team in teams) {
                           var tjs = team.toJson();
                           tjs.remove("rank");
                           List<DogPairWorkspace> dpw = [];
                           List<DogPair> dps = await ref.watch(
-                              dogPairsInTeamProvider(item.id, team.id).future);
+                            dogPairsInTeamProvider(item.id, team.id).future,
+                          );
                           for (DogPair dp in dps) {
                             var dpjs = dp.toJson();
                             dpjs.remove("rank");
@@ -348,27 +366,38 @@ class TeamViewer extends ConsumerWidget {
                           tw.add(finalTeam);
                         }
                         newTgs = newTgs.copyWith(
-                            teams: tw,
-                            id: const Uuid().v4(),
-                            date: DateTimeUtils.today());
-                        await saveToDb(newTgs,
-                            await ref.watch(accountProvider.future), ref);
+                          teams: tw,
+                          id: const Uuid().v4(),
+                          date: DateTimeUtils.today(),
+                        );
+                        await saveToDb(
+                          newTgs,
+                          await ref.watch(accountProvider.future),
+                          ref,
+                        );
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content:
-                                  const Text("Team group copied successfully"),
+                              content: const Text(
+                                "Team group copied successfully",
+                              ),
                               backgroundColor: colorScheme.primary,
                             ),
                           );
                         }
                       } catch (e, s) {
-                        BasicLogger().error("Couldn't copy team group",
-                            error: e, stackTrace: s);
+                        BasicLogger().error(
+                          "Couldn't copy team group",
+                          error: e,
+                          stackTrace: s,
+                        );
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                              errorSnackBar(context,
-                                  "Couldn't duplicate the team group"));
+                            errorSnackBar(
+                              context,
+                              "Couldn't duplicate the team group",
+                            ),
+                          );
                         }
                       }
                     },
@@ -376,7 +405,9 @@ class TeamViewer extends ConsumerWidget {
                     label: const Text("Duplicate"),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                     ),
                   ),
                 ),
@@ -411,9 +442,7 @@ class TeamViewer extends ConsumerWidget {
   AlertDialog buildAlertDialog(BuildContext context, String account) {
     final colorScheme = Theme.of(context).colorScheme;
     return AlertDialog.adaptive(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
           Icon(Icons.warning_amber, color: colorScheme.error),
@@ -452,7 +481,8 @@ class TeamViewer extends ConsumerWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                      r ? "Team group deleted" : "Error deleting team group"),
+                    r ? "Team group deleted" : "Error deleting team group",
+                  ),
                   backgroundColor: r ? colorScheme.primary : colorScheme.error,
                 ),
               );
@@ -460,7 +490,7 @@ class TeamViewer extends ConsumerWidget {
           },
           icon: const Icon(Icons.delete, size: 16),
           label: const Text("Delete"),
-        )
+        ),
       ],
     );
   }

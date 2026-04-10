@@ -23,111 +23,122 @@ class StatsMain extends ConsumerWidget {
     final selectedDogs = ref.watch(selectedDogsProvider);
     final account = ref.watch(accountProvider).value;
     return allDogsAsync.when(
-        data: (allDogs) {
-          if (account == null) {
-            return const CircularProgressIndicator.adaptive();
-          }
-          late final List<Dog> dogsToDisplay;
-          if (selectedDogs.isEmpty) {
-            dogsToDisplay = allDogs;
-          } else {
-            dogsToDisplay = selectedDogs;
-          }
-          return FutureBuilder(
-              future: StatsRepository(account: account)
-                  .teamGroupsWorkspaceFromDateRange(
-                      selectedDateRange.start, selectedDateRange.end),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator.adaptive(),
-                        Text(
-                            "Calculating the distances by each dog. This might take a while..."),
-                      ],
+      data: (allDogs) {
+        if (account == null) {
+          return const CircularProgressIndicator.adaptive();
+        }
+        late final List<Dog> dogsToDisplay;
+        if (selectedDogs.isEmpty) {
+          dogsToDisplay = allDogs;
+        } else {
+          dogsToDisplay = selectedDogs;
+        }
+        return FutureBuilder(
+          future: StatsRepository(account: account)
+              .teamGroupsWorkspaceFromDateRange(
+                selectedDateRange.start,
+                selectedDateRange.end,
+              ),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: Column(
+                  children: [
+                    CircularProgressIndicator.adaptive(),
+                    Text(
+                      "Calculating the distances by each dog. This might take a while...",
                     ),
-                  );
-                }
-                if (snapshot.hasError) {
-                  logger.error("Couldn't load the teamgroups",
-                      error: snapshot.error, stackTrace: snapshot.stackTrace);
-                  return Text("Error: ${snapshot.error.toString()}");
-                }
-                if (snapshot.hasData) {
-                  final teamGroups = snapshot.data!;
-                  logger.debug("Number of teamgroups: ${teamGroups.length}");
-                  return DefaultTabController(
-                    length: 2,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: TabBarView(
+                  ],
+                ),
+              );
+            }
+            if (snapshot.hasError) {
+              logger.error(
+                "Couldn't load the teamgroups",
+                error: snapshot.error,
+                stackTrace: snapshot.stackTrace,
+              );
+              return Text("Error: ${snapshot.error.toString()}");
+            }
+            if (snapshot.hasData) {
+              final teamGroups = snapshot.data!;
+              logger.debug("Number of teamgroups: ${teamGroups.length}");
+              return DefaultTabController(
+                length: 2,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          Column(
                             children: [
-                              Column(
+                              ExpansionTile(
+                                title: const Text("Change date range"),
                                 children: [
-                                  ExpansionTile(
-                                    title: const Text("Change date range"),
-                                    children: [
-                                      SfDateRangePicker(
-                                        initialSelectedRange: PickerDateRange(
-                                            selectedDateRange.start,
-                                            selectedDateRange.end),
-                                        selectionMode:
-                                            DateRangePickerSelectionMode.range,
-                                        onSelectionChanged: (args) {
-                                          if (args.value is PickerDateRange) {
-                                            final range =
-                                                args.value as PickerDateRange;
-                                            final startDate = range.startDate;
-                                            final endDate = range.endDate;
+                                  SfDateRangePicker(
+                                    initialSelectedRange: PickerDateRange(
+                                      selectedDateRange.start,
+                                      selectedDateRange.end,
+                                    ),
+                                    selectionMode:
+                                        DateRangePickerSelectionMode.range,
+                                    onSelectionChanged: (args) {
+                                      if (args.value is PickerDateRange) {
+                                        final range =
+                                            args.value as PickerDateRange;
+                                        final startDate = range.startDate;
+                                        final endDate = range.endDate;
 
-                                            if (startDate != null &&
-                                                endDate != null) {
-                                              ref
-                                                  .read(
-                                                      selectedDateRangeProvider
-                                                          .notifier)
-                                                  .change(startDate, endDate);
-                                            }
-                                          }
-                                        },
-                                      )
-                                    ],
-                                  ),
-                                  Expanded(
-                                    child: RunTable(
-                                        dogs: dogsToDisplay,
-                                        teamGroups: teamGroups),
+                                        if (startDate != null &&
+                                            endDate != null) {
+                                          ref
+                                              .read(
+                                                selectedDateRangeProvider
+                                                    .notifier,
+                                              )
+                                              .change(startDate, endDate);
+                                        }
+                                      }
+                                    },
                                   ),
                                 ],
                               ),
-                              const Placeholder(),
+                              Expanded(
+                                child: RunTable(
+                                  dogs: dogsToDisplay,
+                                  teamGroups: teamGroups,
+                                ),
+                              ),
                             ],
                           ),
-                        ),
-                        TabBar(
-                          labelColor: colorScheme.primary,
-                          unselectedLabelColor: Colors.grey,
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          tabs: const [
-                            Tab(text: "Run table"),
-                            Tab(text: "Insights"),
-                          ],
-                        ),
+                          const Placeholder(),
+                        ],
+                      ),
+                    ),
+                    TabBar(
+                      labelColor: colorScheme.primary,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      tabs: const [
+                        Tab(text: "Run table"),
+                        Tab(text: "Insights"),
                       ],
                     ),
-                  );
-                }
-                logger.error("Error: state of teamgroup future unknown.");
-                return const Text("Error: state of teamgroup future unknown");
-              });
-        },
-        error: (e, s) {
-          logger.error("Couldn't load all dogs in stats");
-          return const Text("Error: couldn't load the dogs");
-        },
-        loading: () => const CircularProgressIndicator.adaptive());
+                  ],
+                ),
+              );
+            }
+            logger.error("Error: state of teamgroup future unknown.");
+            return const Text("Error: state of teamgroup future unknown");
+          },
+        );
+      },
+      error: (e, s) {
+        logger.error("Couldn't load all dogs in stats");
+        return const Text("Error: couldn't load the dogs");
+      },
+      loading: () => const CircularProgressIndicator.adaptive(),
+    );
   }
 }
 
@@ -138,8 +149,10 @@ class DogFilter extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     SettingsModel? settings = ref.watch(settingsProvider).value;
-    return ExpansionTile(title: const Text("Filter dogs"), children: [
-      DogFilterWidget(
+    return ExpansionTile(
+      title: const Text("Filter dogs"),
+      children: [
+        DogFilterWidget(
           dogs: allDogs,
           onResult: (resultDogs) {
             ref.read(selectedDogsProvider.notifier).change(resultDogs);
@@ -149,7 +162,9 @@ class DogFilter extends ConsumerWidget {
               );
             }
           },
-          templates: settings?.customFieldTemplates ?? []),
-    ]);
+          templates: settings?.customFieldTemplates ?? [],
+        ),
+      ],
+    );
   }
 }

@@ -33,15 +33,19 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
     super.initState();
     id = widget.tour?.id ?? const Uuid().v4();
     nameController = TextEditingController(text: widget.tour?.name);
-    displayNameController =
-        TextEditingController(text: widget.tour?.displayName);
-    distanceController =
-        TextEditingController(text: widget.tour?.distance.toString());
+    displayNameController = TextEditingController(
+      text: widget.tour?.displayName,
+    );
+    distanceController = TextEditingController(
+      text: widget.tour?.distance.toString(),
+    );
     notesController = TextEditingController(text: widget.tour?.notes);
-    displayDescriptionController =
-        TextEditingController(text: widget.tour?.displayDescription);
-    durationController =
-        TextEditingController(text: widget.tour?.duration.toString());
+    displayDescriptionController = TextEditingController(
+      text: widget.tour?.displayDescription,
+    );
+    durationController = TextEditingController(
+      text: widget.tour?.duration.toString(),
+    );
   }
 
   @override
@@ -74,75 +78,85 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
         children: [
           _buildBasicInfoSection(colorScheme),
           _buildPricingSection(colorScheme, prices, priceNotifier),
-          _buildSaveSection(colorScheme, onTourSaved: () async {
-            var repo = ToursRepository(
-              account: await ref.watch(accountProvider.future),
-            );
-            try {
-              await repo.setTour(
-                tour: TourType(
-                  backgroundColor: backgroundColor,
-                  id: id,
-                  name: nameController.text,
-                  duration: int.tryParse(durationController.text) ?? 0,
-                  displayName: displayNameController.text,
-                  distance: double.tryParse(distanceController.text) ?? 0.0,
-                  notes: notesController.text,
-                  displayDescription: displayDescriptionController.text,
-                ),
-                pricing: prices,
+          _buildSaveSection(
+            colorScheme,
+            onTourSaved: () async {
+              var repo = ToursRepository(
+                account: await ref.watch(accountProvider.future),
               );
-            } catch (e, s) {
-              BasicLogger().error("Failed to save tour type $id",
-                  error: e, stackTrace: s);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  errorSnackBar(context, "Failed to save tour type"),
+              try {
+                await repo.setTour(
+                  tour: TourType(
+                    backgroundColor: backgroundColor,
+                    id: id,
+                    name: nameController.text,
+                    duration: int.tryParse(durationController.text) ?? 0,
+                    displayName: displayNameController.text,
+                    distance: double.tryParse(distanceController.text) ?? 0.0,
+                    notes: notesController.text,
+                    displayDescription: displayDescriptionController.text,
+                  ),
+                  pricing: prices,
                 );
+              } catch (e, s) {
+                BasicLogger().error(
+                  "Failed to save tour type $id",
+                  error: e,
+                  stackTrace: s,
+                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    errorSnackBar(context, "Failed to save tour type"),
+                  );
+                }
+                return;
               }
-              return;
-            }
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                confirmationSnackbar(context, "Tour saved"),
-              );
-              Navigator.of(context).pop();
-            }
-          }, onTourDeleted: () async {
-            var repo = ToursRepository(
-              account: await ref.watch(accountProvider.future),
-            );
-            try {
-              await repo.setTour(
-                tour: TourType(
-                  backgroundColor: backgroundColor,
-                  isArchived: true,
-                  id: id,
-                  name: nameController.text,
-                  duration: int.tryParse(durationController.text) ?? 0,
-                  displayName: displayNameController.text,
-                  distance: double.tryParse(distanceController.text) ?? 0.0,
-                  notes: notesController.text,
-                  displayDescription: displayDescriptionController.text,
-                ),
-              );
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  confirmationSnackbar(context, "Tour deleted"),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(confirmationSnackbar(context, "Tour saved"));
                 Navigator.of(context).pop();
               }
-            } catch (e, s) {
-              BasicLogger().error("Failed to delete tour type $id",
-                  error: e, stackTrace: s);
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  errorSnackBar(context, "Failed to delete tour type"),
+            },
+            onTourDeleted: () async {
+              var repo = ToursRepository(
+                account: await ref.watch(accountProvider.future),
+              );
+              try {
+                await repo.setTour(
+                  tour: TourType(
+                    backgroundColor: backgroundColor,
+                    isArchived: true,
+                    id: id,
+                    name: nameController.text,
+                    duration: int.tryParse(durationController.text) ?? 0,
+                    displayName: displayNameController.text,
+                    distance: double.tryParse(distanceController.text) ?? 0.0,
+                    notes: notesController.text,
+                    displayDescription: displayDescriptionController.text,
+                  ),
                 );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(confirmationSnackbar(context, "Tour deleted"));
+                  Navigator.of(context).pop();
+                }
+              } catch (e, s) {
+                BasicLogger().error(
+                  "Failed to delete tour type $id",
+                  error: e,
+                  stackTrace: s,
+                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    errorSnackBar(context, "Failed to delete tour type"),
+                  );
+                }
+                return;
               }
-              return;
-            }
-          }),
+            },
+          ),
         ],
       ),
     );
@@ -154,9 +168,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,10 +207,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorScheme.primary,
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: colorScheme.primary, width: 2),
               ),
             ),
           ),
@@ -221,10 +230,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorScheme.primary,
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: colorScheme.primary, width: 2),
               ),
             ),
           ),
@@ -247,10 +253,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorScheme.primary,
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: colorScheme.primary, width: 2),
               ),
             ),
             keyboardType: TextInputType.number,
@@ -277,10 +280,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorScheme.primary,
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: colorScheme.primary, width: 2),
               ),
             ),
             maxLines: 3,
@@ -304,10 +304,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorScheme.primary,
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: colorScheme.primary, width: 2),
               ),
             ),
             maxLines: 3,
@@ -331,10 +328,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorScheme.primary,
-                  width: 2,
-                ),
+                borderSide: BorderSide(color: colorScheme.primary, width: 2),
               ),
             ),
             keyboardType: TextInputType.number,
@@ -363,24 +357,25 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
                 onColorChanged: (c) => setState(() {
                   backgroundColor = c;
                 }),
-              )
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPricingSection(ColorScheme colorScheme,
-      List<TourTypePricing> prices, dynamic priceNotifier) {
+  Widget _buildPricingSection(
+    ColorScheme colorScheme,
+    List<TourTypePricing> prices,
+    dynamic priceNotifier,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -413,12 +408,13 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
                       onDeleted: () => showDialog(
                         context: context,
                         builder: (_) => DeletePricingAlert(
-                            onPricingDeleted: () {
-                              priceNotifier.editPricing(
-                                price.copyWith(isArchived: true),
-                              );
-                            },
-                            pricing: price),
+                          onPricingDeleted: () {
+                            priceNotifier.editPricing(
+                              price.copyWith(isArchived: true),
+                            );
+                          },
+                          pricing: price,
+                        ),
                       ),
                       onPressed: () => showDialog(
                         context: context,
@@ -449,8 +445,10 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primaryContainer,
                 foregroundColor: colorScheme.onPrimaryContainer,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
               ),
             ),
           ),
@@ -459,8 +457,11 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
     );
   }
 
-  Widget _buildSaveSection(ColorScheme colorScheme,
-      {required Function() onTourSaved, required Function() onTourDeleted}) {
+  Widget _buildSaveSection(
+    ColorScheme colorScheme, {
+    required Function() onTourSaved,
+    required Function() onTourDeleted,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
@@ -469,10 +470,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
         children: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              "Cancel",
-              style: TextStyle(color: colorScheme.error),
-            ),
+            child: Text("Cancel", style: TextStyle(color: colorScheme.error)),
           ),
           ElevatedButton.icon(
             onPressed: () => showDialog(
@@ -512,8 +510,11 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
 class PricingEditorAlert extends StatefulWidget {
   final TourTypePricing? pricing;
   final Function(TourTypePricing) onPricingSaved;
-  const PricingEditorAlert(
-      {super.key, this.pricing, required this.onPricingSaved});
+  const PricingEditorAlert({
+    super.key,
+    this.pricing,
+    required this.onPricingSaved,
+  });
 
   @override
   State<PricingEditorAlert> createState() => _PricingEditorAlertState();
@@ -534,14 +535,18 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
     id = widget.pricing?.id ?? const Uuid().v4();
     nameController = TextEditingController(text: widget.pricing?.name);
     priceController = TextEditingController(
-        text: ((widget.pricing?.priceCents ?? 0) / 100).toStringAsFixed(2));
+      text: ((widget.pricing?.priceCents ?? 0) / 100).toStringAsFixed(2),
+    );
     vatController = TextEditingController(
-        text: ((widget.pricing?.vatRate ?? 0) * 100).toStringAsFixed(2));
+      text: ((widget.pricing?.vatRate ?? 0) * 100).toStringAsFixed(2),
+    );
     notes = TextEditingController(text: widget.pricing?.notes);
-    displayNameController =
-        TextEditingController(text: widget.pricing?.displayName);
-    displayDescription =
-        TextEditingController(text: widget.pricing?.displayDescription);
+    displayNameController = TextEditingController(
+      text: widget.pricing?.displayName,
+    );
+    displayDescription = TextEditingController(
+      text: widget.pricing?.displayDescription,
+    );
   }
 
   @override
@@ -549,9 +554,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
     final colorScheme = Theme.of(context).colorScheme;
     final bool isViewOnly = widget.pricing != null;
     return AlertDialog.adaptive(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
           Icon(Icons.euro, color: colorScheme.primary),
@@ -568,7 +571,8 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
             children: [
               if (isViewOnly)
                 const Text(
-                    "For safety, a pricing can't be edited or deleted, only archived"),
+                  "For safety, a pricing can't be edited or deleted, only archived",
+                ),
               TextField(
                 controller: nameController,
                 readOnly: isViewOnly,
@@ -655,7 +659,8 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
                     ? null
                     : [
                         FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d*')),
+                          RegExp(r'^\d*\.?\d*'),
+                        ),
                       ],
               ),
               TextField(
@@ -690,7 +695,8 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
                     ? null
                     : [
                         FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d*')),
+                          RegExp(r'^\d*\.?\d*'),
+                        ),
                       ],
               ),
               TextField(
@@ -757,10 +763,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            "Cancel",
-            style: TextStyle(color: colorScheme.error),
-          ),
+          child: Text("Cancel", style: TextStyle(color: colorScheme.error)),
         ),
         if (!isViewOnly)
           ElevatedButton.icon(
@@ -804,9 +807,7 @@ class ConfirmDeleteAlert extends StatelessWidget {
       content: const Text(
         "Tours can't be deleted, only archived for safety. Are you sure?",
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -831,8 +832,11 @@ class ConfirmDeleteAlert extends StatelessWidget {
 class DeletePricingAlert extends StatelessWidget {
   final TourTypePricing pricing;
   final Function() onPricingDeleted;
-  const DeletePricingAlert(
-      {super.key, required this.onPricingDeleted, required this.pricing});
+  const DeletePricingAlert({
+    super.key,
+    required this.onPricingDeleted,
+    required this.pricing,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -852,7 +856,7 @@ class DeletePricingAlert extends StatelessWidget {
             Navigator.of(context).pop();
           },
           child: const Text("Archive pricing"),
-        )
+        ),
       ],
     );
   }

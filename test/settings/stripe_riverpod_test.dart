@@ -4,36 +4,38 @@ import 'package:mush_on/settings/stripe/riverpod.dart';
 
 void main() {
   group('TempBookingFields', () {
-    test('setInitialFields seeds state only once and does not overwrite edits',
-        () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
+    test(
+      'setInitialFields seeds state only once and does not overwrite edits',
+      () {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
 
-      const initialField = BookingCustomField(
-        id: 'pickup',
-        type: CustomerCustomFieldType.text,
-        name: 'Pickup point',
-        description: 'Where the group should be picked up.',
-        isRequired: true,
-      );
-      const replacementField = BookingCustomField(
-        id: 'arrival-notes',
-        type: CustomerCustomFieldType.text,
-        name: 'Arrival notes',
-        description: 'Anything we should know before arrival.',
-        isRequired: false,
-      );
+        const initialField = BookingCustomField(
+          id: 'pickup',
+          type: CustomerCustomFieldType.text,
+          name: 'Pickup point',
+          description: 'Where the group should be picked up.',
+          isRequired: true,
+        );
+        const replacementField = BookingCustomField(
+          id: 'arrival-notes',
+          type: CustomerCustomFieldType.text,
+          name: 'Arrival notes',
+          description: 'Anything we should know before arrival.',
+          isRequired: false,
+        );
 
-      container
-          .read(tempBookingFieldsProvider.notifier)
-          .setInitialFields(const [initialField]);
-      expect(container.read(tempBookingFieldsProvider), const [initialField]);
+        container.read(tempBookingFieldsProvider.notifier).setInitialFields(
+          const [initialField],
+        );
+        expect(container.read(tempBookingFieldsProvider), const [initialField]);
 
-      container
-          .read(tempBookingFieldsProvider.notifier)
-          .setInitialFields(const [replacementField]);
-      expect(container.read(tempBookingFieldsProvider), const [initialField]);
-    });
+        container.read(tempBookingFieldsProvider.notifier).setInitialFields(
+          const [replacementField],
+        );
+        expect(container.read(tempBookingFieldsProvider), const [initialField]);
+      },
+    );
 
     test('add, update and remove field mutate the draft list as expected', () {
       final container = ProviderContainer();

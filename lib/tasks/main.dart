@@ -31,7 +31,8 @@ class TasksMainWidget extends ConsumerWidget {
             child: TabBarViewWidget(
               onFetchOlderTasks: (d) {
                 final daysToRemove = DateTimeUtils.today().difference(d);
-                tasks = ref.watch(tasksProvider(daysToRemove.inDays)).value ??
+                tasks =
+                    ref.watch(tasksProvider(daysToRemove.inDays)).value ??
                     const TasksInMemory();
               },
               tasks: tasks,
@@ -39,7 +40,9 @@ class TasksMainWidget extends ConsumerWidget {
               onTaskEdited: (t) async {
                 try {
                   await TaskRepository.addOrUpdate(
-                      t, await ref.watch(accountProvider.future));
+                    t,
+                    await ref.watch(accountProvider.future),
+                  );
                   if (t.isDone &&
                       t.expiration != null &&
                       t.recurring != RecurringType.none) {
@@ -61,20 +64,23 @@ class TasksMainWidget extends ConsumerWidget {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           duration: const Duration(seconds: 5),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
                           action: SnackBarAction(
-                              label: "UNDO",
-                              onPressed: () async {
-                                await TaskRepository.addOrUpdate(
-                                  t.copyWith(isDone: false),
-                                  await ref.watch(accountProvider.future),
-                                );
-                              }),
+                            label: "UNDO",
+                            onPressed: () async {
+                              await TaskRepository.addOrUpdate(
+                                t.copyWith(isDone: false),
+                                await ref.watch(accountProvider.future),
+                              );
+                            },
+                          ),
                           content: Text(
                             "Task completed: ${t.title}",
                             style: TextStyle(
-                                color: Theme.of(context).colorScheme.onPrimary),
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
                           ),
                         ),
                       );
@@ -82,32 +88,42 @@ class TasksMainWidget extends ConsumerWidget {
                   } else {
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          confirmationSnackbar(
-                              context, "Task edited successfully: ${t.title}"));
+                        confirmationSnackbar(
+                          context,
+                          "Task edited successfully: ${t.title}",
+                        ),
+                      );
                     }
                   }
                 } catch (e, s) {
                   logger.error("Couldn't edit task", error: e, stackTrace: s);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        errorSnackBar(context, "Couldn't edit task"));
+                      errorSnackBar(context, "Couldn't edit task"),
+                    );
                   }
                 }
               },
               onTaskAdded: (t) async {
                 await TaskRepository.addOrUpdate(
-                    t, await ref.watch(accountProvider.future));
+                  t,
+                  await ref.watch(accountProvider.future),
+                );
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                      confirmationSnackbar(context, "Task added successfully"));
+                    confirmationSnackbar(context, "Task added successfully"),
+                  );
                 }
               },
               onTaskDeleted: (t) async {
                 await TaskRepository.delete(
-                    t, await ref.watch(accountProvider.future));
+                  t,
+                  await ref.watch(accountProvider.future),
+                );
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                      confirmationSnackbar(context, "Task added successfully"));
+                    confirmationSnackbar(context, "Task added successfully"),
+                  );
                 }
               },
             ),

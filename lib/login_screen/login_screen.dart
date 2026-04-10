@@ -15,7 +15,7 @@ class LoginScreen extends StatelessWidget {
             "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com",
         redirectUri: kIsWeb ? Uri.base.toString() : null,
       ),
-      EmailAuthProvider()
+      EmailAuthProvider(),
     ]);
 
     void onSignedIn() {
@@ -28,18 +28,23 @@ class LoginScreen extends StatelessWidget {
             ? Column(
                 children: [
                   ElevatedButton(
-                      onPressed: () => context.go(
-                          "/booking?kennel=test-stefano&tourId=76c1e154-baf5-460f-9072-a8638042ee61"),
-                      child: const Text("Go to test page")),
+                    onPressed: () => context.go(
+                      "/booking?kennel=test-stefano&tourId=76c1e154-baf5-460f-9072-a8638042ee61",
+                    ),
+                    child: const Text("Go to test page"),
+                  ),
                   ElevatedButton(
                     child: const Text("Go to confirmation page"),
                     onPressed: () => context.go(
-                        "/booking_success?bookingId=7726c0de-fd6e-4efd-a3fb-2466ff7c3b39&account=test-stefano"),
+                      "/booking_success?bookingId=7726c0de-fd6e-4efd-a3fb-2466ff7c3b39&account=test-stefano",
+                    ),
                   ),
                   ElevatedButton(
-                      onPressed: () => context.go(
-                          "/accept_invitation?email=info@stefanominiconsulting.com&securityCode=6"),
-                      child: const Text("Go to accept invitation page"))
+                    onPressed: () => context.go(
+                      "/accept_invitation?email=info@stefanominiconsulting.com&securityCode=6",
+                    ),
+                    child: const Text("Go to accept invitation page"),
+                  ),
                 ],
               )
             : const SizedBox.shrink(),

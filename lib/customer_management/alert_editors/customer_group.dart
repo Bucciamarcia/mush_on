@@ -20,10 +20,7 @@ import 'package:uuid/uuid.dart';
 
 class CustomerGroupEditor extends ConsumerStatefulWidget {
   final CustomerGroup? customerGroup;
-  const CustomerGroupEditor({
-    super.key,
-    this.customerGroup,
-  });
+  const CustomerGroupEditor({super.key, this.customerGroup});
 
   @override
   ConsumerState<CustomerGroupEditor> createState() =>
@@ -84,8 +81,8 @@ class _CustomerGroupEditorAlertState
     List<CustomerGroup> customerGroupsThisDay =
         ref.watch(customerGroupsByDateProvider(dateTime)).value ?? [];
 
-// Filter out team groups that are already assigned to OTHER customer groups
-// (but keep the one assigned to the current customer group when editing)
+    // Filter out team groups that are already assigned to OTHER customer groups
+    // (but keep the one assigned to the current customer group when editing)
     possibleTeamGroups.removeWhere((tg) {
       for (var cg in customerGroupsThisDay) {
         // Skip filtering if this is the current customer group being edited
@@ -104,10 +101,12 @@ class _CustomerGroupEditorAlertState
     return TemplateScreen(
       title: "Customer Group Editor",
       child: Container(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: SingleChildScrollView(
-            child:
-                Column(mainAxisSize: MainAxisSize.min, spacing: 24, children: [
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 24,
+            children: [
               TextField(
                 controller: nameController,
                 onChanged: (s) {
@@ -126,8 +125,9 @@ class _CustomerGroupEditorAlertState
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.3),
+                  color: colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: colorScheme.outline.withValues(alpha: 0.2),
@@ -139,8 +139,11 @@ class _CustomerGroupEditorAlertState
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.schedule,
-                            size: 20, color: colorScheme.primary),
+                        Icon(
+                          Icons.schedule,
+                          size: 20,
+                          color: colorScheme.primary,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           "Date & Time",
@@ -153,10 +156,13 @@ class _CustomerGroupEditorAlertState
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color:
-                            colorScheme.primaryContainer.withValues(alpha: 0.5),
+                        color: colorScheme.primaryContainer.withValues(
+                          alpha: 0.5,
+                        ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
@@ -164,8 +170,11 @@ class _CustomerGroupEditorAlertState
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.event,
-                                  size: 18, color: colorScheme.primary),
+                              Icon(
+                                Icons.event,
+                                size: 18,
+                                color: colorScheme.primary,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 "Selected Date & Time:",
@@ -178,8 +187,9 @@ class _CustomerGroupEditorAlertState
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            DateFormat("EEEE, MMMM d, yyyy 'at' HH:mm")
-                                .format(dateTime),
+                            DateFormat(
+                              "EEEE, MMMM d, yyyy 'at' HH:mm",
+                            ).format(dateTime),
                             style: TextStyle(
                               color: colorScheme.onSurface,
                               fontWeight: FontWeight.w500,
@@ -223,7 +233,9 @@ class _CustomerGroupEditorAlertState
                             TimeOfDay? newTime = await showTimePicker(
                               context: context,
                               initialTime: TimeOfDay(
-                                  hour: dateTime.hour, minute: dateTime.minute),
+                                hour: dateTime.hour,
+                                minute: dateTime.minute,
+                              ),
                             );
                             if (newTime != null) {
                               dateTime = dateTime.copyWith(
@@ -246,9 +258,7 @@ class _CustomerGroupEditorAlertState
               TextField(
                 controller: maxCapacityController,
                 keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 decoration: InputDecoration(
                   labelText: "Max Capacity",
                   hintText: "Maximum number of people in this group",
@@ -281,16 +291,18 @@ class _CustomerGroupEditorAlertState
                 dropdownMenuEntries: tours
                     .map(
                       (tour) => DropdownMenuEntry(
-                          value: tour,
-                          label: "${tour.name} - ${tour.distance} km"),
+                        value: tour,
+                        label: "${tour.name} - ${tour.distance} km",
+                      ),
                     )
                     .toList(),
               ),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.3),
+                  color: colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: colorScheme.outline.withValues(alpha: 0.2),
@@ -302,8 +314,11 @@ class _CustomerGroupEditorAlertState
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.group_work,
-                            size: 20, color: colorScheme.primary),
+                        Icon(
+                          Icons.group_work,
+                          size: 20,
+                          color: colorScheme.primary,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           "Team Group Assignment",
@@ -317,22 +332,27 @@ class _CustomerGroupEditorAlertState
                     possibleTeamGroups.isEmpty
                         ? Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: colorScheme.surface,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               children: [
-                                Icon(Icons.info_outline,
-                                    size: 18,
-                                    color: colorScheme.onSurfaceVariant),
+                                Icon(
+                                  Icons.info_outline,
+                                  size: 18,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     "No team groups available for this date and time",
                                     style: TextStyle(
-                                        color: colorScheme.onSurfaceVariant),
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -340,21 +360,25 @@ class _CustomerGroupEditorAlertState
                           )
                         : DropdownMenu<TeamGroup>(
                             controller: TextEditingController(
-                                text: possibleTeamGroups
-                                    .firstWhereOrNull(
-                                        (t) => t.id == selectedTeamGroupId)
-                                    ?.name),
+                              text: possibleTeamGroups
+                                  .firstWhereOrNull(
+                                    (t) => t.id == selectedTeamGroupId,
+                                  )
+                                  ?.name,
+                            ),
                             label: const Text("Select team group"),
                             dropdownMenuEntries: possibleTeamGroups
-                                .map((tg) => DropdownMenuEntry(
-                                    value: tg, label: tg.name))
+                                .map(
+                                  (tg) => DropdownMenuEntry(
+                                    value: tg,
+                                    label: tg.name,
+                                  ),
+                                )
                                 .toList(),
                             onSelected: (v) {
-                              setState(
-                                () {
-                                  selectedTeamGroupId = v?.id;
-                                },
-                              );
+                              setState(() {
+                                selectedTeamGroupId = v?.id;
+                              });
                             },
                           ),
                     Center(
@@ -363,9 +387,8 @@ class _CustomerGroupEditorAlertState
                           String tgName = "";
                           await showDialog(
                             context: context,
-                            builder: (dialogContext) => AddTeamGroupInCg(
-                              onTgAdded: (v) => tgName = v,
-                            ),
+                            builder: (dialogContext) =>
+                                AddTeamGroupInCg(onTgAdded: (v) => tgName = v),
                           );
                           if (tgName.isNotEmpty) {
                             String uid = const Uuid().v4();
@@ -387,15 +410,13 @@ class _CustomerGroupEditorAlertState
                               tg,
                               await ref.watch(accountProvider.future),
                               ref,
-                            ).catchError(
-                              (e) {
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    errorSnackBar(context, "Error!"),
-                                  );
-                                }
-                              },
-                            );
+                            ).catchError((e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  errorSnackBar(context, "Error!"),
+                                );
+                              }
+                            });
                             setState(() {
                               selectedTeamGroupId = uid;
                             });
@@ -409,208 +430,242 @@ class _CustomerGroupEditorAlertState
                 ),
               ),
               // Manage Bookings section
-              Builder(builder: (context) {
-                final scheme = Theme.of(context).colorScheme;
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color:
-                        scheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: scheme.outline.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 12,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.book_online,
-                              size: 20, color: scheme.primary),
-                          const SizedBox(width: 8),
-                          Text(
-                            "Manage Bookings",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: scheme.onSurface,
-                            ),
-                          ),
-                        ],
+              Builder(
+                builder: (context) {
+                  final scheme = Theme.of(context).colorScheme;
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: scheme.surfaceContainerHighest.withValues(
+                        alpha: 0.3,
                       ),
-                      if (bookings.isEmpty)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: scheme.surface,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.info_outline,
-                                  size: 18, color: scheme.onSurfaceVariant),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  "No bookings for this customer group",
-                                  style:
-                                      TextStyle(color: scheme.onSurfaceVariant),
-                                ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: scheme.outline.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 12,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.book_online,
+                              size: 20,
+                              color: scheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "Manage Bookings",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: scheme.onSurface,
                               ),
-                            ],
-                          ),
-                        )
-                      else
-                        Column(
-                          children: bookings.map((booking) {
-                            List<Customer> customers = ref
-                                    .watch(customersByBookingIdProvider(
-                                        booking.id))
-                                    .value ??
-                                [];
-                            return Card(
-                              elevation: 0,
-                              clipBehavior: Clip.antiAlias,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: BorderSide(
-                                  color: scheme.outline.withValues(alpha: 0.2),
+                            ),
+                          ],
+                        ),
+                        if (bookings.isEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: scheme.surface,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  size: 18,
+                                  color: scheme.onSurfaceVariant,
                                 ),
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 4),
-                                leading: CircleAvatar(
-                                  backgroundColor: scheme.primaryContainer,
-                                  foregroundColor: scheme.onPrimaryContainer,
-                                  child: const Icon(Icons.event),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    "No bookings for this customer group",
+                                    style: TextStyle(
+                                      color: scheme.onSurfaceVariant,
+                                    ),
+                                  ),
                                 ),
-                                title: Text(
-                                  booking.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w600),
+                              ],
+                            ),
+                          )
+                        else
+                          Column(
+                            children: bookings.map((booking) {
+                              List<Customer> customers =
+                                  ref
+                                      .watch(
+                                        customersByBookingIdProvider(
+                                          booking.id,
+                                        ),
+                                      )
+                                      .value ??
+                                  [];
+                              return Card(
+                                elevation: 0,
+                                clipBehavior: Clip.antiAlias,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  side: BorderSide(
+                                    color: scheme.outline.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                  ),
                                 ),
-                                subtitle: Text("${customers.length} people"),
-                                trailing: const Icon(Icons.chevron_right),
-                                onTap: () => showDialog(
-                                  context: context,
-                                  builder: (_) {
-                                    final accountAsync =
-                                        ref.watch(accountProvider);
-                                    return accountAsync.when(
-                                      data: (account) {
-                                        final repo =
-                                            CustomerManagementRepository(
-                                                account: account);
-                                        return BookingEditorAlert(
-                                          booking: booking,
-                                          onBookingEdited: (b) async {
-                                            await repo.setBooking(b);
-                                            setState(() {
-                                              bookings.removeWhere(
-                                                  (bb) => bb.id == b.id);
-                                              bookings.add(b);
-                                            });
-                                          },
-                                          onCustomersEdited: (cs, id) async =>
-                                              await repo.setCustomers(
-                                                  cs, booking.id),
-                                          onBookingDeleted: () {
-                                            repo.deleteBooking(booking.id);
-                                            setState(() {
-                                              bookings.removeWhere(
-                                                  (bb) => bb.id == booking.id);
-                                            });
-                                          },
-                                          selectedCustomerGroup: widget
-                                                  .customerGroup ??
-                                              CustomerGroup(
-                                                id: id,
-                                                datetime: dateTime,
-                                                name: nameController.text,
-                                                tourTypeId: selectedTour?.id,
-                                                maxCapacity: int.tryParse(
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
+                                  leading: CircleAvatar(
+                                    backgroundColor: scheme.primaryContainer,
+                                    foregroundColor: scheme.onPrimaryContainer,
+                                    child: const Icon(Icons.event),
+                                  ),
+                                  title: Text(
+                                    booking.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  subtitle: Text("${customers.length} people"),
+                                  trailing: const Icon(Icons.chevron_right),
+                                  onTap: () => showDialog(
+                                    context: context,
+                                    builder: (_) {
+                                      final accountAsync = ref.watch(
+                                        accountProvider,
+                                      );
+                                      return accountAsync.when(
+                                        data: (account) {
+                                          final repo =
+                                              CustomerManagementRepository(
+                                                account: account,
+                                              );
+                                          return BookingEditorAlert(
+                                            booking: booking,
+                                            onBookingEdited: (b) async {
+                                              await repo.setBooking(b);
+                                              setState(() {
+                                                bookings.removeWhere(
+                                                  (bb) => bb.id == b.id,
+                                                );
+                                                bookings.add(b);
+                                              });
+                                            },
+                                            onCustomersEdited: (cs, id) async =>
+                                                await repo.setCustomers(
+                                                  cs,
+                                                  booking.id,
+                                                ),
+                                            onBookingDeleted: () {
+                                              repo.deleteBooking(booking.id);
+                                              setState(() {
+                                                bookings.removeWhere(
+                                                  (bb) => bb.id == booking.id,
+                                                );
+                                              });
+                                            },
+                                            selectedCustomerGroup:
+                                                widget.customerGroup ??
+                                                CustomerGroup(
+                                                  id: id,
+                                                  datetime: dateTime,
+                                                  name: nameController.text,
+                                                  tourTypeId: selectedTour?.id,
+                                                  maxCapacity:
+                                                      int.tryParse(
                                                         maxCapacityController
-                                                            .text) ??
-                                                    0,
-                                                teamGroupId:
-                                                    selectedTeamGroupId,
-                                              ),
-                                        );
+                                                            .text,
+                                                      ) ??
+                                                      0,
+                                                  teamGroupId:
+                                                      selectedTeamGroupId,
+                                                ),
+                                          );
+                                        },
+                                        error: (e, s) {
+                                          return const Text("error");
+                                        },
+                                        loading: () =>
+                                            const CircularProgressIndicator.adaptive(),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        Center(
+                          child: FilledButton.tonalIcon(
+                            onPressed: () => showDialog(
+                              context: context,
+                              builder: (_) {
+                                final accountAsync = ref.watch(accountProvider);
+                                return accountAsync.when(
+                                  data: (account) {
+                                    final repo = CustomerManagementRepository(
+                                      account: account,
+                                    );
+                                    return BookingEditorAlert(
+                                      onBookingEdited: (b) async {
+                                        await repo.setBooking(b);
+                                        setState(() {
+                                          bookings.removeWhere(
+                                            (bb) => bb.id == b.id,
+                                          );
+                                          bookings.add(b);
+                                        });
                                       },
-                                      error: (e, s) {
-                                        return const Text("error");
-                                      },
-                                      loading: () =>
-                                          const CircularProgressIndicator
-                                              .adaptive(),
+                                      onCustomersEdited: (cs, id) async =>
+                                          await repo.setCustomers(cs, id),
+                                      onBookingDeleted: () => null,
+                                      selectedCustomerGroup:
+                                          widget.customerGroup ??
+                                          CustomerGroup(
+                                            id: id,
+                                            datetime: dateTime,
+                                            name: nameController.text,
+                                            tourTypeId: selectedTour?.id,
+                                            maxCapacity:
+                                                int.tryParse(
+                                                  maxCapacityController.text,
+                                                ) ??
+                                                0,
+                                            teamGroupId: selectedTeamGroupId,
+                                          ),
                                     );
                                   },
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      Center(
-                        child: FilledButton.tonalIcon(
-                          onPressed: () => showDialog(
-                            context: context,
-                            builder: (_) {
-                              final accountAsync = ref.watch(accountProvider);
-                              return accountAsync.when(
-                                data: (account) {
-                                  final repo = CustomerManagementRepository(
-                                      account: account);
-                                  return BookingEditorAlert(
-                                    onBookingEdited: (b) async {
-                                      await repo.setBooking(b);
-                                      setState(() {
-                                        bookings
-                                            .removeWhere((bb) => bb.id == b.id);
-                                        bookings.add(b);
-                                      });
-                                    },
-                                    onCustomersEdited: (cs, id) async =>
-                                        await repo.setCustomers(cs, id),
-                                    onBookingDeleted: () => null,
-                                    selectedCustomerGroup: widget
-                                            .customerGroup ??
-                                        CustomerGroup(
-                                          id: id,
-                                          datetime: dateTime,
-                                          name: nameController.text,
-                                          tourTypeId: selectedTour?.id,
-                                          maxCapacity: int.tryParse(
-                                                  maxCapacityController.text) ??
-                                              0,
-                                          teamGroupId: selectedTeamGroupId,
-                                        ),
-                                  );
-                                },
-                                error: (e, s) {
-                                  return const Text("error");
-                                },
-                                loading: () =>
-                                    const CircularProgressIndicator.adaptive(),
-                              );
-                            },
+                                  error: (e, s) {
+                                    return const Text("error");
+                                  },
+                                  loading: () =>
+                                      const CircularProgressIndicator.adaptive(),
+                                );
+                              },
+                            ),
+                            icon: const Icon(Icons.add),
+                            label: const Text("Add Booking"),
                           ),
-                          icon: const Icon(Icons.add),
-                          label: const Text("Add Booking"),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+                      ],
+                    ),
+                  );
+                },
+              ),
               Row(
                 children: [
                   TextButton(
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -627,14 +682,16 @@ class _CustomerGroupEditorAlertState
                       builder: (_) => AlertDialog.adaptive(
                         title: const Text("Are you sure?"),
                         content: const Text(
-                            "Are you sure you want to delete this customer group?"),
+                          "Are you sure you want to delete this customer group?",
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(),
                             child: Text(
                               "Nevermind",
                               style: TextStyle(
-                                  color: Theme.of(context).colorScheme.error),
+                                color: Theme.of(context).colorScheme.error,
+                              ),
                             ),
                           ),
                           TextButton(
@@ -642,14 +699,21 @@ class _CustomerGroupEditorAlertState
                               if (widget.customerGroup != null) {
                                 try {
                                   await customerRepo.deleteCustomerGroup(
-                                      widget.customerGroup!.id);
+                                    widget.customerGroup!.id,
+                                  );
                                 } catch (e, s) {
-                                  BasicLogger().error("Couldn't delete cg.",
-                                      error: e, stackTrace: s);
+                                  BasicLogger().error(
+                                    "Couldn't delete cg.",
+                                    error: e,
+                                    stackTrace: s,
+                                  );
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                        errorSnackBar(context,
-                                            "Couldn't delete customer group"));
+                                      errorSnackBar(
+                                        context,
+                                        "Couldn't delete customer group",
+                                      ),
+                                    );
                                   }
                                 }
                               }
@@ -669,13 +733,15 @@ class _CustomerGroupEditorAlertState
                   FilledButton.icon(
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    onPressed: nameController.text.isNotEmpty &&
-                            selectedTour != null
+                    onPressed:
+                        nameController.text.isNotEmpty && selectedTour != null
                         ? () async {
                             try {
                               await customerRepo.setCustomerGroup(
@@ -685,18 +751,26 @@ class _CustomerGroupEditorAlertState
                                   datetime: dateTime,
                                   name: nameController.text,
                                   teamGroupId: selectedTeamGroupId,
-                                  maxCapacity: int.tryParse(
-                                          maxCapacityController.text) ??
+                                  maxCapacity:
+                                      int.tryParse(
+                                        maxCapacityController.text,
+                                      ) ??
                                       0,
                                 ),
                               );
                             } catch (e, s) {
-                              BasicLogger().error("Couldn't save cg.",
-                                  error: e, stackTrace: s);
+                              BasicLogger().error(
+                                "Couldn't save cg.",
+                                error: e,
+                                stackTrace: s,
+                              );
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    errorSnackBar(context,
-                                        "Couldn't save customer group"));
+                                  errorSnackBar(
+                                    context,
+                                    "Couldn't save customer group",
+                                  ),
+                                );
                               }
                               return;
                             }
@@ -704,14 +778,18 @@ class _CustomerGroupEditorAlertState
                           }
                         : null,
                     icon: const Icon(Icons.save),
-                    label: Text(widget.customerGroup == null
-                        ? "Add Group"
-                        : "Save Changes"),
+                    label: Text(
+                      widget.customerGroup == null
+                          ? "Add Group"
+                          : "Save Changes",
+                    ),
                   ),
                 ],
               ),
-            ]),
-          )),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -740,11 +818,13 @@ class _AddTeamGroupInCgState extends State<AddTeamGroupInCg> {
       content: Column(
         children: [
           const Text(
-              "Create a new Team Group and assign this Customer Group to it."),
+            "Create a new Team Group and assign this Customer Group to it.",
+          ),
           TextField(
             controller: controller,
-            decoration:
-                const InputDecoration(hint: Text("Name of the Team Group")),
+            decoration: const InputDecoration(
+              hint: Text("Name of the Team Group"),
+            ),
           ),
         ],
       ),

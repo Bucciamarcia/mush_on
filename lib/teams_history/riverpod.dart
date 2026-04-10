@@ -7,10 +7,12 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
 
 @riverpod
-
 /// Returns a list of teamgroups to display based on the date range specified.
-Stream<List<TeamGroup>> teamGroups(Ref ref,
-    {required DateTime earliestDate, DateTime? finalDate}) async* {
+Stream<List<TeamGroup>> teamGroups(
+  Ref ref, {
+  required DateTime earliestDate,
+  DateTime? finalDate,
+}) async* {
   String account = await ref.watch(accountProvider.future);
 
   final db = FirebaseFirestore.instance;
@@ -23,24 +25,28 @@ Stream<List<TeamGroup>> teamGroups(Ref ref,
   }
 
   yield* collection.snapshots().map(
-        (snapshot) =>
-            snapshot.docs.map((doc) => TeamGroup.fromJson(doc.data())).toList(),
-      );
+    (snapshot) =>
+        snapshot.docs.map((doc) => TeamGroup.fromJson(doc.data())).toList(),
+  );
 }
 
 @riverpod
-
 /// Returns whether the team group has a customer group assigned to it.
 Stream<bool> hasCustomerGroup(Ref ref, String teamGroupId) async* {
   String account = await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/bookingManager/customerGroups";
   final db = FirebaseFirestore.instance;
   final collection = db.collection(path);
-  final collectionWhere =
-      collection.where("teamGroupId", isEqualTo: teamGroupId);
-  yield* collectionWhere.snapshots().where((snapshot) {
-    return snapshot.docs.isNotEmpty;
-  }).map((snapshot) {
-    return snapshot.docs.isNotEmpty;
-  });
+  final collectionWhere = collection.where(
+    "teamGroupId",
+    isEqualTo: teamGroupId,
+  );
+  yield* collectionWhere
+      .snapshots()
+      .where((snapshot) {
+        return snapshot.docs.isNotEmpty;
+      })
+      .map((snapshot) {
+        return snapshot.docs.isNotEmpty;
+      });
 }

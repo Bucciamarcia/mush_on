@@ -8,7 +8,6 @@ part 'models.g.dart';
 part 'models.freezed.dart';
 
 @freezed
-
 /// Just a class that contains all the riverpod results that Homepage needs
 abstract class HomePageRiverpodResults with _$HomePageRiverpodResults {
   const factory HomePageRiverpodResults({
@@ -21,7 +20,6 @@ abstract class HomePageRiverpodResults with _$HomePageRiverpodResults {
 }
 
 @freezed
-
 /// An element of the whiteboard in the home page.
 abstract class WhiteboardElement with _$WhiteboardElement {
   @JsonSerializable(explicitToJson: true)

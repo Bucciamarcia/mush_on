@@ -18,14 +18,15 @@ class BookingEditorAlert extends ConsumerStatefulWidget {
   final Booking? booking;
   final String? id;
   final CustomerGroup selectedCustomerGroup;
-  const BookingEditorAlert(
-      {super.key,
-      required this.onBookingEdited,
-      this.booking,
-      this.id,
-      required this.onCustomersEdited,
-      required this.onBookingDeleted,
-      required this.selectedCustomerGroup});
+  const BookingEditorAlert({
+    super.key,
+    required this.onBookingEdited,
+    this.booking,
+    this.id,
+    required this.onCustomersEdited,
+    required this.onBookingDeleted,
+    required this.selectedCustomerGroup,
+  });
 
   @override
   ConsumerState<BookingEditorAlert> createState() => _BookingEditorAlertState();
@@ -60,7 +61,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
     if (widget.booking != null && customers.isEmpty) {
       customers =
           ref.watch(customersByBookingIdProvider(widget.booking!.id)).value ??
-              [];
+          [];
     }
     var colorScheme = Theme.of(context).colorScheme;
     final user = ref.watch(userProvider).value;
@@ -68,9 +69,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
     final userName = ref.watch(userNameProvider(user.uid)).value;
     if (userName == null) return const CircularProgressIndicator.adaptive();
     return AlertDialog.adaptive(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       scrollable: true,
       title: Row(
         children: [
@@ -104,8 +103,9 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.3),
+                  color: colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: colorScheme.outline.withValues(alpha: 0.2),
@@ -117,8 +117,11 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.people,
-                            size: 20, color: colorScheme.primary),
+                        Icon(
+                          Icons.people,
+                          size: 20,
+                          color: colorScheme.primary,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           "Customers (${customers.length})",
@@ -139,8 +142,9 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                                 avatar: const Icon(Icons.person, size: 16),
                                 label: Text(customer.name),
                                 onDeleted: () => setState(() {
-                                  customers
-                                      .removeWhere((c) => c.id == customer.id);
+                                  customers.removeWhere(
+                                    (c) => c.id == customer.id,
+                                  );
                                 }),
                                 onSelected: (_) => showDialog(
                                   context: context,
@@ -148,13 +152,12 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                                     customerGroup: widget.selectedCustomerGroup,
                                     customer: customer,
                                     onCustomerEdited: (editedCustomer) {
-                                      setState(
-                                        () {
-                                          customers.removeWhere(
-                                              (c) => c.id == editedCustomer.id);
-                                          customers.add(editedCustomer);
-                                        },
-                                      );
+                                      setState(() {
+                                        customers.removeWhere(
+                                          (c) => c.id == editedCustomer.id,
+                                        );
+                                        customers.add(editedCustomer);
+                                      });
                                     },
                                     bookingId: id,
                                   ),
@@ -168,25 +171,27 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                         onPressed: () async {
                           logger.debug("Adding new customer to booking $id");
                           showDialog(
-                              context: context,
-                              builder: (_) {
-                                logger.debug(
-                                    "cg: ${widget.selectedCustomerGroup.toString()}");
-                                return CustomerEditorAlert(
-                                  customerGroup: widget.selectedCustomerGroup,
-                                  bookingId: id,
-                                  onCustomerEdited: (customer) => setState(
-                                    () {
-                                      logger.debug(
-                                          "Existing customers: $customers");
-                                      logger.debug(
-                                          "New customer: ${customer.name}");
-                                      customers = [...customers, customer];
-                                      logger.debug("New customers: $customers");
-                                    },
-                                  ),
-                                );
-                              });
+                            context: context,
+                            builder: (_) {
+                              logger.debug(
+                                "cg: ${widget.selectedCustomerGroup.toString()}",
+                              );
+                              return CustomerEditorAlert(
+                                customerGroup: widget.selectedCustomerGroup,
+                                bookingId: id,
+                                onCustomerEdited: (customer) => setState(() {
+                                  logger.debug(
+                                    "Existing customers: $customers",
+                                  );
+                                  logger.debug(
+                                    "New customer: ${customer.name}",
+                                  );
+                                  customers = [...customers, customer];
+                                  logger.debug("New customers: $customers");
+                                }),
+                              );
+                            },
+                          );
                         },
                         icon: const Icon(Icons.add),
                         label: const Text("Add Customer"),
@@ -201,16 +206,18 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                   ? ElevatedButton.icon(
                       onPressed: () {
                         showDialog(
-                            context: context,
-                            builder: (BuildContext alertContext) {
-                              return ConfirmRefundDialog(
-                                booking: widget.booking!,
-                                onRefunded: () => Navigator.of(context).pop(),
-                              );
-                            });
+                          context: context,
+                          builder: (BuildContext alertContext) {
+                            return ConfirmRefundDialog(
+                              booking: widget.booking!,
+                              onRefunded: () => Navigator.of(context).pop(),
+                            );
+                          },
+                        );
                       },
                       icon: const Icon(Icons.warning),
-                      label: const Text("Refund booking"))
+                      label: const Text("Refund booking"),
+                    )
                   : const SizedBox.shrink(),
             ],
           ),
@@ -226,10 +233,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
             ),
           ),
           onPressed: () => Navigator.of(context).pop(),
-          child: Text(
-            "Cancel",
-            style: TextStyle(color: colorScheme.error),
-          ),
+          child: Text("Cancel", style: TextStyle(color: colorScheme.error)),
         ),
         TextButton(
           onPressed: () async => await showDialog(
@@ -244,8 +248,9 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(
                     "Nevermind",
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ),
                 TextButton(
@@ -293,8 +298,11 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
 class ConfirmRefundDialog extends ConsumerWidget {
   final Booking booking;
   final Function() onRefunded;
-  const ConfirmRefundDialog(
-      {super.key, required this.booking, required this.onRefunded});
+  const ConfirmRefundDialog({
+    super.key,
+    required this.booking,
+    required this.onRefunded,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -304,7 +312,8 @@ class ConfirmRefundDialog extends ConsumerWidget {
     return AlertDialog.adaptive(
       title: const Text("Be careful!"),
       content: const Text(
-          "This will refund the entire booking and remove the booking from the group. This CANNOT be reversed!"),
+        "This will refund the entire booking and remove the booking from the group. This CANNOT be reversed!",
+      ),
       actions: [
         isProcessing
             ? const SizedBox.shrink()
@@ -322,9 +331,12 @@ class ConfirmRefundDialog extends ConsumerWidget {
                   ref.read(isRefundProcessingProvider.notifier).change(true);
                   if (account == null) {
                     BasicLogger().warning("Account is null");
-                    ScaffoldMessenger.of(context).showSnackBar(errorSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      errorSnackBar(
                         context,
-                        "Error: account is null. This shouldn't happen!"));
+                        "Error: account is null. This shouldn't happen!",
+                      ),
+                    );
                     ref.read(isRefundProcessingProvider.notifier).change(false);
                     return;
                   }
@@ -333,16 +345,21 @@ class ConfirmRefundDialog extends ConsumerWidget {
                     await repo.refundBooking(booking);
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          confirmationSnackbar(context, "Client refunded"));
+                        confirmationSnackbar(context, "Client refunded"),
+                      );
                     }
                     if (context.mounted) Navigator.of(context).pop();
                     onRefunded();
                   } catch (e, s) {
-                    BasicLogger().error("Failed to refund booking",
-                        error: e, stackTrace: s);
+                    BasicLogger().error(
+                      "Failed to refund booking",
+                      error: e,
+                      stackTrace: s,
+                    );
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                          errorSnackBar(context, "Failed to refund booking:"));
+                        errorSnackBar(context, "Failed to refund booking:"),
+                      );
                     }
                     return;
                   } finally {
@@ -350,12 +367,13 @@ class ConfirmRefundDialog extends ConsumerWidget {
                   }
                 },
                 style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(colorScheme.error)),
+                  backgroundColor: WidgetStatePropertyAll(colorScheme.error),
+                ),
                 child: Text(
                   "Refund payment",
                   style: TextStyle(color: colorScheme.onError),
                 ),
-              )
+              ),
       ],
     );
   }

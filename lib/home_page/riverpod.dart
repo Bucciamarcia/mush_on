@@ -10,22 +10,27 @@ import 'models.dart';
 part 'riverpod.g.dart';
 
 @riverpod
-
 /// Just for the home page
 Stream<HomePageRiverpodResults> homePageRiverpod(Ref ref) async* {
-  yield* Rx.combineLatest5(dogs(ref), tasks(ref, null), healthEvents(ref, null),
-      heatCycles(ref, null), todayWhiteboard(ref), (b, c, d, e, f) {
-    return HomePageRiverpodResults(
+  yield* Rx.combineLatest5(
+    dogs(ref),
+    tasks(ref, null),
+    healthEvents(ref, null),
+    heatCycles(ref, null),
+    todayWhiteboard(ref),
+    (b, c, d, e, f) {
+      return HomePageRiverpodResults(
         dogs: b,
         tasks: c,
         healthEvents: d,
         heatCycles: e,
-        whiteboardElements: f);
-  });
+        whiteboardElements: f,
+      );
+    },
+  );
 }
 
 @riverpod
-
 /// Streams the list of today's whiteboard elements from the db.
 Stream<List<WhiteboardElement>> todayWhiteboard(Ref ref) async* {
   String account = await ref.watch(accountProvider.future);
@@ -33,23 +38,14 @@ Stream<List<WhiteboardElement>> todayWhiteboard(Ref ref) async* {
   final db = FirebaseFirestore.instance;
   var dbRef = db
       .collection(path)
+      .where("date", isGreaterThanOrEqualTo: DateTimeUtils.today())
       .where(
         "date",
-        isGreaterThanOrEqualTo: DateTimeUtils.today(),
-      )
-      .where(
-        "date",
-        isLessThan: DateTimeUtils.today().add(
-          const Duration(days: 1),
-        ),
+        isLessThan: DateTimeUtils.today().add(const Duration(days: 1)),
       );
   yield* dbRef.snapshots().map(
-        (snapshot) => snapshot.docs
-            .map(
-              (doc) => WhiteboardElement.fromJson(
-                doc.data(),
-              ),
-            )
-            .toList(),
-      );
+    (snapshot) => snapshot.docs
+        .map((doc) => WhiteboardElement.fromJson(doc.data()))
+        .toList(),
+  );
 }

@@ -12,7 +12,6 @@ part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
 
 @freezed
-
 /// A class that holds a distance warning for a single dog. It means that dog X has warning Y right now.
 abstract class DogDistanceWarning with _$DogDistanceWarning {
   const factory DogDistanceWarning({
@@ -28,10 +27,11 @@ abstract class DogDistanceWarning with _$DogDistanceWarning {
 }
 
 @riverpod
-
 /// A list of distance warnings for dogs that ran too much.
-Stream<List<DogDistanceWarning>> distanceWarnings(Ref ref,
-    {DateTime? latestDate}) async* {
+Stream<List<DogDistanceWarning>> distanceWarnings(
+  Ref ref, {
+  DateTime? latestDate,
+}) async* {
   // Watch the providers to get automatic updates
   final dogsAsync = await ref.watch(dogsProvider.future);
   final settingsAsync = await ref.watch(settingsProvider.future);
@@ -42,11 +42,15 @@ Stream<List<DogDistanceWarning>> distanceWarnings(Ref ref,
 
   // Get the teams stream
   final teamGroups = await ref.watch(
-      teamGroupsProvider(earliestDate: earliestDate, finalDate: finalDate)
-          .future);
+    teamGroupsProvider(earliestDate: earliestDate, finalDate: finalDate).future,
+  );
   // Listen to the teams stream and process warnings for each update
   yield await _processWarnings(
-      teamGroups.toSet(), dogsAsync, settingsAsync, ref);
+    teamGroups.toSet(),
+    dogsAsync,
+    settingsAsync,
+    ref,
+  );
 }
 
 Future<List<DogDistanceWarning>> _processWarnings(
@@ -122,11 +126,13 @@ Future<double> _calculateDogDistance(
       // Check if dog is in this team group
       bool dogFound = false;
 
-      List<Team> teams =
-          await ref.watch(teamsInTeamgroupProvider(teamGroup.id).future);
+      List<Team> teams = await ref.watch(
+        teamsInTeamgroupProvider(teamGroup.id).future,
+      );
       for (final team in teams) {
-        List<DogPair> dogPairs = await ref
-            .watch(dogPairsInTeamProvider(teamGroup.id, team.id).future);
+        List<DogPair> dogPairs = await ref.watch(
+          dogPairsInTeamProvider(teamGroup.id, team.id).future,
+        );
         for (final pair in dogPairs) {
           if (pair.firstDogId == dog.id || pair.secondDogId == dog.id) {
             totalDistance += teamGroup.distance;
@@ -156,8 +162,9 @@ Future<List<DogDistanceWarning>> _processGlobalWarnings(
   final today = DateTime(now.year, now.month, now.day);
 
   // Get unique warning periods
-  final uniquePeriods =
-      settings.globalDistanceWarnings.map((w) => w.daysInterval).toSet();
+  final uniquePeriods = settings.globalDistanceWarnings
+      .map((w) => w.daysInterval)
+      .toSet();
 
   // Calculate distances for each period
   for (final days in uniquePeriods) {
@@ -172,11 +179,13 @@ Future<List<DogDistanceWarning>> _processGlobalWarnings(
     for (final dog in dogs) {
       final distanceRan = distances[dog.id] ?? 0;
       if (distanceRan > warning.distance) {
-        warnings.add(DogDistanceWarning(
-          dog: dog,
-          distanceWarning: warning,
-          distanceRan: distanceRan,
-        ));
+        warnings.add(
+          DogDistanceWarning(
+            dog: dog,
+            distanceWarning: warning,
+            distanceRan: distanceRan,
+          ),
+        );
       }
     }
   }
@@ -197,11 +206,13 @@ Future<Map<String, double>> _buildDogDistanceMap(
       final dogsInGroup = <String>{};
 
       // Collect all unique dogs in this group
-      List<Team> teams =
-          await ref.watch(teamsInTeamgroupProvider(teamGroup.id).future);
+      List<Team> teams = await ref.watch(
+        teamsInTeamgroupProvider(teamGroup.id).future,
+      );
       for (final team in teams) {
-        List<DogPair> dogPairs = await ref
-            .watch(dogPairsInTeamProvider(teamGroup.id, team.id).future);
+        List<DogPair> dogPairs = await ref.watch(
+          dogPairsInTeamProvider(teamGroup.id, team.id).future,
+        );
         for (final pair in dogPairs) {
           if (pair.firstDogId != null && pair.firstDogId!.isNotEmpty) {
             dogsInGroup.add(pair.firstDogId!);
@@ -256,9 +267,9 @@ DateTime _buildEarliestGlobalDate(SettingsModel settings) {
     return DateTime(now.year, now.month, now.day);
   }
 
-  final sortedWarnings =
-      List<DistanceWarning>.from(settings.globalDistanceWarnings)
-        ..sort((a, b) => b.daysInterval.compareTo(a.daysInterval));
+  final sortedWarnings = List<DistanceWarning>.from(
+    settings.globalDistanceWarnings,
+  )..sort((a, b) => b.daysInterval.compareTo(a.daysInterval));
 
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);

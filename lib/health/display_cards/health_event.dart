@@ -40,10 +40,8 @@ class HealthEventDisplayCard extends ConsumerWidget {
       child: InkWell(
         onTap: () => showDialog(
           context: context,
-          builder: (context) => HealthEventEditorAlert(
-            event: event,
-            dogs: dogs,
-          ),
+          builder: (context) =>
+              HealthEventEditorAlert(event: event, dogs: dogs),
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -89,7 +87,9 @@ class HealthEventDisplayCard extends ConsumerWidget {
                   if (event.preventFromRunning && event.isOngoing)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: colorScheme.error,
                         borderRadius: BorderRadius.circular(12),
@@ -97,8 +97,11 @@ class HealthEventDisplayCard extends ConsumerWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.block,
-                              size: 12, color: colorScheme.onError),
+                          Icon(
+                            Icons.block,
+                            size: 12,
+                            color: colorScheme.onError,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             "CAN'T RUN",
@@ -131,8 +134,10 @@ class HealthEventDisplayCard extends ConsumerWidget {
                   ),
                   const Spacer(),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: textColor.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -152,11 +157,7 @@ class HealthEventDisplayCard extends ConsumerWidget {
                   padding: const EdgeInsets.only(top: 4),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.access_time,
-                        size: 14,
-                        color: accentColor,
-                      ),
+                      Icon(Icons.access_time, size: 14, color: accentColor),
                       const SizedBox(width: 4),
                       Text(
                         "Ongoing",

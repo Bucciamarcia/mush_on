@@ -58,42 +58,66 @@ class WorkspaceSettingsPage extends ConsumerWidget {
                           onWarningAdded: (warning) async {
                             try {
                               await settingsRepo.addDistanceWarning(
-                                  warning, settings);
+                                warning,
+                                settings,
+                              );
                             } catch (e, s) {
-                              logger.error("Couldn't add distance warning",
-                                  error: e, stackTrace: s);
+                              logger.error(
+                                "Couldn't add distance warning",
+                                error: e,
+                                stackTrace: s,
+                              );
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    errorSnackBar(context,
-                                        "Couldn't add distance warning"));
+                                  errorSnackBar(
+                                    context,
+                                    "Couldn't add distance warning",
+                                  ),
+                                );
                               }
                             }
                           },
                           onWarningEdited: (warning) async {
                             try {
                               await settingsRepo.editDistanceWarning(
-                                  warning, settings);
+                                warning,
+                                settings,
+                              );
                             } catch (e, s) {
-                              logger.error("Couldn't edit distance warning",
-                                  error: e, stackTrace: s);
+                              logger.error(
+                                "Couldn't edit distance warning",
+                                error: e,
+                                stackTrace: s,
+                              );
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    errorSnackBar(context,
-                                        "Couldn't edit distance warning"));
+                                  errorSnackBar(
+                                    context,
+                                    "Couldn't edit distance warning",
+                                  ),
+                                );
                               }
                             }
                           },
                           onWarningRemoved: (id) async {
                             try {
                               await settingsRepo.removeDistanceWarning(
-                                  id, settings);
+                                id,
+                                settings,
+                              );
                             } catch (e, s) {
-                              logger.error("Couldn't remove distance warning",
-                                  error: e, stackTrace: s);
+                              logger.error(
+                                "Couldn't remove distance warning",
+                                error: e,
+                                stackTrace: s,
+                              );
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                    errorSnackBar(context,
-                                        "Couldn't remove distance warning"));
+                                  errorSnackBar(
+                                    context,
+                                    "Couldn't remove distance warning",
+                                  ),
+                                );
                               }
                             }
                           },
@@ -110,7 +134,8 @@ class WorkspaceSettingsPage extends ConsumerWidget {
           logger.error("Couldn't load settings", error: e, stackTrace: s);
           return const Center(child: Text("Error: couldn't load settings"));
         },
-        loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+        loading: () =>
+            const Center(child: CircularProgressIndicator.adaptive()),
       ),
     );
   }

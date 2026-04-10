@@ -13,10 +13,7 @@ import 'package:uuid/uuid.dart';
 class CustomersCreateTeam extends ConsumerWidget {
   static final BasicLogger logger = BasicLogger();
   final TeamGroupWorkspace teamGroup;
-  const CustomersCreateTeam({
-    super.key,
-    required this.teamGroup,
-  });
+  const CustomersCreateTeam({super.key, required this.teamGroup});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,9 +22,7 @@ class CustomersCreateTeam extends ConsumerWidget {
       return const SingleChildScrollView(
         child: Column(
           spacing: 20,
-          children: [
-            TextTitle("No customer group assigned"),
-          ],
+          children: [TextTitle("No customer group assigned")],
         ),
       );
     }
@@ -45,14 +40,10 @@ class CustomersCreateTeam extends ConsumerWidget {
               team: team,
               onCustomerSelected: (customer, booking) => ref
                   .read(customerAssignProvider(teamGroup.id).notifier)
-                  .editCustomer(
-                    customer.copyWith(teamId: team.id),
-                  ),
+                  .editCustomer(customer.copyWith(teamId: team.id)),
               onCustomerDeselected: (customer, booking) => ref
                   .read(customerAssignProvider(teamGroup.id).notifier)
-                  .editCustomer(
-                    customer.copyWith(teamId: null),
-                  ),
+                  .editCustomer(customer.copyWith(teamId: null)),
             ),
           ),
         ],
@@ -66,24 +57,25 @@ class SingleTeamAssign extends ConsumerWidget {
   final String teamGroupId;
   final Function(Customer, Booking) onCustomerSelected;
   final Function(Customer, Booking) onCustomerDeselected;
-  const SingleTeamAssign(
-      {super.key,
-      required this.team,
-      required this.onCustomerSelected,
-      required this.onCustomerDeselected,
-      required this.teamGroupId});
+  const SingleTeamAssign({
+    super.key,
+    required this.team,
+    required this.onCustomerSelected,
+    required this.onCustomerDeselected,
+    required this.teamGroupId,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup =
         ref.watch(customerAssignProvider(teamGroupId)).value ??
-            CustomerGroupWorkspace(
-              customerGroup: CustomerGroup(
-                tourTypeId: "",
-                id: const Uuid().v4(),
-                datetime: DateTime.now(),
-              ),
-            );
+        CustomerGroupWorkspace(
+          customerGroup: CustomerGroup(
+            tourTypeId: "",
+            id: const Uuid().v4(),
+            datetime: DateTime.now(),
+          ),
+        );
     List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
     return SizedBox(
       width: double.infinity,
@@ -97,9 +89,13 @@ class SingleTeamAssign extends ConsumerWidget {
               "Sled capacity: ${customerGroup.customers.where((c) => c.teamId == team.id).length} / ${team.capacity}",
               style: TextStyle(color: _buildTeamColor(customerGroup, team)),
             ),
-            Text(_displayCustomerNames(customerGroup.customers
-                .where((c) => c.teamId == team.id)
-                .toList())),
+            Text(
+              _displayCustomerNames(
+                customerGroup.customers
+                    .where((c) => c.teamId == team.id)
+                    .toList(),
+              ),
+            ),
             ElevatedButton(
               onPressed: () {
                 showDialog(
@@ -123,7 +119,9 @@ class SingleTeamAssign extends ConsumerWidget {
   }
 
   Color _buildTeamColor(
-      CustomerGroupWorkspace? customerGroup, TeamWorkspace team) {
+    CustomerGroupWorkspace? customerGroup,
+    TeamWorkspace team,
+  ) {
     int assigned =
         customerGroup?.customers.where((c) => c.teamId == team.id).length ?? 0;
     int capacity = team.capacity;
@@ -151,24 +149,25 @@ class AssignCustomersAlert extends ConsumerWidget {
   final String teamGroupId;
   final Function(Customer, Booking) onCustomerSelected;
   final Function(Customer, Booking) onCustomerDeselected;
-  const AssignCustomersAlert(
-      {super.key,
-      required this.team,
-      required this.teamGroupId,
-      required this.onCustomerSelected,
-      required this.onCustomerDeselected});
+  const AssignCustomersAlert({
+    super.key,
+    required this.team,
+    required this.teamGroupId,
+    required this.onCustomerSelected,
+    required this.onCustomerDeselected,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup =
         ref.watch(customerAssignProvider(teamGroupId)).value ??
-            CustomerGroupWorkspace(
-              customerGroup: CustomerGroup(
-                tourTypeId: "",
-                id: const Uuid().v4(),
-                datetime: DateTime.now(),
-              ),
-            );
+        CustomerGroupWorkspace(
+          customerGroup: CustomerGroup(
+            tourTypeId: "",
+            id: const Uuid().v4(),
+            datetime: DateTime.now(),
+          ),
+        );
     return AlertDialog.adaptive(
       insetPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
       contentPadding: const EdgeInsets.all(10),
@@ -204,8 +203,9 @@ class AssignCustomersAlert extends ConsumerWidget {
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Close"))
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Close"),
+        ),
       ],
     );
   }
@@ -217,25 +217,26 @@ class BookingDisplay extends ConsumerWidget {
   final String teamGroupId;
   final Function(Customer) onCustomerSelected;
   final Function(Customer) onCustomerDeselected;
-  const BookingDisplay(
-      {super.key,
-      required this.booking,
-      required this.teamId,
-      required this.teamGroupId,
-      required this.onCustomerSelected,
-      required this.onCustomerDeselected});
+  const BookingDisplay({
+    super.key,
+    required this.booking,
+    required this.teamId,
+    required this.teamGroupId,
+    required this.onCustomerSelected,
+    required this.onCustomerDeselected,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final customerGroup =
         ref.watch(customerAssignProvider(teamGroupId)).value ??
-            CustomerGroupWorkspace(
-              customerGroup: CustomerGroup(
-                tourTypeId: "",
-                id: const Uuid().v4(),
-                datetime: DateTime.now(),
-              ),
-            );
+        CustomerGroupWorkspace(
+          customerGroup: CustomerGroup(
+            tourTypeId: "",
+            id: const Uuid().v4(),
+            datetime: DateTime.now(),
+          ),
+        );
     var customers = _sortCustomers(customerGroup.customers, teamId);
     return SizedBox(
       width: double.infinity,
@@ -271,18 +272,21 @@ class BookingDisplay extends ConsumerWidget {
   List<Customer> _sortCustomers(List<Customer> customers, String teamId) {
     List<Customer> toReturn = [];
 
-    List<Customer> selectedCustomers =
-        customers.where((c) => c.teamId != null && c.teamId == teamId).toList();
+    List<Customer> selectedCustomers = customers
+        .where((c) => c.teamId != null && c.teamId == teamId)
+        .toList();
     selectedCustomers.sort((a, b) => a.name.compareTo(b.name));
     toReturn.addAll(selectedCustomers);
 
-    List<Customer> availableCustomers =
-        customers.where((c) => c.teamId == null).toList();
+    List<Customer> availableCustomers = customers
+        .where((c) => c.teamId == null)
+        .toList();
     availableCustomers.sort((a, b) => a.name.compareTo(b.name));
     toReturn.addAll(availableCustomers);
 
-    List<Customer> unavailableCustomers =
-        customers.where((c) => c.teamId != null && c.teamId != teamId).toList();
+    List<Customer> unavailableCustomers = customers
+        .where((c) => c.teamId != null && c.teamId != teamId)
+        .toList();
     unavailableCustomers.sort((a, b) => a.name.compareTo(b.name));
     toReturn.addAll(unavailableCustomers);
 
@@ -295,12 +299,13 @@ class CustomerActionChip extends ConsumerWidget {
   final String teamId;
   final Function() onCustomerSelected;
   final Function() onCustomerDeselected;
-  const CustomerActionChip(
-      {super.key,
-      required this.customer,
-      required this.teamId,
-      required this.onCustomerSelected,
-      required this.onCustomerDeselected});
+  const CustomerActionChip({
+    super.key,
+    required this.customer,
+    required this.teamId,
+    required this.onCustomerSelected,
+    required this.onCustomerDeselected,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -313,11 +318,7 @@ class CustomerActionChip extends ConsumerWidget {
             padding: const EdgeInsets.only(left: 8),
             child: Row(
               children: [
-                Column(
-                  children: [
-                    Text(customer.name),
-                  ],
-                ),
+                Column(children: [Text(customer.name)]),
                 IconButton(
                   onPressed: () => onCustomerDeselected(),
                   icon: const Icon(Icons.cancel_outlined),

@@ -31,8 +31,10 @@ class _DateTimeDistancePickerState
       children: [
         Flexible(
           child: TextField(
-            decoration:
-                const InputDecoration(hint: Text("Date"), label: Text("Date")),
+            decoration: const InputDecoration(
+              hint: Text("Date"),
+              label: Text("Date"),
+            ),
             readOnly: true,
             onTap: widget.isReadOnly
                 ? null
@@ -40,18 +42,20 @@ class _DateTimeDistancePickerState
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
                       initialDate: widget.teamGroup.date,
-                      firstDate:
-                          DateTime.now().subtract(const Duration(days: 365)),
+                      firstDate: DateTime.now().subtract(
+                        const Duration(days: 365),
+                      ),
                       lastDate: DateTime.now().add(const Duration(days: 365)),
                     );
                     if (pickedDate != null) {
                       widget.onDateChanged(
                         DateTime(
-                            pickedDate.year,
-                            pickedDate.month,
-                            pickedDate.day,
-                            widget.teamGroup.date.hour,
-                            widget.teamGroup.date.minute),
+                          pickedDate.year,
+                          pickedDate.month,
+                          pickedDate.day,
+                          widget.teamGroup.date.hour,
+                          widget.teamGroup.date.minute,
+                        ),
                       );
                     }
                   },
@@ -62,8 +66,10 @@ class _DateTimeDistancePickerState
         ),
         Flexible(
           child: TextField(
-            decoration:
-                const InputDecoration(hint: Text("Time"), label: Text("Time")),
+            decoration: const InputDecoration(
+              hint: Text("Time"),
+              label: Text("Time"),
+            ),
             readOnly: true,
             onTap: widget.isReadOnly
                 ? null
@@ -71,8 +77,9 @@ class _DateTimeDistancePickerState
                     TimeOfDay? pickedTime = await showTimePicker(
                       context: context,
                       initialTime: TimeOfDay(
-                          hour: widget.teamGroup.date.hour,
-                          minute: widget.teamGroup.date.minute),
+                        hour: widget.teamGroup.date.hour,
+                        minute: widget.teamGroup.date.minute,
+                      ),
                     );
                     if (pickedTime != null) {
                       widget.onDateChanged(

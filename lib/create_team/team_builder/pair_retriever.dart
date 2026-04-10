@@ -18,18 +18,19 @@ class PairRetriever extends StatelessWidget {
   final Function(DogSelection) onDogSelected;
   final Function(int, int) onRowRemoved;
   final Function(int, int, int) onDogRemoved;
-  const PairRetriever(
-      {super.key,
-      required this.teamNumber,
-      required this.rowNumber,
-      required this.notes,
-      required this.teams,
-      required this.dogs,
-      required this.isReadOnly,
-      required this.runningDogs,
-      required this.onDogSelected,
-      required this.onRowRemoved,
-      required this.onDogRemoved});
+  const PairRetriever({
+    super.key,
+    required this.teamNumber,
+    required this.rowNumber,
+    required this.notes,
+    required this.teams,
+    required this.dogs,
+    required this.isReadOnly,
+    required this.runningDogs,
+    required this.onDogSelected,
+    required this.onRowRemoved,
+    required this.onDogRemoved,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +47,11 @@ class PairRetriever extends StatelessWidget {
           isReadOnly: isReadOnly,
           onDogSelected: (Dog newDog) => onDogSelected(
             DogSelection(
-                dog: newDog,
-                rowNumber: rowNumber,
-                teamNumber: teamNumber,
-                dogPosition: 0),
+              dog: newDog,
+              rowNumber: rowNumber,
+              teamNumber: teamNumber,
+              dogPosition: 0,
+            ),
           ),
           onDogRemoved: (teamNumber, rowNumber) =>
               onDogRemoved(teamNumber, rowNumber, 0),
@@ -66,10 +68,11 @@ class PairRetriever extends StatelessWidget {
           isReadOnly: isReadOnly,
           onDogSelected: (Dog newDog) => onDogSelected(
             DogSelection(
-                dog: newDog,
-                rowNumber: rowNumber,
-                teamNumber: teamNumber,
-                dogPosition: 1),
+              dog: newDog,
+              rowNumber: rowNumber,
+              teamNumber: teamNumber,
+              dogPosition: 1,
+            ),
           ),
           onDogRemoved: (teamNumber, rowNumber) =>
               onDogRemoved(teamNumber, rowNumber, 1),

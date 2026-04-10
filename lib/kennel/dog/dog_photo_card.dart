@@ -10,12 +10,13 @@ class DogPhotoCard extends StatelessWidget {
   final bool isLoading;
   final Function(File) onImageEdited;
   final Function onImageDeleted;
-  const DogPhotoCard(
-      {super.key,
-      required this.image,
-      required this.isLoading,
-      required this.onImageEdited,
-      required this.onImageDeleted});
+  const DogPhotoCard({
+    super.key,
+    required this.image,
+    required this.isLoading,
+    required this.onImageEdited,
+    required this.onImageDeleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,43 +29,48 @@ class DogPhotoCard extends StatelessWidget {
         spacing: 10,
         children: [
           SizedBox(
-              height: 150,
-              width: 150,
-              child: (isLoading)
-                  ? const CircularProgressIndicator()
-                  : (image != null)
-                      ? Image.memory(image!, fit: BoxFit.cover)
-                      : const Placeholder()),
+            height: 150,
+            width: 150,
+            child: (isLoading)
+                ? const CircularProgressIndicator()
+                : (image != null)
+                ? Image.memory(image!, fit: BoxFit.cover)
+                : const Placeholder(),
+          ),
           Column(
             children: [
               IconButton.outlined(
-                  onPressed: () async {
-                    try {
-                      onImageEdited(await _onEditPressed());
-                    } on FileSizeException catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            errorSnackBar(context, "Max file size is 10mb"));
-                        logger.info("File uploaded is too large", error: e);
-                      }
-                    } on NoFileSelectedException catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            errorSnackBar(context, "No file selected"));
-                        logger.info("No file selected", error: e);
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            errorSnackBar(
-                                context, "Error: couldn't upload file"));
-                      }
+                onPressed: () async {
+                  try {
+                    onImageEdited(await _onEditPressed());
+                  } on FileSizeException catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Max file size is 10mb"),
+                      );
+                      logger.info("File uploaded is too large", error: e);
                     }
-                  },
-                  icon: const Icon(Icons.edit)),
+                  } on NoFileSelectedException catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "No file selected"),
+                      );
+                      logger.info("No file selected", error: e);
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Error: couldn't upload file"),
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.edit),
+              ),
               IconButton.outlined(
-                  onPressed: () => onImageDeleted(),
-                  icon: const Icon(Icons.delete))
+                onPressed: () => onImageDeleted(),
+                icon: const Icon(Icons.delete),
+              ),
             ],
           ),
         ],
@@ -77,8 +83,10 @@ class DogPhotoCard extends StatelessWidget {
     logger.info("Starting the image upload process");
     late FilePickerResult? result;
     try {
-      result = await FilePicker.platform
-          .pickFiles(allowMultiple: false, type: FileType.image);
+      result = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+        type: FileType.image,
+      );
     } catch (e, s) {
       logger.error("Couldn't pick file", error: e, stackTrace: s);
       rethrow;
@@ -121,17 +129,22 @@ class DogPhotoCardUtils {
   Future<String?> _findImageFilename() async {
     late final List<String> filesInFolder;
     try {
-      filesInFolder = await StorageService()
-          .listFilesInFolder("accounts/$account/dogs/$id");
+      filesInFolder = await StorageService().listFilesInFolder(
+        "accounts/$account/dogs/$id",
+      );
     } catch (e, s) {
-      logger.error("Error while getting image file name",
-          error: e, stackTrace: s);
+      logger.error(
+        "Error while getting image file name",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
     late final String? imagePath;
     try {
-      imagePath =
-          filesInFolder.firstWhere((element) => element.contains("image"));
+      imagePath = filesInFolder.firstWhere(
+        (element) => element.contains("image"),
+      );
     } catch (e) {
       logger.info("Couldn't find any image with the image path", error: e);
       imagePath = null;
@@ -145,8 +158,9 @@ class DogPhotoCardUtils {
     if (imagePath != null) {
       Uint8List? fileToGet;
       try {
-        fileToGet = await StorageService()
-            .getFile("accounts/$account/dogs/$id/$imagePath");
+        fileToGet = await StorageService().getFile(
+          "accounts/$account/dogs/$id/$imagePath",
+        );
       } catch (e, s) {
         logger.error("Couldn't get image", error: e, stackTrace: s);
         rethrow;

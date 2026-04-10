@@ -32,10 +32,7 @@ class _FakeUser implements User {
 
 class _RecordingSettingsRepository extends SettingsRepository {
   _RecordingSettingsRepository()
-      : super(
-          account: 'account-1',
-          firestore: FakeFirebaseFirestore(),
-        );
+    : super(account: 'account-1', firestore: FakeFirebaseFirestore());
 
   String? addedUserEmail;
   UserLevel? addedUserLevel;
@@ -93,9 +90,7 @@ Future<void> _pumpApp(
   await tester.pumpWidget(
     ProviderScope(
       overrides: overrides,
-      child: MaterialApp(
-        home: Scaffold(body: child),
-      ),
+      child: MaterialApp(home: Scaffold(body: child)),
     ),
   );
 }
@@ -104,8 +99,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('AddTemplateDialog and custom fields', () {
-    testWidgets('does not add a template when the name is empty',
-        (tester) async {
+    testWidgets('does not add a template when the name is empty', (
+      tester,
+    ) async {
       CustomFieldTemplate? addedTemplate;
 
       await _pumpApp(
@@ -125,8 +121,9 @@ void main() {
       expect(addedTemplate, isNull);
     });
 
-    testWidgets('adds a dropdown template only with non-empty options',
-        (tester) async {
+    testWidgets('adds a dropdown template only with non-empty options', (
+      tester,
+    ) async {
       CustomFieldTemplate? addedTemplate;
 
       await _pumpApp(
@@ -193,8 +190,9 @@ void main() {
       user = _FakeUser('user-1');
     });
 
-    testWidgets('shows guard text when the sender email is empty',
-        (tester) async {
+    testWidgets('shows guard text when the sender email is empty', (
+      tester,
+    ) async {
       await _pumpApp(
         tester,
         const AddUsers(account: 'account-1'),
@@ -215,8 +213,9 @@ void main() {
       );
     });
 
-    testWidgets('pressing Add user forwards email and selected level',
-        (tester) async {
+    testWidgets('pressing Add user forwards email and selected level', (
+      tester,
+    ) async {
       final repository = _RecordingSettingsRepository();
 
       await _pumpApp(
@@ -224,9 +223,7 @@ void main() {
         AddUsers(account: 'account-1', repository: repository),
         overrides: [
           userProvider.overrideWith((_) => Stream.value(user)),
-          userNameProvider('user-1').overrideWith(
-            (_) => Stream.value(sender),
-          ),
+          userNameProvider('user-1').overrideWith((_) => Stream.value(sender)),
         ],
       );
       await tester.pumpAndSettle();
@@ -253,8 +250,9 @@ void main() {
   });
 
   group('UsernameNameWidget', () {
-    testWidgets('loads the current name and persists changes to firestore',
-        (tester) async {
+    testWidgets('loads the current name and persists changes to firestore', (
+      tester,
+    ) async {
       final firestore = FakeFirebaseFirestore();
       final repository = UserNameRepository(firestore: firestore);
       const username = UserName(
@@ -268,9 +266,7 @@ void main() {
         tester,
         UsernameNameWidget(userNameRepository: repository),
         overrides: [
-          userNameProvider(null).overrideWith(
-            (_) => Stream.value(username),
-          ),
+          userNameProvider(null).overrideWith((_) => Stream.value(username)),
         ],
       );
       await tester.pumpAndSettle();
@@ -331,8 +327,9 @@ void main() {
               ),
             ),
           ),
-          userProfilePicProvider(null)
-              .overrideWith(() => _FakeUserProfilePic()),
+          userProfilePicProvider(
+            null,
+          ).overrideWith(() => _FakeUserProfilePic()),
           accountProvider.overrideWith((_) => Stream.value('account-1')),
           settingsProvider.overrideWith((_) => Stream.value(baseSettings)),
         ],
@@ -370,8 +367,9 @@ void main() {
               ),
             ),
           ),
-          userProfilePicProvider(null)
-              .overrideWith(() => _FakeUserProfilePic()),
+          userProfilePicProvider(
+            null,
+          ).overrideWith(() => _FakeUserProfilePic()),
           accountProvider.overrideWith((_) => Stream.value('account-1')),
           settingsProvider.overrideWith((_) => Stream.value(baseSettings)),
           stripeConnectionProvider.overrideWith((_) => Stream.value(null)),
@@ -383,8 +381,9 @@ void main() {
       expect(find.text('Connect Stripe'), findsOneWidget);
     });
 
-    testWidgets('uses the repository callbacks for custom fields',
-        (tester) async {
+    testWidgets('uses the repository callbacks for custom fields', (
+      tester,
+    ) async {
       final repository = _RecordingSettingsRepository();
 
       await _pumpApp(
@@ -412,8 +411,9 @@ void main() {
               ),
             ),
           ),
-          userProfilePicProvider(null)
-              .overrideWith(() => _FakeUserProfilePic()),
+          userProfilePicProvider(
+            null,
+          ).overrideWith(() => _FakeUserProfilePic()),
           accountProvider.overrideWith((_) => Stream.value('account-1')),
           settingsProvider.overrideWith((_) => Stream.value(baseSettings)),
         ],
@@ -435,8 +435,9 @@ void main() {
       expect(repository.deletedCustomFieldId, 'template-1');
     });
 
-    testWidgets('uses the repository callback for distance warnings',
-        (tester) async {
+    testWidgets('uses the repository callback for distance warnings', (
+      tester,
+    ) async {
       final repository = _RecordingSettingsRepository();
 
       await _pumpApp(
@@ -464,8 +465,9 @@ void main() {
               ),
             ),
           ),
-          userProfilePicProvider(null)
-              .overrideWith(() => _FakeUserProfilePic()),
+          userProfilePicProvider(
+            null,
+          ).overrideWith(() => _FakeUserProfilePic()),
           accountProvider.overrideWith((_) => Stream.value('account-1')),
           settingsProvider.overrideWith((_) => Stream.value(baseSettings)),
         ],

@@ -37,16 +37,15 @@ class UserSettings extends ConsumerWidget {
                     Text(
                       "Profile picture",
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       "Upload a square image for the cleanest result across the app and desktop views.",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     const Align(
@@ -62,22 +61,28 @@ class UserSettings extends ConsumerWidget {
                           onPressed: () async {
                             FilePickerResult? result = await FilePicker.platform
                                 .pickFiles(
-                                    allowMultiple: false, type: FileType.image);
+                                  allowMultiple: false,
+                                  type: FileType.image,
+                                );
                             if (result != null) {
                               PlatformFile file = result.files.single;
                               Uint8List? data = file.bytes;
 
                               if (data == null && file.path != null) {
                                 try {
-                                  final fileBytes =
-                                      await File(file.path!).readAsBytes();
+                                  final fileBytes = await File(
+                                    file.path!,
+                                  ).readAsBytes();
                                   data = fileBytes;
                                   if (data.lengthInBytes >= 10 * 1024 * 1024) {
                                     if (context.mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         errorSnackBar(
-                                            context, "File is too large"),
+                                          context,
+                                          "File is too large",
+                                        ),
                                       );
                                     }
                                     return;
@@ -100,15 +105,21 @@ class UserSettings extends ConsumerWidget {
                                   );
                                   ref
                                       .read(
-                                          userProfilePicProvider(null).notifier)
+                                        userProfilePicProvider(null).notifier,
+                                      )
                                       .changeProfilePic(data);
                                 } catch (e, s) {
-                                  logger.error("Error writing avatar",
-                                      error: e, stackTrace: s);
+                                  logger.error(
+                                    "Error writing avatar",
+                                    error: e,
+                                    stackTrace: s,
+                                  );
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      errorSnackBar(context,
-                                          "Couldn't change profile picture"),
+                                      errorSnackBar(
+                                        context,
+                                        "Couldn't change profile picture",
+                                      ),
                                     );
                                   }
                                 }
@@ -124,19 +135,22 @@ class UserSettings extends ConsumerWidget {
                             String uid = u!.uid;
                             try {
                               await (userNameRepository ?? UserNameRepository())
-                                  .deleteAvatar(
-                                uid,
-                              );
+                                  .deleteAvatar(uid);
                               ref
                                   .read(userProfilePicProvider(null).notifier)
                                   .removeProfilePic();
                             } catch (e, s) {
-                              logger.error("Error deleting avatar",
-                                  error: e, stackTrace: s);
+                              logger.error(
+                                "Error deleting avatar",
+                                error: e,
+                                stackTrace: s,
+                              );
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(context,
-                                      "Couldn't delete profile picture"),
+                                  errorSnackBar(
+                                    context,
+                                    "Couldn't delete profile picture",
+                                  ),
                                 );
                               }
                             }
@@ -155,16 +169,15 @@ class UserSettings extends ConsumerWidget {
                     Text(
                       "Your name",
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       "This is the name other users will see in shared parts of the account.",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     UsernameNameWidget(userNameRepository: userNameRepository),
@@ -250,16 +263,17 @@ class _UsernameNameWidgetState extends ConsumerState<UsernameNameWidget> {
               if (username == null) {
                 return;
               }
-              await repo.setUsername(
-                username!.copyWith(name: controller.text),
-              );
+              await repo.setUsername(username!.copyWith(name: controller.text));
             } catch (e, s) {
               if (context.mounted) {
-                UserSettings.logger
-                    .error("Error setting username", error: e, stackTrace: s);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  errorSnackBar(context, "Couldn't change name"),
+                UserSettings.logger.error(
+                  "Error setting username",
+                  error: e,
+                  stackTrace: s,
                 );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(errorSnackBar(context, "Couldn't change name"));
               }
             }
           },

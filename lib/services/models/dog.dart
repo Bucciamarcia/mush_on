@@ -14,7 +14,6 @@ part "dog.freezed.dart";
 enum DogSex { male, female, none }
 
 @freezed
-
 /// This class represents a dog and all the info the database has about it.
 abstract class Dog with _$Dog {
   @JsonSerializable(explicitToJson: true)
@@ -128,20 +127,20 @@ class DogTotal {
 
   int get fromtoday => _fromToday;
 
-  DogTotal({
-    required this.date,
-    required this.distance,
-  }) : _fromToday = _calculateFromToday(date);
+  DogTotal({required this.date, required this.distance})
+    : _fromToday = _calculateFromToday(date);
 
   static int _calculateFromToday(DateTime date) {
-    DateTime now = DateTime(DateTime.now().toUtc().year,
-        DateTime.now().toUtc().month, DateTime.now().toUtc().day);
+    DateTime now = DateTime(
+      DateTime.now().toUtc().year,
+      DateTime.now().toUtc().month,
+      DateTime.now().toUtc().day,
+    );
     return now.difference(date).inHours;
   }
 }
 
 @freezed
-
 /// Represents the positions in which a dog can run
 abstract class DogPositions with _$DogPositions {
   const DogPositions._();
@@ -185,8 +184,9 @@ extension TagListExtension on List<Tag> {
   /// Only returns the tags that are not expired.
   List<Tag> get available {
     final now = DateTime.now();
-    return where((tag) => tag.expired == null || tag.expired!.isAfter(now))
-        .toList();
+    return where(
+      (tag) => tag.expired == null || tag.expired!.isAfter(now),
+    ).toList();
   }
 }
 

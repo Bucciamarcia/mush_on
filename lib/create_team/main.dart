@@ -25,11 +25,13 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
         return AlertDialog(
           title: const Text('Are you sure?'),
           content: const Text(
-              'Are you sure you want to leave this page? All unsaved changes will be lost'),
+            'Are you sure you want to leave this page? All unsaved changes will be lost',
+          ),
           actions: <Widget>[
             TextButton(
               style: TextButton.styleFrom(
-                  textStyle: Theme.of(context).textTheme.labelLarge),
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
               child: const Text('Nevermind'),
               onPressed: () {
                 Navigator.pop(context, false);
@@ -37,7 +39,8 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
             ),
             TextButton(
               style: TextButton.styleFrom(
-                  textStyle: Theme.of(context).textTheme.labelLarge),
+                textStyle: Theme.of(context).textTheme.labelLarge,
+              ),
               child: const Text('Leave'),
               onPressed: () {
                 Navigator.pop(context, true);
@@ -52,71 +55,65 @@ class _CreateTeamMainState extends ConsumerState<CreateTeamMain> {
   @override
   Widget build(BuildContext context) {
     final isReadOnly = ref.watch(isReadOnlyProvider);
-    var teamGroupAsync =
-        ref.watch(createTeamGroupProvider(widget.loadedTeamId));
+    var teamGroupAsync = ref.watch(
+      createTeamGroupProvider(widget.loadedTeamId),
+    );
     return teamGroupAsync.when(
-        data: (teamGroup) {
-          final customerGroupWorkspace =
-              ref.watch(customerAssignProvider(teamGroup.id)).value ??
-                  CustomerGroupWorkspace(
-                    customerGroup: CustomerGroup(
-                      tourTypeId: "",
-                      id: const Uuid().v4(),
-                      datetime: DateTime.now(),
-                    ),
-                  );
-          bool canPopProvider = ref.watch(canPopTeamGroupProvider);
-          return PopScope(
-            canPop: canPopProvider,
-            onPopInvokedWithResult: (bool didPop, Object? result) async {
-              if (didPop) {
-                return;
-              }
-              final bool shouldPop = await showBackDialog() ?? false;
-              if (shouldPop) {
-                if (context.mounted) Navigator.of(context).pop(false);
-              }
-            },
-            child: DefaultTabController(
-              length: 2,
-              child: Column(
-                children: [
-                  const TabBar(
-                    tabs: [
-                      Tab(text: "Team builder"),
-                      Tab(
-                        text: "Customers",
+      data: (teamGroup) {
+        final customerGroupWorkspace =
+            ref.watch(customerAssignProvider(teamGroup.id)).value ??
+            CustomerGroupWorkspace(
+              customerGroup: CustomerGroup(
+                tourTypeId: "",
+                id: const Uuid().v4(),
+                datetime: DateTime.now(),
+              ),
+            );
+        bool canPopProvider = ref.watch(canPopTeamGroupProvider);
+        return PopScope(
+          canPop: canPopProvider,
+          onPopInvokedWithResult: (bool didPop, Object? result) async {
+            if (didPop) {
+              return;
+            }
+            final bool shouldPop = await showBackDialog() ?? false;
+            if (shouldPop) {
+              if (context.mounted) Navigator.of(context).pop(false);
+            }
+          },
+          child: DefaultTabController(
+            length: 2,
+            child: Column(
+              children: [
+                const TabBar(
+                  tabs: [
+                    Tab(text: "Team builder"),
+                    Tab(text: "Customers"),
+                  ],
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      TeamBuilderWidget(
+                        teamGroup: teamGroup,
+                        customerGroupWorkspace: customerGroupWorkspace,
+                        providerKey: widget.loadedTeamId,
                       ),
+                      CustomersCreateTeam(teamGroup: teamGroup),
                     ],
                   ),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        TeamBuilderWidget(
-                          teamGroup: teamGroup,
-                          customerGroupWorkspace: customerGroupWorkspace,
-                          providerKey: widget.loadedTeamId,
-                        ),
-                        CustomersCreateTeam(
-                          teamGroup: teamGroup,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SaveTeamsButton(
-                    teamGroup: teamGroup,
-                    isReadOnly: isReadOnly,
-                  ),
-                ],
-              ),
+                ),
+                SaveTeamsButton(teamGroup: teamGroup, isReadOnly: isReadOnly),
+              ],
             ),
-          );
-        },
-        error: (e, s) {
-          BasicLogger()
-              .error("Couldn't get teamgroup", error: e, stackTrace: s);
-          return const Text("Couldn't get teamgroup");
-        },
-        loading: () => const CircularProgressIndicator.adaptive());
+          ),
+        );
+      },
+      error: (e, s) {
+        BasicLogger().error("Couldn't get teamgroup", error: e, stackTrace: s);
+        return const Text("Couldn't get teamgroup");
+      },
+      loading: () => const CircularProgressIndicator.adaptive(),
+    );
   }
 }

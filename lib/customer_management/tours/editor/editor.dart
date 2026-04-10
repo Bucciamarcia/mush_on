@@ -13,20 +13,26 @@ class AddTourScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (tourId == null) {
       return const TemplateScreen(
-          title: "Tour editor", child: TourEditorMain());
+        title: "Tour editor",
+        child: TourEditorMain(),
+      );
     }
     var tourTypeAsync = ref.watch(tourTypeByIdProvider(tourId!));
     return tourTypeAsync.when(
       data: (data) => TemplateScreen(
-          title: "Tour editor", child: TourEditorMain(tour: data)),
+        title: "Tour editor",
+        child: TourEditorMain(tour: data),
+      ),
       error: (e, s) {
-        BasicLogger()
-            .error("Failed to load tour type $tourId", error: e, stackTrace: s);
+        BasicLogger().error(
+          "Failed to load tour type $tourId",
+          error: e,
+          stackTrace: s,
+        );
         return TemplateScreen(
-            title: "Error",
-            child: Center(
-              child: Text("Failed to load tour type $tourId"),
-            ));
+          title: "Error",
+          child: Center(child: Text("Failed to load tour type $tourId")),
+        );
       },
       loading: () => const Center(
         child: SizedBox(

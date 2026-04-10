@@ -115,8 +115,5 @@ class AddDog extends _$AddDog {
 
 @freezed
 sealed class AddDogData with _$AddDogData {
-  factory AddDogData({
-    @Default(Dog()) Dog dog,
-    File? file,
-  }) = _AddDogData;
+  factory AddDogData({@Default(Dog()) Dog dog, File? file}) = _AddDogData;
 }

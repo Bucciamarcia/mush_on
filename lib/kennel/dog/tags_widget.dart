@@ -14,13 +14,14 @@ class TagsWidget extends StatelessWidget {
   final Function(Tag) onTagAdded;
   final Function(Tag) onTagDeleted;
   final Function(Tag) onTagChanged;
-  const TagsWidget(
-      {super.key,
-      required this.tags,
-      required this.onTagAdded,
-      required this.onTagDeleted,
-      required this.allTags,
-      required this.onTagChanged});
+  const TagsWidget({
+    super.key,
+    required this.tags,
+    required this.onTagAdded,
+    required this.onTagDeleted,
+    required this.allTags,
+    required this.onTagChanged,
+  });
 
   static List<Tag> _getValidTags(List<Tag> tags) {
     List<Tag> toReturn = [];
@@ -50,26 +51,30 @@ class TagsWidget extends StatelessWidget {
             children: [
               const TextTitle("Tags"),
               IconButton.outlined(
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (context) => TagEditor(
-                              onTagSaved: (newTag) => onTagAdded(newTag),
-                              allTags: allTags,
-                            ));
-                  },
-                  icon: const Icon(Icons.add)),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => TagEditor(
+                      onTagSaved: (newTag) => onTagAdded(newTag),
+                      allTags: allTags,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add),
+              ),
             ],
           ),
           Wrap(
             spacing: 8,
             children: validTags
-                .map((Tag tag) => SingleTagDisplay(
-                      tag: tag,
-                      allTags: allTags,
-                      onTagDeleted: () => onTagDeleted(tag),
-                      onTagChanged: (Tag newTag) => onTagChanged(newTag),
-                    ))
+                .map(
+                  (Tag tag) => SingleTagDisplay(
+                    tag: tag,
+                    allTags: allTags,
+                    onTagDeleted: () => onTagDeleted(tag),
+                    onTagChanged: (Tag newTag) => onTagChanged(newTag),
+                  ),
+                )
                 .toList(),
           ),
         ],
@@ -82,11 +87,12 @@ class TagEditor extends StatefulWidget {
   final Tag? tagToEdit;
   final List<Tag> allTags;
   final Function(Tag) onTagSaved;
-  const TagEditor(
-      {super.key,
-      required this.onTagSaved,
-      required this.allTags,
-      this.tagToEdit});
+  const TagEditor({
+    super.key,
+    required this.onTagSaved,
+    required this.allTags,
+    this.tagToEdit,
+  });
 
   @override
   State<TagEditor> createState() => _TagEditorState();
@@ -103,11 +109,13 @@ class _TagEditorState extends State<TagEditor> {
   void initState() {
     super.initState();
     _controller = TextEditingController(
-        text: (widget.tagToEdit == null) ? null : widget.tagToEdit!.name);
+      text: (widget.tagToEdit == null) ? null : widget.tagToEdit!.name,
+    );
     color = (widget.tagToEdit == null) ? Colors.green : widget.tagToEdit!.color;
     expiration = (widget.tagToEdit == null) ? null : widget.tagToEdit!.expired;
-    preventsRunning =
-        (widget.tagToEdit == null) ? false : widget.tagToEdit!.preventFromRun;
+    preventsRunning = (widget.tagToEdit == null)
+        ? false
+        : widget.tagToEdit!.preventFromRun;
     showInTeamBuilder = (widget.tagToEdit == null)
         ? false
         : widget.tagToEdit!.showInTeamBuilder;
@@ -124,12 +132,11 @@ class _TagEditorState extends State<TagEditor> {
           children: [
             SearchField<Tag>(
               controller: _controller,
-              searchInputDecoration:
-                  SearchInputDecoration(hint: const Text("Tag name")),
+              searchInputDecoration: SearchInputDecoration(
+                hint: const Text("Tag name"),
+              ),
               suggestions: widget.allTags
-                  .map(
-                    (e) => SearchFieldListItem<Tag>(e.name, item: e),
-                  )
+                  .map((e) => SearchFieldListItem<Tag>(e.name, item: e))
                   .toList(),
               selectedValue: selectedValue,
               onSuggestionTap: (x) {
@@ -152,21 +159,24 @@ class _TagEditorState extends State<TagEditor> {
               ),
               children: [
                 MaterialPicker(
-                    pickerColor: Theme.of(context).colorScheme.primary,
-                    onColorChanged: (Color newColor) {
-                      setState(() {
-                        color = newColor;
-                      });
-                    })
+                  pickerColor: Theme.of(context).colorScheme.primary,
+                  onColorChanged: (Color newColor) {
+                    setState(() {
+                      color = newColor;
+                    });
+                  },
+                ),
               ],
             ),
             const Text(
               "Expiration date",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            Text((expiration != null)
-                ? DateFormat("yyyy-MM-dd").format(expiration!)
-                : "No expiration set"),
+            Text(
+              (expiration != null)
+                  ? DateFormat("yyyy-MM-dd").format(expiration!)
+                  : "No expiration set",
+            ),
             Wrap(
               children: [
                 ElevatedButton(
@@ -180,7 +190,7 @@ class _TagEditorState extends State<TagEditor> {
                     });
                   },
                   child: const Text("Remove expiration"),
-                )
+                ),
               ],
             ),
             CheckboxListTile.adaptive(
@@ -191,56 +201,60 @@ class _TagEditorState extends State<TagEditor> {
                   if (v != null) {
                     preventsRunning = v;
                   }
-                })
+                }),
               },
             ),
             CheckboxListTile.adaptive(
-                title: const Text("Show in builder"),
-                value: showInTeamBuilder,
-                onChanged: (v) {
-                  setState(() {
-                    if (v != null) {
-                      showInTeamBuilder = v;
-                    }
-                  });
-                })
+              title: const Text("Show in builder"),
+              value: showInTeamBuilder,
+              onChanged: (v) {
+                setState(() {
+                  if (v != null) {
+                    showInTeamBuilder = v;
+                  }
+                });
+              },
+            ),
           ],
         ),
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Cancel")),
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Cancel"),
+        ),
         TextButton(
-            onPressed: () {
-              widget.onTagSaved(
-                Tag(
-                  name: _controller.text,
-                  color: color,
-                  created: (widget.tagToEdit == null)
-                      ? DateTime.now().toUtc()
-                      : widget.tagToEdit!.created,
-                  expired: expiration,
-                  id: (widget.tagToEdit == null)
-                      ? const Uuid().v4()
-                      : widget.tagToEdit!.id,
-                  preventFromRun: preventsRunning,
-                  showInTeamBuilder: showInTeamBuilder,
-                ),
-              );
-              Navigator.of(context).pop();
-            },
-            child: const Text("OK")),
+          onPressed: () {
+            widget.onTagSaved(
+              Tag(
+                name: _controller.text,
+                color: color,
+                created: (widget.tagToEdit == null)
+                    ? DateTime.now().toUtc()
+                    : widget.tagToEdit!.created,
+                expired: expiration,
+                id: (widget.tagToEdit == null)
+                    ? const Uuid().v4()
+                    : widget.tagToEdit!.id,
+                preventFromRun: preventsRunning,
+                showInTeamBuilder: showInTeamBuilder,
+              ),
+            );
+            Navigator.of(context).pop();
+          },
+          child: const Text("OK"),
+        ),
       ],
     );
   }
 
   Future<void> selectDate() async {
     DateTime? newExpiration = await showDatePicker(
-        context: context,
-        currentDate: expiration,
-        firstDate: DateTime.now().toUtc(),
-        lastDate: DateTime(2100, 12, 31));
+      context: context,
+      currentDate: expiration,
+      firstDate: DateTime.now().toUtc(),
+      lastDate: DateTime(2100, 12, 31),
+    );
     setState(() {
       if (newExpiration != null) {
         expiration = newExpiration;
@@ -254,12 +268,13 @@ class SingleTagDisplay extends StatelessWidget {
   final List<Tag> allTags;
   final Function() onTagDeleted;
   final Function(Tag) onTagChanged;
-  const SingleTagDisplay(
-      {super.key,
-      required this.tag,
-      required this.onTagDeleted,
-      required this.allTags,
-      required this.onTagChanged});
+  const SingleTagDisplay({
+    super.key,
+    required this.tag,
+    required this.onTagDeleted,
+    required this.allTags,
+    required this.onTagChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -268,22 +283,27 @@ class SingleTagDisplay extends StatelessWidget {
       label: Text(
         tag.name,
         style: TextStyle(
-            color: (tag.color.computeLuminance() > 0.3)
-                ? Colors.black
-                : Colors.white),
-      ),
-      onDeleted: () => onTagDeleted(),
-      deleteIcon: Icon(Icons.cancel,
           color: (tag.color.computeLuminance() > 0.3)
               ? Colors.black
-              : Colors.white),
+              : Colors.white,
+        ),
+      ),
+      onDeleted: () => onTagDeleted(),
+      deleteIcon: Icon(
+        Icons.cancel,
+        color: (tag.color.computeLuminance() > 0.3)
+            ? Colors.black
+            : Colors.white,
+      ),
       onPressed: () {
         showDialog(
-            context: context,
-            builder: (context) => TagEditor(
-                allTags: allTags,
-                tagToEdit: tag,
-                onTagSaved: (Tag editedTag) => onTagChanged(editedTag)));
+          context: context,
+          builder: (context) => TagEditor(
+            allTags: allTags,
+            tagToEdit: tag,
+            onTagSaved: (Tag editedTag) => onTagChanged(editedTag),
+          ),
+        );
       },
     );
   }

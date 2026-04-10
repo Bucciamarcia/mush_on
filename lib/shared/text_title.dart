@@ -8,8 +8,10 @@ class TextTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(text,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+      child: Text(
+        text,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+      ),
     );
   }
 }

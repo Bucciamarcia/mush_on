@@ -36,36 +36,31 @@ class HealthMain extends ConsumerWidget {
     final dogNotes = ref.watch(dogNotesProvider(latestDate: null));
 
     // Dialog listeners
-    ref.listen(
-      triggerAddhealthEventProvider,
-      (previous, next) async {
-        if (previous == false && next == true && dogs != null) {
-          ref.read(triggerAddhealthEventProvider.notifier).setValue(false);
-          await showDialog(
-              context: context,
-              builder: (BuildContext context) =>
-                  const HealthEventEditorAlert());
-        }
-      },
-    );
-    ref.listen(
-      triggerAddVaccinationProvider,
-      (previous, next) async {
-        if (previous == false && next == true && dogs != null) {
-          ref.read(triggerAddVaccinationProvider.notifier).setValue(false);
-          await showDialog(
-              context: context,
-              builder: (BuildContext context) =>
-                  const VaccinationEditorAlert());
-        }
-      },
-    );
+    ref.listen(triggerAddhealthEventProvider, (previous, next) async {
+      if (previous == false && next == true && dogs != null) {
+        ref.read(triggerAddhealthEventProvider.notifier).setValue(false);
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) => const HealthEventEditorAlert(),
+        );
+      }
+    });
+    ref.listen(triggerAddVaccinationProvider, (previous, next) async {
+      if (previous == false && next == true && dogs != null) {
+        ref.read(triggerAddVaccinationProvider.notifier).setValue(false);
+        await showDialog(
+          context: context,
+          builder: (BuildContext context) => const VaccinationEditorAlert(),
+        );
+      }
+    });
     ref.listen(triggerAddHeatCycleProvider, (previous, next) async {
       if (previous == false && next == true && dogs != null) {
         ref.read(triggerAddHeatCycleProvider.notifier).setValue(false);
         await showDialog(
-            context: context,
-            builder: (BuildContext context) => const HeatCycleEditorAlert());
+          context: context,
+          builder: (BuildContext context) => const HeatCycleEditorAlert(),
+        );
       }
     });
 
@@ -73,23 +68,23 @@ class HealthMain extends ConsumerWidget {
       return const Center(child: CircularProgressIndicator.adaptive());
     }
 
-    final distanceWarningsAsync =
-        ref.watch(distanceWarningsProvider(latestDate: DateTimeUtils.today()));
+    final distanceWarningsAsync = ref.watch(
+      distanceWarningsProvider(latestDate: DateTimeUtils.today()),
+    );
 
     final cantRun = dogNotes.typeFatal();
     final cantRunDogIds = cantRun.map((note) => note.dogId).toSet();
 
-    List<Dog> cantRunDogs =
-        dogs.where((dog) => cantRunDogIds.contains(dog.id)).toList();
+    List<Dog> cantRunDogs = dogs
+        .where((dog) => cantRunDogIds.contains(dog.id))
+        .toList();
     final canRun = List<Dog>.from(dogs);
-    canRun.removeWhere(
-      (dog) {
-        for (var note in cantRun) {
-          if (dog.id == note.dogId) return true;
-        }
-        return false;
-      },
-    );
+    canRun.removeWhere((dog) {
+      for (var note in cantRun) {
+        if (dog.id == note.dogId) return true;
+      }
+      return false;
+    });
     return ListView(
       padding: const EdgeInsets.all(8),
       children: [
@@ -108,106 +103,137 @@ class HealthMain extends ConsumerWidget {
                   children: [
                     ActionChip(
                       shape: const RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadiusGeometry.all(Radius.circular(20))),
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(20),
+                        ),
+                      ),
                       label: Text("${canRun.length} can run"),
-                      avatar:
-                          const Icon(Icons.check_circle, color: Colors.green),
+                      avatar: const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                      ),
                       backgroundColor: Colors.green[100],
                       onPressed: () => showDialog(
                         context: context,
                         builder: (_) => DogListAlertDialog(
-                            title: "Dogs that can run", dogs: canRun),
+                          title: "Dogs that can run",
+                          dogs: canRun,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
                     if (cantRun.isNotEmpty)
                       ActionChip(
                         shape: const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadiusGeometry.all(Radius.circular(20))),
+                          borderRadius: BorderRadiusGeometry.all(
+                            Radius.circular(20),
+                          ),
+                        ),
                         label: Text("${cantRun.length} can't run"),
                         avatar: const Icon(Icons.cancel, color: Colors.red),
                         backgroundColor: Colors.red[100],
                         onPressed: () => showDialog(
                           context: context,
                           builder: (_) => DogListAlertDialog(
-                              title: "Dogs that can't run", dogs: cantRunDogs),
+                            title: "Dogs that can't run",
+                            dogs: cantRunDogs,
+                          ),
                         ),
                       ),
                     if (healthEvents.active.isNotEmpty)
                       ActionChip(
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.all(
-                                  Radius.circular(20))),
-                          label: Text(
-                              "${healthEvents.active.length} active health events"),
-                          avatar: const Icon(Icons.check_circle,
-                              color: Colors.orange),
-                          backgroundColor: Colors.orange[100],
-                          onPressed: () {
-                            var healthEventDogs = <Dog>[];
-                            for (var e in healthEvents.active) {
-                              var r = dogs.getDogFromId(e.dogId);
-                              if (r != null && !healthEventDogs.contains(r)) {
-                                healthEventDogs.add(r);
-                              }
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.all(
+                            Radius.circular(20),
+                          ),
+                        ),
+                        label: Text(
+                          "${healthEvents.active.length} active health events",
+                        ),
+                        avatar: const Icon(
+                          Icons.check_circle,
+                          color: Colors.orange,
+                        ),
+                        backgroundColor: Colors.orange[100],
+                        onPressed: () {
+                          var healthEventDogs = <Dog>[];
+                          for (var e in healthEvents.active) {
+                            var r = dogs.getDogFromId(e.dogId);
+                            if (r != null && !healthEventDogs.contains(r)) {
+                              healthEventDogs.add(r);
                             }
-                            showDialog(
-                              context: context,
-                              builder: (_) => DogListAlertDialog(
-                                  title: "Dogs with health events",
-                                  dogs: healthEventDogs),
-                            );
-                          }),
+                          }
+                          showDialog(
+                            context: context,
+                            builder: (_) => DogListAlertDialog(
+                              title: "Dogs with health events",
+                              dogs: healthEventDogs,
+                            ),
+                          );
+                        },
+                      ),
                     if (heatCycles.active.isNotEmpty)
                       ActionChip(
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.all(
-                                  Radius.circular(20))),
-                          label: Text("${heatCycles.active.length} in heat"),
-                          avatar: const Icon(Icons.check_circle,
-                              color: Colors.pink),
-                          backgroundColor: Colors.pink[100],
-                          onPressed: () {
-                            var dogsInHeat = <Dog>[];
-                            for (var e in heatCycles.active) {
-                              var r = dogs.getDogFromId(e.dogId);
-                              if (r != null && !dogsInHeat.contains(r)) {
-                                dogsInHeat.add(r);
-                              }
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.all(
+                            Radius.circular(20),
+                          ),
+                        ),
+                        label: Text("${heatCycles.active.length} in heat"),
+                        avatar: const Icon(
+                          Icons.check_circle,
+                          color: Colors.pink,
+                        ),
+                        backgroundColor: Colors.pink[100],
+                        onPressed: () {
+                          var dogsInHeat = <Dog>[];
+                          for (var e in heatCycles.active) {
+                            var r = dogs.getDogFromId(e.dogId);
+                            if (r != null && !dogsInHeat.contains(r)) {
+                              dogsInHeat.add(r);
                             }
-                            showDialog(
-                              context: context,
-                              builder: (_) => DogListAlertDialog(
-                                  title: "Dogs in heat", dogs: dogsInHeat),
-                            );
-                          }),
+                          }
+                          showDialog(
+                            context: context,
+                            builder: (_) => DogListAlertDialog(
+                              title: "Dogs in heat",
+                              dogs: dogsInHeat,
+                            ),
+                          );
+                        },
+                      ),
                     if (vaccinations.expiringSoon(days: 30).isNotEmpty)
                       ActionChip(
-                          shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.all(
-                                  Radius.circular(20))),
-                          label: Text(
-                              "${vaccinations.expiringSoon(days: 30).length} vaccines expiring soon"),
-                          avatar: const Icon(Icons.check_circle,
-                              color: Colors.amber),
-                          backgroundColor: Colors.amber[100],
-                          onPressed: () {
-                            var dogse = <Dog>[];
-                            for (var e in vaccinations.expiringSoon(days: 30)) {
-                              var r = dogs.getDogFromId(e.dogId);
-                              if (r != null && !dogse.contains(r)) {
-                                dogse.add(r);
-                              }
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.all(
+                            Radius.circular(20),
+                          ),
+                        ),
+                        label: Text(
+                          "${vaccinations.expiringSoon(days: 30).length} vaccines expiring soon",
+                        ),
+                        avatar: const Icon(
+                          Icons.check_circle,
+                          color: Colors.amber,
+                        ),
+                        backgroundColor: Colors.amber[100],
+                        onPressed: () {
+                          var dogse = <Dog>[];
+                          for (var e in vaccinations.expiringSoon(days: 30)) {
+                            var r = dogs.getDogFromId(e.dogId);
+                            if (r != null && !dogse.contains(r)) {
+                              dogse.add(r);
                             }
-                            showDialog(
-                              context: context,
-                              builder: (_) => DogListAlertDialog(
-                                  title: "Dogs with vaccinations expiring soon",
-                                  dogs: dogse),
-                            );
-                          }),
+                          }
+                          showDialog(
+                            context: context,
+                            builder: (_) => DogListAlertDialog(
+                              title: "Dogs with vaccinations expiring soon",
+                              dogs: dogse,
+                            ),
+                          );
+                        },
+                      ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -252,10 +278,12 @@ class HealthMain extends ConsumerWidget {
               ],
             ),
           ),
-          ...vaccinations.overdue.map((v) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: VaccinationDisplayCard(event: v),
-              )),
+          ...vaccinations.overdue.map(
+            (v) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: VaccinationDisplayCard(event: v),
+            ),
+          ),
         ],
 
         // Active health events
@@ -264,10 +292,12 @@ class HealthMain extends ConsumerWidget {
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: TextTitle("Active Health Events"),
           ),
-          ...healthEvents.active.map((e) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: HealthEventDisplayCard(event: e),
-              )),
+          ...healthEvents.active.map(
+            (e) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: HealthEventDisplayCard(event: e),
+            ),
+          ),
         ],
 
         // Dogs in heat
@@ -276,10 +306,12 @@ class HealthMain extends ConsumerWidget {
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: TextTitle("Dogs in Heat"),
           ),
-          ...heatCycles.active.map((h) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: HeatCycleDisplayCard(event: h),
-              )),
+          ...heatCycles.active.map(
+            (h) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: HeatCycleDisplayCard(event: h),
+            ),
+          ),
         ],
 
         //Upcoming health events
@@ -288,10 +320,17 @@ class HealthMain extends ConsumerWidget {
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: TextTitle("Upcoming Health Events"),
           ),
-          ...healthEvents.startingInNext(days: 30).map((v) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: HealthEventDisplayCard(event: v),
-              )),
+          ...healthEvents
+              .startingInNext(days: 30)
+              .map(
+                (v) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  child: HealthEventDisplayCard(event: v),
+                ),
+              ),
         ],
 
         // Upcoming vaccinations
@@ -300,10 +339,17 @@ class HealthMain extends ConsumerWidget {
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: TextTitle("Vaccinations Expiring Soon"),
           ),
-          ...vaccinations.expiringSoon(days: 30).map((v) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: VaccinationDisplayCard(event: v),
-              )),
+          ...vaccinations
+              .expiringSoon(days: 30)
+              .map(
+                (v) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  child: VaccinationDisplayCard(event: v),
+                ),
+              ),
         ],
 
         // Recent events
@@ -312,10 +358,17 @@ class HealthMain extends ConsumerWidget {
             padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
             child: TextTitle("Recently Resolved"),
           ),
-          ...healthEvents.getRecentlySolved(days: 7).map((e) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: HealthEventDisplayCard(event: e),
-              )),
+          ...healthEvents
+              .getRecentlySolved(days: 7)
+              .map(
+                (e) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  child: HealthEventDisplayCard(event: e),
+                ),
+              ),
         ],
 
         // Distance warnings
@@ -330,38 +383,42 @@ class HealthMain extends ConsumerWidget {
                   children: [
                     const TextTitle("Distance Warnings"),
                     const SizedBox(height: 8),
-                    ...warnings.map((w) => ListTile(
-                          dense: true,
-                          leading: CircleAvatar(
-                            backgroundColor:
+                    ...warnings.map(
+                      (w) => ListTile(
+                        dense: true,
+                        leading: CircleAvatar(
+                          backgroundColor:
+                              w.distanceWarning.distanceWarningType ==
+                                  DistanceWarningType.hard
+                              ? colorScheme.errorContainer
+                              : Colors.orange[100],
+                          child: Icon(
+                            Icons.speed,
+                            size: 20,
+                            color:
                                 w.distanceWarning.distanceWarningType ==
-                                        DistanceWarningType.hard
-                                    ? colorScheme.errorContainer
-                                    : Colors.orange[100],
-                            child: Icon(
-                              Icons.speed,
-                              size: 20,
-                              color: w.distanceWarning.distanceWarningType ==
-                                      DistanceWarningType.hard
-                                  ? colorScheme.error
-                                  : Colors.orange,
-                            ),
-                          ),
-                          title: Text(w.dog.name),
-                          subtitle: Text(
-                            "${w.distanceRan.toStringAsFixed(1)}km / ${w.distanceWarning.distance}km in ${w.distanceWarning.daysInterval} days",
-                          ),
-                          trailing: Icon(
-                            w.distanceWarning.distanceWarningType ==
-                                    DistanceWarningType.hard
-                                ? Icons.error
-                                : Icons.warning,
-                            color: w.distanceWarning.distanceWarningType ==
                                     DistanceWarningType.hard
                                 ? colorScheme.error
                                 : Colors.orange,
                           ),
-                        )),
+                        ),
+                        title: Text(w.dog.name),
+                        subtitle: Text(
+                          "${w.distanceRan.toStringAsFixed(1)}km / ${w.distanceWarning.distance}km in ${w.distanceWarning.daysInterval} days",
+                        ),
+                        trailing: Icon(
+                          w.distanceWarning.distanceWarningType ==
+                                  DistanceWarningType.hard
+                              ? Icons.error
+                              : Icons.warning,
+                          color:
+                              w.distanceWarning.distanceWarningType ==
+                                  DistanceWarningType.hard
+                              ? colorScheme.error
+                              : Colors.orange,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

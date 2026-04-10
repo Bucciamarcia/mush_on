@@ -16,8 +16,11 @@ Future<UserInvitation> userInvitation(Ref ref, {required String email}) async {
     final data = response.data as Map<String, dynamic>;
     return UserInvitation.fromJson(data);
   } catch (e, s) {
-    BasicLogger()
-        .error("Error fetching user invitation", error: e, stackTrace: s);
+    BasicLogger().error(
+      "Error fetching user invitation",
+      error: e,
+      stackTrace: s,
+    );
     rethrow;
   }
 }

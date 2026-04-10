@@ -57,12 +57,13 @@ class SfScheduleView extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           children: [
             Checkbox(
-                value: task.isDone,
-                onChanged: (v) {
-                  if (v != null) {
-                    onTaskEdited(task.copyWith(isDone: v));
-                  }
-                }),
+              value: task.isDone,
+              onChanged: (v) {
+                if (v != null) {
+                  onTaskEdited(task.copyWith(isDone: v));
+                }
+              },
+            ),
             Expanded(
               child: Container(
                 height: 60,
@@ -90,14 +91,16 @@ class SfScheduleView extends StatelessWidget {
           _handleTap(element, context);
         } catch (e, s) {
           logger.error("Error in handling tap.", error: e, stackTrace: s);
-          ScaffoldMessenger.of(context)
-              .showSnackBar(errorSnackBar(context, "Unknown error."));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(errorSnackBar(context, "Unknown error."));
         }
       },
       onViewChanged: (details) => fetchNewTasks(
-          details: details,
-          tasks: tasks,
-          onFetchOlderTasks: (date) => onFetchOlderTasks(date)),
+        details: details,
+        tasks: tasks,
+        onFetchOlderTasks: (date) => onFetchOlderTasks(date),
+      ),
       dataSource: TaskDataSource(tasks: tasks.tasks, dogs: dogs, date: date),
     );
   }
@@ -125,10 +128,7 @@ class SfScheduleView extends StatelessWidget {
         fontSize: 16,
       );
     } else {
-      return const TextStyle(
-        color: Colors.white,
-        fontSize: 14,
-      );
+      return const TextStyle(color: Colors.white, fontSize: 14);
     }
   }
 
@@ -151,15 +151,16 @@ class SfScheduleView extends StatelessWidget {
         logger.info("Gotta add new task here");
       } else if (element.appointments!.length != 1) {
         return await showDialog(
-            context: context,
-            builder: (context) => DayTasksDialog(
-                  date: element.date,
-                  tasks: tasks,
-                  dogs: dogs,
-                  onFetchOlderTasks: (date) => onFetchOlderTasks(date),
-                  onTaskEdited: (t) => onTaskEdited(t),
-                  onTaskDeleted: (t) => onTaskDeleted(t),
-                ));
+          context: context,
+          builder: (context) => DayTasksDialog(
+            date: element.date,
+            tasks: tasks,
+            dogs: dogs,
+            onFetchOlderTasks: (date) => onFetchOlderTasks(date),
+            onTaskEdited: (t) => onTaskEdited(t),
+            onTaskDeleted: (t) => onTaskDeleted(t),
+          ),
+        );
       } else {
         Task task = element.appointments!.first as Task;
         return await showDialog(

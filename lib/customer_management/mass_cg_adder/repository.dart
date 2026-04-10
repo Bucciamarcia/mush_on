@@ -31,23 +31,25 @@ class MassCgAdderRepository {
   /// Maximum number of dates the user can add in batch, to guard against accidents.
   static const int maxDatesAllowed = 200;
 
-  MassCgAdderRepository(
-      {required this.ruleType,
-      this.daysOfWeekSelected,
-      this.dateRangeSelection,
-      this.onSelectedDaysSelected,
-      required this.cgName,
-      required this.time,
-      required this.maxCapacity,
-      required this.tourType,
-      required this.account});
+  MassCgAdderRepository({
+    required this.ruleType,
+    this.daysOfWeekSelected,
+    this.dateRangeSelection,
+    this.onSelectedDaysSelected,
+    required this.cgName,
+    required this.time,
+    required this.maxCapacity,
+    required this.tourType,
+    required this.account,
+  });
 
   /// Entrypoint. Given all the data in the the mass adder, add all the CGs in the db.
   Future<void> add() async {
     List<DateTime> datesToAdd = _getDatesToAdd();
     if (datesToAdd.length > maxDatesAllowed) {
       throw TooManyDatesException(
-          "Safety error. Too many dates added: ${datesToAdd.length}/$maxDatesAllowed");
+        "Safety error. Too many dates added: ${datesToAdd.length}/$maxDatesAllowed",
+      );
     }
     final batch = db.batch();
     for (DateTime date in datesToAdd) {
@@ -55,19 +57,28 @@ class MassCgAdderRepository {
       String path = "accounts/$account/data/bookingManager/customerGroups/$id";
       var doc = db.doc(path);
       CustomerGroup cg = CustomerGroup(
-          id: id,
-          datetime:
-              DateTime(date.year, date.month, date.day, time.hour, time.minute),
-          name: cgName,
-          tourTypeId: tourType.id,
-          maxCapacity: maxCapacity);
+        id: id,
+        datetime: DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        ),
+        name: cgName,
+        tourTypeId: tourType.id,
+        maxCapacity: maxCapacity,
+      );
       batch.set(doc, cg.toJson());
     }
     try {
       await batch.commit();
     } catch (e, s) {
-      logger.error("Error adding customer groups in batch",
-          error: e, stackTrace: s);
+      logger.error(
+        "Error adding customer groups in batch",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -79,8 +90,11 @@ class MassCgAdderRepository {
           try {
             return onSelectedDaysSelected!;
           } catch (e, s) {
-            logger.error("Dates to add must not be null in type onSelectedDays",
-                error: e, stackTrace: s);
+            logger.error(
+              "Dates to add must not be null in type onSelectedDays",
+              error: e,
+              stackTrace: s,
+            );
             rethrow;
           }
         }
@@ -92,9 +106,11 @@ class MassCgAdderRepository {
               dateRangeSelection!.initialDay == null ||
               dateRangeSelection!.finalDay == null) {
             logger.error(
-                "Days of week and date range must not be null in type weeklyOnDays");
+              "Days of week and date range must not be null in type weeklyOnDays",
+            );
             throw Exception(
-                "Days of week and date range must not be null in type weeklyOnDays");
+              "Days of week and date range must not be null in type weeklyOnDays",
+            );
           }
           return _buildDatesToAddForWeekly();
         }
@@ -116,9 +132,11 @@ class MassCgAdderRepository {
     final selectedWeekdays = daysOfWeekSelected!.map((s) => s.weekday).toSet();
 
     final toReturn = <DateTime>[];
-    for (var d = start;
-        !d.isAfter(end);
-        d = DateTime(d.year, d.month, d.day + 1)) {
+    for (
+      var d = start;
+      !d.isAfter(end);
+      d = DateTime(d.year, d.month, d.day + 1)
+    ) {
       if (selectedWeekdays.contains(d.weekday)) {
         toReturn.add(d);
       }

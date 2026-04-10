@@ -39,16 +39,21 @@ class AutocompleteDogs extends StatelessWidget {
         SearchField<Dog>(
           enabled: !isReadOnly,
           key: autoCompleteKey,
-          searchInputDecoration:
-              SearchInputDecoration(hint: const Text("Select dog")),
+          searchInputDecoration: SearchInputDecoration(
+            hint: const Text("Select dog"),
+          ),
           suggestions: sortedDogs
-              .map((dog) => SearchFieldListItem<Dog>(dog.name,
+              .map(
+                (dog) => SearchFieldListItem<Dog>(
+                  dog.name,
                   key: ValueKey(dog.id),
                   child: Text(
                     formatText(dog),
                     style: TextStyle(color: pickColor(dog)),
                   ),
-                  item: dog))
+                  item: dog,
+                ),
+              )
               .toList(),
           onSuggestionTap: isReadOnly
               ? (x) {}
@@ -88,7 +93,8 @@ class AutocompleteDogs extends StatelessWidget {
   /// Formats the text with unavailable
   String formatText(Dog dog) {
     DogNote? error = DogNoteRepository.findById(notes, dog.id);
-    bool isFatalError = error != null &&
+    bool isFatalError =
+        error != null &&
         DogNoteRepository.worstNoteType(error.dogNoteMessage) == NoteType.fatal;
 
     if (runningDogs.contains(dog.id) || isFatalError || _isFilteredOut(dog)) {
@@ -100,7 +106,8 @@ class AutocompleteDogs extends StatelessWidget {
   /// Picks grey if has fatal notes or is duplicate
   Color pickColor(Dog dog) {
     DogNote? error = DogNoteRepository.findById(notes, dog.id);
-    bool isFatalError = error != null &&
+    bool isFatalError =
+        error != null &&
         DogNoteRepository.worstNoteType(error.dogNoteMessage) == NoteType.fatal;
 
     if (runningDogs.contains(dog.id) || isFatalError || _isFilteredOut(dog)) {

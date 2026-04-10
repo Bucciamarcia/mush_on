@@ -16,12 +16,15 @@ class VaccinationDisplayCard extends ConsumerWidget {
     final dogs = ref.watch(dogsProvider).valueOrNull ?? [];
     final dog = dogs.where((d) => d.id == event.dogId).firstOrNull;
 
-    final bool isOverdue = event.expirationDate != null &&
+    final bool isOverdue =
+        event.expirationDate != null &&
         event.expirationDate!.isBefore(DateTimeUtils.today());
-    final bool isExpiringSoon = event.expirationDate != null &&
+    final bool isExpiringSoon =
+        event.expirationDate != null &&
         !isOverdue &&
-        event.expirationDate!
-            .isBefore(DateTimeUtils.today().add(const Duration(days: 30))) &&
+        event.expirationDate!.isBefore(
+          DateTimeUtils.today().add(const Duration(days: 30)),
+        ) &&
         event.expirationDate!.isAfter(DateTimeUtils.today());
 
     // Vaccinations have blue/teal theme
@@ -50,10 +53,8 @@ class VaccinationDisplayCard extends ConsumerWidget {
       child: InkWell(
         onTap: () => showDialog(
           context: context,
-          builder: (context) => VaccinationEditorAlert(
-            event: event,
-            dogs: dogs,
-          ),
+          builder: (context) =>
+              VaccinationEditorAlert(event: event, dogs: dogs),
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
@@ -99,7 +100,9 @@ class VaccinationDisplayCard extends ConsumerWidget {
                   if (isOverdue)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: colorScheme.error,
                         borderRadius: BorderRadius.circular(12),
@@ -116,7 +119,9 @@ class VaccinationDisplayCard extends ConsumerWidget {
                   else if (isExpiringSoon)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.amber[700],
                         borderRadius: BorderRadius.circular(12),

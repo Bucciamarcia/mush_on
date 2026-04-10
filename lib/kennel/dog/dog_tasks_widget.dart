@@ -13,12 +13,13 @@ class DogTasksWidget extends StatelessWidget {
   final Function(Task) onTaskEdited;
   final Function(String) onTaskDeleted;
   static final BasicLogger logger = BasicLogger();
-  const DogTasksWidget(
-      {super.key,
-      required this.dog,
-      required this.tasksInMemory,
-      required this.onTaskEdited,
-      required this.onTaskDeleted});
+  const DogTasksWidget({
+    super.key,
+    required this.dog,
+    required this.tasksInMemory,
+    required this.onTaskEdited,
+    required this.onTaskDeleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,19 +35,23 @@ class DogTasksWidget extends StatelessWidget {
           onTaskEdited: (t) => onTaskEdited(t),
           onTaskDeleted: (tid) => onTaskDeleted(tid),
         ),
-        ..._fetchNonExpiringTasks().map((t) => TaskElement(
+        ..._fetchNonExpiringTasks().map(
+          (t) => TaskElement(
             task: t,
             onTaskEdited: (t) => onTaskEdited(t),
             dogs: [dog],
-            onTaskDeleted: (tid) => onTaskDeleted(tid)))
+            onTaskDeleted: (tid) => onTaskDeleted(tid),
+          ),
+        ),
       ],
     );
   }
 
   /// From all the tasks, only filters the one for this dog.
   TasksInMemory _fetchTasks() {
-    List<Task> listOfTasks =
-        tasksInMemory.tasks.where((t) => t.dogId == dog.id).toList();
+    List<Task> listOfTasks = tasksInMemory.tasks
+        .where((t) => t.dogId == dog.id)
+        .toList();
     return tasksInMemory.copyWith(tasks: listOfTasks.notDone);
   }
 

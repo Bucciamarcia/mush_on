@@ -11,19 +11,24 @@ class FilterConditions extends _$FilterConditions {
     return const ConditionsGroup();
   }
 
-  void setCondition(
-      {required int position,
-      ConditionSelection? conditionSelection,
-      OperationSelection? operationSelection,
-      dynamic filterSelection}) {
-    List<ConditionSelectionElement> mutableConditions =
-        List.from(state.conditions);
+  void setCondition({
+    required int position,
+    ConditionSelection? conditionSelection,
+    OperationSelection? operationSelection,
+    dynamic filterSelection,
+  }) {
+    List<ConditionSelectionElement> mutableConditions = List.from(
+      state.conditions,
+    );
     ConditionSelectionElement toSet = mutableConditions.firstWhere(
-        (condition) => condition.position == position,
-        orElse: () => ConditionSelectionElement(position: position));
+      (condition) => condition.position == position,
+      orElse: () => ConditionSelectionElement(position: position),
+    );
     if (conditionSelection != null) {
       toSet = toSet.copyWith(
-          conditionSelection: conditionSelection, operationSelection: null);
+        conditionSelection: conditionSelection,
+        operationSelection: null,
+      );
     }
     if (operationSelection != null) {
       toSet = toSet.copyWith(operationSelection: operationSelection);
@@ -53,9 +58,10 @@ abstract class ConditionsGroup with _$ConditionsGroup {
 
 @freezed
 abstract class ConditionSelectionElement with _$ConditionSelectionElement {
-  const factory ConditionSelectionElement(
-      {required int position,
-      ConditionSelection? conditionSelection,
-      OperationSelection? operationSelection,
-      dynamic filterSelection}) = _ConditionSelectionElement;
+  const factory ConditionSelectionElement({
+    required int position,
+    ConditionSelection? conditionSelection,
+    OperationSelection? operationSelection,
+    dynamic filterSelection,
+  }) = _ConditionSelectionElement;
 }

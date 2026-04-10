@@ -59,18 +59,18 @@ extension HealthEventExtension on HealthEvent {
 
 extension HealthEventsExtension on List<HealthEvent> {
   /// Returns a list of health events that are currently active.
-  List<HealthEvent> get active => where((e) =>
-      e.resolvedDate == null ||
-      e.resolvedDate!.isAfter(DateTimeUtils.today())).toList();
+  List<HealthEvent> get active => where(
+    (e) =>
+        e.resolvedDate == null ||
+        e.resolvedDate!.isAfter(DateTimeUtils.today()),
+  ).toList();
 
   List<HealthEvent> getRecentlySolved({required int days}) {
     return where((e) {
       if (e.resolvedDate == null) return false;
       if (e.isResolved &&
           e.resolvedDate!.isAfter(
-            DateTimeUtils.today().subtract(
-              Duration(days: days),
-            ),
+            DateTimeUtils.today().subtract(Duration(days: days)),
           )) {
         return true;
       }
@@ -91,7 +91,6 @@ extension HealthEventsExtension on List<HealthEvent> {
 }
 
 @freezed
-
 /// Represent a single vaccination event.
 abstract class Vaccination with _$Vaccination {
   const factory Vaccination({
@@ -135,8 +134,9 @@ extension VaccinationsExtension on List<Vaccination> {
     return where((v) {
       if (v.expirationDate == null) return false;
       if (v.expirationDate!.isAfter(DateTimeUtils.today()) &&
-          v.expirationDate!
-              .isBefore(DateTimeUtils.today().add(Duration(days: days)))) {
+          v.expirationDate!.isBefore(
+            DateTimeUtils.today().add(Duration(days: days)),
+          )) {
         return true;
       } else {
         return false;
@@ -186,8 +186,8 @@ abstract class HeatCycle with _$HeatCycle {
 
 extension HeatCyclesExtension on List<HeatCycle> {
   List<HeatCycle> get active => where(
-          (c) => c.endDate == null || c.endDate!.isAfter(DateTimeUtils.today()))
-      .toList();
+    (c) => c.endDate == null || c.endDate!.isAfter(DateTimeUtils.today()),
+  ).toList();
 }
 
 @JsonEnum()
@@ -197,5 +197,5 @@ enum HealthEventType {
   vetVisit,
   procedure,
   observation,
-  other
+  other,
 }

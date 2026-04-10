@@ -3,7 +3,6 @@ part 'dogpair.g.dart';
 part 'dogpair.freezed.dart';
 
 @freezed
-
 /// A class representing a pair of dogs in a team.
 /// A [DogPair] consists of two [Dog] objects.
 /// This class is serializable to/from JSON using the json_serializable package.

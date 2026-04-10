@@ -13,19 +13,25 @@ part 'riverpod.freezed.dart';
 
 @riverpod
 Future<(Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>
-    bookingDataSuccess(Ref ref,
-        {required String bookingId, required String account}) async {
+bookingDataSuccess(
+  Ref ref, {
+  required String bookingId,
+  required String account,
+}) async {
   final repo = SuccessPageRepository();
   final (booking, customers) = await (
     repo.fetchBooking(account, bookingId),
-    repo.fetchCustomers(account, bookingId)
+    repo.fetchCustomers(account, bookingId),
   ).wait;
   final cg = await repo.fetchCg(account, booking.customerGroupId);
   final pricings = cg.tourTypeId == null
       ? <TourTypePricing>[]
-      : await ref.watch(tourTypePricesByTourIdProvider(
-              account: account, tourId: cg.tourTypeId!)
-          .future);
+      : await ref.watch(
+          tourTypePricesByTourIdProvider(
+            account: account,
+            tourId: cg.tourTypeId!,
+          ).future,
+        );
   return (booking, customers, cg, pricings);
 }
 
@@ -46,8 +52,6 @@ Future<UrlAndAmount> receiptUrl(Ref ref, String bookingId) async {
 
 @freezed
 sealed class UrlAndAmount with _$UrlAndAmount {
-  const factory UrlAndAmount({
-    required String url,
-    required int amount,
-  }) = _UrlAndAmount;
+  const factory UrlAndAmount({required String url, required int amount}) =
+      _UrlAndAmount;
 }

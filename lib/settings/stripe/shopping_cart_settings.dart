@@ -134,10 +134,9 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                       color: Theme.of(context).colorScheme.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .outlineVariant
-                            .withValues(alpha: 0.45),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outlineVariant.withValues(alpha: 0.45),
                       ),
                     ),
                     child: Column(
@@ -147,8 +146,9 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                         KennelImageCard(image: image, isLoading: isLoading),
                         TextFormField(
                           controller: _nameController,
-                          decoration:
-                              const InputDecoration(labelText: "Kennel name"),
+                          decoration: const InputDecoration(
+                            labelText: "Kennel name",
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Enter the kennel name";
@@ -160,8 +160,9 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                         TextFormField(
                           controller: _urlController,
                           keyboardType: TextInputType.url,
-                          decoration:
-                              const InputDecoration(labelText: "Kennel URL"),
+                          decoration: const InputDecoration(
+                            labelText: "Kennel URL",
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Enter the kennel URL";
@@ -236,10 +237,10 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
                         ),
                         DropdownMenuFormField<String>(
                           dropdownMenuEntries: _timezones
-                              .map((t) => DropdownMenuEntry(
-                                    value: t.$1,
-                                    label: t.$2,
-                                  ))
+                              .map(
+                                (t) =>
+                                    DropdownMenuEntry(value: t.$1, label: t.$2),
+                              )
                               .toList(),
                           onSelected: (v) =>
                               setState(() => _selectedTimezone = v),

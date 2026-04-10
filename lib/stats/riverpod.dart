@@ -7,7 +7,6 @@ part 'riverpod.freezed.dart';
 part 'riverpod.g.dart';
 
 @riverpod
-
 /// The date `start` and `end` date selected to be displayed.
 /// Start defaults to 30 days ago at midnight (so slightly over 30 days),
 /// end defaults to today at 23:59:59.
@@ -15,8 +14,9 @@ class SelectedDateRange extends _$SelectedDateRange {
   @override
   DateRangeSelection build() {
     return DateRangeSelection(
-        start: DateTimeUtils.today().subtract(const Duration(days: 14)),
-        end: DateTimeUtils.endOfToday());
+      start: DateTimeUtils.today().subtract(const Duration(days: 14)),
+      end: DateTimeUtils.endOfToday(),
+    );
   }
 
   void change(DateTime start, DateTime end) {
@@ -37,7 +37,6 @@ class SelectedDogs extends _$SelectedDogs {
 }
 
 @freezed
-
 /// Indicates the `start` and `end` date selected for the range.
 /// The start must always be 00:00:00, and the end must always be 23:59:59 of their respective days.
 sealed class DateRangeSelection with _$DateRangeSelection {

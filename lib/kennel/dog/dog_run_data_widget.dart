@@ -16,9 +16,7 @@ class DogRunDataWidget extends StatelessWidget {
         Card(
           child: ExpansionTile(
             title: const Text("View chart"),
-            children: [
-              DogRunDataChart(dogTotals),
-            ],
+            children: [DogRunDataChart(dogTotals)],
           ),
         ),
       ],

@@ -10,7 +10,6 @@ import 'package:rxdart/rxdart.dart';
 part 'riverpod.g.dart';
 
 @riverpod
-
 /// Returns a list of teamgroups that have he same date and time as the input
 Stream<List<TeamGroup>> teamGroupsByDate(Ref ref, DateTime date) async* {
   String account = await ref.watch(accountProvider.future);
@@ -21,17 +20,19 @@ Stream<List<TeamGroup>> teamGroupsByDate(Ref ref, DateTime date) async* {
       .where("date", isEqualTo: date);
 
   yield* collection.snapshots().map(
-        (snapshot) => snapshot.docs.map((doc) {
-          BasicLogger().debug("TeamGroup: ${doc.data()}");
-          return TeamGroup.fromJson(doc.data());
-        }).toList(),
-      );
+    (snapshot) => snapshot.docs.map((doc) {
+      BasicLogger().debug("TeamGroup: ${doc.data()}");
+      return TeamGroup.fromJson(doc.data());
+    }).toList(),
+  );
 }
 
 @riverpod
 Stream<List<CustomerGroup>> customerGroupsByDateRange(
-    Ref ref, List<DateTime> visibleDates,
-    {String? account}) async* {
+  Ref ref,
+  List<DateTime> visibleDates, {
+  String? account,
+}) async* {
   if (visibleDates.isEmpty) yield [];
   account ??= await ref.watch(accountProvider.future);
   DateTime firstDate = visibleDates[0];
@@ -43,18 +44,20 @@ Stream<List<CustomerGroup>> customerGroupsByDateRange(
       .collection(path)
       .where("datetime", isGreaterThanOrEqualTo: firstDate)
       .where("datetime", isLessThanOrEqualTo: lastDate);
-  yield* collection.snapshots().map((snapshot) =>
-      snapshot.docs.map((doc) => CustomerGroup.fromJson(doc.data())).toList());
+  yield* collection.snapshots().map(
+    (snapshot) =>
+        snapshot.docs.map((doc) => CustomerGroup.fromJson(doc.data())).toList(),
+  );
 }
 
 @riverpod
-
 /// Streams the Customer Group object associated with the ID provided.
 Stream<CustomerGroup?> customerGroupById(Ref ref, String id) async* {
   String account = await ref.watch(accountProvider.future);
   var db = FirebaseFirestore.instance;
-  var collection =
-      db.collection("accounts/$account/data/bookingManager/customerGroups");
+  var collection = db.collection(
+    "accounts/$account/data/bookingManager/customerGroups",
+  );
   var doc = collection.doc(id);
   try {
     var snapshots = doc.snapshots();
@@ -75,10 +78,11 @@ Stream<CustomerGroup?> customerGroupById(Ref ref, String id) async* {
 }
 
 @riverpod
-
 /// Returns a list of customer groups that have the same date and time as the input.
 Stream<List<CustomerGroup>> customerGroupsByDate(
-    Ref ref, DateTime date) async* {
+  Ref ref,
+  DateTime date,
+) async* {
   BasicLogger().debug("To search: $date");
   String account = await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
@@ -86,85 +90,69 @@ Stream<List<CustomerGroup>> customerGroupsByDate(
       .collection("accounts/$account/data/bookingManager/customerGroups")
       .where("datetime", isEqualTo: date);
   yield* collection.snapshots().map(
-        (snapshot) => snapshot.docs
-            .map(
-              (doc) => CustomerGroup.fromJson(
-                doc.data(),
-              ),
-            )
-            .toList(),
-      );
+    (snapshot) =>
+        snapshot.docs.map((doc) => CustomerGroup.fromJson(doc.data())).toList(),
+  );
 }
 
 @riverpod
-
 /// Returns a list of customer groups that have the same date.
-Stream<List<CustomerGroup>> customerGroupsByDay(Ref ref,
-    {required DateTime date, required bool showEmpty}) async* {
+Stream<List<CustomerGroup>> customerGroupsByDay(
+  Ref ref, {
+  required DateTime date,
+  required bool showEmpty,
+}) async* {
   String account = await ref.watch(accountProvider.future);
   DateTime day = DateTime(date.year, date.month, date.day);
   final db = FirebaseFirestore.instance;
   var collection = db
       .collection("accounts/$account/data/bookingManager/customerGroups")
       .where("datetime", isGreaterThanOrEqualTo: day)
-      .where(
-        "datetime",
-        isLessThan: day.add(
-          const Duration(days: 1),
-        ),
+      .where("datetime", isLessThan: day.add(const Duration(days: 1)));
+  yield* collection.snapshots().asyncMap((snapshot) async {
+    final cgs = snapshot.docs
+        .map((doc) => CustomerGroup.fromJson(doc.data()))
+        .toList();
+    if (showEmpty) return cgs;
+    List<CustomerGroup> toReturn = [];
+    for (final cg in cgs) {
+      List<Booking> bookings = await ref.watch(
+        bookingsByCustomerGroupIdProvider(cg.id, account: null).future,
       );
-  yield* collection.snapshots().asyncMap(
-    (snapshot) async {
-      final cgs = snapshot.docs
-          .map(
-            (doc) => CustomerGroup.fromJson(
-              doc.data(),
-            ),
-          )
-          .toList();
-      if (showEmpty) return cgs;
-      List<CustomerGroup> toReturn = [];
-      for (final cg in cgs) {
-        List<Booking> bookings = await ref.watch(
-            bookingsByCustomerGroupIdProvider(cg.id, account: null).future);
-        if (bookings.active.isNotEmpty) toReturn.add(cg);
-      }
-      return toReturn;
-    },
-  );
+      if (bookings.active.isNotEmpty) toReturn.add(cg);
+    }
+    return toReturn;
+  });
 }
 
 @riverpod
-
 /// Gets all the customers assigned to a certain booking
-
-Stream<List<Customer>> customersByBookingId(Ref ref, String bookingId,
-    {String? account}) async* {
+Stream<List<Customer>> customersByBookingId(
+  Ref ref,
+  String bookingId, {
+  String? account,
+}) async* {
   account ??= await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
   var collection = db
       .collection("accounts/$account/data/bookingManager/customers")
       .where("bookingId", isEqualTo: bookingId);
   yield* collection.snapshots().map(
-        (snapshot) => snapshot.docs
-            .map(
-              (doc) => Customer.fromJson(
-                doc.data(),
-              ),
-            )
-            .toList(),
-      );
+    (snapshot) =>
+        snapshot.docs.map((doc) => Customer.fromJson(doc.data())).toList(),
+  );
 }
 
 @riverpod
-
 /// Gets all the customers assigned to a customer group
 Stream<List<Customer>> customersByCustomerGroupId(
-    Ref ref, String customerGroupId,
-    {String? account}) async* {
+  Ref ref,
+  String customerGroupId, {
+  String? account,
+}) async* {
   final List<Booking> bookings = await ref.watch(
-      bookingsByCustomerGroupIdProvider(customerGroupId, account: account)
-          .future);
+    bookingsByCustomerGroupIdProvider(customerGroupId, account: account).future,
+  );
 
   if (bookings.isEmpty) {
     yield [];
@@ -183,55 +171,59 @@ Stream<List<Customer>> customersByCustomerGroupId(
 }
 
 @riverpod
-Stream<List<Booking>> bookingsByCustomerGroupId(Ref ref, String id,
-    {String? account}) async* {
+Stream<List<Booking>> bookingsByCustomerGroupId(
+  Ref ref,
+  String id, {
+  String? account,
+}) async* {
   account ??= await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
   var collection = db
       .collection("accounts/$account/data/bookingManager/bookings")
       .where("customerGroupId", isEqualTo: id);
   yield* collection.snapshots().map(
-        (snapshot) => snapshot.docs
-            .map(
-              (doc) => Booking.fromJson(
-                doc.data(),
-              ),
-            )
-            .toList()
-            .active,
-      );
+    (snapshot) => snapshot.docs
+        .map((doc) => Booking.fromJson(doc.data()))
+        .toList()
+        .active,
+  );
 }
 
 @riverpod
-Stream<List<CustomerGroup>> futureCustomerGroups(Ref ref,
-    {required DateTime? untilDate, required bool showEmpty}) async* {
+Stream<List<CustomerGroup>> futureCustomerGroups(
+  Ref ref, {
+  required DateTime? untilDate,
+  required bool showEmpty,
+}) async* {
   String account = await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
   untilDate = untilDate ?? DateTimeUtils.today().add(const Duration(days: 30));
   var collection = db
       .collection("accounts/$account/data/bookingManager/customerGroups")
-      .where("datetime",
-          isGreaterThanOrEqualTo:
-              DateTimeUtils.today().add(const Duration(days: 1)))
+      .where(
+        "datetime",
+        isGreaterThanOrEqualTo: DateTimeUtils.today().add(
+          const Duration(days: 1),
+        ),
+      )
       .where("datetime", isLessThanOrEqualTo: untilDate);
 
-  yield* collection.snapshots().asyncMap(
-    (snapshot) async {
-      final cgs = snapshot.docs
-          .map((doc) => CustomerGroup.fromJson(doc.data()))
-          .toList();
+  yield* collection.snapshots().asyncMap((snapshot) async {
+    final cgs = snapshot.docs
+        .map((doc) => CustomerGroup.fromJson(doc.data()))
+        .toList();
 
-      if (showEmpty) {
-        return cgs;
-      } else {
-        List<CustomerGroup> toReturn = [];
-        for (final cg in cgs) {
-          List<Booking> bookings = await ref.watch(
-              bookingsByCustomerGroupIdProvider(cg.id, account: null).future);
-          if (bookings.active.isNotEmpty) toReturn.add(cg);
-        }
-        return toReturn;
+    if (showEmpty) {
+      return cgs;
+    } else {
+      List<CustomerGroup> toReturn = [];
+      for (final cg in cgs) {
+        List<Booking> bookings = await ref.watch(
+          bookingsByCustomerGroupIdProvider(cg.id, account: null).future,
+        );
+        if (bookings.active.isNotEmpty) toReturn.add(cg);
       }
-    },
-  );
+      return toReturn;
+    }
+  });
 }

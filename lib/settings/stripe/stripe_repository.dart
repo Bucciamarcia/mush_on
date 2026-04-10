@@ -32,8 +32,11 @@ class StripeRepository {
     try {
       await doc.delete();
     } catch (e, s) {
-      logger.error("Couldn't remove Stripe account ID",
-          error: e, stackTrace: s);
+      logger.error(
+        "Couldn't remove Stripe account ID",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -52,8 +55,11 @@ class StripeRepository {
       }
       return true;
     } catch (e, s) {
-      logger.error("Couldn't change Stripe integration activation status",
-          error: e, stackTrace: s);
+      logger.error(
+        "Couldn't change Stripe integration activation status",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -78,14 +84,18 @@ class StripeRepository {
   }
 
   Future<void> saveBookingManagerKennelInfo(
-      BookingManagerKennelInfo data) async {
+    BookingManagerKennelInfo data,
+  ) async {
     String path = "accounts/$account/data/bookingManager";
     final doc = db.doc(path);
     try {
       await doc.set(data.toJson());
     } catch (e, s) {
-      logger.error("Couldn't save Booking Manager kennel info",
-          error: e, stackTrace: s);
+      logger.error(
+        "Couldn't save Booking Manager kennel info",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -125,7 +135,8 @@ class StripeRepository {
     try {
       final data = await ref.getData();
       logger.debug(
-          "Successfully fetched image data, size: ${data?.length ?? 0} bytes");
+        "Successfully fetched image data, size: ${data?.length ?? 0} bytes",
+      );
       return data;
     } catch (e) {
       logger.debug("No image found or error occurred: $e");

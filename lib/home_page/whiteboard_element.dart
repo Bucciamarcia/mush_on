@@ -11,11 +11,12 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
   final WhiteboardElement element;
   final Function(WhiteboardElement) onSaved;
   final Function(String) onDeleted;
-  const WhiteboardElementDisplayWidget(
-      {super.key,
-      required this.element,
-      required this.onSaved,
-      required this.onDeleted});
+  const WhiteboardElementDisplayWidget({
+    super.key,
+    required this.element,
+    required this.onSaved,
+    required this.onDeleted,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,9 +34,7 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
       borderRadius: BorderRadius.circular(16),
       child: Card(
         elevation: 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -53,9 +52,7 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                         Text(
                           ref.watch(userNameProvider(null)).value?.name ??
                               "Unknown",
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
+                          style: Theme.of(context).textTheme.titleSmall
                               ?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: Theme.of(context).colorScheme.onSurface,
@@ -64,13 +61,13 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                         const SizedBox(height: 2),
                         Text(
                           DateFormat("MMM d, HH:mm").format(element.date),
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                    fontSize: 12,
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
                         ),
                       ],
                     ),
@@ -84,9 +81,9 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
               Text(
                 element.title,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -97,9 +94,9 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                 Text(
                   element.description,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        height: 1.4,
-                      ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    height: 1.4,
+                  ),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -109,13 +106,14 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
               if (comments.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest
-                        .withOpacity(0.3),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -131,9 +129,7 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                           const SizedBox(width: 6),
                           Text(
                             "${comments.length} ${comments.length == 1 ? 'comment' : 'comments'}",
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
+                            style: Theme.of(context).textTheme.labelMedium
                                 ?.copyWith(
                                   color: Theme.of(context).colorScheme.primary,
                                   fontWeight: FontWeight.w600,
@@ -149,7 +145,9 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               CircleAvatarWidget(
-                                  radius: 12, uid: comment.author),
+                                radius: 12,
+                                uid: comment.author,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Column(
@@ -168,22 +166,23 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                                               .bodySmall
                                               ?.copyWith(
                                                 fontWeight: FontWeight.w600,
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurface,
                                               ),
                                         ),
                                         const SizedBox(width: 6),
                                         Text(
-                                          DateFormat("HH:mm")
-                                              .format(comment.date),
+                                          DateFormat(
+                                            "HH:mm",
+                                          ).format(comment.date),
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall
                                               ?.copyWith(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
+                                                color: Theme.of(
+                                                  context,
+                                                ).colorScheme.onSurfaceVariant,
                                                 fontSize: 11,
                                               ),
                                         ),
@@ -196,9 +195,9 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
                                           .textTheme
                                           .bodySmall
                                           ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
                                             height: 1.3,
                                           ),
                                     ),
@@ -224,16 +223,17 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
 class AddWhiteboardElementDisplayWidget extends StatelessWidget {
   final Function(WhiteboardElement) onSaved;
   final Function(String) onDeleted;
-  const AddWhiteboardElementDisplayWidget(
-      {super.key, required this.onSaved, required this.onDeleted});
+  const AddWhiteboardElementDisplayWidget({
+    super.key,
+    required this.onSaved,
+    required this.onDeleted,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () => showDialog(
           context: context,
@@ -257,9 +257,9 @@ class AddWhiteboardElementDisplayWidget extends StatelessWidget {
               Text(
                 "Add new note",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -273,11 +273,12 @@ class WhiteboardElementEditor extends ConsumerStatefulWidget {
   final WhiteboardElement? element;
   final Function(WhiteboardElement) onSaved;
   final Function(String) onDeleted;
-  const WhiteboardElementEditor(
-      {super.key,
-      this.element,
-      required this.onSaved,
-      required this.onDeleted});
+  const WhiteboardElementEditor({
+    super.key,
+    this.element,
+    required this.onSaved,
+    required this.onDeleted,
+  });
 
   @override
   ConsumerState<WhiteboardElementEditor> createState() =>
@@ -295,8 +296,9 @@ class _WhiteboardElementEditorState
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.element?.title);
-    _descriptionController =
-        TextEditingController(text: widget.element?.description);
+    _descriptionController = TextEditingController(
+      text: widget.element?.description,
+    );
     _addCommentController = TextEditingController();
   }
 
@@ -392,7 +394,8 @@ class _WhiteboardElementEditorState
             if (_formKey.currentState!.validate()) {
               List<WhiteboardElementComment> constComments = [];
               constComments.addAll(
-                  widget.element?.comments ?? <WhiteboardElementComment>[]);
+                widget.element?.comments ?? <WhiteboardElementComment>[],
+              );
               if (_addCommentController.text.trim().isNotEmpty) {
                 constComments.add(
                   WhiteboardElementComment(

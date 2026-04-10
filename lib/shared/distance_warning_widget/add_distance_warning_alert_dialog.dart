@@ -5,8 +5,10 @@ import 'package:uuid/uuid.dart';
 
 class AddDistanceWarningAlertDialog extends StatefulWidget {
   final Function(DistanceWarning) onDistanceWarningAdded;
-  const AddDistanceWarningAlertDialog(
-      {super.key, required this.onDistanceWarningAdded});
+  const AddDistanceWarningAlertDialog({
+    super.key,
+    required this.onDistanceWarningAdded,
+  });
 
   @override
   State<AddDistanceWarningAlertDialog> createState() =>
@@ -95,8 +97,9 @@ class _AddDistanceWarningAlertDialogState
               alignment: Alignment.topCenter,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest
-                    .withValues(alpha: 0.3),
+                color: theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.3,
+                ),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: theme.colorScheme.outline.withValues(alpha: 0.3),
@@ -138,14 +141,18 @@ class _AddDistanceWarningAlertDialogState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color:
-                      theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                  color: theme.colorScheme.primaryContainer.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle_outline,
-                        size: 16, color: theme.colorScheme.primary),
+                    Icon(
+                      Icons.check_circle_outline,
+                      size: 16,
+                      color: theme.colorScheme.primary,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -168,12 +175,14 @@ class _AddDistanceWarningAlertDialogState
         FilledButton(
           onPressed: _isButtonActive()
               ? () {
-                  widget.onDistanceWarningAdded(DistanceWarning(
-                    id: const Uuid().v4(),
-                    distance: int.parse(_distanceController.text),
-                    daysInterval: int.parse(_daysIntervalController.text),
-                    distanceWarningType: _selectedType,
-                  ));
+                  widget.onDistanceWarningAdded(
+                    DistanceWarning(
+                      id: const Uuid().v4(),
+                      distance: int.parse(_distanceController.text),
+                      daysInterval: int.parse(_daysIntervalController.text),
+                      distanceWarningType: _selectedType,
+                    ),
+                  );
                   Navigator.of(context).pop();
                 }
               : null,

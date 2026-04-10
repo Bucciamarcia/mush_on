@@ -43,7 +43,8 @@ class HealtheventEditorAlertState
     _nameController = TextEditingController(text: widget.event?.title);
     _notesController = TextEditingController(text: widget.event?.notes);
     _selectedDogNameController = TextEditingController(
-        text: widget.dogs?.getNameFromId(widget.event?.dogId ?? ""));
+      text: widget.dogs?.getNameFromId(widget.event?.dogId ?? ""),
+    );
     _eventStartDate = widget.event?.date ?? DateTimeUtils.today();
     _isOneshot = widget.event?.isOneShot ?? false;
     _eventFinishDate = widget.event?.resolvedDate;
@@ -158,12 +159,13 @@ class HealtheventEditorAlertState
                       IconButton.filledTonal(
                         onPressed: () async {
                           await _selectDate(
-                              context: context,
-                              onDatePicked: (DateTime newDate) {
-                                setState(() {
-                                  _eventStartDate = newDate;
-                                });
+                            context: context,
+                            onDatePicked: (DateTime newDate) {
+                              setState(() {
+                                _eventStartDate = newDate;
                               });
+                            },
+                          );
                         },
                         icon: const Icon(Icons.calendar_today),
                       ),
@@ -184,11 +186,10 @@ class HealtheventEditorAlertState
                             Text(
                               _eventFinishDate == null
                                   ? "Ongoing"
-                                  : DateFormat("MMM dd, yyyy")
-                                      .format(_eventFinishDate!),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
+                                  : DateFormat(
+                                      "MMM dd, yyyy",
+                                    ).format(_eventFinishDate!),
+                              style: Theme.of(context).textTheme.titleMedium
                                   ?.copyWith(
                                     color: _eventFinishDate == null
                                         ? colorScheme.primary
@@ -206,19 +207,22 @@ class HealtheventEditorAlertState
                                     _eventFinishDate = null;
                                   });
                                 },
-                                icon:
-                                    Icon(Icons.clear, color: colorScheme.error),
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: colorScheme.error,
+                                ),
                               ),
                             IconButton.filledTonal(
                               onPressed: () async {
                                 await _selectDate(
-                                    minDate: _eventStartDate,
-                                    context: context,
-                                    onDatePicked: (DateTime newDate) {
-                                      setState(() {
-                                        _eventFinishDate = newDate;
-                                      });
+                                  minDate: _eventStartDate,
+                                  context: context,
+                                  onDatePicked: (DateTime newDate) {
+                                    setState(() {
+                                      _eventFinishDate = newDate;
                                     });
+                                  },
+                                );
                               },
                               icon: const Icon(Icons.calendar_today),
                             ),
@@ -250,11 +254,14 @@ class HealtheventEditorAlertState
                 }
               },
               dropdownMenuEntries: HealthEventType.values
-                  .map((het) => DropdownMenuEntry(
-                        value: het,
-                        label: het.name.substring(0, 1).toUpperCase() +
-                            het.name.substring(1),
-                      ))
+                  .map(
+                    (het) => DropdownMenuEntry(
+                      value: het,
+                      label:
+                          het.name.substring(0, 1).toUpperCase() +
+                          het.name.substring(1),
+                    ),
+                  )
                   .toList(),
             ),
           ),
@@ -291,7 +298,8 @@ class HealtheventEditorAlertState
               },
               title: const Text("Dog can't run"),
               subtitle: const Text(
-                  "This condition prevents the dog from training/racing"),
+                "This condition prevents the dog from training/racing",
+              ),
               secondary: Icon(
                 Icons.block,
                 color: _preventsFromRunning ? colorScheme.error : null,
@@ -313,19 +321,23 @@ class HealtheventEditorAlertState
                   });
                   var repository = ref.read(healthEventRepositoryProvider);
                   try {
-                    await repository.addEvent(HealthEvent(
+                    await repository.addEvent(
+                      HealthEvent(
                         id: _id ?? const Uuid().v4(),
                         dogId: _selectedDog!.id,
                         title: _nameController.text,
                         date: _eventStartDate,
                         preventFromRunning: _preventsFromRunning,
                         notes: _notesController.text,
-                        resolvedDate:
-                            _isOneshot ? _eventStartDate : _eventFinishDate,
+                        resolvedDate: _isOneshot
+                            ? _eventStartDate
+                            : _eventFinishDate,
                         createdAt:
                             widget.event?.createdAt ?? DateTimeUtils.today(),
                         eventType: _healthEventType,
-                        lastUpdated: DateTimeUtils.today()));
+                        lastUpdated: DateTimeUtils.today(),
+                      ),
+                    );
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         confirmationSnackbar(context, "Health event added"),
@@ -333,8 +345,11 @@ class HealtheventEditorAlertState
                     }
                     if (context.mounted) Navigator.of(context).pop();
                   } catch (e, s) {
-                    BasicLogger().error("Couldn't add new event",
-                        error: e, stackTrace: s);
+                    BasicLogger().error(
+                      "Couldn't add new event",
+                      error: e,
+                      stackTrace: s,
+                    );
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         errorSnackBar(context, "Couldn't add new event"),
@@ -364,26 +379,28 @@ class HealtheventEditorAlertState
     );
   }
 
-  Future<void> _selectDate(
-      {required BuildContext context,
-      required Function(DateTime) onDatePicked,
-      DateTime? minDate}) async {
+  Future<void> _selectDate({
+    required BuildContext context,
+    required Function(DateTime) onDatePicked,
+    DateTime? minDate,
+  }) async {
     final DateTime? picked = await showDatePicker(
-        initialDate: minDate,
-        context: context,
-        firstDate: minDate ??
-            DateTimeUtils.today().subtract(const Duration(days: 900)),
-        lastDate: DateTimeUtils.today().add(const Duration(days: 900)),
-        builder: (context, child) {
-          return Theme(
-            data: Theme.of(context).copyWith(
-              dialogTheme: DialogThemeData(
-                backgroundColor: Theme.of(context).colorScheme.surface,
-              ),
+      initialDate: minDate,
+      context: context,
+      firstDate:
+          minDate ?? DateTimeUtils.today().subtract(const Duration(days: 900)),
+      lastDate: DateTimeUtils.today().add(const Duration(days: 900)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogTheme: DialogThemeData(
+              backgroundColor: Theme.of(context).colorScheme.surface,
             ),
-            child: child!,
-          );
-        });
+          ),
+          child: child!,
+        );
+      },
+    );
     if (picked != null) {
       onDatePicked(picked);
     }

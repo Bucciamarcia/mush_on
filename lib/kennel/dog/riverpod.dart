@@ -21,11 +21,10 @@ Stream<Dog> singleDog(Ref ref, String dogId) async* {
   String account = await ref.read(accountProvider.future);
   var db = FirebaseFirestore.instance;
   String path = "accounts/$account/data/kennel/dogs/$dogId";
-  yield* db.doc(path).snapshots().map(
-        (snapshot) => Dog.fromJson(
-          snapshot.data() ?? {},
-        ),
-      );
+  yield* db
+      .doc(path)
+      .snapshots()
+      .map((snapshot) => Dog.fromJson(snapshot.data() ?? {}));
 }
 
 @riverpod
@@ -42,14 +41,17 @@ class SingleDogImage extends _$SingleDogImage {
   Future<void> editImage({required File file}) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      DogPhotoCardUtils utils =
-          DogPhotoCardUtils(id: dogId, account: this.account); // Correct
+      DogPhotoCardUtils utils = DogPhotoCardUtils(
+        id: dogId,
+        account: this.account,
+      ); // Correct
       String extension = path.extension(file.path);
 
       await utils.deleteCurrentImage();
       await StorageService().uploadFromFile(
-          file: file,
-          path: "accounts/${this.account}/dogs/$dogId/image$extension");
+        file: file,
+        path: "accounts/${this.account}/dogs/$dogId/image$extension",
+      );
 
       // Your excellent optimistic update
       return file.readAsBytesSync();
@@ -60,8 +62,10 @@ class SingleDogImage extends _$SingleDogImage {
   Future<void> deleteImage() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await DogPhotoCardUtils(id: dogId, account: this.account)
-          .deleteCurrentImage();
+      await DogPhotoCardUtils(
+        id: dogId,
+        account: this.account,
+      ).deleteCurrentImage();
       // After deleting, the state becomes null (no image).
       return null;
     });
@@ -69,7 +73,6 @@ class SingleDogImage extends _$SingleDogImage {
 }
 
 @riverpod
-
 /// Gets the run totals for a single dog in the specified period.
 ///
 /// Defaults to 30 days.
@@ -96,27 +99,36 @@ Stream<List<DogTotal>> dogTotal(
 
   for (final teamGroup in teamGroups) {
     final date = DateTime.utc(
-        teamGroup.date.year, teamGroup.date.month, teamGroup.date.day);
+      teamGroup.date.year,
+      teamGroup.date.month,
+      teamGroup.date.day,
+    );
     double distance = 0.0;
 
-    List<Team> teams =
-        await ref.watch(teamsInTeamgroupProvider(teamGroup.id).future);
+    List<Team> teams = await ref.watch(
+      teamsInTeamgroupProvider(teamGroup.id).future,
+    );
     bool isDogInTeam = false;
     for (final team in teams) {
       try {
         // Now you can safely await inside the loop
-        List<DogPair> dogPairs = await ref
-            .watch(dogPairsInTeamProvider(teamGroup.id, team.id).future);
+        List<DogPair> dogPairs = await ref.watch(
+          dogPairsInTeamProvider(teamGroup.id, team.id).future,
+        );
 
         if (dogPairs.any(
-            (pair) => pair.firstDogId == dogId || pair.secondDogId == dogId)) {
+          (pair) => pair.firstDogId == dogId || pair.secondDogId == dogId,
+        )) {
           isDogInTeam = true;
           // Exit the loop early since we found the dog, mimicking .any() behavior
           break;
         }
       } catch (e, s) {
-        BasicLogger()
-            .error("Couldn't get dogpairs in dog", error: e, stackTrace: s);
+        BasicLogger().error(
+          "Couldn't get dogpairs in dog",
+          error: e,
+          stackTrace: s,
+        );
         // Continue to the next team if this one fails
         continue;
       }
@@ -126,8 +138,11 @@ Stream<List<DogTotal>> dogTotal(
       distance = teamGroup.distance;
     }
 
-    ranByDay.update(DateTimeUtils.removeTime(date), (value) => value + distance,
-        ifAbsent: () => distance);
+    ranByDay.update(
+      DateTimeUtils.removeTime(date),
+      (value) => value + distance,
+      ifAbsent: () => distance,
+    );
   }
 
   final result = ranByDay.entries.map((entry) {
@@ -140,46 +155,58 @@ Stream<List<DogTotal>> dogTotal(
 }
 
 @riverpod
-
 /// All the health events related to a single dog. Cutoff default to 90 days.
-Stream<List<HealthEvent>> dogHealthEvents(Ref ref,
-    {required String dogId, DateTime? cutoff}) async* {
+Stream<List<HealthEvent>> dogHealthEvents(
+  Ref ref, {
+  required String dogId,
+  DateTime? cutoff,
+}) async* {
   // Default cutoff to 90 days ago.
   cutoff ??= DateTime.now().subtract(const Duration(days: 90));
   String account = await ref.watch(accountProvider.future);
   var db = FirebaseFirestore.instance;
   var path = "accounts/$account/data/kennel/healthEvents/";
   var collection = db.collection(path).where("dogId", isEqualTo: dogId);
-  yield* collection.snapshots().map((snapshot) =>
-      snapshot.docs.map((doc) => HealthEvent.fromJson(doc.data())).toList());
+  yield* collection.snapshots().map(
+    (snapshot) =>
+        snapshot.docs.map((doc) => HealthEvent.fromJson(doc.data())).toList(),
+  );
 }
 
 @riverpod
-
 /// All the vaccinations related to a single dog. Cutoff default to 90 days.
-Stream<List<Vaccination>> dogVaccinations(Ref ref,
-    {required String dogId, DateTime? cutoff}) async* {
+Stream<List<Vaccination>> dogVaccinations(
+  Ref ref, {
+  required String dogId,
+  DateTime? cutoff,
+}) async* {
   // Default cutoff to 90 days ago.
   cutoff ??= DateTime.now().subtract(const Duration(days: 90));
   String account = await ref.watch(accountProvider.future);
   var db = FirebaseFirestore.instance;
   var path = "accounts/$account/data/kennel/vaccinations/";
   var collection = db.collection(path).where("dogId", isEqualTo: dogId);
-  yield* collection.snapshots().map((snapshot) =>
-      snapshot.docs.map((doc) => Vaccination.fromJson(doc.data())).toList());
+  yield* collection.snapshots().map(
+    (snapshot) =>
+        snapshot.docs.map((doc) => Vaccination.fromJson(doc.data())).toList(),
+  );
 }
 
 @riverpod
-
 /// All the heats related to a single dog. Cutoff default to 90 days.
-Stream<List<HeatCycle>> dogHeats(Ref ref,
-    {required String dogId, DateTime? cutoff}) async* {
+Stream<List<HeatCycle>> dogHeats(
+  Ref ref, {
+  required String dogId,
+  DateTime? cutoff,
+}) async* {
   // Default cutoff to 90 days ago.
   cutoff ??= DateTime.now().subtract(const Duration(days: 90));
   String account = await ref.watch(accountProvider.future);
   var db = FirebaseFirestore.instance;
   var path = "accounts/$account/data/kennel/heatCycles/";
   var collection = db.collection(path).where("dogId", isEqualTo: dogId);
-  yield* collection.snapshots().map((snapshot) =>
-      snapshot.docs.map((doc) => HeatCycle.fromJson(doc.data())).toList());
+  yield* collection.snapshots().map(
+    (snapshot) =>
+        snapshot.docs.map((doc) => HeatCycle.fromJson(doc.data())).toList(),
+  );
 }

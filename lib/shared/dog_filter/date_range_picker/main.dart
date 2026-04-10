@@ -5,11 +5,12 @@ class DateRangePicker extends StatelessWidget {
   final DateTime? maxDate;
   final DateTime? minDate;
   final Function(DateRangePickerSelectionChangedArgs) onSelectionChanged;
-  const DateRangePicker(
-      {super.key,
-      required this.minDate,
-      required this.maxDate,
-      required this.onSelectionChanged});
+  const DateRangePicker({
+    super.key,
+    required this.minDate,
+    required this.maxDate,
+    required this.onSelectionChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +19,9 @@ class DateRangePicker extends StatelessWidget {
       minDate: minDate,
       selectionMode: DateRangePickerSelectionMode.range,
       onSelectionChanged: (r) => onSelectionChanged(r),
-      monthViewSettings:
-          const DateRangePickerMonthViewSettings(firstDayOfWeek: 1),
+      monthViewSettings: const DateRangePickerMonthViewSettings(
+        firstDayOfWeek: 1,
+      ),
     );
   }
 }

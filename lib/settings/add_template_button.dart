@@ -63,9 +63,9 @@ class _AddTemplateDialogState extends State<AddTemplateDialog> {
 
     final List<String>? finalOptions =
         _newTypeValue == CustomFieldType.typeDropdown
-            // Filter out any empty options before saving
-            ? _dropdownOptions.where((opt) => opt.isNotEmpty).toList()
-            : null;
+        // Filter out any empty options before saving
+        ? _dropdownOptions.where((opt) => opt.isNotEmpty).toList()
+        : null;
 
     // For dropdowns, ensure there are at least some options.
     if (_newTypeValue == CustomFieldType.typeDropdown &&
@@ -138,7 +138,7 @@ class _AddTemplateDialogState extends State<AddTemplateDialog> {
                     _dropdownOptions.removeAt(index);
                   });
                 },
-              )
+              ),
           ],
         ),
       ),
@@ -149,16 +149,18 @@ class _AddTemplateDialogState extends State<AddTemplateDialog> {
         ),
         ElevatedButton(
           style: ButtonStyle(
-            backgroundColor:
-                WidgetStateProperty.all(Theme.of(context).colorScheme.primary),
+            backgroundColor: WidgetStateProperty.all(
+              Theme.of(context).colorScheme.primary,
+            ),
             foregroundColor: WidgetStateProperty.all(
-                Theme.of(context).colorScheme.onPrimary),
+              Theme.of(context).colorScheme.onPrimary,
+            ),
           ),
           // --- CONSOLIDATED SAVE LOGIC ---
           // This single button now handles saving for all field types.
           onPressed: _addCustomField,
           child: const Text("Add custom field"),
-        )
+        ),
       ],
     );
   }

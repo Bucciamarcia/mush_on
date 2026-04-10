@@ -42,14 +42,12 @@ class SettingsHubTile extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withValues(alpha: 0.4),
+                      color: colorScheme.primaryContainer.withValues(
+                        alpha: 0.4,
+                      ),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(
-                      icon,
-                      color: colorScheme.primary,
-                      size: 28,
-                    ),
+                    child: Icon(icon, color: colorScheme.primary, size: 28),
                   ),
                   const Spacer(),
                   Icon(
@@ -76,7 +74,10 @@ class SettingsHubTile extends StatelessWidget {
               if (status != null) ...[
                 const SizedBox(height: 20),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(12),

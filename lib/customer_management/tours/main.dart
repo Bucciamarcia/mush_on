@@ -20,24 +20,20 @@ class ToursMainScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.tour,
-              size: 64,
-              color: colorScheme.outline,
-            ),
+            Icon(Icons.tour, size: 64, color: colorScheme.outline),
             const SizedBox(height: 16),
             Text(
               "No Tours Available",
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: colorScheme.outline,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(color: colorScheme.outline),
             ),
             const SizedBox(height: 8),
             Text(
               "Create your first tour to get started",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.outline,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: colorScheme.outline),
             ),
           ],
         ),
@@ -48,10 +44,8 @@ class ToursMainScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       itemCount: tours.length,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (c, i) => TourTypeCard(
-        tour: tours[i],
-        key: ValueKey(tours[i].id),
-      ),
+      itemBuilder: (c, i) =>
+          TourTypeCard(tour: tours[i], key: ValueKey(tours[i].id)),
     );
   }
 }
@@ -67,14 +61,10 @@ class TourTypeCard extends ConsumerWidget {
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
-        onTap: () => context.goNamed(
-          "tours_add",
-          queryParameters: {"tourId": tour.id},
-        ),
+        onTap: () =>
+            context.goNamed("tours_add", queryParameters: {"tourId": tour.id}),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -105,11 +95,7 @@ class TourTypeCard extends ConsumerWidget {
             color: tour.backgroundColor,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Icon(
-            Icons.tour,
-            color: Colors.black,
-            size: 24,
-          ),
+          child: const Icon(Icons.tour, color: Colors.black, size: 24),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -149,11 +135,7 @@ class TourTypeCard extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.description,
-            size: 16,
-            color: colorScheme.primary,
-          ),
+          Icon(Icons.description, size: 16, color: colorScheme.primary),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -182,9 +164,10 @@ class TourTypeCard extends ConsumerWidget {
           colorScheme: colorScheme,
         ),
         _buildDetailChip(
-            icon: Icons.timer,
-            label: _minutesToHoursMinutes(tour.duration),
-            colorScheme: colorScheme)
+          icon: Icons.timer,
+          label: _minutesToHoursMinutes(tour.duration),
+          colorScheme: colorScheme,
+        ),
       ],
     );
   }
@@ -229,8 +212,9 @@ class TourTypeCard extends ConsumerWidget {
           Icon(
             icon,
             size: 14,
-            color:
-                isPrimary ? colorScheme.primary : colorScheme.onSurfaceVariant,
+            color: isPrimary
+                ? colorScheme.primary
+                : colorScheme.onSurfaceVariant,
           ),
           const SizedBox(width: 4),
           Text(
@@ -249,7 +233,9 @@ class TourTypeCard extends ConsumerWidget {
   }
 
   Widget _buildPricingInfo(
-      ColorScheme colorScheme, List<TourTypePricing> prices) {
+    ColorScheme colorScheme,
+    List<TourTypePricing> prices,
+  ) {
     // Show price range if multiple prices, or single price if only one
     if (prices.isEmpty) return const SizedBox.shrink();
 
@@ -273,11 +259,7 @@ class TourTypeCard extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            Icons.euro,
-            size: 18,
-            color: colorScheme.secondary,
-          ),
+          Icon(Icons.euro, size: 18, color: colorScheme.secondary),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -313,9 +295,7 @@ class TourTypeCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

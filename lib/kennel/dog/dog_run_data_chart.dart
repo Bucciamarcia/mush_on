@@ -20,7 +20,7 @@ class DogRunDataChart extends StatelessWidget {
           sortFieldValueMapper: (DogTotal total, _) => total.fromtoday,
           sortingOrder: SortingOrder.descending,
           dataLabelSettings: const DataLabelSettings(isVisible: true),
-        )
+        ),
       ],
     );
   }

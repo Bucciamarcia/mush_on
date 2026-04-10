@@ -81,8 +81,9 @@ void main() {
 
       await repository.addCustomField(newTemplate, currentSettings);
 
-      final snapshot =
-          await firestore.doc('accounts/account-1/data/settings').get();
+      final snapshot = await firestore
+          .doc('accounts/account-1/data/settings')
+          .get();
       final savedSettings = SettingsModel.fromJson(snapshot.data()!);
 
       expect(savedSettings.customFieldTemplates, [
@@ -109,8 +110,9 @@ void main() {
 
       await repository.deleteCustomField('remove-me', currentSettings);
 
-      final snapshot =
-          await firestore.doc('accounts/account-1/data/settings').get();
+      final snapshot = await firestore
+          .doc('accounts/account-1/data/settings')
+          .get();
       final savedSettings = SettingsModel.fromJson(snapshot.data()!);
 
       expect(savedSettings.customFieldTemplates, [
@@ -133,8 +135,9 @@ void main() {
 
       await repository.addDistanceWarning(newWarning, currentSettings);
 
-      final snapshot =
-          await firestore.doc('accounts/account-1/data/settings').get();
+      final snapshot = await firestore
+          .doc('accounts/account-1/data/settings')
+          .get();
       final savedSettings = SettingsModel.fromJson(snapshot.data()!);
 
       expect(savedSettings.globalDistanceWarnings, [
@@ -159,8 +162,9 @@ void main() {
 
       await repository.editDistanceWarning(editedWarning, currentSettings);
 
-      final snapshot =
-          await firestore.doc('accounts/account-1/data/settings').get();
+      final snapshot = await firestore
+          .doc('accounts/account-1/data/settings')
+          .get();
       final savedSettings = SettingsModel.fromJson(snapshot.data()!);
 
       expect(savedSettings.globalDistanceWarnings, contains(editedWarning));
@@ -181,8 +185,9 @@ void main() {
 
       await repository.removeDistanceWarning('warning-1', currentSettings);
 
-      final snapshot =
-          await firestore.doc('accounts/account-1/data/settings').get();
+      final snapshot = await firestore
+          .doc('accounts/account-1/data/settings')
+          .get();
       final savedSettings = SettingsModel.fromJson(snapshot.data()!);
 
       expect(savedSettings.globalDistanceWarnings, [

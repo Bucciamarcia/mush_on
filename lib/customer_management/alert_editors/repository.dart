@@ -21,8 +21,11 @@ class AlertEditorsRepository {
     try {
       doc = docs.single;
     } catch (e, s) {
-      logger.error("Failed to find checkout session for booking ${booking.id}",
-          error: e, stackTrace: s);
+      logger.error(
+        "Failed to find checkout session for booking ${booking.id}",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
     final String paymentIntentId = doc.data()["paymentIntentId"];
@@ -30,11 +33,16 @@ class AlertEditorsRepository {
 
     // Refund the payment
     try {
-      await functions.httpsCallable("refund_payment").call(
-          {"paymentIntent": paymentIntentId, "stripeAccount": stripeAccount});
+      await functions.httpsCallable("refund_payment").call({
+        "paymentIntent": paymentIntentId,
+        "stripeAccount": stripeAccount,
+      });
     } catch (e, s) {
-      logger.error("Failed to refund booking because of the function",
-          error: e, stackTrace: s);
+      logger.error(
+        "Failed to refund booking because of the function",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
 
@@ -42,13 +50,17 @@ class AlertEditorsRepository {
     try {
       final path =
           "accounts/$account/data/bookingManager/bookings/${booking.id}";
-      final newBooking =
-          booking.copyWith(paymentStatus: PaymentStatus.refunded);
+      final newBooking = booking.copyWith(
+        paymentStatus: PaymentStatus.refunded,
+      );
       await db.doc(path).set(newBooking.toJson());
       logger.info("Payment refunded");
     } catch (e, s) {
-      logger.error("Failed to mark booking as refunded in the db",
-          error: e, stackTrace: s);
+      logger.error(
+        "Failed to mark booking as refunded in the db",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }

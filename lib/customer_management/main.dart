@@ -18,31 +18,48 @@ class ClientManagementMainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final todaysCustomerGroups = ref
-            .watch(customerGroupsByDayProvider(
-                date: DateTimeUtils.today(), showEmpty: false))
-            .value ??
-        [];
-    final todaysOrphanedCustomerGroups =
-        todaysCustomerGroups.where((cg) => cg.teamGroupId == null).toList();
-    final futureCustomerGroups = ref
+    final todaysCustomerGroups =
+        ref
             .watch(
-                futureCustomerGroupsProvider(untilDate: null, showEmpty: false))
+              customerGroupsByDayProvider(
+                date: DateTimeUtils.today(),
+                showEmpty: false,
+              ),
+            )
             .value ??
         [];
-    final customerGroupsWithoutTeamgroup =
-        futureCustomerGroups.where((c) => c.teamGroupId == null).toList();
+    final todaysOrphanedCustomerGroups = todaysCustomerGroups
+        .where((cg) => cg.teamGroupId == null)
+        .toList();
+    final futureCustomerGroups =
+        ref
+            .watch(
+              futureCustomerGroupsProvider(untilDate: null, showEmpty: false),
+            )
+            .value ??
+        [];
+    final customerGroupsWithoutTeamgroup = futureCustomerGroups
+        .where((c) => c.teamGroupId == null)
+        .toList();
 
-    final tomorrowCustomerGroups = ref
-            .watch(futureCustomerGroupsProvider(
+    final tomorrowCustomerGroups =
+        ref
+            .watch(
+              futureCustomerGroupsProvider(
                 untilDate: DateTimeUtils.today().add(const Duration(days: 2)),
-                showEmpty: false))
+                showEmpty: false,
+              ),
+            )
             .value ??
         [];
-    final next7DaysCustomerGroups = ref
-            .watch(futureCustomerGroupsProvider(
+    final next7DaysCustomerGroups =
+        ref
+            .watch(
+              futureCustomerGroupsProvider(
                 untilDate: DateTimeUtils.today().add(const Duration(days: 8)),
-                showEmpty: false))
+                showEmpty: false,
+              ),
+            )
             .value ??
         [];
 
@@ -50,14 +67,16 @@ class ClientManagementMainScreen extends ConsumerWidget {
       if (todaysOrphanedCustomerGroups.isNotEmpty)
         _WarningSection(
           title: "Today's Orphaned Customer Groups",
-          child:
-              ListCustomerGroups(customerGroups: todaysOrphanedCustomerGroups),
+          child: ListCustomerGroups(
+            customerGroups: todaysOrphanedCustomerGroups,
+          ),
         ),
       if (customerGroupsWithoutTeamgroup.isNotEmpty)
         _WarningSection(
           title: "Future Customer Groups Without a Team",
           child: ListCustomerGroups(
-              customerGroups: customerGroupsWithoutTeamgroup),
+            customerGroups: customerGroupsWithoutTeamgroup,
+          ),
         ),
     ];
     return DefaultTabController(
@@ -66,12 +85,8 @@ class ClientManagementMainScreen extends ConsumerWidget {
         children: [
           const TabBar(
             tabs: [
-              Tab(
-                child: Text("Overview"),
-              ),
-              Tab(
-                child: Text("Calendar"),
-              ),
+              Tab(child: Text("Overview")),
+              Tab(child: Text("Calendar")),
             ],
           ),
           Expanded(
@@ -84,10 +99,9 @@ class ClientManagementMainScreen extends ConsumerWidget {
                       // Warnings Section
                       if (warnings.isNotEmpty) ...[
                         Card(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .errorContainer
-                              .withValues(alpha: 0.5),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.errorContainer.withValues(alpha: 0.5),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Column(
@@ -95,13 +109,11 @@ class ClientManagementMainScreen extends ConsumerWidget {
                               children: [
                                 Text(
                                   "Action Required",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
+                                  style: Theme.of(context).textTheme.titleLarge
                                       ?.copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onErrorContainer,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onErrorContainer,
                                         fontWeight: FontWeight.bold,
                                       ),
                                 ),
@@ -129,7 +141,8 @@ class ClientManagementMainScreen extends ConsumerWidget {
                         "Tomorrow",
                         tomorrowCustomerGroups.isNotEmpty
                             ? ListCustomerGroups(
-                                customerGroups: tomorrowCustomerGroups)
+                                customerGroups: tomorrowCustomerGroups,
+                              )
                             : const Text("No customer groups for tomorrow."),
                       ),
                       _buildExpansionTileChild(
@@ -137,9 +150,11 @@ class ClientManagementMainScreen extends ConsumerWidget {
                         "Next 7 Days",
                         next7DaysCustomerGroups.isNotEmpty
                             ? ListCustomerGroups(
-                                customerGroups: next7DaysCustomerGroups)
+                                customerGroups: next7DaysCustomerGroups,
+                              )
                             : const Text(
-                                "No customer groups for the next 7 days."),
+                                "No customer groups for the next 7 days.",
+                              ),
                       ),
                     ],
                   ),
@@ -157,15 +172,15 @@ class ClientManagementMainScreen extends ConsumerWidget {
   Widget _buildSectionTitle(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleLarge,
-      ),
+      child: Text(title, style: Theme.of(context).textTheme.titleLarge),
     );
   }
 
   Widget _buildExpansionTileChild(
-      BuildContext context, String title, Widget content) {
+    BuildContext context,
+    String title,
+    Widget content,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Column(
@@ -196,8 +211,9 @@ class _WarningSection extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onErrorContainer,
-                fontWeight: FontWeight.bold),
+              color: Theme.of(context).colorScheme.onErrorContainer,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 8),
           child,
@@ -215,112 +231,116 @@ class ListCustomerGroups extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(
-      children: customerGroups.map(
-        (cg) {
-          final bookings =
-              ref.watch(bookingsByCustomerGroupIdProvider(cg.id)).value ?? [];
-          final teamGroup = (cg.teamGroupId != null)
-              ? ref.watch(teamGroupByIdProvider(cg.teamGroupId!)).value
-              : null;
+      children: customerGroups.map((cg) {
+        final bookings =
+            ref.watch(bookingsByCustomerGroupIdProvider(cg.id)).value ?? [];
+        final teamGroup = (cg.teamGroupId != null)
+            ? ref.watch(teamGroupByIdProvider(cg.teamGroupId!)).value
+            : null;
 
-          final customers =
-              ref.watch(customersByCustomerGroupIdProvider(cg.id)).value ?? [];
+        final customers =
+            ref.watch(customersByCustomerGroupIdProvider(cg.id)).value ?? [];
 
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      CustomerGroupViewerScreen(customerGroupId: cg.id),
-                ),
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8.0),
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    CustomerGroupViewerScreen(customerGroupId: cg.id),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      cg.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    cg.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.calendar_today,
-                            size: 14,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant),
-                        const SizedBox(width: 8),
-                        Text(
-                          DateFormat("dd-MM-yyyy 'at' hh:mm")
-                              .format(cg.datetime),
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.people,
-                            size: 14,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant),
-                        const SizedBox(
-                          width: 8,
-                        ),
-                        Text(
-                          "${customers.length}/${cg.maxCapacity}",
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    const Divider(),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8.0,
-                      runSpacing: 4.0,
-                      children: [
-                        Chip(
-                          avatar: Icon(
-                              teamGroup == null
-                                  ? Icons.warning_amber_rounded
-                                  : Icons.check_circle_outline_rounded,
-                              size: 18),
-                          label: Text(teamGroup == null
-                              ? "No Team Assigned"
-                              : teamGroup.name),
-                          backgroundColor: teamGroup == null
-                              ? Theme.of(context).colorScheme.errorContainer
-                              : Theme.of(context).colorScheme.primaryContainer,
-                        ),
-                      ],
-                    ),
-                    if (bookings.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Text("Bookings:",
-                          style: Theme.of(context).textTheme.labelLarge),
-                      const SizedBox(height: 8),
-                      ...bookings.map((b) => _BookingCardInGroup(
-                            booking: b,
-                            selectedCustomerGroup: cg,
-                          )),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        DateFormat("dd-MM-yyyy 'at' hh:mm").format(cg.datetime),
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ],
+                  ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.people,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "${customers.length}/${cg.maxCapacity}",
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  const Divider(),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 4.0,
+                    children: [
+                      Chip(
+                        avatar: Icon(
+                          teamGroup == null
+                              ? Icons.warning_amber_rounded
+                              : Icons.check_circle_outline_rounded,
+                          size: 18,
+                        ),
+                        label: Text(
+                          teamGroup == null
+                              ? "No Team Assigned"
+                              : teamGroup.name,
+                        ),
+                        backgroundColor: teamGroup == null
+                            ? Theme.of(context).colorScheme.errorContainer
+                            : Theme.of(context).colorScheme.primaryContainer,
+                      ),
+                    ],
+                  ),
+                  if (bookings.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      "Bookings:",
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    ...bookings.map(
+                      (b) => _BookingCardInGroup(
+                        booking: b,
+                        selectedCustomerGroup: cg,
+                      ),
+                    ),
                   ],
-                ),
+                ],
               ),
             ),
-          );
-        },
-      ).toList(),
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -329,8 +349,10 @@ class _BookingCardInGroup extends ConsumerWidget {
   final Booking booking;
   final CustomerGroup selectedCustomerGroup;
 
-  const _BookingCardInGroup(
-      {required this.booking, required this.selectedCustomerGroup});
+  const _BookingCardInGroup({
+    required this.booking,
+    required this.selectedCustomerGroup,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -349,12 +371,13 @@ class _BookingCardInGroup extends ConsumerWidget {
           builder: (_) => BookingEditorAlert(
             selectedCustomerGroup: selectedCustomerGroup,
             booking: booking,
-            onBookingDeleted: () async =>
-                await customerRepo.deleteBooking(booking.id).catchError(
-                      (e) => ScaffoldMessenger.of(context).showSnackBar(
-                        errorSnackBar(context, "Failed to delete booking."),
-                      ),
-                    ),
+            onBookingDeleted: () async => await customerRepo
+                .deleteBooking(booking.id)
+                .catchError(
+                  (e) => ScaffoldMessenger.of(context).showSnackBar(
+                    errorSnackBar(context, "Failed to delete booking."),
+                  ),
+                ),
             onBookingEdited: (nb) async {
               await customerRepo.setBooking(nb);
               ref.invalidate(bookingsByCustomerGroupIdProvider);
@@ -374,10 +397,8 @@ class _BookingCardInGroup extends ConsumerWidget {
               Wrap(
                 crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 8,
-                children: [
-                  Text("${customers.length} ppl"),
-                ],
-              )
+                children: [Text("${customers.length} ppl")],
+              ),
             ],
           ),
         ),

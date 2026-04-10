@@ -4,8 +4,5 @@ part 'models.freezed.dart';
 
 @freezed
 sealed class DogLayout with _$DogLayout {
-  const factory DogLayout({
-    required Dog dog,
-    required int rank,
-  }) = _DogLayout;
+  const factory DogLayout({required Dog dog, required int rank}) = _DogLayout;
 }

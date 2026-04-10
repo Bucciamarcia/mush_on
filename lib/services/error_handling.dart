@@ -17,23 +17,35 @@ class BasicLogger {
   );
 
   // Trace, Debug, Info, Warning remain the same (only log if kDebugMode)
-  void trace(dynamic message,
-      {DateTime? time, Object? error, StackTrace? stackTrace}) {
+  void trace(
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
     if (kDebugMode) {
       // Using just kDebugMode is more idiomatic
       logger.t(message, time: time, error: error, stackTrace: stackTrace);
     }
   }
 
-  void debug(dynamic message,
-      {DateTime? time, Object? error, StackTrace? stackTrace}) {
+  void debug(
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
     if (kDebugMode) {
       logger.d(message, time: time, error: error, stackTrace: stackTrace);
     }
   }
 
-  void info(dynamic message,
-      {DateTime? time, Object? error, StackTrace? stackTrace}) {
+  void info(
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
     if (kDebugMode) {
       logger.i(message, time: time, error: error, stackTrace: stackTrace);
     } else {
@@ -41,8 +53,12 @@ class BasicLogger {
     }
   }
 
-  void warning(dynamic message,
-      {DateTime? time, Object? error, StackTrace? stackTrace}) {
+  void warning(
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
     if (kDebugMode) {
       logger.w(message, time: time, error: error, stackTrace: stackTrace);
     } else {
@@ -51,8 +67,12 @@ class BasicLogger {
   }
 
   /// Logs an error message
-  void error(dynamic message,
-      {DateTime? time, Object? error, StackTrace? stackTrace}) {
+  void error(
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
     if (kDebugMode) {
       logger.e(message, time: time, error: error, stackTrace: stackTrace);
     } else {
@@ -64,14 +84,19 @@ class BasicLogger {
           fatal: false, // Mark as non-fatal
         );
       } else {
-        FirebaseCrashlytics.instance
-            .log('Non-fatal error reported without exception object: $message');
+        FirebaseCrashlytics.instance.log(
+          'Non-fatal error reported without exception object: $message',
+        );
       }
     }
   }
 
-  void fatal(dynamic message,
-      {DateTime? time, Object? error, StackTrace? stackTrace}) {
+  void fatal(
+    dynamic message, {
+    DateTime? time,
+    Object? error,
+    StackTrace? stackTrace,
+  }) {
     if (kDebugMode) {
       logger.f(message, time: time, error: error, stackTrace: stackTrace);
     } else {
@@ -84,8 +109,9 @@ class BasicLogger {
           fatal: true, // Mark as fatal
         );
       } else {
-        FirebaseCrashlytics.instance
-            .log('Fatal error reported without exception object: $message');
+        FirebaseCrashlytics.instance.log(
+          'Fatal error reported without exception object: $message',
+        );
       }
     }
   }
@@ -96,9 +122,7 @@ SnackBar errorSnackBar(BuildContext context, String message) {
     backgroundColor: Theme.of(context).colorScheme.error,
     content: Text(
       message,
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.onError,
-      ),
+      style: TextStyle(color: Theme.of(context).colorScheme.onError),
     ),
   );
 }
@@ -108,9 +132,7 @@ SnackBar confirmationSnackbar(BuildContext context, String message) {
     backgroundColor: Theme.of(context).colorScheme.primary,
     content: Text(
       message,
-      style: TextStyle(
-        color: Theme.of(context).colorScheme.onPrimary,
-      ),
+      style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
     ),
   );
 }

@@ -25,8 +25,11 @@ class UserProfilePic extends _$UserProfilePic {
     try {
       result = await storageRef.listAll();
     } catch (e, s) {
-      BasicLogger().error("Failed to list items in storage at path: $path",
-          error: e, stackTrace: s);
+      BasicLogger().error(
+        "Failed to list items in storage at path: $path",
+        error: e,
+        stackTrace: s,
+      );
       return null;
     }
     final items = result.items;
@@ -38,8 +41,11 @@ class UserProfilePic extends _$UserProfilePic {
     try {
       return await avatarPath.getData();
     } catch (e, s) {
-      BasicLogger().error("Failed to get data from storage at path: $path",
-          error: e, stackTrace: s);
+      BasicLogger().error(
+        "Failed to get data from storage at path: $path",
+        error: e,
+        stackTrace: s,
+      );
       return null;
     }
   }
