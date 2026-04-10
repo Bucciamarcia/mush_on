@@ -77,11 +77,25 @@ class TemplateScreen extends ConsumerWidget {
       );
     }
     if (child is EditKennelMain) {
-      return FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          context.go("/adddog");
-        },
+      return SpeedDial(
+        animatedIcon: AnimatedIcons.menu_close,
+        backgroundColor: Colors.blue,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.add),
+            label: "Add single dog",
+            onTap: () {
+              context.go("adddog");
+            },
+          ),
+          SpeedDialChild(
+            label: "Import from file",
+            child: const Icon(Icons.upload_file),
+            onTap: () {
+              context.go("/import_dogs_from_file");
+            },
+          ),
+        ],
       );
     }
     if (child is ToursMainScreen) {
