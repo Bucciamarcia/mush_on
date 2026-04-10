@@ -7,16 +7,17 @@ part of 'teamgroup.dart';
 // **************************************************************************
 
 _TeamGroup _$TeamGroupFromJson(Map<String, dynamic> json) => _TeamGroup(
-      id: json['id'] as String? ?? "",
-      name: json['name'] as String? ?? "",
-      date: const NonNullableTimestampConverter()
-          .fromJson(json['date'] as Timestamp),
-      distance: (json['distance'] as num?)?.toDouble() ?? 0,
-      notes: json['notes'] as String? ?? "",
-      runType:
-          $enumDecodeNullable(_$TeamGroupRunTypeEnumMap, json['runType']) ??
-              TeamGroupRunType.unknown,
-    );
+  id: json['id'] as String? ?? "",
+  name: json['name'] as String? ?? "",
+  date: const NonNullableTimestampConverter().fromJson(
+    json['date'] as Timestamp,
+  ),
+  distance: (json['distance'] as num?)?.toDouble() ?? 0,
+  notes: json['notes'] as String? ?? "",
+  runType:
+      $enumDecodeNullable(_$TeamGroupRunTypeEnumMap, json['runType']) ??
+      TeamGroupRunType.unknown,
+);
 
 Map<String, dynamic> _$TeamGroupToJson(_TeamGroup instance) =>
     <String, dynamic>{

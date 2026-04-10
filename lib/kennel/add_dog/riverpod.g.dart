@@ -13,8 +13,9 @@ String _$addDogHash() => r'7d15f016d3045f2df70213875db3be1380ccf68f';
 final addDogProvider = AutoDisposeNotifierProvider<AddDog, AddDogData>.internal(
   AddDog.new,
   name: r'addDogProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$addDogHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$addDogHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

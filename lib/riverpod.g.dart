@@ -13,8 +13,9 @@ String _$userHash() => r'c3161ce3d6b5f77a6ddf8bfcc8411ef3237e22ac';
 final userProvider = StreamProvider<User?>.internal(
   user,
   name: r'userProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$userHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$userHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -67,21 +68,13 @@ class UserNameFamily extends Family<AsyncValue<UserName?>> {
   /// If it returns null, it couldn't find it.
   ///
   /// Copied from [userName].
-  UserNameProvider call(
-    String? uid,
-  ) {
-    return UserNameProvider(
-      uid,
-    );
+  UserNameProvider call(String? uid) {
+    return UserNameProvider(uid);
   }
 
   @override
-  UserNameProvider getProviderOverride(
-    covariant UserNameProvider provider,
-  ) {
-    return call(
-      provider.uid,
-    );
+  UserNameProvider getProviderOverride(covariant UserNameProvider provider) {
+    return call(provider.uid);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -108,23 +101,18 @@ class UserNameProvider extends StreamProvider<UserName?> {
   /// If it returns null, it couldn't find it.
   ///
   /// Copied from [userName].
-  UserNameProvider(
-    String? uid,
-  ) : this._internal(
-          (ref) => userName(
-            ref as UserNameRef,
-            uid,
-          ),
-          from: userNameProvider,
-          name: r'userNameProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$userNameHash,
-          dependencies: UserNameFamily._dependencies,
-          allTransitiveDependencies: UserNameFamily._allTransitiveDependencies,
-          uid: uid,
-        );
+  UserNameProvider(String? uid)
+    : this._internal(
+        (ref) => userName(ref as UserNameRef, uid),
+        from: userNameProvider,
+        name: r'userNameProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$userNameHash,
+        dependencies: UserNameFamily._dependencies,
+        allTransitiveDependencies: UserNameFamily._allTransitiveDependencies,
+        uid: uid,
+      );
 
   UserNameProvider._internal(
     super._createNotifier, {
@@ -197,8 +185,9 @@ String _$accountHash() => r'20726188d6b9c3448024fa63c59930995e7e12da';
 final accountProvider = StreamProvider<String>.internal(
   account,
   name: r'accountProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$accountHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$accountHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -213,8 +202,9 @@ String _$settingsHash() => r'725d6da6cc18eb62f275849c1566665f8836e397';
 final settingsProvider = StreamProvider<SettingsModel>.internal(
   settings,
   name: r'settingsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$settingsHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$settingsHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -235,21 +225,15 @@ class TasksWithExpirationFamily extends Family<AsyncValue<List<Task>>> {
   const TasksWithExpirationFamily();
 
   /// See also [tasksWithExpiration].
-  TasksWithExpirationProvider call(
-    int? days,
-  ) {
-    return TasksWithExpirationProvider(
-      days,
-    );
+  TasksWithExpirationProvider call(int? days) {
+    return TasksWithExpirationProvider(days);
   }
 
   @override
   TasksWithExpirationProvider getProviderOverride(
     covariant TasksWithExpirationProvider provider,
   ) {
-    return call(
-      provider.days,
-    );
+    return call(provider.days);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -270,24 +254,19 @@ class TasksWithExpirationFamily extends Family<AsyncValue<List<Task>>> {
 /// See also [tasksWithExpiration].
 class TasksWithExpirationProvider extends StreamProvider<List<Task>> {
   /// See also [tasksWithExpiration].
-  TasksWithExpirationProvider(
-    int? days,
-  ) : this._internal(
-          (ref) => tasksWithExpiration(
-            ref as TasksWithExpirationRef,
-            days,
-          ),
-          from: tasksWithExpirationProvider,
-          name: r'tasksWithExpirationProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$tasksWithExpirationHash,
-          dependencies: TasksWithExpirationFamily._dependencies,
-          allTransitiveDependencies:
-              TasksWithExpirationFamily._allTransitiveDependencies,
-          days: days,
-        );
+  TasksWithExpirationProvider(int? days)
+    : this._internal(
+        (ref) => tasksWithExpiration(ref as TasksWithExpirationRef, days),
+        from: tasksWithExpirationProvider,
+        name: r'tasksWithExpirationProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$tasksWithExpirationHash,
+        dependencies: TasksWithExpirationFamily._dependencies,
+        allTransitiveDependencies:
+            TasksWithExpirationFamily._allTransitiveDependencies,
+        days: days,
+      );
 
   TasksWithExpirationProvider._internal(
     super._createNotifier, {
@@ -346,7 +325,8 @@ mixin TasksWithExpirationRef on StreamProviderRef<List<Task>> {
 }
 
 class _TasksWithExpirationProviderElement
-    extends StreamProviderElement<List<Task>> with TasksWithExpirationRef {
+    extends StreamProviderElement<List<Task>>
+    with TasksWithExpirationRef {
   _TasksWithExpirationProviderElement(super.provider);
 
   @override
@@ -382,21 +362,13 @@ class TasksFamily extends Family<AsyncValue<TasksInMemory>> {
   const TasksFamily();
 
   /// See also [tasks].
-  TasksProvider call(
-    int? days,
-  ) {
-    return TasksProvider(
-      days,
-    );
+  TasksProvider call(int? days) {
+    return TasksProvider(days);
   }
 
   @override
-  TasksProvider getProviderOverride(
-    covariant TasksProvider provider,
-  ) {
-    return call(
-      provider.days,
-    );
+  TasksProvider getProviderOverride(covariant TasksProvider provider) {
+    return call(provider.days);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -417,23 +389,18 @@ class TasksFamily extends Family<AsyncValue<TasksInMemory>> {
 /// See also [tasks].
 class TasksProvider extends StreamProvider<TasksInMemory> {
   /// See also [tasks].
-  TasksProvider(
-    int? days,
-  ) : this._internal(
-          (ref) => tasks(
-            ref as TasksRef,
-            days,
-          ),
-          from: tasksProvider,
-          name: r'tasksProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$tasksHash,
-          dependencies: TasksFamily._dependencies,
-          allTransitiveDependencies: TasksFamily._allTransitiveDependencies,
-          days: days,
-        );
+  TasksProvider(int? days)
+    : this._internal(
+        (ref) => tasks(ref as TasksRef, days),
+        from: tasksProvider,
+        name: r'tasksProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$tasksHash,
+        dependencies: TasksFamily._dependencies,
+        allTransitiveDependencies: TasksFamily._allTransitiveDependencies,
+        days: days,
+      );
 
   TasksProvider._internal(
     super._createNotifier, {
@@ -506,8 +473,9 @@ String _$dogsHash() => r'25024bf42f1503f765a876964eed096aaddd3f6e';
 final dogsProvider = StreamProvider<List<Dog>>.internal(
   dogs,
   name: r'dogsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$dogsHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$dogsHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

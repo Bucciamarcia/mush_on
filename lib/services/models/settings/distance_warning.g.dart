@@ -11,8 +11,11 @@ _DistanceWarning _$DistanceWarningFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String? ?? "",
       daysInterval: (json['daysInterval'] as num?)?.toInt() ?? 9,
       distance: (json['distance'] as num?)?.toInt() ?? 0,
-      distanceWarningType: $enumDecodeNullable(
-              _$DistanceWarningTypeEnumMap, json['distanceWarningType']) ??
+      distanceWarningType:
+          $enumDecodeNullable(
+            _$DistanceWarningTypeEnumMap,
+            json['distanceWarningType'],
+          ) ??
           DistanceWarningType.soft,
     );
 

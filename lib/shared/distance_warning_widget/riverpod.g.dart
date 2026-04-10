@@ -48,21 +48,15 @@ class DistanceWarningsFamily
   /// A list of distance warnings for dogs that ran too much.
   ///
   /// Copied from [distanceWarnings].
-  DistanceWarningsProvider call({
-    DateTime? latestDate,
-  }) {
-    return DistanceWarningsProvider(
-      latestDate: latestDate,
-    );
+  DistanceWarningsProvider call({DateTime? latestDate}) {
+    return DistanceWarningsProvider(latestDate: latestDate);
   }
 
   @override
   DistanceWarningsProvider getProviderOverride(
     covariant DistanceWarningsProvider provider,
   ) {
-    return call(
-      latestDate: provider.latestDate,
-    );
+    return call(latestDate: provider.latestDate);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -88,24 +82,22 @@ class DistanceWarningsProvider
   /// A list of distance warnings for dogs that ran too much.
   ///
   /// Copied from [distanceWarnings].
-  DistanceWarningsProvider({
-    DateTime? latestDate,
-  }) : this._internal(
-          (ref) => distanceWarnings(
-            ref as DistanceWarningsRef,
-            latestDate: latestDate,
-          ),
-          from: distanceWarningsProvider,
-          name: r'distanceWarningsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$distanceWarningsHash,
-          dependencies: DistanceWarningsFamily._dependencies,
-          allTransitiveDependencies:
-              DistanceWarningsFamily._allTransitiveDependencies,
+  DistanceWarningsProvider({DateTime? latestDate})
+    : this._internal(
+        (ref) => distanceWarnings(
+          ref as DistanceWarningsRef,
           latestDate: latestDate,
-        );
+        ),
+        from: distanceWarningsProvider,
+        name: r'distanceWarningsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$distanceWarningsHash,
+        dependencies: DistanceWarningsFamily._dependencies,
+        allTransitiveDependencies:
+            DistanceWarningsFamily._allTransitiveDependencies,
+        latestDate: latestDate,
+      );
 
   DistanceWarningsProvider._internal(
     super._createNotifier, {
@@ -122,7 +114,7 @@ class DistanceWarningsProvider
   @override
   Override overrideWith(
     Stream<List<DogDistanceWarning>> Function(DistanceWarningsRef provider)
-        create,
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -173,5 +165,6 @@ class _DistanceWarningsProviderElement
   @override
   DateTime? get latestDate => (origin as DistanceWarningsProvider).latestDate;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

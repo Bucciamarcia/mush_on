@@ -39,21 +39,15 @@ class HealthEventsFamily extends Family<AsyncValue<List<HealthEvent>>> {
   const HealthEventsFamily();
 
   /// See also [healthEvents].
-  HealthEventsProvider call(
-    int? cutOff,
-  ) {
-    return HealthEventsProvider(
-      cutOff,
-    );
+  HealthEventsProvider call(int? cutOff) {
+    return HealthEventsProvider(cutOff);
   }
 
   @override
   HealthEventsProvider getProviderOverride(
     covariant HealthEventsProvider provider,
   ) {
-    return call(
-      provider.cutOff,
-    );
+    return call(provider.cutOff);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -75,24 +69,19 @@ class HealthEventsFamily extends Family<AsyncValue<List<HealthEvent>>> {
 class HealthEventsProvider
     extends AutoDisposeStreamProvider<List<HealthEvent>> {
   /// See also [healthEvents].
-  HealthEventsProvider(
-    int? cutOff,
-  ) : this._internal(
-          (ref) => healthEvents(
-            ref as HealthEventsRef,
-            cutOff,
-          ),
-          from: healthEventsProvider,
-          name: r'healthEventsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$healthEventsHash,
-          dependencies: HealthEventsFamily._dependencies,
-          allTransitiveDependencies:
-              HealthEventsFamily._allTransitiveDependencies,
-          cutOff: cutOff,
-        );
+  HealthEventsProvider(int? cutOff)
+    : this._internal(
+        (ref) => healthEvents(ref as HealthEventsRef, cutOff),
+        from: healthEventsProvider,
+        name: r'healthEventsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$healthEventsHash,
+        dependencies: HealthEventsFamily._dependencies,
+        allTransitiveDependencies:
+            HealthEventsFamily._allTransitiveDependencies,
+        cutOff: cutOff,
+      );
 
   HealthEventsProvider._internal(
     super._createNotifier, {
@@ -171,21 +160,15 @@ class VaccinationsFamily extends Family<AsyncValue<List<Vaccination>>> {
   const VaccinationsFamily();
 
   /// See also [vaccinations].
-  VaccinationsProvider call(
-    int? cutOff,
-  ) {
-    return VaccinationsProvider(
-      cutOff,
-    );
+  VaccinationsProvider call(int? cutOff) {
+    return VaccinationsProvider(cutOff);
   }
 
   @override
   VaccinationsProvider getProviderOverride(
     covariant VaccinationsProvider provider,
   ) {
-    return call(
-      provider.cutOff,
-    );
+    return call(provider.cutOff);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -207,24 +190,19 @@ class VaccinationsFamily extends Family<AsyncValue<List<Vaccination>>> {
 class VaccinationsProvider
     extends AutoDisposeStreamProvider<List<Vaccination>> {
   /// See also [vaccinations].
-  VaccinationsProvider(
-    int? cutOff,
-  ) : this._internal(
-          (ref) => vaccinations(
-            ref as VaccinationsRef,
-            cutOff,
-          ),
-          from: vaccinationsProvider,
-          name: r'vaccinationsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$vaccinationsHash,
-          dependencies: VaccinationsFamily._dependencies,
-          allTransitiveDependencies:
-              VaccinationsFamily._allTransitiveDependencies,
-          cutOff: cutOff,
-        );
+  VaccinationsProvider(int? cutOff)
+    : this._internal(
+        (ref) => vaccinations(ref as VaccinationsRef, cutOff),
+        from: vaccinationsProvider,
+        name: r'vaccinationsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$vaccinationsHash,
+        dependencies: VaccinationsFamily._dependencies,
+        allTransitiveDependencies:
+            VaccinationsFamily._allTransitiveDependencies,
+        cutOff: cutOff,
+      );
 
   VaccinationsProvider._internal(
     super._createNotifier, {
@@ -303,21 +281,15 @@ class HeatCyclesFamily extends Family<AsyncValue<List<HeatCycle>>> {
   const HeatCyclesFamily();
 
   /// See also [heatCycles].
-  HeatCyclesProvider call(
-    int? cutOff,
-  ) {
-    return HeatCyclesProvider(
-      cutOff,
-    );
+  HeatCyclesProvider call(int? cutOff) {
+    return HeatCyclesProvider(cutOff);
   }
 
   @override
   HeatCyclesProvider getProviderOverride(
     covariant HeatCyclesProvider provider,
   ) {
-    return call(
-      provider.cutOff,
-    );
+    return call(provider.cutOff);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -338,24 +310,18 @@ class HeatCyclesFamily extends Family<AsyncValue<List<HeatCycle>>> {
 /// See also [heatCycles].
 class HeatCyclesProvider extends AutoDisposeStreamProvider<List<HeatCycle>> {
   /// See also [heatCycles].
-  HeatCyclesProvider(
-    int? cutOff,
-  ) : this._internal(
-          (ref) => heatCycles(
-            ref as HeatCyclesRef,
-            cutOff,
-          ),
-          from: heatCyclesProvider,
-          name: r'heatCyclesProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$heatCyclesHash,
-          dependencies: HeatCyclesFamily._dependencies,
-          allTransitiveDependencies:
-              HeatCyclesFamily._allTransitiveDependencies,
-          cutOff: cutOff,
-        );
+  HeatCyclesProvider(int? cutOff)
+    : this._internal(
+        (ref) => heatCycles(ref as HeatCyclesRef, cutOff),
+        from: heatCyclesProvider,
+        name: r'heatCyclesProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$heatCyclesHash,
+        dependencies: HeatCyclesFamily._dependencies,
+        allTransitiveDependencies: HeatCyclesFamily._allTransitiveDependencies,
+        cutOff: cutOff,
+      );
 
   HeatCyclesProvider._internal(
     super._createNotifier, {
@@ -429,14 +395,14 @@ String _$triggerAddhealthEventHash() =>
 @ProviderFor(TriggerAddhealthEvent)
 final triggerAddhealthEventProvider =
     AutoDisposeNotifierProvider<TriggerAddhealthEvent, bool>.internal(
-  TriggerAddhealthEvent.new,
-  name: r'triggerAddhealthEventProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$triggerAddhealthEventHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      TriggerAddhealthEvent.new,
+      name: r'triggerAddhealthEventProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$triggerAddhealthEventHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$TriggerAddhealthEvent = AutoDisposeNotifier<bool>;
 String _$triggerAddVaccinationHash() =>
@@ -446,14 +412,14 @@ String _$triggerAddVaccinationHash() =>
 @ProviderFor(TriggerAddVaccination)
 final triggerAddVaccinationProvider =
     AutoDisposeNotifierProvider<TriggerAddVaccination, bool>.internal(
-  TriggerAddVaccination.new,
-  name: r'triggerAddVaccinationProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$triggerAddVaccinationHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      TriggerAddVaccination.new,
+      name: r'triggerAddVaccinationProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$triggerAddVaccinationHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$TriggerAddVaccination = AutoDisposeNotifier<bool>;
 String _$triggerAddHeatCycleHash() =>
@@ -463,14 +429,14 @@ String _$triggerAddHeatCycleHash() =>
 @ProviderFor(TriggerAddHeatCycle)
 final triggerAddHeatCycleProvider =
     AutoDisposeNotifierProvider<TriggerAddHeatCycle, bool>.internal(
-  TriggerAddHeatCycle.new,
-  name: r'triggerAddHeatCycleProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$triggerAddHeatCycleHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      TriggerAddHeatCycle.new,
+      name: r'triggerAddHeatCycleProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$triggerAddHeatCycleHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$TriggerAddHeatCycle = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint

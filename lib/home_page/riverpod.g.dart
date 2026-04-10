@@ -14,19 +14,19 @@ String _$homePageRiverpodHash() => r'd0c740b02e6727ccf54aca1e6ce9b4cf4699d2f6';
 @ProviderFor(homePageRiverpod)
 final homePageRiverpodProvider =
     AutoDisposeStreamProvider<HomePageRiverpodResults>.internal(
-  homePageRiverpod,
-  name: r'homePageRiverpodProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$homePageRiverpodHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      homePageRiverpod,
+      name: r'homePageRiverpodProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$homePageRiverpodHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef HomePageRiverpodRef
-    = AutoDisposeStreamProviderRef<HomePageRiverpodResults>;
+typedef HomePageRiverpodRef =
+    AutoDisposeStreamProviderRef<HomePageRiverpodResults>;
 String _$todayWhiteboardHash() => r'f4736da306630db8ed2bf71fb17e8e4c11f42c83';
 
 /// Streams the list of today's whiteboard elements from the db.
@@ -35,18 +35,18 @@ String _$todayWhiteboardHash() => r'f4736da306630db8ed2bf71fb17e8e4c11f42c83';
 @ProviderFor(todayWhiteboard)
 final todayWhiteboardProvider =
     AutoDisposeStreamProvider<List<WhiteboardElement>>.internal(
-  todayWhiteboard,
-  name: r'todayWhiteboardProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$todayWhiteboardHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      todayWhiteboard,
+      name: r'todayWhiteboardProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$todayWhiteboardHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef TodayWhiteboardRef
-    = AutoDisposeStreamProviderRef<List<WhiteboardElement>>;
+typedef TodayWhiteboardRef =
+    AutoDisposeStreamProviderRef<List<WhiteboardElement>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -15,8 +15,9 @@ String _$canAddCgsHash() => r'2dac84deaaf66bcdb6f78d7a51132088e981acda';
 final canAddCgsProvider = AutoDisposeProvider<bool>.internal(
   canAddCgs,
   name: r'canAddCgsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$canAddCgsHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$canAddCgsHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -30,14 +31,14 @@ String _$selectedRuleTypeHash() => r'c3c663735b603a7372e21a5ce7c7b3eb961fbb5a';
 @ProviderFor(SelectedRuleType)
 final selectedRuleTypeProvider =
     AutoDisposeNotifierProvider<SelectedRuleType, AddCgRuleType>.internal(
-  SelectedRuleType.new,
-  name: r'selectedRuleTypeProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$selectedRuleTypeHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      SelectedRuleType.new,
+      name: r'selectedRuleTypeProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$selectedRuleTypeHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$SelectedRuleType = AutoDisposeNotifier<AddCgRuleType>;
 String _$daysOfWeekSelectedHash() =>
@@ -45,16 +46,19 @@ String _$daysOfWeekSelectedHash() =>
 
 /// See also [DaysOfWeekSelected].
 @ProviderFor(DaysOfWeekSelected)
-final daysOfWeekSelectedProvider = AutoDisposeNotifierProvider<
-    DaysOfWeekSelected, List<DaysOfWeekSelection>>.internal(
-  DaysOfWeekSelected.new,
-  name: r'daysOfWeekSelectedProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$daysOfWeekSelectedHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final daysOfWeekSelectedProvider =
+    AutoDisposeNotifierProvider<
+      DaysOfWeekSelected,
+      List<DaysOfWeekSelection>
+    >.internal(
+      DaysOfWeekSelected.new,
+      name: r'daysOfWeekSelectedProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$daysOfWeekSelectedHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$DaysOfWeekSelected = AutoDisposeNotifier<List<DaysOfWeekSelection>>;
 String _$dateRangeSelectedForWeekSelectionHash() =>
@@ -62,34 +66,40 @@ String _$dateRangeSelectedForWeekSelectionHash() =>
 
 /// See also [DateRangeSelectedForWeekSelection].
 @ProviderFor(DateRangeSelectedForWeekSelection)
-final dateRangeSelectedForWeekSelectionProvider = AutoDisposeNotifierProvider<
-    DateRangeSelectedForWeekSelection, DateRangeSelectedValues?>.internal(
-  DateRangeSelectedForWeekSelection.new,
-  name: r'dateRangeSelectedForWeekSelectionProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$dateRangeSelectedForWeekSelectionHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final dateRangeSelectedForWeekSelectionProvider =
+    AutoDisposeNotifierProvider<
+      DateRangeSelectedForWeekSelection,
+      DateRangeSelectedValues?
+    >.internal(
+      DateRangeSelectedForWeekSelection.new,
+      name: r'dateRangeSelectedForWeekSelectionProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$dateRangeSelectedForWeekSelectionHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
-typedef _$DateRangeSelectedForWeekSelection
-    = AutoDisposeNotifier<DateRangeSelectedValues?>;
+typedef _$DateRangeSelectedForWeekSelection =
+    AutoDisposeNotifier<DateRangeSelectedValues?>;
 String _$onSelectedDaysSelectedHash() =>
     r'a1ed8cca75e723a0559db9d03b17693f39ec25b2';
 
 /// See also [OnSelectedDaysSelected].
 @ProviderFor(OnSelectedDaysSelected)
-final onSelectedDaysSelectedProvider = AutoDisposeNotifierProvider<
-    OnSelectedDaysSelected, List<DateTime>>.internal(
-  OnSelectedDaysSelected.new,
-  name: r'onSelectedDaysSelectedProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$onSelectedDaysSelectedHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final onSelectedDaysSelectedProvider =
+    AutoDisposeNotifierProvider<
+      OnSelectedDaysSelected,
+      List<DateTime>
+    >.internal(
+      OnSelectedDaysSelected.new,
+      name: r'onSelectedDaysSelectedProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$onSelectedDaysSelectedHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$OnSelectedDaysSelected = AutoDisposeNotifier<List<DateTime>>;
 String _$massCgEditorCgNameHash() =>
@@ -99,14 +109,14 @@ String _$massCgEditorCgNameHash() =>
 @ProviderFor(MassCgEditorCgName)
 final massCgEditorCgNameProvider =
     AutoDisposeNotifierProvider<MassCgEditorCgName, String>.internal(
-  MassCgEditorCgName.new,
-  name: r'massCgEditorCgNameProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$massCgEditorCgNameHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      MassCgEditorCgName.new,
+      name: r'massCgEditorCgNameProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$massCgEditorCgNameHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$MassCgEditorCgName = AutoDisposeNotifier<String>;
 String _$massCgEditorCgTimeHash() =>
@@ -116,14 +126,14 @@ String _$massCgEditorCgTimeHash() =>
 @ProviderFor(MassCgEditorCgTime)
 final massCgEditorCgTimeProvider =
     AutoDisposeNotifierProvider<MassCgEditorCgTime, TimeOfDay>.internal(
-  MassCgEditorCgTime.new,
-  name: r'massCgEditorCgTimeProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$massCgEditorCgTimeHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      MassCgEditorCgTime.new,
+      name: r'massCgEditorCgTimeProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$massCgEditorCgTimeHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$MassCgEditorCgTime = AutoDisposeNotifier<TimeOfDay>;
 String _$massCgEditorCgCapacityHash() =>
@@ -133,14 +143,14 @@ String _$massCgEditorCgCapacityHash() =>
 @ProviderFor(MassCgEditorCgCapacity)
 final massCgEditorCgCapacityProvider =
     AutoDisposeNotifierProvider<MassCgEditorCgCapacity, int?>.internal(
-  MassCgEditorCgCapacity.new,
-  name: r'massCgEditorCgCapacityProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$massCgEditorCgCapacityHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      MassCgEditorCgCapacity.new,
+      name: r'massCgEditorCgCapacityProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$massCgEditorCgCapacityHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$MassCgEditorCgCapacity = AutoDisposeNotifier<int?>;
 String _$massCgEditorTourTypeHash() =>
@@ -150,14 +160,14 @@ String _$massCgEditorTourTypeHash() =>
 @ProviderFor(MassCgEditorTourType)
 final massCgEditorTourTypeProvider =
     AutoDisposeNotifierProvider<MassCgEditorTourType, TourType?>.internal(
-  MassCgEditorTourType.new,
-  name: r'massCgEditorTourTypeProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$massCgEditorTourTypeHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      MassCgEditorTourType.new,
+      name: r'massCgEditorTourTypeProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$massCgEditorTourTypeHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$MassCgEditorTourType = AutoDisposeNotifier<TourType?>;
 // ignore_for_file: type=lint

@@ -39,21 +39,13 @@ class DogNotesFamily extends Family<List<DogNote>> {
   const DogNotesFamily();
 
   /// See also [dogNotes].
-  DogNotesProvider call({
-    required DateTime? latestDate,
-  }) {
-    return DogNotesProvider(
-      latestDate: latestDate,
-    );
+  DogNotesProvider call({required DateTime? latestDate}) {
+    return DogNotesProvider(latestDate: latestDate);
   }
 
   @override
-  DogNotesProvider getProviderOverride(
-    covariant DogNotesProvider provider,
-  ) {
-    return call(
-      latestDate: provider.latestDate,
-    );
+  DogNotesProvider getProviderOverride(covariant DogNotesProvider provider) {
+    return call(latestDate: provider.latestDate);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -74,23 +66,18 @@ class DogNotesFamily extends Family<List<DogNote>> {
 /// See also [dogNotes].
 class DogNotesProvider extends AutoDisposeProvider<List<DogNote>> {
   /// See also [dogNotes].
-  DogNotesProvider({
-    required DateTime? latestDate,
-  }) : this._internal(
-          (ref) => dogNotes(
-            ref as DogNotesRef,
-            latestDate: latestDate,
-          ),
-          from: dogNotesProvider,
-          name: r'dogNotesProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$dogNotesHash,
-          dependencies: DogNotesFamily._dependencies,
-          allTransitiveDependencies: DogNotesFamily._allTransitiveDependencies,
-          latestDate: latestDate,
-        );
+  DogNotesProvider({required DateTime? latestDate})
+    : this._internal(
+        (ref) => dogNotes(ref as DogNotesRef, latestDate: latestDate),
+        from: dogNotesProvider,
+        name: r'dogNotesProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$dogNotesHash,
+        dependencies: DogNotesFamily._dependencies,
+        allTransitiveDependencies: DogNotesFamily._allTransitiveDependencies,
+        latestDate: latestDate,
+      );
 
   DogNotesProvider._internal(
     super._createNotifier, {
@@ -105,9 +92,7 @@ class DogNotesProvider extends AutoDisposeProvider<List<DogNote>> {
   final DateTime? latestDate;
 
   @override
-  Override overrideWith(
-    List<DogNote> Function(DogNotesRef provider) create,
-  ) {
+  Override overrideWith(List<DogNote> Function(DogNotesRef provider) create) {
     return ProviderOverride(
       origin: this,
       override: DogNotesProvider._internal(
@@ -155,5 +140,6 @@ class _DogNotesProviderElement extends AutoDisposeProviderElement<List<DogNote>>
   @override
   DateTime? get latestDate => (origin as DogNotesProvider).latestDate;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -33,9 +33,7 @@ abstract class _$UserProfilePic
     extends BuildlessAutoDisposeAsyncNotifier<Uint8List?> {
   late final String? uid;
 
-  FutureOr<Uint8List?> build(
-    String? uid,
-  );
+  FutureOr<Uint8List?> build(String? uid);
 }
 
 /// See also [UserProfilePic].
@@ -48,21 +46,15 @@ class UserProfilePicFamily extends Family<AsyncValue<Uint8List?>> {
   const UserProfilePicFamily();
 
   /// See also [UserProfilePic].
-  UserProfilePicProvider call(
-    String? uid,
-  ) {
-    return UserProfilePicProvider(
-      uid,
-    );
+  UserProfilePicProvider call(String? uid) {
+    return UserProfilePicProvider(uid);
   }
 
   @override
   UserProfilePicProvider getProviderOverride(
     covariant UserProfilePicProvider provider,
   ) {
-    return call(
-      provider.uid,
-    );
+    return call(provider.uid);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -84,21 +76,19 @@ class UserProfilePicFamily extends Family<AsyncValue<Uint8List?>> {
 class UserProfilePicProvider
     extends AutoDisposeAsyncNotifierProviderImpl<UserProfilePic, Uint8List?> {
   /// See also [UserProfilePic].
-  UserProfilePicProvider(
-    String? uid,
-  ) : this._internal(
-          () => UserProfilePic()..uid = uid,
-          from: userProfilePicProvider,
-          name: r'userProfilePicProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$userProfilePicHash,
-          dependencies: UserProfilePicFamily._dependencies,
-          allTransitiveDependencies:
-              UserProfilePicFamily._allTransitiveDependencies,
-          uid: uid,
-        );
+  UserProfilePicProvider(String? uid)
+    : this._internal(
+        () => UserProfilePic()..uid = uid,
+        from: userProfilePicProvider,
+        name: r'userProfilePicProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$userProfilePicHash,
+        dependencies: UserProfilePicFamily._dependencies,
+        allTransitiveDependencies:
+            UserProfilePicFamily._allTransitiveDependencies,
+        uid: uid,
+      );
 
   UserProfilePicProvider._internal(
     super._createNotifier, {
@@ -113,12 +103,8 @@ class UserProfilePicProvider
   final String? uid;
 
   @override
-  FutureOr<Uint8List?> runNotifierBuild(
-    covariant UserProfilePic notifier,
-  ) {
-    return notifier.build(
-      uid,
-    );
+  FutureOr<Uint8List?> runNotifierBuild(covariant UserProfilePic notifier) {
+    return notifier.build(uid);
   }
 
   @override
@@ -139,7 +125,7 @@ class UserProfilePicProvider
 
   @override
   AutoDisposeAsyncNotifierProviderElement<UserProfilePic, Uint8List?>
-      createElement() {
+  createElement() {
     return _UserProfilePicProviderElement(this);
   }
 
@@ -172,5 +158,6 @@ class _UserProfilePicProviderElement
   @override
   String? get uid => (origin as UserProfilePicProvider).uid;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

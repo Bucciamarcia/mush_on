@@ -14,55 +14,47 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$SettingsModel {
-  List<CustomFieldTemplate> get customFieldTemplates;
-  List<DistanceWarning> get globalDistanceWarnings;
 
-  /// Create a copy of SettingsModel
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $SettingsModelCopyWith<SettingsModel> get copyWith =>
-      _$SettingsModelCopyWithImpl<SettingsModel>(
-          this as SettingsModel, _$identity);
+ List<CustomFieldTemplate> get customFieldTemplates; List<DistanceWarning> get globalDistanceWarnings;
+/// Create a copy of SettingsModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SettingsModelCopyWith<SettingsModel> get copyWith => _$SettingsModelCopyWithImpl<SettingsModel>(this as SettingsModel, _$identity);
 
   /// Serializes this SettingsModel to a JSON map.
   Map<String, dynamic> toJson();
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is SettingsModel &&
-            const DeepCollectionEquality()
-                .equals(other.customFieldTemplates, customFieldTemplates) &&
-            const DeepCollectionEquality()
-                .equals(other.globalDistanceWarnings, globalDistanceWarnings));
-  }
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(customFieldTemplates),
-      const DeepCollectionEquality().hash(globalDistanceWarnings));
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SettingsModel&&const DeepCollectionEquality().equals(other.customFieldTemplates, customFieldTemplates)&&const DeepCollectionEquality().equals(other.globalDistanceWarnings, globalDistanceWarnings));
+}
 
-  @override
-  String toString() {
-    return 'SettingsModel(customFieldTemplates: $customFieldTemplates, globalDistanceWarnings: $globalDistanceWarnings)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(customFieldTemplates),const DeepCollectionEquality().hash(globalDistanceWarnings));
+
+@override
+String toString() {
+  return 'SettingsModel(customFieldTemplates: $customFieldTemplates, globalDistanceWarnings: $globalDistanceWarnings)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class $SettingsModelCopyWith<$Res> {
-  factory $SettingsModelCopyWith(
-          SettingsModel value, $Res Function(SettingsModel) _then) =
-      _$SettingsModelCopyWithImpl;
-  @useResult
-  $Res call(
-      {List<CustomFieldTemplate> customFieldTemplates,
-      List<DistanceWarning> globalDistanceWarnings});
-}
+abstract mixin class $SettingsModelCopyWith<$Res>  {
+  factory $SettingsModelCopyWith(SettingsModel value, $Res Function(SettingsModel) _then) = _$SettingsModelCopyWithImpl;
+@useResult
+$Res call({
+ List<CustomFieldTemplate> customFieldTemplates, List<DistanceWarning> globalDistanceWarnings
+});
 
+
+
+
+}
 /// @nodoc
 class _$SettingsModelCopyWithImpl<$Res>
     implements $SettingsModelCopyWith<$Res> {
@@ -71,277 +63,211 @@ class _$SettingsModelCopyWithImpl<$Res>
   final SettingsModel _self;
   final $Res Function(SettingsModel) _then;
 
-  /// Create a copy of SettingsModel
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? customFieldTemplates = null,
-    Object? globalDistanceWarnings = null,
-  }) {
-    return _then(_self.copyWith(
-      customFieldTemplates: null == customFieldTemplates
-          ? _self.customFieldTemplates
-          : customFieldTemplates // ignore: cast_nullable_to_non_nullable
-              as List<CustomFieldTemplate>,
-      globalDistanceWarnings: null == globalDistanceWarnings
-          ? _self.globalDistanceWarnings
-          : globalDistanceWarnings // ignore: cast_nullable_to_non_nullable
-              as List<DistanceWarning>,
-    ));
-  }
+/// Create a copy of SettingsModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? customFieldTemplates = null,Object? globalDistanceWarnings = null,}) {
+  return _then(_self.copyWith(
+customFieldTemplates: null == customFieldTemplates ? _self.customFieldTemplates : customFieldTemplates // ignore: cast_nullable_to_non_nullable
+as List<CustomFieldTemplate>,globalDistanceWarnings: null == globalDistanceWarnings ? _self.globalDistanceWarnings : globalDistanceWarnings // ignore: cast_nullable_to_non_nullable
+as List<DistanceWarning>,
+  ));
 }
+
+}
+
 
 /// Adds pattern-matching-related methods to [SettingsModel].
 extension SettingsModelPatterns on SettingsModel {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>(
-    TResult Function(_SettingsModel value)? $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _SettingsModel() when $default != null:
-        return $default(_that);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _SettingsModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _SettingsModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>(
-    TResult Function(_SettingsModel value) $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _SettingsModel():
-        return $default(_that);
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _SettingsModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _SettingsModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
 
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_SettingsModel value)? $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _SettingsModel() when $default != null:
-        return $default(_that);
-      case _:
-        return null;
-    }
-  }
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _SettingsModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _SettingsModel() when $default != null:
+return $default(_that);case _:
+  return null;
 
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>(
-    TResult Function(List<CustomFieldTemplate> customFieldTemplates,
-            List<DistanceWarning> globalDistanceWarnings)?
-        $default, {
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _SettingsModel() when $default != null:
-        return $default(
-            _that.customFieldTemplates, _that.globalDistanceWarnings);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<CustomFieldTemplate> customFieldTemplates,  List<DistanceWarning> globalDistanceWarnings)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _SettingsModel() when $default != null:
+return $default(_that.customFieldTemplates,_that.globalDistanceWarnings);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>(
-    TResult Function(List<CustomFieldTemplate> customFieldTemplates,
-            List<DistanceWarning> globalDistanceWarnings)
-        $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _SettingsModel():
-        return $default(
-            _that.customFieldTemplates, _that.globalDistanceWarnings);
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<CustomFieldTemplate> customFieldTemplates,  List<DistanceWarning> globalDistanceWarnings)  $default,) {final _that = this;
+switch (_that) {
+case _SettingsModel():
+return $default(_that.customFieldTemplates,_that.globalDistanceWarnings);case _:
+  throw StateError('Unexpected subclass');
 
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(List<CustomFieldTemplate> customFieldTemplates,
-            List<DistanceWarning> globalDistanceWarnings)?
-        $default,
-  ) {
-    final _that = this;
-    switch (_that) {
-      case _SettingsModel() when $default != null:
-        return $default(
-            _that.customFieldTemplates, _that.globalDistanceWarnings);
-      case _:
-        return null;
-    }
-  }
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<CustomFieldTemplate> customFieldTemplates,  List<DistanceWarning> globalDistanceWarnings)?  $default,) {final _that = this;
+switch (_that) {
+case _SettingsModel() when $default != null:
+return $default(_that.customFieldTemplates,_that.globalDistanceWarnings);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
 
 @JsonSerializable(explicitToJson: true)
 class _SettingsModel implements SettingsModel {
-  const _SettingsModel(
-      {final List<CustomFieldTemplate> customFieldTemplates = const [],
-      final List<DistanceWarning> globalDistanceWarnings = const []})
-      : _customFieldTemplates = customFieldTemplates,
-        _globalDistanceWarnings = globalDistanceWarnings;
-  factory _SettingsModel.fromJson(Map<String, dynamic> json) =>
-      _$SettingsModelFromJson(json);
+  const _SettingsModel({final  List<CustomFieldTemplate> customFieldTemplates = const [], final  List<DistanceWarning> globalDistanceWarnings = const []}): _customFieldTemplates = customFieldTemplates,_globalDistanceWarnings = globalDistanceWarnings;
+  factory _SettingsModel.fromJson(Map<String, dynamic> json) => _$SettingsModelFromJson(json);
 
-  final List<CustomFieldTemplate> _customFieldTemplates;
-  @override
-  @JsonKey()
-  List<CustomFieldTemplate> get customFieldTemplates {
-    if (_customFieldTemplates is EqualUnmodifiableListView)
-      return _customFieldTemplates;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_customFieldTemplates);
-  }
+ final  List<CustomFieldTemplate> _customFieldTemplates;
+@override@JsonKey() List<CustomFieldTemplate> get customFieldTemplates {
+  if (_customFieldTemplates is EqualUnmodifiableListView) return _customFieldTemplates;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_customFieldTemplates);
+}
 
-  final List<DistanceWarning> _globalDistanceWarnings;
-  @override
-  @JsonKey()
-  List<DistanceWarning> get globalDistanceWarnings {
-    if (_globalDistanceWarnings is EqualUnmodifiableListView)
-      return _globalDistanceWarnings;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_globalDistanceWarnings);
-  }
+ final  List<DistanceWarning> _globalDistanceWarnings;
+@override@JsonKey() List<DistanceWarning> get globalDistanceWarnings {
+  if (_globalDistanceWarnings is EqualUnmodifiableListView) return _globalDistanceWarnings;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_globalDistanceWarnings);
+}
 
-  /// Create a copy of SettingsModel
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$SettingsModelCopyWith<_SettingsModel> get copyWith =>
-      __$SettingsModelCopyWithImpl<_SettingsModel>(this, _$identity);
 
-  @override
-  Map<String, dynamic> toJson() {
-    return _$SettingsModelToJson(
-      this,
-    );
-  }
+/// Create a copy of SettingsModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SettingsModelCopyWith<_SettingsModel> get copyWith => __$SettingsModelCopyWithImpl<_SettingsModel>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _SettingsModel &&
-            const DeepCollectionEquality()
-                .equals(other._customFieldTemplates, _customFieldTemplates) &&
-            const DeepCollectionEquality().equals(
-                other._globalDistanceWarnings, _globalDistanceWarnings));
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$SettingsModelToJson(this, );
+}
 
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(_customFieldTemplates),
-      const DeepCollectionEquality().hash(_globalDistanceWarnings));
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SettingsModel&&const DeepCollectionEquality().equals(other._customFieldTemplates, _customFieldTemplates)&&const DeepCollectionEquality().equals(other._globalDistanceWarnings, _globalDistanceWarnings));
+}
 
-  @override
-  String toString() {
-    return 'SettingsModel(customFieldTemplates: $customFieldTemplates, globalDistanceWarnings: $globalDistanceWarnings)';
-  }
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_customFieldTemplates),const DeepCollectionEquality().hash(_globalDistanceWarnings));
+
+@override
+String toString() {
+  return 'SettingsModel(customFieldTemplates: $customFieldTemplates, globalDistanceWarnings: $globalDistanceWarnings)';
+}
+
+
 }
 
 /// @nodoc
-abstract mixin class _$SettingsModelCopyWith<$Res>
-    implements $SettingsModelCopyWith<$Res> {
-  factory _$SettingsModelCopyWith(
-          _SettingsModel value, $Res Function(_SettingsModel) _then) =
-      __$SettingsModelCopyWithImpl;
-  @override
-  @useResult
-  $Res call(
-      {List<CustomFieldTemplate> customFieldTemplates,
-      List<DistanceWarning> globalDistanceWarnings});
-}
+abstract mixin class _$SettingsModelCopyWith<$Res> implements $SettingsModelCopyWith<$Res> {
+  factory _$SettingsModelCopyWith(_SettingsModel value, $Res Function(_SettingsModel) _then) = __$SettingsModelCopyWithImpl;
+@override @useResult
+$Res call({
+ List<CustomFieldTemplate> customFieldTemplates, List<DistanceWarning> globalDistanceWarnings
+});
 
+
+
+
+}
 /// @nodoc
 class __$SettingsModelCopyWithImpl<$Res>
     implements _$SettingsModelCopyWith<$Res> {
@@ -350,25 +276,17 @@ class __$SettingsModelCopyWithImpl<$Res>
   final _SettingsModel _self;
   final $Res Function(_SettingsModel) _then;
 
-  /// Create a copy of SettingsModel
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? customFieldTemplates = null,
-    Object? globalDistanceWarnings = null,
-  }) {
-    return _then(_SettingsModel(
-      customFieldTemplates: null == customFieldTemplates
-          ? _self._customFieldTemplates
-          : customFieldTemplates // ignore: cast_nullable_to_non_nullable
-              as List<CustomFieldTemplate>,
-      globalDistanceWarnings: null == globalDistanceWarnings
-          ? _self._globalDistanceWarnings
-          : globalDistanceWarnings // ignore: cast_nullable_to_non_nullable
-              as List<DistanceWarning>,
-    ));
-  }
+/// Create a copy of SettingsModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? customFieldTemplates = null,Object? globalDistanceWarnings = null,}) {
+  return _then(_SettingsModel(
+customFieldTemplates: null == customFieldTemplates ? _self._customFieldTemplates : customFieldTemplates // ignore: cast_nullable_to_non_nullable
+as List<CustomFieldTemplate>,globalDistanceWarnings: null == globalDistanceWarnings ? _self._globalDistanceWarnings : globalDistanceWarnings // ignore: cast_nullable_to_non_nullable
+as List<DistanceWarning>,
+  ));
+}
+
+
 }
 
 // dart format on

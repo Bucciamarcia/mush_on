@@ -9,6 +9,7 @@ import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import 'calendar/main.dart';
 import 'info_page.dart';
@@ -266,6 +267,8 @@ class BookingSummaryColumn extends ConsumerWidget {
     final selectedCustomerGroup =
         ref.watch(selectedCustomerGroupInCalendarProvider);
     final account = ref.watch(accountPublicProvider);
+    final timezoneStr = ref.watch(kennelTimezoneProvider);
+    final tzLocation = tz.getLocation(timezoneStr);
 
     final pricings = account == null
         ? <TourTypePricing>[]
@@ -343,7 +346,12 @@ class BookingSummaryColumn extends ConsumerWidget {
               label: "Departure",
               value: selectedCustomerGroup == null
                   ? "Choose a time"
-                  : DateFormat("HH:mm").format(selectedCustomerGroup.datetime),
+                  : DateFormat("HH:mm").format(
+                      tz.TZDateTime.fromMillisecondsSinceEpoch(
+                        tzLocation,
+                        selectedCustomerGroup.datetime.millisecondsSinceEpoch,
+                      ),
+                    ),
             ),
             if (selectedCustomerGroup != null) ...[
               const SizedBox(height: 18),

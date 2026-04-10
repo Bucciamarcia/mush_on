@@ -16,14 +16,14 @@ String _$selectedDateRangeHash() => r'b9e2134fd32eb3f68e211ab6ea6e182d778c5a60';
 @ProviderFor(SelectedDateRange)
 final selectedDateRangeProvider =
     AutoDisposeNotifierProvider<SelectedDateRange, DateRangeSelection>.internal(
-  SelectedDateRange.new,
-  name: r'selectedDateRangeProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$selectedDateRangeHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      SelectedDateRange.new,
+      name: r'selectedDateRangeProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$selectedDateRangeHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$SelectedDateRange = AutoDisposeNotifier<DateRangeSelection>;
 String _$selectedDogsHash() => r'782a6b87c45e0e30fdf7032675cca4e6623a49ac';
@@ -32,13 +32,14 @@ String _$selectedDogsHash() => r'782a6b87c45e0e30fdf7032675cca4e6623a49ac';
 @ProviderFor(SelectedDogs)
 final selectedDogsProvider =
     AutoDisposeNotifierProvider<SelectedDogs, List<Dog>>.internal(
-  SelectedDogs.new,
-  name: r'selectedDogsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$selectedDogsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      SelectedDogs.new,
+      name: r'selectedDogsProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$selectedDogsHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$SelectedDogs = AutoDisposeNotifier<List<Dog>>;
 // ignore_for_file: type=lint

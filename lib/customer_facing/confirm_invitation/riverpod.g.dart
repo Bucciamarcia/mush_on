@@ -39,21 +39,15 @@ class UserInvitationFamily extends Family<AsyncValue<UserInvitation>> {
   const UserInvitationFamily();
 
   /// See also [userInvitation].
-  UserInvitationProvider call({
-    required String email,
-  }) {
-    return UserInvitationProvider(
-      email: email,
-    );
+  UserInvitationProvider call({required String email}) {
+    return UserInvitationProvider(email: email);
   }
 
   @override
   UserInvitationProvider getProviderOverride(
     covariant UserInvitationProvider provider,
   ) {
-    return call(
-      email: provider.email,
-    );
+    return call(email: provider.email);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -74,24 +68,19 @@ class UserInvitationFamily extends Family<AsyncValue<UserInvitation>> {
 /// See also [userInvitation].
 class UserInvitationProvider extends AutoDisposeFutureProvider<UserInvitation> {
   /// See also [userInvitation].
-  UserInvitationProvider({
-    required String email,
-  }) : this._internal(
-          (ref) => userInvitation(
-            ref as UserInvitationRef,
-            email: email,
-          ),
-          from: userInvitationProvider,
-          name: r'userInvitationProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$userInvitationHash,
-          dependencies: UserInvitationFamily._dependencies,
-          allTransitiveDependencies:
-              UserInvitationFamily._allTransitiveDependencies,
-          email: email,
-        );
+  UserInvitationProvider({required String email})
+    : this._internal(
+        (ref) => userInvitation(ref as UserInvitationRef, email: email),
+        from: userInvitationProvider,
+        name: r'userInvitationProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$userInvitationHash,
+        dependencies: UserInvitationFamily._dependencies,
+        allTransitiveDependencies:
+            UserInvitationFamily._allTransitiveDependencies,
+        email: email,
+      );
 
   UserInvitationProvider._internal(
     super._createNotifier, {
@@ -157,5 +146,6 @@ class _UserInvitationProviderElement
   @override
   String get email => (origin as UserInvitationProvider).email;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

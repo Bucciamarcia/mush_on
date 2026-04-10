@@ -8,6 +8,7 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class BookingTimeAndDate extends StatelessWidget {
   final TourType tourType;
@@ -89,7 +90,11 @@ class SingleCgSlotCard extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final formattedTime = DateFormat("HH:mm").format(cg.datetime);
+    final timezoneStr = ref.watch(kennelTimezoneProvider);
+    final location = tz.getLocation(timezoneStr);
+    final kennelDt = tz.TZDateTime.fromMillisecondsSinceEpoch(
+        location, cg.datetime.millisecondsSinceEpoch);
+    final formattedTime = DateFormat("HH:mm").format(kennelDt);
     final selectedCustomerGroup =
         ref.watch(selectedCustomerGroupInCalendarProvider);
     final availableSpots = cg.maxCapacity - customersNumberByCgId[cg.id]!;

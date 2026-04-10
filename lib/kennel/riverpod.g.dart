@@ -12,14 +12,14 @@ String _$dogsDisplayListHash() => r'5fe4d487664162cab338525f20deb0021ce09199';
 @ProviderFor(DogsDisplayList)
 final dogsDisplayListProvider =
     AutoDisposeNotifierProvider<DogsDisplayList, List<Dog>>.internal(
-  DogsDisplayList.new,
-  name: r'dogsDisplayListProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$dogsDisplayListHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      DogsDisplayList.new,
+      name: r'dogsDisplayListProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$dogsDisplayListHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$DogsDisplayList = AutoDisposeNotifier<List<Dog>>;
 // ignore_for_file: type=lint
