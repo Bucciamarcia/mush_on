@@ -35,69 +35,50 @@ class _ImportDogsMainState extends State<ImportDogsMain> {
             ),
             ElevatedButton(
               onPressed: () async {
-                setState(() {
-                  isLoading = true;
-                });
-                late FilePickerResult? result;
+                setState(() => isLoading = true);
+
                 try {
-                  result = await FilePicker.platform.pickFiles(
+                  final result = await FilePicker.platform.pickFiles(
                     allowMultiple: false,
                     type: FileType.custom,
                     allowedExtensions: ["pdf", "csv"],
+                    withData: true,
                   );
+
+                  if (!mounted) return;
+
                   if (result == null) {
                     setState(() {
                       pathController.text = "";
-                    });
-                    setState(() {
                       isLoading = false;
                     });
                     return;
                   }
+
+                  final file = result.files.first;
+
+                  if (file.bytes == null) {
+                    throw Exception("File data could not be read.");
+                  }
+
+                  setState(() {
+                    pathController.text = file.name;
+                    platformFile = file;
+                    isLoading = false;
+                  });
                 } catch (e, s) {
                   BasicLogger().error(
-                    "Couldn't pick file",
+                    "File pick error",
                     error: e,
                     stackTrace: s,
                   );
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      errorSnackBar(context, "Couldn't pick file"),
+                      errorSnackBar(context, "Error: ${e.toString()}"),
                     );
                   }
-                  setState(() {
-                    pathController.text = "";
-                  });
-                  setState(() {
-                    isLoading = false;
-                  });
-                  return;
+                  setState(() => isLoading = false);
                 }
-
-                final file = result.files.first;
-                final bytes = file.bytes;
-                if (bytes == null) {
-                  BasicLogger().error("Empty bytes file");
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      errorSnackBar(context, "error: Empty bytes file"),
-                    );
-                  }
-                  setState(() {
-                    pathController.text = "";
-                  });
-                  setState(() {
-                    isLoading = false;
-                  });
-                  return;
-                }
-                setState(() {
-                  pathController.text = file.path ?? "File selected";
-                  platformFile = file;
-                });
-                setState(() {
-                  isLoading = false;
-                });
               },
               child: const Text("Upload document"),
             ),
