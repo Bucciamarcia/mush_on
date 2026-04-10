@@ -39,24 +39,13 @@ class TourTypeFamily extends Family<AsyncValue<TourType?>> {
   const TourTypeFamily();
 
   /// See also [tourType].
-  TourTypeProvider call({
-    required String account,
-    required String tourId,
-  }) {
-    return TourTypeProvider(
-      account: account,
-      tourId: tourId,
-    );
+  TourTypeProvider call({required String account, required String tourId}) {
+    return TourTypeProvider(account: account, tourId: tourId);
   }
 
   @override
-  TourTypeProvider getProviderOverride(
-    covariant TourTypeProvider provider,
-  ) {
-    return call(
-      account: provider.account,
-      tourId: provider.tourId,
-    );
+  TourTypeProvider getProviderOverride(covariant TourTypeProvider provider) {
+    return call(account: provider.account, tourId: provider.tourId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -77,26 +66,19 @@ class TourTypeFamily extends Family<AsyncValue<TourType?>> {
 /// See also [tourType].
 class TourTypeProvider extends AutoDisposeStreamProvider<TourType?> {
   /// See also [tourType].
-  TourTypeProvider({
-    required String account,
-    required String tourId,
-  }) : this._internal(
-          (ref) => tourType(
-            ref as TourTypeRef,
-            account: account,
-            tourId: tourId,
-          ),
-          from: tourTypeProvider,
-          name: r'tourTypeProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$tourTypeHash,
-          dependencies: TourTypeFamily._dependencies,
-          allTransitiveDependencies: TourTypeFamily._allTransitiveDependencies,
-          account: account,
-          tourId: tourId,
-        );
+  TourTypeProvider({required String account, required String tourId})
+    : this._internal(
+        (ref) => tourType(ref as TourTypeRef, account: account, tourId: tourId),
+        from: tourTypeProvider,
+        name: r'tourTypeProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$tourTypeHash,
+        dependencies: TourTypeFamily._dependencies,
+        allTransitiveDependencies: TourTypeFamily._allTransitiveDependencies,
+        account: account,
+        tourId: tourId,
+      );
 
   TourTypeProvider._internal(
     super._createNotifier, {
@@ -164,7 +146,8 @@ mixin TourTypeRef on AutoDisposeStreamProviderRef<TourType?> {
 }
 
 class _TourTypeProviderElement
-    extends AutoDisposeStreamProviderElement<TourType?> with TourTypeRef {
+    extends AutoDisposeStreamProviderElement<TourType?>
+    with TourTypeRef {
   _TourTypeProviderElement(super.provider);
 
   @override
@@ -180,33 +163,33 @@ String _$visibleCustomerGroupsHash() =>
 @ProviderFor(visibleCustomerGroups)
 final visibleCustomerGroupsProvider =
     AutoDisposeFutureProvider<List<CustomerGroup>>.internal(
-  visibleCustomerGroups,
-  name: r'visibleCustomerGroupsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$visibleCustomerGroupsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      visibleCustomerGroups,
+      name: r'visibleCustomerGroupsProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$visibleCustomerGroupsHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef VisibleCustomerGroupsRef
-    = AutoDisposeFutureProviderRef<List<CustomerGroup>>;
+typedef VisibleCustomerGroupsRef =
+    AutoDisposeFutureProviderRef<List<CustomerGroup>>;
 String _$visibleBookingsHash() => r'464cd99aed181665420f0ce704d0865963b9602e';
 
 /// See also [visibleBookings].
 @ProviderFor(visibleBookings)
 final visibleBookingsProvider =
     AutoDisposeFutureProvider<List<Booking>>.internal(
-  visibleBookings,
-  name: r'visibleBookingsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$visibleBookingsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      visibleBookings,
+      name: r'visibleBookingsProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$visibleBookingsHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
@@ -217,14 +200,14 @@ String _$visibleCustomersHash() => r'6225acecd6083f82f4f1d2361488159f59659ace';
 @ProviderFor(visibleCustomers)
 final visibleCustomersProvider =
     AutoDisposeFutureProvider<List<Customer>>.internal(
-  visibleCustomers,
-  name: r'visibleCustomersProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$visibleCustomersHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      visibleCustomers,
+      name: r'visibleCustomersProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$visibleCustomersHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
@@ -236,19 +219,19 @@ String _$customerGroupsByDayHash() =>
 @ProviderFor(customerGroupsByDay)
 final customerGroupsByDayProvider =
     AutoDisposeFutureProvider<Map<DateTime, List<CustomerGroup>>>.internal(
-  customerGroupsByDay,
-  name: r'customerGroupsByDayProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$customerGroupsByDayHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      customerGroupsByDay,
+      name: r'customerGroupsByDayProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$customerGroupsByDayHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef CustomerGroupsByDayRef
-    = AutoDisposeFutureProviderRef<Map<DateTime, List<CustomerGroup>>>;
+typedef CustomerGroupsByDayRef =
+    AutoDisposeFutureProviderRef<Map<DateTime, List<CustomerGroup>>>;
 String _$bookingsByCustomerGroupIdHash() =>
     r'c019aa8309ed5eb9c648815af6eff854260caea4';
 
@@ -256,19 +239,19 @@ String _$bookingsByCustomerGroupIdHash() =>
 @ProviderFor(bookingsByCustomerGroupId)
 final bookingsByCustomerGroupIdProvider =
     AutoDisposeFutureProvider<Map<String, List<Booking>>>.internal(
-  bookingsByCustomerGroupId,
-  name: r'bookingsByCustomerGroupIdProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$bookingsByCustomerGroupIdHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      bookingsByCustomerGroupId,
+      name: r'bookingsByCustomerGroupIdProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$bookingsByCustomerGroupIdHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef BookingsByCustomerGroupIdRef
-    = AutoDisposeFutureProviderRef<Map<String, List<Booking>>>;
+typedef BookingsByCustomerGroupIdRef =
+    AutoDisposeFutureProviderRef<Map<String, List<Booking>>>;
 String _$customersByBookingIdHash() =>
     r'82e26dbf8f1d5d73ba19c5c5da4bf3e7fe8d8c44';
 
@@ -276,19 +259,19 @@ String _$customersByBookingIdHash() =>
 @ProviderFor(customersByBookingId)
 final customersByBookingIdProvider =
     AutoDisposeFutureProvider<Map<String, List<Customer>>>.internal(
-  customersByBookingId,
-  name: r'customersByBookingIdProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$customersByBookingIdHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      customersByBookingId,
+      name: r'customersByBookingIdProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$customersByBookingIdHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef CustomersByBookingIdRef
-    = AutoDisposeFutureProviderRef<Map<String, List<Customer>>>;
+typedef CustomersByBookingIdRef =
+    AutoDisposeFutureProviderRef<Map<String, List<Customer>>>;
 String _$customersNumberByCustomerGroupIdBookingHash() =>
     r'4645d75668c77f970109f3ee80a6b5b5a0e72539';
 
@@ -298,19 +281,19 @@ String _$customersNumberByCustomerGroupIdBookingHash() =>
 @ProviderFor(customersNumberByCustomerGroupIdBooking)
 final customersNumberByCustomerGroupIdBookingProvider =
     AutoDisposeFutureProvider<Map<String, int>>.internal(
-  customersNumberByCustomerGroupIdBooking,
-  name: r'customersNumberByCustomerGroupIdBookingProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$customersNumberByCustomerGroupIdBookingHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      customersNumberByCustomerGroupIdBooking,
+      name: r'customersNumberByCustomerGroupIdBookingProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$customersNumberByCustomerGroupIdBookingHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef CustomersNumberByCustomerGroupIdBookingRef
-    = AutoDisposeFutureProviderRef<Map<String, int>>;
+typedef CustomersNumberByCustomerGroupIdBookingRef =
+    AutoDisposeFutureProviderRef<Map<String, int>>;
 String _$tourTypePricesByTourIdHash() =>
     r'78e9440d0bf032c91e90eaa57d9e31d5cf526eab';
 
@@ -329,20 +312,14 @@ class TourTypePricesByTourIdFamily
     required String tourId,
     required String account,
   }) {
-    return TourTypePricesByTourIdProvider(
-      tourId: tourId,
-      account: account,
-    );
+    return TourTypePricesByTourIdProvider(tourId: tourId, account: account);
   }
 
   @override
   TourTypePricesByTourIdProvider getProviderOverride(
     covariant TourTypePricesByTourIdProvider provider,
   ) {
-    return call(
-      tourId: provider.tourId,
-      account: provider.account,
-    );
+    return call(tourId: provider.tourId, account: provider.account);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -368,23 +345,22 @@ class TourTypePricesByTourIdProvider
     required String tourId,
     required String account,
   }) : this._internal(
-          (ref) => tourTypePricesByTourId(
-            ref as TourTypePricesByTourIdRef,
-            tourId: tourId,
-            account: account,
-          ),
-          from: tourTypePricesByTourIdProvider,
-          name: r'tourTypePricesByTourIdProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$tourTypePricesByTourIdHash,
-          dependencies: TourTypePricesByTourIdFamily._dependencies,
-          allTransitiveDependencies:
-              TourTypePricesByTourIdFamily._allTransitiveDependencies,
-          tourId: tourId,
-          account: account,
-        );
+         (ref) => tourTypePricesByTourId(
+           ref as TourTypePricesByTourIdRef,
+           tourId: tourId,
+           account: account,
+         ),
+         from: tourTypePricesByTourIdProvider,
+         name: r'tourTypePricesByTourIdProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$tourTypePricesByTourIdHash,
+         dependencies: TourTypePricesByTourIdFamily._dependencies,
+         allTransitiveDependencies:
+             TourTypePricesByTourIdFamily._allTransitiveDependencies,
+         tourId: tourId,
+         account: account,
+       );
 
   TourTypePricesByTourIdProvider._internal(
     super._createNotifier, {
@@ -403,7 +379,7 @@ class TourTypePricesByTourIdProvider
   @override
   Override overrideWith(
     FutureOr<List<TourTypePricing>> Function(TourTypePricesByTourIdRef provider)
-        create,
+    create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -485,13 +461,14 @@ String _$visibleDatesHash() => r'26be57b90483ad3e22700e8275c1ae57d5c7dbcd';
 @ProviderFor(VisibleDates)
 final visibleDatesProvider =
     AutoDisposeNotifierProvider<VisibleDates, List<DateTime>>.internal(
-  VisibleDates.new,
-  name: r'visibleDatesProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$visibleDatesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      VisibleDates.new,
+      name: r'visibleDatesProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$visibleDatesHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$VisibleDates = AutoDisposeNotifier<List<DateTime>>;
 String _$selectedTourIdHash() => r'4a36b0a9ec4d88f9a0dcc800823e3b22bade3368';
@@ -500,14 +477,14 @@ String _$selectedTourIdHash() => r'4a36b0a9ec4d88f9a0dcc800823e3b22bade3368';
 @ProviderFor(SelectedTourId)
 final selectedTourIdProvider =
     AutoDisposeNotifierProvider<SelectedTourId, String?>.internal(
-  SelectedTourId.new,
-  name: r'selectedTourIdProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$selectedTourIdHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      SelectedTourId.new,
+      name: r'selectedTourIdProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$selectedTourIdHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$SelectedTourId = AutoDisposeNotifier<String?>;
 String _$selectedDateInCalendarHash() =>
@@ -517,14 +494,14 @@ String _$selectedDateInCalendarHash() =>
 @ProviderFor(SelectedDateInCalendar)
 final selectedDateInCalendarProvider =
     AutoDisposeNotifierProvider<SelectedDateInCalendar, DateTime?>.internal(
-  SelectedDateInCalendar.new,
-  name: r'selectedDateInCalendarProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$selectedDateInCalendarHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      SelectedDateInCalendar.new,
+      name: r'selectedDateInCalendarProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$selectedDateInCalendarHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$SelectedDateInCalendar = AutoDisposeNotifier<DateTime?>;
 String _$selectedCustomerGroupInCalendarHash() =>
@@ -532,16 +509,19 @@ String _$selectedCustomerGroupInCalendarHash() =>
 
 /// See also [SelectedCustomerGroupInCalendar].
 @ProviderFor(SelectedCustomerGroupInCalendar)
-final selectedCustomerGroupInCalendarProvider = AutoDisposeNotifierProvider<
-    SelectedCustomerGroupInCalendar, CustomerGroup?>.internal(
-  SelectedCustomerGroupInCalendar.new,
-  name: r'selectedCustomerGroupInCalendarProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$selectedCustomerGroupInCalendarHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final selectedCustomerGroupInCalendarProvider =
+    AutoDisposeNotifierProvider<
+      SelectedCustomerGroupInCalendar,
+      CustomerGroup?
+    >.internal(
+      SelectedCustomerGroupInCalendar.new,
+      name: r'selectedCustomerGroupInCalendarProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$selectedCustomerGroupInCalendarHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$SelectedCustomerGroupInCalendar = AutoDisposeNotifier<CustomerGroup?>;
 String _$bookingDetailsSelectedPricingsHash() =>
@@ -551,9 +531,7 @@ abstract class _$BookingDetailsSelectedPricings
     extends BuildlessAutoDisposeNotifier<List<BookingPricingNumberBooked>> {
   late final List<TourTypePricing> pricings;
 
-  List<BookingPricingNumberBooked> build(
-    List<TourTypePricing> pricings,
-  );
+  List<BookingPricingNumberBooked> build(List<TourTypePricing> pricings);
 }
 
 /// The number of each pricing tier that the customer has selected. Data for stripe.
@@ -576,21 +554,15 @@ class BookingDetailsSelectedPricingsFamily
   /// The number of each pricing tier that the customer has selected. Data for stripe.
   ///
   /// Copied from [BookingDetailsSelectedPricings].
-  BookingDetailsSelectedPricingsProvider call(
-    List<TourTypePricing> pricings,
-  ) {
-    return BookingDetailsSelectedPricingsProvider(
-      pricings,
-    );
+  BookingDetailsSelectedPricingsProvider call(List<TourTypePricing> pricings) {
+    return BookingDetailsSelectedPricingsProvider(pricings);
   }
 
   @override
   BookingDetailsSelectedPricingsProvider getProviderOverride(
     covariant BookingDetailsSelectedPricingsProvider provider,
   ) {
-    return call(
-      provider.pricings,
-    );
+    return call(provider.pricings);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -612,26 +584,27 @@ class BookingDetailsSelectedPricingsFamily
 ///
 /// Copied from [BookingDetailsSelectedPricings].
 class BookingDetailsSelectedPricingsProvider
-    extends AutoDisposeNotifierProviderImpl<BookingDetailsSelectedPricings,
-        List<BookingPricingNumberBooked>> {
+    extends
+        AutoDisposeNotifierProviderImpl<
+          BookingDetailsSelectedPricings,
+          List<BookingPricingNumberBooked>
+        > {
   /// The number of each pricing tier that the customer has selected. Data for stripe.
   ///
   /// Copied from [BookingDetailsSelectedPricings].
-  BookingDetailsSelectedPricingsProvider(
-    List<TourTypePricing> pricings,
-  ) : this._internal(
-          () => BookingDetailsSelectedPricings()..pricings = pricings,
-          from: bookingDetailsSelectedPricingsProvider,
-          name: r'bookingDetailsSelectedPricingsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$bookingDetailsSelectedPricingsHash,
-          dependencies: BookingDetailsSelectedPricingsFamily._dependencies,
-          allTransitiveDependencies:
-              BookingDetailsSelectedPricingsFamily._allTransitiveDependencies,
-          pricings: pricings,
-        );
+  BookingDetailsSelectedPricingsProvider(List<TourTypePricing> pricings)
+    : this._internal(
+        () => BookingDetailsSelectedPricings()..pricings = pricings,
+        from: bookingDetailsSelectedPricingsProvider,
+        name: r'bookingDetailsSelectedPricingsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$bookingDetailsSelectedPricingsHash,
+        dependencies: BookingDetailsSelectedPricingsFamily._dependencies,
+        allTransitiveDependencies:
+            BookingDetailsSelectedPricingsFamily._allTransitiveDependencies,
+        pricings: pricings,
+      );
 
   BookingDetailsSelectedPricingsProvider._internal(
     super._createNotifier, {
@@ -649,9 +622,7 @@ class BookingDetailsSelectedPricingsProvider
   List<BookingPricingNumberBooked> runNotifierBuild(
     covariant BookingDetailsSelectedPricings notifier,
   ) {
-    return notifier.build(
-      pricings,
-    );
+    return notifier.build(pricings);
   }
 
   @override
@@ -671,8 +642,11 @@ class BookingDetailsSelectedPricingsProvider
   }
 
   @override
-  AutoDisposeNotifierProviderElement<BookingDetailsSelectedPricings,
-      List<BookingPricingNumberBooked>> createElement() {
+  AutoDisposeNotifierProviderElement<
+    BookingDetailsSelectedPricings,
+    List<BookingPricingNumberBooked>
+  >
+  createElement() {
     return _BookingDetailsSelectedPricingsProviderElement(this);
   }
 
@@ -700,8 +674,11 @@ mixin BookingDetailsSelectedPricingsRef
 }
 
 class _BookingDetailsSelectedPricingsProviderElement
-    extends AutoDisposeNotifierProviderElement<BookingDetailsSelectedPricings,
-        List<BookingPricingNumberBooked>>
+    extends
+        AutoDisposeNotifierProviderElement<
+          BookingDetailsSelectedPricings,
+          List<BookingPricingNumberBooked>
+        >
     with BookingDetailsSelectedPricingsRef {
   _BookingDetailsSelectedPricingsProviderElement(super.provider);
 
@@ -718,14 +695,14 @@ String _$customersInfoHash() => r'9135259e36e748955a32f933d2183329f356886c';
 @ProviderFor(CustomersInfo)
 final customersInfoProvider =
     NotifierProvider<CustomersInfo, List<Customer>>.internal(
-  CustomersInfo.new,
-  name: r'customersInfoProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$customersInfoHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      CustomersInfo.new,
+      name: r'customersInfoProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$customersInfoHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$CustomersInfo = Notifier<List<Customer>>;
 String _$bookingInfoHash() => r'a83959a9b530f4a0bc0ac7f50c1ebb9f7c137e2b';
@@ -737,8 +714,9 @@ String _$bookingInfoHash() => r'a83959a9b530f4a0bc0ac7f50c1ebb9f7c137e2b';
 final bookingInfoProvider = NotifierProvider<BookingInfo, Booking?>.internal(
   BookingInfo.new,
   name: r'bookingInfoProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$bookingInfoHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$bookingInfoHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
@@ -753,14 +731,14 @@ String _$isLoadingCartHash() => r'2a2bd13903c1c315a8b1959e7da1cf2daeb2244b';
 @ProviderFor(IsLoadingCart)
 final isLoadingCartProvider =
     AutoDisposeNotifierProvider<IsLoadingCart, bool>.internal(
-  IsLoadingCart.new,
-  name: r'isLoadingCartProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$isLoadingCartHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      IsLoadingCart.new,
+      name: r'isLoadingCartProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$isLoadingCartHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 typedef _$IsLoadingCart = AutoDisposeNotifier<bool>;
 // ignore_for_file: type=lint
