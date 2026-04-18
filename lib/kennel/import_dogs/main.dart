@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/kennel/import_dogs/datagrid.dart';
 import 'package:mush_on/kennel/import_dogs/models.dart';
 import 'package:mush_on/kennel/import_dogs/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -54,12 +55,8 @@ class _ImportDogsMainState extends ConsumerState<ImportDogsMain> {
                 : const Text("test"),
           ),
           dogsToImport.isNotEmpty
-              ? DogsToImportGrid(dogsToImport: dogsToImport)
+              ? (ImportDogsDatagrid(dogsToImport: dogsToImport))
               : const SizedBox.shrink(),
-          ElevatedButton(
-            onPressed: () => BasicLogger().debug(dogsToImport.toString()),
-            child: const Text("go"),
-          ),
         ],
       ),
     );
@@ -131,15 +128,5 @@ class _ImportDogsMainState extends ConsumerState<ImportDogsMain> {
       });
       return null;
     }
-  }
-}
-
-class DogsToImportGrid extends StatelessWidget {
-  final List<DogToImport> dogsToImport;
-  const DogsToImportGrid({super.key, required this.dogsToImport});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(dogsToImport.toString());
   }
 }
