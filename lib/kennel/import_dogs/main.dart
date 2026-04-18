@@ -1,25 +1,25 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/kennel/import_dogs/models.dart';
+import 'package:mush_on/kennel/import_dogs/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/shared/upload_document/main.dart';
 
-class ImportDogsMain extends StatefulWidget {
+class ImportDogsMain extends ConsumerStatefulWidget {
   const ImportDogsMain({super.key});
 
   @override
-  State<ImportDogsMain> createState() => _ImportDogsMainState();
+  ConsumerState<ImportDogsMain> createState() => _ImportDogsMainState();
 }
 
-class _ImportDogsMainState extends State<ImportDogsMain> {
-  late String output;
+class _ImportDogsMainState extends ConsumerState<ImportDogsMain> {
   late bool isLoading;
   late TextEditingController pathController;
   PlatformFile? platformFile;
   @override
   void initState() {
-    output = "Waiting for output";
     isLoading = false;
     pathController = TextEditingController();
     super.initState();
@@ -27,6 +27,7 @@ class _ImportDogsMainState extends State<ImportDogsMain> {
 
   @override
   Widget build(BuildContext context) {
+    final dogsToImport = ref.watch(dogsToImportStateProvider);
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -38,18 +39,29 @@ class _ImportDogsMainState extends State<ImportDogsMain> {
             },
           ),
           ElevatedButton(
-            onPressed: isLoading ? null : () async => await _callGemini(),
+            onPressed: isLoading
+                ? null
+                : () async {
+                    final result = await _callGemini();
+                    if (result != null) {
+                      ref
+                          .read(dogsToImportStateProvider.notifier)
+                          .fromDogResults(result);
+                    }
+                  },
             child: isLoading
                 ? const CircularProgressIndicator()
                 : const Text("test"),
           ),
-          Text(output),
+          dogsToImport.isNotEmpty
+              ? DogsToImportGrid(dogsToImport: dogsToImport)
+              : const SizedBox.shrink(),
         ],
       ),
     );
   }
 
-  Future<void> _callGemini() async {
+  Future<ImportDogResult?> _callGemini() async {
     final jsonSchema = GeminiSchema.schema;
     setState(() {
       isLoading = true;
@@ -68,7 +80,7 @@ class _ImportDogsMainState extends State<ImportDogsMain> {
       setState(() {
         isLoading = false;
       });
-      return;
+      return null;
     }
     final bytes = platformFile!.bytes;
     if (bytes == null) {
@@ -78,7 +90,7 @@ class _ImportDogsMainState extends State<ImportDogsMain> {
       setState(() {
         isLoading = false;
       });
-      return;
+      return null;
     }
     if (!["pdf", "csv"].contains(platformFile!.extension)) {
       ScaffoldMessenger.of(
@@ -87,7 +99,7 @@ class _ImportDogsMainState extends State<ImportDogsMain> {
       setState(() {
         isLoading = false;
       });
-      return;
+      return null;
     }
     final mimeType = platformFile!.extension == "pdf"
         ? "application/pdf"
@@ -105,15 +117,25 @@ class _ImportDogsMainState extends State<ImportDogsMain> {
       final imported = ImportDogResult.decode(text);
       BasicLogger().debug("Dogs importe: ${imported.length}");
       setState(() {
-        output = imported.toString();
         isLoading = false;
       });
+      return imported;
     } catch (e, s) {
       BasicLogger().error("Couldn't generate content", error: e, stackTrace: s);
       setState(() {
-        output = "Error: $e";
         isLoading = false;
       });
+      return null;
     }
+  }
+}
+
+class DogsToImportGrid extends StatelessWidget {
+  final List<DogToImport> dogsToImport;
+  const DogsToImportGrid({super.key, required this.dogsToImport});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(dogsToImport.toString());
   }
 }
