@@ -1,13 +1,9 @@
-import 'dart:convert';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mush_on/kennel/import_dogs/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/shared/upload_document/main.dart';
-part 'main.freezed.dart';
-part 'main.g.dart';
 
 class ImportDogsMain extends StatefulWidget {
   const ImportDogsMain({super.key});
@@ -54,21 +50,7 @@ class _ImportDogsMainState extends State<ImportDogsMain> {
   }
 
   Future<void> _callGemini() async {
-    final jsonSchema = Schema.object(
-      properties: {
-        "dogs": Schema.array(
-          items: Schema.string(
-            title:
-                "The name of the dog, always first letter capitalized, eg `Fido`",
-          ),
-        ),
-        "isSuccessful": Schema.boolean(
-          title: "Whether the operation is successful",
-          description:
-              "True if a list of dogs can be extracted. False if it can't be extracted or the document doesn't contain a list of dogs",
-        ),
-      },
-    );
+    final jsonSchema = GeminiSchema.schema;
     setState(() {
       isLoading = true;
     });
@@ -133,21 +115,5 @@ class _ImportDogsMainState extends State<ImportDogsMain> {
         isLoading = false;
       });
     }
-  }
-}
-
-@freezed
-sealed class ImportDogResult with _$ImportDogResult {
-  const factory ImportDogResult({
-    required List<String> dogs,
-    required bool isSuccessful,
-  }) = _ImportDogResult;
-  factory ImportDogResult.fromJson(Map<String, dynamic> json) =>
-      _$ImportDogResultFromJson(json);
-  const ImportDogResult._();
-  int get length => dogs.length;
-
-  static ImportDogResult decode(String source) {
-    return ImportDogResult.fromJson(jsonDecode(source));
   }
 }
