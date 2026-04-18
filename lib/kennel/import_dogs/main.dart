@@ -44,7 +44,7 @@ class _ImportDogsMainState extends ConsumerState<ImportDogsMain> {
                 : () async {
                     final result = await _callGemini();
                     if (result != null) {
-                      ref
+                      await ref
                           .read(dogsToImportStateProvider.notifier)
                           .fromDogResults(result);
                     }
@@ -56,6 +56,10 @@ class _ImportDogsMainState extends ConsumerState<ImportDogsMain> {
           dogsToImport.isNotEmpty
               ? DogsToImportGrid(dogsToImport: dogsToImport)
               : const SizedBox.shrink(),
+          ElevatedButton(
+            onPressed: () => BasicLogger().debug(dogsToImport.toString()),
+            child: const Text("go"),
+          ),
         ],
       ),
     );

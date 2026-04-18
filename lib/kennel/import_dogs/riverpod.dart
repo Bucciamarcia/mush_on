@@ -15,26 +15,24 @@ class DogsToImportState extends _$DogsToImportState {
     return [];
   }
 
-  void fromDogResults(ImportDogResult result) {
+  Future<void> fromDogResults(ImportDogResult result) async {
     if (!result.isSuccessful) {
       return;
     }
-    List<DogToImport> toReturn = [];
-    final dogsAsync = ref.read(dogsProvider);
+
     try {
-      dogsAsync.whenData((dogs) {
-        final dogNames = _createDogNamesList(dogs);
-        for (final d in result.dogs) {
-          toReturn.add(
-            DogToImport(
-              dog: Dog(id: const Uuid().v4()),
-              import: !dogNames.contains(d),
-              isNameDuplicate: dogNames.contains(d),
+      final dogs = await ref.read(dogsProvider.future);
+      final dogNames = _createDogNamesList(dogs);
+
+      state = result.dogs
+          .map(
+            (name) => DogToImport(
+              dog: Dog(id: const Uuid().v4(), name: name),
+              import: !dogNames.contains(name),
+              isNameDuplicate: dogNames.contains(name),
             ),
-          );
-        }
-        state = toReturn;
-      });
+          )
+          .toList();
     } catch (e, s) {
       BasicLogger().error(
         "Error: Unable to process dog import results",
