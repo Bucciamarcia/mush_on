@@ -29,36 +29,39 @@ class _ImportDogsMainState extends ConsumerState<ImportDogsMain> {
   @override
   Widget build(BuildContext context) {
     final dogsToImport = ref.watch(dogsToImportStateProvider);
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          UploadDocumentWidget(
-            onDocumentSelected: (f) {
-              setState(() {
-                platformFile = f;
-              });
-            },
-          ),
-          ElevatedButton(
-            onPressed: isLoading
-                ? null
-                : () async {
-                    final result = await _callGemini();
-                    if (result != null) {
-                      await ref
-                          .read(dogsToImportStateProvider.notifier)
-                          .fromDogResults(result);
-                    }
-                  },
-            child: isLoading
-                ? const CircularProgressIndicator()
-                : const Text("test"),
-          ),
-          dogsToImport.isNotEmpty
-              ? (ImportDogsDatagrid(dogsToImport: dogsToImport))
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        UploadDocumentWidget(
+          onDocumentSelected: (f) {
+            setState(() {
+              platformFile = f;
+            });
+          },
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton(
+          onPressed: isLoading
+              ? null
+              : () async {
+                  final result = await _callGemini();
+                  if (result != null) {
+                    await ref
+                        .read(dogsToImportStateProvider.notifier)
+                        .fromDogResults(result);
+                  }
+                },
+          child: isLoading
+              ? const CircularProgressIndicator()
+              : const Text("test"),
+        ),
+        const SizedBox(height: 12),
+        Expanded(
+          child: dogsToImport.isNotEmpty
+              ? Center(child: ImportDogsDatagrid(dogsToImport: dogsToImport))
               : const SizedBox.shrink(),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
