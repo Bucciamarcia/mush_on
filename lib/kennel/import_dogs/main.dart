@@ -5,6 +5,7 @@ import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/shared/upload_document/main.dart';
 part 'main.freezed.dart';
 part 'main.g.dart';
 
@@ -33,62 +34,12 @@ class _ImportDogsMainState extends State<ImportDogsMain> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Row(
-            children: [
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: TextField(controller: pathController, enabled: false),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  setState(() => isLoading = true);
-
-                  try {
-                    final result = await FilePicker.platform.pickFiles(
-                      allowMultiple: false,
-                      type: FileType.custom,
-                      allowedExtensions: ["pdf", "csv"],
-                      withData: true,
-                    );
-
-                    if (!mounted) return;
-
-                    if (result == null) {
-                      setState(() {
-                        pathController.text = "";
-                        isLoading = false;
-                      });
-                      return;
-                    }
-
-                    final file = result.files.first;
-
-                    if (file.bytes == null) {
-                      throw Exception("File data could not be read.");
-                    }
-
-                    setState(() {
-                      pathController.text = file.name;
-                      platformFile = file;
-                      isLoading = false;
-                    });
-                  } catch (e, s) {
-                    BasicLogger().error(
-                      "File pick error",
-                      error: e,
-                      stackTrace: s,
-                    );
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        errorSnackBar(context, "Error: ${e.toString()}"),
-                      );
-                    }
-                    setState(() => isLoading = false);
-                  }
-                },
-                child: const Text("Upload document"),
-              ),
-            ],
+          UploadDocumentWidget(
+            onDocumentSelected: (f) {
+              setState(() {
+                platformFile = f;
+              });
+            },
           ),
           ElevatedButton(
             onPressed: isLoading ? null : () async => await _callGemini(),
