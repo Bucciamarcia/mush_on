@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:go_router/go_router.dart';
 import 'package:mush_on/kennel/dog/pedigree_info.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models/notes.dart';
@@ -629,7 +630,7 @@ class DeleteDogConfirmationDialog extends StatelessWidget {
           ),
           onPressed: () {
             onConfirmed();
-            Navigator.of(context).pop();
+            context.go("/editkennel");
           },
           child: Text(
             "Delete dog",

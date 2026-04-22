@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
@@ -57,7 +58,7 @@ class AddDogButton extends ConsumerWidget {
           );
         }
         onDogAdded();
-        if (context.mounted) Navigator.of(context).pop();
+        if (context.mounted) context.go("/editkennel");
       },
       icon: const Icon(Icons.add),
       label: const Text("Add dog"),

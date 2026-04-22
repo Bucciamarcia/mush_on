@@ -49,6 +49,18 @@ class DogsToImportState extends _$DogsToImportState {
     }
     return toReturn;
   }
+
+  void flipDog(int i, bool v) {
+    List<DogToImport> toReturn = [];
+    state.asMap().forEach((key, value) {
+      if (key != i) {
+        toReturn.add(value);
+      } else {
+        toReturn.add(value.copyWith(import: v));
+      }
+    });
+    state = toReturn;
+  }
 }
 
 @freezed
