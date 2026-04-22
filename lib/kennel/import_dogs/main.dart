@@ -8,9 +8,7 @@ import 'package:mush_on/kennel/import_dogs/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/firestore.dart';
-import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/upload_document/main.dart';
-import 'package:uuid/uuid.dart';
 
 class ImportDogsMain extends ConsumerStatefulWidget {
   const ImportDogsMain({super.key});
