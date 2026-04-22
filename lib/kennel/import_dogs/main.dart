@@ -58,7 +58,14 @@ class _ImportDogsMainState extends ConsumerState<ImportDogsMain> {
         const SizedBox(height: 12),
         Expanded(
           child: dogsToImport.isNotEmpty
-              ? Center(child: ImportDogsDatagrid(dogsToImport: dogsToImport))
+              ? Center(
+                  child: ImportDogsDatagrid(
+                    dogsToImport: dogsToImport,
+                    onValueFlipped: (i, v) => ref
+                        .read(dogsToImportStateProvider.notifier)
+                        .flipDog(i, v),
+                  ),
+                )
               : const SizedBox.shrink(),
         ),
       ],

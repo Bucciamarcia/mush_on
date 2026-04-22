@@ -6,7 +6,7 @@ part of 'riverpod.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dogsToImportStateHash() => r'f4628ec9bb47682a349149c122568f120151d6b5';
+String _$dogsToImportStateHash() => r'874843b6f181ae4919f8863275c9d8469e17b6f5';
 
 /// See also [DogsToImportState].
 @ProviderFor(DogsToImportState)

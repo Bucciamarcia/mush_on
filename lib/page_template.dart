@@ -85,7 +85,7 @@ class TemplateScreen extends ConsumerWidget {
             child: const Icon(Icons.add),
             label: "Add single dog",
             onTap: () {
-              context.go("adddog");
+              context.go("/adddog");
             },
           ),
           SpeedDialChild(

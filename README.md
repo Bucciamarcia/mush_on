@@ -141,3 +141,6 @@ A cool and open source CRM for sled dog kennels.
 - Fixes bug in mass adding customer groups.
 - Splits settings into multiple sections.
 - Can send automatic reminders for bookings.
+- Can mass import dogs.
+- Fixed bug in single dog import.
+- Fixed bug in delete dog.
