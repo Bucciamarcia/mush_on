@@ -415,6 +415,9 @@ class _ImportDogsMainState extends ConsumerState<ImportDogsMain> {
         ),
       );
     }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(confirmationSnackbar(context, "Dogs imported correctly"));
     context.go("/editkennel");
   }
 }
