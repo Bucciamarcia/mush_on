@@ -5,8 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/kennel/import_dogs/datagrid.dart';
 import 'package:mush_on/kennel/import_dogs/models.dart';
 import 'package:mush_on/kennel/import_dogs/riverpod.dart';
+import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/firestore.dart';
+import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/upload_document/main.dart';
+import 'package:uuid/uuid.dart';
 
 class ImportDogsMain extends ConsumerStatefulWidget {
   const ImportDogsMain({super.key});
@@ -59,11 +63,38 @@ class _ImportDogsMainState extends ConsumerState<ImportDogsMain> {
         Expanded(
           child: dogsToImport.isNotEmpty
               ? Center(
-                  child: ImportDogsDatagrid(
-                    dogsToImport: dogsToImport,
-                    onValueFlipped: (i, v) => ref
-                        .read(dogsToImportStateProvider.notifier)
-                        .flipDog(i, v),
+                  child: Column(
+                    children: [
+                      const Text(
+                        "If a dog name already exists, it will be deselected by default",
+                      ),
+                      const Text(
+                        "Notice: this is an AI feature, please check the results before importing.",
+                      ),
+                      ImportDogsDatagrid(
+                        dogsToImport: dogsToImport,
+                        onValueFlipped: (i, v) => ref
+                            .read(dogsToImportStateProvider.notifier)
+                            .flipDog(i, v),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final account = await ref.watch(
+                            accountProvider.future,
+                          );
+                          for (final dogToImport in dogsToImport) {
+                            if (dogToImport.import) {
+                              FirestoreService().addDogToDb(
+                                dogToImport.dog,
+                                null,
+                                account,
+                              );
+                            }
+                          }
+                        },
+                        child: const Text("Import selected dogs"),
+                      ),
+                    ],
                   ),
                 )
               : const SizedBox.shrink(),

@@ -29,7 +29,7 @@ class DogsToImportState extends _$DogsToImportState {
             (name) => DogToImport(
               dog: Dog(id: const Uuid().v4(), name: name),
               import: !dogNames.contains(name),
-              isNameDuplicate: dogNames.contains(name),
+              isNameDuplicate: _isDuplicate(dogNames, name),
             ),
           )
           .toList();
@@ -40,6 +40,12 @@ class DogsToImportState extends _$DogsToImportState {
         stackTrace: s,
       );
     }
+  }
+
+  bool _isDuplicate(Set<String> dogNames, String name) {
+    return dogNames.any(
+      (nameInList) => nameInList.toLowerCase() == name.toLowerCase(),
+    );
   }
 
   Set<String> _createDogNamesList(List<Dog> dogs) {
