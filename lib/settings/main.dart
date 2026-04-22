@@ -34,6 +34,14 @@ class SettingsMain extends ConsumerWidget {
 
     return settingsAsync.when(
       data: (settings) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final crossAxisCount = screenWidth < 700 ? 1 : 2;
+        final childAspectRatio = switch (screenWidth) {
+          < 700 => 1.15,
+          < 960 => 1.2,
+          _ => 1.35,
+        };
+
         return SingleChildScrollView(
           child: Container(
             width: double.infinity,
@@ -61,12 +69,10 @@ class SettingsMain extends ConsumerWidget {
                     GridView.count(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: MediaQuery.of(context).size.width < 700
-                          ? 1
-                          : 2,
+                      crossAxisCount: crossAxisCount,
                       mainAxisSpacing: 20,
                       crossAxisSpacing: 20,
-                      childAspectRatio: 1.4,
+                      childAspectRatio: childAspectRatio,
                       children: [
                         SettingsHubTile(
                           title: "My Profile",

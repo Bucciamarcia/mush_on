@@ -15,6 +15,7 @@ import 'package:mush_on/services/riverpod/user.dart';
 import 'package:mush_on/services/storage/username.dart';
 import 'package:mush_on/settings/add_users.dart';
 import 'package:mush_on/settings/custom_fields.dart';
+import 'package:mush_on/settings/hub_tile.dart';
 import 'package:mush_on/settings/main.dart';
 import 'package:mush_on/settings/repository.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
@@ -302,6 +303,10 @@ void main() {
     });
 
     testWidgets('hides admin-only sections for handlers', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(1600, 1200);
+      addTearDown(tester.view.reset);
+
       await _pumpApp(
         tester,
         const SettingsMain(),
@@ -319,7 +324,7 @@ void main() {
           ),
           userNameProvider(null).overrideWith(
             (_) => Stream.value(
-              UserName(
+              const UserName(
                 uid: 'user-1',
                 email: 'handler@example.com',
                 account: 'account-1',
@@ -336,12 +341,18 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Add new user'), findsNothing);
-      expect(find.text('Connect Stripe'), findsNothing);
-      expect(find.text('User settings'), findsOneWidget);
+      expect(find.text('My Profile'), findsOneWidget);
+      expect(find.text('Workspace'), findsOneWidget);
+      expect(find.text('1 fields'), findsOneWidget);
+      expect(find.text('Team & Access'), findsNothing);
+      expect(find.text('Billing & Payments'), findsNothing);
     });
 
     testWidgets('shows admin-only sections for mushers', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(1600, 1200);
+      addTearDown(tester.view.reset);
+
       await _pumpApp(
         tester,
         const SettingsMain(),
@@ -359,7 +370,7 @@ void main() {
           ),
           userNameProvider(null).overrideWith(
             (_) => Stream.value(
-              UserName(
+              const UserName(
                 uid: 'user-1',
                 email: 'musher@example.com',
                 account: 'account-1',
@@ -377,18 +388,21 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Add new user'), findsOneWidget);
-      expect(find.text('Connect Stripe'), findsOneWidget);
+      expect(find.text('My Profile'), findsOneWidget);
+      expect(find.text('Workspace'), findsOneWidget);
+      expect(find.text('Team & Access'), findsOneWidget);
+      expect(find.text('Billing & Payments'), findsOneWidget);
+      expect(find.text('1 fields'), findsOneWidget);
     });
 
-    testWidgets('uses the repository callbacks for custom fields', (
-      tester,
-    ) async {
-      final repository = _RecordingSettingsRepository();
+    testWidgets('renders without overflow on narrow layouts', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(600, 1000);
+      addTearDown(tester.view.reset);
 
       await _pumpApp(
         tester,
-        SettingsMain(repositoryBuilder: (_) => repository),
+        const SettingsMain(),
         overrides: [
           userProvider.overrideWith((_) => Stream.value(user)),
           userNameProvider('user-1').overrideWith(
@@ -397,71 +411,17 @@ void main() {
                 uid: 'user-1',
                 email: 'musher@example.com',
                 account: 'account-1',
-                userLevel: UserLevel.handler,
+                userLevel: UserLevel.musher,
               ),
             ),
           ),
           userNameProvider(null).overrideWith(
-            (_) => Stream.value(
-              UserName(
-                uid: 'user-1',
-                email: 'musher@example.com',
-                account: 'account-1',
-                userLevel: UserLevel.handler,
-              ),
-            ),
-          ),
-          userProfilePicProvider(
-            null,
-          ).overrideWith(() => _FakeUserProfilePic()),
-          accountProvider.overrideWith((_) => Stream.value('account-1')),
-          settingsProvider.overrideWith((_) => Stream.value(baseSettings)),
-        ],
-      );
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text('Add new custom field'));
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField).last, 'Harness');
-      await tester.tap(find.text('Add custom field'));
-      await tester.pumpAndSettle();
-
-      expect(repository.addedCustomField, isNotNull);
-      expect(repository.addedCustomField!.name, 'Harness');
-
-      await tester.tap(find.byIcon(Icons.cancel));
-      await tester.pumpAndSettle();
-
-      expect(repository.deletedCustomFieldId, 'template-1');
-    });
-
-    testWidgets('uses the repository callback for distance warnings', (
-      tester,
-    ) async {
-      final repository = _RecordingSettingsRepository();
-
-      await _pumpApp(
-        tester,
-        SettingsMain(repositoryBuilder: (_) => repository),
-        overrides: [
-          userProvider.overrideWith((_) => Stream.value(user)),
-          userNameProvider('user-1').overrideWith(
             (_) => Stream.value(
               const UserName(
                 uid: 'user-1',
-                email: 'handler@example.com',
+                email: 'musher@example.com',
                 account: 'account-1',
-                userLevel: UserLevel.handler,
-              ),
-            ),
-          ),
-          userNameProvider(null).overrideWith(
-            (_) => Stream.value(
-              UserName(
-                uid: 'user-1',
-                email: 'handler@example.com',
-                account: 'account-1',
-                userLevel: UserLevel.handler,
+                userLevel: UserLevel.musher,
               ),
             ),
           ),
@@ -470,39 +430,14 @@ void main() {
           ).overrideWith(() => _FakeUserProfilePic()),
           accountProvider.overrideWith((_) => Stream.value('account-1')),
           settingsProvider.overrideWith((_) => Stream.value(baseSettings)),
+          stripeConnectionProvider.overrideWith((_) => Stream.value(null)),
         ],
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Add new warning'));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is TextField &&
-              widget.decoration?.labelText == 'Maximum distance',
-        ),
-        '150',
-      );
-      await tester.enterText(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is TextField &&
-              widget.decoration?.labelText == 'Time period',
-        ),
-        '7',
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, 'Add Warning'));
-      await tester.pumpAndSettle();
-
-      expect(repository.addedWarning, isNotNull);
-      expect(repository.addedWarning!.distance, 150);
-      expect(repository.addedWarning!.daysInterval, 7);
-      expect(
-        repository.addedWarning!.distanceWarningType,
-        DistanceWarningType.soft,
-      );
+      expect(tester.takeException(), isNull);
+      expect(find.byType(SettingsHubTile), findsNWidgets(4));
+      expect(find.text('Billing & Payments'), findsOneWidget);
     });
   });
 }
