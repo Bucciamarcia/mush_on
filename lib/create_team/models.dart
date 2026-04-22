@@ -196,9 +196,12 @@ class DogNoteRepository {
       notes.add(DogNote(dogId: dogId, dogNoteMessage: [newNote]));
       return notes;
     } else {
-      // Adds the note to the dog id.
-      noteToEdit.dogNoteMessage.add(newNote);
-      return notes;
+      final noteIndex = notes.indexWhere((note) => note.dogId == dogId);
+      final updatedNotes = List<DogNote>.from(notes);
+      updatedNotes[noteIndex] = noteToEdit.copyWith(
+        dogNoteMessage: [...noteToEdit.dogNoteMessage, newNote],
+      );
+      return updatedNotes;
     }
   }
 
