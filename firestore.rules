@@ -12,7 +12,7 @@ service cloud.firestore {
     }
 
     // Users can fully manage their own user doc
-    match /users/{uid} {
+    match /users/{uid}/{document=**} {
       allow read, write: if isSignedIn() && uid == request.auth.uid;
     }
 
@@ -21,10 +21,51 @@ service cloud.firestore {
       allow read: if true;  // public (no auth required)
       allow write: if isSignedIn() && userAccount() == account;
     }
+    
+    // anyone can read tours
+    match /accounts/{account}/data/bookingManager/tours/{tourId} {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager/customerGroups/{customerGroupId} {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager/customers/{customerId} {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager/bookings/{bookingId} {
+  		allow read: if true;      // public
+  		allow write: if true;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager/tours/{tourId}/prices/{pricing} {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager/customers/{custmer} {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /accounts/{account}/data/bookingManager {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+    match /global/privacyPolicy {
+  		allow read: if true;      // public
+  		allow write: if false;     // nobody can write
+		}
+
 
     // Restrict account data to the user's assigned account
     match /accounts/{account}/{document=**} {
       allow read, write: if isSignedIn() && userAccount() == account;
+    }
+    
+    // Logged in can read paymentintents
+    match /checkoutSessions/{session} {
+    allow read: if true;
+    allow write: if false;
     }
 
     // Default deny for everything else
