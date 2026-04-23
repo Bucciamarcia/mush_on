@@ -24,7 +24,6 @@ import 'firebase_options.dart';
 import 'login_screen/login_screen.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:url_strategy/url_strategy.dart';
-import 'package:firebase_ai/firebase_ai.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
