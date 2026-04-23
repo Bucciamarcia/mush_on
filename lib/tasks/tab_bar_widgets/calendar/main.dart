@@ -59,37 +59,37 @@ class CalendarTabWidget extends StatelessWidget {
   }
 
   void _handleTap(CalendarTapDetails element, BuildContext context) async {
-    if (element.appointments == null) {
-      logger.error("element.appointments is null and shouldn't be");
-      throw Exception("element.appointments is null and shouldn't be");
-    } else {
-      if (element.appointments!.isEmpty) {
-      } else if (element.appointments!.length != 1) {
-        return await showDialog(
-          context: context,
-          builder: (context) => DayTasksDialog(
-            date: element.date,
-            onTaskEdited: (t) => onTaskEdited(t),
-            onTaskDeleted: (t) => onTaskDeleted(t),
-            tasks: tasks,
-            dogs: dogs,
-            onFetchOlderTasks: (date) => onFetchOlderTasks(date),
-          ),
-        );
-      } else {
-        Task task = element.appointments!.first as Task;
-        return await showDialog(
-          context: context,
-          builder: (context) => TaskEditorDialog(
-            task: task,
-            dogs: dogs,
-            taskEditorType: TaskEditorType.editTask,
-            onTaskAdded: (t) => onTaskEdited(t),
-            onTaskDeleted: (t) => onTaskDeleted(t),
-          ),
-        );
-      }
+    final appointments = element.appointments;
+    if (appointments == null || appointments.isEmpty) {
+      logger.info("Calendar tapped with no task appointments.");
+      return;
     }
+
+    if (appointments.length != 1) {
+      return await showDialog(
+        context: context,
+        builder: (context) => DayTasksDialog(
+          date: element.date,
+          onTaskEdited: (t) => onTaskEdited(t),
+          onTaskDeleted: (t) => onTaskDeleted(t),
+          tasks: tasks,
+          dogs: dogs,
+          onFetchOlderTasks: (date) => onFetchOlderTasks(date),
+        ),
+      );
+    }
+
+    Task task = appointments.first as Task;
+    return await showDialog(
+      context: context,
+      builder: (context) => TaskEditorDialog(
+        task: task,
+        dogs: dogs,
+        taskEditorType: TaskEditorType.editTask,
+        onTaskAdded: (t) => onTaskEdited(t),
+        onTaskDeleted: (t) => onTaskDeleted(t),
+      ),
+    );
   }
 }
 
