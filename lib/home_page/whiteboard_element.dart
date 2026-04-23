@@ -20,6 +20,8 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     List<WhiteboardElementComment> comments = List.from(element.comments);
     comments.sort((a, b) => a.date.compareTo(b.date));
     return InkWell(
@@ -32,188 +34,177 @@ class WhiteboardElementDisplayWidget extends ConsumerWidget {
         ),
       ),
       borderRadius: BorderRadius.circular(16),
-      child: Card(
-        elevation: 1,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header with avatar, name, and timestamp
-              Row(
-                children: [
-                  CircleAvatarWidget(radius: 18, uid: element.author),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          ref.watch(userNameProvider(null)).value?.name ??
-                              "Unknown",
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          DateFormat("MMM d, HH:mm").format(element.date),
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 12),
-
-              // Title
-              Text(
-                element.title,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-              // Description
-              if (element.description.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  element.description,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    height: 1.4,
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-
-              // Comments section
-              if (comments.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: colors.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatarWidget(radius: 16, uid: element.author),
+                const SizedBox(width: 12),
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          Icon(
-                            Icons.chat_bubble_outline,
-                            size: 16,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 6),
                           Text(
-                            "${comments.length} ${comments.length == 1 ? 'comment' : 'comments'}",
-                            style: Theme.of(context).textTheme.labelMedium
-                                ?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            ref.watch(userNameProvider(null)).value?.name ??
+                                "Unknown",
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: colors.onSurface,
+                            ),
+                          ),
+                          Text(
+                            DateFormat("MMM d, HH:mm").format(element.date),
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              letterSpacing: 0.2,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
-                      ...comments.map(
-                        (comment) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CircleAvatarWidget(
-                                radius: 12,
-                                uid: comment.author,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          ref
-                                                  .watch(userNameProvider(null))
-                                                  .value
-                                                  ?.name ??
-                                              "Unknown",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurface,
-                                              ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          DateFormat(
-                                            "HH:mm",
-                                          ).format(comment.date),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.onSurfaceVariant,
-                                                fontSize: 11,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      comment.comment,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                            height: 1.3,
-                                          ),
-                                    ),
-                                  ],
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: colors.outlineVariant.withValues(alpha: 0.8),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (element.title.isNotEmpty)
+                              Text(
+                                element.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: colors.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
-                            ],
-                          ),
+                            if (element.title.isNotEmpty &&
+                                element.description.isNotEmpty)
+                              const SizedBox(height: 6),
+                            if (element.description.isNotEmpty)
+                              Text(
+                                element.description,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                  height: 1.35,
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
               ],
+            ),
+            if (comments.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: colors.outlineVariant),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${comments.length} ${comments.length == 1 ? 'comment' : 'comments'}",
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...comments
+                        .take(2)
+                        .map(
+                          (comment) => Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatarWidget(
+                                  radius: 11,
+                                  uid: comment.author,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        ref
+                                                .watch(userNameProvider(null))
+                                                .value
+                                                ?.name ??
+                                            "Unknown",
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: colors.onSurface,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        comment.comment,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: colors.onSurfaceVariant,
+                                              height: 1.3,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  DateFormat("HH:mm").format(comment.date),
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                  ],
+                ),
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -231,38 +222,31 @@ class AddWhiteboardElementDisplayWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        onTap: () => showDialog(
-          context: context,
-          builder: (dialogContext) => WhiteboardElementEditor(
-            onSaved: (e) => onSaved(e),
-            onDeleted: (id) => onDeleted(id),
-          ),
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: () => showDialog(
+        context: context,
+        builder: (dialogContext) => WhiteboardElementEditor(
+          onSaved: (e) => onSaved(e),
+          onDeleted: (id) => onDeleted(id),
         ),
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.add_circle_outline,
-                color: Theme.of(context).colorScheme.primary,
-                size: 20,
+      ),
+      borderRadius: BorderRadius.circular(999),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.add, color: theme.colorScheme.primary, size: 18),
+            const SizedBox(width: 6),
+            Text(
+              "Add note",
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w600,
               ),
-              const SizedBox(width: 8),
-              Text(
-                "Add new note",
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -415,7 +399,10 @@ class _WhiteboardElementEditorState
                   description: _descriptionController.text.trim(),
                 ),
               );
-              Navigator.of(context).pop();
+              if (!mounted) {
+                return;
+              }
+              Navigator.of(this.context).pop();
             }
           },
           icon: const Icon(Icons.save),
