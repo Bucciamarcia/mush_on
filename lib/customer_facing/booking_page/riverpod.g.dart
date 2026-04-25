@@ -176,42 +176,6 @@ final visibleCustomerGroupsProvider =
 // ignore: unused_element
 typedef VisibleCustomerGroupsRef =
     AutoDisposeFutureProviderRef<List<CustomerGroup>>;
-String _$visibleBookingsHash() => r'464cd99aed181665420f0ce704d0865963b9602e';
-
-/// See also [visibleBookings].
-@ProviderFor(visibleBookings)
-final visibleBookingsProvider =
-    AutoDisposeFutureProvider<List<Booking>>.internal(
-      visibleBookings,
-      name: r'visibleBookingsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$visibleBookingsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef VisibleBookingsRef = AutoDisposeFutureProviderRef<List<Booking>>;
-String _$visibleCustomersHash() => r'6225acecd6083f82f4f1d2361488159f59659ace';
-
-/// See also [visibleCustomers].
-@ProviderFor(visibleCustomers)
-final visibleCustomersProvider =
-    AutoDisposeFutureProvider<List<Customer>>.internal(
-      visibleCustomers,
-      name: r'visibleCustomersProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$visibleCustomersHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef VisibleCustomersRef = AutoDisposeFutureProviderRef<List<Customer>>;
 String _$customerGroupsByDayHash() =>
     r'bdda81b0e73500e480b165017466b23aa7ccad83';
 
@@ -232,50 +196,10 @@ final customerGroupsByDayProvider =
 // ignore: unused_element
 typedef CustomerGroupsByDayRef =
     AutoDisposeFutureProviderRef<Map<DateTime, List<CustomerGroup>>>;
-String _$bookingsByCustomerGroupIdHash() =>
-    r'c019aa8309ed5eb9c648815af6eff854260caea4';
-
-/// See also [bookingsByCustomerGroupId].
-@ProviderFor(bookingsByCustomerGroupId)
-final bookingsByCustomerGroupIdProvider =
-    AutoDisposeFutureProvider<Map<String, List<Booking>>>.internal(
-      bookingsByCustomerGroupId,
-      name: r'bookingsByCustomerGroupIdProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$bookingsByCustomerGroupIdHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef BookingsByCustomerGroupIdRef =
-    AutoDisposeFutureProviderRef<Map<String, List<Booking>>>;
-String _$customersByBookingIdHash() =>
-    r'82e26dbf8f1d5d73ba19c5c5da4bf3e7fe8d8c44';
-
-/// See also [customersByBookingId].
-@ProviderFor(customersByBookingId)
-final customersByBookingIdProvider =
-    AutoDisposeFutureProvider<Map<String, List<Customer>>>.internal(
-      customersByBookingId,
-      name: r'customersByBookingIdProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$customersByBookingIdHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef CustomersByBookingIdRef =
-    AutoDisposeFutureProviderRef<Map<String, List<Customer>>>;
 String _$customersNumberByCustomerGroupIdBookingHash() =>
-    r'4645d75668c77f970109f3ee80a6b5b5a0e72539';
+    r'009624741b91f51c3761b1cb799d2eb6c775a49a';
 
-/// How many customers are in each customer group, summing all bookings.
+/// How many customers are in each customer group, without exposing booking PII.
 ///
 /// Copied from [customersNumberByCustomerGroupIdBooking].
 @ProviderFor(customersNumberByCustomerGroupIdBooking)

@@ -7,7 +7,7 @@ part of 'riverpod.dart';
 // **************************************************************************
 
 String _$bookingDataSuccessHash() =>
-    r'a14d190b7ef8ae0655393c49b09ae7fc0deb9718';
+    r'f62dadc25bb5b3d456d509d55926ced0980a9f90';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -191,7 +191,7 @@ class _BookingDataSuccessProviderElement
   String get account => (origin as BookingDataSuccessProvider).account;
 }
 
-String _$receiptUrlHash() => r'cdc75029d0d148d21c2874dc7126658d76b0ef04';
+String _$receiptUrlHash() => r'e663cb356a78156bac00cee703cf71bb755d7e26';
 
 /// See also [receiptUrl].
 @ProviderFor(receiptUrl)
@@ -203,15 +203,18 @@ class ReceiptUrlFamily extends Family<AsyncValue<UrlAndAmount>> {
   const ReceiptUrlFamily();
 
   /// See also [receiptUrl].
-  ReceiptUrlProvider call(String bookingId) {
-    return ReceiptUrlProvider(bookingId);
+  ReceiptUrlProvider call({
+    required String account,
+    required String bookingId,
+  }) {
+    return ReceiptUrlProvider(account: account, bookingId: bookingId);
   }
 
   @override
   ReceiptUrlProvider getProviderOverride(
     covariant ReceiptUrlProvider provider,
   ) {
-    return call(provider.bookingId);
+    return call(account: provider.account, bookingId: provider.bookingId);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -232,9 +235,13 @@ class ReceiptUrlFamily extends Family<AsyncValue<UrlAndAmount>> {
 /// See also [receiptUrl].
 class ReceiptUrlProvider extends AutoDisposeFutureProvider<UrlAndAmount> {
   /// See also [receiptUrl].
-  ReceiptUrlProvider(String bookingId)
+  ReceiptUrlProvider({required String account, required String bookingId})
     : this._internal(
-        (ref) => receiptUrl(ref as ReceiptUrlRef, bookingId),
+        (ref) => receiptUrl(
+          ref as ReceiptUrlRef,
+          account: account,
+          bookingId: bookingId,
+        ),
         from: receiptUrlProvider,
         name: r'receiptUrlProvider',
         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -242,6 +249,7 @@ class ReceiptUrlProvider extends AutoDisposeFutureProvider<UrlAndAmount> {
             : _$receiptUrlHash,
         dependencies: ReceiptUrlFamily._dependencies,
         allTransitiveDependencies: ReceiptUrlFamily._allTransitiveDependencies,
+        account: account,
         bookingId: bookingId,
       );
 
@@ -252,9 +260,11 @@ class ReceiptUrlProvider extends AutoDisposeFutureProvider<UrlAndAmount> {
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
+    required this.account,
     required this.bookingId,
   }) : super.internal();
 
+  final String account;
   final String bookingId;
 
   @override
@@ -270,6 +280,7 @@ class ReceiptUrlProvider extends AutoDisposeFutureProvider<UrlAndAmount> {
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
+        account: account,
         bookingId: bookingId,
       ),
     );
@@ -282,12 +293,15 @@ class ReceiptUrlProvider extends AutoDisposeFutureProvider<UrlAndAmount> {
 
   @override
   bool operator ==(Object other) {
-    return other is ReceiptUrlProvider && other.bookingId == bookingId;
+    return other is ReceiptUrlProvider &&
+        other.account == account &&
+        other.bookingId == bookingId;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, account.hashCode);
     hash = _SystemHash.combine(hash, bookingId.hashCode);
 
     return _SystemHash.finish(hash);
@@ -297,6 +311,9 @@ class ReceiptUrlProvider extends AutoDisposeFutureProvider<UrlAndAmount> {
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin ReceiptUrlRef on AutoDisposeFutureProviderRef<UrlAndAmount> {
+  /// The parameter `account` of this provider.
+  String get account;
+
   /// The parameter `bookingId` of this provider.
   String get bookingId;
 }
@@ -306,6 +323,8 @@ class _ReceiptUrlProviderElement
     with ReceiptUrlRef {
   _ReceiptUrlProviderElement(super.provider);
 
+  @override
+  String get account => (origin as ReceiptUrlProvider).account;
   @override
   String get bookingId => (origin as ReceiptUrlProvider).bookingId;
 }

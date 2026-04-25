@@ -11,6 +11,10 @@ service cloud.firestore {
         : null;
     }
 
+    function isAccountMember(account) {
+      return isSignedIn() && userAccount() == account;
+    }
+
     // Users can fully manage their own user doc
     match /users/{uid}/{document=**} {
       allow read, write: if isSignedIn() && uid == request.auth.uid;
@@ -22,7 +26,7 @@ service cloud.firestore {
       allow write: if isSignedIn() && userAccount() == account;
     }
     
-    // anyone can read tours
+    // Public booking catalogue and schedule data.
     match /accounts/{account}/data/bookingManager/tours/{tourId} {
   		allow read: if true;      // public
   		allow write: if false;     // nobody can write
@@ -32,18 +36,12 @@ service cloud.firestore {
   		allow write: if false;     // nobody can write
 		}
     match /accounts/{account}/data/bookingManager/customers/{customerId} {
-  		allow read: if true;      // public
-  		allow write: if false;     // nobody can write
+      allow read, write: if isAccountMember(account);
 		}
     match /accounts/{account}/data/bookingManager/bookings/{bookingId} {
-  		allow read: if true;      // public
-  		allow write: if true;     // nobody can write
+      allow read, write: if isAccountMember(account);
 		}
     match /accounts/{account}/data/bookingManager/tours/{tourId}/prices/{pricing} {
-  		allow read: if true;      // public
-  		allow write: if false;     // nobody can write
-		}
-    match /accounts/{account}/data/bookingManager/customers/{custmer} {
   		allow read: if true;      // public
   		allow write: if false;     // nobody can write
 		}
@@ -62,10 +60,9 @@ service cloud.firestore {
       allow read, write: if isSignedIn() && userAccount() == account;
     }
     
-    // Logged in can read paymentintents
+    // Checkout sessions contain payment metadata and are server-only.
     match /checkoutSessions/{session} {
-    allow read: if true;
-    allow write: if false;
+    allow read, write: if false;
     }
 
     // Default deny for everything else

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/models.dart';
@@ -105,71 +106,6 @@ Future<List<CustomerGroup>> visibleCustomerGroups(Ref ref) async {
 }
 
 @riverpod
-Future<List<Booking>> visibleBookings(Ref ref) async {
-  final cgs = await ref.watch(visibleCustomerGroupsProvider.future);
-  if (cgs.isEmpty) return const [];
-
-  final account = ref.watch(accountPublicProvider);
-  if (account == null || account.isEmpty) return const [];
-  final db = FirebaseFirestore.instance;
-  final col = db.collection("accounts/$account/data/bookingManager/bookings");
-
-  final cgIds = cgs
-      .map((e) => e.id)
-      .where((id) => id.isNotEmpty)
-      .toSet()
-      .toList();
-  if (cgIds.isEmpty) return const [];
-
-  const batchSize = 25;
-  final futures = <Future<QuerySnapshot<Map<String, dynamic>>>>[];
-
-  for (var i = 0; i < cgIds.length; i += batchSize) {
-    final batch = cgIds.sublist(
-      i,
-      i + batchSize > cgIds.length ? cgIds.length : i + batchSize,
-    );
-    futures.add(col.where("customerGroupId", whereIn: batch).get());
-  }
-
-  final snaps = await Future.wait(futures);
-  return snaps
-      .expand((s) => s.docs)
-      .map((d) => Booking.fromJson(d.data()))
-      .toList();
-}
-
-@riverpod
-Future<List<Customer>> visibleCustomers(Ref ref) async {
-  final bookings = await ref.watch(visibleBookingsProvider.future);
-  if (bookings.isEmpty) return [];
-  final account = ref.watch(accountPublicProvider);
-  if (account == null || account.isEmpty) return [];
-  final db = FirebaseFirestore.instance;
-  final col = db.collection("accounts/$account/data/bookingManager/customers");
-  final bookingIds = bookings
-      .map((b) => b.id)
-      .where((id) => id.isNotEmpty)
-      .toSet()
-      .toList();
-  const batchSize = 25;
-  final futures = <Future<QuerySnapshot<Map<String, dynamic>>>>[];
-  for (var i = 0; i < bookingIds.length; i += batchSize) {
-    final batch = bookingIds.sublist(
-      i,
-      i + batchSize > bookingIds.length ? bookingIds.length : i + batchSize,
-    );
-    futures.add(col.where("bookingId", whereIn: batch).get());
-  }
-
-  final snaps = await Future.wait(futures);
-  return snaps
-      .expand((s) => s.docs)
-      .map((d) => Customer.fromJson(d.data()))
-      .toList();
-}
-
-@riverpod
 Future<Map<DateTime, List<CustomerGroup>>> customerGroupsByDay(Ref ref) async {
   List<DateTime> visibleDates = ref.watch(visibleDatesProvider);
   List<CustomerGroup> customerGroups = await ref.watch(
@@ -191,55 +127,30 @@ Future<Map<DateTime, List<CustomerGroup>>> customerGroupsByDay(Ref ref) async {
 }
 
 @riverpod
-Future<Map<String, List<Booking>>> bookingsByCustomerGroupId(Ref ref) async {
-  List<CustomerGroup> customerGroups = await ref.watch(
-    visibleCustomerGroupsProvider.future,
-  );
-  Map<String, List<Booking>> toReturn = {};
-  List<Booking> bookings = await ref.watch(visibleBookingsProvider.future);
-  for (final cg in customerGroups) {
-    toReturn[cg.id] = bookings
-        .where((booking) => booking.customerGroupId == cg.id)
-        .toList();
-  }
-  return toReturn;
-}
-
-@riverpod
-Future<Map<String, List<Customer>>> customersByBookingId(Ref ref) async {
-  List<Booking> bookings = await ref.watch(visibleBookingsProvider.future);
-  Map<String, List<Customer>> toReturn = {};
-  List<Customer> customers = await ref.watch(visibleCustomersProvider.future);
-  for (final booking in bookings) {
-    toReturn[booking.id] = customers
-        .where((customer) => customer.bookingId == booking.id)
-        .toList();
-  }
-  return toReturn;
-}
-
-@riverpod
-/// How many customers are in each customer group, summing all bookings.
+/// How many customers are in each customer group, without exposing booking PII.
 Future<Map<String, int>> customersNumberByCustomerGroupIdBooking(
   Ref ref,
 ) async {
-  Map<String, List<Booking>> bookingsByCgId = await ref.watch(
-    bookingsByCustomerGroupIdProvider.future,
-  );
-  Map<String, List<Customer>> customersByBookingId = await ref.watch(
-    customersByBookingIdProvider.future,
-  );
-  Map<String, int> toReturn = {};
-  for (final cgId in bookingsByCgId.keys) {
-    final bookings = bookingsByCgId[cgId] ?? [];
-    int count = 0;
-    for (final booking in bookings) {
-      final customers = customersByBookingId[booking.id] ?? [];
-      count += customers.length;
-    }
-    toReturn[cgId] = count;
+  final customerGroups = await ref.watch(visibleCustomerGroupsProvider.future);
+  final account = ref.watch(accountPublicProvider);
+  if (account == null || account.isEmpty || customerGroups.isEmpty) {
+    return {};
   }
-  return toReturn;
+  final customerGroupIds = customerGroups
+      .map((cg) => cg.id)
+      .where((id) => id.isNotEmpty)
+      .toSet()
+      .toList();
+  if (customerGroupIds.isEmpty) return {};
+
+  final response = await FirebaseFunctions.instanceFor(region: "europe-north1")
+      .httpsCallable("get_public_booking_counts")
+      .call({"account": account, "customerGroupIds": customerGroupIds});
+  final data = response.data as Map<String, dynamic>;
+  final counts = data["counts"] as Map<Object?, Object?>? ?? {};
+  return counts.map(
+    (key, value) => MapEntry(key.toString(), (value as num).toInt()),
+  );
 }
 
 @riverpod
