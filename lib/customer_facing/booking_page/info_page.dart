@@ -857,12 +857,6 @@ class BookingSummaryImmobile extends ConsumerWidget {
                             ref
                                 .read(isLoadingCartProvider.notifier)
                                 .change(true);
-                            final kennelInfo = await ref.watch(
-                              bookingManagerKennelInfoProvider(
-                                account: account,
-                              ).future,
-                            );
-                            if (kennelInfo == null) return;
                             final repo = BookingPageRepository(
                               account: account,
                               tourId: tourType.id,
@@ -874,8 +868,6 @@ class BookingSummaryImmobile extends ConsumerWidget {
                                 final url = await repo.getStripePaymentUrl(
                                   booking: booking,
                                   customers: customers,
-                                  pricings: pricings,
-                                  kennelInfo: kennelInfo,
                                 );
                                 await _launchUrl(url);
                               }

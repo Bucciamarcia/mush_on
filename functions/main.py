@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 import os
 import asyncio
 from datetime import datetime
+from decimal import Decimal
 from firebase_functions import https_fn
 from firebase_admin import firestore
 from concurrent.futures import ThreadPoolExecutor
@@ -70,6 +71,134 @@ def _chunks(values, size=25):
 
 def _booking_manager_ref(db, account: str):
     return db.document(f"accounts/{account}/data/bookingManager")
+
+
+def _booking_manager_collection_path(account: str, collection: str) -> str:
+    return f"accounts/{account}/data/bookingManager/{collection}"
+
+
+def _get_required_document(db, path: str, label: str) -> dict:
+    data = db.document(path).get().to_dict()
+    if data is None:
+        raise ValueError(f"{label} not found")
+    return data
+
+
+def _get_booking_customers(db, account: str, booking_id: str) -> list[dict]:
+    return [
+        snapshot.to_dict() or {}
+        for snapshot in db.collection(
+            _booking_manager_collection_path(account, "customers")
+        )
+        .where("bookingId", "==", booking_id)
+        .stream()
+    ]
+
+
+def _quantity_by_pricing(customers: list[dict]) -> dict[str, int]:
+    quantities: dict[str, int] = {}
+    for customer in customers:
+        pricing_id = customer.get("pricingId")
+        if not pricing_id:
+            raise ValueError("Customer pricing is missing")
+        quantities[pricing_id] = quantities.get(pricing_id, 0) + 1
+    return quantities
+
+
+def _get_active_prices_by_id(db, account: str, tour_id: str) -> dict[str, dict]:
+    price_docs = (
+        db.collection(
+            f"{_booking_manager_collection_path(account, 'tours')}/{tour_id}/prices"
+        )
+        .where("isArchived", "==", False)
+        .stream()
+    )
+    return {
+        (price_data.get("id") or ""): price_data
+        for price_data in [doc.to_dict() or {} for doc in price_docs]
+        if price_data.get("id")
+    }
+
+
+def _build_checkout_line_items(
+    prices_by_id: dict[str, dict], quantities_by_pricing: dict[str, int]
+) -> tuple[list[dict], int]:
+    line_items = []
+    total_amount_cents = 0
+    for pricing_id, quantity in quantities_by_pricing.items():
+        if quantity <= 0:
+            raise ValueError("Pricing quantity must be positive")
+        pricing = prices_by_id.get(pricing_id)
+        if pricing is None:
+            raise ValueError(f"Active pricing not found: {pricing_id}")
+        unit_amount = int(_unwrap_int64_wrappers(pricing.get("priceCents", 0)))
+        total_amount_cents += unit_amount * quantity
+        line_item = {
+            "price_data": {
+                "tax_behavior": "inclusive",
+                "currency": "eur",
+                "product_data": {
+                    "name": pricing.get("displayName") or pricing.get("name") or "Ticket",
+                    "metadata": {"pricing_id": pricing_id},
+                },
+                "unit_amount": unit_amount,
+            },
+            "quantity": quantity,
+        }
+        tax_rate_id = pricing.get("stripeTaxRateId")
+        if tax_rate_id:
+            line_item["tax_rates"] = [tax_rate_id]
+        line_items.append(line_item)
+    if not line_items:
+        raise ValueError("No pricing selections found")
+    return line_items, total_amount_cents
+
+
+def _calculate_platform_fee(total_amount_cents: int, kennel_info: dict) -> int:
+    commission_rate = Decimal(str(kennel_info.get("commissionRate", 0.035)))
+    vat_multiplier = Decimal("1") + Decimal(str(kennel_info.get("vatRate", 0)))
+    return int(Decimal(total_amount_cents) * commission_rate * vat_multiplier)
+
+
+def _build_server_checkout_payload(
+    db, account: str, booking_id: str, tour_id: str, customer_group_id: str
+) -> dict:
+    booking = _get_required_document(
+        db,
+        f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}",
+        "Booking",
+    )
+    if booking.get("customerGroupId") != customer_group_id:
+        raise ValueError("Booking does not belong to the requested customer group")
+
+    customer_group = _get_required_document(
+        db,
+        f"{_booking_manager_collection_path(account, 'customerGroups')}/{customer_group_id}",
+        "Customer group",
+    )
+    if customer_group.get("tourTypeId") != tour_id:
+        raise ValueError("Customer group does not belong to the requested tour")
+
+    customers = _get_booking_customers(db, account, booking_id)
+    quantities_by_pricing = _quantity_by_pricing(customers)
+    selected_capacity = sum(quantities_by_pricing.values())
+    max_capacity = int(_unwrap_int64_wrappers(customer_group.get("maxCapacity", 0)))
+    if max_capacity > 0 and selected_capacity > max_capacity:
+        raise ValueError("Selected quantity exceeds customer group capacity")
+
+    prices_by_id = _get_active_prices_by_id(db, account, tour_id)
+    line_items, total_amount_cents = _build_checkout_line_items(
+        prices_by_id, quantities_by_pricing
+    )
+    kennel_info = _get_required_document(
+        db, f"accounts/{account}/data/bookingManager", "Booking manager settings"
+    )
+    fee_amount = _calculate_platform_fee(total_amount_cents, kennel_info)
+    return {
+        "line_items": line_items,
+        "total_amount_cents": total_amount_cents,
+        "fee_amount": fee_amount,
+    }
 
 
 def _assert_account_member(req: https_fn.CallableRequest[dict], account: str) -> None:
@@ -305,33 +434,28 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
     try:
         data = req.data or {}
         account = data.get("account")
-        line_items = data.get("lineItems") or []
-        fee_amount_raw = data.get("feeAmount")
         booking_id = data.get("bookingId")
-        total_amount_cents_wrapped = data.get("totalAmount")
+        tour_id = data.get("tourId")
+        customer_group_id = data.get("customerGroupId")
 
-        if not account or not line_items or fee_amount_raw is None or not booking_id:
-            return {"error": "account, line items, bookingId or fee amount is null"}
-
-        total_amount_cents = _unwrap_int64_wrappers(total_amount_cents_wrapped)
-        # Sanitize int-like values
-        fee_amount = _unwrap_int64_wrappers(fee_amount_raw)
-        for item in line_items:
-            # quantity
-            if "quantity" in item:
-                item["quantity"] = _unwrap_int64_wrappers(item["quantity"])
-            # unit_amount
-            pd = item.get("price_data") or {}
-            if "unit_amount" in pd:
-                pd["unit_amount"] = _unwrap_int64_wrappers(pd["unit_amount"])
+        if not account or not booking_id or not tour_id or not customer_group_id:
+            return {"error": "account, bookingId, tourId or customerGroupId is null"}
 
         stripe_data = get_stripe_data(account)
-        stripe_account_id = stripe_data["accountId"]
+        stripe_account_id = stripe_data.get("accountId")
+        if not stripe_data.get("isActive") or not stripe_account_id:
+            return {"error": "Stripe integration is not active"}
+
+        checkout_payload = _build_server_checkout_payload(
+            firestore.client(), account, booking_id, tour_id, customer_group_id
+        )
 
         session = stripe.checkout.Session.create(
-            line_items=line_items,
+            line_items=checkout_payload["line_items"],
             client_reference_id=booking_id,
-            payment_intent_data={"application_fee_amount": fee_amount},
+            payment_intent_data={
+                "application_fee_amount": checkout_payload["fee_amount"]
+            },
             mode="payment",
             success_url=f"https://mush-on.web.app/booking_success?bookingId={booking_id}&account={account}",
             stripe_account=stripe_account_id,
@@ -344,8 +468,8 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
             account,
             stripe_account_id,
             booking_id,
-            total_amount_cents,
-            fee_amount,
+            checkout_payload["total_amount_cents"],
+            checkout_payload["fee_amount"],
         )
 
         return {"url": session.url}

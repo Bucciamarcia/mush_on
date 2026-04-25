@@ -2,17 +2,6 @@
 
 This document tracks the critical payment and booking issues that still remain after locking down direct public access to private booking data and moving refund lookup logic server-side.
 
-## 1. Move Checkout Pricing and Fee Calculation Fully Server-Side
-
-**Executive description:**  
-The client still builds Stripe line items, total amount, and platform fee data before requesting a checkout session. This means a modified client could attempt to alter prices, quantities, tax data, or platform fee values.
-
-**Why it matters:**  
-Payment amounts and platform commissions are financial source-of-truth data. They must not be trusted from Flutter, even if the normal UI behaves correctly.
-
-**Recommendation:**  
-Change `create_checkout_session` so the client sends only `account`, `tourId`, `customerGroupId`, selected pricing quantities, and customer/booking form data. The function should fetch active prices, Stripe tax rates, kennel commission settings, Stripe connection data, and customer group capacity from Firestore, then compute line items, totals, and fees server-side.
-
 ## 2. Make Booking Creation and Capacity Reservation Atomic
 
 **Executive description:**  
