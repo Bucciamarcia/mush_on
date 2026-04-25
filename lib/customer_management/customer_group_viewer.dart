@@ -4,6 +4,8 @@ import 'package:mush_on/customer_management/alert_editors/booking.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart' as stripe;
+import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:intl/intl.dart';
 import '../riverpod.dart';
 import 'alert_editors/customer_group.dart';
@@ -62,6 +64,9 @@ class CustomerGroupViewer extends ConsumerWidget {
         if (tour != null) {
           pricings = ref.watch(tourTypePricesProvider(tour.id)).value;
         }
+        final kennelInfo = ref
+            .watch(stripe.bookingManagerKennelInfoProvider())
+            .valueOrNull;
         final colorScheme = Theme.of(context).colorScheme;
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -352,6 +357,7 @@ class CustomerGroupViewer extends ConsumerWidget {
                             padding: const EdgeInsets.only(bottom: 8),
                             child: BookingCard(
                               selectedCustomerGroup: customerGroup,
+                              kennelInfo: kennelInfo,
                               pricings: pricings,
                               booking: booking,
                               customers:
@@ -396,18 +402,51 @@ class BookingCard extends ConsumerWidget {
   final Booking booking;
   final List<Customer> customers;
   final List<TourTypePricing>? pricings;
+  final BookingManagerKennelInfo? kennelInfo;
   final CustomerGroup selectedCustomerGroup;
   const BookingCard({
     super.key,
     required this.booking,
     required this.customers,
     required this.pricings,
+    required this.kennelInfo,
     required this.selectedCustomerGroup,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final bookingTitle = booking.name.trim().isEmpty
+        ? "Booking"
+        : booking.name.trim();
+    final contactRows = <({IconData icon, String label, String? value})>[
+      (icon: Icons.phone_outlined, label: "Phone", value: booking.phone),
+      (icon: Icons.email_outlined, label: "Email", value: booking.email),
+      (
+        icon: Icons.home_work_outlined,
+        label: "Street address",
+        value: booking.streetAddress,
+      ),
+      (
+        icon: Icons.local_post_office_outlined,
+        label: "Zip code",
+        value: booking.zipCode,
+      ),
+      (icon: Icons.location_city_outlined, label: "City", value: booking.city),
+      (icon: Icons.public, label: "Country", value: booking.country),
+    ].where((row) => (row.value ?? "").trim().isNotEmpty).toList();
+    final bookingCustomRows =
+        kennelInfo?.bookingCustomFields
+            .map(
+              (field) => (
+                icon: Icons.notes_outlined,
+                label: field.name,
+                value: booking.otherBookingData[field.name],
+              ),
+            )
+            .where((row) => (row.value ?? "").trim().isNotEmpty)
+            .toList() ??
+        const <({IconData icon, String label, String? value})>[];
     return InkWell(
       onTap: () => showDialog(
         context: context,
@@ -416,13 +455,14 @@ class BookingCard extends ConsumerWidget {
           onBookingDeleted: () async {
             final String account = await ref.watch(accountProvider.future);
             final customerRepo = CustomerManagementRepository(account: account);
-            return await customerRepo
-                .deleteBooking(booking.id)
-                .catchError(
-                  (e) => ScaffoldMessenger.of(context).showSnackBar(
-                    errorSnackBar(context, "Failed to delete booking."),
-                  ),
-                );
+            try {
+              await customerRepo.deleteBooking(booking.id);
+            } catch (e) {
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                errorSnackBar(context, "Failed to delete booking."),
+              );
+            }
           },
           booking: booking,
           onBookingEdited: (nb) async {
@@ -458,7 +498,7 @@ class BookingCard extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      booking.name,
+                      bookingTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSecondaryContainer,
@@ -497,9 +537,76 @@ class BookingCard extends ConsumerWidget {
                 const SizedBox(height: 8),
                 getPricings(customers, pricings!),
               ],
+              if (contactRows.isNotEmpty || bookingCustomRows.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  children: [...contactRows, ...bookingCustomRows]
+                      .map(
+                        (row) => _InfoChip(
+                          icon: row.icon,
+                          label: row.label,
+                          value: row.value!,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  const _InfoChip({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 320),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: colorScheme.surface.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: "$label: ",
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  TextSpan(text: value),
+                ],
+              ),
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurface),
+            ),
+          ),
+        ],
       ),
     );
   }
