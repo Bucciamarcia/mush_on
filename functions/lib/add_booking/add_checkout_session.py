@@ -3,6 +3,11 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import os
+from typing import Any
+from lib.booking_email_html import (
+    build_booking_other_info_html,
+    build_customers_other_info_html,
+)
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 import requests
 
@@ -27,6 +32,14 @@ class Booking(BaseModel):
     phone: str
     streetAddress: str
     zipCode: str
+    otherBookingData: dict[str, str] = Field(default_factory=dict)
+
+
+class Customer(BaseModel):
+    id: str
+    bookingId: str
+    pricingId: str | None = Field(default=None)
+    customerOtherInfo: dict[str, str] = Field(default_factory=dict)
 
 
 class CustomerGroup(BaseModel):
@@ -44,6 +57,8 @@ class BookingInfo(BaseModel):
     name: str
     url: str
     timezone: str = "Europe/Helsinki"
+    bookingCustomFields: list[dict[str, Any]] = Field(default_factory=list)
+    customerCustomFields: list[dict[str, Any]] = Field(default_factory=list)
 
 
 def add_checkout_session_to_db(
@@ -115,6 +130,7 @@ def payment_processed(
     receipt_url = payment_receipt_url["url"]
     total = payment_receipt_url["total"]
     booking_info = get_booking_info(account=account)
+    customers = get_customers(account=account, booking_id=booking.id)
     batch.update(
         doc_ref,
         {
@@ -137,6 +153,14 @@ def payment_processed(
         receiver_email=booking.email,
         sender_email=booking_info.email,
         cancellation_policy=booking_info.cancellationPolicy,
+        booking_other_info=build_booking_other_info_html(
+            booking.model_dump(),
+            booking_info.bookingCustomFields,
+        ),
+        customers_other_info=build_customers_other_info_html(
+            [customer.model_dump() for customer in customers],
+            booking_info.customerCustomFields,
+        ),
     )
 
 
@@ -152,6 +176,8 @@ def send_postmark_email(
     receiver_email: str,
     sender_email: str,
     cancellation_policy: str,
+    booking_other_info: str = "",
+    customers_other_info: str = "",
 ) -> None:
     authorization = os.getenv("ZEPTOMAIL_AUTHORIZATION")
     if authorization is None:
@@ -174,6 +200,8 @@ def send_postmark_email(
             "total_amout_currency": currency,
             "receipt_url": receipt_url,
             "kennel_url": kennel_url,
+            "booking_other_info": booking_other_info,
+            "customers_other_info": customers_other_info,
         },
     }
     headers = {
@@ -201,3 +229,18 @@ def get_booking_info(account: str) -> BookingInfo:
     data = doc.to_dict()
     print(str(data))
     return BookingInfo.model_validate(data)
+
+
+def get_customers(account: str, booking_id: str) -> list[Customer]:
+    db = firestore.client()
+    customers_ref = (
+        db.document(f"accounts/{account}/data/bookingManager")
+        .collection("customers")
+        .where("bookingId", "==", booking_id)
+    )
+    customers: list[Customer] = []
+    for doc in customers_ref.stream():
+        data = doc.to_dict()
+        if data is not None:
+            customers.append(Customer.model_validate(data))
+    return customers
