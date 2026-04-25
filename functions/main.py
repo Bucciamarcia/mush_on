@@ -53,6 +53,41 @@ def _unwrap_int64_wrappers(x):
     return x
 
 
+def _callable_safe_firestore_data(value):
+    if isinstance(value, datetime):
+        return {"_millisecondsSinceEpoch": int(value.timestamp() * 1000)}
+    if isinstance(value, dict):
+        return {k: _callable_safe_firestore_data(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_callable_safe_firestore_data(v) for v in value]
+    return value
+
+
+def _chunks(values, size=25):
+    for i in range(0, len(values), size):
+        yield values[i : i + size]
+
+
+def _booking_manager_ref(db, account: str):
+    return db.document(f"accounts/{account}/data/bookingManager")
+
+
+def _assert_account_member(req: https_fn.CallableRequest[dict], account: str) -> None:
+    if req.auth is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.UNAUTHENTICATED,
+            "Authentication is required",
+        )
+    uid = req.auth.uid
+    user_doc = firestore.client().document(f"users/{uid}").get()
+    user_data = user_doc.to_dict()
+    if user_data is None or user_data.get("account") != account:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "User does not belong to this account",
+        )
+
+
 @https_fn.on_call()
 def add_booking(req: https_fn.CallableRequest[dict]) -> dict:
     try:
@@ -137,6 +172,132 @@ def get_stripe_integration_data(req: https_fn.CallableRequest[dict]) -> dict:
         return get_stripe_data(account)
     except Exception as e:
         return {"error": str(e)}
+
+
+@https_fn.on_call()
+def get_public_booking_counts(req: https_fn.CallableRequest[dict]) -> dict:
+    """Return aggregate booked passenger counts for public availability UI."""
+    data = req.data or {}
+    account = data.get("account")
+    customer_group_ids = data.get("customerGroupIds") or []
+    if not account or not isinstance(customer_group_ids, list):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account or customerGroupIds",
+        )
+
+    customer_group_ids = [
+        str(cg_id) for cg_id in customer_group_ids if str(cg_id).strip()
+    ]
+    if not customer_group_ids:
+        return {"counts": {}}
+
+    db = firestore.client()
+    bm_ref = _booking_manager_ref(db, account)
+    counts = {cg_id: 0 for cg_id in customer_group_ids}
+    active_statuses = {"paid", "deferredPayment", "waiting"}
+
+    for cg_ids in _chunks(customer_group_ids):
+        booking_docs = (
+            bm_ref.collection("bookings")
+            .where("customerGroupId", "in", cg_ids)
+            .stream()
+        )
+        for booking_doc in booking_docs:
+            booking = booking_doc.to_dict() or {}
+            if booking.get("paymentStatus") not in active_statuses:
+                continue
+            booking_id = booking.get("id") or booking_doc.id
+            customer_docs = (
+                bm_ref.collection("customers")
+                .where("bookingId", "==", booking_id)
+                .stream()
+            )
+            customer_group_id = booking.get("customerGroupId")
+            if customer_group_id in counts:
+                counts[customer_group_id] += sum(1 for _ in customer_docs)
+
+    return {"counts": counts}
+
+
+@https_fn.on_call()
+def get_booking_success_data(req: https_fn.CallableRequest[dict]) -> dict:
+    """Return only the data needed to render one customer booking success page."""
+    data = req.data or {}
+    account = data.get("account")
+    booking_id = data.get("bookingId")
+    if not account or not booking_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account or bookingId",
+        )
+
+    db = firestore.client()
+    checkout_docs = (
+        db.collection("checkoutSessions")
+        .where("bookingId", "==", booking_id)
+        .limit(1)
+        .stream()
+    )
+    checkout_doc = next(checkout_docs, None)
+    if (
+        checkout_doc is not None
+        and (checkout_doc.to_dict() or {}).get("account") != account
+    ):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "Checkout session does not belong to this account",
+        )
+
+    bm_ref = _booking_manager_ref(db, account)
+    booking_doc = bm_ref.collection("bookings").document(booking_id).get()
+    if not booking_doc.exists:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND, "Booking not found"
+        )
+
+    booking = booking_doc.to_dict() or {}
+    customer_docs = (
+        bm_ref.collection("customers").where("bookingId", "==", booking_id).stream()
+    )
+    customers = [doc.to_dict() or {} for doc in customer_docs]
+
+    customer_group_id = booking.get("customerGroupId")
+    cg_doc = bm_ref.collection("customerGroups").document(customer_group_id).get()
+    if not cg_doc.exists:
+        cg_docs = (
+            bm_ref.collection("customerGroups")
+            .where("id", "==", customer_group_id)
+            .limit(1)
+            .stream()
+        )
+        cg_doc = next(cg_docs, None)
+    if cg_doc is None or not cg_doc.exists:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND, "Customer group not found"
+        )
+
+    customer_group = cg_doc.to_dict() or {}
+    tour_type_id = customer_group.get("tourTypeId")
+    prices = []
+    if tour_type_id:
+        price_docs = (
+            bm_ref.collection("tours")
+            .document(tour_type_id)
+            .collection("prices")
+            .where("isArchived", "==", False)
+            .stream()
+        )
+        prices = [doc.to_dict() or {} for doc in price_docs]
+
+    return _callable_safe_firestore_data(
+        {
+            "booking": booking,
+            "customers": customers,
+            "customerGroup": customer_group,
+            "pricings": prices,
+        }
+    )
 
 
 @https_fn.on_call()
@@ -251,6 +412,7 @@ def stirpe_webhook_checkout_session_succeeded(
 def stripe_get_payment_receipt_url(req: https_fn.CallableRequest[dict]) -> dict:
     data = req.data
     booking_id = data["bookingId"]
+    account = data.get("account")
     db = firestore.client()
     ref = db.collection("checkoutSessions").where("bookingId", "==", booking_id)
     docs = ref.stream()
@@ -260,6 +422,11 @@ def stripe_get_payment_receipt_url(req: https_fn.CallableRequest[dict]) -> dict:
             https_fn.FunctionsErrorCode.NOT_FOUND, "No checkout session found"
         )
     data = first_doc.to_dict()
+    if account is not None and data.get("account") != account:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "Checkout session does not belong to this account",
+        )
     return get_payment_receipt_url(
         data["stripeId"], data["checkoutSessionId"], os.getenv("STRIPE_KEY")
     )
@@ -267,14 +434,48 @@ def stripe_get_payment_receipt_url(req: https_fn.CallableRequest[dict]) -> dict:
 
 @https_fn.on_call()
 def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
-    data = req.data
-    payment_intent: str = data["paymentIntent"]
-    stripe_account: str = data["stripeAccount"]
+    data = req.data or {}
+    account = data.get("account")
+    booking_id = data.get("bookingId")
+    if not account or not booking_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account or bookingId",
+        )
+    _assert_account_member(req, account)
+
+    db = firestore.client()
+    checkout_docs = (
+        db.collection("checkoutSessions")
+        .where("bookingId", "==", booking_id)
+        .where("account", "==", account)
+        .limit(1)
+        .stream()
+    )
+    checkout_doc = next(checkout_docs, None)
+    if checkout_doc is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND,
+            "No checkout session found for this booking",
+        )
+    checkout_data = checkout_doc.to_dict() or {}
+    payment_intent = checkout_data.get("paymentIntentId")
+    stripe_account = checkout_data.get("stripeId")
+    if not payment_intent or not stripe_account:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "Checkout session is missing payment data",
+        )
+
     refund = stripe.Refund.create(
         payment_intent=payment_intent,
         stripe_account=stripe_account,
         refund_application_fee=True,
     )
+    booking_ref = db.document(
+        f"accounts/{account}/data/bookingManager/bookings/{booking_id}"
+    )
+    booking_ref.update({"paymentStatus": "refunded"})
     return {"refundId": refund.id}
 
 

@@ -33,6 +33,7 @@ class BookingSuccessPage extends ConsumerWidget {
             data: (bookingAndCustomers) {
               final (booking, customers, cg, pricings) = bookingAndCustomers;
               return BookingConfirmationDataPage(
+                account: account!,
                 booking: booking,
                 customers: customers,
                 cg: cg,
@@ -55,12 +56,14 @@ class BookingSuccessPage extends ConsumerWidget {
 }
 
 class BookingConfirmationDataPage extends ConsumerWidget {
+  final String account;
   final Booking booking;
   final List<Customer> customers;
   final CustomerGroup cg;
   final List<TourTypePricing> pricings;
   const BookingConfirmationDataPage({
     super.key,
+    required this.account,
     required this.booking,
     required this.customers,
     required this.cg,
@@ -70,7 +73,9 @@ class BookingConfirmationDataPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final urlAndAmount = ref.watch(receiptUrlProvider(booking.id)).value;
+    final urlAndAmount = ref
+        .watch(receiptUrlProvider(account: account, bookingId: booking.id))
+        .value;
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 600),
       child: SingleChildScrollView(
@@ -123,6 +128,10 @@ class BookingConfirmationDataPage extends ConsumerWidget {
                   const Text(
                     "See the details below",
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
+                    textAlign: TextAlign.center,
+                  ),
+                  const Text(
+                    "You will receive a confirmation email shortly.",
                     textAlign: TextAlign.center,
                   ),
                 ],
