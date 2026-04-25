@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:collection/collection.dart';
-import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
 import '../../customer_management/models.dart';
@@ -16,8 +14,6 @@ class BookingPageRepository {
   Future<String> getStripePaymentUrl({
     required Booking booking,
     required List<Customer> customers,
-    required List<TourTypePricing> pricings,
-    required BookingManagerKennelInfo kennelInfo,
   }) async {
     try {
       await bookTour(booking, customers);
@@ -29,16 +25,6 @@ class BookingPageRepository {
       );
       rethrow;
     }
-    Map<String, TourTypePricing> pricingsById = _getPricingsById(pricings);
-    final List<Map<String, dynamic>> lineItems = _getLineItems(
-      customers,
-      pricingsById,
-    );
-    final int totalCents = _getTotalCents(customers, pricingsById);
-    final commissionRate = kennelInfo.commissionRate;
-    final vatRate = 1 + kennelInfo.vatRate;
-    final finalCommissionRate = commissionRate * vatRate;
-    final int commissionCents = (totalCents * finalCommissionRate).toInt();
     try {
       logger.debug("Account: $account");
       final response =
@@ -46,10 +32,9 @@ class BookingPageRepository {
             region: "europe-north1",
           ).httpsCallable("create_checkout_session").call({
             "account": account,
-            "lineItems": lineItems,
-            "feeAmount": commissionCents,
             "bookingId": booking.id,
-            "totalAmount": totalCents,
+            "tourId": tourId,
+            "customerGroupId": booking.customerGroupId,
           });
       final data = response.data as Map<String, dynamic>;
       final error = data["error"];
@@ -119,69 +104,6 @@ class BookingPageRepository {
       logger.error("Failed to get stripe connection", error: e, stackTrace: s);
       rethrow;
     }
-  }
-
-  int _getTotalCents(
-    List<Customer> customers,
-    Map<String, TourTypePricing> pricingsById,
-  ) {
-    int toReturn = 0;
-    for (final customer in customers) {
-      final pricing = pricingsById[customer.pricingId];
-      toReturn += pricing?.priceCents ?? 0;
-    }
-    return toReturn;
-  }
-
-  List<Map<String, dynamic>> _getLineItems(
-    List<Customer> customers,
-    Map<String, TourTypePricing> pricingsById,
-  ) {
-    List<Map<String, dynamic>> lineItems = [];
-    for (final customer in customers) {
-      final pricing = pricingsById[customer.pricingId];
-      if (pricing == null) {
-        logger.error(
-          "Couldn't find pricing for customer ${customer.name} with pricingId ${customer.pricingId}",
-        );
-        throw Exception(
-          "Couldn't find pricing for customer ${customer.name} with pricingId ${customer.pricingId}",
-        );
-      }
-      final lineItem = lineItems.firstWhereOrNull(
-        (i) =>
-            i["price_data"]["product_data"]["metadata"]["pricing_id"] ==
-            customer.pricingId,
-      );
-      if (lineItem == null) {
-        lineItems.add({
-          "price_data": {
-            "tax_behavior": "inclusive",
-            "currency": "eur",
-            "product_data": {
-              "name": pricing.displayName,
-              "metadata": {"pricing_id": pricing.id},
-            },
-            "unit_amount": pricing.priceCents,
-          },
-          "quantity": 1,
-          "tax_rates": [pricing.stripeTaxRateId],
-        });
-      } else {
-        lineItem["quantity"] += 1;
-      }
-    }
-    return lineItems;
-  }
-
-  Map<String, TourTypePricing> _getPricingsById(
-    List<TourTypePricing> pricings,
-  ) {
-    Map<String, TourTypePricing> toReturn = {};
-    for (final p in pricings) {
-      toReturn.addAll({p.id: p});
-    }
-    return toReturn;
   }
 
   static Future<String> getFullPrivacyPolicy() async {

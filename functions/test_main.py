@@ -147,6 +147,10 @@ class _DocRef:
     def update(self, data):
         self.db.updates.append((self.path, data))
 
+    def set(self, data):
+        self.db.documents[self.path] = data
+        self.db.sets.append((self.path, data))
+
 
 class _Query:
     def __init__(self, db, collection_name):
@@ -179,6 +183,7 @@ class _FakeDb:
         self.documents = {}
         self.collections = {}
         self.updates = []
+        self.sets = []
 
     def document(self, path):
         return _DocRef(self, path)
@@ -194,6 +199,15 @@ class _FakeRefund:
     def create(self, **kwargs):
         self.calls.append(kwargs)
         return types.SimpleNamespace(id="refund-1")
+
+
+class _FakeCheckoutSession:
+    def __init__(self):
+        self.calls = []
+
+    def create(self, **kwargs):
+        self.calls.append(kwargs)
+        return types.SimpleNamespace(id="cs_123", url="https://checkout.test/session")
 
 
 class BackendSecurityTests(unittest.TestCase):
@@ -212,6 +226,137 @@ class BackendSecurityTests(unittest.TestCase):
             list(main._chunks(["a", "b", "c", "d", "e"], size=2)),
             [["a", "b"], ["c", "d"], ["e"]],
         )
+
+    def test_create_checkout_session_calculates_price_and_fee_server_side(self):
+        db = _FakeDb()
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123",
+            "isActive": True,
+        }
+        db.documents["accounts/account-1/data/bookingManager"] = {
+            "commissionRate": 0.035,
+            "vatRate": 0.255,
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ] = {
+            "id": "booking-1",
+            "customerGroupId": "cg-1",
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/customerGroups/cg-1"
+        ] = {
+            "id": "cg-1",
+            "tourTypeId": "tour-1",
+            "maxCapacity": 10,
+        }
+        db.collections["accounts/account-1/data/bookingManager/customers"] = [
+            {"id": "customer-1", "bookingId": "booking-1", "pricingId": "adult"},
+            {"id": "customer-2", "bookingId": "booking-1", "pricingId": "adult"},
+            {"id": "customer-3", "bookingId": "booking-1", "pricingId": "child"},
+        ]
+        db.collections[
+            "accounts/account-1/data/bookingManager/tours/tour-1/prices"
+        ] = [
+            {
+                "id": "adult",
+                "isArchived": False,
+                "displayName": "Adult",
+                "priceCents": 10000,
+                "stripeTaxRateId": "txr_adult",
+            },
+            {
+                "id": "child",
+                "isArchived": False,
+                "displayName": "Child",
+                "priceCents": 5000,
+                "stripeTaxRateId": "txr_child",
+            },
+        ]
+        checkout = _FakeCheckoutSession()
+        main.firestore.client = lambda: db
+        main.stripe.checkout.Session = checkout
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "bookingId": "booking-1",
+                "tourId": "tour-1",
+                "customerGroupId": "cg-1",
+                "lineItems": [{"price_data": {"unit_amount": 1}, "quantity": 1}],
+                "feeAmount": 1,
+                "totalAmount": 1,
+            }
+        )
+
+        result = main.create_checkout_session(request)
+
+        self.assertEqual(result, {"url": "https://checkout.test/session"})
+        self.assertEqual(len(checkout.calls), 1)
+        call = checkout.calls[0]
+        self.assertEqual(call["stripe_account"], "acct_123")
+        self.assertEqual(call["payment_intent_data"], {"application_fee_amount": 1098})
+        self.assertCountEqual(
+            call["line_items"],
+            [
+                {
+                    "price_data": {
+                        "tax_behavior": "inclusive",
+                        "currency": "eur",
+                        "product_data": {
+                            "name": "Adult",
+                            "metadata": {"pricing_id": "adult"},
+                        },
+                        "unit_amount": 10000,
+                    },
+                    "quantity": 2,
+                    "tax_rates": ["txr_adult"],
+                },
+                {
+                    "price_data": {
+                        "tax_behavior": "inclusive",
+                        "currency": "eur",
+                        "product_data": {
+                            "name": "Child",
+                            "metadata": {"pricing_id": "child"},
+                        },
+                        "unit_amount": 5000,
+                    },
+                    "quantity": 1,
+                    "tax_rates": ["txr_child"],
+                },
+            ],
+        )
+        self.assertEqual(
+            db.documents["checkoutSessions/cs_123"]["total"],
+            25000,
+        )
+        self.assertEqual(
+            db.documents["checkoutSessions/cs_123"]["commission"],
+            1098,
+        )
+
+    def test_create_checkout_session_rejects_inactive_stripe_integration(self):
+        db = _FakeDb()
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123",
+            "isActive": False,
+        }
+        checkout = _FakeCheckoutSession()
+        main.firestore.client = lambda: db
+        main.stripe.checkout.Session = checkout
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "bookingId": "booking-1",
+                "tourId": "tour-1",
+                "customerGroupId": "cg-1",
+            }
+        )
+
+        result = main.create_checkout_session(request)
+
+        self.assertEqual(result, {"error": "Stripe integration is not active"})
+        self.assertEqual(checkout.calls, [])
 
     def test_refund_payment_reads_secret_payment_data_server_side_and_updates_booking(self):
         db = _FakeDb()
