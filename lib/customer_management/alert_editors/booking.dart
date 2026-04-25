@@ -6,10 +6,13 @@ import 'package:mush_on/customer_management/alert_editors/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/user_level.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart' as stripe;
 import 'package:uuid/uuid.dart';
 
 import '../models.dart';
 import '../riverpod.dart';
+import '../tours/models.dart';
+import '../tours/riverpod.dart';
 
 class BookingEditorAlert extends ConsumerStatefulWidget {
   final Function(Booking) onBookingEdited;
@@ -37,6 +40,13 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   late bool isNewBooking;
   late String id;
   late TextEditingController nameController;
+  late TextEditingController phoneController;
+  late TextEditingController emailController;
+  late TextEditingController streetAddressController;
+  late TextEditingController zipCodeController;
+  late TextEditingController cityController;
+  late TextEditingController countryController;
+  late Map<String, TextEditingController> bookingCustomFieldControllers;
   late List<CustomerGroup> possibleCustomerGroups;
   late List<Customer> customers;
   @override
@@ -45,6 +55,15 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
     isNewBooking = widget.booking == null;
     id = widget.booking?.id ?? widget.id ?? const Uuid().v4();
     nameController = TextEditingController(text: widget.booking?.name);
+    phoneController = TextEditingController(text: widget.booking?.phone);
+    emailController = TextEditingController(text: widget.booking?.email);
+    streetAddressController = TextEditingController(
+      text: widget.booking?.streetAddress,
+    );
+    zipCodeController = TextEditingController(text: widget.booking?.zipCode);
+    cityController = TextEditingController(text: widget.booking?.city);
+    countryController = TextEditingController(text: widget.booking?.country);
+    bookingCustomFieldControllers = {};
     possibleCustomerGroups = [];
     customers = [];
   }
@@ -52,6 +71,15 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   @override
   void dispose() {
     nameController.dispose();
+    phoneController.dispose();
+    emailController.dispose();
+    streetAddressController.dispose();
+    zipCodeController.dispose();
+    cityController.dispose();
+    countryController.dispose();
+    for (final controller in bookingCustomFieldControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -68,6 +96,32 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
     if (user == null) return const CircularProgressIndicator.adaptive();
     final userName = ref.watch(userNameProvider(user.uid)).value;
     if (userName == null) return const CircularProgressIndicator.adaptive();
+    final kennelInfoAsync = ref.watch(
+      stripe.bookingManagerKennelInfoProvider(),
+    );
+    if (kennelInfoAsync.isLoading && !kennelInfoAsync.hasValue) {
+      return const CircularProgressIndicator.adaptive();
+    }
+    final kennelInfo = kennelInfoAsync.valueOrNull;
+    for (final field in kennelInfo?.bookingCustomFields ?? const []) {
+      bookingCustomFieldControllers.putIfAbsent(
+        field.name,
+        () => TextEditingController(
+          text: widget.booking?.otherBookingData[field.name],
+        ),
+      );
+    }
+    final pricings = widget.selectedCustomerGroup.tourTypeId == null
+        ? const <TourTypePricing>[]
+        : ref
+                  .watch(
+                    tourTypePricesProvider(
+                      widget.selectedCustomerGroup.tourTypeId!,
+                    ),
+                  )
+                  .valueOrNull ??
+              const <TourTypePricing>[];
+    final customerLabels = _customerLabels(customers, pricings);
     return AlertDialog.adaptive(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       scrollable: true,
@@ -100,6 +154,67 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                   filled: true,
                 ),
               ),
+              _EditorSection(
+                icon: Icons.contact_phone_outlined,
+                title: "Contact details",
+                children: [
+                  _EditorTextField(
+                    controller: phoneController,
+                    label: "Phone number",
+                    icon: Icons.phone_outlined,
+                    keyboardType: TextInputType.phone,
+                  ),
+                  _EditorTextField(
+                    controller: emailController,
+                    label: "Email",
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                ],
+              ),
+              _EditorSection(
+                icon: Icons.receipt_long_outlined,
+                title: "Billing address",
+                children: [
+                  _EditorTextField(
+                    controller: streetAddressController,
+                    label: "Street address",
+                    icon: Icons.home_work_outlined,
+                    keyboardType: TextInputType.streetAddress,
+                  ),
+                  _EditorTextField(
+                    controller: zipCodeController,
+                    label: "Zip code",
+                    icon: Icons.local_post_office_outlined,
+                  ),
+                  _EditorTextField(
+                    controller: cityController,
+                    label: "City",
+                    icon: Icons.location_city_outlined,
+                  ),
+                  _EditorTextField(
+                    controller: countryController,
+                    label: "Country",
+                    icon: Icons.public,
+                  ),
+                ],
+              ),
+              if ((kennelInfo?.bookingCustomFields ?? []).isNotEmpty)
+                _EditorSection(
+                  icon: Icons.notes_outlined,
+                  title: "Booking custom fields",
+                  children: kennelInfo!.bookingCustomFields
+                      .map(
+                        (field) => _EditorTextField(
+                          controller:
+                              bookingCustomFieldControllers[field.name]!,
+                          label:
+                              "${field.name}${field.isRequired ? " (Required)" : ""}",
+                          icon: Icons.question_answer_outlined,
+                        ),
+                      )
+                      .toList(),
+                ),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -140,7 +255,9 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                             .map(
                               (customer) => FilterChip(
                                 avatar: const Icon(Icons.person, size: 16),
-                                label: Text(customer.name),
+                                label: Text(
+                                  customerLabels[customer.id] ?? "Pricing - 1",
+                                ),
                                 onDeleted: () => setState(() {
                                   customers.removeWhere(
                                     (c) => c.id == customer.id,
@@ -153,10 +270,14 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                                     customer: customer,
                                     onCustomerEdited: (editedCustomer) {
                                       setState(() {
-                                        customers.removeWhere(
+                                        final index = customers.indexWhere(
                                           (c) => c.id == editedCustomer.id,
                                         );
-                                        customers.add(editedCustomer);
+                                        if (index == -1) {
+                                          customers.add(editedCustomer);
+                                        } else {
+                                          customers[index] = editedCustomer;
+                                        }
                                       });
                                     },
                                     bookingId: id,
@@ -183,9 +304,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                                   logger.debug(
                                     "Existing customers: $customers",
                                   );
-                                  logger.debug(
-                                    "New customer: ${customer.name}",
-                                  );
+                                  logger.debug("New customer: $customer");
                                   customers = [...customers, customer];
                                   logger.debug("New customers: $customers");
                                 }),
@@ -273,24 +392,141 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          onPressed: nameController.text.isNotEmpty
-              ? () {
-                  logger.debug("Customers: $customers");
-                  widget.onCustomersEdited(customers, id);
-                  widget.onBookingEdited(
-                    Booking(
-                      id: id,
-                      name: nameController.text,
-                      customerGroupId: widget.selectedCustomerGroup.id,
-                    ),
-                  );
-                  Navigator.of(context).pop();
-                }
-              : null,
+          onPressed: () {
+            logger.debug("Customers: $customers");
+            widget.onCustomersEdited(customers, id);
+            final otherBookingData = Map<String, String>.from(
+              widget.booking?.otherBookingData ?? const <String, String>{},
+            );
+            for (final entry in bookingCustomFieldControllers.entries) {
+              otherBookingData[entry.key] = entry.value.text;
+            }
+            widget.onBookingEdited(
+              (widget.booking ??
+                      Booking(
+                        id: id,
+                        customerGroupId: widget.selectedCustomerGroup.id,
+                      ))
+                  .copyWith(
+                    name: nameController.text,
+                    customerGroupId: widget.selectedCustomerGroup.id,
+                    phone: _emptyToNull(phoneController.text),
+                    email: _emptyToNull(emailController.text),
+                    streetAddress: _emptyToNull(streetAddressController.text),
+                    zipCode: _emptyToNull(zipCodeController.text),
+                    city: _emptyToNull(cityController.text),
+                    country: _emptyToNull(countryController.text),
+                    otherBookingData: otherBookingData,
+                  ),
+            );
+            Navigator.of(context).pop();
+          },
           icon: const Icon(Icons.save),
           label: const Text("Save Booking"),
         ),
       ],
+    );
+  }
+}
+
+String? _emptyToNull(String value) {
+  final trimmed = value.trim();
+  return trimmed.isEmpty ? null : trimmed;
+}
+
+Map<String, String> _customerLabels(
+  List<Customer> customers,
+  List<TourTypePricing> pricings,
+) {
+  final pricingNamesById = {
+    for (final pricing in pricings)
+      pricing.id: pricing.name.trim().isEmpty
+          ? (pricing.displayName.trim().isEmpty
+                ? "Pricing"
+                : pricing.displayName.trim())
+          : pricing.name.trim(),
+  };
+  final countsByPricing = <String, int>{};
+  final labelsByCustomerId = <String, String>{};
+
+  for (final customer in customers) {
+    final pricingKey = customer.pricingId ?? "";
+    final count = (countsByPricing[pricingKey] ?? 0) + 1;
+    countsByPricing[pricingKey] = count;
+    final pricingName = pricingNamesById[customer.pricingId] ?? "Pricing";
+    labelsByCustomerId[customer.id] = "$pricingName - $count";
+  }
+
+  return labelsByCustomerId;
+}
+
+class _EditorSection extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final List<Widget> children;
+  const _EditorSection({
+    required this.icon,
+    required this.title,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20, color: colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          ...children,
+        ],
+      ),
+    );
+  }
+}
+
+class _EditorTextField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final IconData icon;
+  final TextInputType? keyboardType;
+  const _EditorTextField({
+    required this.controller,
+    required this.label,
+    required this.icon,
+    this.keyboardType,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+      ),
     );
   }
 }

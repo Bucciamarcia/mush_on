@@ -4,6 +4,7 @@ import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart' as stripe;
 import 'package:uuid/uuid.dart';
 
 class CustomerEditorAlert extends ConsumerStatefulWidget {
@@ -32,10 +33,7 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
   TourType? tourType;
   TourTypePricing? selectedPricing;
   late TextEditingController pricingController;
-  late TextEditingController nameController;
-  late TextEditingController emailController;
-  late TextEditingController ageController;
-  late TextEditingController weightController;
+  late Map<String, TextEditingController> customerCustomFieldControllers;
 
   // Add a flag to track if pricing has been loaded
   bool pricingLoaded = false;
@@ -44,15 +42,17 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
   void initState() {
     super.initState();
     id = widget.customer?.id ?? const Uuid().v4();
-    nameController = TextEditingController(text: widget.customer?.name);
-    emailController = TextEditingController(text: widget.customer?.email);
-    ageController = TextEditingController(
-      text: widget.customer?.age?.toString(),
-    );
-    weightController = TextEditingController(
-      text: widget.customer?.weight?.toString(),
-    );
     pricingController = TextEditingController();
+    customerCustomFieldControllers = {};
+  }
+
+  @override
+  void dispose() {
+    pricingController.dispose();
+    for (final controller in customerCustomFieldControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -113,6 +113,22 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
       });
     }
 
+    final kennelInfoAsync = ref.watch(
+      stripe.bookingManagerKennelInfoProvider(),
+    );
+    if (kennelInfoAsync.isLoading && !kennelInfoAsync.hasValue) {
+      return const CircularProgressIndicator.adaptive();
+    }
+    final kennelInfo = kennelInfoAsync.valueOrNull;
+    for (final field in kennelInfo?.customerCustomFields ?? const []) {
+      customerCustomFieldControllers.putIfAbsent(
+        field.name,
+        () => TextEditingController(
+          text: widget.customer?.customerOtherInfo[field.name],
+        ),
+      );
+    }
+
     // Fetch all available prices for the tour type
     var prices = <TourTypePricing>[];
     if (tourType != null) {
@@ -127,23 +143,25 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
         if (widget.customer?.pricingId != null &&
             !pricingLoaded &&
             prices.isNotEmpty) {
-          var matchingPricing = prices.firstWhere(
-            (p) => p.id == widget.customer!.pricingId,
-            orElse: () => null as dynamic,
+          final matchingPricing = _firstPricingById(
+            prices,
+            widget.customer!.pricingId!,
           );
 
-          logger.debug(
-            "Found matching pricing in prices list: ${matchingPricing.name}",
-          );
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted && !pricingLoaded) {
-              setState(() {
-                selectedPricing = matchingPricing;
-                pricingController.text = matchingPricing.name;
-                pricingLoaded = true;
-              });
-            }
-          });
+          if (matchingPricing != null) {
+            logger.debug(
+              "Found matching pricing in prices list: ${matchingPricing.name}",
+            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted && !pricingLoaded) {
+                setState(() {
+                  selectedPricing = matchingPricing;
+                  pricingController.text = matchingPricing.name;
+                  pricingLoaded = true;
+                });
+              }
+            });
+          }
         }
       }
     } else {
@@ -168,60 +186,44 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
             mainAxisSize: MainAxisSize.min,
             spacing: 24,
             children: [
-              TextField(
-                onChanged: (s) {
-                  setState(() {});
-                },
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: "Customer Name",
-                  hintText: "Enter full name",
-                  prefixIcon: const Icon(Icons.person),
-                  border: OutlineInputBorder(
+              if ((kennelInfo?.customerCustomFields ?? []).isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.3,
+                    ),
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: colorScheme.outline.withValues(alpha: 0.2),
+                    ),
                   ),
-                  filled: true,
-                ),
-              ),
-              TextField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: "Email Address",
-                  hintText: "Optional contact email",
-                  prefixIcon: const Icon(Icons.email),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  child: Text(
+                    "No customer custom fields are configured.",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                  filled: true,
-                ),
-              ),
-              TextField(
-                controller: ageController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: "Age",
-                  hintText: "Customer age (optional)",
-                  prefixIcon: const Icon(Icons.cake),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                )
+              else
+                ...kennelInfo!.customerCustomFields.map(
+                  (field) => TextField(
+                    controller: customerCustomFieldControllers[field.name],
+                    decoration: InputDecoration(
+                      labelText:
+                          "${field.name}${field.isRequired ? " (Required)" : ""}",
+                      hintText: field.description.isEmpty
+                          ? null
+                          : field.description,
+                      prefixIcon: const Icon(Icons.person_outline),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                    ),
                   ),
-                  filled: true,
                 ),
-              ),
-              TextField(
-                controller: weightController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: "Weight (kg)",
-                  hintText: "Optional weight information",
-                  prefixIcon: const Icon(Icons.monitor_weight),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                ),
-              ),
               DropdownMenu<TourTypePricing>(
                 // Add a key that changes when pricing is loaded to force rebuild
                 key: ValueKey(
@@ -273,31 +275,26 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          onPressed: nameController.text.isNotEmpty
-              ? () {
-                  logger.debug(
-                    "Saving customer: ${nameController.text} with pricing: ${selectedPricing?.id}",
-                  );
-                  widget.onCustomerEdited(
-                    Customer(
-                      id: id,
-                      bookingId: widget.bookingId,
-                      name: nameController.text,
-                      email: emailController.text.isEmpty
-                          ? null
-                          : emailController.text,
-                      age: ageController.text.isEmpty
-                          ? null
-                          : int.tryParse(ageController.text),
-                      weight: weightController.text.isEmpty
-                          ? null
-                          : int.tryParse(weightController.text),
-                      pricingId: selectedPricing?.id,
-                    ),
-                  );
-                  Navigator.of(context).pop();
-                }
-              : null,
+          onPressed: () {
+            logger.debug(
+              "Saving customer with pricing: ${selectedPricing?.id}",
+            );
+            final customerOtherInfo = Map<String, String>.from(
+              widget.customer?.customerOtherInfo ?? const <String, String>{},
+            );
+            for (final entry in customerCustomFieldControllers.entries) {
+              customerOtherInfo[entry.key] = entry.value.text;
+            }
+            widget.onCustomerEdited(
+              (widget.customer ?? Customer(id: id, bookingId: widget.bookingId))
+                  .copyWith(
+                    bookingId: widget.bookingId,
+                    pricingId: selectedPricing?.id,
+                    customerOtherInfo: customerOtherInfo,
+                  ),
+            );
+            Navigator.of(context).pop();
+          },
           icon: const Icon(Icons.save),
           label: Text(
             widget.customer == null ? "Add Customer" : "Save Changes",
@@ -306,4 +303,11 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
       ],
     );
   }
+}
+
+TourTypePricing? _firstPricingById(List<TourTypePricing> prices, String id) {
+  for (final price in prices) {
+    if (price.id == id) return price;
+  }
+  return null;
 }
