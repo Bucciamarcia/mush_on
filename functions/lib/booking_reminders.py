@@ -6,6 +6,10 @@ from zoneinfo import ZoneInfo
 import requests
 from firebase_admin import firestore
 
+from lib.booking_email_html import (
+    build_booking_other_info_html,
+    build_customers_other_info_html,
+)
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 
 
@@ -35,6 +39,8 @@ def _process_account(db, account: str, today: date) -> None:
     kennel_name = bm_data.get("name", "")
     kennel_url = bm_data.get("url", "")
     kennel_timezone = bm_data.get("timezone", "Europe/Helsinki")
+    booking_custom_fields = bm_data.get("bookingCustomFields", [])
+    customer_custom_fields = bm_data.get("customerCustomFields", [])
     picture_url = (
         f"https://firebasestorage.googleapis.com/v0/b/mush-on.firebasestorage.app"
         f"/o/accounts%2F{account}%2FbookingManager%2Fbanner?alt=media"
@@ -44,7 +50,15 @@ def _process_account(db, account: str, today: date) -> None:
         days_before = reminder.get("daysBefore", 0)
         target_date = today + timedelta(days=days_before)
         _process_reminder(
-            db, account, target_date, kennel_name, kennel_url, kennel_timezone, picture_url
+            db,
+            account,
+            target_date,
+            kennel_name,
+            kennel_url,
+            kennel_timezone,
+            picture_url,
+            booking_custom_fields,
+            customer_custom_fields,
         )
 
 
@@ -56,6 +70,8 @@ def _process_reminder(
     kennel_url: str,
     kennel_timezone: str,
     picture_url: str,
+    booking_custom_fields: list[dict],
+    customer_custom_fields: list[dict],
 ) -> None:
     start_dt = datetime(
         target_date.year, target_date.month, target_date.day, tzinfo=timezone.utc
@@ -101,6 +117,7 @@ def _process_reminder(
             booking_name = booking_data.get("name", "")
 
             receipt_url = _get_receipt_url(db, booking_id)
+            customers = _get_customers(db, account, booking_id)
 
             try:
                 _send_reminder_email(
@@ -111,6 +128,14 @@ def _process_reminder(
                     booking_date=booking_date_str,
                     kennel_url=kennel_url,
                     kennel_header_picture_url=picture_url,
+                    booking_other_info=build_booking_other_info_html(
+                        booking_data,
+                        booking_custom_fields,
+                    ),
+                    customers_other_info=build_customers_other_info_html(
+                        customers,
+                        customer_custom_fields,
+                    ),
                 )
                 logging.info(
                     f"Sent reminder email for booking {booking_id} to {booking_email}"
@@ -142,6 +167,15 @@ def _get_receipt_url(db, booking_id: str) -> str:
         return ""
 
 
+def _get_customers(db, account: str, booking_id: str) -> list[dict]:
+    customers_ref = (
+        db.document(f"accounts/{account}/data/bookingManager")
+        .collection("customers")
+        .where("bookingId", "==", booking_id)
+    )
+    return [doc.to_dict() for doc in customers_ref.stream() if doc.to_dict()]
+
+
 def _send_reminder_email(
     to_email: str,
     to_name: str,
@@ -150,6 +184,8 @@ def _send_reminder_email(
     booking_date: str,
     kennel_url: str,
     kennel_header_picture_url: str,
+    booking_other_info: str = "",
+    customers_other_info: str = "",
 ) -> None:
     authorization = os.getenv("ZEPTOMAIL_AUTHORIZATION")
     payload = {
@@ -162,6 +198,8 @@ def _send_reminder_email(
             "booking_date": booking_date,
             "kennel_url": kennel_url,
             "kennel_header_picture_url": kennel_header_picture_url,
+            "booking_other_info": booking_other_info,
+            "customers_other_info": customers_other_info,
         },
     }
     headers = {
