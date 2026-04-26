@@ -2,28 +2,6 @@
 
 This document tracks the critical payment and booking issues that still remain after locking down direct public access to private booking data and moving refund lookup logic server-side.
 
-## 5. Make Webhook Email Delivery Durable and Idempotent
-
-**Executive description:**  
-The payment webhook updates booking/payment state and then sends the confirmation email. If email sending fails after state is committed, the webhook can be considered already processed and the email may never be retried.
-
-**Why it matters:**  
-Customers may pay successfully but never receive confirmation email or receipt details. Staff may not notice until support is contacted.
-
-**Recommendation:**  
-Separate payment processing from email delivery. Store an email task document with status such as `pending`, `sent`, `failed`, `retryCount`, and `lastError`. A scheduled worker or queue-triggered function should send the email idempotently and retry failures without reprocessing the Stripe payment.
-
-## 6. Add Idempotency and Audit Fields to Refunds
-
-**Executive description:**  
-Refunds now run server-side, but the refund function should still protect against duplicate refund attempts and preserve an audit trail.
-
-**Why it matters:**  
-Staff can accidentally retry a refund, network failures can cause ambiguous UI states, and financial actions need traceability.
-
-**Recommendation:**  
-Before calling Stripe, check whether the booking is already `refunded` or whether the checkout session already has a `refundId`. Store `refundId`, `refundedAt`, `refundedBy`, and any Stripe refund status on the checkout session or booking. Return the existing refund result if a refund was already completed.
-
 ## 7. Validate Stripe Account Activation Server-Side
 
 **Executive description:**  

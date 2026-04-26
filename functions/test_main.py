@@ -131,10 +131,11 @@ main = importlib.import_module("main")
 
 
 class _Snapshot:
-    def __init__(self, data=None, exists=True, doc_id=None):
+    def __init__(self, data=None, exists=True, doc_id=None, reference=None):
         self._data = data
         self.exists = exists
         self.id = doc_id
+        self.reference = reference
 
     def to_dict(self):
         return self._data
@@ -150,6 +151,7 @@ class _DocRef:
             self.db.documents.get(self.path),
             self.path in self.db.documents,
             self.path.rsplit("/", 1)[-1],
+            self,
         )
 
     def update(self, data):
@@ -207,7 +209,9 @@ class _Query:
                 for field, op, value in self.filters
             )
             if matches:
-                docs.append(_Snapshot(data, doc_id=data.get("id")))
+                doc_id = data.get("id")
+                reference = _DocRef(self.db, f"{self.collection_name}/{doc_id}")
+                docs.append(_Snapshot(data, doc_id=doc_id, reference=reference))
         if self.limit_value is not None:
             docs = docs[: self.limit_value]
         return iter(docs)
@@ -252,7 +256,7 @@ class _FakeRefund:
 
     def create(self, **kwargs):
         self.calls.append(kwargs)
-        return types.SimpleNamespace(id="refund-1")
+        return types.SimpleNamespace(id="refund-1", status="succeeded")
 
 
 class _FakeCheckoutSession:
@@ -554,6 +558,8 @@ class BackendSecurityTests(unittest.TestCase):
         db.documents["users/user-1"] = {"account": "account-1"}
         db.collections["checkoutSessions"] = [
             {
+                "id": "cs_123",
+                "checkoutSessionId": "cs_123",
                 "bookingId": "booking-1",
                 "account": "account-1",
                 "paymentIntentId": "pi_123",
@@ -570,7 +576,7 @@ class BackendSecurityTests(unittest.TestCase):
 
         result = main.refund_payment(request)
 
-        self.assertEqual(result, {"refundId": "refund-1"})
+        self.assertEqual(result, {"refundId": "refund-1", "refundStatus": "succeeded"})
         self.assertEqual(
             refund.calls,
             [
@@ -578,18 +584,54 @@ class BackendSecurityTests(unittest.TestCase):
                     "payment_intent": "pi_123",
                     "stripe_account": "acct_123",
                     "refund_application_fee": True,
+                    "idempotency_key": "refund:account-1:booking-1",
                 }
             ],
         )
         self.assertEqual(
-            db.updates,
-            [
-                (
-                    "accounts/account-1/data/bookingManager/bookings/booking-1",
-                    {"paymentStatus": "refunded"},
-                )
-            ],
+            db.updates[0],
+            (
+                "accounts/account-1/data/bookingManager/bookings/booking-1",
+                {"paymentStatus": "refunded"},
+            ),
         )
+        self.assertEqual(db.updates[1][0], "checkoutSessions/cs_123")
+        self.assertEqual(db.updates[1][1]["refundId"], "refund-1")
+        self.assertEqual(db.updates[1][1]["refundStatus"], "succeeded")
+        self.assertEqual(db.updates[1][1]["refundedBy"], "user-1")
+        self.assertIsInstance(db.updates[1][1]["refundedAt"], datetime)
+
+    def test_refund_payment_returns_existing_refund_without_calling_stripe(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {"account": "account-1"}
+        db.collections["checkoutSessions"] = [
+            {
+                "id": "cs_123",
+                "checkoutSessionId": "cs_123",
+                "bookingId": "booking-1",
+                "account": "account-1",
+                "paymentIntentId": "pi_123",
+                "stripeId": "acct_123",
+                "refundId": "refund-existing",
+                "refundStatus": "succeeded",
+            }
+        ]
+        refund = _FakeRefund()
+        main.firestore.client = lambda: db
+        main.stripe.Refund = refund
+        request = types.SimpleNamespace(
+            data={"account": "account-1", "bookingId": "booking-1"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        result = main.refund_payment(request)
+
+        self.assertEqual(
+            result,
+            {"refundId": "refund-existing", "refundStatus": "succeeded"},
+        )
+        self.assertEqual(refund.calls, [])
+        self.assertEqual(db.updates, [])
 
     def test_refund_payment_rejects_users_from_other_accounts(self):
         db = _FakeDb()
