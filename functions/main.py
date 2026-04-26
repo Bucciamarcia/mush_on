@@ -12,7 +12,7 @@ from lib.add_booking import add_checkout_session
 from dotenv import load_dotenv
 import os
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from firebase_functions import https_fn
 from firebase_admin import firestore
@@ -93,6 +93,64 @@ def _get_booking_customers(db, account: str, booking_id: str) -> list[dict]:
         .where("bookingId", "==", booking_id)
         .stream()
     ]
+
+
+def _get_query_snapshots(source, query):
+    if source is not None and hasattr(source, "get"):
+        return list(source.get(query))
+    return list(query.stream())
+
+
+def _get_document_snapshot(source, doc_ref):
+    if source is not None and hasattr(source, "get"):
+        result = source.get(doc_ref)
+        if hasattr(result, "exists"):
+            return result
+        return next(iter(result), None)
+    return doc_ref.get()
+
+
+def _parse_firestore_datetime(value):
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
+    return None
+
+
+def _booking_counts_for_capacity(booking: dict, now: datetime) -> bool:
+    status = booking.get("paymentStatus")
+    if status in {"paid", "deferredPayment"}:
+        return True
+    if status != "waiting":
+        return False
+    expires_at = _parse_firestore_datetime(booking.get("expiresAt"))
+    return expires_at is None or expires_at > now
+
+
+def _count_reserved_customers_for_group(
+    db, account: str, customer_group_id: str, now: datetime, transaction=None
+) -> int:
+    bm_ref = _booking_manager_ref(db, account)
+    booking_query = (
+        bm_ref.collection("bookings")
+        .where("customerGroupId", "==", customer_group_id)
+    )
+    reserved = 0
+    for booking_doc in _get_query_snapshots(transaction, booking_query):
+        booking = booking_doc.to_dict() or {}
+        if not _booking_counts_for_capacity(booking, now):
+            continue
+        booking_id = booking.get("id") or getattr(booking_doc, "id", None)
+        if not booking_id:
+            continue
+        customer_query = bm_ref.collection("customers").where(
+            "bookingId", "==", booking_id
+        )
+        reserved += len(_get_query_snapshots(transaction, customer_query))
+    return reserved
 
 
 def _quantity_by_pricing(customers: list[dict]) -> dict[str, int]:
@@ -199,6 +257,109 @@ def _build_server_checkout_payload(
         "total_amount_cents": total_amount_cents,
         "fee_amount": fee_amount,
     }
+
+
+def _booking_label(booking: dict, customers: list[dict]) -> str:
+    name = str(booking.get("name") or "").strip()
+    if name:
+        return name
+    for customer in customers:
+        customer_name = str(customer.get("name") or "").strip()
+        if customer_name:
+            return customer_name
+        for value in (customer.get("customerOtherInfo") or {}).values():
+            other_value = str(value or "").strip()
+            if other_value:
+                return other_value
+    return "Booking"
+
+
+def _reserve_booking_transaction(
+    db,
+    account: str,
+    tour_id: str,
+    booking: dict,
+    customers: list[dict],
+    now: datetime,
+) -> dict:
+    booking_id = booking.get("id")
+    customer_group_id = booking.get("customerGroupId")
+    if not booking_id or not customer_group_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Booking id and customerGroupId are required",
+        )
+    if not customers:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "At least one customer is required",
+        )
+
+    transaction = db.transaction()
+
+    @firestore.transactional
+    def reserve(transaction):
+        bm_ref = _booking_manager_ref(db, account)
+        customer_group_ref = bm_ref.collection("customerGroups").document(
+            customer_group_id
+        )
+        customer_group_snapshot = _get_document_snapshot(
+            transaction, customer_group_ref
+        )
+        if not customer_group_snapshot.exists:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.NOT_FOUND, "Customer group not found"
+            )
+        customer_group = customer_group_snapshot.to_dict() or {}
+        if customer_group.get("tourTypeId") != tour_id:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                "Customer group does not belong to the requested tour",
+            )
+
+        requested_capacity = len(customers)
+        max_capacity = int(_unwrap_int64_wrappers(customer_group.get("maxCapacity", 0)))
+        reserved_capacity = _count_reserved_customers_for_group(
+            db, account, customer_group_id, now, transaction
+        )
+        if (
+            max_capacity > 0
+            and reserved_capacity + requested_capacity > max_capacity
+        ):
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "This group is now full",
+            )
+
+        expires_at = now + timedelta(minutes=30)
+        booking_ref = bm_ref.collection("bookings").document(booking_id)
+        booking_data = {
+            **booking,
+            "id": booking_id,
+            "customerGroupId": customer_group_id,
+            "name": _booking_label(booking, customers),
+            "paymentStatus": "waiting",
+            "createdAt": now,
+            "expiresAt": expires_at,
+        }
+        transaction.set(booking_ref, booking_data)
+        for customer in customers:
+            customer_id = customer.get("id")
+            pricing_id = customer.get("pricingId")
+            if not customer_id or not pricing_id:
+                raise https_fn.HttpsError(
+                    https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                    "Customer id and pricingId are required",
+                )
+            customer_ref = bm_ref.collection("customers").document(customer_id)
+            transaction.set(customer_ref, {**customer, "bookingId": booking_id})
+        return {
+            "bookingId": booking_id,
+            "customerGroupId": customer_group_id,
+            "expiresAt": expires_at,
+        }
+
+    return reserve(transaction)
 
 
 def _assert_account_member(req: https_fn.CallableRequest[dict], account: str) -> None:
@@ -324,7 +485,7 @@ def get_public_booking_counts(req: https_fn.CallableRequest[dict]) -> dict:
     db = firestore.client()
     bm_ref = _booking_manager_ref(db, account)
     counts = {cg_id: 0 for cg_id in customer_group_ids}
-    active_statuses = {"paid", "deferredPayment", "waiting"}
+    now = datetime.now(timezone.utc)
 
     for cg_ids in _chunks(customer_group_ids):
         booking_docs = (
@@ -334,7 +495,7 @@ def get_public_booking_counts(req: https_fn.CallableRequest[dict]) -> dict:
         )
         for booking_doc in booking_docs:
             booking = booking_doc.to_dict() or {}
-            if booking.get("paymentStatus") not in active_statuses:
+            if not _booking_counts_for_capacity(booking, now):
                 continue
             booking_id = booking.get("id") or booking_doc.id
             customer_docs = (
@@ -475,6 +636,86 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
         return {"url": session.url}
     except Exception as e:
         return {"error": str(e)}
+
+
+@https_fn.on_call()
+def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
+    try:
+        data = req.data or {}
+        account = data.get("account")
+        tour_id = data.get("tourId")
+        booking = _unwrap_int64_wrappers(data.get("booking") or {})
+        customers = _unwrap_int64_wrappers(data.get("customers") or [])
+
+        if not account or not tour_id or not isinstance(customers, list):
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                "Missing account, tourId, booking or customers",
+            )
+
+        stripe_data = get_stripe_data(account)
+        stripe_account_id = stripe_data.get("accountId")
+        if not stripe_data.get("isActive") or not stripe_account_id:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "Stripe integration is not active",
+            )
+
+        db = firestore.client()
+        now = datetime.now(timezone.utc)
+        reservation = _reserve_booking_transaction(
+            db=db,
+            account=account,
+            tour_id=tour_id,
+            booking=booking,
+            customers=customers,
+            now=now,
+        )
+        booking_id = reservation["bookingId"]
+        customer_group_id = reservation["customerGroupId"]
+
+        checkout_payload = _build_server_checkout_payload(
+            db, account, booking_id, tour_id, customer_group_id
+        )
+
+        session = stripe.checkout.Session.create(
+            line_items=checkout_payload["line_items"],
+            client_reference_id=booking_id,
+            payment_intent_data={
+                "application_fee_amount": checkout_payload["fee_amount"]
+            },
+            mode="payment",
+            success_url=f"https://mush-on.web.app/booking_success?bookingId={booking_id}&account={account}",
+            stripe_account=stripe_account_id,
+        )
+        checkout_session_id = session.id
+        if checkout_session_id is None:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INTERNAL,
+                f"Checkout session is None. Session: {session}",
+            )
+
+        add_checkout_session.add_checkout_session_to_db(
+            checkout_session_id,
+            account,
+            stripe_account_id,
+            booking_id,
+            checkout_payload["total_amount_cents"],
+            checkout_payload["fee_amount"],
+        )
+        db.document(
+            f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}"
+        ).update({"checkoutSessionId": checkout_session_id})
+
+        return {
+            "url": session.url,
+            "bookingId": booking_id,
+            "checkoutSessionId": checkout_session_id,
+        }
+    except https_fn.HttpsError:
+        raise
+    except Exception as e:
+        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INTERNAL, str(e))
 
 
 @https_fn.on_call()

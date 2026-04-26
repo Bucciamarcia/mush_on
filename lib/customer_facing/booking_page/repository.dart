@@ -16,25 +16,23 @@ class BookingPageRepository {
     required List<Customer> customers,
   }) async {
     try {
-      await bookTour(booking, customers);
-    } catch (e, s) {
-      logger.error(
-        "Failed to book tour before getting payment url",
-        error: e,
-        stackTrace: s,
-      );
-      rethrow;
-    }
-    try {
       logger.debug("Account: $account");
+      final bookingLabel = _getBookingLabel(booking, customers);
+      final bookingData = booking.copyWith(
+        name: bookingLabel,
+        paymentStatus: PaymentStatus.waiting,
+      );
+      final customersData = customers
+          .map((customer) => customer.copyWith(bookingId: booking.id).toJson())
+          .toList();
       final response =
           await FirebaseFunctions.instanceFor(
             region: "europe-north1",
-          ).httpsCallable("create_checkout_session").call({
+          ).httpsCallable("create_booking_checkout_session").call({
             "account": account,
-            "bookingId": booking.id,
             "tourId": tourId,
-            "customerGroupId": booking.customerGroupId,
+            "booking": bookingData.toJson(),
+            "customers": customersData,
           });
       final data = response.data as Map<String, dynamic>;
       final error = data["error"];
