@@ -824,6 +824,24 @@ def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
             "No checkout session found for this booking",
         )
     checkout_data = checkout_doc.to_dict() or {}
+    existing_refund_id = checkout_data.get("refundId")
+    if existing_refund_id:
+        return {
+            "refundId": existing_refund_id,
+            "refundStatus": checkout_data.get("refundStatus"),
+        }
+
+    booking_ref = db.document(
+        f"accounts/{account}/data/bookingManager/bookings/{booking_id}"
+    )
+    booking_data = booking_ref.get().to_dict() or {}
+    if booking_data.get("paymentStatus") == "refunded":
+        return {
+            "refundId": existing_refund_id,
+            "refundStatus": checkout_data.get("refundStatus"),
+            "alreadyRefunded": True,
+        }
+
     payment_intent = checkout_data.get("paymentIntentId")
     stripe_account = checkout_data.get("stripeId")
     if not payment_intent or not stripe_account:
@@ -836,12 +854,18 @@ def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
         payment_intent=payment_intent,
         stripe_account=stripe_account,
         refund_application_fee=True,
-    )
-    booking_ref = db.document(
-        f"accounts/{account}/data/bookingManager/bookings/{booking_id}"
+        idempotency_key=f"refund:{account}:{booking_id}",
     )
     booking_ref.update({"paymentStatus": "refunded"})
-    return {"refundId": refund.id}
+    checkout_doc.reference.update(
+        {
+            "refundId": refund.id,
+            "refundStatus": getattr(refund, "status", None),
+            "refundedAt": datetime.now(timezone.utc),
+            "refundedBy": req.auth.uid,
+        }
+    )
+    return {"refundId": refund.id, "refundStatus": getattr(refund, "status", None)}
 
 
 @https_fn.on_call()
