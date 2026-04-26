@@ -72,71 +72,13 @@ class BookingConfirmationDataPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final urlAndAmount = ref
-        .watch(receiptUrlProvider(account: account, bookingId: booking.id))
-        .value;
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 600),
       child: SingleChildScrollView(
         child: Column(
           spacing: 25,
           children: [
-            Container(
-              margin: const EdgeInsets.all(10),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(10)),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    colorScheme.primaryContainer,
-                    colorScheme.primaryContainer.withAlpha(20),
-                  ],
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(15),
-                    margin: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorScheme.primary.withAlpha(150),
-                          blurRadius: 15,
-                          spreadRadius: 3,
-                        ),
-                      ],
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                    child: Icon(
-                      Icons.check_circle,
-                      color: colorScheme.primary,
-                      weight: 60,
-                      size: 80,
-                    ),
-                  ),
-                  const Text(
-                    "Booking confirmed!",
-                    style: TextStyle(fontSize: 40, fontWeight: FontWeight.w800),
-                    textAlign: TextAlign.center,
-                  ),
-                  const Text(
-                    "See the details below",
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
-                    textAlign: TextAlign.center,
-                  ),
-                  const Text(
-                    "You will receive a confirmation email shortly.",
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
+            _PaymentStatusHeader(status: booking.paymentStatus),
             TourDetailsBox(booking: booking, customers: customers, cg: cg),
             ParticipantsBox(
               booking: booking,
@@ -144,39 +86,162 @@ class BookingConfirmationDataPage extends ConsumerWidget {
               cg: cg,
               pricings: pricings,
             ),
-            urlAndAmount == null
-                ? const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      CircularProgressIndicator.adaptive(),
-                      Text(
-                        "Loading receipt",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      Text(
-                        "Total: ${(urlAndAmount.amount) / 100}€",
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () async =>
-                            await launchReceiptUrl(urlAndAmount.url),
-                        child: const Text("View receipt"),
-                      ),
-                    ],
-                  ),
+            if (booking.paymentStatus == PaymentStatus.paid)
+              _ReceiptSection(account: account, bookingId: booking.id),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PaymentStatusHeader extends StatelessWidget {
+  final PaymentStatus status;
+  const _PaymentStatusHeader({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final content = _contentFor(status);
+    return Container(
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [content.color.withAlpha(45), content.color.withAlpha(10)],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(15),
+            margin: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: content.color.withAlpha(120),
+                  blurRadius: 15,
+                  spreadRadius: 3,
+                ),
+              ],
+              shape: BoxShape.circle,
+              color: colorScheme.surface,
+            ),
+            child: Icon(
+              content.icon,
+              color: content.color,
+              weight: 60,
+              size: 80,
+            ),
+          ),
+          Text(
+            content.title,
+            style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w800),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            content.subtitle,
+            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w500),
+            textAlign: TextAlign.center,
+          ),
+          Text(content.body, textAlign: TextAlign.center),
+        ],
+      ),
+    );
+  }
+
+  _PaymentStatusContent _contentFor(PaymentStatus status) {
+    switch (status) {
+      case PaymentStatus.paid:
+        return const _PaymentStatusContent(
+          icon: Icons.check_circle,
+          color: Colors.green,
+          title: "Booking confirmed!",
+          subtitle: "See the details below",
+          body: "You will receive a confirmation email shortly.",
+        );
+      case PaymentStatus.waiting:
+        return const _PaymentStatusContent(
+          icon: Icons.pending,
+          color: Colors.orange,
+          title: "Payment processing",
+          subtitle: "Your booking is not confirmed yet",
+          body:
+              "We are waiting for the payment provider to confirm the payment.",
+        );
+      case PaymentStatus.refunded:
+        return const _PaymentStatusContent(
+          icon: Icons.undo,
+          color: Colors.blueGrey,
+          title: "Booking refunded",
+          subtitle: "This payment has been refunded",
+          body: "Contact the kennel if you have questions about this booking.",
+        );
+      case PaymentStatus.deferredPayment:
+      case PaymentStatus.unknown:
+        return const _PaymentStatusContent(
+          icon: Icons.info,
+          color: Colors.blueGrey,
+          title: "Payment not confirmed",
+          subtitle: "We could not confirm this payment yet",
+          body: "Contact the kennel if this message does not change.",
+        );
+    }
+  }
+}
+
+class _PaymentStatusContent {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final String body;
+  const _PaymentStatusContent({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.body,
+  });
+}
+
+class _ReceiptSection extends ConsumerWidget {
+  final String account;
+  final String bookingId;
+  const _ReceiptSection({required this.account, required this.bookingId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final urlAndAmount = ref
+        .watch(receiptUrlProvider(account: account, bookingId: bookingId))
+        .value;
+    if (urlAndAmount == null) {
+      return const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          CircularProgressIndicator.adaptive(),
+          Text(
+            "Loading receipt",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+          ),
+        ],
+      );
+    }
+    return Row(
+      children: [
+        Text(
+          "Total: ${(urlAndAmount.amount) / 100}€",
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+        ),
+        ElevatedButton(
+          onPressed: () async => await launchReceiptUrl(urlAndAmount.url),
+          child: const Text("View receipt"),
+        ),
+      ],
     );
   }
 

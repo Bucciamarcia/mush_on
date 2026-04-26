@@ -2,17 +2,6 @@
 
 This document tracks the critical payment and booking issues that still remain after locking down direct public access to private booking data and moving refund lookup logic server-side.
 
-## 4. Harden Success Page Payment-State Handling
-
-**Executive description:**  
-The success page still presents a booking confirmation as soon as booking data loads. Payment confirmation and receipt availability are handled separately.
-
-**Why it matters:**  
-Stripe may redirect before the webhook has processed. A customer can briefly see a confirmed state while the booking is still `waiting`, or a manually opened success URL can show stronger confirmation than the payment state warrants.
-
-**Recommendation:**  
-Return `paymentStatus` and checkout-session processing state from the success-data callable. Render distinct states: “payment processing”, “booking confirmed”, “payment failed/expired”, and “refunded”. Only show the strongest confirmation and receipt CTA after `paymentStatus == paid`.
-
 ## 5. Make Webhook Email Delivery Durable and Idempotent
 
 **Executive description:**  
