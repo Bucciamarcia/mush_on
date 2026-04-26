@@ -1,3 +1,4 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -873,12 +874,14 @@ class BookingSummaryImmobile extends ConsumerWidget {
                               }
                             } catch (e) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  errorSnackBar(
-                                    context,
-                                    "Couldn't add booking: contact support.",
-                                  ),
-                                );
+                                final message =
+                                    e is FirebaseFunctionsException &&
+                                        e.code == 'failed-precondition'
+                                    ? e.message ?? "This group is now full."
+                                    : "Couldn't add booking: contact support.";
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(errorSnackBar(context, message));
                               }
                             } finally {
                               ref

@@ -2,28 +2,6 @@
 
 This document tracks the critical payment and booking issues that still remain after locking down direct public access to private booking data and moving refund lookup logic server-side.
 
-## 2. Make Booking Creation and Capacity Reservation Atomic
-
-**Executive description:**  
-The current flow creates a booking before Stripe checkout and computes availability from separate reads. Two customers can race for the last seats, and abandoned checkouts can still consume spots.
-
-**Why it matters:**  
-This can oversell a tour or incorrectly block availability. It also creates operational cleanup work because unpaid bookings remain in the booking manager.
-
-**Recommendation:**  
-Replace the current `add_booking` then `create_checkout_session` sequence with one backend transaction. The transaction should validate current capacity, create a pending reservation, create customer records, and then create the Stripe Checkout session. Store reservation expiry metadata such as `expiresAt` and `checkoutSessionId`.
-
-## 3. Add Expiry Handling for Unpaid Bookings
-
-**Executive description:**  
-Bookings with `paymentStatus: waiting` currently remain indefinitely unless payment succeeds or staff manually intervenes.
-
-**Why it matters:**  
-Abandoned payments can make a customer group appear full. This is a direct revenue risk because available seats can disappear from public booking.
-
-**Recommendation:**  
-Add an expiry policy for pending bookings. Either configure Stripe Checkout expiration and handle `checkout.session.expired` webhooks, or run a scheduled cleanup function that marks old `waiting` bookings as `expired` and excludes them from availability counts. Add a new `PaymentStatus.expired` value if needed.
-
 ## 4. Harden Success Page Payment-State Handling
 
 **Executive description:**  
