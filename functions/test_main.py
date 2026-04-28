@@ -233,12 +233,28 @@ class _FakeTransaction:
         ref.update(data)
 
 
+class _FakeBatch:
+    def __init__(self, db):
+        self.db = db
+        self.operations = []
+        self.committed = False
+
+    def update(self, ref, data):
+        self.operations.append((ref, data))
+
+    def commit(self):
+        self.committed = True
+        for ref, data in self.operations:
+            ref.update(data)
+
+
 class _FakeDb:
     def __init__(self):
         self.documents = {}
         self.collections = {}
         self.updates = []
         self.sets = []
+        self.batches = []
 
     def document(self, path):
         return _DocRef(self, path)
@@ -248,6 +264,11 @@ class _FakeDb:
 
     def transaction(self):
         return _FakeTransaction()
+
+    def batch(self):
+        batch = _FakeBatch(self)
+        self.batches.append(batch)
+        return batch
 
 
 class _FakeRefund:
@@ -694,6 +715,53 @@ class BackendSecurityTests(unittest.TestCase):
         self.assertEqual(error.exception.message, "This group is now full")
         self.assertEqual(checkout.calls, [])
 
+    def test_create_booking_checkout_session_counts_unexpired_waiting_bookings(self):
+        db = _FakeDb()
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123",
+            "isActive": True,
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/customerGroups/cg-1"
+        ] = {
+            "id": "cg-1",
+            "tourTypeId": "tour-1",
+            "maxCapacity": 1,
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/bookings/existing-booking"
+        ] = {
+            "id": "existing-booking",
+            "customerGroupId": "cg-1",
+            "paymentStatus": "waiting",
+            "expiresAt": datetime(2099, 1, 1, tzinfo=timezone.utc),
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/customers/existing-customer"
+        ] = {
+            "id": "existing-customer",
+            "bookingId": "existing-booking",
+            "pricingId": "adult",
+        }
+        checkout = _FakeCheckoutSession()
+        main.firestore.client = lambda: db
+        main.stripe.checkout.Session = checkout
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "tourId": "tour-1",
+                "booking": {"id": "booking-1", "customerGroupId": "cg-1"},
+                "customers": [{"id": "customer-1", "pricingId": "adult"}],
+            }
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.create_booking_checkout_session(request)
+
+        self.assertEqual(error.exception.code, "failed-precondition")
+        self.assertEqual(error.exception.message, "This group is now full")
+        self.assertEqual(checkout.calls, [])
+
     def test_create_booking_checkout_session_ignores_expired_waiting_bookings(self):
         db = _FakeDb()
         db.documents["accounts/account-1/integrations/stripe"] = {
@@ -781,6 +849,128 @@ class BackendSecurityTests(unittest.TestCase):
             ]["checkoutSessionId"],
             "cs_123",
         )
+        created_at = db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ]["createdAt"]
+        expires_at = db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ]["expiresAt"]
+        self.assertEqual(expires_at - created_at, main.timedelta(minutes=30))
+
+    def test_create_booking_checkout_session_calculates_payment_data_server_side(self):
+        db = _FakeDb()
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123",
+            "isActive": True,
+        }
+        db.documents["accounts/account-1/data/bookingManager"] = {
+            "commissionRate": 0.035,
+            "vatRate": 0.255,
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/customerGroups/cg-1"
+        ] = {
+            "id": "cg-1",
+            "tourTypeId": "tour-1",
+            "maxCapacity": 4,
+        }
+        db.collections[
+            "accounts/account-1/data/bookingManager/tours/tour-1/prices"
+        ] = [
+            {
+                "id": "adult",
+                "isArchived": False,
+                "displayName": "Adult",
+                "priceCents": 10000,
+                "stripeTaxRateId": "txr_adult",
+            },
+            {
+                "id": "child",
+                "isArchived": False,
+                "displayName": "Child",
+                "priceCents": 5000,
+            },
+        ]
+        checkout = _FakeCheckoutSession()
+        main.firestore.client = lambda: db
+        main.stripe.checkout.Session = checkout
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "tourId": "tour-1",
+                "booking": {
+                    "id": "booking-1",
+                    "customerGroupId": "cg-1",
+                    "lineItems": [{"price_data": {"unit_amount": 1}}],
+                    "paymentIntentId": "pi_attacker",
+                    "stripeId": "acct_attacker",
+                    "total": 1,
+                    "commission": 1,
+                },
+                "customers": [
+                    {
+                        "id": "customer-1",
+                        "pricingId": "adult",
+                        "bookingId": "other-booking",
+                        "paymentIntentId": "pi_attacker",
+                    },
+                    {"id": "customer-2", "pricingId": "child"},
+                ],
+                "lineItems": [{"price_data": {"unit_amount": 1}}],
+                "feeAmount": 1,
+                "totalAmount": 1,
+                "stripeAccount": "acct_attacker",
+                "stripeAccountId": "acct_attacker",
+            }
+        )
+
+        result = main.create_booking_checkout_session(request)
+
+        self.assertEqual(
+            result,
+            {
+                "url": "https://checkout.test/session",
+                "bookingId": "booking-1",
+                "checkoutSessionId": "cs_123",
+            },
+        )
+        self.assertEqual(len(checkout.calls), 1)
+        call = checkout.calls[0]
+        self.assertEqual(call["stripe_account"], "acct_123")
+        self.assertEqual(call["payment_intent_data"], {"application_fee_amount": 658})
+        self.assertCountEqual(
+            call["line_items"],
+            [
+                {
+                    "price_data": {
+                        "tax_behavior": "inclusive",
+                        "currency": "eur",
+                        "product_data": {
+                            "name": "Adult",
+                            "metadata": {"pricing_id": "adult"},
+                        },
+                        "unit_amount": 10000,
+                    },
+                    "quantity": 1,
+                    "tax_rates": ["txr_adult"],
+                },
+                {
+                    "price_data": {
+                        "tax_behavior": "inclusive",
+                        "currency": "eur",
+                        "product_data": {
+                            "name": "Child",
+                            "metadata": {"pricing_id": "child"},
+                        },
+                        "unit_amount": 5000,
+                    },
+                    "quantity": 1,
+                },
+            ],
+        )
+        self.assertEqual(db.documents["checkoutSessions/cs_123"]["stripeId"], "acct_123")
+        self.assertEqual(db.documents["checkoutSessions/cs_123"]["total"], 15000)
+        self.assertEqual(db.documents["checkoutSessions/cs_123"]["commission"], 658)
 
     def test_refund_payment_reads_secret_payment_data_server_side_and_updates_booking(self):
         db = _FakeDb()
@@ -862,6 +1052,47 @@ class BackendSecurityTests(unittest.TestCase):
         self.assertEqual(refund.calls, [])
         self.assertEqual(db.updates, [])
 
+    def test_refund_payment_returns_already_refunded_booking_without_calling_stripe(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {"account": "account-1"}
+        db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ] = {
+            "id": "booking-1",
+            "paymentStatus": "refunded",
+        }
+        db.collections["checkoutSessions"] = [
+            {
+                "id": "cs_123",
+                "checkoutSessionId": "cs_123",
+                "bookingId": "booking-1",
+                "account": "account-1",
+                "paymentIntentId": "pi_123",
+                "stripeId": "acct_123",
+                "refundStatus": "succeeded",
+            }
+        ]
+        refund = _FakeRefund()
+        main.firestore.client = lambda: db
+        main.stripe.Refund = refund
+        request = types.SimpleNamespace(
+            data={"account": "account-1", "bookingId": "booking-1"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        result = main.refund_payment(request)
+
+        self.assertEqual(
+            result,
+            {
+                "refundId": None,
+                "refundStatus": "succeeded",
+                "alreadyRefunded": True,
+            },
+        )
+        self.assertEqual(refund.calls, [])
+        self.assertEqual(db.updates, [])
+
     def test_refund_payment_rejects_users_from_other_accounts(self):
         db = _FakeDb()
         db.documents["users/user-1"] = {"account": "other-account"}
@@ -875,6 +1106,49 @@ class BackendSecurityTests(unittest.TestCase):
             main.refund_payment(request)
 
         self.assertEqual(error.exception.code, "permission-denied")
+
+    def test_get_booking_success_data_rejects_checkout_session_from_other_account(self):
+        db = _FakeDb()
+        db.collections["checkoutSessions"] = [
+            {
+                "id": "cs_123",
+                "checkoutSessionId": "cs_123",
+                "bookingId": "booking-1",
+                "account": "other-account",
+            }
+        ]
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"account": "account-1", "bookingId": "booking-1"}
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.get_booking_success_data(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+
+    def test_payment_processed_skips_already_processed_checkout_session(self):
+        db = _FakeDb()
+        db.documents["checkoutSessions/cs_123"] = {
+            "checkoutSessionId": "cs_123",
+            "account": "account-1",
+            "stripeId": "acct_123",
+            "bookingId": "booking-1",
+            "createdAt": datetime(2026, 1, 1, tzinfo=timezone.utc),
+            "webhookProcessed": True,
+        }
+        main.firestore.client = lambda: db
+
+        main.add_checkout_session.payment_processed(
+            checkout_session_id="cs_123",
+            stripe_account="acct_123",
+            stripe_api_key="sk_test",
+            payment_intent_id="pi_123",
+            stripe_email="customer@example.com",
+        )
+
+        self.assertEqual(db.updates, [])
+        self.assertEqual(db.batches, [])
 
 
 if __name__ == "__main__":

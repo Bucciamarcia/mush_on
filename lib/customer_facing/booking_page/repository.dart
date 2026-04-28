@@ -7,9 +7,15 @@ import '../../customer_management/models.dart';
 class BookingPageRepository {
   final String account;
   final String tourId;
+  final FirebaseFunctions functions;
   final logger = BasicLogger();
 
-  BookingPageRepository({required this.account, required this.tourId});
+  BookingPageRepository({
+    required this.account,
+    required this.tourId,
+    FirebaseFunctions? functions,
+  }) : functions =
+           functions ?? FirebaseFunctions.instanceFor(region: "europe-north1");
 
   Future<String> getStripePaymentUrl({
     required Booking booking,
@@ -25,10 +31,9 @@ class BookingPageRepository {
       final customersData = customers
           .map((customer) => customer.copyWith(bookingId: booking.id).toJson())
           .toList();
-      final response =
-          await FirebaseFunctions.instanceFor(
-            region: "europe-north1",
-          ).httpsCallable("create_booking_checkout_session").call({
+      final response = await functions
+          .httpsCallable("create_booking_checkout_session")
+          .call({
             "account": account,
             "tourId": tourId,
             "booking": bookingData.toJson(),
@@ -67,9 +72,9 @@ class BookingPageRepository {
 
   Future<StripeConnection> getStripeConnection() async {
     try {
-      final response = await FirebaseFunctions.instanceFor(
-        region: "europe-north1",
-      ).httpsCallable("get_public_stripe_status").call({"account": account});
+      final response = await functions
+          .httpsCallable("get_public_stripe_status")
+          .call({"account": account});
       final data = response.data as Map<String, dynamic>;
       return StripeConnection(
         accountId: "",
