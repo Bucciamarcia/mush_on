@@ -54,32 +54,6 @@ class BookingPageRepository {
     }
   }
 
-  /// Initial add to the db of the tour.
-  Future<void> bookTour(Booking booking, List<Customer> customers) async {
-    final ref = FirebaseFunctions.instanceFor(region: "europe-north1");
-    final bookingLabel = _getBookingLabel(booking, customers);
-    final bookingData = booking.copyWith(
-      name: bookingLabel,
-      paymentStatus: PaymentStatus.waiting,
-    );
-    List<Map<String, dynamic>> customersData = [];
-    for (final customer in customers) {
-      final cData = customer.copyWith(bookingId: booking.id);
-      customersData.add(cData.toJson());
-    }
-    try {
-      logger.debug("Calling book tour firebase");
-      await ref.httpsCallable("add_booking").call({
-        "booking": bookingData.toJson(),
-        "customers": customersData,
-        "account": account,
-      });
-    } catch (e, s) {
-      logger.error("Failed to book tour", error: e, stackTrace: s);
-      rethrow;
-    }
-  }
-
   String _getBookingLabel(Booking booking, List<Customer> customers) {
     if (booking.name.trim().isNotEmpty) return booking.name.trim();
     for (final customer in customers) {
@@ -95,9 +69,12 @@ class BookingPageRepository {
     try {
       final response = await FirebaseFunctions.instanceFor(
         region: "europe-north1",
-      ).httpsCallable("get_stripe_integration_data").call({"account": account});
+      ).httpsCallable("get_public_stripe_status").call({"account": account});
       final data = response.data as Map<String, dynamic>;
-      return StripeConnection.fromJson(data);
+      return StripeConnection(
+        accountId: "",
+        isActive: data["isActive"] == true,
+      );
     } catch (e, s) {
       logger.error("Failed to get stripe connection", error: e, stackTrace: s);
       rethrow;

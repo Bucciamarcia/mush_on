@@ -268,6 +268,33 @@ class _FakeCheckoutSession:
         return types.SimpleNamespace(id="cs_123", url="https://checkout.test/session")
 
 
+class _FakeStripeAccount:
+    def __init__(self):
+        self.calls = []
+
+    def create(self, **kwargs):
+        self.calls.append(kwargs)
+        return types.SimpleNamespace(id="acct_new")
+
+
+class _FakeAccountLink:
+    def __init__(self):
+        self.calls = []
+
+    def create(self, **kwargs):
+        self.calls.append(kwargs)
+        return types.SimpleNamespace(url="https://connect.stripe.test/onboarding")
+
+
+class _FakeTaxRate:
+    def __init__(self):
+        self.calls = []
+
+    def create(self, **kwargs):
+        self.calls.append(kwargs)
+        return types.SimpleNamespace(id="txr_123")
+
+
 class BackendSecurityTests(unittest.TestCase):
     def test_callable_safe_firestore_data_converts_datetimes_recursively(self):
         dt = datetime(2026, 4, 25, 12, 30, tzinfo=timezone.utc)
@@ -415,6 +442,208 @@ class BackendSecurityTests(unittest.TestCase):
 
         self.assertEqual(result, {"error": "Stripe integration is not active"})
         self.assertEqual(checkout.calls, [])
+
+    def test_add_booking_rejects_legacy_public_write_path(self):
+        db = _FakeDb()
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "booking": {"id": "booking-1", "customerGroupId": "cg-1"},
+                "customers": [{"id": "customer-1", "pricingId": "adult"}],
+            },
+            auth=None,
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.add_booking(request)
+
+        self.assertEqual(error.exception.code, "failed-precondition")
+        self.assertEqual(
+            error.exception.message,
+            "Legacy add_booking is disabled. Use create_booking_checkout_session.",
+        )
+        self.assertEqual(db.documents, {})
+        self.assertEqual(db.collections, {})
+
+    def test_stripe_create_account_requires_account_membership_and_saves_server_side(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {"account": "account-1"}
+        account = _FakeStripeAccount()
+        main.firestore.client = lambda: db
+        main.stripe.Account = account
+        request = types.SimpleNamespace(
+            data={"account": "account-1"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        result = main.stripe_create_account(request)
+
+        self.assertEqual(result, {"account": "acct_new"})
+        self.assertEqual(len(account.calls), 1)
+        self.assertEqual(
+            db.documents["accounts/account-1/integrations/stripe"],
+            {"accountId": "acct_new"},
+        )
+
+    def test_stripe_create_account_rejects_wrong_account_user(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {"account": "other-account"}
+        account = _FakeStripeAccount()
+        main.firestore.client = lambda: db
+        main.stripe.Account = account
+        request = types.SimpleNamespace(
+            data={"account": "account-1"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.stripe_create_account(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+        self.assertEqual(account.calls, [])
+
+    def test_stripe_admin_callables_reject_unauthenticated_requests(self):
+        db = _FakeDb()
+        main.firestore.client = lambda: db
+        cases = [
+            (main.stripe_create_account, {"account": "account-1"}),
+            (
+                main.stripe_create_account_link,
+                {"account": "account-1", "stripeAccount": "acct_123"},
+            ),
+            (
+                main.change_stripe_integration_activation,
+                {"account": "account-1", "isActive": True},
+            ),
+            (main.get_stripe_integration_data, {"account": "account-1"}),
+            (main.create_stripe_tax_rate, {"account": "account-1", "percentage": 25.5}),
+        ]
+
+        for fn, data in cases:
+            with self.subTest(fn=fn.__name__):
+                request = types.SimpleNamespace(data=data, auth=None)
+                with self.assertRaises(_HttpsError) as error:
+                    fn(request)
+                self.assertEqual(error.exception.code, "unauthenticated")
+
+    def test_stripe_create_account_link_requires_account_membership(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {"account": "other-account"}
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123"
+        }
+        account_link = _FakeAccountLink()
+        main.firestore.client = lambda: db
+        main.stripe.AccountLink = account_link
+        request = types.SimpleNamespace(
+            data={"account": "account-1", "stripeAccount": "acct_123"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.stripe_create_account_link(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+        self.assertEqual(account_link.calls, [])
+
+    def test_stripe_create_account_link_uses_stored_account_id(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {"account": "account-1"}
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123"
+        }
+        account_link = _FakeAccountLink()
+        main.firestore.client = lambda: db
+        main.stripe.AccountLink = account_link
+        request = types.SimpleNamespace(
+            data={"account": "account-1", "stripeAccount": "acct_attacker"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        result = main.stripe_create_account_link(request)
+
+        self.assertEqual(result, {"url": "https://connect.stripe.test/onboarding"})
+        self.assertEqual(len(account_link.calls), 1)
+        self.assertEqual(account_link.calls[0]["account"], "acct_123")
+
+    def test_change_stripe_integration_activation_requires_account_membership(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {"account": "other-account"}
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123",
+            "isActive": False,
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"account": "account-1", "isActive": True},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.change_stripe_integration_activation(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+        self.assertEqual(
+            db.documents["accounts/account-1/integrations/stripe"]["isActive"],
+            False,
+        )
+
+    def test_get_stripe_integration_data_requires_account_membership(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {"account": "other-account"}
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123",
+            "isActive": True,
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"account": "account-1"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.get_stripe_integration_data(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+
+    def test_get_public_stripe_status_does_not_return_account_id(self):
+        db = _FakeDb()
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123",
+            "isActive": True,
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(data={"account": "account-1"}, auth=None)
+
+        result = main.get_public_stripe_status(request)
+
+        self.assertEqual(result, {"isActive": True})
+
+    def test_create_stripe_tax_rate_requires_membership_and_uses_stored_account_id(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {"account": "account-1"}
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123",
+            "isActive": True,
+        }
+        tax_rate = _FakeTaxRate()
+        main.firestore.client = lambda: db
+        main.stripe.TaxRate = tax_rate
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "percentage": 25.5,
+                "stripeAccountId": "acct_attacker",
+            },
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        result = main.create_stripe_tax_rate(request)
+
+        self.assertEqual(result, {"tax_id": "txr_123"})
+        self.assertEqual(len(tax_rate.calls), 1)
+        self.assertEqual(tax_rate.calls[0]["stripe_account"], "acct_123")
 
     def test_create_booking_checkout_session_rejects_full_customer_group(self):
         db = _FakeDb()

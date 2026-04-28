@@ -6,7 +6,6 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/section_shell.dart';
 import 'package:mush_on/settings/stripe/shopping_cart_settings.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'stripe_repository.dart';
 import 'riverpod.dart';
 
 class PaymentSettingsWidget extends ConsumerWidget {
@@ -67,7 +66,7 @@ class ConnectStripeButton extends StatelessWidget {
         try {
           final response = await FirebaseFunctions.instanceFor(
             region: "europe-north1",
-          ).httpsCallable("stripe_create_account").call({});
+          ).httpsCallable("stripe_create_account").call({"account": account});
           final responseJson = response.data as Map<String, dynamic>;
           final error = responseJson["error"];
           if (error != null) {
@@ -77,9 +76,6 @@ class ConnectStripeButton extends StatelessWidget {
           if (accountId == null) {
             throw Exception("Account ID is null");
           }
-          await StripeRepository(
-            account: account,
-          ).saveStripeAccountId(accountId);
           final responseLink =
               await FirebaseFunctions.instanceFor(region: "europe-north1")
                   .httpsCallable("stripe_create_account_link")

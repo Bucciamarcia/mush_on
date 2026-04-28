@@ -7,7 +7,6 @@ from firebase_functions.options import set_global_options
 from firebase_admin import initialize_app, firestore
 from flask import json
 import stripe
-from lib.add_booking.add_booking import add_booking_main
 from lib.add_booking import add_checkout_session
 from dotenv import load_dotenv
 import os
@@ -380,24 +379,23 @@ def _assert_account_member(req: https_fn.CallableRequest[dict], account: str) ->
 
 @https_fn.on_call()
 def add_booking(req: https_fn.CallableRequest[dict]) -> dict:
-    try:
-        data = req.data
-        booking = _unwrap_int64_wrappers(data["booking"])
-        customers = _unwrap_int64_wrappers(data["customers"])
-        account: str = data["account"]
-    except Exception as e:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INVALID_ARGUMENT, str(e))
-
-    try:
-        add_booking_main(booking, customers, account)
-        return {}
-    except Exception as e:
-        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INTERNAL, str(e))
+    raise https_fn.HttpsError(
+        https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+        "Legacy add_booking is disabled. Use create_booking_checkout_session.",
+    )
 
 
 @https_fn.on_call()
 def stripe_create_account(req: https_fn.CallableRequest[dict]) -> dict:
     try:
+        data = req.data or {}
+        account_id = data.get("account")
+        if not account_id:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                "Missing account",
+            )
+        _assert_account_member(req, account_id)
         account = stripe.Account.create(
             controller={
                 "stripe_dashboard": {
@@ -413,7 +411,12 @@ def stripe_create_account(req: https_fn.CallableRequest[dict]) -> dict:
                 "sepa_debit_payments": {"requested": True},
             },
         )
+        firestore.client().document(
+            f"accounts/{account_id}/integrations/stripe"
+        ).set({"accountId": account.id})
         return {"account": account.id}
+    except https_fn.HttpsError:
+        raise
     except Exception as e:
         return {"error": str(e)}
 
@@ -421,10 +424,20 @@ def stripe_create_account(req: https_fn.CallableRequest[dict]) -> dict:
 @https_fn.on_call()
 def stripe_create_account_link(req: https_fn.CallableRequest[dict]) -> dict:
     try:
-        connected_account_id = req.data.get("stripeAccount")
         account = req.data.get("account")
-        if connected_account_id is None:
-            return {"error": "account param is not present"}
+        if account is None:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                "Missing account",
+            )
+        _assert_account_member(req, account)
+        stripe_data = get_stripe_data(account)
+        connected_account_id = stripe_data.get("accountId")
+        if not connected_account_id:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "Stripe integration is missing accountId",
+            )
         account_link = stripe.AccountLink.create(
             account=connected_account_id,
             return_url=f"https://mush-on.web.app/stripe_connection?kennel={account}&result=success",
@@ -432,6 +445,8 @@ def stripe_create_account_link(req: https_fn.CallableRequest[dict]) -> dict:
             type="account_onboarding",
         )
         return {"url": account_link.url}
+    except https_fn.HttpsError:
+        raise
     except Exception as e:
         return {"error": str(e)}
 
@@ -443,11 +458,17 @@ def change_stripe_integration_activation(req: https_fn.CallableRequest[dict]) ->
         account = data["account"]
         is_active = data["isActive"]
         if account is None or is_active is None:
-            return {"error": "account or isActive is null"}
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                "account or isActive is null",
+            )
+        _assert_account_member(req, account)
         db = firestore.client()
         ref = db.document(f"accounts/{account}/integrations/stripe")
         ref.update({"isActive": is_active})
         return {}
+    except https_fn.HttpsError:
+        raise
     except Exception as e:
         return {"error": str(e)}
 
@@ -458,10 +479,32 @@ def get_stripe_integration_data(req: https_fn.CallableRequest[dict]) -> dict:
         data = req.data
         account = data["account"]
         if account is None:
-            return {"error": "account is null"}
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                "account is null",
+            )
+        _assert_account_member(req, account)
         return get_stripe_data(account)
+    except https_fn.HttpsError:
+        raise
     except Exception as e:
         return {"error": str(e)}
+
+
+@https_fn.on_call()
+def get_public_stripe_status(req: https_fn.CallableRequest[dict]) -> dict:
+    data = req.data or {}
+    account = data.get("account")
+    if not account:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account",
+        )
+    stripe_doc = (
+        firestore.client().document(f"accounts/{account}/integrations/stripe").get()
+    )
+    stripe_data = stripe_doc.to_dict() or {}
+    return {"isActive": bool(stripe_data.get("isActive"))}
 
 
 @https_fn.on_call()
@@ -722,7 +765,15 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
 def create_stripe_tax_rate(req: https_fn.CallableRequest[dict]) -> dict:
     try:
         data = req.data
-        stripe_account_id = data["stripeAccountId"]
+        account = data["account"]
+        _assert_account_member(req, account)
+        stripe_data = get_stripe_data(account)
+        stripe_account_id = stripe_data.get("accountId")
+        if not stripe_account_id:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "Stripe integration is missing accountId",
+            )
         percentage = data["percentage"]
         percentage = round(percentage, 2)
         response = stripe.TaxRate.create(
@@ -733,6 +784,8 @@ def create_stripe_tax_rate(req: https_fn.CallableRequest[dict]) -> dict:
             stripe_account=stripe_account_id,
         )
         return {"tax_id": response.id}
+    except https_fn.HttpsError:
+        raise
     except Exception as e:
         return {"error": str(e)}
 

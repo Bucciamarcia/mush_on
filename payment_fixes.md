@@ -2,17 +2,6 @@
 
 This document tracks the critical payment and booking issues that still remain after locking down direct public access to private booking data and moving refund lookup logic server-side.
 
-## 7. Validate Stripe Account Activation Server-Side
-
-**Executive description:**  
-The public booking page checks whether Stripe is active, but checkout creation should also enforce this on the backend.
-
-**Why it matters:**  
-Client-side gates are UX safeguards, not security controls. A direct callable request could bypass the page-level active check.
-
-**Recommendation:**  
-In `create_checkout_session`, fetch the Stripe integration document and reject the request unless `isActive == true`, the connected account id exists, and the account matches the requested kennel.
-
 ## 8. Add Tests Around Payment Security Boundaries
 
 **Executive description:**  
