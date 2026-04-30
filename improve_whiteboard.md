@@ -49,7 +49,7 @@ Recommended lifecycle:
 - Open
 - Done
 
-Optional later addition:
+Furthermore, adding a pinning feature will prioritize the pinned notes over the others, both in visual hierarchy (bold) and ordering on top.
 
 - Pinned
 
@@ -90,6 +90,8 @@ WhatsApp works partly because recent activity rises to the top. The whiteboard s
 4. Add a checkmark action to mark notes done/open.
 5. Improve `/whiteboard` layout and empty state.
 6. Add `category` only after the lifecycle and sorting feel good in real use.
+7. Add a `pinned` boolean that will prioritize important notes.
+8. (extra) Add a date to each comment, as it now only shows the time.
 
 This order keeps the highest-value coordination fixes first and avoids overbuilding category structure before there is enough real content to justify it.
 

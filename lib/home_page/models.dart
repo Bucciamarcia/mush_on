@@ -22,18 +22,26 @@ abstract class HomePageRiverpodResults with _$HomePageRiverpodResults {
 @freezed
 /// An element of the whiteboard in the home page.
 abstract class WhiteboardElement with _$WhiteboardElement {
+  const WhiteboardElement._();
+
   @JsonSerializable(explicitToJson: true)
   const factory WhiteboardElement({
     required String id,
     @Default("") String title,
     @Default("") String description,
     @NonNullableTimestampConverter() required DateTime date,
+    @TimestampConverter() DateTime? lastActivityAt,
+    @Default("General") String category,
+    @Default(false) bool isDone,
+    @Default(false) bool isPinned,
 
     /// The user ID of the author
     String? author,
     @Default(<WhiteboardElementComment>[])
     List<WhiteboardElementComment> comments,
   }) = _WhiteboardElement;
+
+  DateTime get activityDate => lastActivityAt ?? date;
 
   factory WhiteboardElement.fromJson(Map<String, dynamic> json) =>
       _$WhiteboardElementFromJson(json);

@@ -7,6 +7,24 @@ import 'package:mush_on/services/models/username.dart';
 import 'package:mush_on/shared/circle_avatar/circle_avatar.dart';
 import 'package:uuid/uuid.dart';
 
+const whiteboardCategories = [
+  "General",
+  "Dogs",
+  "Equipment",
+  "Tours",
+  "Maintenance",
+];
+
+int compareWhiteboardElements(WhiteboardElement a, WhiteboardElement b) {
+  if (a.isPinned != b.isPinned) {
+    return a.isPinned ? -1 : 1;
+  }
+  if (a.isDone != b.isDone) {
+    return a.isDone ? 1 : -1;
+  }
+  return b.activityDate.compareTo(a.activityDate);
+}
+
 class WhiteboardElementDisplayWidget extends ConsumerStatefulWidget {
   final WhiteboardElement element;
   final Function(WhiteboardElement) onSaved;
@@ -39,13 +57,22 @@ class _WhiteboardElementDisplayWidgetState
     final visibleComments = _showOlderComments || comments.length <= 3
         ? comments
         : comments.sublist(comments.length - 3);
+    final isDone = widget.element.isDone;
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: isDone
+            ? colors.surfaceContainerLowest
+            : widget.element.isPinned
+            ? colors.primaryContainer.withValues(alpha: 0.28)
+            : colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colors.outlineVariant),
+        border: Border.all(
+          color: widget.element.isPinned
+              ? colors.primary.withValues(alpha: 0.45)
+              : colors.outlineVariant,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,20 +91,32 @@ class _WhiteboardElementDisplayWidgetState
                       runSpacing: 4,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
+                        if (widget.element.isPinned)
+                          Icon(Icons.push_pin, size: 16, color: colors.primary),
                         _UserNameText(
                           uid: widget.element.author,
                           style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: colors.onSurface,
+                            fontWeight: widget.element.isPinned
+                                ? FontWeight.w800
+                                : FontWeight.w700,
+                            color: isDone
+                                ? colors.onSurfaceVariant
+                                : colors.onSurface,
                           ),
                         ),
+                        _CategoryChip(category: widget.element.category),
+                        if (isDone)
+                          _StatusChip(
+                            label: "Done",
+                            icon: Icons.check_circle,
+                            color: colors.outline,
+                          ),
                         Text(
                           DateFormat(
                             "MMM d, HH:mm",
-                          ).format(widget.element.date),
+                          ).format(widget.element.activityDate),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: colors.onSurfaceVariant,
-                            letterSpacing: 0.2,
                           ),
                         ),
                       ],
@@ -105,9 +144,16 @@ class _WhiteboardElementDisplayWidgetState
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodyLarge?.copyWith(
-                                color: colors.onSurface,
-                                fontWeight: FontWeight.w500,
+                                color: isDone
+                                    ? colors.onSurfaceVariant
+                                    : colors.onSurface,
+                                fontWeight: widget.element.isPinned
+                                    ? FontWeight.w700
+                                    : FontWeight.w500,
                                 fontStyle: FontStyle.italic,
+                                decoration: isDone
+                                    ? TextDecoration.lineThrough
+                                    : null,
                               ),
                             ),
                           if (widget.element.title.isNotEmpty &&
@@ -121,6 +167,9 @@ class _WhiteboardElementDisplayWidgetState
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: colors.onSurfaceVariant,
                                 height: 1.35,
+                                decoration: isDone
+                                    ? TextDecoration.lineThrough
+                                    : null,
                               ),
                             ),
                         ],
@@ -130,6 +179,34 @@ class _WhiteboardElementDisplayWidgetState
                 ),
               ),
               const SizedBox(width: 8),
+              IconButton(
+                tooltip: widget.element.isPinned ? "Unpin note" : "Pin note",
+                icon: Icon(
+                  widget.element.isPinned
+                      ? Icons.push_pin
+                      : Icons.push_pin_outlined,
+                ),
+                onPressed: () => widget.onSaved(
+                  widget.element.copyWith(
+                    isPinned: !widget.element.isPinned,
+                    lastActivityAt: DateTime.now(),
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: isDone ? "Mark open" : "Mark done",
+                icon: Icon(
+                  isDone
+                      ? Icons.radio_button_unchecked
+                      : Icons.check_circle_outline,
+                ),
+                onPressed: () => widget.onSaved(
+                  widget.element.copyWith(
+                    isDone: !widget.element.isDone,
+                    lastActivityAt: DateTime.now(),
+                  ),
+                ),
+              ),
               IconButton(
                 tooltip: "Edit note",
                 icon: const Icon(Icons.edit_outlined),
@@ -191,6 +268,7 @@ class _WhiteboardElementDisplayWidgetState
               widget.onSaved(
                 widget.element.copyWith(
                   comments: [...widget.element.comments, comment],
+                  lastActivityAt: DateTime.now(),
                 ),
               );
             },
@@ -214,6 +292,59 @@ class _UserNameText extends ConsumerWidget {
     return Text(
       ref.watch(userNameProvider(uid)).value?.name ?? "Unknown",
       style: style,
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  final String category;
+  const _CategoryChip({required this.category});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return _StatusChip(
+      label: whiteboardCategories.contains(category) ? category : "General",
+      icon: Icons.label_outline,
+      color: colors.primary,
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color color;
+  const _StatusChip({
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -274,7 +405,7 @@ class _WhiteboardCommentRow extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-            DateFormat("HH:mm").format(comment.date),
+            DateFormat("MMM d, HH:mm").format(comment.date),
             style: theme.textTheme.bodySmall?.copyWith(
               color: colors.onSurfaceVariant,
             ),
@@ -406,6 +537,7 @@ class _WhiteboardElementEditorState
     extends ConsumerState<WhiteboardElementEditor> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
+  late String _category;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -415,6 +547,8 @@ class _WhiteboardElementEditorState
     _descriptionController = TextEditingController(
       text: widget.element?.description,
     );
+    final category = widget.element?.category ?? "General";
+    _category = whiteboardCategories.contains(category) ? category : "General";
   }
 
   @override
@@ -474,6 +608,30 @@ class _WhiteboardElementEditorState
               maxLines: 3,
               textInputAction: TextInputAction.done,
             ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              initialValue: _category,
+              decoration: InputDecoration(
+                labelText: "Category",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                prefixIcon: const Icon(Icons.label_outline),
+              ),
+              items: whiteboardCategories
+                  .map(
+                    (category) => DropdownMenuItem(
+                      value: category,
+                      child: Text(category),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() => _category = value);
+                }
+              },
+            ),
             const SizedBox(height: 8),
           ],
         ),
@@ -501,11 +659,16 @@ class _WhiteboardElementEditorState
           onPressed: () async {
             UserName? user = await ref.watch(userNameProvider(null).future);
             if (_formKey.currentState!.validate()) {
+              final now = DateTime.now();
               widget.onSaved(
                 WhiteboardElement(
                   id: widget.element?.id ?? const Uuid().v4(),
                   title: _titleController.text.trim(),
-                  date: widget.element?.date ?? DateTime.now(),
+                  date: widget.element?.date ?? now,
+                  lastActivityAt: now,
+                  category: _category,
+                  isDone: widget.element?.isDone ?? false,
+                  isPinned: widget.element?.isPinned ?? false,
                   author: widget.element?.author ?? user?.uid,
                   comments:
                       widget.element?.comments ?? <WhiteboardElementComment>[],

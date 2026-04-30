@@ -326,7 +326,7 @@ $TasksInMemoryCopyWith<$Res> get tasks {
 /// @nodoc
 mixin _$WhiteboardElement {
 
- String get id; String get title; String get description;@NonNullableTimestampConverter() DateTime get date;/// The user ID of the author
+ String get id; String get title; String get description;@NonNullableTimestampConverter() DateTime get date;@TimestampConverter() DateTime? get lastActivityAt; String get category; bool get isDone; bool get isPinned;/// The user ID of the author
  String? get author; List<WhiteboardElementComment> get comments;
 /// Create a copy of WhiteboardElement
 /// with the given fields replaced by the non-null parameter values.
@@ -340,16 +340,16 @@ $WhiteboardElementCopyWith<WhiteboardElement> get copyWith => _$WhiteboardElemen
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is WhiteboardElement&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.author, author) || other.author == author)&&const DeepCollectionEquality().equals(other.comments, comments));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WhiteboardElement&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.lastActivityAt, lastActivityAt) || other.lastActivityAt == lastActivityAt)&&(identical(other.category, category) || other.category == category)&&(identical(other.isDone, isDone) || other.isDone == isDone)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.author, author) || other.author == author)&&const DeepCollectionEquality().equals(other.comments, comments));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,description,date,author,const DeepCollectionEquality().hash(comments));
+int get hashCode => Object.hash(runtimeType,id,title,description,date,lastActivityAt,category,isDone,isPinned,author,const DeepCollectionEquality().hash(comments));
 
 @override
 String toString() {
-  return 'WhiteboardElement(id: $id, title: $title, description: $description, date: $date, author: $author, comments: $comments)';
+  return 'WhiteboardElement(id: $id, title: $title, description: $description, date: $date, lastActivityAt: $lastActivityAt, category: $category, isDone: $isDone, isPinned: $isPinned, author: $author, comments: $comments)';
 }
 
 
@@ -360,7 +360,7 @@ abstract mixin class $WhiteboardElementCopyWith<$Res>  {
   factory $WhiteboardElementCopyWith(WhiteboardElement value, $Res Function(WhiteboardElement) _then) = _$WhiteboardElementCopyWithImpl;
 @useResult
 $Res call({
- String id, String title, String description,@NonNullableTimestampConverter() DateTime date, String? author, List<WhiteboardElementComment> comments
+ String id, String title, String description,@NonNullableTimestampConverter() DateTime date,@TimestampConverter() DateTime? lastActivityAt, String category, bool isDone, bool isPinned, String? author, List<WhiteboardElementComment> comments
 });
 
 
@@ -377,13 +377,17 @@ class _$WhiteboardElementCopyWithImpl<$Res>
 
 /// Create a copy of WhiteboardElement
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = null,Object? date = null,Object? author = freezed,Object? comments = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = null,Object? date = null,Object? lastActivityAt = freezed,Object? category = null,Object? isDone = null,Object? isPinned = null,Object? author = freezed,Object? comments = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
-as DateTime,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
+as DateTime,lastActivityAt: freezed == lastActivityAt ? _self.lastActivityAt : lastActivityAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String,isDone: null == isDone ? _self.isDone : isDone // ignore: cast_nullable_to_non_nullable
+as bool,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
+as bool,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
 as String?,comments: null == comments ? _self.comments : comments // ignore: cast_nullable_to_non_nullable
 as List<WhiteboardElementComment>,
   ));
@@ -470,10 +474,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String description, @NonNullableTimestampConverter()  DateTime date,  String? author,  List<WhiteboardElementComment> comments)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String title,  String description, @NonNullableTimestampConverter()  DateTime date, @TimestampConverter()  DateTime? lastActivityAt,  String category,  bool isDone,  bool isPinned,  String? author,  List<WhiteboardElementComment> comments)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _WhiteboardElement() when $default != null:
-return $default(_that.id,_that.title,_that.description,_that.date,_that.author,_that.comments);case _:
+return $default(_that.id,_that.title,_that.description,_that.date,_that.lastActivityAt,_that.category,_that.isDone,_that.isPinned,_that.author,_that.comments);case _:
   return orElse();
 
 }
@@ -491,10 +495,10 @@ return $default(_that.id,_that.title,_that.description,_that.date,_that.author,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String description, @NonNullableTimestampConverter()  DateTime date,  String? author,  List<WhiteboardElementComment> comments)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String title,  String description, @NonNullableTimestampConverter()  DateTime date, @TimestampConverter()  DateTime? lastActivityAt,  String category,  bool isDone,  bool isPinned,  String? author,  List<WhiteboardElementComment> comments)  $default,) {final _that = this;
 switch (_that) {
 case _WhiteboardElement():
-return $default(_that.id,_that.title,_that.description,_that.date,_that.author,_that.comments);case _:
+return $default(_that.id,_that.title,_that.description,_that.date,_that.lastActivityAt,_that.category,_that.isDone,_that.isPinned,_that.author,_that.comments);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -511,10 +515,10 @@ return $default(_that.id,_that.title,_that.description,_that.date,_that.author,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String description, @NonNullableTimestampConverter()  DateTime date,  String? author,  List<WhiteboardElementComment> comments)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String title,  String description, @NonNullableTimestampConverter()  DateTime date, @TimestampConverter()  DateTime? lastActivityAt,  String category,  bool isDone,  bool isPinned,  String? author,  List<WhiteboardElementComment> comments)?  $default,) {final _that = this;
 switch (_that) {
 case _WhiteboardElement() when $default != null:
-return $default(_that.id,_that.title,_that.description,_that.date,_that.author,_that.comments);case _:
+return $default(_that.id,_that.title,_that.description,_that.date,_that.lastActivityAt,_that.category,_that.isDone,_that.isPinned,_that.author,_that.comments);case _:
   return null;
 
 }
@@ -525,14 +529,18 @@ return $default(_that.id,_that.title,_that.description,_that.date,_that.author,_
 /// @nodoc
 
 @JsonSerializable(explicitToJson: true)
-class _WhiteboardElement implements WhiteboardElement {
-  const _WhiteboardElement({required this.id, this.title = "", this.description = "", @NonNullableTimestampConverter() required this.date, this.author, final  List<WhiteboardElementComment> comments = const <WhiteboardElementComment>[]}): _comments = comments;
+class _WhiteboardElement extends WhiteboardElement {
+  const _WhiteboardElement({required this.id, this.title = "", this.description = "", @NonNullableTimestampConverter() required this.date, @TimestampConverter() this.lastActivityAt, this.category = "General", this.isDone = false, this.isPinned = false, this.author, final  List<WhiteboardElementComment> comments = const <WhiteboardElementComment>[]}): _comments = comments,super._();
   factory _WhiteboardElement.fromJson(Map<String, dynamic> json) => _$WhiteboardElementFromJson(json);
 
 @override final  String id;
 @override@JsonKey() final  String title;
 @override@JsonKey() final  String description;
 @override@NonNullableTimestampConverter() final  DateTime date;
+@override@TimestampConverter() final  DateTime? lastActivityAt;
+@override@JsonKey() final  String category;
+@override@JsonKey() final  bool isDone;
+@override@JsonKey() final  bool isPinned;
 /// The user ID of the author
 @override final  String? author;
  final  List<WhiteboardElementComment> _comments;
@@ -556,16 +564,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WhiteboardElement&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.author, author) || other.author == author)&&const DeepCollectionEquality().equals(other._comments, _comments));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WhiteboardElement&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.lastActivityAt, lastActivityAt) || other.lastActivityAt == lastActivityAt)&&(identical(other.category, category) || other.category == category)&&(identical(other.isDone, isDone) || other.isDone == isDone)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&(identical(other.author, author) || other.author == author)&&const DeepCollectionEquality().equals(other._comments, _comments));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,description,date,author,const DeepCollectionEquality().hash(_comments));
+int get hashCode => Object.hash(runtimeType,id,title,description,date,lastActivityAt,category,isDone,isPinned,author,const DeepCollectionEquality().hash(_comments));
 
 @override
 String toString() {
-  return 'WhiteboardElement(id: $id, title: $title, description: $description, date: $date, author: $author, comments: $comments)';
+  return 'WhiteboardElement(id: $id, title: $title, description: $description, date: $date, lastActivityAt: $lastActivityAt, category: $category, isDone: $isDone, isPinned: $isPinned, author: $author, comments: $comments)';
 }
 
 
@@ -576,7 +584,7 @@ abstract mixin class _$WhiteboardElementCopyWith<$Res> implements $WhiteboardEle
   factory _$WhiteboardElementCopyWith(_WhiteboardElement value, $Res Function(_WhiteboardElement) _then) = __$WhiteboardElementCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String title, String description,@NonNullableTimestampConverter() DateTime date, String? author, List<WhiteboardElementComment> comments
+ String id, String title, String description,@NonNullableTimestampConverter() DateTime date,@TimestampConverter() DateTime? lastActivityAt, String category, bool isDone, bool isPinned, String? author, List<WhiteboardElementComment> comments
 });
 
 
@@ -593,13 +601,17 @@ class __$WhiteboardElementCopyWithImpl<$Res>
 
 /// Create a copy of WhiteboardElement
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = null,Object? date = null,Object? author = freezed,Object? comments = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = null,Object? date = null,Object? lastActivityAt = freezed,Object? category = null,Object? isDone = null,Object? isPinned = null,Object? author = freezed,Object? comments = null,}) {
   return _then(_WhiteboardElement(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
-as DateTime,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
+as DateTime,lastActivityAt: freezed == lastActivityAt ? _self.lastActivityAt : lastActivityAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,category: null == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
+as String,isDone: null == isDone ? _self.isDone : isDone // ignore: cast_nullable_to_non_nullable
+as bool,isPinned: null == isPinned ? _self.isPinned : isPinned // ignore: cast_nullable_to_non_nullable
+as bool,author: freezed == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
 as String?,comments: null == comments ? _self._comments : comments // ignore: cast_nullable_to_non_nullable
 as List<WhiteboardElementComment>,
   ));
