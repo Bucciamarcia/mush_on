@@ -14,6 +14,12 @@ _WhiteboardElement _$WhiteboardElementFromJson(Map<String, dynamic> json) =>
       date: const NonNullableTimestampConverter().fromJson(
         json['date'] as Timestamp,
       ),
+      lastActivityAt: const TimestampConverter().fromJson(
+        json['lastActivityAt'] as Timestamp?,
+      ),
+      category: json['category'] as String? ?? "General",
+      isDone: json['isDone'] as bool? ?? false,
+      isPinned: json['isPinned'] as bool? ?? false,
       author: json['author'] as String?,
       comments:
           (json['comments'] as List<dynamic>?)
@@ -26,15 +32,20 @@ _WhiteboardElement _$WhiteboardElementFromJson(Map<String, dynamic> json) =>
           const <WhiteboardElementComment>[],
     );
 
-Map<String, dynamic> _$WhiteboardElementToJson(_WhiteboardElement instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'title': instance.title,
-      'description': instance.description,
-      'date': const NonNullableTimestampConverter().toJson(instance.date),
-      'author': instance.author,
-      'comments': instance.comments.map((e) => e.toJson()).toList(),
-    };
+Map<String, dynamic> _$WhiteboardElementToJson(
+  _WhiteboardElement instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'title': instance.title,
+  'description': instance.description,
+  'date': const NonNullableTimestampConverter().toJson(instance.date),
+  'lastActivityAt': const TimestampConverter().toJson(instance.lastActivityAt),
+  'category': instance.category,
+  'isDone': instance.isDone,
+  'isPinned': instance.isPinned,
+  'author': instance.author,
+  'comments': instance.comments.map((e) => e.toJson()).toList(),
+};
 
 _WhiteboardElementComment _$WhiteboardElementCommentFromJson(
   Map<String, dynamic> json,

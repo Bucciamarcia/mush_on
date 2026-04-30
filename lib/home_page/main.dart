@@ -84,7 +84,7 @@ class HomePageScreenContent extends ConsumerWidget {
         }
         List<WhiteboardElement> whiteboardElements =
             riverpod.whiteboardElements.toList()
-              ..sort((a, b) => a.date.compareTo(b.date));
+              ..sort(compareWhiteboardElements);
         final theme = Theme.of(context);
         final colors = theme.colorScheme;
         final totalDogs = dogs.length;
