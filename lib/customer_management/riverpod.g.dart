@@ -1044,7 +1044,7 @@ class _CustomersByCustomerGroupIdProviderElement
 }
 
 String _$bookingsByCustomerGroupIdHash() =>
-    r'92f4d916ca2601d86c02fe356236e70cacea8a76';
+    r'327dcf9dc2d0b1e2ed0e0e61e2ed288297de72e0';
 
 /// See also [bookingsByCustomerGroupId].
 @ProviderFor(bookingsByCustomerGroupId)
@@ -1057,15 +1057,27 @@ class BookingsByCustomerGroupIdFamily
   const BookingsByCustomerGroupIdFamily();
 
   /// See also [bookingsByCustomerGroupId].
-  BookingsByCustomerGroupIdProvider call(String id, {String? account}) {
-    return BookingsByCustomerGroupIdProvider(id, account: account);
+  BookingsByCustomerGroupIdProvider call(
+    String id, {
+    String? account,
+    bool includeInactive = false,
+  }) {
+    return BookingsByCustomerGroupIdProvider(
+      id,
+      account: account,
+      includeInactive: includeInactive,
+    );
   }
 
   @override
   BookingsByCustomerGroupIdProvider getProviderOverride(
     covariant BookingsByCustomerGroupIdProvider provider,
   ) {
-    return call(provider.id, account: provider.account);
+    return call(
+      provider.id,
+      account: provider.account,
+      includeInactive: provider.includeInactive,
+    );
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -1087,24 +1099,29 @@ class BookingsByCustomerGroupIdFamily
 class BookingsByCustomerGroupIdProvider
     extends AutoDisposeStreamProvider<List<Booking>> {
   /// See also [bookingsByCustomerGroupId].
-  BookingsByCustomerGroupIdProvider(String id, {String? account})
-    : this._internal(
-        (ref) => bookingsByCustomerGroupId(
-          ref as BookingsByCustomerGroupIdRef,
-          id,
-          account: account,
-        ),
-        from: bookingsByCustomerGroupIdProvider,
-        name: r'bookingsByCustomerGroupIdProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$bookingsByCustomerGroupIdHash,
-        dependencies: BookingsByCustomerGroupIdFamily._dependencies,
-        allTransitiveDependencies:
-            BookingsByCustomerGroupIdFamily._allTransitiveDependencies,
-        id: id,
-        account: account,
-      );
+  BookingsByCustomerGroupIdProvider(
+    String id, {
+    String? account,
+    bool includeInactive = false,
+  }) : this._internal(
+         (ref) => bookingsByCustomerGroupId(
+           ref as BookingsByCustomerGroupIdRef,
+           id,
+           account: account,
+           includeInactive: includeInactive,
+         ),
+         from: bookingsByCustomerGroupIdProvider,
+         name: r'bookingsByCustomerGroupIdProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$bookingsByCustomerGroupIdHash,
+         dependencies: BookingsByCustomerGroupIdFamily._dependencies,
+         allTransitiveDependencies:
+             BookingsByCustomerGroupIdFamily._allTransitiveDependencies,
+         id: id,
+         account: account,
+         includeInactive: includeInactive,
+       );
 
   BookingsByCustomerGroupIdProvider._internal(
     super._createNotifier, {
@@ -1115,10 +1132,12 @@ class BookingsByCustomerGroupIdProvider
     required super.from,
     required this.id,
     required this.account,
+    required this.includeInactive,
   }) : super.internal();
 
   final String id;
   final String? account;
+  final bool includeInactive;
 
   @override
   Override overrideWith(
@@ -1136,6 +1155,7 @@ class BookingsByCustomerGroupIdProvider
         debugGetCreateSourceHash: null,
         id: id,
         account: account,
+        includeInactive: includeInactive,
       ),
     );
   }
@@ -1149,7 +1169,8 @@ class BookingsByCustomerGroupIdProvider
   bool operator ==(Object other) {
     return other is BookingsByCustomerGroupIdProvider &&
         other.id == id &&
-        other.account == account;
+        other.account == account &&
+        other.includeInactive == includeInactive;
   }
 
   @override
@@ -1157,6 +1178,7 @@ class BookingsByCustomerGroupIdProvider
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, id.hashCode);
     hash = _SystemHash.combine(hash, account.hashCode);
+    hash = _SystemHash.combine(hash, includeInactive.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -1171,6 +1193,9 @@ mixin BookingsByCustomerGroupIdRef
 
   /// The parameter `account` of this provider.
   String? get account;
+
+  /// The parameter `includeInactive` of this provider.
+  bool get includeInactive;
 }
 
 class _BookingsByCustomerGroupIdProviderElement
@@ -1182,6 +1207,9 @@ class _BookingsByCustomerGroupIdProviderElement
   String get id => (origin as BookingsByCustomerGroupIdProvider).id;
   @override
   String? get account => (origin as BookingsByCustomerGroupIdProvider).account;
+  @override
+  bool get includeInactive =>
+      (origin as BookingsByCustomerGroupIdProvider).includeInactive;
 }
 
 String _$futureCustomerGroupsHash() =>

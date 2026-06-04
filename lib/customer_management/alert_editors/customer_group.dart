@@ -54,7 +54,11 @@ class _CustomerGroupEditorAlertState
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    bookings = ref.watch(bookingsByCustomerGroupIdProvider(id)).value ?? [];
+    bookings =
+        ref
+            .watch(bookingsByCustomerGroupIdProvider(id, includeInactive: true))
+            .value ??
+        [];
   }
 
   @override

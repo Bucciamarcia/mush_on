@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/create_team/customers/main.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/team_builder/main.dart';
@@ -632,6 +633,112 @@ void main() {
       },
     );
   });
+
+  group('CustomerActionChip', () {
+    testWidgets('available customer tap selects the customer', (tester) async {
+      var selectedCount = 0;
+      var deselectedCount = 0;
+
+      await tester.pumpWidget(
+        _customerChipHarness(
+          customer: const Customer(
+            id: 'customer-1',
+            bookingId: 'booking-1',
+            name: 'Alex',
+          ),
+          teamId: 'team-a',
+          onCustomerSelected: () => selectedCount++,
+          onCustomerDeselected: () => deselectedCount++,
+        ),
+      );
+
+      expect(find.text('Available'), findsOneWidget);
+
+      await tester.tap(find.text('Alex'));
+      await tester.pump();
+
+      expect(selectedCount, 1);
+      expect(deselectedCount, 0);
+    });
+
+    testWidgets('customer on this sled can be removed', (tester) async {
+      var selectedCount = 0;
+      var deselectedCount = 0;
+
+      await tester.pumpWidget(
+        _customerChipHarness(
+          customer: const Customer(
+            id: 'customer-1',
+            bookingId: 'booking-1',
+            name: 'Alex',
+            teamId: 'team-a',
+          ),
+          teamId: 'team-a',
+          onCustomerSelected: () => selectedCount++,
+          onCustomerDeselected: () => deselectedCount++,
+        ),
+      );
+
+      expect(find.text('On this sled'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.cancel_outlined));
+      await tester.pump();
+
+      expect(selectedCount, 0);
+      expect(deselectedCount, 1);
+    });
+
+    testWidgets('customer on another sled needs explicit move confirmation', (
+      tester,
+    ) async {
+      var selectedCount = 0;
+      var deselectedCount = 0;
+
+      await tester.pumpWidget(
+        _customerChipHarness(
+          customer: const Customer(
+            id: 'customer-1',
+            bookingId: 'booking-1',
+            name: 'Alex',
+            teamId: 'team-b',
+          ),
+          teamId: 'team-a',
+          onCustomerSelected: () => selectedCount++,
+          onCustomerDeselected: () => deselectedCount++,
+        ),
+      );
+
+      expect(find.text('On another sled'), findsOneWidget);
+      expect(find.text('Move here'), findsOneWidget);
+
+      await tester.tap(find.text('Alex'));
+      await tester.pump();
+
+      expect(selectedCount, 0);
+      expect(deselectedCount, 0);
+      expect(find.text('Move customer?'), findsNothing);
+
+      await tester.tap(find.text('Move here'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Move customer?'), findsOneWidget);
+      expect(find.text('Move Alex to this sled?'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(selectedCount, 0);
+      expect(deselectedCount, 0);
+
+      await tester.tap(find.text('Move here'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Move here'));
+      await tester.pumpAndSettle();
+
+      expect(selectedCount, 1);
+      expect(deselectedCount, 0);
+    });
+  });
 }
 
 const _dogs = [
@@ -657,6 +764,26 @@ Future<void> _applyDogFilter(WidgetTester tester, List<Dog> dogs) async {
   await tester.tap(find.text('Filter dogs'));
   await tester.pumpAndSettle();
   tester.widget<DogFilterWidget>(find.byType(DogFilterWidget)).onResult(dogs);
+}
+
+Widget _customerChipHarness({
+  required Customer customer,
+  required String teamId,
+  required VoidCallback onCustomerSelected,
+  required VoidCallback onCustomerDeselected,
+}) {
+  return ProviderScope(
+    child: MaterialApp(
+      home: Scaffold(
+        body: CustomerActionChip(
+          customer: customer,
+          teamId: teamId,
+          onCustomerSelected: onCustomerSelected,
+          onCustomerDeselected: onCustomerDeselected,
+        ),
+      ),
+    ),
+  );
 }
 
 TeamGroupWorkspace _teamGroupWithDogs({

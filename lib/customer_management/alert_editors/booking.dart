@@ -49,6 +49,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
   late Map<String, TextEditingController> bookingCustomFieldControllers;
   late List<CustomerGroup> possibleCustomerGroups;
   late List<Customer> customers;
+  late PaymentStatus manualPaymentStatus;
   @override
   void initState() {
     super.initState();
@@ -66,6 +67,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
     bookingCustomFieldControllers = {};
     possibleCustomerGroups = [];
     customers = [];
+    manualPaymentStatus = initialManualBookingPaymentStatus(widget.booking);
   }
 
   @override
@@ -214,6 +216,39 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                         ),
                       )
                       .toList(),
+                ),
+              if (_showsManualPaymentStatusPicker(widget.booking))
+                _EditorSection(
+                  icon: Icons.payments_outlined,
+                  title: "Payment status",
+                  children: [
+                    SegmentedButton<PaymentStatus>(
+                      segments: const [
+                        ButtonSegment(
+                          value: PaymentStatus.deferredPayment,
+                          icon: Icon(Icons.schedule_outlined),
+                          label: Text("Deferred"),
+                        ),
+                        ButtonSegment(
+                          value: PaymentStatus.paid,
+                          icon: Icon(Icons.check_circle_outline),
+                          label: Text("Paid"),
+                        ),
+                      ],
+                      selected: {manualPaymentStatus},
+                      onSelectionChanged: (selection) {
+                        setState(() {
+                          manualPaymentStatus = selection.single;
+                        });
+                      },
+                    ),
+                    Text(
+                      _manualPaymentStatusDescription(manualPaymentStatus),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               Container(
                 padding: const EdgeInsets.all(16),
@@ -410,6 +445,10 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                   .copyWith(
                     name: nameController.text,
                     customerGroupId: widget.selectedCustomerGroup.id,
+                    paymentStatus: savedPaymentStatusForBooking(
+                      booking: widget.booking,
+                      selectedManualPaymentStatus: manualPaymentStatus,
+                    ),
                     phone: _emptyToNull(phoneController.text),
                     email: _emptyToNull(emailController.text),
                     streetAddress: _emptyToNull(streetAddressController.text),
@@ -432,6 +471,35 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
 String? _emptyToNull(String value) {
   final trimmed = value.trim();
   return trimmed.isEmpty ? null : trimmed;
+}
+
+PaymentStatus initialManualBookingPaymentStatus(Booking? booking) {
+  if (booking?.paymentStatus == PaymentStatus.paid) return PaymentStatus.paid;
+  return PaymentStatus.deferredPayment;
+}
+
+PaymentStatus savedPaymentStatusForBooking({
+  required Booking? booking,
+  required PaymentStatus selectedManualPaymentStatus,
+}) {
+  final currentStatus = booking?.paymentStatus;
+  if (currentStatus != null && currentStatus != PaymentStatus.unknown) {
+    return currentStatus;
+  }
+  return selectedManualPaymentStatus;
+}
+
+bool _showsManualPaymentStatusPicker(Booking? booking) =>
+    booking == null || booking.paymentStatus == PaymentStatus.unknown;
+
+String _manualPaymentStatusDescription(PaymentStatus status) {
+  return switch (status) {
+    PaymentStatus.paid =>
+      "Use this when the booking has already been paid. It counts as an active booking.",
+    PaymentStatus.deferredPayment =>
+      "Use this for pay-later or invoice bookings. It counts as an active booking.",
+    _ => "",
+  };
 }
 
 Map<String, String> _customerLabels(

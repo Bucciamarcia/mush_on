@@ -175,18 +175,29 @@ Stream<List<Booking>> bookingsByCustomerGroupId(
   Ref ref,
   String id, {
   String? account,
+  bool includeInactive = false,
 }) async* {
   account ??= await ref.watch(accountProvider.future);
   final db = FirebaseFirestore.instance;
   var collection = db
       .collection("accounts/$account/data/bookingManager/bookings")
       .where("customerGroupId", isEqualTo: id);
-  yield* collection.snapshots().map(
-    (snapshot) => snapshot.docs
+  yield* collection.snapshots().map((snapshot) {
+    final bookings = snapshot.docs
         .map((doc) => Booking.fromJson(doc.data()))
-        .toList()
-        .active,
-  );
+        .toList();
+    return visibleBookingsForCustomerGroup(
+      bookings,
+      includeInactive: includeInactive,
+    );
+  });
+}
+
+List<Booking> visibleBookingsForCustomerGroup(
+  List<Booking> bookings, {
+  bool includeInactive = false,
+}) {
+  return includeInactive ? bookings : bookings.active;
 }
 
 @riverpod

@@ -68,7 +68,7 @@ The UI can show "Teams saved" even though cleanup of old customer-group links is
 Recommended fix:
 Await `_removeCustomerGroups`. Add a simple saving state that disables the save/new buttons while save is in progress. Do not over-engineer with transactions yet unless inconsistency appears in testing.
 
-#### Critical: Customer assignment interaction can move customers between sleds too easily
+#### Critical: Customer assignment interaction can move customers between sleds too easily -- FIXED
 
 Evidence:
 - `CustomerActionChip` always calls `onCustomerSelected()` when tapped, including customers already assigned to another team in `lib/create_team/customers/main.dart:312-324`.

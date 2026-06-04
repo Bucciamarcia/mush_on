@@ -40,7 +40,14 @@ class CustomerGroupViewer extends ConsumerWidget {
       CustomerGroupByIdProvider(customerGroupId!),
     );
     final List<Booking> bookings =
-        ref.watch(bookingsByCustomerGroupIdProvider(customerGroupId!)).value ??
+        ref
+            .watch(
+              bookingsByCustomerGroupIdProvider(
+                customerGroupId!,
+                includeInactive: true,
+              ),
+            )
+            .value ??
         [];
     final List<Customer> customers =
         ref.watch(CustomersByCustomerGroupIdProvider(customerGroupId!)).value ??
@@ -68,6 +75,10 @@ class CustomerGroupViewer extends ConsumerWidget {
             .watch(stripe.bookingManagerKennelInfoProvider())
             .valueOrNull;
         final colorScheme = Theme.of(context).colorScheme;
+        final confirmedBookings = bookings.active;
+        final unconfirmedBookings = bookings
+            .where((booking) => !bookings.active.contains(booking))
+            .toList();
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -352,26 +363,29 @@ class CustomerGroupViewer extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        ...bookings.map(
-                          (booking) => Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: BookingCard(
-                              selectedCustomerGroup: customerGroup,
-                              kennelInfo: kennelInfo,
-                              pricings: pricings,
-                              booking: booking,
-                              customers:
-                                  ref
-                                      .watch(
-                                        customersByBookingIdProvider(
-                                          booking.id,
-                                        ),
-                                      )
-                                      .value ??
-                                  [],
-                            ),
-                          ),
+                        _BookingListSection(
+                          title: "Confirmed bookings",
+                          description:
+                              "Paid and deferred bookings. These appear in the team builder and statistics.",
+                          emptyText: "No confirmed bookings",
+                          bookings: confirmedBookings,
+                          customerGroup: customerGroup,
+                          kennelInfo: kennelInfo,
+                          pricings: pricings,
                         ),
+                        if (unconfirmedBookings.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          _BookingListSection(
+                            title: "Not confirmed bookings",
+                            description:
+                                "These bookings are not confirmed and won't appear in the team builder or in the statistics.",
+                            emptyText: "No not confirmed bookings",
+                            bookings: unconfirmedBookings,
+                            customerGroup: customerGroup,
+                            kennelInfo: kennelInfo,
+                            pricings: pricings,
+                          ),
+                        ],
                       ],
                     ),
             ],
@@ -398,6 +412,89 @@ class CustomerGroupViewer extends ConsumerWidget {
   }
 }
 
+class _BookingListSection extends ConsumerWidget {
+  final String title;
+  final String description;
+  final String emptyText;
+  final List<Booking> bookings;
+  final CustomerGroup customerGroup;
+  final List<TourTypePricing>? pricings;
+  final BookingManagerKennelInfo? kennelInfo;
+
+  const _BookingListSection({
+    required this.title,
+    required this.description,
+    required this.emptyText,
+    required this.bookings,
+    required this.customerGroup,
+    required this.pricings,
+    required this.kennelInfo,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          description,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant),
+        ),
+        const SizedBox(height: 8),
+        if (bookings.isEmpty)
+          Card(
+            elevation: 0,
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.event_busy,
+                    size: 18,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    emptyText,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          ...bookings.map(
+            (booking) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: BookingCard(
+                selectedCustomerGroup: customerGroup,
+                kennelInfo: kennelInfo,
+                pricings: pricings,
+                booking: booking,
+                customers:
+                    ref.watch(customersByBookingIdProvider(booking.id)).value ??
+                    [],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 class BookingCard extends ConsumerWidget {
   final Booking booking;
   final List<Customer> customers;
@@ -415,10 +512,10 @@ class BookingCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
     final bookingTitle = booking.name.trim().isEmpty
         ? "Booking"
         : booking.name.trim();
+    final statusStyle = _bookingStatusStyle(context, booking.paymentStatus);
     final contactRows = <({IconData icon, String label, String? value})>[
       (icon: Icons.phone_outlined, label: "Phone", value: booking.phone),
       (icon: Icons.email_outlined, label: "Email", value: booking.email),
@@ -482,7 +579,7 @@ class BookingCard extends ConsumerWidget {
       borderRadius: BorderRadius.circular(12),
       child: Card(
         elevation: 2,
-        color: colorScheme.secondaryContainer,
+        color: statusStyle.background,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -490,26 +587,20 @@ class BookingCard extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.bookmark,
-                    color: colorScheme.onSecondaryContainer,
-                    size: 20,
-                  ),
+                  Icon(Icons.bookmark, color: statusStyle.foreground, size: 20),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       bookingTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: colorScheme.onSecondaryContainer,
+                        color: statusStyle.foreground,
                       ),
                     ),
                   ),
                   Icon(
                     Icons.edit,
-                    color: colorScheme.onSecondaryContainer.withValues(
-                      alpha: 0.7,
-                    ),
+                    color: statusStyle.foreground.withValues(alpha: 0.7),
                     size: 16,
                   ),
                 ],
@@ -518,17 +609,33 @@ class BookingCard extends ConsumerWidget {
               Row(
                 children: [
                   Icon(
-                    Icons.people_outline,
-                    color: colorScheme.onSecondaryContainer.withValues(
-                      alpha: 0.8,
+                    statusStyle.icon,
+                    color: statusStyle.foreground.withValues(alpha: 0.85),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Status: ${statusStyle.label}",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: statusStyle.foreground,
+                      fontWeight: FontWeight.w600,
                     ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(
+                    Icons.people_outline,
+                    color: statusStyle.foreground.withValues(alpha: 0.8),
                     size: 18,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     "People: ${customers.length}",
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSecondaryContainer,
+                      color: statusStyle.foreground,
                     ),
                   ),
                 ],
@@ -559,6 +666,43 @@ class BookingCard extends ConsumerWidget {
       ),
     );
   }
+}
+
+({Color background, Color foreground, IconData icon, String label})
+_bookingStatusStyle(BuildContext context, PaymentStatus status) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return switch (status) {
+    PaymentStatus.paid => (
+      background: colorScheme.primaryContainer,
+      foreground: colorScheme.onPrimaryContainer,
+      icon: Icons.check_circle_outline,
+      label: "Paid",
+    ),
+    PaymentStatus.deferredPayment => (
+      background: colorScheme.tertiaryContainer,
+      foreground: colorScheme.onTertiaryContainer,
+      icon: Icons.schedule_outlined,
+      label: "Deferred",
+    ),
+    PaymentStatus.waiting => (
+      background: colorScheme.surfaceContainerHighest,
+      foreground: colorScheme.onSurface,
+      icon: Icons.hourglass_top_outlined,
+      label: "Waiting for payment",
+    ),
+    PaymentStatus.refunded => (
+      background: colorScheme.errorContainer,
+      foreground: colorScheme.onErrorContainer,
+      icon: Icons.replay_circle_filled_outlined,
+      label: "Refunded",
+    ),
+    PaymentStatus.unknown => (
+      background: colorScheme.surfaceContainerHighest,
+      foreground: colorScheme.onSurface,
+      icon: Icons.help_outline,
+      label: "Unknown",
+    ),
+  };
 }
 
 class _InfoChip extends StatelessWidget {

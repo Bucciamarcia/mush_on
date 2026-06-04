@@ -309,26 +309,81 @@ class CustomerActionChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isAvailable = customer.teamId == null;
+    final isOnThisSled = customer.teamId == teamId;
+    final isOnAnotherSled = customer.teamId != null && !isOnThisSled;
     return InkWell(
-      onTap: () => onCustomerSelected(),
+      onTap: isAvailable ? () => onCustomerSelected() : null,
       child: Card(
         color: _getBackgroundColor(),
         child: IntrinsicWidth(
           child: Padding(
-            padding: const EdgeInsets.only(left: 8),
+            padding: const EdgeInsets.only(left: 8, top: 4, bottom: 4),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Column(children: [Text(customer.name)]),
-                IconButton(
-                  onPressed: () => onCustomerDeselected(),
-                  icon: const Icon(Icons.cancel_outlined),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(customer.name),
+                    Text(
+                      _getStatusLabel(),
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
+                if (isOnThisSled)
+                  IconButton(
+                    onPressed: () => onCustomerDeselected(),
+                    icon: const Icon(Icons.cancel_outlined),
+                  ),
+                if (isOnAnotherSled)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, right: 4),
+                    child: OutlinedButton(
+                      onPressed: () => _confirmMove(context),
+                      child: const Text("Move here"),
+                    ),
+                  ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _confirmMove(BuildContext context) async {
+    final shouldMove = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Move customer?"),
+        content: Text("Move ${customer.name} to this sled?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text("Move here"),
+          ),
+        ],
+      ),
+    );
+    if (shouldMove == true) {
+      onCustomerSelected();
+    }
+  }
+
+  String _getStatusLabel() {
+    if (customer.teamId == null) {
+      return "Available";
+    } else if (customer.teamId != teamId) {
+      return "On another sled";
+    } else {
+      return "On this sled";
+    }
   }
 
   Color _getBackgroundColor() {
