@@ -17,11 +17,14 @@ List<DogNote> dogNotes(
 
   /// The latest date to consider. Useful for team builder when building in the future.
   required DateTime? latestDate,
+  TeamGroupWorkspace? teamGroup,
 }) {
   final dogs = ref.watch(dogsProvider).value ?? [];
   final distanceWarnings =
       ref.watch(distanceWarningsProvider(latestDate: latestDate)).value ?? [];
-  final duplicateDogs = ref.watch(duplicateDogsProvider);
+  final duplicateDogs = teamGroup == null
+      ? <String>[]
+      : ref.watch(duplicateDogsProvider(teamGroup));
 
   final dogNotesMap = <String, DogNote>{};
 

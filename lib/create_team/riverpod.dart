@@ -387,21 +387,16 @@ class RunningDogs extends _$RunningDogs {
 }
 
 @riverpod
-List<String> duplicateDogs(Ref ref) {
-  final teamGroup = ref.watch(createTeamGroupProvider(null)).value;
-  if (teamGroup == null) {
-    return [];
-  }
-
+List<String> duplicateDogs(Ref ref, TeamGroupWorkspace teamGroup) {
   // Count occurrences in a single pass
   final dogCounts = <String, int>{};
 
   for (final team in teamGroup.teams) {
     for (final row in team.dogPairs) {
-      if (row.firstDogId != null) {
+      if (row.firstDogId != null && row.firstDogId!.isNotEmpty) {
         dogCounts[row.firstDogId!] = (dogCounts[row.firstDogId!] ?? 0) + 1;
       }
-      if (row.secondDogId != null) {
+      if (row.secondDogId != null && row.secondDogId!.isNotEmpty) {
         dogCounts[row.secondDogId!] = (dogCounts[row.secondDogId!] ?? 0) + 1;
       }
     }

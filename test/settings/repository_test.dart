@@ -237,7 +237,7 @@ void main() {
         functions: functions,
       );
 
-      functions.callable.exception = Exception('boom');
+      functions.callable.exception = Exception('Exception triggered');
 
       expect(
         () => repository.addUser(

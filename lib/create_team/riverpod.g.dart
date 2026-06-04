@@ -81,24 +81,7 @@ Map<String, dynamic> _$DogPairWorkspaceToJson(_DogPairWorkspace instance) =>
 // RiverpodGenerator
 // **************************************************************************
 
-String _$duplicateDogsHash() => r'a1d4dc31e0385ef9efa3ed628f01b36c6d623bb0';
-
-/// See also [duplicateDogs].
-@ProviderFor(duplicateDogs)
-final duplicateDogsProvider = AutoDisposeProvider<List<String>>.internal(
-  duplicateDogs,
-  name: r'duplicateDogsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$duplicateDogsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef DuplicateDogsRef = AutoDisposeProviderRef<List<String>>;
-String _$teamGroupByIdHash() => r'ca49231cdd446e8faf4c75c00cbb7a653c0d393e';
+String _$duplicateDogsHash() => r'8b21b9d5e18b35911208a9e0c28c1be6d35ec919';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -120,6 +103,127 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+/// See also [duplicateDogs].
+@ProviderFor(duplicateDogs)
+const duplicateDogsProvider = DuplicateDogsFamily();
+
+/// See also [duplicateDogs].
+class DuplicateDogsFamily extends Family<List<String>> {
+  /// See also [duplicateDogs].
+  const DuplicateDogsFamily();
+
+  /// See also [duplicateDogs].
+  DuplicateDogsProvider call(TeamGroupWorkspace teamGroup) {
+    return DuplicateDogsProvider(teamGroup);
+  }
+
+  @override
+  DuplicateDogsProvider getProviderOverride(
+    covariant DuplicateDogsProvider provider,
+  ) {
+    return call(provider.teamGroup);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'duplicateDogsProvider';
+}
+
+/// See also [duplicateDogs].
+class DuplicateDogsProvider extends AutoDisposeProvider<List<String>> {
+  /// See also [duplicateDogs].
+  DuplicateDogsProvider(TeamGroupWorkspace teamGroup)
+    : this._internal(
+        (ref) => duplicateDogs(ref as DuplicateDogsRef, teamGroup),
+        from: duplicateDogsProvider,
+        name: r'duplicateDogsProvider',
+        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+            ? null
+            : _$duplicateDogsHash,
+        dependencies: DuplicateDogsFamily._dependencies,
+        allTransitiveDependencies:
+            DuplicateDogsFamily._allTransitiveDependencies,
+        teamGroup: teamGroup,
+      );
+
+  DuplicateDogsProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.teamGroup,
+  }) : super.internal();
+
+  final TeamGroupWorkspace teamGroup;
+
+  @override
+  Override overrideWith(
+    List<String> Function(DuplicateDogsRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: DuplicateDogsProvider._internal(
+        (ref) => create(ref as DuplicateDogsRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        teamGroup: teamGroup,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeProviderElement<List<String>> createElement() {
+    return _DuplicateDogsProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DuplicateDogsProvider && other.teamGroup == teamGroup;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, teamGroup.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin DuplicateDogsRef on AutoDisposeProviderRef<List<String>> {
+  /// The parameter `teamGroup` of this provider.
+  TeamGroupWorkspace get teamGroup;
+}
+
+class _DuplicateDogsProviderElement
+    extends AutoDisposeProviderElement<List<String>>
+    with DuplicateDogsRef {
+  _DuplicateDogsProviderElement(super.provider);
+
+  @override
+  TeamGroupWorkspace get teamGroup =>
+      (origin as DuplicateDogsProvider).teamGroup;
+}
+
+String _$teamGroupByIdHash() => r'ca49231cdd446e8faf4c75c00cbb7a653c0d393e';
 
 /// See also [teamGroupById].
 @ProviderFor(teamGroupById)

@@ -1,9 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/riverpod.dart';
+import 'package:mush_on/create_team/team_builder/main.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/health/provider.dart';
+import 'package:mush_on/riverpod.dart' as app_riverpod;
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/services/models/settings/settings.dart';
+import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
 
 void main() {
   group('DogNotesExtension', () {
@@ -267,7 +273,7 @@ void main() {
             id: 'group-1',
             date: DateTime.utc(2026, 1, 1),
             teams: [
-              TeamWorkspace(
+              const TeamWorkspace(
                 id: 'team-1',
                 dogPairs: [
                   DogPairWorkspace(
@@ -311,8 +317,147 @@ void main() {
         positionNumber: 1,
       );
 
-      expect(container.read(duplicateDogsProvider), ['dog-1']);
+      final workspace = container
+          .read(createTeamGroupProvider(null))
+          .requireValue;
+
+      expect(container.read(duplicateDogsProvider(workspace)), ['dog-1']);
     });
+
+    test(
+      'duplicateDogsProvider returns empty when selected dog ids are unique',
+      () async {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
+        await container.read(createTeamGroupProvider(null).future);
+
+        final notifier = container.read(createTeamGroupProvider(null).notifier);
+        notifier.changePosition(
+          dogId: 'dog-1',
+          teamNumber: 0,
+          rowNumber: 0,
+          positionNumber: 0,
+        );
+        notifier.changePosition(
+          dogId: 'dog-2',
+          teamNumber: 0,
+          rowNumber: 0,
+          positionNumber: 1,
+        );
+
+        final workspace = container
+            .read(createTeamGroupProvider(null))
+            .requireValue;
+
+        expect(container.read(duplicateDogsProvider(workspace)), isEmpty);
+      },
+    );
+
+    testWidgets(
+      'default workspace duplicate still shows a duplicate dog note',
+      (tester) async {
+        final date = DateTime.utc(2026, 1, 1);
+        final teamGroup = _teamGroupWithDogs(
+          id: 'new-group',
+          date: date,
+          firstDogIds: ['dog-1', 'dog-1'],
+        );
+
+        await tester.pumpWidget(
+          _teamBuilderHarness(
+            teamGroup: teamGroup,
+            providerKey: null,
+            dogs: _dogs,
+            overrides: [
+              createTeamGroupProvider(
+                null,
+              ).overrideWith(() => _TestCreateTeamGroup(teamGroup)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Duplicate dog!'), findsWidgets);
+      },
+    );
+
+    testWidgets(
+      'loaded workspace duplicate shows a duplicate dog note even when new workspace is clean',
+      (tester) async {
+        final date = DateTime.utc(2026, 1, 1);
+        final loadedTeamGroup = _teamGroupWithDogs(
+          id: 'loaded-group',
+          date: date,
+          firstDogIds: ['dog-1', 'dog-1'],
+        );
+        final cleanNewTeamGroup = _teamGroupWithDogs(
+          id: 'new-group',
+          date: date,
+          firstDogIds: ['dog-2', 'dog-3'],
+        );
+
+        await tester.pumpWidget(
+          _teamBuilderHarness(
+            teamGroup: loadedTeamGroup,
+            providerKey: loadedTeamGroup.id,
+            dogs: _dogs,
+            overrides: [
+              createTeamGroupProvider(
+                null,
+              ).overrideWith(() => _TestCreateTeamGroup(cleanNewTeamGroup)),
+              createTeamGroupProvider(
+                loadedTeamGroup.id,
+              ).overrideWith(() => _TestCreateTeamGroup(loadedTeamGroup)),
+              customerAssignProvider(
+                loadedTeamGroup.id,
+              ).overrideWith(_TestCustomerAssign.new),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Duplicate dog!'), findsWidgets);
+      },
+    );
+
+    testWidgets(
+      'loaded workspace without duplicates does not show duplicate dog notes from new workspace',
+      (tester) async {
+        final date = DateTime.utc(2026, 1, 1);
+        final loadedTeamGroup = _teamGroupWithDogs(
+          id: 'loaded-group',
+          date: date,
+          firstDogIds: ['dog-2', 'dog-3'],
+        );
+        final duplicateNewTeamGroup = _teamGroupWithDogs(
+          id: 'new-group',
+          date: date,
+          firstDogIds: ['dog-1', 'dog-1'],
+        );
+
+        await tester.pumpWidget(
+          _teamBuilderHarness(
+            teamGroup: loadedTeamGroup,
+            providerKey: loadedTeamGroup.id,
+            dogs: _dogs,
+            overrides: [
+              createTeamGroupProvider(
+                null,
+              ).overrideWith(() => _TestCreateTeamGroup(duplicateNewTeamGroup)),
+              createTeamGroupProvider(
+                loadedTeamGroup.id,
+              ).overrideWith(() => _TestCreateTeamGroup(loadedTeamGroup)),
+              customerAssignProvider(
+                loadedTeamGroup.id,
+              ).overrideWith(_TestCustomerAssign.new),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Duplicate dog!'), findsNothing);
+      },
+    );
   });
 
   group('CustomerAssign provider', () {
@@ -352,4 +497,89 @@ void main() {
       },
     );
   });
+}
+
+const _dogs = [
+  Dog(id: 'dog-1', name: 'Alpha'),
+  Dog(id: 'dog-2', name: 'Beta'),
+  Dog(id: 'dog-3', name: 'Gamma'),
+];
+
+TeamGroupWorkspace _teamGroupWithDogs({
+  required String id,
+  required DateTime date,
+  required List<String> firstDogIds,
+}) {
+  return TeamGroupWorkspace(
+    id: id,
+    date: date,
+    teams: [
+      TeamWorkspace(
+        id: '$id-team',
+        dogPairs: [
+          for (final (index, dogId) in firstDogIds.indexed)
+            DogPairWorkspace(id: '$id-pair-$index', firstDogId: dogId),
+        ],
+      ),
+    ],
+  );
+}
+
+Widget _teamBuilderHarness({
+  required TeamGroupWorkspace teamGroup,
+  required String? providerKey,
+  required List<Dog> dogs,
+  required List<Override> overrides,
+}) {
+  return ProviderScope(
+    overrides: [
+      app_riverpod.dogsProvider.overrideWith((ref) => Stream.value(dogs)),
+      app_riverpod.settingsProvider.overrideWith(
+        (ref) => Stream.value(const SettingsModel()),
+      ),
+      distanceWarningsProvider(
+        latestDate: teamGroup.date,
+      ).overrideWith((ref) => Stream.value([])),
+      healthEventsProvider(365).overrideWith((ref) => Stream.value([])),
+      heatCyclesProvider(60).overrideWith((ref) => Stream.value([])),
+      ...overrides,
+    ],
+    child: MaterialApp(
+      home: Scaffold(
+        body: Consumer(
+          builder: (context, ref, child) {
+            final dogsReady = ref.watch(app_riverpod.dogsProvider).hasValue;
+            if (!dogsReady) {
+              return const SizedBox.shrink();
+            }
+            return TeamBuilderWidget(
+              teamGroup: teamGroup,
+              customerGroupWorkspace: CustomerGroupWorkspace(
+                customerGroup: CustomerGroup(
+                  id: 'customer-group',
+                  datetime: teamGroup.date,
+                  tourTypeId: 'tour',
+                ),
+              ),
+              providerKey: providerKey,
+            );
+          },
+        ),
+      ),
+    ),
+  );
+}
+
+class _TestCreateTeamGroup extends CreateTeamGroup {
+  _TestCreateTeamGroup(this.teamGroup);
+
+  final TeamGroupWorkspace teamGroup;
+
+  @override
+  Future<TeamGroupWorkspace> build(String? teamGroupId) async => teamGroup;
+}
+
+class _TestCustomerAssign extends CustomerAssign {
+  @override
+  Future<CustomerGroupWorkspace?> build(String? teamGroupId) async => null;
 }

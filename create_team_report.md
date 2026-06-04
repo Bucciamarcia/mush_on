@@ -424,11 +424,8 @@ Use visible labels:
 
 For assigned-elsewhere customers, use "Move here" instead of making the whole card behave like an ordinary select action.
 
-#### Keep the two-tab workflow
+#### Add compact customer status
 
-Do not merge customers into the team builder for launch. The user's domain clarification is decisive: dog team building happens before customers arrive, and customer assignment is a separate operation. The current tabs support that mental model.
-
-Recommended small improvement:
 Show a compact customer status in the Customers tab label or top of the Customers tab only. Avoid adding customer data into team cards for now.
 
 #### Improve destructive action clarity without adding undo

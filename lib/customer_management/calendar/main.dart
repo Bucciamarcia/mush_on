@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mush_on/customer_management/customer_group_viewer.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/customer_management/tours/models.dart';

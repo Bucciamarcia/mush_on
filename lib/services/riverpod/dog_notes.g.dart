@@ -6,7 +6,7 @@ part of 'dog_notes.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dogNotesHash() => r'b81a79193fc815c74bd9fbeb229c83588c304da6';
+String _$dogNotesHash() => r'4d849d300ba28a8e7c64aa13b1a39db0f26ca4cf';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -39,13 +39,16 @@ class DogNotesFamily extends Family<List<DogNote>> {
   const DogNotesFamily();
 
   /// See also [dogNotes].
-  DogNotesProvider call({required DateTime? latestDate}) {
-    return DogNotesProvider(latestDate: latestDate);
+  DogNotesProvider call({
+    required DateTime? latestDate,
+    TeamGroupWorkspace? teamGroup,
+  }) {
+    return DogNotesProvider(latestDate: latestDate, teamGroup: teamGroup);
   }
 
   @override
   DogNotesProvider getProviderOverride(covariant DogNotesProvider provider) {
-    return call(latestDate: provider.latestDate);
+    return call(latestDate: provider.latestDate, teamGroup: provider.teamGroup);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -66,18 +69,25 @@ class DogNotesFamily extends Family<List<DogNote>> {
 /// See also [dogNotes].
 class DogNotesProvider extends AutoDisposeProvider<List<DogNote>> {
   /// See also [dogNotes].
-  DogNotesProvider({required DateTime? latestDate})
-    : this._internal(
-        (ref) => dogNotes(ref as DogNotesRef, latestDate: latestDate),
-        from: dogNotesProvider,
-        name: r'dogNotesProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$dogNotesHash,
-        dependencies: DogNotesFamily._dependencies,
-        allTransitiveDependencies: DogNotesFamily._allTransitiveDependencies,
-        latestDate: latestDate,
-      );
+  DogNotesProvider({
+    required DateTime? latestDate,
+    TeamGroupWorkspace? teamGroup,
+  }) : this._internal(
+         (ref) => dogNotes(
+           ref as DogNotesRef,
+           latestDate: latestDate,
+           teamGroup: teamGroup,
+         ),
+         from: dogNotesProvider,
+         name: r'dogNotesProvider',
+         debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+             ? null
+             : _$dogNotesHash,
+         dependencies: DogNotesFamily._dependencies,
+         allTransitiveDependencies: DogNotesFamily._allTransitiveDependencies,
+         latestDate: latestDate,
+         teamGroup: teamGroup,
+       );
 
   DogNotesProvider._internal(
     super._createNotifier, {
@@ -87,9 +97,11 @@ class DogNotesProvider extends AutoDisposeProvider<List<DogNote>> {
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.latestDate,
+    required this.teamGroup,
   }) : super.internal();
 
   final DateTime? latestDate;
+  final TeamGroupWorkspace? teamGroup;
 
   @override
   Override overrideWith(List<DogNote> Function(DogNotesRef provider) create) {
@@ -103,6 +115,7 @@ class DogNotesProvider extends AutoDisposeProvider<List<DogNote>> {
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         latestDate: latestDate,
+        teamGroup: teamGroup,
       ),
     );
   }
@@ -114,13 +127,16 @@ class DogNotesProvider extends AutoDisposeProvider<List<DogNote>> {
 
   @override
   bool operator ==(Object other) {
-    return other is DogNotesProvider && other.latestDate == latestDate;
+    return other is DogNotesProvider &&
+        other.latestDate == latestDate &&
+        other.teamGroup == teamGroup;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, latestDate.hashCode);
+    hash = _SystemHash.combine(hash, teamGroup.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -131,6 +147,9 @@ class DogNotesProvider extends AutoDisposeProvider<List<DogNote>> {
 mixin DogNotesRef on AutoDisposeProviderRef<List<DogNote>> {
   /// The parameter `latestDate` of this provider.
   DateTime? get latestDate;
+
+  /// The parameter `teamGroup` of this provider.
+  TeamGroupWorkspace? get teamGroup;
 }
 
 class _DogNotesProviderElement extends AutoDisposeProviderElement<List<DogNote>>
@@ -139,6 +158,8 @@ class _DogNotesProviderElement extends AutoDisposeProviderElement<List<DogNote>>
 
   @override
   DateTime? get latestDate => (origin as DogNotesProvider).latestDate;
+  @override
+  TeamGroupWorkspace? get teamGroup => (origin as DogNotesProvider).teamGroup;
 }
 
 // ignore_for_file: type=lint

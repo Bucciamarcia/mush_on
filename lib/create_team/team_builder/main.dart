@@ -51,7 +51,10 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
   Widget build(BuildContext context) {
     var runningDogs = ref.watch(runningDogsProvider(widget.teamGroup));
     var dogNotes = ref.watch(
-      dogNotesProvider(latestDate: widget.teamGroup.date),
+      dogNotesProvider(
+        latestDate: widget.teamGroup.date,
+        teamGroup: widget.teamGroup,
+      ),
     );
     var notifier = ref.read(
       createTeamGroupProvider(widget.providerKey).notifier,
