@@ -1,14 +1,50 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/create_team/customers/customer_groups_card.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/team_builder/main.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
+import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/shared/text_title.dart';
 import 'package:uuid/uuid.dart';
+
+String _customerLabel(
+  Customer customer,
+  List<Customer> allCustomers,
+  List<TourTypePricing> pricings,
+) {
+  final pricing = pricings.firstWhereOrNull((p) => p.id == customer.pricingId);
+  final pricingName = pricing?.name ?? "customer";
+  final sameCategory = allCustomers
+      .where(
+        (c) =>
+            c.bookingId == customer.bookingId &&
+            c.pricingId == customer.pricingId,
+      )
+      .toList()
+    ..sort((a, b) => a.id.compareTo(b.id));
+  final index = sameCategory.indexWhere((c) => c.id == customer.id);
+  return "$pricingName - ${index + 1}";
+}
+
+String _categorySummary(
+  List<Customer> customers,
+  List<TourTypePricing> pricings,
+) {
+  final counts = <String, int>{};
+  for (final c in customers) {
+    final pricing = pricings.firstWhereOrNull((p) => p.id == c.pricingId);
+    final name = pricing?.name ?? "?";
+    counts[name] = (counts[name] ?? 0) + 1;
+  }
+  if (counts.isEmpty) return "";
+  return counts.entries.map((e) => "${e.value} ${e.key}").join(" · ");
+}
 
 class CustomersCreateTeam extends ConsumerWidget {
   static final BasicLogger logger = BasicLogger();
@@ -26,18 +62,30 @@ class CustomersCreateTeam extends ConsumerWidget {
         ),
       );
     }
+    final tourTypeId = customerGroup.customerGroup.tourTypeId;
+    final pricings = tourTypeId != null
+        ? ref
+                  .watch(tourTypePricesProvider(tourTypeId, getArchived: true))
+                  .value ??
+              []
+        : <TourTypePricing>[];
+
     return SingleChildScrollView(
       child: Column(
         children: [
           const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
-            child: CustomerGroupsCard(customerGroupWorkspace: customerGroup),
+            child: CustomerGroupsCard(
+              customerGroupWorkspace: customerGroup,
+              pricings: pricings,
+            ),
           ),
           ...teamGroup.teams.map(
             (team) => SingleTeamAssign(
               teamGroupId: teamGroup.id,
               team: team,
+              pricings: pricings,
               onCustomerSelected: (customer, booking) => ref
                   .read(customerAssignProvider(teamGroup.id).notifier)
                   .editCustomer(customer.copyWith(teamId: team.id)),
@@ -55,6 +103,7 @@ class CustomersCreateTeam extends ConsumerWidget {
 class SingleTeamAssign extends ConsumerWidget {
   final TeamWorkspace team;
   final String teamGroupId;
+  final List<TourTypePricing> pricings;
   final Function(Customer, Booking) onCustomerSelected;
   final Function(Customer, Booking) onCustomerDeselected;
   const SingleTeamAssign({
@@ -63,6 +112,7 @@ class SingleTeamAssign extends ConsumerWidget {
     required this.onCustomerSelected,
     required this.onCustomerDeselected,
     required this.teamGroupId,
+    required this.pricings,
   });
 
   @override
@@ -77,6 +127,9 @@ class SingleTeamAssign extends ConsumerWidget {
           ),
         );
     List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
+    final assignedCustomers = customerGroup.customers
+        .where((c) => c.teamId == team.id)
+        .toList();
     return SizedBox(
       width: double.infinity,
       child: Card(
@@ -86,16 +139,11 @@ class SingleTeamAssign extends ConsumerWidget {
               "Team: ${CreateTeamsString(allDogs: allDogs).stringifyTeam(team).trim()}",
             ),
             Text(
-              "Sled capacity: ${customerGroup.customers.where((c) => c.teamId == team.id).length} / ${team.capacity}",
+              "Sled capacity: ${assignedCustomers.length} / ${team.capacity}",
               style: TextStyle(color: _buildTeamColor(customerGroup, team)),
             ),
-            Text(
-              _displayCustomerNames(
-                customerGroup.customers
-                    .where((c) => c.teamId == team.id)
-                    .toList(),
-              ),
-            ),
+            if (assignedCustomers.isNotEmpty)
+              Text(_categorySummary(assignedCustomers, pricings)),
             ElevatedButton(
               onPressed: () {
                 showDialog(
@@ -103,6 +151,7 @@ class SingleTeamAssign extends ConsumerWidget {
                   builder: (_) => AssignCustomersAlert(
                     team: team,
                     teamGroupId: teamGroupId,
+                    pricings: pricings,
                     onCustomerSelected: (customer, booking) =>
                         onCustomerSelected(customer, booking),
                     onCustomerDeselected: (customer, booking) =>
@@ -134,25 +183,19 @@ class SingleTeamAssign extends ConsumerWidget {
     }
     return Colors.black;
   }
-
-  String _displayCustomerNames(List<Customer> customers) {
-    List<String> cc = [];
-    for (Customer customer in customers) {
-      cc.add(customer.name);
-    }
-    return cc.join(" - ");
-  }
 }
 
 class AssignCustomersAlert extends ConsumerWidget {
   final TeamWorkspace team;
   final String teamGroupId;
+  final List<TourTypePricing> pricings;
   final Function(Customer, Booking) onCustomerSelected;
   final Function(Customer, Booking) onCustomerDeselected;
   const AssignCustomersAlert({
     super.key,
     required this.team,
     required this.teamGroupId,
+    required this.pricings,
     required this.onCustomerSelected,
     required this.onCustomerDeselected,
   });
@@ -193,6 +236,8 @@ class AssignCustomersAlert extends ConsumerWidget {
               booking: booking,
               teamId: team.id,
               teamGroupId: teamGroupId,
+              pricings: pricings,
+              allCustomers: customerGroup.customers,
               onCustomerSelected: (customer) =>
                   onCustomerSelected(customer, booking),
               onCustomerDeselected: (customer) =>
@@ -215,6 +260,8 @@ class BookingDisplay extends ConsumerWidget {
   final Booking booking;
   final String teamId;
   final String teamGroupId;
+  final List<TourTypePricing> pricings;
+  final List<Customer> allCustomers;
   final Function(Customer) onCustomerSelected;
   final Function(Customer) onCustomerDeselected;
   const BookingDisplay({
@@ -222,6 +269,8 @@ class BookingDisplay extends ConsumerWidget {
     required this.booking,
     required this.teamId,
     required this.teamGroupId,
+    required this.pricings,
+    required this.allCustomers,
     required this.onCustomerSelected,
     required this.onCustomerDeselected,
   });
@@ -255,6 +304,9 @@ class BookingDisplay extends ConsumerWidget {
                       (c) => CustomerActionChip(
                         customer: c,
                         teamId: teamId,
+                        booking: booking,
+                        pricings: pricings,
+                        allCustomers: allCustomers,
                         onCustomerSelected: () => onCustomerSelected(c),
                         onCustomerDeselected: () => onCustomerDeselected(c),
                       ),
@@ -268,26 +320,25 @@ class BookingDisplay extends ConsumerWidget {
     );
   }
 
-  /// Sort customers with available on top, then available, then unavailable. Finally, by name.
   List<Customer> _sortCustomers(List<Customer> customers, String teamId) {
     List<Customer> toReturn = [];
 
     List<Customer> selectedCustomers = customers
         .where((c) => c.teamId != null && c.teamId == teamId)
         .toList();
-    selectedCustomers.sort((a, b) => a.name.compareTo(b.name));
+    selectedCustomers.sort((a, b) => a.id.compareTo(b.id));
     toReturn.addAll(selectedCustomers);
 
     List<Customer> availableCustomers = customers
         .where((c) => c.teamId == null)
         .toList();
-    availableCustomers.sort((a, b) => a.name.compareTo(b.name));
+    availableCustomers.sort((a, b) => a.id.compareTo(b.id));
     toReturn.addAll(availableCustomers);
 
     List<Customer> unavailableCustomers = customers
         .where((c) => c.teamId != null && c.teamId != teamId)
         .toList();
-    unavailableCustomers.sort((a, b) => a.name.compareTo(b.name));
+    unavailableCustomers.sort((a, b) => a.id.compareTo(b.id));
     toReturn.addAll(unavailableCustomers);
 
     return toReturn;
@@ -297,12 +348,18 @@ class BookingDisplay extends ConsumerWidget {
 class CustomerActionChip extends ConsumerWidget {
   final Customer customer;
   final String teamId;
+  final Booking booking;
+  final List<TourTypePricing> pricings;
+  final List<Customer> allCustomers;
   final Function() onCustomerSelected;
   final Function() onCustomerDeselected;
   const CustomerActionChip({
     super.key,
     required this.customer,
     required this.teamId,
+    required this.booking,
+    required this.pricings,
+    required this.allCustomers,
     required this.onCustomerSelected,
     required this.onCustomerDeselected,
   });
@@ -312,6 +369,9 @@ class CustomerActionChip extends ConsumerWidget {
     final isAvailable = customer.teamId == null;
     final isOnThisSled = customer.teamId == teamId;
     final isOnAnotherSled = customer.teamId != null && !isOnThisSled;
+    final label = _customerLabel(customer, allCustomers, pricings);
+    final bookingSubtitle = _bookingSubtitle();
+
     return InkWell(
       onTap: isAvailable ? () => onCustomerSelected() : null,
       child: Card(
@@ -325,12 +385,23 @@ class CustomerActionChip extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(customer.name),
+                    Text(label),
+                    if (bookingSubtitle.isNotEmpty)
+                      Text(
+                        bookingSubtitle,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     Text(
                       _getStatusLabel(),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
+                ),
+                IconButton(
+                  onPressed: () => _showBookingInfo(context, label),
+                  icon: const Icon(Icons.info_outline, size: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  constraints: const BoxConstraints(),
                 ),
                 if (isOnThisSled)
                   IconButton(
@@ -339,9 +410,9 @@ class CustomerActionChip extends ConsumerWidget {
                   ),
                 if (isOnAnotherSled)
                   Padding(
-                    padding: const EdgeInsets.only(left: 8, right: 4),
+                    padding: const EdgeInsets.only(left: 4, right: 4),
                     child: OutlinedButton(
-                      onPressed: () => _confirmMove(context),
+                      onPressed: () => _confirmMove(context, label),
                       child: const Text("Move here"),
                     ),
                   ),
@@ -353,12 +424,69 @@ class CustomerActionChip extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmMove(BuildContext context) async {
+  String _bookingSubtitle() {
+    if (booking.name.isNotEmpty) return booking.name;
+    if (booking.email != null && booking.email!.isNotEmpty) {
+      return booking.email!;
+    }
+    if (booking.phone != null && booking.phone!.isNotEmpty) {
+      return booking.phone!;
+    }
+    return "";
+  }
+
+  void _showBookingInfo(BuildContext context, String customerLabel) {
+    final bookingCustomers = allCustomers
+        .where((c) => c.bookingId == booking.id)
+        .toList()
+      ..sort((a, b) => a.id.compareTo(b.id));
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          booking.name.isNotEmpty ? booking.name : "Booking info",
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (booking.email != null && booking.email!.isNotEmpty)
+              Text("Email: ${booking.email}"),
+            if (booking.phone != null && booking.phone!.isNotEmpty)
+              Text("Phone: ${booking.phone}"),
+            const SizedBox(height: 8),
+            Text(
+              "Customers in this booking:",
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            ...bookingCustomers.map((c) {
+              final lbl = _customerLabel(c, allCustomers, pricings);
+              final status = c.teamId == null
+                  ? "unassigned"
+                  : c.teamId == teamId
+                  ? "this sled"
+                  : "another sled";
+              return Text("$lbl — $status");
+            }),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Close"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmMove(BuildContext context, String label) async {
     final shouldMove = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Move customer?"),
-        content: Text("Move ${customer.name} to this sled?"),
+        content: Text("Move $label to this sled?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
