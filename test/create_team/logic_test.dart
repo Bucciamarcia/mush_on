@@ -10,6 +10,8 @@ import 'package:mush_on/riverpod.dart' as app_riverpod;
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
+import 'package:mush_on/shared/dog_filter/main.dart';
+import 'package:searchfield/searchfield.dart';
 
 void main() {
   group('DogNotesExtension', () {
@@ -458,6 +460,139 @@ void main() {
         expect(find.text('Duplicate dog!'), findsNothing);
       },
     );
+
+    testWidgets('team builder dog selectors show all dogs before filtering', (
+      tester,
+    ) async {
+      final date = DateTime.utc(2026, 1, 1);
+      final teamGroup = _teamGroupWithDogs(
+        id: 'new-group',
+        date: date,
+        firstDogIds: [''],
+      );
+
+      await tester.pumpWidget(
+        _teamBuilderHarness(
+          teamGroup: teamGroup,
+          providerKey: null,
+          dogs: _dogs,
+          overrides: [
+            createTeamGroupProvider(
+              null,
+            ).overrideWith(() => _TestCreateTeamGroup(teamGroup)),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        _selectorSuggestionLabels(tester),
+        containsAll(['Alpha', 'Beta', 'Gamma']),
+      );
+    });
+
+    testWidgets('team builder dog filter updates empty selector options', (
+      tester,
+    ) async {
+      final date = DateTime.utc(2026, 1, 1);
+      final teamGroup = _teamGroupWithDogs(
+        id: 'new-group',
+        date: date,
+        firstDogIds: [''],
+      );
+
+      await tester.pumpWidget(
+        _teamBuilderHarness(
+          teamGroup: teamGroup,
+          providerKey: null,
+          dogs: _dogs,
+          overrides: [
+            createTeamGroupProvider(
+              null,
+            ).overrideWith(() => _TestCreateTeamGroup(teamGroup)),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await _applyDogFilter(tester, [_dogs[1]]);
+      await tester.pumpAndSettle();
+
+      expect(_selectorSuggestionLabels(tester), ['Beta']);
+    });
+
+    testWidgets(
+      'team builder dog filter does not remove an already selected dog',
+      (tester) async {
+        final date = DateTime.utc(2026, 1, 1);
+        final teamGroup = _teamGroupWithDogs(
+          id: 'new-group',
+          date: date,
+          firstDogIds: ['dog-1'],
+        );
+
+        await tester.pumpWidget(
+          _teamBuilderHarness(
+            teamGroup: teamGroup,
+            providerKey: null,
+            dogs: _dogs,
+            overrides: [
+              createTeamGroupProvider(
+                null,
+              ).overrideWith(() => _TestCreateTeamGroup(teamGroup)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await _applyDogFilter(tester, [_dogs[1]]);
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(const Key('DogSelectedChip - dog-1')),
+          findsOneWidget,
+        );
+        expect(_selectorSuggestionLabels(tester), ['Beta']);
+      },
+    );
+
+    testWidgets(
+      'team builder empty dog filter result shows all dogs and error',
+      (tester) async {
+        final date = DateTime.utc(2026, 1, 1);
+        final teamGroup = _teamGroupWithDogs(
+          id: 'new-group',
+          date: date,
+          firstDogIds: [''],
+        );
+
+        await tester.pumpWidget(
+          _teamBuilderHarness(
+            teamGroup: teamGroup,
+            providerKey: null,
+            dogs: _dogs,
+            overrides: [
+              createTeamGroupProvider(
+                null,
+              ).overrideWith(() => _TestCreateTeamGroup(teamGroup)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await _applyDogFilter(tester, []);
+        await tester.pump();
+
+        expect(
+          _selectorSuggestionLabels(tester),
+          containsAll(['Alpha', 'Beta', 'Gamma']),
+        );
+        expect(
+          find.text('Search came up empty. Showing all dogs'),
+          findsOneWidget,
+        );
+      },
+    );
   });
 
   group('CustomerAssign provider', () {
@@ -504,6 +639,25 @@ const _dogs = [
   Dog(id: 'dog-2', name: 'Beta'),
   Dog(id: 'dog-3', name: 'Gamma'),
 ];
+
+List<String> _selectorSuggestionLabels(WidgetTester tester) {
+  final searchFields = tester.widgetList<SearchField<Dog>>(
+    find.byType(SearchField<Dog>),
+  );
+  return searchFields
+      .expand(
+        (field) => field.suggestions.map((suggestion) => suggestion.searchKey),
+      )
+      .toSet()
+      .toList()
+    ..sort();
+}
+
+Future<void> _applyDogFilter(WidgetTester tester, List<Dog> dogs) async {
+  await tester.tap(find.text('Filter dogs'));
+  await tester.pumpAndSettle();
+  tester.widget<DogFilterWidget>(find.byType(DogFilterWidget)).onResult(dogs);
+}
 
 TeamGroupWorkspace _teamGroupWithDogs({
   required String id,

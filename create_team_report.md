@@ -25,7 +25,7 @@ The practical launch goal should be: keep the builder permissive, but make it ho
 
 ### Launch-Blocking / Critical
 
-#### Critical: Duplicate detection is tied to the wrong provider for loaded teams
+#### Critical: Duplicate detection is tied to the wrong provider for loaded teams -- FIXED
 
 Evidence:
 - `duplicateDogsProvider` reads `createTeamGroupProvider(null)` in `lib/create_team/riverpod.dart:389-415`.
@@ -38,7 +38,7 @@ When editing a loaded team group, duplicate warnings may be calculated against t
 Recommended fix:
 Make duplicate detection use the active workspace. The simplest 80/20 fix is to calculate duplicates from `widget.teamGroup` directly, similar to `runningDogsProvider(widget.teamGroup)`, or parameterize the provider by `teamGroupId`/workspace.
 
-#### Critical: Dog filter reports success but does not affect selector options
+#### Critical: Dog filter reports success but does not affect selector options -- FIXED
 
 Evidence:
 - `DogFilterWidget` returns filtered dogs through `onResult`.
@@ -55,7 +55,7 @@ For launch, choose one:
 
 Given the focus group has not prioritized filtering for launch, the lower-effort launch fix may be to remove or hide this filter section temporarily.
 
-#### Critical: Save operation is not fully awaited and can report success too early
+#### Critical: Save operation is not fully awaited and can report success too early -- FIXED
 
 Evidence:
 - `SaveTeamsButton` saves team data, then customer data, as separate async operations in `lib/create_team/save_teams_button.dart:31-34`.

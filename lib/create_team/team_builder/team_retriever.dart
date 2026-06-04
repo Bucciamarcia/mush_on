@@ -10,6 +10,7 @@ class TeamRetriever extends ConsumerStatefulWidget {
   final int teamNumber;
   final String? teamGroupId;
   final List<Dog> dogs;
+  final List<Dog> selectableDogs;
   final List<String> runningDogs;
   final List<TeamWorkspace> teams;
   final List<DogNote> notes;
@@ -25,6 +26,7 @@ class TeamRetriever extends ConsumerStatefulWidget {
     super.key,
     required this.teamNumber,
     required this.dogs,
+    required this.selectableDogs,
     required this.teamGroupId,
     required this.runningDogs,
     required this.notes,
@@ -145,6 +147,7 @@ class _TeamRetrieverState extends ConsumerState<TeamRetriever> {
                 notes: widget.notes,
                 onDogSelected: (newDog) => widget.onDogSelected(newDog),
                 dogs: widget.dogs,
+                selectableDogs: widget.selectableDogs,
                 runningDogs: widget.runningDogs,
                 isReadOnly: widget.isReadOnly,
                 onRowRemoved: (teamNumber, rowNumber) =>

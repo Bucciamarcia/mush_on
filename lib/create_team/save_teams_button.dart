@@ -8,7 +8,7 @@ import 'package:mush_on/customer_management/repository.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 
-class SaveTeamsButton extends ConsumerWidget {
+class SaveTeamsButton extends ConsumerStatefulWidget {
   final TeamGroupWorkspace teamGroup;
   final bool isReadOnly;
   static final BasicLogger logger = BasicLogger();
@@ -19,19 +19,30 @@ class SaveTeamsButton extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SaveTeamsButton> createState() => _SaveTeamsButtonState();
+}
+
+class _SaveTeamsButtonState extends ConsumerState<SaveTeamsButton> {
+  bool _isSaving = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       spacing: 10,
       children: [
         ElevatedButton(
-          onPressed: isReadOnly
+          onPressed: widget.isReadOnly || _isSaving
               ? null
               : () async {
+                  setState(() => _isSaving = true);
                   try {
-                    String account = await ref.watch(accountProvider.future);
-                    await saveToDb(teamGroup, account, ref);
-                    await saveCustomersToDb(teamGroup, account, ref);
+                    String account = await ref.read(accountProvider.future);
+                    await saveToDb(widget.teamGroup, account, ref);
+                    await saveCustomersToDb(widget.teamGroup, account, ref);
+                    if (!mounted) {
+                      return;
+                    }
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -52,7 +63,7 @@ class SaveTeamsButton extends ConsumerWidget {
                         .read(canPopTeamGroupProvider.notifier)
                         .changeState(true);
                   } catch (e, s) {
-                    logger.error(
+                    SaveTeamsButton.logger.error(
                       "Couldn't save team to db",
                       error: e,
                       stackTrace: s,
@@ -65,18 +76,33 @@ class SaveTeamsButton extends ConsumerWidget {
                         ),
                       );
                     }
+                  } finally {
+                    if (mounted) {
+                      setState(() => _isSaving = false);
+                    }
                   }
                 },
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
-          child: Text(
-            "Save team group",
-            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-          ),
+          child: _isSaving
+              ? SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                )
+              : Text(
+                  "Save team group",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
         ),
         ElevatedButton(
-          onPressed: isReadOnly
+          onPressed: widget.isReadOnly || _isSaving
               ? null
               : () {
                   ref.invalidate(createTeamGroupProvider);
@@ -98,7 +124,11 @@ class SaveTeamsButton extends ConsumerWidget {
       QuerySnapshot snapshot = await query.get();
       return snapshot;
     } catch (e, s) {
-      logger.error("Couldn't check if teams exist", error: e, stackTrace: s);
+      SaveTeamsButton.logger.error(
+        "Couldn't check if teams exist",
+        error: e,
+        stackTrace: s,
+      );
       rethrow;
     }
   }
@@ -108,8 +138,8 @@ class SaveTeamsButton extends ConsumerWidget {
     String account,
     WidgetRef ref,
   ) async {
-    logger.info("Starting sctdb");
-    CustomerGroupWorkspace? customerGroup = await ref.watch(
+    SaveTeamsButton.logger.info("Starting sctdb");
+    CustomerGroupWorkspace? customerGroup = await ref.read(
       customerAssignProvider(newtg.id).future,
     );
     if (customerGroup == null) {
@@ -121,7 +151,7 @@ class SaveTeamsButton extends ConsumerWidget {
       try {
         await repo.setCustomer(customer);
       } catch (e, s) {
-        logger.error(
+        SaveTeamsButton.logger.error(
           "Error while saving customer ${customer.id} to db",
           error: e,
           stackTrace: s,
@@ -132,14 +162,24 @@ class SaveTeamsButton extends ConsumerWidget {
   }
 }
 
+typedef RemoveCustomerGroups =
+    Future<void> Function(
+      String teamId,
+      String account,
+      DateTime newTeamDate,
+      FirebaseFirestore firestore,
+    );
+
 Future<void> saveToDb(
   TeamGroupWorkspace newtg,
   String account,
-  WidgetRef ref,
-) async {
+  WidgetRef? ref, {
+  FirebaseFirestore? firestore,
+  RemoveCustomerGroups? removeCustomerGroups,
+}) async {
   final logger = BasicLogger();
   logger.info("Saving to db the teamgroup workspace");
-  var db = FirebaseFirestore.instance;
+  var db = firestore ?? FirebaseFirestore.instance;
   var batch = db.batch();
   String path = "accounts/$account/data/teams/history/${newtg.id}";
   var tgdoc = db.doc(path);
@@ -154,7 +194,12 @@ Future<void> saveToDb(
     }
   }
 
-  _removeCustomerGroups(newtg.id, account, newtg.date);
+  await (removeCustomerGroups ?? _removeCustomerGroups)(
+    newtg.id,
+    account,
+    newtg.date,
+    db,
+  );
 
   var newtgObject = newtg.toJson();
   newtgObject
@@ -231,11 +276,12 @@ Future<void> _removeCustomerGroups(
   String teamId,
   String account,
   DateTime newTeamDate,
+  FirebaseFirestore firestore,
 ) async {
   final logger = BasicLogger();
   logger.debug("Checking remove cg");
   String path = "accounts/$account/data/bookingManager/customerGroups";
-  final db = FirebaseFirestore.instance;
+  final db = firestore;
   var collection = db.collection(path).where("teamGroupId", isEqualTo: teamId);
   var data = await collection.get();
   List<CustomerGroup> cgs = data.docs

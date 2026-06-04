@@ -12,6 +12,7 @@ class PairRetriever extends StatelessWidget {
   final int rowNumber;
   final List<TeamWorkspace> teams;
   final List<Dog> dogs;
+  final List<Dog> selectableDogs;
   final List<String> runningDogs;
   final List<DogNote> notes;
   final bool isReadOnly;
@@ -25,6 +26,7 @@ class PairRetriever extends StatelessWidget {
     required this.notes,
     required this.teams,
     required this.dogs,
+    required this.selectableDogs,
     required this.isReadOnly,
     required this.runningDogs,
     required this.onDogSelected,
@@ -42,6 +44,7 @@ class PairRetriever extends StatelessWidget {
           teams: teams,
           positionNumber: 0,
           dogs: dogs,
+          selectableDogs: selectableDogs,
           runningDogs: runningDogs,
           notes: notes,
           isReadOnly: isReadOnly,
@@ -64,6 +67,7 @@ class PairRetriever extends StatelessWidget {
           notes: notes,
           positionNumber: 1,
           dogs: dogs,
+          selectableDogs: selectableDogs,
           runningDogs: runningDogs,
           isReadOnly: isReadOnly,
           onDogSelected: (Dog newDog) => onDogSelected(

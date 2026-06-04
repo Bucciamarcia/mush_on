@@ -32,6 +32,7 @@ class TeamBuilderWidget extends ConsumerStatefulWidget {
 class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
   late TextEditingController groupNameController;
   late TextEditingController groupNotesController;
+  List<Dog>? filteredDogs;
 
   @override
   void initState() {
@@ -60,6 +61,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
       createTeamGroupProvider(widget.providerKey).notifier,
     );
     List<Dog> allDogs = ref.watch(dogsProvider).value ?? [];
+    List<Dog> selectableDogs = filteredDogs ?? allDogs;
     SettingsModel? settings = ref.watch(settingsProvider).value;
     bool isReadOnly = ref.watch(isReadOnlyProvider);
     return SingleChildScrollView(
@@ -89,6 +91,21 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                         dogs: allDogs,
                         templates: settings?.customFieldTemplates ?? [],
                         onResult: (dogs) {
+                          if (dogs.isEmpty) {
+                            setState(() {
+                              filteredDogs = null;
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              errorSnackBar(
+                                context,
+                                "Search came up empty. Showing all dogs",
+                              ),
+                            );
+                            return;
+                          }
+                          setState(() {
+                            filteredDogs = dogs;
+                          });
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -188,6 +205,7 @@ class _TeamBuilderWidgetState extends ConsumerState<TeamBuilderWidget> {
                   teamNumber: entry.key,
                   teamGroupId: widget.providerKey,
                   dogs: allDogs,
+                  selectableDogs: selectableDogs,
                   runningDogs: runningDogs,
                   teams: widget.teamGroup.teams,
                   notes: dogNotes,

@@ -148,4 +148,7 @@ A cool and open source CRM for sled dog kennels.
 - Adds custom fields to booking and customer views.
 - Adds custom fields to email confirmation and reminders.
 - Improves notes in whiteboard features.
-- Fix bug in duplicate dog detection that won't work correctly in some cases.
+- Fixes bug in duplicate dog detection that won't work correctly in some cases.
+- Fixes bug in edit kennel where the filter dogs option wasn't working at all.
+- Fixes bug in edit kennel page that showed no dogs instead of all dogs when filter returned empty.
+- Fixes bug in team creator where the save team group would confirm before saving to the database.

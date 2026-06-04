@@ -16,6 +16,7 @@ class DogSelector extends StatefulWidget {
     required this.teams,
     required this.positionNumber,
     required this.dogs,
+    required this.selectableDogs,
     required this.runningDogs,
     required this.isReadOnly,
     required this.onDogSelected,
@@ -28,6 +29,7 @@ class DogSelector extends StatefulWidget {
   final List<TeamWorkspace> teams;
   final int positionNumber;
   final List<Dog> dogs;
+  final List<Dog> selectableDogs;
   final List<String> runningDogs;
   final bool isReadOnly;
   final Function(Dog newDog) onDogSelected;
@@ -159,7 +161,7 @@ class _DogSelectorState extends State<DogSelector> {
               positionNumber: widget.positionNumber,
               isReadOnly: widget.isReadOnly,
               onDogSelected: widget.onDogSelected,
-              dogs: widget.dogs,
+              dogs: widget.selectableDogs,
               runningDogs: widget.runningDogs,
             ),
     );

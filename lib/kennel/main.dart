@@ -40,15 +40,19 @@ class EditKennelMain extends ConsumerWidget {
                       logger.debug("Len of list: ${v.length}");
                       // TODO: This now only orders by alpabetical order.
                       // TODO: Ordering should be done by dog fiter.
-                      ref.read(dogsDisplayListProvider.notifier).setDogs(v);
                       if (v.isEmpty) {
+                        ref
+                            .read(dogsDisplayListProvider.notifier)
+                            .setDogs(dogs);
                         ScaffoldMessenger.of(context).showSnackBar(
                           errorSnackBar(
                             context,
                             "Search came up empty. Showing all dogs",
                           ),
                         );
+                        return;
                       }
+                      ref.read(dogsDisplayListProvider.notifier).setDogs(v);
                     },
                   ),
                 ],
