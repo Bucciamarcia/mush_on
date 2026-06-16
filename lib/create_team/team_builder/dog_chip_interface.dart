@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/create_team/models.dart';
+import 'package:mush_on/kennel/dog/main.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 
@@ -69,7 +70,35 @@ class DogSelectedChip extends StatelessWidget {
         softWrap: true,
         maxLines: 2,
       ),
+      onPressed: () => showDialog(
+        context: context,
+        builder: (context) => TeamBuilderDogDialog(dog: dog),
+      ),
       onDeleted: isReadOnly ? () {} : () => onDogRemoved(),
+    );
+  }
+}
+
+class TeamBuilderDogDialog extends StatelessWidget {
+  final Dog dog;
+  const TeamBuilderDogDialog({super.key, required this.dog});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    return AlertDialog.adaptive(
+      title: Text(dog.name),
+      content: SizedBox(
+        width: size.width < 900 ? size.width * 0.9 : 900,
+        height: size.height * 0.85,
+        child: DogMain(dogId: dog.id, showDeleteButton: false),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Close"),
+        ),
+      ],
     );
   }
 }

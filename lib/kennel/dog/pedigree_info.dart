@@ -43,61 +43,72 @@ class _PedigreeinfoState extends ConsumerState<PedigreeInfo> {
         return Column(
           children: [
             const TextTitle("Pedigree info"),
-            Row(
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              alignment: WrapAlignment.center,
               children: [
-                DropdownMenu(
-                  initialSelection: allDogs.getDogFromId(
-                    widget.dog.motherId ?? "",
+                SizedBox(
+                  width: 260,
+                  child: DropdownMenu(
+                    expandedInsets: EdgeInsets.zero,
+                    initialSelection: allDogs.getDogFromId(
+                      widget.dog.motherId ?? "",
+                    ),
+                    label: const Text("Mother"),
+                    controller: motherController,
+                    onSelected: (mother) async {
+                      if (mother != null) {
+                        motherController.text = mother.name;
+                        await DogsDbOperations().updateMotherId(
+                          motherId: mother.id,
+                          id: widget.dog.id,
+                          account: account,
+                        );
+                      }
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(context, "Dog mother updated"),
+                        );
+                      }
+                    },
+                    dropdownMenuEntries: allDogs
+                        .where((d) => d.sex != DogSex.male)
+                        .where((d) => d.id != widget.dog.id)
+                        .map((d) => DropdownMenuEntry(value: d, label: d.name))
+                        .toList(),
                   ),
-                  label: const Text("Mother"),
-                  controller: motherController,
-                  onSelected: (mother) async {
-                    if (mother != null) {
-                      motherController.text = mother.name;
-                      await DogsDbOperations().updateMotherId(
-                        motherId: mother.id,
-                        id: widget.dog.id,
-                        account: account,
-                      );
-                    }
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        confirmationSnackbar(context, "Dog mother updated"),
-                      );
-                    }
-                  },
-                  dropdownMenuEntries: allDogs
-                      .where((d) => d.sex != DogSex.male)
-                      .where((d) => d.id != widget.dog.id)
-                      .map((d) => DropdownMenuEntry(value: d, label: d.name))
-                      .toList(),
                 ),
-                DropdownMenu(
-                  initialSelection: allDogs.getDogFromId(
-                    widget.dog.fatherId ?? "",
+                SizedBox(
+                  width: 260,
+                  child: DropdownMenu(
+                    expandedInsets: EdgeInsets.zero,
+                    initialSelection: allDogs.getDogFromId(
+                      widget.dog.fatherId ?? "",
+                    ),
+                    label: const Text("Father"),
+                    controller: fatherController,
+                    onSelected: (father) async {
+                      if (father != null) {
+                        fatherController.text = father.name;
+                        await DogsDbOperations().updateFatherId(
+                          fatherId: father.id,
+                          id: widget.dog.id,
+                          account: account,
+                        );
+                      }
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          confirmationSnackbar(context, "Dog father updated"),
+                        );
+                      }
+                    },
+                    dropdownMenuEntries: allDogs
+                        .where((d) => d.sex != DogSex.female)
+                        .where((d) => d.id != widget.dog.id)
+                        .map((d) => DropdownMenuEntry(value: d, label: d.name))
+                        .toList(),
                   ),
-                  label: const Text("Father"),
-                  controller: fatherController,
-                  onSelected: (father) async {
-                    if (father != null) {
-                      fatherController.text = father.name;
-                      await DogsDbOperations().updateFatherId(
-                        fatherId: father.id,
-                        id: widget.dog.id,
-                        account: account,
-                      );
-                    }
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        confirmationSnackbar(context, "Dog father updated"),
-                      );
-                    }
-                  },
-                  dropdownMenuEntries: allDogs
-                      .where((d) => d.sex != DogSex.female)
-                      .where((d) => d.id != widget.dog.id)
-                      .map((d) => DropdownMenuEntry(value: d, label: d.name))
-                      .toList(),
                 ),
               ],
             ),

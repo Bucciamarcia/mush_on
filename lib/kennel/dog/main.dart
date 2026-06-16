@@ -29,8 +29,9 @@ import 'single_dog_health_events_widget.dart';
 
 class DogMain extends ConsumerWidget {
   final String? dogId;
+  final bool showDeleteButton;
   static BasicLogger logger = BasicLogger();
-  const DogMain({super.key, required this.dogId});
+  const DogMain({super.key, required this.dogId, this.showDeleteButton = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -529,59 +530,63 @@ class DogMain extends ConsumerWidget {
                   },
                 ),
                 const Divider(),
-                DeleteDogButton(
-                  dog: dog,
-                  onDogDeleted: () async {
-                    await showDialog(
-                      context: context,
-                      builder: (dialogContext) => DeleteDogConfirmationDialog(
-                        dog: dog,
-                        onConfirmed: () async {
-                          try {
-                            await DogsDbOperations().deleteDog(dog.id, account);
-                            // First pop the dialog
-                            if (dialogContext.mounted) {
-                              Navigator.of(dialogContext).pop();
-                            }
-                            // Then pop the original page using the original context
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "Dog deleted",
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onPrimary,
+                if (showDeleteButton)
+                  DeleteDogButton(
+                    dog: dog,
+                    onDogDeleted: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (dialogContext) => DeleteDogConfirmationDialog(
+                          dog: dog,
+                          onConfirmed: () async {
+                            try {
+                              await DogsDbOperations().deleteDog(
+                                dog.id,
+                                account,
+                              );
+                              // First pop the dialog
+                              if (dialogContext.mounted) {
+                                Navigator.of(dialogContext).pop();
+                              }
+                              // Then pop the original page using the original context
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      "Dog deleted",
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onPrimary,
+                                      ),
                                     ),
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                   ),
-                                  backgroundColor: Theme.of(
+                                );
+                                Navigator.of(context).pop();
+                              }
+                            } catch (e, s) {
+                              logger.error(
+                                "Couldn't delete dog ${dog.name}",
+                                error: e,
+                                stackTrace: s,
+                              );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  errorSnackBar(
                                     context,
-                                  ).colorScheme.primary,
-                                ),
-                              );
-                              Navigator.of(context).pop();
+                                    "Error: couldn't delete dog",
+                                  ),
+                                );
+                              }
                             }
-                          } catch (e, s) {
-                            logger.error(
-                              "Couldn't delete dog ${dog.name}",
-                              error: e,
-                              stackTrace: s,
-                            );
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                errorSnackBar(
-                                  context,
-                                  "Error: couldn't delete dog",
-                                ),
-                              );
-                            }
-                          }
-                        },
-                      ),
-                    );
-                  },
-                ),
+                          },
+                        ),
+                      );
+                    },
+                  ),
               ],
             );
           },

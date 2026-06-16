@@ -6,10 +6,14 @@ import 'package:mush_on/create_team/models.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/team_builder/main.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/health/provider.dart';
+import 'package:mush_on/kennel/dog/main.dart';
+import 'package:mush_on/kennel/dog/riverpod.dart' as dog_riverpod;
 import 'package:mush_on/riverpod.dart' as app_riverpod;
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
+import 'package:mush_on/services/models/tasks.dart';
 import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:searchfield/searchfield.dart';
@@ -557,6 +561,63 @@ void main() {
       },
     );
 
+    testWidgets('selected dog chip opens the kennel dog page in a popup', (
+      tester,
+    ) async {
+      final date = DateTime.utc(2026, 1, 1);
+      final teamGroup = _teamGroupWithDogs(
+        id: 'new-group',
+        date: date,
+        firstDogIds: ['dog-1'],
+      );
+
+      await tester.pumpWidget(
+        _teamBuilderHarness(
+          teamGroup: teamGroup,
+          providerKey: null,
+          dogs: _dogs,
+          overrides: [
+            createTeamGroupProvider(
+              null,
+            ).overrideWith(() => _TestCreateTeamGroup(teamGroup)),
+            app_riverpod.accountProvider.overrideWith(
+              (ref) => Stream.value('account-1'),
+            ),
+            app_riverpod
+                .tasksProvider(null)
+                .overrideWith((ref) => Stream.value(const TasksInMemory())),
+            dog_riverpod
+                .singleDogProvider('dog-1')
+                .overrideWith((ref) => Stream.value(_dogs.first)),
+            dog_riverpod
+                .singleDogImageProvider('account-1', 'dog-1')
+                .overrideWith(_TestSingleDogImage.new),
+            dog_riverpod
+                .dogTotalProvider(dogId: 'dog-1', cutoff: null)
+                .overrideWith((ref) => Stream.value([])),
+            dog_riverpod
+                .dogHealthEventsProvider(dogId: 'dog-1', cutoff: null)
+                .overrideWith((ref) => Stream.value([])),
+            dog_riverpod
+                .dogVaccinationsProvider(dogId: 'dog-1', cutoff: null)
+                .overrideWith((ref) => Stream.value([])),
+            dog_riverpod
+                .dogHeatsProvider(dogId: 'dog-1', cutoff: null)
+                .overrideWith((ref) => Stream.value([])),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('DogSelectedChip - dog-1')));
+      await tester.pumpAndSettle();
+
+      expect(find.widgetWithText(TextButton, 'Close'), findsOneWidget);
+      final dogMain = tester.widget<DogMain>(find.byType(DogMain));
+      expect(dogMain.dogId, 'dog-1');
+      expect(dogMain.showDeleteButton, isFalse);
+    });
+
     testWidgets(
       'team builder empty dog filter result shows all dogs and error',
       (tester) async {
@@ -654,7 +715,7 @@ void main() {
 
       expect(find.text('Available'), findsOneWidget);
 
-      await tester.tap(find.text('Alex'));
+      await tester.tap(find.text('customer - 1'));
       await tester.pump();
 
       expect(selectedCount, 1);
@@ -711,7 +772,7 @@ void main() {
       expect(find.text('On another sled'), findsOneWidget);
       expect(find.text('Move here'), findsOneWidget);
 
-      await tester.tap(find.text('Alex'));
+      await tester.tap(find.text('customer - 1'));
       await tester.pump();
 
       expect(selectedCount, 0);
@@ -722,7 +783,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Move customer?'), findsOneWidget);
-      expect(find.text('Move Alex to this sled?'), findsOneWidget);
+      expect(find.text('Move customer - 1 to this sled?'), findsOneWidget);
 
       await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
       await tester.pumpAndSettle();
@@ -778,6 +839,9 @@ Widget _customerChipHarness({
         body: CustomerActionChip(
           customer: customer,
           teamId: teamId,
+          booking: Booking(id: customer.bookingId, customerGroupId: 'group-1'),
+          pricings: const <TourTypePricing>[],
+          allCustomers: [customer],
           onCustomerSelected: onCustomerSelected,
           onCustomerDeselected: onCustomerDeselected,
         ),
@@ -863,4 +927,9 @@ class _TestCreateTeamGroup extends CreateTeamGroup {
 class _TestCustomerAssign extends CustomerAssign {
   @override
   Future<CustomerGroupWorkspace?> build(String? teamGroupId) async => null;
+}
+
+class _TestSingleDogImage extends dog_riverpod.SingleDogImage {
+  @override
+  Future<Null> build(String account, String dogId) async => null;
 }
