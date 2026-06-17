@@ -18,6 +18,8 @@ import 'package:mush_on/settings/custom_fields.dart';
 import 'package:mush_on/settings/hub_tile.dart';
 import 'package:mush_on/settings/main.dart';
 import 'package:mush_on/settings/repository.dart';
+import 'package:mush_on/settings/sections/billing.dart';
+import 'package:mush_on/settings/sections/team.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:mush_on/settings/user_settings.dart';
 
@@ -94,6 +96,28 @@ Future<void> _pumpApp(
       child: MaterialApp(home: Scaffold(body: child)),
     ),
   );
+}
+
+List<Override> _settingsPageOverrides({
+  required UserLevel userLevel,
+  SettingsModel settings = const SettingsModel(),
+}) {
+  final user = _FakeUser('user-1');
+  final userName = UserName(
+    uid: 'user-1',
+    email: '${userLevel.name}@example.com',
+    account: 'account-1',
+    userLevel: userLevel,
+  );
+  return [
+    userProvider.overrideWith((_) => Stream.value(user)),
+    userNameProvider('user-1').overrideWith((_) => Stream.value(userName)),
+    userNameProvider(null).overrideWith((_) => Stream.value(userName)),
+    userProfilePicProvider(null).overrideWith(() => _FakeUserProfilePic()),
+    accountProvider.overrideWith((_) => Stream.value('account-1')),
+    settingsProvider.overrideWith((_) => Stream.value(settings)),
+    stripeConnectionProvider.overrideWith((_) => Stream.value(null)),
+  ];
 }
 
 void main() {
@@ -439,6 +463,67 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.byType(SettingsHubTile), findsNWidgets(4));
       expect(find.text('Billing & Payments'), findsOneWidget);
+    });
+  });
+
+  group('Settings section access control', () {
+    testWidgets('blocks handlers from direct team settings access', (
+      tester,
+    ) async {
+      await _pumpApp(
+        tester,
+        const TeamSettingsPage(),
+        overrides: _settingsPageOverrides(userLevel: UserLevel.handler),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("You don't have access to this page."), findsOneWidget);
+      expect(find.text('Add user'), findsNothing);
+      expect(find.text('Email address'), findsNothing);
+    });
+
+    testWidgets('allows mushers to open team settings directly', (
+      tester,
+    ) async {
+      await _pumpApp(
+        tester,
+        const TeamSettingsPage(),
+        overrides: _settingsPageOverrides(userLevel: UserLevel.musher),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("You don't have access to this page."), findsNothing);
+      expect(find.text('Team & Access'), findsOneWidget);
+      expect(find.text('Add user'), findsOneWidget);
+    });
+
+    testWidgets('blocks handlers from direct billing settings access', (
+      tester,
+    ) async {
+      await _pumpApp(
+        tester,
+        const BillingSettingsPage(),
+        overrides: _settingsPageOverrides(userLevel: UserLevel.handler),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("You don't have access to this page."), findsOneWidget);
+      expect(find.text('Connect Stripe'), findsNothing);
+    });
+
+    testWidgets('allows mushers to open billing settings directly', (
+      tester,
+    ) async {
+      await _pumpApp(
+        tester,
+        const BillingSettingsPage(),
+        overrides: _settingsPageOverrides(userLevel: UserLevel.musher),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text("You don't have access to this page."), findsNothing);
+      expect(find.text('Billing & Payments'), findsOneWidget);
+      expect(find.text('Connect Stripe'), findsOneWidget);
     });
   });
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/riverpod.dart';
+import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/settings/add_users.dart';
 import 'package:mush_on/settings/repository.dart';
 
@@ -15,6 +16,7 @@ class TeamSettingsPage extends ConsumerWidget {
     if (account == null) {
       return const TemplateScreen(
         title: "Team",
+        minUserRank: UserLevel.musher,
         child: Center(child: Text("Account not available")),
       );
     }
@@ -23,6 +25,7 @@ class TeamSettingsPage extends ConsumerWidget {
 
     return TemplateScreen(
       title: "Team & Access",
+      minUserRank: UserLevel.musher,
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Align(

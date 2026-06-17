@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mush_on/page_template.dart';
+import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/settings/stripe/stripe_payment_settings.dart';
 
 class BillingSettingsPage extends StatelessWidget {
@@ -9,6 +10,7 @@ class BillingSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return TemplateScreen(
       title: "Billing & Payments",
+      minUserRank: UserLevel.musher,
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Align(

@@ -30,7 +30,7 @@ The invitation model has an `accepted` field, but accepting an invite only write
 
 **Change the logic:** accept invitations through a Cloud Function transaction. It should verify the security code, verify the invitation is not already accepted, create or update the user membership, and mark the invite accepted with `acceptedAt` and `acceptedUid` or delete it.
 
-### Team settings route is not role-protected
+### Team settings route is not role-protected - *** FIXED
 
 The settings hub hides Team & Access from non-mushers, but `/settings/team` uses `TemplateScreen` with the default minimum rank of `guest`. Direct navigation can expose the invitation UI.
 
