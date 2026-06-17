@@ -1,10 +1,13 @@
 import importlib
 import json as std_json
+import os
 import pathlib
 import sys
 import types
 import unittest
 from datetime import datetime, timezone
+from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 
 
 class _HttpsError(Exception):
@@ -128,6 +131,7 @@ def _install_stubs():
 
 _install_stubs()
 main = importlib.import_module("main")
+send_invitation_email = importlib.import_module("lib.send_invitation_email")
 
 
 class _Snapshot:
@@ -335,6 +339,81 @@ class _FakeInvitationEmail:
 
     def run(self):
         self.__class__.calls.append(self.kwargs)
+
+
+class _FakePostmarkResponse:
+    status_code = 200
+    text = ""
+
+    def raise_for_status(self):
+        return None
+
+
+class InvitationEmailTests(unittest.TestCase):
+    def _send_invitation_and_get_action_url(
+        self,
+        *,
+        base_signup_url="https://app.mush-on.com/accept_invitation",
+        receiver_email="plus+user@example.com",
+        security_code="a+b&c=d",
+    ):
+        calls = []
+
+        def fake_post(url, headers, json):
+            calls.append({"url": url, "headers": headers, "json": json})
+            return _FakePostmarkResponse()
+
+        env = {
+            "POSTMARK_SERVER_TOKEN": "server-token",
+            "POSTMARK_ACCOUNT_TOKEN": "account-token",
+            "POSTMARK_TEMPLATE_INVITE_USER": "123",
+            "PRIVACY_POLICY_URL": "https://app.mush-on.com/privacy",
+            "SIGNUP_URL": base_signup_url,
+            "SUPPORT_EMAIL": "support@mush-on.com",
+        }
+        with patch.dict(os.environ, env, clear=False):
+            with patch.object(send_invitation_email.requests, "post", fake_post):
+                send_invitation_email.SendInvitationEmail(
+                    sender_email="sender@example.com",
+                    receiver_email=receiver_email,
+                    account="account-1",
+                    security_code=security_code,
+                ).run()
+
+        self.assertEqual(len(calls), 1)
+        return calls[0]["json"]["TemplateModel"]["action_url"]
+
+    def test_invitation_email_action_url_encodes_query_values(self):
+        action_url = self._send_invitation_and_get_action_url()
+
+        parsed = urlparse(action_url)
+        query = parse_qs(parsed.query)
+
+        self.assertEqual(
+            action_url,
+            "https://app.mush-on.com/accept_invitation?"
+            "email=plus%2Buser%40example.com&securityCode=a%2Bb%26c%3Dd",
+        )
+        self.assertEqual(query["email"], ["plus+user@example.com"])
+        self.assertEqual(query["securityCode"], ["a+b&c=d"])
+        self.assertNotIn("c", query)
+
+    def test_invitation_email_action_url_preserves_existing_query_parameters(self):
+        action_url = self._send_invitation_and_get_action_url(
+            base_signup_url="https://app.mush-on.com/accept_invitation?source=email",
+            receiver_email="new.user@example.com",
+            security_code="code-1",
+        )
+
+        parsed = urlparse(action_url)
+        query = parse_qs(parsed.query)
+
+        self.assertEqual(parsed.scheme, "https")
+        self.assertEqual(parsed.netloc, "app.mush-on.com")
+        self.assertEqual(parsed.path, "/accept_invitation")
+        self.assertEqual(query["source"], ["email"])
+        self.assertEqual(query["email"], ["new.user@example.com"])
+        self.assertEqual(query["securityCode"], ["code-1"])
 
 
 class BackendSecurityTests(unittest.TestCase):

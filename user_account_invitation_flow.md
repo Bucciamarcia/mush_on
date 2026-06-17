@@ -44,7 +44,7 @@ Account names are checked for empty before trimming, then normalized only by rep
 
 **Change the logic:** create accounts through a Cloud Function transaction. Normalize and validate account IDs server-side, reject invalid names, and atomically create the account only if it does not already exist.
 
-### Invitation URLs do not encode query parameters
+### Invitation URLs do not encode query parameters - *** FIXED
 
 The invitation email builds the action URL by directly interpolating email and security code into the query string. Emails containing `+` or other reserved characters can be parsed incorrectly.
 

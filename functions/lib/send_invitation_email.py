@@ -1,5 +1,6 @@
 import os
 import requests
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 
 class SendInvitationEmail:
@@ -28,9 +29,24 @@ class SendInvitationEmail:
                 "Postmark configuration is missing in environment variables."
             )
 
+    def _action_url(self) -> str:
+        parsed = urlsplit(self.base_signup_url)
+        query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+        query["email"] = self.receiver_email
+        query["securityCode"] = self.security_code
+        return urlunsplit(
+            (
+                parsed.scheme,
+                parsed.netloc,
+                parsed.path,
+                urlencode(query),
+                parsed.fragment,
+            )
+        )
+
     def run(self) -> None:
         url = "https://api.postmarkapp.com/email/withTemplate"
-        action_url = f"{self.base_signup_url}?email={self.receiver_email}&securityCode={self.security_code}"
+        action_url = self._action_url()
         template_model = {
             "product_url": "https://mush-on.com",
             "product_name": "Mush on",
