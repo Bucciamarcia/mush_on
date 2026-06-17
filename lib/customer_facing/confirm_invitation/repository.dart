@@ -1,14 +1,23 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/models.dart';
 
 class ConfirmInvitationRepository {
-  final db = FirebaseFirestore.instance;
+  final FirebaseFunctions functions;
   final logger = BasicLogger();
-  Future<void> createAccount(UserName user) async {
-    final path = "users/${user.uid}";
+
+  ConfirmInvitationRepository({FirebaseFunctions? functions})
+    : functions =
+          functions ?? FirebaseFunctions.instanceFor(region: "europe-north1");
+
+  Future<void> acceptInvitation({
+    required String email,
+    required String securityCode,
+  }) async {
     try {
-      await db.doc(path).set(user.toJson());
+      await functions.httpsCallable("accept_invitation").call({
+        "email": email,
+        "securityCode": securityCode,
+      });
     } catch (e, s) {
       logger.error("Couldn't set the new user", error: e, stackTrace: s);
       rethrow;

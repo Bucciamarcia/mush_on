@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mush_on/customer_facing/confirm_invitation/repository.dart';
 import 'package:mush_on/services/error_handling.dart';
-import 'package:mush_on/services/models/username.dart';
 import 'package:mush_on/shared/text_title.dart';
 
 import 'riverpod.dart';
@@ -67,15 +66,10 @@ class ConfirmInvitation extends ConsumerWidget {
                     if (user == null) return;
                     final email = user.email;
                     if (email == null) return;
-                    final userName = UserName(
-                      uid: user.uid,
-                      email: email,
-                      account: userInvitation.account,
-                      userLevel: userInvitation.userLevel,
-                    );
                     try {
-                      await ConfirmInvitationRepository().createAccount(
-                        userName,
+                      await ConfirmInvitationRepository().acceptInvitation(
+                        email: userInvitation.email,
+                        securityCode: userInvitation.securityCode,
                       );
                       if (context.mounted) context.go("/");
                     } catch (e) {

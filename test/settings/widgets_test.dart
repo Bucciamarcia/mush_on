@@ -262,6 +262,7 @@ void main() {
         account: 'account-1',
         name: 'Old name',
       );
+      await firestore.doc('users/user-1').set(username.toJson());
 
       await _pumpApp(
         tester,

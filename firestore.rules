@@ -15,9 +15,37 @@ service cloud.firestore {
       return isSignedIn() && userAccount() == account;
     }
 
-    // Users can fully manage their own user doc
+    function isSelf(uid) {
+      return isSignedIn() && uid == request.auth.uid;
+    }
+
+    function isUnassignedSelfProfile(uid) {
+      return isSelf(uid) &&
+             request.resource.data.uid == uid &&
+             request.resource.data.email == request.auth.token.email &&
+             (!("account" in request.resource.data) ||
+              request.resource.data.account == null) &&
+             (!("userLevel" in request.resource.data) ||
+              request.resource.data.userLevel == "handler");
+    }
+
+    function onlyUpdatesProfileFields() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(["name", "lastLogin"]);
+    }
+
+    // Users can read their own user doc and update safe profile fields.
+    // Account assignment and roles are server-controlled.
+    match /users/{uid} {
+      allow read: if isSelf(uid);
+      allow create: if isUnassignedSelfProfile(uid);
+      allow update: if isSelf(uid) && onlyUpdatesProfileFields();
+      allow delete: if false;
+    }
+
     match /users/{uid}/{document=**} {
-      allow read, write: if isSignedIn() && uid == request.auth.uid;
+      allow read: if isSelf(uid);
+      allow write: if false;
     }
 
     // Public-facing content: anyone can read; only members of the account can write

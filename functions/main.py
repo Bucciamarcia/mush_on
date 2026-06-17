@@ -377,6 +377,107 @@ def _assert_account_member(req: https_fn.CallableRequest[dict], account: str) ->
         )
 
 
+def _require_auth_uid(req: https_fn.CallableRequest[dict]) -> str:
+    if req.auth is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.UNAUTHENTICATED,
+            "Authentication is required",
+        )
+    return req.auth.uid
+
+
+def _validate_account_id(account: str | None) -> str:
+    if not account:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account",
+        )
+    account = account.strip()
+    if not account or "/" in account:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Invalid account",
+        )
+    return account
+
+
+@https_fn.on_call()
+def create_account(req: https_fn.CallableRequest[dict]) -> dict:
+    uid = _require_auth_uid(req)
+    data = req.data or {}
+    account = _validate_account_id(data.get("account"))
+    db = firestore.client()
+
+    user_ref = db.document(f"users/{uid}")
+    user_data = user_ref.get().to_dict()
+    if user_data is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND,
+            "User profile does not exist",
+        )
+    if user_data.get("account"):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "User already belongs to an account",
+        )
+
+    account_ref = db.document(f"accounts/{account}")
+    if account_ref.get().exists:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "Account already exists",
+        )
+
+    account_ref.set({"a": "a"})
+    user_ref.update({"account": account, "userLevel": "musher"})
+    return {"account": account}
+
+
+@https_fn.on_call()
+def accept_invitation(req: https_fn.CallableRequest[dict]) -> dict:
+    uid = _require_auth_uid(req)
+    data = req.data or {}
+    email = data.get("email")
+    security_code = data.get("securityCode")
+    if not email or not security_code:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing email or securityCode",
+        )
+
+    db = firestore.client()
+    invitation_ref = db.document(f"userInvitations/{email}")
+    invitation = invitation_ref.get().to_dict()
+    if invitation is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND,
+            "Invitation does not exist",
+        )
+    if invitation.get("securityCode") != security_code:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "Invalid invitation code",
+        )
+
+    account = _validate_account_id(invitation.get("account"))
+    user_level = invitation.get("userLevel")
+    if user_level not in ["musher", "handler", "guest"]:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Invalid user level",
+        )
+
+    db.document(f"users/{uid}").set(
+        {
+            "uid": uid,
+            "email": email,
+            "account": account,
+            "userLevel": user_level,
+        }
+    )
+    return {"account": account, "userLevel": user_level}
+
+
 @https_fn.on_call()
 def add_booking(req: https_fn.CallableRequest[dict]) -> dict:
     raise https_fn.HttpsError(

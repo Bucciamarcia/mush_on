@@ -89,7 +89,7 @@ class UserNameRepository {
     String uid = username.uid;
     String path = "users/$uid";
     try {
-      await db.doc(path).set(username.toJson());
+      await db.doc(path).update({"name": username.name});
     } catch (e, s) {
       logger.error(
         "Error setting username for user $uid:",

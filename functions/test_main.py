@@ -333,6 +333,109 @@ class BackendSecurityTests(unittest.TestCase):
             [["a", "b"], ["c", "d"], ["e"]],
         )
 
+    def test_create_account_requires_authentication(self):
+        db = _FakeDb()
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(data={"account": "account-1"}, auth=None)
+
+        with self.assertRaises(_HttpsError) as error:
+            main.create_account(request)
+
+        self.assertEqual(error.exception.code, "unauthenticated")
+
+    def test_create_account_rejects_existing_user_account(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {
+            "uid": "user-1",
+            "email": "user@example.com",
+            "account": "existing-account",
+            "userLevel": "handler",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"account": "account-1"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.create_account(request)
+
+        self.assertEqual(error.exception.code, "failed-precondition")
+        self.assertNotIn("accounts/account-1", db.documents)
+
+    def test_create_account_creates_account_and_promotes_authenticated_user(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {
+            "uid": "user-1",
+            "email": "user@example.com",
+            "account": None,
+            "userLevel": "handler",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"account": "account-1"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        result = main.create_account(request)
+
+        self.assertEqual(result, {"account": "account-1"})
+        self.assertEqual(db.documents["accounts/account-1"], {"a": "a"})
+        self.assertEqual(db.documents["users/user-1"]["account"], "account-1")
+        self.assertEqual(db.documents["users/user-1"]["userLevel"], "musher")
+
+    def test_accept_invitation_rejects_bad_code(self):
+        db = _FakeDb()
+        db.documents["userInvitations/new.user@example.com"] = {
+            "email": "new.user@example.com",
+            "account": "account-1",
+            "userLevel": "handler",
+            "securityCode": "good-code",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"email": "new.user@example.com", "securityCode": "bad-code"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.accept_invitation(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+        self.assertNotIn("users/user-1", db.documents)
+
+    def test_accept_invitation_writes_membership_from_stored_invitation(self):
+        db = _FakeDb()
+        db.documents["userInvitations/new.user@example.com"] = {
+            "email": "new.user@example.com",
+            "account": "account-1",
+            "userLevel": "musher",
+            "securityCode": "good-code",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={
+                "email": "new.user@example.com",
+                "securityCode": "good-code",
+                "account": "attacker-account",
+                "userLevel": "musher",
+            },
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        result = main.accept_invitation(request)
+
+        self.assertEqual(result, {"account": "account-1", "userLevel": "musher"})
+        self.assertEqual(
+            db.documents["users/user-1"],
+            {
+                "uid": "user-1",
+                "email": "new.user@example.com",
+                "account": "account-1",
+                "userLevel": "musher",
+            },
+        )
+
     def test_create_checkout_session_calculates_price_and_fee_server_side(self):
         db = _FakeDb()
         db.documents["accounts/account-1/integrations/stripe"] = {

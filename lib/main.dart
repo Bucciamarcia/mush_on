@@ -122,53 +122,13 @@ class _CreateKennelTextAndButtonState extends State<CreateKennelTextAndButton> {
             var value = _controller.text;
             value = value.trim();
             value = value.replaceAll(" ", "-");
-            final db = FirebaseFirestore.instance;
-
-            // Let's first check no kennel with this name exists
             try {
               final functions = FirebaseFunctions.instanceFor(
                 region: "europe-north1",
               );
-              final response = await functions
-                  .httpsCallable("get_list_of_accounts")
-                  .call();
-              final responseData = response.data as Map<String, dynamic>;
-              final accounts = List<String>.from(responseData["accounts"]);
-              for (final account in accounts) {
-                if (account == value) {
-                  BasicLogger().debug("Name taken");
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      errorSnackBar(
-                        context,
-                        "This kennel name is already taken",
-                      ),
-                    );
-                  }
-                  return;
-                }
-              }
-            } catch (e, s) {
-              BasicLogger().error(
-                "Couldn't get existing accounts",
-                error: e,
-                stackTrace: s,
-              );
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  errorSnackBar(context, "Error: contact support"),
-                );
-              }
-              return;
-            } finally {
-              setState(() {
-                _isUpdating = false;
+              await functions.httpsCallable("create_account").call({
+                "account": value,
               });
-            }
-            final doc = db.doc("users/${widget.userName.uid}");
-            try {
-              await doc.update({"account": value});
-              await db.doc("accounts/$value").set({"a": "a"});
             } catch (e, s) {
               BasicLogger().error(
                 "Couldn't create account",
@@ -182,9 +142,11 @@ class _CreateKennelTextAndButtonState extends State<CreateKennelTextAndButton> {
               }
               return;
             } finally {
-              setState(() {
-                _isUpdating = false;
-              });
+              if (mounted) {
+                setState(() {
+                  _isUpdating = false;
+                });
+              }
             }
           },
           child: const Text("Create kennel"),
@@ -219,7 +181,7 @@ class HomeScreen extends rp.ConsumerWidget {
                     email: user.email ?? "",
                     account: null,
                     lastLogin: DateTime.now(),
-                    userLevel: UserLevel.musher,
+                    userLevel: UserLevel.handler,
                   ).toJson(),
                 );
                 return const Text("Creating user");
