@@ -221,15 +221,23 @@ class _Query:
 
 
 class _FakeTransaction:
+    def __init__(self):
+        self.gets = []
+        self.sets = []
+        self.updates = []
+
     def get(self, ref_or_query):
         if hasattr(ref_or_query, "stream"):
             return list(ref_or_query.stream())
+        self.gets.append(ref_or_query.path)
         return ref_or_query.get()
 
     def set(self, ref, data):
+        self.sets.append((ref.path, data))
         ref.set(data)
 
     def update(self, ref, data):
+        self.updates.append((ref.path, data))
         ref.update(data)
 
 
@@ -255,6 +263,7 @@ class _FakeDb:
         self.updates = []
         self.sets = []
         self.batches = []
+        self.transactions = []
 
     def document(self, path):
         return _DocRef(self, path)
@@ -263,7 +272,9 @@ class _FakeDb:
         return _Query(self, name)
 
     def transaction(self):
-        return _FakeTransaction()
+        transaction = _FakeTransaction()
+        self.transactions.append(transaction)
+        return transaction
 
     def batch(self):
         batch = _FakeBatch(self)
@@ -373,6 +384,71 @@ class BackendSecurityTests(unittest.TestCase):
         self.assertEqual(error.exception.code, "failed-precondition")
         self.assertNotIn("accounts/account-1", db.documents)
 
+    def test_create_account_rejects_missing_user_profile(self):
+        db = _FakeDb()
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"account": "account-1"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.create_account(request)
+
+        self.assertEqual(error.exception.code, "not-found")
+        self.assertNotIn("accounts/account-1", db.documents)
+
+    def test_create_account_rejects_invalid_account_names(self):
+        invalid_accounts = [
+            "",
+            "  ",
+            "ab",
+            "bad/name",
+            "bad$name",
+            "a" * 51,
+        ]
+        for account in invalid_accounts:
+            with self.subTest(account=account):
+                db = _FakeDb()
+                db.documents["users/user-1"] = {
+                    "uid": "user-1",
+                    "email": "user@example.com",
+                    "account": None,
+                    "userLevel": "handler",
+                }
+                main.firestore.client = lambda: db
+                request = types.SimpleNamespace(
+                    data={"account": account},
+                    auth=types.SimpleNamespace(uid="user-1"),
+                )
+
+                with self.assertRaises(_HttpsError) as error:
+                    main.create_account(request)
+
+                self.assertEqual(error.exception.code, "invalid-argument")
+                self.assertEqual(db.transactions, [])
+
+    def test_create_account_rejects_existing_normalized_account(self):
+        db = _FakeDb()
+        db.documents["users/user-1"] = {
+            "uid": "user-1",
+            "email": "user@example.com",
+            "account": None,
+            "userLevel": "handler",
+        }
+        db.documents["accounts/my-kennel"] = {"createdByUid": "other-user"}
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"account": " My Kennel "},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.create_account(request)
+
+        self.assertEqual(error.exception.code, "failed-precondition")
+        self.assertNotIn("users/user-1", [path for path, _ in db.updates])
+
     def test_create_account_creates_account_and_promotes_authenticated_user(self):
         db = _FakeDb()
         db.documents["users/user-1"] = {
@@ -383,16 +459,34 @@ class BackendSecurityTests(unittest.TestCase):
         }
         main.firestore.client = lambda: db
         request = types.SimpleNamespace(
-            data={"account": "account-1"},
+            data={"account": " My   Kennel "},
             auth=types.SimpleNamespace(uid="user-1"),
         )
 
         result = main.create_account(request)
 
-        self.assertEqual(result, {"account": "account-1"})
-        self.assertEqual(db.documents["accounts/account-1"], {"a": "a"})
-        self.assertEqual(db.documents["users/user-1"]["account"], "account-1")
+        self.assertEqual(result, {"account": "my-kennel"})
+        account = db.documents["accounts/my-kennel"]
+        self.assertEqual(account["createdByUid"], "user-1")
+        self.assertIsInstance(account["createdAt"], datetime)
+        self.assertEqual(db.documents["users/user-1"]["account"], "my-kennel")
         self.assertEqual(db.documents["users/user-1"]["userLevel"], "musher")
+        self.assertEqual(len(db.transactions), 1)
+        transaction = db.transactions[0]
+        self.assertEqual(
+            transaction.gets,
+            ["users/user-1", "accounts/my-kennel"],
+        )
+        self.assertEqual(transaction.sets[0][0], "accounts/my-kennel")
+        self.assertEqual(
+            transaction.updates,
+            [
+                (
+                    "users/user-1",
+                    {"account": "my-kennel", "userLevel": "musher"},
+                )
+            ],
+        )
 
     def test_accept_invitation_rejects_bad_code(self):
         db = _FakeDb()

@@ -11,6 +11,7 @@ from lib.add_booking import add_checkout_session
 from dotenv import load_dotenv
 import os
 import asyncio
+import re
 import uuid
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
@@ -401,6 +402,27 @@ def _validate_account_id(account: str | None) -> str:
     return account
 
 
+def _normalize_new_account_id(account: str | None) -> str:
+    if not isinstance(account, str):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account",
+        )
+    normalized = account.strip().lower()
+    normalized = re.sub(r"\s+", "-", normalized)
+    normalized = re.sub(r"-+", "-", normalized).strip("-")
+    if (
+        len(normalized) < 3
+        or len(normalized) > 50
+        or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", normalized)
+    ):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Invalid account",
+        )
+    return normalized
+
+
 def _normalize_invitation_email(email: str | None) -> str:
     if not isinstance(email, str):
         raise https_fn.HttpsError(
@@ -473,32 +495,45 @@ def _require_musher_user(db, uid: str) -> dict:
 def create_account(req: https_fn.CallableRequest[dict]) -> dict:
     uid = _require_auth_uid(req)
     data = req.data or {}
-    account = _validate_account_id(data.get("account"))
+    account = _normalize_new_account_id(data.get("account"))
     db = firestore.client()
-
     user_ref = db.document(f"users/{uid}")
-    user_data = user_ref.get().to_dict()
-    if user_data is None:
-        raise https_fn.HttpsError(
-            https_fn.FunctionsErrorCode.NOT_FOUND,
-            "User profile does not exist",
-        )
-    if user_data.get("account"):
-        raise https_fn.HttpsError(
-            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
-            "User already belongs to an account",
-        )
-
     account_ref = db.document(f"accounts/{account}")
-    if account_ref.get().exists:
-        raise https_fn.HttpsError(
-            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
-            "Account already exists",
-        )
+    transaction = db.transaction()
 
-    account_ref.set({"a": "a"})
-    user_ref.update({"account": account, "userLevel": "musher"})
-    return {"account": account}
+    @firestore.transactional
+    def create(transaction):
+        user_snapshot = _get_document_snapshot(transaction, user_ref)
+        user_data = user_snapshot.to_dict() if user_snapshot else None
+        if user_data is None:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.NOT_FOUND,
+                "User profile does not exist",
+            )
+        if user_data.get("account"):
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "User already belongs to an account",
+            )
+
+        account_snapshot = _get_document_snapshot(transaction, account_ref)
+        if account_snapshot is not None and account_snapshot.exists:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "Account already exists",
+            )
+
+        transaction.set(
+            account_ref,
+            {
+                "createdAt": datetime.now(timezone.utc),
+                "createdByUid": uid,
+            },
+        )
+        transaction.update(user_ref, {"account": account, "userLevel": "musher"})
+        return {"account": account}
+
+    return create(transaction)
 
 
 @https_fn.on_call()

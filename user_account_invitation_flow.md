@@ -38,7 +38,7 @@ The settings hub hides Team & Access from non-mushers, but `/settings/team` uses
 
 ## Medium
 
-### Account creation has weak validation and race conditions
+### Account creation has weak validation and race conditions - *** FIXED
 
 Account names are checked for empty before trimming, then normalized only by replacing spaces with hyphens. Special characters and path separators are not rejected. Uniqueness is checked client-side by listing accounts before writing, so two users can race to create the same account.
 
