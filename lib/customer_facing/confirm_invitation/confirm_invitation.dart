@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mush_on/customer_facing/confirm_invitation/repository.dart';
+import 'package:mush_on/login_screen/auth_providers.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/shared/text_title.dart';
 
@@ -21,6 +22,7 @@ class ConfirmInvitation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final logger = BasicLogger();
+    configureMushOnAuthProviders();
     if (email == null) {
       return const ErrorAcceptInvitation(errorText: "Email is null");
     }
@@ -32,6 +34,39 @@ class ConfirmInvitation extends ConsumerWidget {
     );
     return userInvitationAsync.when(
       data: (userInvitation) {
+        Future<void> acceptWithSignedInUser() async {
+          final user = FirebaseAuth.instance.currentUser;
+          final signedInEmail = user?.email?.trim().toLowerCase();
+          final invitedEmail = userInvitation.email.trim().toLowerCase();
+          if (signedInEmail == null || signedInEmail != invitedEmail) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                errorSnackBar(
+                  context,
+                  "Sign in with the invited email address",
+                ),
+              );
+            }
+            return;
+          }
+          try {
+            await ConfirmInvitationRepository().acceptInvitation(
+              email: userInvitation.email,
+              securityCode: securityCode!,
+            );
+            if (context.mounted) context.go("/");
+          } catch (e) {
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                errorSnackBar(
+                  context,
+                  "Cannot create a new user: contact support",
+                ),
+              );
+            }
+          }
+        }
+
         return Scaffold(
           appBar: AppBar(),
           body: Center(
@@ -43,42 +78,17 @@ class ConfirmInvitation extends ConsumerWidget {
                   "You're invited to join account: ${userInvitation.account}",
                 ),
                 const Text("To join, log in:"),
-                ElevatedButton(
-                  onPressed: () async {
-                    late final UserCredential result;
-                    if (kIsWeb) {
-                      final provider = GoogleAuthProvider();
-                      result = await FirebaseAuth.instance.signInWithPopup(
-                        provider,
-                      );
-                    } else {
-                      final provider = GoogleAuthProvider();
-                      result = await FirebaseAuth.instance.signInWithProvider(
-                        provider,
-                      );
-                    }
-                    final user = result.user;
-                    if (user == null) return;
-                    final email = user.email;
-                    if (email == null) return;
-                    try {
-                      await ConfirmInvitationRepository().acceptInvitation(
-                        email: userInvitation.email,
-                        securityCode: securityCode!,
-                      );
-                      if (context.mounted) context.go("/");
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          errorSnackBar(
-                            context,
-                            "Cannot create a new user: contact support",
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  child: const Text("Log in"),
+                Expanded(
+                  child: SignInScreen(
+                    actions: [
+                      AuthStateChangeAction<UserCreated>((context, state) {
+                        acceptWithSignedInUser();
+                      }),
+                      AuthStateChangeAction<SignedIn>((context, state) {
+                        acceptWithSignedInUser();
+                      }),
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -18,7 +18,7 @@ Firestore rules allow a signed-in user to fully write their own `users/{uid}` do
 
 ## High
 
-### Invite acceptance does not verify the signed-in email
+### Invite acceptance does not verify the signed-in email - *** FIXED
 
 The invite page validates the URL email/security code, but after Google sign-in it accepts whichever Google account was used. A forwarded invite link could be accepted by a different email address.
 

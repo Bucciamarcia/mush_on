@@ -1,22 +1,15 @@
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
-import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mush_on/login_screen/auth_providers.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    FirebaseUIAuth.configureProviders([
-      GoogleProvider(
-        clientId:
-            "337862523976-bam0ptripclqt2fdvajqgg3bsm8qqaqh.apps.googleusercontent.com",
-        redirectUri: kIsWeb ? Uri.base.toString() : null,
-      ),
-      EmailAuthProvider(),
-    ]);
+    configureMushOnAuthProviders();
 
     void onSignedIn() {
       context.go('/');

@@ -405,7 +405,10 @@ class BackendSecurityTests(unittest.TestCase):
         main.firestore.client = lambda: db
         request = types.SimpleNamespace(
             data={"email": "new.user@example.com", "securityCode": "bad-code"},
-            auth=types.SimpleNamespace(uid="user-1"),
+            auth=types.SimpleNamespace(
+                uid="user-1",
+                token={"email": "new.user@example.com"},
+            ),
         )
 
         with self.assertRaises(_HttpsError) as error:
@@ -425,12 +428,15 @@ class BackendSecurityTests(unittest.TestCase):
         main.firestore.client = lambda: db
         request = types.SimpleNamespace(
             data={
-                "email": "new.user@example.com",
+                "email": " New.User@Example.com ",
                 "securityCode": "good-code",
                 "account": "attacker-account",
                 "userLevel": "musher",
             },
-            auth=types.SimpleNamespace(uid="user-1"),
+            auth=types.SimpleNamespace(
+                uid="user-1",
+                token={"email": "new.user@example.com"},
+            ),
         )
 
         result = main.accept_invitation(request)
@@ -445,6 +451,49 @@ class BackendSecurityTests(unittest.TestCase):
                 "userLevel": "musher",
             },
         )
+
+    def test_accept_invitation_rejects_missing_authenticated_email(self):
+        db = _FakeDb()
+        db.documents["userInvitations/new.user@example.com"] = {
+            "email": "new.user@example.com",
+            "account": "account-1",
+            "userLevel": "handler",
+            "securityCode": "good-code",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"email": "new.user@example.com", "securityCode": "good-code"},
+            auth=types.SimpleNamespace(uid="user-1", token={}),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.accept_invitation(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+        self.assertNotIn("users/user-1", db.documents)
+
+    def test_accept_invitation_rejects_authenticated_email_mismatch(self):
+        db = _FakeDb()
+        db.documents["userInvitations/new.user@example.com"] = {
+            "email": "new.user@example.com",
+            "account": "account-1",
+            "userLevel": "handler",
+            "securityCode": "good-code",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"email": "new.user@example.com", "securityCode": "good-code"},
+            auth=types.SimpleNamespace(
+                uid="user-1",
+                token={"email": "other.user@example.com"},
+            ),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.accept_invitation(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+        self.assertNotIn("users/user-1", db.documents)
 
     def test_invite_user_requires_authentication(self):
         db = _FakeDb()

@@ -416,6 +416,25 @@ def _normalize_invitation_email(email: str | None) -> str:
     return normalized
 
 
+def _require_auth_email(req: https_fn.CallableRequest[dict]) -> str:
+    if req.auth is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.UNAUTHENTICATED,
+            "Authentication is required",
+        )
+    token = getattr(req.auth, "token", None)
+    email = (
+        token.get("email") if isinstance(token, dict) else getattr(token, "email", None)
+    )
+    email = email or getattr(req.auth, "email", None)
+    if not isinstance(email, str) or not email.strip():
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "Authenticated email is required",
+        )
+    return _normalize_invitation_email(email)
+
+
 def _validate_user_level(user_level: str | None) -> str:
     if user_level not in ["musher", "handler", "guest"]:
         raise https_fn.HttpsError(
@@ -485,6 +504,7 @@ def create_account(req: https_fn.CallableRequest[dict]) -> dict:
 @https_fn.on_call()
 def accept_invitation(req: https_fn.CallableRequest[dict]) -> dict:
     uid = _require_auth_uid(req)
+    auth_email = _require_auth_email(req)
     data = req.data or {}
     email = _normalize_invitation_email(data.get("email"))
     security_code = data.get("securityCode")
@@ -492,6 +512,11 @@ def accept_invitation(req: https_fn.CallableRequest[dict]) -> dict:
         raise https_fn.HttpsError(
             https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
             "Missing email or securityCode",
+        )
+    if auth_email != email:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "Authenticated email does not match invitation email",
         )
 
     db = firestore.client()
@@ -514,7 +539,7 @@ def accept_invitation(req: https_fn.CallableRequest[dict]) -> dict:
     db.document(f"users/{uid}").set(
         {
             "uid": uid,
-            "email": email,
+            "email": auth_email,
             "account": account,
             "userLevel": user_level,
         }
