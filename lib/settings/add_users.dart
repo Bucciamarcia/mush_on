@@ -26,6 +26,12 @@ class _AddUsersState extends ConsumerState<AddUsers> {
   }
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider).value;
     if (user == null) {
@@ -139,6 +145,15 @@ class _AddUsersState extends ConsumerState<AddUsers> {
                               userLevel: userLevel,
                               senderUser: userName,
                             );
+                        _emailController.clear();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            confirmationSnackbar(
+                              context,
+                              "User invited successfully",
+                            ),
+                          );
+                        }
                       } catch (e) {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(

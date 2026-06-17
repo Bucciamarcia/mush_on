@@ -238,40 +238,57 @@ void main() {
       );
     });
 
-    testWidgets('pressing Add user forwards email and selected level', (
-      tester,
-    ) async {
-      final repository = _RecordingSettingsRepository();
+    testWidgets(
+      'pressing Add user forwards email, clears it, and shows confirmation',
+      (tester) async {
+        final repository = _RecordingSettingsRepository();
 
-      await _pumpApp(
-        tester,
-        AddUsers(account: 'account-1', repository: repository),
-        overrides: [
-          userProvider.overrideWith((_) => Stream.value(user)),
-          userNameProvider('user-1').overrideWith((_) => Stream.value(sender)),
-        ],
-      );
-      await tester.pumpAndSettle();
+        await _pumpApp(
+          tester,
+          AddUsers(account: 'account-1', repository: repository),
+          overrides: [
+            userProvider.overrideWith((_) => Stream.value(user)),
+            userNameProvider(
+              'user-1',
+            ).overrideWith((_) => Stream.value(sender)),
+          ],
+        );
+        await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is TextField &&
-              widget.decoration?.labelText == 'Email address',
-        ),
-        'new.user@example.com',
-      );
-      await tester.tap(find.byType(DropdownMenu<UserLevel>));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('musher').last);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Add user'));
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is TextField &&
+                widget.decoration?.labelText == 'Email address',
+          ),
+          'new.user@example.com',
+        );
+        await tester.tap(find.byType(DropdownMenu<UserLevel>));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('musher').last);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Add user'));
+        await tester.pumpAndSettle();
 
-      expect(repository.addedUserEmail, 'new.user@example.com');
-      expect(repository.addedUserLevel, UserLevel.musher);
-      expect(repository.addedByUser, sender);
-    });
+        expect(repository.addedUserEmail, 'new.user@example.com');
+        expect(repository.addedUserLevel, UserLevel.musher);
+        expect(repository.addedByUser, sender);
+        expect(
+          tester
+              .widget<TextField>(
+                find.byWidgetPredicate(
+                  (widget) =>
+                      widget is TextField &&
+                      widget.decoration?.labelText == 'Email address',
+                ),
+              )
+              .controller!
+              .text,
+          isEmpty,
+        );
+        expect(find.text('User invited successfully'), findsOneWidget);
+      },
+    );
   });
 
   group('UsernameNameWidget', () {
