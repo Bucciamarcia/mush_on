@@ -183,10 +183,15 @@ class _Query:
         self.db = db
         self.collection_name = collection_name
         self.filters = []
+        self.order_field = None
         self.limit_value = None
 
     def where(self, field, op, value):
         self.filters.append((field, op, value))
+        return self
+
+    def order_by(self, field):
+        self.order_field = field
         return self
 
     def limit(self, value):
@@ -209,6 +214,10 @@ class _Query:
                 if op == "=="
                 else data.get(field) in value
                 if op == "in"
+                else data.get(field) >= value
+                if op == ">="
+                else data.get(field) <= value
+                if op == "<="
                 else False
                 for field, op, value in self.filters
             )
@@ -216,6 +225,12 @@ class _Query:
                 doc_id = data.get("id")
                 reference = _DocRef(self.db, f"{self.collection_name}/{doc_id}")
                 docs.append(_Snapshot(data, doc_id=doc_id, reference=reference))
+        if self.order_field is not None:
+            docs.sort(
+                key=lambda doc: (
+                    doc.to_dict() or {}
+                ).get(self.order_field, 0)
+            )
         if self.limit_value is not None:
             docs = docs[: self.limit_value]
         return iter(docs)
@@ -432,6 +447,222 @@ class BackendSecurityTests(unittest.TestCase):
             list(main._chunks(["a", "b", "c", "d", "e"], size=2)),
             [["a", "b"], ["c", "d"], ["e"]],
         )
+
+    def test_team_groups_workspace_uses_snapshot_with_rank_order(self):
+        db = _FakeDb()
+        main.firestore.client = lambda: db
+        date = datetime(2026, 1, 2, 10, 0, tzinfo=timezone.utc)
+        history = "accounts/account-1/data/teams/history"
+        db.documents[f"{history}/tg-1"] = {
+            "id": "tg-1",
+            "date": date,
+            "runType": "training",
+            "notes": "",
+            "name": "Morning",
+            "distance": 10,
+            "teamsSnapshot": {
+                "team-wheel": {
+                    "name": "Wheel",
+                    "capacity": 2,
+                    "rank": 1,
+                    "dogPairs": {
+                        "pair-wheel": {
+                            "firstDogId": "dog-3",
+                            "secondDogId": "dog-4",
+                            "rank": 1,
+                        },
+                        "pair-lead": {
+                            "firstDogId": "dog-1",
+                            "secondDogId": "dog-2",
+                            "rank": 0,
+                        },
+                    },
+                },
+                "team-lead": {
+                    "name": "Lead",
+                    "capacity": 1,
+                    "rank": 0,
+                    "dogPairs": {},
+                },
+            },
+        }
+
+        response = main.team_groups_workspace_from_date_range(
+            types.SimpleNamespace(
+                data={
+                    "account": "account-1",
+                    "start": "2026-01-01T00:00:00+00:00",
+                    "end": "2026-01-03T00:00:00+00:00",
+                }
+            )
+        )
+
+        teams = response["teamGroups"][0]["teams"]
+        self.assertEqual([team["id"] for team in teams], ["team-lead", "team-wheel"])
+        self.assertEqual(
+            [pair["id"] for pair in teams[1]["dogPairs"]],
+            ["pair-lead", "pair-wheel"],
+        )
+
+    def test_team_groups_workspace_falls_back_to_legacy_for_invalid_snapshot(self):
+        db = _FakeDb()
+        main.firestore.client = lambda: db
+        date = datetime(2026, 1, 2, 10, 0, tzinfo=timezone.utc)
+        history = "accounts/account-1/data/teams/history"
+        db.documents[f"{history}/tg-1"] = {
+            "id": "tg-1",
+            "date": date,
+            "runType": "training",
+            "notes": "",
+            "name": "Morning",
+            "distance": 10,
+            "teamsSnapshot": {
+                "team-bad": {
+                    "name": "Bad",
+                    "capacity": 1,
+                    "rank": "not-a-rank",
+                    "dogPairs": {},
+                },
+            },
+        }
+        db.documents[f"{history}/tg-1/teams/team-wheel"] = {
+            "id": "team-wheel",
+            "name": "Wheel",
+            "capacity": 2,
+            "rank": 1,
+        }
+        db.documents[f"{history}/tg-1/teams/team-lead"] = {
+            "id": "team-lead",
+            "name": "Lead",
+            "capacity": 1,
+            "rank": 0,
+        }
+        db.documents[f"{history}/tg-1/teams/team-wheel/dogPairs/pair-wheel"] = {
+            "id": "pair-wheel",
+            "firstDogId": "dog-3",
+            "secondDogId": "dog-4",
+            "rank": 1,
+        }
+        db.documents[f"{history}/tg-1/teams/team-wheel/dogPairs/pair-lead"] = {
+            "id": "pair-lead",
+            "firstDogId": "dog-1",
+            "secondDogId": "dog-2",
+            "rank": 0,
+        }
+
+        response = main.team_groups_workspace_from_date_range(
+            types.SimpleNamespace(
+                data={
+                    "account": "account-1",
+                    "start": "2026-01-01T00:00:00+00:00",
+                    "end": "2026-01-03T00:00:00+00:00",
+                }
+            )
+        )
+
+        teams = response["teamGroups"][0]["teams"]
+        self.assertEqual([team["id"] for team in teams], ["team-lead", "team-wheel"])
+        self.assertEqual(
+            [pair["id"] for pair in teams[1]["dogPairs"]],
+            ["pair-lead", "pair-wheel"],
+        )
+
+    def test_team_groups_workspace_fetches_legacy_fallbacks_in_one_bulk_pass(self):
+        db = _FakeDb()
+        main.firestore.client = lambda: db
+        date = datetime(2026, 1, 2, 10, 0, tzinfo=timezone.utc)
+        history = "accounts/account-1/data/teams/history"
+        db.documents[f"{history}/tg-snapshot"] = {
+            "id": "tg-snapshot",
+            "date": date,
+            "runType": "training",
+            "notes": "",
+            "name": "Snapshot",
+            "distance": 10,
+            "teamsSnapshot": {
+                "team-snapshot": {
+                    "name": "Snapshot team",
+                    "capacity": 1,
+                    "rank": 0,
+                    "dogPairs": {},
+                },
+            },
+        }
+        db.documents[f"{history}/tg-legacy"] = {
+            "id": "tg-legacy",
+            "date": date,
+            "runType": "training",
+            "notes": "",
+            "name": "Legacy",
+            "distance": 10,
+        }
+        db.documents[f"{history}/tg-invalid"] = {
+            "id": "tg-invalid",
+            "date": date,
+            "runType": "training",
+            "notes": "",
+            "name": "Invalid",
+            "distance": 10,
+            "teamsSnapshot": {
+                "team-invalid": {
+                    "name": "Invalid team",
+                    "capacity": 1,
+                    "rank": "bad",
+                    "dogPairs": {},
+                },
+            },
+        }
+
+        calls = []
+
+        def fake_bulk_legacy(db_arg, history_path, team_group_ids):
+            calls.append(
+                {
+                    "db": db_arg,
+                    "history_path": history_path,
+                    "team_group_ids": list(team_group_ids),
+                }
+            )
+            return {
+                team_group_id: [
+                    {
+                        "id": f"{team_group_id}-team",
+                        "name": "Legacy team",
+                        "capacity": 1,
+                        "dogPairs": [],
+                    }
+                ]
+                for team_group_id in team_group_ids
+            }
+
+        with patch.object(
+            main,
+            "_workspace_teams_by_team_group_from_legacy",
+            side_effect=fake_bulk_legacy,
+        ):
+            response = main.team_groups_workspace_from_date_range(
+                types.SimpleNamespace(
+                    data={
+                        "account": "account-1",
+                        "start": "2026-01-01T00:00:00+00:00",
+                        "end": "2026-01-03T00:00:00+00:00",
+                    }
+                )
+            )
+
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0]["history_path"], history)
+        self.assertEqual(
+            set(calls[0]["team_group_ids"]), {"tg-legacy", "tg-invalid"}
+        )
+        self.assertNotIn("tg-snapshot", calls[0]["team_group_ids"])
+        teams_by_group = {
+            team_group["id"]: team_group["teams"]
+            for team_group in response["teamGroups"]
+        }
+        self.assertEqual(teams_by_group["tg-snapshot"][0]["id"], "team-snapshot")
+        self.assertEqual(teams_by_group["tg-legacy"][0]["id"], "tg-legacy-team")
+        self.assertEqual(teams_by_group["tg-invalid"][0]["id"], "tg-invalid-team")
 
     def test_create_account_requires_authentication(self):
         db = _FakeDb()

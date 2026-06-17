@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mush_on/create_team/riverpod.dart';
+import 'package:mush_on/create_team/teamgroup_snapshot.dart';
 import 'package:mush_on/kennel/dog/dog_photo_card.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -87,7 +88,10 @@ class FirestoreService {
 
 class DogsDbOperations {
   BasicLogger logger = BasicLogger();
-  final FirebaseFirestore db = FirebaseFirestore.instance;
+  final FirebaseFirestore db;
+
+  DogsDbOperations({FirebaseFirestore? firestore})
+    : db = firestore ?? FirebaseFirestore.instance;
 
   Future<Dog> getDog(String dogId, String account) async {
     try {
@@ -185,10 +189,23 @@ class DogsDbOperations {
     var doc = db.doc("accounts/$account/data/teams/history/$id");
     var snapshot = await doc.get();
     var tg = Map<String, dynamic>.from(snapshot.data() ?? {});
+    final rawTeamsSnapshot = tg["teamsSnapshot"];
     tg
       ..remove("teams")
       ..remove("teamsSnapshot");
     var toReturn = TeamGroupWorkspace.fromJson(tg);
+
+    if (rawTeamsSnapshot is Map && rawTeamsSnapshot.isNotEmpty) {
+      try {
+        return toReturn.copyWith(teams: teamsFromSnapshot(rawTeamsSnapshot));
+      } on TeamGroupSnapshotFormatException catch (e, s) {
+        logger.warning(
+          "Invalid teamsSnapshot for teamgroup $id, falling back to legacy.",
+          error: e,
+          stackTrace: s,
+        );
+      }
+    }
 
     // Now get the teams with its dogpairs.
     var collection = db

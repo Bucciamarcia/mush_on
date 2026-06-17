@@ -1269,76 +1269,32 @@ def team_groups_workspace_from_date_range(req: https_fn.CallableRequest):
     team_groups_snapshot = team_groups_ref.stream()
     team_groups = list(team_groups_snapshot)
 
-    # Step 2: Get all teams in parallel
-    def get_teams(team_group_id):
-        teams_ref = db.collection(f"{path}/{team_group_id}/teams")
-        return list(teams_ref.stream())
-
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        teams_for_teamgroup = list(
-            executor.map(get_teams, [tg.id for tg in team_groups])
-        )
-
-    # Step 3: Build list of all team references for dog pairs fetch
-    all_team_refs = []
-    for i, team_group in enumerate(team_groups):
-        teams = teams_for_teamgroup[i]
-        for team in teams:
-            all_team_refs.append({"teamGroupId": team_group.id, "teamId": team.id})
-
-    # Step 4: Fetch all dog pairs in parallel
-    def get_dog_pairs(team_ref):
-        tg_id = team_ref["teamGroupId"]
-        t_id = team_ref["teamId"]
-        dog_pairs_ref = db.collection(f"{path}/{tg_id}/teams/{t_id}/dogPairs")
-        dog_pairs = [doc.to_dict() for doc in dog_pairs_ref.stream()]
-        return {"teamGroupId": tg_id, "teamId": t_id, "dogPairs": dog_pairs}
-
-    with ThreadPoolExecutor(max_workers=50) as executor:
-        dog_pairs_results = list(executor.map(get_dog_pairs, all_team_refs))
-
-    # Step 5: Build lookup map for dog pairs
-    dog_pairs_map = {}
-    for result in dog_pairs_results:
-        tg_id = result["teamGroupId"]
-        t_id = result["teamId"]
-
-        if tg_id not in dog_pairs_map:
-            dog_pairs_map[tg_id] = {}
-
-        dog_pairs_map[tg_id][t_id] = [
-            {
-                "id": dp.get("id"),
-                "firstDogId": dp.get("firstDogId"),
-                "secondDogId": dp.get("secondDogId"),
-            }
-            for dp in result["dogPairs"]
-        ]
-
-    # Step 6: Build final structure
-    to_return = []
-    for i, team_group_doc in enumerate(team_groups):
+    team_groups_data = []
+    legacy_team_group_ids = []
+    teams_by_team_group_id = {}
+    for team_group_doc in team_groups:
         tg_data = team_group_doc.to_dict()
         if tg_data is None:
             continue
-        team_docs = teams_for_teamgroup[i]
+        team_group_id = tg_data["id"]
+        team_groups_data.append(tg_data)
+        teams_snapshot = tg_data.get("teamsSnapshot")
+        if isinstance(teams_snapshot, dict) and teams_snapshot:
+            try:
+                teams_by_team_group_id[team_group_id] = _workspace_teams_from_snapshot(
+                    teams_snapshot
+                )
+            except ValueError:
+                legacy_team_group_ids.append(team_group_id)
+        else:
+            legacy_team_group_ids.append(team_group_id)
 
-        teams_workspace = []
-        for team_doc in team_docs:
-            team_data = team_doc.to_dict()
-            if team_data is None:
-                continue
-            dog_pairs = dog_pairs_map.get(tg_data["id"], {}).get(team_data["id"], [])
+    teams_by_team_group_id.update(
+        _workspace_teams_by_team_group_from_legacy(db, path, legacy_team_group_ids)
+    )
 
-            teams_workspace.append(
-                {
-                    "id": team_data.get("id"),
-                    "name": team_data.get("name"),
-                    "capacity": team_data.get("capacity"),
-                    "dogPairs": dog_pairs,
-                }
-            )
-
+    to_return = []
+    for tg_data in team_groups_data:
         to_return.append(
             {
                 "date": tg_data.get("date"),
@@ -1346,12 +1302,165 @@ def team_groups_workspace_from_date_range(req: https_fn.CallableRequest):
                 "notes": tg_data.get("notes"),
                 "name": tg_data.get("name"),
                 "id": tg_data.get("id"),
-                "teams": teams_workspace,
+                "teams": teams_by_team_group_id.get(tg_data.get("id"), []),
                 "distance": tg_data.get("distance"),
             }
         )
 
     return {"teamGroups": to_return}
+
+
+def _workspace_teams_from_snapshot(teams_snapshot: dict) -> list[dict]:
+    ranked_teams = []
+    seen_team_ranks = set()
+
+    for team_id, team_data_raw in teams_snapshot.items():
+        if not team_id or not isinstance(team_data_raw, dict):
+            raise ValueError("Invalid team snapshot")
+        team_data = dict(team_data_raw)
+        team_rank = _required_int_rank(team_data.get("rank"))
+        if team_rank in seen_team_ranks:
+            raise ValueError("Duplicate team rank")
+        seen_team_ranks.add(team_rank)
+
+        ranked_teams.append(
+            (
+                team_rank,
+                {
+                    "id": team_id,
+                    "name": team_data.get("name"),
+                    "capacity": team_data.get("capacity"),
+                    "dogPairs": _workspace_dog_pairs_from_snapshot(
+                        team_data.get("dogPairs"), team_id
+                    ),
+                },
+            )
+        )
+
+    return [team for _, team in sorted(ranked_teams, key=lambda item: item[0])]
+
+
+def _workspace_dog_pairs_from_snapshot(dog_pairs_snapshot, team_id: str) -> list[dict]:
+    if dog_pairs_snapshot is None:
+        return []
+    if not isinstance(dog_pairs_snapshot, dict):
+        raise ValueError(f"Invalid dogPairs snapshot for team {team_id}")
+
+    ranked_dog_pairs = []
+    seen_dog_pair_ranks = set()
+
+    for dog_pair_id, dog_pair_data_raw in dog_pairs_snapshot.items():
+        if not dog_pair_id or not isinstance(dog_pair_data_raw, dict):
+            raise ValueError("Invalid dog pair snapshot")
+        dog_pair_data = dict(dog_pair_data_raw)
+        dog_pair_rank = _required_int_rank(dog_pair_data.get("rank"))
+        if dog_pair_rank in seen_dog_pair_ranks:
+            raise ValueError("Duplicate dog pair rank")
+        seen_dog_pair_ranks.add(dog_pair_rank)
+        ranked_dog_pairs.append(
+            (
+                dog_pair_rank,
+                {
+                    "id": dog_pair_id,
+                    "firstDogId": dog_pair_data.get("firstDogId"),
+                    "secondDogId": dog_pair_data.get("secondDogId"),
+                },
+            )
+        )
+
+    return [
+        dog_pair
+        for _, dog_pair in sorted(ranked_dog_pairs, key=lambda item: item[0])
+    ]
+
+
+def _workspace_teams_by_team_group_from_legacy(
+    db, history_path: str, team_group_ids: list[str]
+) -> dict[str, list[dict]]:
+    if not team_group_ids:
+        return {}
+
+    def get_teams(team_group_id):
+        team_docs = list(
+            db.collection(f"{history_path}/{team_group_id}/teams")
+            .order_by("rank")
+            .stream()
+        )
+        return team_group_id, team_docs
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        teams_for_teamgroup = dict(executor.map(get_teams, team_group_ids))
+
+    all_team_refs = []
+    for team_group_id in team_group_ids:
+        for team_doc in teams_for_teamgroup.get(team_group_id, []):
+            all_team_refs.append(
+                {
+                    "teamGroupId": team_group_id,
+                    "teamDoc": team_doc,
+                    "teamData": team_doc.to_dict() or {},
+                }
+            )
+
+    def get_dog_pairs(team_ref):
+        team_doc = team_ref["teamDoc"]
+        dog_pairs_docs = list(
+            team_doc.reference.collection("dogPairs")
+            .order_by("rank")
+            .stream()
+        )
+        return {
+            "teamGroupId": team_ref["teamGroupId"],
+            "teamId": team_doc.id,
+            "dogPairs": [
+                {
+                    "id": dog_pair.id,
+                    "firstDogId": (dog_pair.to_dict() or {}).get("firstDogId"),
+                    "secondDogId": (dog_pair.to_dict() or {}).get("secondDogId"),
+                }
+                for dog_pair in dog_pairs_docs
+            ],
+        }
+
+    with ThreadPoolExecutor(max_workers=50) as executor:
+        dog_pairs_results = list(executor.map(get_dog_pairs, all_team_refs))
+
+    dog_pairs_by_team = {}
+    for result in dog_pairs_results:
+        dog_pairs_by_team[(result["teamGroupId"], result["teamId"])] = result[
+            "dogPairs"
+        ]
+
+    teams_by_team_group_id = {}
+    for team_group_id in team_group_ids:
+        teams_workspace = []
+        for team_doc in teams_for_teamgroup.get(team_group_id, []):
+            team_data = team_doc.to_dict() or {}
+            teams_workspace.append(
+                {
+                    "id": team_doc.id,
+                    "name": team_data.get("name"),
+                    "capacity": team_data.get("capacity"),
+                    "dogPairs": dog_pairs_by_team.get((team_group_id, team_doc.id), []),
+                }
+            )
+        teams_by_team_group_id[team_group_id] = teams_workspace
+
+    return teams_by_team_group_id
+
+
+def _workspace_teams_from_legacy(db, history_path: str, team_group_id: str) -> list[dict]:
+    return _workspace_teams_by_team_group_from_legacy(
+        db, history_path, [team_group_id]
+    ).get(team_group_id, [])
+
+
+def _required_int_rank(value) -> int:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    raise ValueError("Rank must be an integer")
 
 
 @https_fn.on_call()

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:mush_on/create_team/riverpod.dart';
+import 'package:mush_on/create_team/teamgroup_snapshot.dart';
 import 'package:mush_on/services/error_handling.dart';
 
 class StatsRepository {
@@ -32,60 +33,10 @@ class StatsRepository {
         itemMap["date"] = Timestamp.fromDate(dateTime);
       }
 
-      itemMap["teams"] = _normalizeTeams(itemMap["teams"]);
+      itemMap["teams"] = workspaceTeamsJsonFromRaw(itemMap["teams"]);
 
       return TeamGroupWorkspace.fromJson(itemMap);
     }).toList();
     return teamGroups;
   }
-}
-
-List<Map<String, dynamic>> _normalizeTeams(dynamic rawTeams) {
-  if (rawTeams is List) {
-    return rawTeams
-        .map((team) => _normalizeTeam(Map<String, dynamic>.from(team as Map)))
-        .toList();
-  }
-
-  if (rawTeams is Map) {
-    final entries =
-        rawTeams.entries
-            .map(
-              (entry) => _normalizeTeam(Map<String, dynamic>.from(entry.value)),
-            )
-            .toList()
-          ..sort(
-            (a, b) => ((a["rank"] as num?)?.toInt() ?? 0).compareTo(
-              (b["rank"] as num?)?.toInt() ?? 0,
-            ),
-          );
-    return entries;
-  }
-
-  return [];
-}
-
-Map<String, dynamic> _normalizeTeam(Map<String, dynamic> teamMap) {
-  final rawDogPairs = teamMap["dogPairs"];
-  if (rawDogPairs is List) {
-    teamMap["dogPairs"] = rawDogPairs
-        .map((dogPair) => Map<String, dynamic>.from(dogPair as Map))
-        .toList();
-    return teamMap;
-  }
-
-  if (rawDogPairs is Map) {
-    final dogPairs =
-        rawDogPairs.entries
-            .map((entry) => Map<String, dynamic>.from(entry.value))
-            .toList()
-          ..sort(
-            (a, b) => ((a["rank"] as num?)?.toInt() ?? 0).compareTo(
-              (b["rank"] as num?)?.toInt() ?? 0,
-            ),
-          );
-    teamMap["dogPairs"] = dogPairs;
-  }
-
-  return teamMap;
 }

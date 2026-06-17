@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/create_team/save_teams_button.dart';
+import 'package:mush_on/create_team/teamgroup_snapshot.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/services/firestore.dart';
 
 void main() {
   group('saveToDb', () {
@@ -28,6 +31,11 @@ void main() {
       expect(
         teamGroupData['teamsSnapshot']['team-1']['dogPairs'],
         contains('pair-1'),
+      );
+      expect(teamGroupData['teamsSnapshot']['team-1']['rank'], 0);
+      expect(
+        teamGroupData['teamsSnapshot']['team-1']['dogPairs']['pair-1']['rank'],
+        0,
       );
 
       final teamSnapshot = await firestore
@@ -135,6 +143,168 @@ void main() {
         throwsA(isA<StateError>()),
       );
     });
+  });
+
+  group('teamsFromSnapshot', () {
+    test('restores ids and sorts teams and dog pairs by rank', () {
+      final teams = teamsFromSnapshot({
+        'team-wheel': {
+          'name': 'Wheel sled',
+          'capacity': 2,
+          'rank': 1,
+          'dogPairs': {
+            'pair-wheel': {
+              'firstDogId': 'dog-3',
+              'secondDogId': 'dog-4',
+              'rank': 1,
+            },
+            'pair-lead': {
+              'firstDogId': 'dog-1',
+              'secondDogId': 'dog-2',
+              'rank': 0,
+            },
+          },
+        },
+        'team-lead': {
+          'name': 'Lead guide',
+          'capacity': 1,
+          'rank': 0,
+          'dogPairs': {},
+        },
+      });
+
+      expect(teams.map((team) => team.id), ['team-lead', 'team-wheel']);
+      expect(teams[1].dogPairs.map((pair) => pair.id), [
+        'pair-lead',
+        'pair-wheel',
+      ]);
+      expect(teams[1].dogPairs.first.firstDogId, 'dog-1');
+    });
+
+    test('rejects duplicate ranks instead of guessing order', () {
+      expect(
+        () => teamsFromSnapshot({
+          'team-1': {'rank': 0, 'dogPairs': {}},
+          'team-2': {'rank': 0, 'dogPairs': {}},
+        }),
+        throwsA(isA<TeamGroupSnapshotFormatException>()),
+      );
+    });
+  });
+
+  group('getTeamGroupWorkspace', () {
+    const account = 'account-1';
+    final date = DateTime(2026, 1, 2, 10, 30);
+
+    test('uses valid teamsSnapshot before legacy subcollections', () async {
+      final firestore = FakeFirebaseFirestore();
+      await firestore.doc('accounts/$account/data/teams/history/tg-1').set({
+        'id': 'tg-1',
+        'name': 'Morning Run',
+        'date': Timestamp.fromDate(date),
+        'distance': 10,
+        'notes': '',
+        'runType': 'training',
+        'teamsSnapshot': {
+          'team-wheel': {
+            'name': 'Wheel sled',
+            'capacity': 2,
+            'rank': 1,
+            'dogPairs': {
+              'pair-wheel': {
+                'firstDogId': 'dog-3',
+                'secondDogId': 'dog-4',
+                'rank': 1,
+              },
+              'pair-lead': {
+                'firstDogId': 'dog-1',
+                'secondDogId': 'dog-2',
+                'rank': 0,
+              },
+            },
+          },
+          'team-lead': {
+            'name': 'Lead guide',
+            'capacity': 1,
+            'rank': 0,
+            'dogPairs': {},
+          },
+        },
+      });
+
+      final workspace = await DogsDbOperations(
+        firestore: firestore,
+      ).getTeamGroupWorkspace(account: account, id: 'tg-1');
+
+      expect(workspace.teams.map((team) => team.id), [
+        'team-lead',
+        'team-wheel',
+      ]);
+      expect(workspace.teams[1].dogPairs.map((pair) => pair.id), [
+        'pair-lead',
+        'pair-wheel',
+      ]);
+    });
+
+    test(
+      'falls back to legacy subcollections when snapshot is invalid',
+      () async {
+        final firestore = FakeFirebaseFirestore();
+        const path = 'accounts/$account/data/teams/history/tg-1';
+        await firestore.doc(path).set({
+          'id': 'tg-1',
+          'name': 'Morning Run',
+          'date': Timestamp.fromDate(date),
+          'distance': 10,
+          'notes': '',
+          'runType': 'training',
+          'teamsSnapshot': {
+            'team-bad': {
+              'name': 'Bad snapshot',
+              'rank': 'not-a-rank',
+              'dogPairs': {},
+            },
+          },
+        });
+        await firestore.doc('$path/teams/team-wheel').set({
+          'id': 'team-wheel',
+          'name': 'Wheel sled',
+          'capacity': 2,
+          'rank': 1,
+        });
+        await firestore.doc('$path/teams/team-lead').set({
+          'id': 'team-lead',
+          'name': 'Lead guide',
+          'capacity': 1,
+          'rank': 0,
+        });
+        await firestore.doc('$path/teams/team-wheel/dogPairs/pair-wheel').set({
+          'id': 'pair-wheel',
+          'firstDogId': 'dog-3',
+          'secondDogId': 'dog-4',
+          'rank': 1,
+        });
+        await firestore.doc('$path/teams/team-wheel/dogPairs/pair-lead').set({
+          'id': 'pair-lead',
+          'firstDogId': 'dog-1',
+          'secondDogId': 'dog-2',
+          'rank': 0,
+        });
+
+        final workspace = await DogsDbOperations(
+          firestore: firestore,
+        ).getTeamGroupWorkspace(account: account, id: 'tg-1');
+
+        expect(workspace.teams.map((team) => team.id), [
+          'team-lead',
+          'team-wheel',
+        ]);
+        expect(workspace.teams[1].dogPairs.map((pair) => pair.id), [
+          'pair-lead',
+          'pair-wheel',
+        ]);
+      },
+    );
   });
 }
 
