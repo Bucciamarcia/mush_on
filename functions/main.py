@@ -11,6 +11,7 @@ from lib.add_booking import add_checkout_session
 from dotenv import load_dotenv
 import os
 import asyncio
+import uuid
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from firebase_functions import https_fn
@@ -22,7 +23,6 @@ from lib.send_invitation_email import SendInvitationEmail
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import get_stripe_data
 from lib.team_groups import rebuild_teamgroup_snapshot
-from lib.utils.firebase import FirestoreUtils
 
 # For cost control, you can set the maximum number of containers that can be
 # running at the same time. This helps mitigate the impact of unexpected
@@ -401,6 +401,55 @@ def _validate_account_id(account: str | None) -> str:
     return account
 
 
+def _normalize_invitation_email(email: str | None) -> str:
+    if not isinstance(email, str):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing email",
+        )
+    normalized = email.strip().lower()
+    if not normalized or "/" in normalized or "@" not in normalized:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Invalid email",
+        )
+    return normalized
+
+
+def _validate_user_level(user_level: str | None) -> str:
+    if user_level not in ["musher", "handler", "guest"]:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Invalid user level",
+        )
+    return user_level
+
+
+def _require_musher_user(db, uid: str) -> dict:
+    user_data = db.document(f"users/{uid}").get().to_dict()
+    if user_data is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND,
+            "User profile does not exist",
+        )
+    if not user_data.get("account"):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "User does not belong to an account",
+        )
+    if user_data.get("userLevel") != "musher":
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "User is not allowed to invite users",
+        )
+    if not user_data.get("email"):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "User profile is missing an email",
+        )
+    return user_data
+
+
 @https_fn.on_call()
 def create_account(req: https_fn.CallableRequest[dict]) -> dict:
     uid = _require_auth_uid(req)
@@ -437,9 +486,9 @@ def create_account(req: https_fn.CallableRequest[dict]) -> dict:
 def accept_invitation(req: https_fn.CallableRequest[dict]) -> dict:
     uid = _require_auth_uid(req)
     data = req.data or {}
-    email = data.get("email")
+    email = _normalize_invitation_email(data.get("email"))
     security_code = data.get("securityCode")
-    if not email or not security_code:
+    if not security_code:
         raise https_fn.HttpsError(
             https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
             "Missing email or securityCode",
@@ -460,12 +509,7 @@ def accept_invitation(req: https_fn.CallableRequest[dict]) -> dict:
         )
 
     account = _validate_account_id(invitation.get("account"))
-    user_level = invitation.get("userLevel")
-    if user_level not in ["musher", "handler", "guest"]:
-        raise https_fn.HttpsError(
-            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
-            "Invalid user level",
-        )
+    user_level = _validate_user_level(invitation.get("userLevel"))
 
     db.document(f"users/{uid}").set(
         {
@@ -1024,14 +1068,26 @@ def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
 
 @https_fn.on_call()
 def invite_user(req: https_fn.CallableRequest[dict]) -> dict:
-    data = req.data
-    sender_email = data["senderEmail"]
-    receiver_email = data["receiverEmail"]
-    account = data["account"]
-    payload = data["payload"]
-    security_code = payload["securityCode"]
+    uid = _require_auth_uid(req)
+    data = req.data or {}
+    receiver_email = _normalize_invitation_email(data.get("receiverEmail"))
+    user_level = _validate_user_level(data.get("userLevel"))
 
-    FirestoreUtils().set_doc(path=f"userInvitations/{receiver_email}", data=payload)
+    db = firestore.client()
+    sender = _require_musher_user(db, uid)
+    account = _validate_account_id(sender.get("account"))
+    sender_email = sender["email"]
+    security_code = str(uuid.uuid4())
+    payload = {
+        "email": receiver_email,
+        "userLevel": user_level,
+        "account": account,
+        "securityCode": security_code,
+        "accepted": False,
+        "senderUid": uid,
+    }
+
+    db.document(f"userInvitations/{receiver_email}").set(payload)
     runner = SendInvitationEmail(
         sender_email=sender_email,
         receiver_email=receiver_email,
@@ -1044,9 +1100,34 @@ def invite_user(req: https_fn.CallableRequest[dict]) -> dict:
 
 @https_fn.on_call()
 def get_user_invitation_db(req: https_fn.CallableRequest[dict]) -> dict:
-    data = req.data
-    email = data["email"]
-    return FirestoreUtils().read_doc(f"userInvitations/{email}")
+    data = req.data or {}
+    email = _normalize_invitation_email(data.get("email"))
+    security_code = data.get("securityCode")
+    if not security_code:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing securityCode",
+        )
+
+    invitation = (
+        firestore.client().document(f"userInvitations/{email}").get().to_dict()
+    )
+    if invitation is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND,
+            "Invitation does not exist",
+        )
+    if invitation.get("securityCode") != security_code:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "Invalid invitation code",
+        )
+    return {
+        "email": invitation.get("email"),
+        "account": invitation.get("account"),
+        "userLevel": invitation.get("userLevel"),
+        "accepted": invitation.get("accepted", False),
+    }
 
 
 @https_fn.on_call()

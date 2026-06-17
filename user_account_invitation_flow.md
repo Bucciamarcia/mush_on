@@ -10,7 +10,7 @@ Firestore rules allow a signed-in user to fully write their own `users/{uid}` do
 
 **Change the logic:** users should not be allowed to write privileged fields such as `account` or `userLevel` directly. Account assignment and role changes should happen only through trusted server-side Cloud Functions after validating permissions.
 
-### Invitation Cloud Functions are not authenticated or authorized
+### Invitation Cloud Functions are not authenticated or authorized - *** FIXED
 
 `invite_user` accepts caller-provided sender email, receiver email, account, and payload without checking `req.auth`, whether the sender belongs to the account, or whether the sender has permission to invite users. `get_user_invitation_db` also returns invitation data by email without authentication or validation.
 

@@ -218,15 +218,10 @@ void main() {
       final captured = functions.callable.lastPayload!;
 
       expect(functions.calledName, 'invite_user');
-      expect(captured['senderEmail'], sender.email);
-      expect(captured['receiverEmail'], 'new.user@example.com');
-      expect(captured['account'], 'account-1');
-      expect(captured['payload']['email'], 'new.user@example.com');
-      expect(captured['payload']['account'], 'account-1');
-      expect(captured['payload']['senderUid'], sender.uid);
-      expect(captured['payload']['accepted'], false);
-      expect(captured['payload']['userLevel'], 'musher');
-      expect(captured['payload']['securityCode'], isNotEmpty);
+      expect(captured, {
+        'receiverEmail': 'new.user@example.com',
+        'userLevel': 'musher',
+      });
     });
 
     test('addUser rethrows cloud function failures', () async {

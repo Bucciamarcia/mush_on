@@ -28,15 +28,10 @@ class ConfirmInvitation extends ConsumerWidget {
       return const ErrorAcceptInvitation(errorText: "Security code is null");
     }
     final userInvitationAsync = ref.watch(
-      userInvitationProvider(email: email!),
+      userInvitationProvider(email: email!, securityCode: securityCode!),
     );
     return userInvitationAsync.when(
       data: (userInvitation) {
-        if (userInvitation.securityCode != securityCode) {
-          return const ErrorAcceptInvitation(
-            errorText: "The security code is wrong",
-          );
-        }
         return Scaffold(
           appBar: AppBar(),
           body: Center(
@@ -69,7 +64,7 @@ class ConfirmInvitation extends ConsumerWidget {
                     try {
                       await ConfirmInvitationRepository().acceptInvitation(
                         email: userInvitation.email,
-                        securityCode: userInvitation.securityCode,
+                        securityCode: securityCode!,
                       );
                       if (context.mounted) context.go("/");
                     } catch (e) {

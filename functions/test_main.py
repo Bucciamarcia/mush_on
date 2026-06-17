@@ -316,6 +316,16 @@ class _FakeTaxRate:
         return types.SimpleNamespace(id="txr_123")
 
 
+class _FakeInvitationEmail:
+    calls = []
+
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+    def run(self):
+        self.__class__.calls.append(self.kwargs)
+
+
 class BackendSecurityTests(unittest.TestCase):
     def test_callable_safe_firestore_data_converts_datetimes_recursively(self):
         dt = datetime(2026, 4, 25, 12, 30, tzinfo=timezone.utc)
@@ -435,6 +445,169 @@ class BackendSecurityTests(unittest.TestCase):
                 "userLevel": "musher",
             },
         )
+
+    def test_invite_user_requires_authentication(self):
+        db = _FakeDb()
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"receiverEmail": "new.user@example.com", "userLevel": "handler"},
+            auth=None,
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.invite_user(request)
+
+        self.assertEqual(error.exception.code, "unauthenticated")
+        self.assertNotIn("userInvitations/new.user@example.com", db.documents)
+
+    def test_invite_user_rejects_missing_sender_profile(self):
+        db = _FakeDb()
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"receiverEmail": "new.user@example.com", "userLevel": "handler"},
+            auth=types.SimpleNamespace(uid="sender-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.invite_user(request)
+
+        self.assertEqual(error.exception.code, "not-found")
+
+    def test_invite_user_rejects_non_musher_sender(self):
+        db = _FakeDb()
+        db.documents["users/sender-1"] = {
+            "uid": "sender-1",
+            "email": "sender@example.com",
+            "account": "account-1",
+            "userLevel": "handler",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"receiverEmail": "new.user@example.com", "userLevel": "handler"},
+            auth=types.SimpleNamespace(uid="sender-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.invite_user(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+        self.assertNotIn("userInvitations/new.user@example.com", db.documents)
+
+    def test_invite_user_builds_invitation_from_authenticated_sender(self):
+        db = _FakeDb()
+        db.documents["users/sender-1"] = {
+            "uid": "sender-1",
+            "email": "sender@example.com",
+            "account": "account-1",
+            "userLevel": "musher",
+        }
+        main.firestore.client = lambda: db
+        main.SendInvitationEmail = _FakeInvitationEmail
+        _FakeInvitationEmail.calls = []
+        request = types.SimpleNamespace(
+            data={
+                "senderEmail": "attacker@example.com",
+                "receiverEmail": " New.User@Example.com ",
+                "account": "attacker-account",
+                "userLevel": "handler",
+                "payload": {
+                    "account": "attacker-account",
+                    "senderUid": "attacker",
+                    "securityCode": "attacker-code",
+                    "userLevel": "musher",
+                },
+            },
+            auth=types.SimpleNamespace(uid="sender-1"),
+        )
+
+        result = main.invite_user(request)
+
+        self.assertEqual(result, {"result": "ok"})
+        invitation = db.documents["userInvitations/new.user@example.com"]
+        self.assertEqual(invitation["email"], "new.user@example.com")
+        self.assertEqual(invitation["account"], "account-1")
+        self.assertEqual(invitation["senderUid"], "sender-1")
+        self.assertEqual(invitation["userLevel"], "handler")
+        self.assertFalse(invitation["accepted"])
+        self.assertNotEqual(invitation["securityCode"], "attacker-code")
+        self.assertEqual(
+            _FakeInvitationEmail.calls,
+            [
+                {
+                    "sender_email": "sender@example.com",
+                    "receiver_email": "new.user@example.com",
+                    "account": "account-1",
+                    "security_code": invitation["securityCode"],
+                }
+            ],
+        )
+
+    def test_get_user_invitation_db_requires_security_code(self):
+        db = _FakeDb()
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"email": "new.user@example.com"},
+            auth=None,
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.get_user_invitation_db(request)
+
+        self.assertEqual(error.exception.code, "invalid-argument")
+
+    def test_get_user_invitation_db_rejects_bad_security_code(self):
+        db = _FakeDb()
+        db.documents["userInvitations/new.user@example.com"] = {
+            "email": "new.user@example.com",
+            "account": "account-1",
+            "userLevel": "handler",
+            "securityCode": "good-code",
+            "accepted": False,
+            "senderUid": "sender-1",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"email": "new.user@example.com", "securityCode": "bad-code"},
+            auth=None,
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.get_user_invitation_db(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+
+    def test_get_user_invitation_db_returns_safe_preview(self):
+        db = _FakeDb()
+        db.documents["userInvitations/new.user@example.com"] = {
+            "email": "new.user@example.com",
+            "account": "account-1",
+            "userLevel": "handler",
+            "securityCode": "good-code",
+            "accepted": False,
+            "senderUid": "sender-1",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={
+                "email": " New.User@Example.com ",
+                "securityCode": "good-code",
+            },
+            auth=None,
+        )
+
+        result = main.get_user_invitation_db(request)
+
+        self.assertEqual(
+            result,
+            {
+                "email": "new.user@example.com",
+                "account": "account-1",
+                "userLevel": "handler",
+                "accepted": False,
+            },
+        )
+        self.assertNotIn("securityCode", result)
+        self.assertNotIn("senderUid", result)
 
     def test_create_checkout_session_calculates_price_and_fee_server_side(self):
         db = _FakeDb()

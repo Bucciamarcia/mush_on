@@ -7,7 +7,6 @@ import 'package:mush_on/services/models/settings/distance_warning.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/services/models/username.dart';
-import 'package:uuid/uuid.dart';
 part 'repository.freezed.dart';
 part 'repository.g.dart';
 
@@ -138,22 +137,11 @@ class SettingsRepository {
     required UserLevel userLevel,
     required UserName senderUser,
   }) async {
-    // Put in object to validate.
-    final data = UserInvitation(
-      email: email,
-      userLevel: userLevel,
-      account: account,
-      securityCode: const Uuid().v4(),
-      senderUid: senderUser.uid,
-    );
-
     // Send the email invitation
     try {
       await functions.httpsCallable("invite_user").call({
-        "senderEmail": senderUser.email,
         "receiverEmail": email,
-        "account": account,
-        "payload": data.toJson(),
+        "userLevel": userLevel.name,
       });
     } catch (e, s) {
       logger.error("Couldn't send invitation email", error: e, stackTrace: s);
