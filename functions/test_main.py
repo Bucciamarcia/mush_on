@@ -224,7 +224,7 @@ class _FakeTransaction:
     def get(self, ref_or_query):
         if hasattr(ref_or_query, "stream"):
             return list(ref_or_query.stream())
-        return iter([ref_or_query.get()])
+        return ref_or_query.get()
 
     def set(self, ref, data):
         ref.set(data)
@@ -451,6 +451,39 @@ class BackendSecurityTests(unittest.TestCase):
                 "userLevel": "musher",
             },
         )
+        invitation = db.documents["userInvitations/new.user@example.com"]
+        self.assertTrue(invitation["accepted"])
+        self.assertEqual(invitation["acceptedUid"], "user-1")
+        self.assertIsInstance(invitation["acceptedAt"], datetime)
+
+    def test_accept_invitation_rejects_already_accepted_invitation(self):
+        db = _FakeDb()
+        db.documents["userInvitations/new.user@example.com"] = {
+            "email": "new.user@example.com",
+            "account": "account-1",
+            "userLevel": "handler",
+            "securityCode": "good-code",
+            "accepted": True,
+            "acceptedUid": "existing-user",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={"email": "new.user@example.com", "securityCode": "good-code"},
+            auth=types.SimpleNamespace(
+                uid="user-1",
+                token={"email": "new.user@example.com"},
+            ),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.accept_invitation(request)
+
+        self.assertEqual(error.exception.code, "failed-precondition")
+        self.assertNotIn("users/user-1", db.documents)
+        self.assertEqual(
+            db.documents["userInvitations/new.user@example.com"]["acceptedUid"],
+            "existing-user",
+        )
 
     def test_accept_invitation_rejects_missing_authenticated_email(self):
         db = _FakeDb()
@@ -657,6 +690,31 @@ class BackendSecurityTests(unittest.TestCase):
         )
         self.assertNotIn("securityCode", result)
         self.assertNotIn("senderUid", result)
+
+    def test_get_user_invitation_db_rejects_accepted_invitation(self):
+        db = _FakeDb()
+        db.documents["userInvitations/new.user@example.com"] = {
+            "email": "new.user@example.com",
+            "account": "account-1",
+            "userLevel": "handler",
+            "securityCode": "good-code",
+            "accepted": True,
+            "senderUid": "sender-1",
+            "acceptedUid": "user-1",
+        }
+        main.firestore.client = lambda: db
+        request = types.SimpleNamespace(
+            data={
+                "email": "new.user@example.com",
+                "securityCode": "good-code",
+            },
+            auth=None,
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.get_user_invitation_db(request)
+
+        self.assertEqual(error.exception.code, "failed-precondition")
 
     def test_create_checkout_session_calculates_price_and_fee_server_side(self):
         db = _FakeDb()

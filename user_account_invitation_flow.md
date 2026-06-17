@@ -24,7 +24,7 @@ The invite page validates the URL email/security code, but after Google sign-in 
 
 **Change the logic:** after sign-in, compare the authenticated user's normalized email with the invited email. Reject acceptance if they do not match, unless a deliberate admin-approved transfer flow exists.
 
-### Invitations are reusable and never consumed
+### Invitations are reusable and never consumed - *** FIXED
 
 The invitation model has an `accepted` field, but accepting an invite only writes `users/{uid}`. The invitation is not marked accepted, deleted, linked to the accepted UID, or checked for previous use.
 

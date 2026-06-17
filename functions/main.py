@@ -521,30 +521,52 @@ def accept_invitation(req: https_fn.CallableRequest[dict]) -> dict:
 
     db = firestore.client()
     invitation_ref = db.document(f"userInvitations/{email}")
-    invitation = invitation_ref.get().to_dict()
-    if invitation is None:
-        raise https_fn.HttpsError(
-            https_fn.FunctionsErrorCode.NOT_FOUND,
-            "Invitation does not exist",
-        )
-    if invitation.get("securityCode") != security_code:
-        raise https_fn.HttpsError(
-            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
-            "Invalid invitation code",
-        )
+    user_ref = db.document(f"users/{uid}")
+    transaction = db.transaction()
 
-    account = _validate_account_id(invitation.get("account"))
-    user_level = _validate_user_level(invitation.get("userLevel"))
+    @firestore.transactional
+    def accept(transaction):
+        invitation_snapshot = _get_document_snapshot(transaction, invitation_ref)
+        invitation = invitation_snapshot.to_dict() if invitation_snapshot else None
+        if invitation is None:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.NOT_FOUND,
+                "Invitation does not exist",
+            )
+        if invitation.get("securityCode") != security_code:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+                "Invalid invitation code",
+            )
+        if invitation.get("accepted") is True:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "Invitation has already been accepted",
+            )
 
-    db.document(f"users/{uid}").set(
-        {
-            "uid": uid,
-            "email": auth_email,
-            "account": account,
-            "userLevel": user_level,
-        }
-    )
-    return {"account": account, "userLevel": user_level}
+        account = _validate_account_id(invitation.get("account"))
+        user_level = _validate_user_level(invitation.get("userLevel"))
+
+        transaction.set(
+            user_ref,
+            {
+                "uid": uid,
+                "email": auth_email,
+                "account": account,
+                "userLevel": user_level,
+            },
+        )
+        transaction.update(
+            invitation_ref,
+            {
+                "accepted": True,
+                "acceptedAt": datetime.now(timezone.utc),
+                "acceptedUid": uid,
+            },
+        )
+        return {"account": account, "userLevel": user_level}
+
+    return accept(transaction)
 
 
 @https_fn.on_call()
@@ -1146,6 +1168,11 @@ def get_user_invitation_db(req: https_fn.CallableRequest[dict]) -> dict:
         raise https_fn.HttpsError(
             https_fn.FunctionsErrorCode.PERMISSION_DENIED,
             "Invalid invitation code",
+        )
+    if invitation.get("accepted") is True:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "Invitation has already been accepted",
         )
     return {
         "email": invitation.get("email"),
