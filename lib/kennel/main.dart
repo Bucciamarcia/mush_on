@@ -68,6 +68,13 @@ class EditKennelMain extends ConsumerWidget {
               onChanged: (n) {
                 if (n != null) {
                   ref.read(showRetiredProvider.notifier).flip(n);
+                  final visibleDogs = n
+                      ? allDogs.where((d) => d.isRetired).toList()
+                      : allDogs.where((d) => !d.isRetired).toList();
+
+                  ref
+                      .read(dogsDisplayListProvider.notifier)
+                      .setDogs(visibleDogs);
                 }
               },
             ),
