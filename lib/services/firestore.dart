@@ -495,6 +495,18 @@ class DogsDbOperations {
     }
   }
 
+  Future<void> retireDog(String dogId, String account) async {
+    String path = "accounts/$account/data/kennel/dogs";
+    final dogsRef = FirebaseFirestore.instance.collection(path);
+    final doc = dogsRef.doc(dogId);
+    try {
+      doc.update({"isRetired": true});
+    } catch (e, s) {
+      logger.error("Couldn't retired dog", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
   Future<void> updateCustomFields({
     required String dogId,
     required List<CustomField> customFields,

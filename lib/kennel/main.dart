@@ -13,13 +13,17 @@ class EditKennelMain extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var dogsAsync = ref.watch(dogsProvider);
+    var dogsAsync = ref.watch(allDogsProvider);
+    final showRetired = ref.watch(showRetiredProvider);
     // INFO: This plugin doesn't differentiate between inactive filter and filter returning no results.
     // INFO: Ideally it should differentiate with a nullable List<Dog>?, but since I want to dispaly all dogs anyways,
     // INFO: It treats no filter and empty filter the same way.
     // INFO: Keep in mind if want different behaviour in future.
     return dogsAsync.when(
-      data: (dogs) {
+      data: (allDogs) {
+        var dogs = showRetired
+            ? allDogs.where((d) => d.isRetired == true).toList()
+            : allDogs.where((d) => d.isRetired == false).toList();
         ref.listen<AsyncValue<List<Dog>>>(dogsProvider, (previous, next) {
           // When we get new data (and not a repeat), update the display list.
           if (next.hasValue) {
@@ -57,6 +61,15 @@ class EditKennelMain extends ConsumerWidget {
                   ),
                 ],
               ),
+            ),
+            CheckboxListTile(
+              title: const Text("Show retired dogs"),
+              value: showRetired,
+              onChanged: (n) {
+                if (n != null) {
+                  ref.read(showRetiredProvider.notifier).flip(n);
+                }
+              },
             ),
             ...ref
                 .watch(dogsDisplayListProvider)

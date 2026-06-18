@@ -34,7 +34,9 @@ class FilterOperations {
       case ConditionSelection.customField:
         toReturn = _processCustomField(filter);
     }
-    toReturn.sort((a, b) => a.name.compareTo(b.name));
+    toReturn.sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
     return toReturn;
   }
 

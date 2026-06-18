@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Dog {
 
- String get name; DogSex get sex; String get id; DogPositions get positions; List<Tag> get tags; List<CustomField> get customFields; List<SingleDogNote> get notes; List<DistanceWarning> get distanceWarnings; String? get fatherId; String? get motherId;@TimestampConverter() DateTime? get birth;
+ String get name; DogSex get sex; String get id; DogPositions get positions; List<Tag> get tags; List<CustomField> get customFields; List<SingleDogNote> get notes; List<DistanceWarning> get distanceWarnings;/// If the dog is retired it should not be displayed.
+ bool get isRetired; String? get fatherId; String? get motherId;@TimestampConverter() DateTime? get birth;
 /// Create a copy of Dog
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $DogCopyWith<Dog> get copyWith => _$DogCopyWithImpl<Dog>(this as Dog, _$identity
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Dog&&(identical(other.name, name) || other.name == name)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.id, id) || other.id == id)&&(identical(other.positions, positions) || other.positions == positions)&&const DeepCollectionEquality().equals(other.tags, tags)&&const DeepCollectionEquality().equals(other.customFields, customFields)&&const DeepCollectionEquality().equals(other.notes, notes)&&const DeepCollectionEquality().equals(other.distanceWarnings, distanceWarnings)&&(identical(other.fatherId, fatherId) || other.fatherId == fatherId)&&(identical(other.motherId, motherId) || other.motherId == motherId)&&(identical(other.birth, birth) || other.birth == birth));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Dog&&(identical(other.name, name) || other.name == name)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.id, id) || other.id == id)&&(identical(other.positions, positions) || other.positions == positions)&&const DeepCollectionEquality().equals(other.tags, tags)&&const DeepCollectionEquality().equals(other.customFields, customFields)&&const DeepCollectionEquality().equals(other.notes, notes)&&const DeepCollectionEquality().equals(other.distanceWarnings, distanceWarnings)&&(identical(other.isRetired, isRetired) || other.isRetired == isRetired)&&(identical(other.fatherId, fatherId) || other.fatherId == fatherId)&&(identical(other.motherId, motherId) || other.motherId == motherId)&&(identical(other.birth, birth) || other.birth == birth));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,sex,id,positions,const DeepCollectionEquality().hash(tags),const DeepCollectionEquality().hash(customFields),const DeepCollectionEquality().hash(notes),const DeepCollectionEquality().hash(distanceWarnings),fatherId,motherId,birth);
+int get hashCode => Object.hash(runtimeType,name,sex,id,positions,const DeepCollectionEquality().hash(tags),const DeepCollectionEquality().hash(customFields),const DeepCollectionEquality().hash(notes),const DeepCollectionEquality().hash(distanceWarnings),isRetired,fatherId,motherId,birth);
 
 @override
 String toString() {
-  return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, notes: $notes, distanceWarnings: $distanceWarnings, fatherId: $fatherId, motherId: $motherId, birth: $birth)';
+  return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, notes: $notes, distanceWarnings: $distanceWarnings, isRetired: $isRetired, fatherId: $fatherId, motherId: $motherId, birth: $birth)';
 }
 
 
@@ -48,7 +49,7 @@ abstract mixin class $DogCopyWith<$Res>  {
   factory $DogCopyWith(Dog value, $Res Function(Dog) _then) = _$DogCopyWithImpl;
 @useResult
 $Res call({
- String name, DogSex sex, String id, DogPositions positions, List<Tag> tags, List<CustomField> customFields, List<SingleDogNote> notes, List<DistanceWarning> distanceWarnings, String? fatherId, String? motherId,@TimestampConverter() DateTime? birth
+ String name, DogSex sex, String id, DogPositions positions, List<Tag> tags, List<CustomField> customFields, List<SingleDogNote> notes, List<DistanceWarning> distanceWarnings, bool isRetired, String? fatherId, String? motherId,@TimestampConverter() DateTime? birth
 });
 
 
@@ -65,7 +66,7 @@ class _$DogCopyWithImpl<$Res>
 
 /// Create a copy of Dog
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? sex = null,Object? id = null,Object? positions = null,Object? tags = null,Object? customFields = null,Object? notes = null,Object? distanceWarnings = null,Object? fatherId = freezed,Object? motherId = freezed,Object? birth = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? sex = null,Object? id = null,Object? positions = null,Object? tags = null,Object? customFields = null,Object? notes = null,Object? distanceWarnings = null,Object? isRetired = null,Object? fatherId = freezed,Object? motherId = freezed,Object? birth = freezed,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,sex: null == sex ? _self.sex : sex // ignore: cast_nullable_to_non_nullable
@@ -75,7 +76,8 @@ as DogPositions,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_
 as List<Tag>,customFields: null == customFields ? _self.customFields : customFields // ignore: cast_nullable_to_non_nullable
 as List<CustomField>,notes: null == notes ? _self.notes : notes // ignore: cast_nullable_to_non_nullable
 as List<SingleDogNote>,distanceWarnings: null == distanceWarnings ? _self.distanceWarnings : distanceWarnings // ignore: cast_nullable_to_non_nullable
-as List<DistanceWarning>,fatherId: freezed == fatherId ? _self.fatherId : fatherId // ignore: cast_nullable_to_non_nullable
+as List<DistanceWarning>,isRetired: null == isRetired ? _self.isRetired : isRetired // ignore: cast_nullable_to_non_nullable
+as bool,fatherId: freezed == fatherId ? _self.fatherId : fatherId // ignore: cast_nullable_to_non_nullable
 as String?,motherId: freezed == motherId ? _self.motherId : motherId // ignore: cast_nullable_to_non_nullable
 as String?,birth: freezed == birth ? _self.birth : birth // ignore: cast_nullable_to_non_nullable
 as DateTime?,
@@ -172,10 +174,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  DogSex sex,  String id,  DogPositions positions,  List<Tag> tags,  List<CustomField> customFields,  List<SingleDogNote> notes,  List<DistanceWarning> distanceWarnings,  String? fatherId,  String? motherId, @TimestampConverter()  DateTime? birth)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  DogSex sex,  String id,  DogPositions positions,  List<Tag> tags,  List<CustomField> customFields,  List<SingleDogNote> notes,  List<DistanceWarning> distanceWarnings,  bool isRetired,  String? fatherId,  String? motherId, @TimestampConverter()  DateTime? birth)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Dog() when $default != null:
-return $default(_that.name,_that.sex,_that.id,_that.positions,_that.tags,_that.customFields,_that.notes,_that.distanceWarnings,_that.fatherId,_that.motherId,_that.birth);case _:
+return $default(_that.name,_that.sex,_that.id,_that.positions,_that.tags,_that.customFields,_that.notes,_that.distanceWarnings,_that.isRetired,_that.fatherId,_that.motherId,_that.birth);case _:
   return orElse();
 
 }
@@ -193,10 +195,10 @@ return $default(_that.name,_that.sex,_that.id,_that.positions,_that.tags,_that.c
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  DogSex sex,  String id,  DogPositions positions,  List<Tag> tags,  List<CustomField> customFields,  List<SingleDogNote> notes,  List<DistanceWarning> distanceWarnings,  String? fatherId,  String? motherId, @TimestampConverter()  DateTime? birth)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  DogSex sex,  String id,  DogPositions positions,  List<Tag> tags,  List<CustomField> customFields,  List<SingleDogNote> notes,  List<DistanceWarning> distanceWarnings,  bool isRetired,  String? fatherId,  String? motherId, @TimestampConverter()  DateTime? birth)  $default,) {final _that = this;
 switch (_that) {
 case _Dog():
-return $default(_that.name,_that.sex,_that.id,_that.positions,_that.tags,_that.customFields,_that.notes,_that.distanceWarnings,_that.fatherId,_that.motherId,_that.birth);case _:
+return $default(_that.name,_that.sex,_that.id,_that.positions,_that.tags,_that.customFields,_that.notes,_that.distanceWarnings,_that.isRetired,_that.fatherId,_that.motherId,_that.birth);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -213,10 +215,10 @@ return $default(_that.name,_that.sex,_that.id,_that.positions,_that.tags,_that.c
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  DogSex sex,  String id,  DogPositions positions,  List<Tag> tags,  List<CustomField> customFields,  List<SingleDogNote> notes,  List<DistanceWarning> distanceWarnings,  String? fatherId,  String? motherId, @TimestampConverter()  DateTime? birth)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  DogSex sex,  String id,  DogPositions positions,  List<Tag> tags,  List<CustomField> customFields,  List<SingleDogNote> notes,  List<DistanceWarning> distanceWarnings,  bool isRetired,  String? fatherId,  String? motherId, @TimestampConverter()  DateTime? birth)?  $default,) {final _that = this;
 switch (_that) {
 case _Dog() when $default != null:
-return $default(_that.name,_that.sex,_that.id,_that.positions,_that.tags,_that.customFields,_that.notes,_that.distanceWarnings,_that.fatherId,_that.motherId,_that.birth);case _:
+return $default(_that.name,_that.sex,_that.id,_that.positions,_that.tags,_that.customFields,_that.notes,_that.distanceWarnings,_that.isRetired,_that.fatherId,_that.motherId,_that.birth);case _:
   return null;
 
 }
@@ -228,7 +230,7 @@ return $default(_that.name,_that.sex,_that.id,_that.positions,_that.tags,_that.c
 
 @JsonSerializable(explicitToJson: true)
 class _Dog extends Dog {
-  const _Dog({this.name = "", this.sex = DogSex.none, this.id = "", this.positions = const DogPositions(), final  List<Tag> tags = const [], final  List<CustomField> customFields = const [], final  List<SingleDogNote> notes = const [], final  List<DistanceWarning> distanceWarnings = const [], this.fatherId, this.motherId, @TimestampConverter() this.birth}): _tags = tags,_customFields = customFields,_notes = notes,_distanceWarnings = distanceWarnings,super._();
+  const _Dog({this.name = "", this.sex = DogSex.none, this.id = "", this.positions = const DogPositions(), final  List<Tag> tags = const [], final  List<CustomField> customFields = const [], final  List<SingleDogNote> notes = const [], final  List<DistanceWarning> distanceWarnings = const [], this.isRetired = false, this.fatherId, this.motherId, @TimestampConverter() this.birth}): _tags = tags,_customFields = customFields,_notes = notes,_distanceWarnings = distanceWarnings,super._();
   factory _Dog.fromJson(Map<String, dynamic> json) => _$DogFromJson(json);
 
 @override@JsonKey() final  String name;
@@ -263,6 +265,8 @@ class _Dog extends Dog {
   return EqualUnmodifiableListView(_distanceWarnings);
 }
 
+/// If the dog is retired it should not be displayed.
+@override@JsonKey() final  bool isRetired;
 @override final  String? fatherId;
 @override final  String? motherId;
 @override@TimestampConverter() final  DateTime? birth;
@@ -280,16 +284,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Dog&&(identical(other.name, name) || other.name == name)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.id, id) || other.id == id)&&(identical(other.positions, positions) || other.positions == positions)&&const DeepCollectionEquality().equals(other._tags, _tags)&&const DeepCollectionEquality().equals(other._customFields, _customFields)&&const DeepCollectionEquality().equals(other._notes, _notes)&&const DeepCollectionEquality().equals(other._distanceWarnings, _distanceWarnings)&&(identical(other.fatherId, fatherId) || other.fatherId == fatherId)&&(identical(other.motherId, motherId) || other.motherId == motherId)&&(identical(other.birth, birth) || other.birth == birth));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Dog&&(identical(other.name, name) || other.name == name)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.id, id) || other.id == id)&&(identical(other.positions, positions) || other.positions == positions)&&const DeepCollectionEquality().equals(other._tags, _tags)&&const DeepCollectionEquality().equals(other._customFields, _customFields)&&const DeepCollectionEquality().equals(other._notes, _notes)&&const DeepCollectionEquality().equals(other._distanceWarnings, _distanceWarnings)&&(identical(other.isRetired, isRetired) || other.isRetired == isRetired)&&(identical(other.fatherId, fatherId) || other.fatherId == fatherId)&&(identical(other.motherId, motherId) || other.motherId == motherId)&&(identical(other.birth, birth) || other.birth == birth));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,sex,id,positions,const DeepCollectionEquality().hash(_tags),const DeepCollectionEquality().hash(_customFields),const DeepCollectionEquality().hash(_notes),const DeepCollectionEquality().hash(_distanceWarnings),fatherId,motherId,birth);
+int get hashCode => Object.hash(runtimeType,name,sex,id,positions,const DeepCollectionEquality().hash(_tags),const DeepCollectionEquality().hash(_customFields),const DeepCollectionEquality().hash(_notes),const DeepCollectionEquality().hash(_distanceWarnings),isRetired,fatherId,motherId,birth);
 
 @override
 String toString() {
-  return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, notes: $notes, distanceWarnings: $distanceWarnings, fatherId: $fatherId, motherId: $motherId, birth: $birth)';
+  return 'Dog(name: $name, sex: $sex, id: $id, positions: $positions, tags: $tags, customFields: $customFields, notes: $notes, distanceWarnings: $distanceWarnings, isRetired: $isRetired, fatherId: $fatherId, motherId: $motherId, birth: $birth)';
 }
 
 
@@ -300,7 +304,7 @@ abstract mixin class _$DogCopyWith<$Res> implements $DogCopyWith<$Res> {
   factory _$DogCopyWith(_Dog value, $Res Function(_Dog) _then) = __$DogCopyWithImpl;
 @override @useResult
 $Res call({
- String name, DogSex sex, String id, DogPositions positions, List<Tag> tags, List<CustomField> customFields, List<SingleDogNote> notes, List<DistanceWarning> distanceWarnings, String? fatherId, String? motherId,@TimestampConverter() DateTime? birth
+ String name, DogSex sex, String id, DogPositions positions, List<Tag> tags, List<CustomField> customFields, List<SingleDogNote> notes, List<DistanceWarning> distanceWarnings, bool isRetired, String? fatherId, String? motherId,@TimestampConverter() DateTime? birth
 });
 
 
@@ -317,7 +321,7 @@ class __$DogCopyWithImpl<$Res>
 
 /// Create a copy of Dog
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? sex = null,Object? id = null,Object? positions = null,Object? tags = null,Object? customFields = null,Object? notes = null,Object? distanceWarnings = null,Object? fatherId = freezed,Object? motherId = freezed,Object? birth = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? sex = null,Object? id = null,Object? positions = null,Object? tags = null,Object? customFields = null,Object? notes = null,Object? distanceWarnings = null,Object? isRetired = null,Object? fatherId = freezed,Object? motherId = freezed,Object? birth = freezed,}) {
   return _then(_Dog(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,sex: null == sex ? _self.sex : sex // ignore: cast_nullable_to_non_nullable
@@ -327,7 +331,8 @@ as DogPositions,tags: null == tags ? _self._tags : tags // ignore: cast_nullable
 as List<Tag>,customFields: null == customFields ? _self._customFields : customFields // ignore: cast_nullable_to_non_nullable
 as List<CustomField>,notes: null == notes ? _self._notes : notes // ignore: cast_nullable_to_non_nullable
 as List<SingleDogNote>,distanceWarnings: null == distanceWarnings ? _self._distanceWarnings : distanceWarnings // ignore: cast_nullable_to_non_nullable
-as List<DistanceWarning>,fatherId: freezed == fatherId ? _self.fatherId : fatherId // ignore: cast_nullable_to_non_nullable
+as List<DistanceWarning>,isRetired: null == isRetired ? _self.isRetired : isRetired // ignore: cast_nullable_to_non_nullable
+as bool,fatherId: freezed == fatherId ? _self.fatherId : fatherId // ignore: cast_nullable_to_non_nullable
 as String?,motherId: freezed == motherId ? _self.motherId : motherId // ignore: cast_nullable_to_non_nullable
 as String?,birth: freezed == birth ? _self.birth : birth // ignore: cast_nullable_to_non_nullable
 as DateTime?,

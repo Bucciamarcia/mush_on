@@ -466,7 +466,26 @@ class _TasksProviderElement extends StreamProviderElement<TasksInMemory>
   int? get days => (origin as TasksProvider).days;
 }
 
-String _$dogsHash() => r'25024bf42f1503f765a876964eed096aaddd3f6e';
+String _$allDogsHash() => r'670132f4d2bb75ebff55466127193dcd9bff5eb3';
+
+/// All the dogs, both retired and non retired.
+///
+/// Copied from [allDogs].
+@ProviderFor(allDogs)
+final allDogsProvider = AutoDisposeStreamProvider<List<Dog>>.internal(
+  allDogs,
+  name: r'allDogsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$allDogsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef AllDogsRef = AutoDisposeStreamProviderRef<List<Dog>>;
+String _$dogsHash() => r'e804eb30c4993e1191c6120d30e2aa3a97e5cee9';
 
 /// See also [dogs].
 @ProviderFor(dogs)
@@ -483,5 +502,22 @@ final dogsProvider = StreamProvider<List<Dog>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef DogsRef = StreamProviderRef<List<Dog>>;
+String _$retiredDogsHash() => r'c083e881f08a21ef8bb21a0930263aec92cb8fd2';
+
+/// See also [retiredDogs].
+@ProviderFor(retiredDogs)
+final retiredDogsProvider = AutoDisposeStreamProvider<List<Dog>>.internal(
+  retiredDogs,
+  name: r'retiredDogsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$retiredDogsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef RetiredDogsRef = AutoDisposeStreamProviderRef<List<Dog>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

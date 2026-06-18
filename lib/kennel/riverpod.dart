@@ -15,7 +15,21 @@ class DogsDisplayList extends _$DogsDisplayList {
 
   void setDogs(List<Dog> dogs) {
     var dogsCopy = List<Dog>.from(dogs);
-    dogsCopy.sort((a, b) => a.name.compareTo(b.name));
+    dogsCopy.sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
     state = dogsCopy;
+  }
+}
+
+@riverpod
+class ShowRetired extends _$ShowRetired {
+  @override
+  bool build() {
+    return false;
+  }
+
+  void flip(bool n) {
+    state = n;
   }
 }

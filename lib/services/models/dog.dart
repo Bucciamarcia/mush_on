@@ -26,6 +26,9 @@ abstract class Dog with _$Dog {
     @Default([]) List<CustomField> customFields,
     @Default([]) List<SingleDogNote> notes,
     @Default([]) List<DistanceWarning> distanceWarnings,
+
+    /// If the dog is retired it should not be displayed.
+    @Default(false) bool isRetired,
     String? fatherId,
     String? motherId,
     @TimestampConverter() DateTime? birth,

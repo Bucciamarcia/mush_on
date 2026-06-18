@@ -533,6 +533,41 @@ class DogMain extends ConsumerWidget {
                 if (showDeleteButton)
                   DeleteDogButton(
                     dog: dog,
+                    onDogRetired: () async {
+                      await showDialog(
+                        context: context,
+                        builder: (dialogContext) =>
+                            ArchiveDogConfirmationDialog(
+                              dog: dog,
+                              onConfirmed: () async {
+                                if (dogId == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    errorSnackBar(
+                                      context,
+                                      "There is no dog to retire",
+                                    ),
+                                  );
+                                  return;
+                                }
+                                try {
+                                  await DogsDbOperations().retireDog(
+                                    dogId!,
+                                    account,
+                                  );
+                                } catch (_) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      errorSnackBar(
+                                        context,
+                                        "Couldn't retire dog",
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                      );
+                    },
                     onDogDeleted: () async {
                       await showDialog(
                         context: context,
@@ -619,8 +654,17 @@ class DeleteDogConfirmationDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog.adaptive(
       title: const Text("Delete"),
-      content: Text(
-        "Are you sure you want to delete ${dog.name}? The action is irreversible, all data will be lost.",
+      content: IntrinsicHeight(
+        child: Column(
+          children: [
+            Text(
+              "Are you sure you want to delete ${dog.name}? The action is irreversible, all data will be lost.",
+            ),
+            const Text(
+              "Unless you're sure, it is highly recommended to Retire the dog instead.",
+            ),
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -639,6 +683,47 @@ class DeleteDogConfirmationDialog extends StatelessWidget {
           },
           child: Text(
             "Delete dog",
+            style: TextStyle(color: Theme.of(context).colorScheme.onError),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ArchiveDogConfirmationDialog extends StatelessWidget {
+  final Dog dog;
+  final Function() onConfirmed;
+  const ArchiveDogConfirmationDialog({
+    super.key,
+    required this.dog,
+    required this.onConfirmed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog.adaptive(
+      title: const Text("Delete"),
+      content: Text(
+        "Are you sure you want to retire ${dog.name}? The dog can be recovered later.",
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Cancel"),
+        ),
+        TextButton(
+          style: ButtonStyle(
+            backgroundColor: WidgetStatePropertyAll(
+              Theme.of(context).colorScheme.error,
+            ),
+          ),
+          onPressed: () {
+            onConfirmed();
+            context.go("/editkennel");
+          },
+          child: Text(
+            "Retire dog",
             style: TextStyle(color: Theme.of(context).colorScheme.onError),
           ),
         ),

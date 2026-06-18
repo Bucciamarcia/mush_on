@@ -193,13 +193,46 @@ Stream<TasksInMemory> tasks(Ref ref, int? days) async* {
   });
 }
 
+@riverpod
+/// All the dogs, both retired and non retired.
+Stream<List<Dog>> allDogs(Ref ref) async* {
+  var db = FirebaseFirestore.instance;
+  String account = await ref.watch(accountProvider.future);
+  String path = "accounts/$account/data/kennel/dogs";
+  var query = db.collection(path);
+  yield* query.snapshots().map((snapshot) {
+    var t = snapshot.docs.map((d) {
+      return Dog.fromJson(d.data());
+    }).toList();
+    t.sort((a, b) => a.name.toLowerCase().compareTo((b.name.toLowerCase())));
+    return t;
+  });
+}
+
 @Riverpod(keepAlive: true)
 Stream<List<Dog>> dogs(Ref ref) async* {
   var db = FirebaseFirestore.instance;
   String account = await ref.watch(accountProvider.future);
   String path = "accounts/$account/data/kennel/dogs";
-  var query = db.collection(path).orderBy("name");
-  yield* query.snapshots().map(
-    (snapshot) => snapshot.docs.map((d) => Dog.fromJson(d.data())).toList(),
-  );
+  var query = db.collection(path);
+  yield* query.snapshots().map((snapshot) {
+    var t = snapshot.docs.map((d) {
+      return Dog.fromJson(d.data());
+    }).toList();
+    t.sort((a, b) => a.name.toLowerCase().compareTo((b.name.toLowerCase())));
+    return t.where((d) => d.isRetired == false).toList();
+  });
+}
+
+@riverpod
+Stream<List<Dog>> retiredDogs(Ref ref) async* {
+  var db = FirebaseFirestore.instance;
+  String account = await ref.watch(accountProvider.future);
+  String path = "accounts/$account/data/kennel/dogs";
+  var query = db.collection(path).where("isRetired", isEqualTo: true);
+  yield* query.snapshots().map((snapshot) {
+    var t = snapshot.docs.map((d) => Dog.fromJson(d.data())).toList();
+    t.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    return t;
+  });
 }
