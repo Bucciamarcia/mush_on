@@ -10,10 +10,7 @@ import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/services/models/username.dart';
 import 'package:mush_on/shared/text_title.dart';
-// ignore: depend_on_referenced_packages
 import 'package:timezone/data/latest.dart' as tz;
-// ignore: unused_import, depend_on_referenced_packages
-import 'package:timezone/timezone.dart' as tz;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -34,10 +31,15 @@ Future<void> main() async {
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
   await FirebaseAppCheck.instance.activate(
-    webProvider: ReCaptchaV3Provider(
+    providerWeb: ReCaptchaV3Provider(
       "6LfqWvoqAAAAALSY29J39QItVs0PsyOC4liiDP_G",
     ),
-    androidProvider: AndroidProvider.debug,
+    providerAndroid: kDebugMode
+        ? const AndroidDebugProvider()
+        : const AndroidPlayIntegrityProvider(),
+    providerApple: kDebugMode
+        ? const AppleDebugProvider()
+        : const AppleAppAttestWithDeviceCheckFallbackProvider(),
   );
   FirebaseUIAuth.configureProviders([]);
 

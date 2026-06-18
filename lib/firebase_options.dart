@@ -66,7 +66,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyB9T5oaPLO53_C5wS1axF611sFkb8YQ9QQ',
-    appId: '1:337862523976:ios:af056e034cf5ce73d4ec7d',
+    appId: '1:337862523976:ios:a84e7981c81e7bcdd4ec7d',
     messagingSenderId: '337862523976',
     projectId: 'mush-on',
     storageBucket: 'mush-on.firebasestorage.app',
