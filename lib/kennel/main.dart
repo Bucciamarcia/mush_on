@@ -31,6 +31,7 @@ class EditKennelMain extends ConsumerWidget {
           }
         });
         var customFieldTemplates = ref.watch(settingsProvider).valueOrNull;
+        final displayDogs = ref.watch(dogsDisplayListProvider);
         return ListView(
           children: [
             Card(
@@ -78,9 +79,15 @@ class EditKennelMain extends ConsumerWidget {
                 }
               },
             ),
-            ...ref
-                .watch(dogsDisplayListProvider)
-                .map((dog) => DogCard(dog: dog)),
+            if (showRetired && dogs.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text("There are no retired dogs"),
+                ),
+              )
+            else
+              ...displayDogs.map((dog) => DogCard(dog: dog)),
           ],
         );
       },

@@ -568,6 +568,41 @@ class DogMain extends ConsumerWidget {
                             ),
                       );
                     },
+                    onDogUnretired: () async {
+                      if (dogId == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          errorSnackBar(context, "There is no dog to unretire"),
+                        );
+                        return;
+                      }
+                      try {
+                        await DogsDbOperations().unretireDog(dogId!, account);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Dog unretired",
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
+                                ),
+                              ),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                            ),
+                          );
+                          context.go("/editkennel");
+                        }
+                      } catch (_) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            errorSnackBar(context, "Couldn't unretire dog"),
+                          );
+                        }
+                      }
+                    },
                     onDogDeleted: () async {
                       await showDialog(
                         context: context,

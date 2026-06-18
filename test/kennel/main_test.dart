@@ -49,6 +49,21 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('shows a message when there are no retired dogs', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_kennelHarness());
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Show retired dogs'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('There are no retired dogs'), findsOneWidget);
+      expect(find.text('Alpha'), findsNothing);
+      expect(find.text('Beta'), findsNothing);
+      expect(find.text('Gamma'), findsNothing);
+    });
   });
 }
 
@@ -61,6 +76,7 @@ const _dogs = [
 Widget _kennelHarness() {
   return ProviderScope(
     overrides: [
+      app_riverpod.allDogsProvider.overrideWith((ref) => Stream.value(_dogs)),
       app_riverpod.dogsProvider.overrideWith((ref) => Stream.value(_dogs)),
       app_riverpod.settingsProvider.overrideWith(
         (ref) => Stream.value(const SettingsModel()),

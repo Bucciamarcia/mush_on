@@ -500,9 +500,21 @@ class DogsDbOperations {
     final dogsRef = FirebaseFirestore.instance.collection(path);
     final doc = dogsRef.doc(dogId);
     try {
-      doc.update({"isRetired": true});
+      await doc.update({"isRetired": true});
     } catch (e, s) {
-      logger.error("Couldn't retired dog", error: e, stackTrace: s);
+      logger.error("Couldn't retire dog", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> unretireDog(String dogId, String account) async {
+    String path = "accounts/$account/data/kennel/dogs";
+    final dogsRef = FirebaseFirestore.instance.collection(path);
+    final doc = dogsRef.doc(dogId);
+    try {
+      await doc.update({"isRetired": false});
+    } catch (e, s) {
+      logger.error("Couldn't unretire dog", error: e, stackTrace: s);
       rethrow;
     }
   }
