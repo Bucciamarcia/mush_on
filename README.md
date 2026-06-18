@@ -156,3 +156,5 @@ A cool and open source CRM for sled dog kennels.
 - Fixes a bug in customer group editor that wouldn't display non-confirmed bookings.
 - Tapping on a dog in create team now shows the dog card.
 - Fix various security bugs in user creation and invitation.
+- Can now archive dogs instead of deleting them.
+- Loading teamgroups in stats should now be faster.
