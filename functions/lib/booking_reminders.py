@@ -159,7 +159,7 @@ def _get_receipt_url(db, booking_id: str) -> str:
         result = get_payment_receipt_url(
             checkout_data["stripeId"],
             checkout_data["checkoutSessionId"],
-            os.getenv("STRIPE_KEY"),
+            os.getenv("STRIPE_TEST_KEY"),
         )
         return result.get("url", "")
     except Exception as e:

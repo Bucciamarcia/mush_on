@@ -34,7 +34,7 @@ set_global_options(max_instances=10, region="europe-north1")
 
 initialize_app()
 load_dotenv()
-stripe.api_key = os.getenv("STRIPE_KEY")
+stripe.api_key = os.getenv("STRIPE_TEST_KEY")
 
 
 def _unwrap_int64_wrappers(x):
@@ -134,9 +134,8 @@ def _count_reserved_customers_for_group(
     db, account: str, customer_group_id: str, now: datetime, transaction=None
 ) -> int:
     bm_ref = _booking_manager_ref(db, account)
-    booking_query = (
-        bm_ref.collection("bookings")
-        .where("customerGroupId", "==", customer_group_id)
+    booking_query = bm_ref.collection("bookings").where(
+        "customerGroupId", "==", customer_group_id
     )
     reserved = 0
     for booking_doc in _get_query_snapshots(transaction, booking_query):
@@ -196,7 +195,9 @@ def _build_checkout_line_items(
                 "tax_behavior": "inclusive",
                 "currency": "eur",
                 "product_data": {
-                    "name": pricing.get("displayName") or pricing.get("name") or "Ticket",
+                    "name": pricing.get("displayName")
+                    or pricing.get("name")
+                    or "Ticket",
                     "metadata": {"pricing_id": pricing_id},
                 },
                 "unit_amount": unit_amount,
@@ -322,10 +323,7 @@ def _reserve_booking_transaction(
         reserved_capacity = _count_reserved_customers_for_group(
             db, account, customer_group_id, now, transaction
         )
-        if (
-            max_capacity > 0
-            and reserved_capacity + requested_capacity > max_capacity
-        ):
+        if max_capacity > 0 and reserved_capacity + requested_capacity > max_capacity:
             raise https_fn.HttpsError(
                 https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
                 "This group is now full",
@@ -638,9 +636,9 @@ def stripe_create_account(req: https_fn.CallableRequest[dict]) -> dict:
                 "sepa_debit_payments": {"requested": True},
             },
         )
-        firestore.client().document(
-            f"accounts/{account_id}/integrations/stripe"
-        ).set({"accountId": account.id})
+        firestore.client().document(f"accounts/{account_id}/integrations/stripe").set(
+            {"accountId": account.id}
+        )
         return {"account": account.id}
     except https_fn.HttpsError:
         raise
@@ -1039,7 +1037,7 @@ def stirpe_webhook_checkout_session_succeeded(
     if event and event.type == "checkout.session.completed":
         checkout_session_id = event.data.object["id"]
         account = event.account
-        stripe_api = os.getenv("STRIPE_KEY")
+        stripe_api = os.getenv("STRIPE_TEST_KEY")
         if account is None or stripe_api is None:
             raise Exception("Account is None in webhook")
         add_checkout_session.payment_processed(
@@ -1073,7 +1071,7 @@ def stripe_get_payment_receipt_url(req: https_fn.CallableRequest[dict]) -> dict:
             "Checkout session does not belong to this account",
         )
     return get_payment_receipt_url(
-        data["stripeId"], data["checkoutSessionId"], os.getenv("STRIPE_KEY")
+        data["stripeId"], data["checkoutSessionId"], os.getenv("STRIPE_TEST_KEY")
     )
 
 
@@ -1191,9 +1189,7 @@ def get_user_invitation_db(req: https_fn.CallableRequest[dict]) -> dict:
             "Missing securityCode",
         )
 
-    invitation = (
-        firestore.client().document(f"userInvitations/{email}").get().to_dict()
-    )
+    invitation = firestore.client().document(f"userInvitations/{email}").get().to_dict()
     if invitation is None:
         raise https_fn.HttpsError(
             https_fn.FunctionsErrorCode.NOT_FOUND,
@@ -1369,8 +1365,7 @@ def _workspace_dog_pairs_from_snapshot(dog_pairs_snapshot, team_id: str) -> list
         )
 
     return [
-        dog_pair
-        for _, dog_pair in sorted(ranked_dog_pairs, key=lambda item: item[0])
+        dog_pair for _, dog_pair in sorted(ranked_dog_pairs, key=lambda item: item[0])
     ]
 
 
@@ -1405,9 +1400,7 @@ def _workspace_teams_by_team_group_from_legacy(
     def get_dog_pairs(team_ref):
         team_doc = team_ref["teamDoc"]
         dog_pairs_docs = list(
-            team_doc.reference.collection("dogPairs")
-            .order_by("rank")
-            .stream()
+            team_doc.reference.collection("dogPairs").order_by("rank").stream()
         )
         return {
             "teamGroupId": team_ref["teamGroupId"],
@@ -1449,7 +1442,9 @@ def _workspace_teams_by_team_group_from_legacy(
     return teams_by_team_group_id
 
 
-def _workspace_teams_from_legacy(db, history_path: str, team_group_id: str) -> list[dict]:
+def _workspace_teams_from_legacy(
+    db, history_path: str, team_group_id: str
+) -> list[dict]:
     return _workspace_teams_by_team_group_from_legacy(
         db, history_path, [team_group_id]
     ).get(team_group_id, [])
