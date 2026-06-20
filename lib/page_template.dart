@@ -100,7 +100,7 @@ class TemplateScreen extends ConsumerWidget {
     }
     if (child is ToursMainScreen) {
       return FloatingActionButton(
-        onPressed: () => context.go("/tours_add"),
+        onPressed: () => context.goNamed("tours_add"),
         child: const Icon(Icons.add),
       );
     }
