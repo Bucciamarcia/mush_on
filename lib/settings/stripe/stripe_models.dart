@@ -7,9 +7,13 @@ part 'stripe_models.g.dart';
 
 @freezed
 sealed class StripeConnection with _$StripeConnection {
+  @JsonSerializable(explicitToJson: true)
   const factory StripeConnection({
-    required String accountId,
-    @Default(false) bool isActive,
+    StripeModeConnection? live,
+    StripeModeConnection? test,
+
+    /// The currently selected payment mode.
+    @Default(StripeMode.test) StripeMode activeMode,
   }) = _StripeConnection;
 
   factory StripeConnection.fromJson(Map<String, dynamic> json) =>
@@ -17,12 +21,26 @@ sealed class StripeConnection with _$StripeConnection {
 }
 
 @freezed
+sealed class StripeModeConnection with _$StripeModeConnection {
+  const factory StripeModeConnection({
+    required String accountId,
+    @Default(false) bool isActive,
+    @TimestampConverter() DateTime? connectedAt,
+  }) = _StripeModeConnection;
+
+  factory StripeModeConnection.fromJson(Map<String, dynamic> json) =>
+      _$StripeModeConnectionFromJson(json);
+}
+
+@freezed
 /// Represent a Stripe payment intent, used to associate it with account and booking.
 /// When the webook for success payment intent arrives, search this db to
 /// find which account and booking it refers to.
 sealed class CheckoutSession with _$CheckoutSession {
+  @JsonSerializable(explicitToJson: true)
   const factory CheckoutSession({
     required String checkoutSessionId,
+    @Default(StripeMode.test) StripeMode stripeMode,
 
     /// The name of the account that this payment goes to.
     required String account,
@@ -38,6 +56,27 @@ sealed class CheckoutSession with _$CheckoutSession {
 
   factory CheckoutSession.fromJson(Map<String, dynamic> json) =>
       _$CheckoutSessionFromJson(json);
+}
+
+@JsonEnum()
+enum StripeMode { live, test }
+
+@freezed
+sealed class StripeConnectionStatus with _$StripeConnectionStatus {
+  @JsonSerializable(explicitToJson: true)
+  const factory StripeConnectionStatus({
+    required StripeMode activeMode,
+    required bool hasAccount,
+    required bool isReady,
+    required bool chargesEnabled,
+    required bool payoutsEnabled,
+    required bool detailsSubmitted,
+    required String? disabledReason,
+    required String reason,
+  }) = _StripeConnectionStatus;
+
+  factory StripeConnectionStatus.fromJson(Map<String, dynamic> json) =>
+      _$StripeConnectionStatusFromJson(json);
 }
 
 @freezed

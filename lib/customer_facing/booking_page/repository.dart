@@ -76,9 +76,17 @@ class BookingPageRepository {
           .httpsCallable("get_public_stripe_status")
           .call({"account": account});
       final data = response.data as Map<String, dynamic>;
-      return StripeConnection(
+      final activeMode = data["activeMode"] == "live"
+          ? StripeMode.live
+          : StripeMode.test;
+      final activeConnection = StripeModeConnection(
         accountId: "",
         isActive: data["isActive"] == true,
+      );
+      return StripeConnection(
+        activeMode: activeMode,
+        test: activeMode == StripeMode.test ? activeConnection : null,
+        live: activeMode == StripeMode.live ? activeConnection : null,
       );
     } catch (e, s) {
       logger.error("Failed to get stripe connection", error: e, stackTrace: s);

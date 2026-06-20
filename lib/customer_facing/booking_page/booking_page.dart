@@ -75,7 +75,10 @@ class _BookingPageState extends ConsumerState<BookingPage> {
           builder: (context, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               final stripe = snapshot.data!;
-              if (!stripe.isActive) {
+              final activeConnection = stripe.activeMode == StripeMode.live
+                  ? stripe.live
+                  : stripe.test;
+              if (activeConnection?.isActive != true) {
                 return const NotAvailable();
               }
               return MainContent(

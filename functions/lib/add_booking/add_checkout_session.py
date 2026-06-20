@@ -2,6 +2,7 @@ from firebase_admin import firestore
 from pydantic import BaseModel, Field
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from enum import Enum
 import os
 from typing import Any
 from lib.booking_email_html import (
@@ -12,8 +13,14 @@ from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 import requests
 
 
+class StripeMode(str, Enum):
+    LIVE = "live"
+    TEST = "test"
+
+
 class CheckoutSession(BaseModel):
     checkoutSessionId: str
+    stripeMode: StripeMode = StripeMode.TEST
     account: str
     stripeId: str
     bookingId: str
@@ -65,6 +72,7 @@ def add_checkout_session_to_db(
     checkout_session_id: str,
     account: str,
     stripe_id: str,
+    stripe_mode: str,
     booking_id: str,
     total_amount_cents: int,
     commission: int,
@@ -72,6 +80,7 @@ def add_checkout_session_to_db(
     firestore.client().document(f"checkoutSessions/{checkout_session_id}").set(
         {
             "checkoutSessionId": checkout_session_id,
+            "stripeMode": stripe_mode,
             "account": account,
             "stripeId": stripe_id,
             "bookingId": booking_id,

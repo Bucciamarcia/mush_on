@@ -6,12 +6,21 @@ import 'package:mush_on/services/error_handling.dart';
 import 'stripe_models.dart';
 
 class StripeRepository {
-  final db = FirebaseFirestore.instance;
-  final storage = FirebaseStorage.instance;
+  final FirebaseFirestore db;
+  final FirebaseStorage storage;
+  final FirebaseFunctions functions;
   final String account;
   static BasicLogger logger = BasicLogger();
 
-  StripeRepository({required this.account});
+  StripeRepository({
+    required this.account,
+    FirebaseFunctions? functions,
+    FirebaseFirestore? firestore,
+    FirebaseStorage? storage,
+  }) : db = firestore ?? FirebaseFirestore.instance,
+       storage = storage ?? FirebaseStorage.instance,
+       functions =
+           functions ?? FirebaseFunctions.instanceFor(region: "europe-north1");
 
   /// Sets the accountId. IMPORTANT: defaults to overriding everything else, not to merge.
   Future<void> saveStripeAccountId(String id, {bool merge = false}) async {
@@ -27,10 +36,8 @@ class StripeRepository {
 
   /// Removes the entire document of integrations/stripe
   Future<void> removeStripeAccountId() async {
-    String path = "accounts/$account/integrations/stripe";
-    final doc = db.doc(path);
     try {
-      await doc.delete();
+      await disconnectActiveStripeConnection();
     } catch (e, s) {
       logger.error(
         "Couldn't remove Stripe account ID",
@@ -42,12 +49,18 @@ class StripeRepository {
   }
 
   /// Flips the `isActive` parameter for stripe integration.
-  Future<bool> changeStripeIntegrationActivation(bool newStatus) async {
+  Future<bool> changeStripeIntegrationActivation(
+    bool newStatus, {
+    StripeMode stripeMode = StripeMode.test,
+  }) async {
     try {
-      final result =
-          await FirebaseFunctions.instanceFor(region: "europe-north1")
-              .httpsCallable("change_stripe_integration_activation")
-              .call({"account": account, "isActive": newStatus});
+      final result = await functions
+          .httpsCallable("change_stripe_integration_activation")
+          .call({
+            "account": account,
+            "isActive": newStatus,
+            "stripeMode": stripeMode.name,
+          });
       final data = result.data as Map<String, dynamic>;
       final error = data["error"];
       if (error != null) {
@@ -57,6 +70,119 @@ class StripeRepository {
     } catch (e, s) {
       logger.error(
         "Couldn't change Stripe integration activation status",
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> disconnectActiveStripeConnection() async {
+    try {
+      final result = await functions
+          .httpsCallable("disconnect_stripe_account")
+          .call({"account": account});
+      final data = result.data as Map<String, dynamic>;
+      final error = data["error"];
+      if (error != null) {
+        throw Exception("Error not null: ${error.toString()}");
+      }
+    } catch (e, s) {
+      logger.error(
+        "Couldn't disconnect Stripe integration",
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
+
+  Future<bool> finalizeStripeOnboarding({
+    required String attemptId,
+    required String token,
+  }) async {
+    try {
+      final result = await functions
+          .httpsCallable("finalize_stripe_onboarding")
+          .call({"account": account, "attemptId": attemptId, "token": token});
+      final data = result.data as Map<String, dynamic>;
+      final error = data["error"];
+      if (error != null) {
+        throw Exception("Error not null: ${error.toString()}");
+      }
+      return data["isActive"] == true;
+    } catch (e, s) {
+      logger.error(
+        "Couldn't finalize Stripe onboarding",
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
+
+  Future<String> createStripeAccount({required StripeMode stripeMode}) async {
+    try {
+      final result = await functions
+          .httpsCallable("stripe_create_account")
+          .call({"account": account, "stripeMode": stripeMode.name});
+      final data = result.data as Map<String, dynamic>;
+      final error = data["error"];
+      if (error != null) {
+        throw Exception(error);
+      }
+      final accountId = data["account"];
+      if (accountId == null) {
+        throw Exception("Account ID is null");
+      }
+      return accountId as String;
+    } catch (e, s) {
+      logger.error("Couldn't create Stripe account", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<String> createStripeAccountLink({
+    required StripeMode stripeMode,
+  }) async {
+    try {
+      final result = await functions
+          .httpsCallable("stripe_create_account_link")
+          .call({"account": account, "stripeMode": stripeMode.name});
+      final data = result.data as Map<String, dynamic>;
+      final error = data["error"];
+      if (error != null) {
+        throw Exception(error);
+      }
+      final url = data["url"];
+      if (url == null) {
+        throw Exception("URL is null");
+      }
+      return url as String;
+    } catch (e, s) {
+      logger.error(
+        "Couldn't create Stripe account link",
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
+
+  Future<StripeConnectionStatus> getStripeConnectionStatus() async {
+    try {
+      final result = await functions
+          .httpsCallable("get_stripe_connection_status")
+          .call({"account": account});
+      final data = result.data as Map<String, dynamic>;
+      final error = data["error"];
+      if (error != null) {
+        throw Exception("Error not null: ${error.toString()}");
+      }
+      return StripeConnectionStatus.fromJson(data);
+    } catch (e, s) {
+      logger.error(
+        "Couldn't get Stripe connection status",
         error: e,
         stackTrace: s,
       );

@@ -21,6 +21,8 @@ import 'package:mush_on/settings/repository.dart';
 import 'package:mush_on/settings/sections/billing.dart';
 import 'package:mush_on/settings/sections/team.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
+import 'package:mush_on/settings/stripe/stripe_models.dart';
+import 'package:mush_on/settings/stripe/stripe_payment_settings.dart';
 import 'package:mush_on/settings/user_settings.dart';
 
 class _FakeUser implements User {
@@ -85,6 +87,11 @@ class _FakeUserProfilePic extends UserProfilePic {
   Future<Uint8List?> build(String? uid) async => null;
 }
 
+class _FakeKennelImage extends KennelImage {
+  @override
+  Future<Uint8List?> build({String? account}) async => null;
+}
+
 Future<void> _pumpApp(
   WidgetTester tester,
   Widget child, {
@@ -101,6 +108,8 @@ Future<void> _pumpApp(
 List<Override> _settingsPageOverrides({
   required UserLevel userLevel,
   SettingsModel settings = const SettingsModel(),
+  StripeConnection? stripeConnection,
+  StripeConnectionStatus? stripeConnectionStatus,
 }) {
   final user = _FakeUser('user-1');
   final userName = UserName(
@@ -109,15 +118,46 @@ List<Override> _settingsPageOverrides({
     account: 'account-1',
     userLevel: userLevel,
   );
-  return [
+  final overrides = <Override>[
     userProvider.overrideWith((_) => Stream.value(user)),
     userNameProvider('user-1').overrideWith((_) => Stream.value(userName)),
     userNameProvider(null).overrideWith((_) => Stream.value(userName)),
     userProfilePicProvider(null).overrideWith(() => _FakeUserProfilePic()),
     accountProvider.overrideWith((_) => Stream.value('account-1')),
     settingsProvider.overrideWith((_) => Stream.value(settings)),
-    stripeConnectionProvider.overrideWith((_) => Stream.value(null)),
+    kennelImageProvider(account: null).overrideWith(() => _FakeKennelImage()),
+    bookingManagerKennelInfoProvider(
+      account: null,
+    ).overrideWith((_) => Stream.value(null)),
+    stripeConnectionProvider.overrideWith(
+      (_) => Stream.value(stripeConnection),
+    ),
   ];
+  final activeConnection = stripeConnection == null
+      ? null
+      : stripeConnection.activeMode == StripeMode.live
+      ? stripeConnection.live
+      : stripeConnection.test;
+  if (activeConnection?.accountId.isNotEmpty == true) {
+    overrides.add(
+      stripeConnectionStatusProvider('account-1').overrideWith((_) async {
+        return stripeConnectionStatus ??
+            StripeConnectionStatus(
+              activeMode: stripeConnection!.activeMode,
+              hasAccount: true,
+              isReady: activeConnection!.isActive,
+              chargesEnabled: activeConnection.isActive,
+              payoutsEnabled: true,
+              detailsSubmitted: true,
+              disabledReason: null,
+              reason: activeConnection.isActive
+                  ? 'Stripe is ready to accept payments.'
+                  : 'Stripe onboarding has not been completed yet.',
+            );
+      }),
+    );
+  }
+  return overrides;
 }
 
 void main() {
@@ -541,6 +581,94 @@ void main() {
       expect(find.text("You don't have access to this page."), findsNothing);
       expect(find.text('Billing & Payments'), findsOneWidget);
       expect(find.text('Connect Stripe'), findsOneWidget);
+    });
+
+    testWidgets('shows disconnect action for connected active Stripe mode', (
+      tester,
+    ) async {
+      const stripeConnection = StripeConnection(
+        activeMode: StripeMode.test,
+        test: StripeModeConnection(accountId: 'acct_test', isActive: true),
+      );
+      await _pumpApp(
+        tester,
+        const BillingSettingsPage(),
+        overrides: _settingsPageOverrides(
+          userLevel: UserLevel.musher,
+          stripeConnection: stripeConnection,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Test mode ready'), findsOneWidget);
+      expect(find.text('Disconnect Stripe'), findsOneWidget);
+      expect(find.text('Connect Stripe'), findsNothing);
+    });
+
+    testWidgets('hides payment settings while Stripe setup is incomplete', (
+      tester,
+    ) async {
+      const stripeConnection = StripeConnection(
+        activeMode: StripeMode.test,
+        test: StripeModeConnection(accountId: 'acct_test', isActive: false),
+      );
+      await _pumpApp(
+        tester,
+        const BillingSettingsPage(),
+        overrides: _settingsPageOverrides(
+          userLevel: UserLevel.musher,
+          stripeConnection: stripeConnection,
+          stripeConnectionStatus: const StripeConnectionStatus(
+            activeMode: StripeMode.test,
+            hasAccount: true,
+            isReady: false,
+            chargesEnabled: false,
+            payoutsEnabled: false,
+            detailsSubmitted: false,
+            disabledReason: 'requirements.past_due',
+            reason:
+                'Stripe needs more account information before payments can start.',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Stripe setup is not complete'), findsOneWidget);
+      expect(find.textContaining('more account information'), findsOneWidget);
+      expect(find.text('Continue setup'), findsOneWidget);
+      expect(find.text('Disconnect Stripe'), findsOneWidget);
+      expect(find.text('Shopping cart'), findsNothing);
+    });
+
+    testWidgets('disconnect action requires confirmation', (tester) async {
+      const stripeConnection = StripeConnection(
+        activeMode: StripeMode.test,
+        test: StripeModeConnection(accountId: 'acct_test', isActive: true),
+      );
+      await _pumpApp(
+        tester,
+        const BillingSettingsPage(),
+        overrides: _settingsPageOverrides(
+          userLevel: UserLevel.musher,
+          stripeConnection: stripeConnection,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Disconnect Stripe'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Disconnect Stripe?'), findsOneWidget);
+      expect(
+        find.textContaining('Checkout will stop for Test mode'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Disconnect Stripe?'), findsNothing);
+      expect(find.text('Disconnect Stripe'), findsOneWidget);
     });
   });
 }

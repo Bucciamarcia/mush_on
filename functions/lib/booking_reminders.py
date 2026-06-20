@@ -11,6 +11,7 @@ from lib.booking_email_html import (
     build_customers_other_info_html,
 )
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
+from lib.stripe.utils import get_checkout_stripe_api_key
 
 
 def send_booking_reminders() -> None:
@@ -159,7 +160,7 @@ def _get_receipt_url(db, booking_id: str) -> str:
         result = get_payment_receipt_url(
             checkout_data["stripeId"],
             checkout_data["checkoutSessionId"],
-            os.getenv("STRIPE_TEST_KEY"),
+            get_checkout_stripe_api_key(checkout_data),
         )
         return result.get("url", "")
     except Exception as e:

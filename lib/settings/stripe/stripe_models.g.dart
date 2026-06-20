@@ -8,19 +8,50 @@ part of 'stripe_models.dart';
 
 _StripeConnection _$StripeConnectionFromJson(Map<String, dynamic> json) =>
     _StripeConnection(
-      accountId: json['accountId'] as String,
-      isActive: json['isActive'] as bool? ?? false,
+      live: json['live'] == null
+          ? null
+          : StripeModeConnection.fromJson(json['live'] as Map<String, dynamic>),
+      test: json['test'] == null
+          ? null
+          : StripeModeConnection.fromJson(json['test'] as Map<String, dynamic>),
+      activeMode:
+          $enumDecodeNullable(_$StripeModeEnumMap, json['activeMode']) ??
+          StripeMode.test,
     );
 
 Map<String, dynamic> _$StripeConnectionToJson(_StripeConnection instance) =>
     <String, dynamic>{
-      'accountId': instance.accountId,
-      'isActive': instance.isActive,
+      'live': instance.live?.toJson(),
+      'test': instance.test?.toJson(),
+      'activeMode': _$StripeModeEnumMap[instance.activeMode]!,
     };
+
+const _$StripeModeEnumMap = {StripeMode.live: 'live', StripeMode.test: 'test'};
+
+_StripeModeConnection _$StripeModeConnectionFromJson(
+  Map<String, dynamic> json,
+) => _StripeModeConnection(
+  accountId: json['accountId'] as String,
+  isActive: json['isActive'] as bool? ?? false,
+  connectedAt: const TimestampConverter().fromJson(
+    json['connectedAt'] as Timestamp?,
+  ),
+);
+
+Map<String, dynamic> _$StripeModeConnectionToJson(
+  _StripeModeConnection instance,
+) => <String, dynamic>{
+  'accountId': instance.accountId,
+  'isActive': instance.isActive,
+  'connectedAt': const TimestampConverter().toJson(instance.connectedAt),
+};
 
 _CheckoutSession _$CheckoutSessionFromJson(Map<String, dynamic> json) =>
     _CheckoutSession(
       checkoutSessionId: json['checkoutSessionId'] as String,
+      stripeMode:
+          $enumDecodeNullable(_$StripeModeEnumMap, json['stripeMode']) ??
+          StripeMode.test,
       account: json['account'] as String,
       bookingId: json['bookingId'] as String,
       stripeId: json['stripeId'] as String,
@@ -34,11 +65,38 @@ Map<String, dynamic> _$CheckoutSessionToJson(
   _CheckoutSession instance,
 ) => <String, dynamic>{
   'checkoutSessionId': instance.checkoutSessionId,
+  'stripeMode': _$StripeModeEnumMap[instance.stripeMode]!,
   'account': instance.account,
   'bookingId': instance.bookingId,
   'stripeId': instance.stripeId,
   'createdAt': const NonNullableTimestampConverter().toJson(instance.createdAt),
   'webhookProcessed': instance.webhookProcessed,
+};
+
+_StripeConnectionStatus _$StripeConnectionStatusFromJson(
+  Map<String, dynamic> json,
+) => _StripeConnectionStatus(
+  activeMode: $enumDecode(_$StripeModeEnumMap, json['activeMode']),
+  hasAccount: json['hasAccount'] as bool,
+  isReady: json['isReady'] as bool,
+  chargesEnabled: json['chargesEnabled'] as bool,
+  payoutsEnabled: json['payoutsEnabled'] as bool,
+  detailsSubmitted: json['detailsSubmitted'] as bool,
+  disabledReason: json['disabledReason'] as String?,
+  reason: json['reason'] as String,
+);
+
+Map<String, dynamic> _$StripeConnectionStatusToJson(
+  _StripeConnectionStatus instance,
+) => <String, dynamic>{
+  'activeMode': _$StripeModeEnumMap[instance.activeMode]!,
+  'hasAccount': instance.hasAccount,
+  'isReady': instance.isReady,
+  'chargesEnabled': instance.chargesEnabled,
+  'payoutsEnabled': instance.payoutsEnabled,
+  'detailsSubmitted': instance.detailsSubmitted,
+  'disabledReason': instance.disabledReason,
+  'reason': instance.reason,
 };
 
 _BookingManagerKennelInfo _$BookingManagerKennelInfoFromJson(

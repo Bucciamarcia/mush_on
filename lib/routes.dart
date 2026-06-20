@@ -134,9 +134,15 @@ final goRoutes = GoRouter(
 
         /// Can be `success` or `failed`
         String? result = state.uri.queryParameters["result"];
+        String? stripeMode = state.uri.queryParameters["stripeMode"];
+        String? attemptId = state.uri.queryParameters["attemptId"];
+        String? token = state.uri.queryParameters["token"];
         return StripeConnectionResultWidget(
           account: account,
           resultString: result,
+          stripeModeString: stripeMode,
+          attemptId: attemptId,
+          token: token,
         );
       },
     ),

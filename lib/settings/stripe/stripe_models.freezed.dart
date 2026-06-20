@@ -15,7 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StripeConnection {
 
- String get accountId; bool get isActive;
+ StripeModeConnection? get live; StripeModeConnection? get test;/// The currently selected payment mode.
+ StripeMode get activeMode;
 /// Create a copy of StripeConnection
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +29,16 @@ $StripeConnectionCopyWith<StripeConnection> get copyWith => _$StripeConnectionCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StripeConnection&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.isActive, isActive) || other.isActive == isActive));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StripeConnection&&(identical(other.live, live) || other.live == live)&&(identical(other.test, test) || other.test == test)&&(identical(other.activeMode, activeMode) || other.activeMode == activeMode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,accountId,isActive);
+int get hashCode => Object.hash(runtimeType,live,test,activeMode);
 
 @override
 String toString() {
-  return 'StripeConnection(accountId: $accountId, isActive: $isActive)';
+  return 'StripeConnection(live: $live, test: $test, activeMode: $activeMode)';
 }
 
 
@@ -48,11 +49,11 @@ abstract mixin class $StripeConnectionCopyWith<$Res>  {
   factory $StripeConnectionCopyWith(StripeConnection value, $Res Function(StripeConnection) _then) = _$StripeConnectionCopyWithImpl;
 @useResult
 $Res call({
- String accountId, bool isActive
+ StripeModeConnection? live, StripeModeConnection? test, StripeMode activeMode
 });
 
 
-
+$StripeModeConnectionCopyWith<$Res>? get live;$StripeModeConnectionCopyWith<$Res>? get test;
 
 }
 /// @nodoc
@@ -65,14 +66,39 @@ class _$StripeConnectionCopyWithImpl<$Res>
 
 /// Create a copy of StripeConnection
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? accountId = null,Object? isActive = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? live = freezed,Object? test = freezed,Object? activeMode = null,}) {
   return _then(_self.copyWith(
-accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
-as String,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
-as bool,
+live: freezed == live ? _self.live : live // ignore: cast_nullable_to_non_nullable
+as StripeModeConnection?,test: freezed == test ? _self.test : test // ignore: cast_nullable_to_non_nullable
+as StripeModeConnection?,activeMode: null == activeMode ? _self.activeMode : activeMode // ignore: cast_nullable_to_non_nullable
+as StripeMode,
   ));
 }
+/// Create a copy of StripeConnection
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$StripeModeConnectionCopyWith<$Res>? get live {
+    if (_self.live == null) {
+    return null;
+  }
 
+  return $StripeModeConnectionCopyWith<$Res>(_self.live!, (value) {
+    return _then(_self.copyWith(live: value));
+  });
+}/// Create a copy of StripeConnection
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$StripeModeConnectionCopyWith<$Res>? get test {
+    if (_self.test == null) {
+    return null;
+  }
+
+  return $StripeModeConnectionCopyWith<$Res>(_self.test!, (value) {
+    return _then(_self.copyWith(test: value));
+  });
+}
 }
 
 
@@ -151,10 +177,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String accountId,  bool isActive)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( StripeModeConnection? live,  StripeModeConnection? test,  StripeMode activeMode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StripeConnection() when $default != null:
-return $default(_that.accountId,_that.isActive);case _:
+return $default(_that.live,_that.test,_that.activeMode);case _:
   return orElse();
 
 }
@@ -172,10 +198,10 @@ return $default(_that.accountId,_that.isActive);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String accountId,  bool isActive)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( StripeModeConnection? live,  StripeModeConnection? test,  StripeMode activeMode)  $default,) {final _that = this;
 switch (_that) {
 case _StripeConnection():
-return $default(_that.accountId,_that.isActive);}
+return $default(_that.live,_that.test,_that.activeMode);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -189,10 +215,10 @@ return $default(_that.accountId,_that.isActive);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String accountId,  bool isActive)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( StripeModeConnection? live,  StripeModeConnection? test,  StripeMode activeMode)?  $default,) {final _that = this;
 switch (_that) {
 case _StripeConnection() when $default != null:
-return $default(_that.accountId,_that.isActive);case _:
+return $default(_that.live,_that.test,_that.activeMode);case _:
   return null;
 
 }
@@ -201,14 +227,16 @@ return $default(_that.accountId,_that.isActive);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(explicitToJson: true)
 class _StripeConnection implements StripeConnection {
-  const _StripeConnection({required this.accountId, this.isActive = false});
+  const _StripeConnection({this.live, this.test, this.activeMode = StripeMode.test});
   factory _StripeConnection.fromJson(Map<String, dynamic> json) => _$StripeConnectionFromJson(json);
 
-@override final  String accountId;
-@override@JsonKey() final  bool isActive;
+@override final  StripeModeConnection? live;
+@override final  StripeModeConnection? test;
+/// The currently selected payment mode.
+@override@JsonKey() final  StripeMode activeMode;
 
 /// Create a copy of StripeConnection
 /// with the given fields replaced by the non-null parameter values.
@@ -223,16 +251,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StripeConnection&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.isActive, isActive) || other.isActive == isActive));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StripeConnection&&(identical(other.live, live) || other.live == live)&&(identical(other.test, test) || other.test == test)&&(identical(other.activeMode, activeMode) || other.activeMode == activeMode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,accountId,isActive);
+int get hashCode => Object.hash(runtimeType,live,test,activeMode);
 
 @override
 String toString() {
-  return 'StripeConnection(accountId: $accountId, isActive: $isActive)';
+  return 'StripeConnection(live: $live, test: $test, activeMode: $activeMode)';
 }
 
 
@@ -243,11 +271,11 @@ abstract mixin class _$StripeConnectionCopyWith<$Res> implements $StripeConnecti
   factory _$StripeConnectionCopyWith(_StripeConnection value, $Res Function(_StripeConnection) _then) = __$StripeConnectionCopyWithImpl;
 @override @useResult
 $Res call({
- String accountId, bool isActive
+ StripeModeConnection? live, StripeModeConnection? test, StripeMode activeMode
 });
 
 
-
+@override $StripeModeConnectionCopyWith<$Res>? get live;@override $StripeModeConnectionCopyWith<$Res>? get test;
 
 }
 /// @nodoc
@@ -260,11 +288,299 @@ class __$StripeConnectionCopyWithImpl<$Res>
 
 /// Create a copy of StripeConnection
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? accountId = null,Object? isActive = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? live = freezed,Object? test = freezed,Object? activeMode = null,}) {
   return _then(_StripeConnection(
+live: freezed == live ? _self.live : live // ignore: cast_nullable_to_non_nullable
+as StripeModeConnection?,test: freezed == test ? _self.test : test // ignore: cast_nullable_to_non_nullable
+as StripeModeConnection?,activeMode: null == activeMode ? _self.activeMode : activeMode // ignore: cast_nullable_to_non_nullable
+as StripeMode,
+  ));
+}
+
+/// Create a copy of StripeConnection
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$StripeModeConnectionCopyWith<$Res>? get live {
+    if (_self.live == null) {
+    return null;
+  }
+
+  return $StripeModeConnectionCopyWith<$Res>(_self.live!, (value) {
+    return _then(_self.copyWith(live: value));
+  });
+}/// Create a copy of StripeConnection
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$StripeModeConnectionCopyWith<$Res>? get test {
+    if (_self.test == null) {
+    return null;
+  }
+
+  return $StripeModeConnectionCopyWith<$Res>(_self.test!, (value) {
+    return _then(_self.copyWith(test: value));
+  });
+}
+}
+
+
+/// @nodoc
+mixin _$StripeModeConnection {
+
+ String get accountId; bool get isActive;@TimestampConverter() DateTime? get connectedAt;
+/// Create a copy of StripeModeConnection
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StripeModeConnectionCopyWith<StripeModeConnection> get copyWith => _$StripeModeConnectionCopyWithImpl<StripeModeConnection>(this as StripeModeConnection, _$identity);
+
+  /// Serializes this StripeModeConnection to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StripeModeConnection&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.connectedAt, connectedAt) || other.connectedAt == connectedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,accountId,isActive,connectedAt);
+
+@override
+String toString() {
+  return 'StripeModeConnection(accountId: $accountId, isActive: $isActive, connectedAt: $connectedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $StripeModeConnectionCopyWith<$Res>  {
+  factory $StripeModeConnectionCopyWith(StripeModeConnection value, $Res Function(StripeModeConnection) _then) = _$StripeModeConnectionCopyWithImpl;
+@useResult
+$Res call({
+ String accountId, bool isActive,@TimestampConverter() DateTime? connectedAt
+});
+
+
+
+
+}
+/// @nodoc
+class _$StripeModeConnectionCopyWithImpl<$Res>
+    implements $StripeModeConnectionCopyWith<$Res> {
+  _$StripeModeConnectionCopyWithImpl(this._self, this._then);
+
+  final StripeModeConnection _self;
+  final $Res Function(StripeModeConnection) _then;
+
+/// Create a copy of StripeModeConnection
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? accountId = null,Object? isActive = null,Object? connectedAt = freezed,}) {
+  return _then(_self.copyWith(
 accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
 as String,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,connectedAt: freezed == connectedAt ? _self.connectedAt : connectedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [StripeModeConnection].
+extension StripeModeConnectionPatterns on StripeModeConnection {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _StripeModeConnection value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _StripeModeConnection() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _StripeModeConnection value)  $default,){
+final _that = this;
+switch (_that) {
+case _StripeModeConnection():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _StripeModeConnection value)?  $default,){
+final _that = this;
+switch (_that) {
+case _StripeModeConnection() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String accountId,  bool isActive, @TimestampConverter()  DateTime? connectedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _StripeModeConnection() when $default != null:
+return $default(_that.accountId,_that.isActive,_that.connectedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String accountId,  bool isActive, @TimestampConverter()  DateTime? connectedAt)  $default,) {final _that = this;
+switch (_that) {
+case _StripeModeConnection():
+return $default(_that.accountId,_that.isActive,_that.connectedAt);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String accountId,  bool isActive, @TimestampConverter()  DateTime? connectedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _StripeModeConnection() when $default != null:
+return $default(_that.accountId,_that.isActive,_that.connectedAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _StripeModeConnection implements StripeModeConnection {
+  const _StripeModeConnection({required this.accountId, this.isActive = false, @TimestampConverter() this.connectedAt});
+  factory _StripeModeConnection.fromJson(Map<String, dynamic> json) => _$StripeModeConnectionFromJson(json);
+
+@override final  String accountId;
+@override@JsonKey() final  bool isActive;
+@override@TimestampConverter() final  DateTime? connectedAt;
+
+/// Create a copy of StripeModeConnection
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$StripeModeConnectionCopyWith<_StripeModeConnection> get copyWith => __$StripeModeConnectionCopyWithImpl<_StripeModeConnection>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$StripeModeConnectionToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StripeModeConnection&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.isActive, isActive) || other.isActive == isActive)&&(identical(other.connectedAt, connectedAt) || other.connectedAt == connectedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,accountId,isActive,connectedAt);
+
+@override
+String toString() {
+  return 'StripeModeConnection(accountId: $accountId, isActive: $isActive, connectedAt: $connectedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$StripeModeConnectionCopyWith<$Res> implements $StripeModeConnectionCopyWith<$Res> {
+  factory _$StripeModeConnectionCopyWith(_StripeModeConnection value, $Res Function(_StripeModeConnection) _then) = __$StripeModeConnectionCopyWithImpl;
+@override @useResult
+$Res call({
+ String accountId, bool isActive,@TimestampConverter() DateTime? connectedAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$StripeModeConnectionCopyWithImpl<$Res>
+    implements _$StripeModeConnectionCopyWith<$Res> {
+  __$StripeModeConnectionCopyWithImpl(this._self, this._then);
+
+  final _StripeModeConnection _self;
+  final $Res Function(_StripeModeConnection) _then;
+
+/// Create a copy of StripeModeConnection
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? accountId = null,Object? isActive = null,Object? connectedAt = freezed,}) {
+  return _then(_StripeModeConnection(
+accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
+as String,isActive: null == isActive ? _self.isActive : isActive // ignore: cast_nullable_to_non_nullable
+as bool,connectedAt: freezed == connectedAt ? _self.connectedAt : connectedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 
@@ -275,7 +591,7 @@ as bool,
 /// @nodoc
 mixin _$CheckoutSession {
 
- String get checkoutSessionId;/// The name of the account that this payment goes to.
+ String get checkoutSessionId; StripeMode get stripeMode;/// The name of the account that this payment goes to.
  String get account;/// The ID of the booking
  String get bookingId;/// The Stripe ID of the account.
  String get stripeId;@NonNullableTimestampConverter() DateTime get createdAt; bool get webhookProcessed;
@@ -291,16 +607,16 @@ $CheckoutSessionCopyWith<CheckoutSession> get copyWith => _$CheckoutSessionCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutSession&&(identical(other.checkoutSessionId, checkoutSessionId) || other.checkoutSessionId == checkoutSessionId)&&(identical(other.account, account) || other.account == account)&&(identical(other.bookingId, bookingId) || other.bookingId == bookingId)&&(identical(other.stripeId, stripeId) || other.stripeId == stripeId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.webhookProcessed, webhookProcessed) || other.webhookProcessed == webhookProcessed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutSession&&(identical(other.checkoutSessionId, checkoutSessionId) || other.checkoutSessionId == checkoutSessionId)&&(identical(other.stripeMode, stripeMode) || other.stripeMode == stripeMode)&&(identical(other.account, account) || other.account == account)&&(identical(other.bookingId, bookingId) || other.bookingId == bookingId)&&(identical(other.stripeId, stripeId) || other.stripeId == stripeId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.webhookProcessed, webhookProcessed) || other.webhookProcessed == webhookProcessed));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,checkoutSessionId,account,bookingId,stripeId,createdAt,webhookProcessed);
+int get hashCode => Object.hash(runtimeType,checkoutSessionId,stripeMode,account,bookingId,stripeId,createdAt,webhookProcessed);
 
 @override
 String toString() {
-  return 'CheckoutSession(checkoutSessionId: $checkoutSessionId, account: $account, bookingId: $bookingId, stripeId: $stripeId, createdAt: $createdAt, webhookProcessed: $webhookProcessed)';
+  return 'CheckoutSession(checkoutSessionId: $checkoutSessionId, stripeMode: $stripeMode, account: $account, bookingId: $bookingId, stripeId: $stripeId, createdAt: $createdAt, webhookProcessed: $webhookProcessed)';
 }
 
 
@@ -311,7 +627,7 @@ abstract mixin class $CheckoutSessionCopyWith<$Res>  {
   factory $CheckoutSessionCopyWith(CheckoutSession value, $Res Function(CheckoutSession) _then) = _$CheckoutSessionCopyWithImpl;
 @useResult
 $Res call({
- String checkoutSessionId, String account, String bookingId, String stripeId,@NonNullableTimestampConverter() DateTime createdAt, bool webhookProcessed
+ String checkoutSessionId, StripeMode stripeMode, String account, String bookingId, String stripeId,@NonNullableTimestampConverter() DateTime createdAt, bool webhookProcessed
 });
 
 
@@ -328,10 +644,11 @@ class _$CheckoutSessionCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutSession
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? checkoutSessionId = null,Object? account = null,Object? bookingId = null,Object? stripeId = null,Object? createdAt = null,Object? webhookProcessed = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? checkoutSessionId = null,Object? stripeMode = null,Object? account = null,Object? bookingId = null,Object? stripeId = null,Object? createdAt = null,Object? webhookProcessed = null,}) {
   return _then(_self.copyWith(
 checkoutSessionId: null == checkoutSessionId ? _self.checkoutSessionId : checkoutSessionId // ignore: cast_nullable_to_non_nullable
-as String,account: null == account ? _self.account : account // ignore: cast_nullable_to_non_nullable
+as String,stripeMode: null == stripeMode ? _self.stripeMode : stripeMode // ignore: cast_nullable_to_non_nullable
+as StripeMode,account: null == account ? _self.account : account // ignore: cast_nullable_to_non_nullable
 as String,bookingId: null == bookingId ? _self.bookingId : bookingId // ignore: cast_nullable_to_non_nullable
 as String,stripeId: null == stripeId ? _self.stripeId : stripeId // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
@@ -418,10 +735,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String checkoutSessionId,  String account,  String bookingId,  String stripeId, @NonNullableTimestampConverter()  DateTime createdAt,  bool webhookProcessed)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String checkoutSessionId,  StripeMode stripeMode,  String account,  String bookingId,  String stripeId, @NonNullableTimestampConverter()  DateTime createdAt,  bool webhookProcessed)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CheckoutSession() when $default != null:
-return $default(_that.checkoutSessionId,_that.account,_that.bookingId,_that.stripeId,_that.createdAt,_that.webhookProcessed);case _:
+return $default(_that.checkoutSessionId,_that.stripeMode,_that.account,_that.bookingId,_that.stripeId,_that.createdAt,_that.webhookProcessed);case _:
   return orElse();
 
 }
@@ -439,10 +756,10 @@ return $default(_that.checkoutSessionId,_that.account,_that.bookingId,_that.stri
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String checkoutSessionId,  String account,  String bookingId,  String stripeId, @NonNullableTimestampConverter()  DateTime createdAt,  bool webhookProcessed)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String checkoutSessionId,  StripeMode stripeMode,  String account,  String bookingId,  String stripeId, @NonNullableTimestampConverter()  DateTime createdAt,  bool webhookProcessed)  $default,) {final _that = this;
 switch (_that) {
 case _CheckoutSession():
-return $default(_that.checkoutSessionId,_that.account,_that.bookingId,_that.stripeId,_that.createdAt,_that.webhookProcessed);}
+return $default(_that.checkoutSessionId,_that.stripeMode,_that.account,_that.bookingId,_that.stripeId,_that.createdAt,_that.webhookProcessed);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -456,10 +773,10 @@ return $default(_that.checkoutSessionId,_that.account,_that.bookingId,_that.stri
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String checkoutSessionId,  String account,  String bookingId,  String stripeId, @NonNullableTimestampConverter()  DateTime createdAt,  bool webhookProcessed)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String checkoutSessionId,  StripeMode stripeMode,  String account,  String bookingId,  String stripeId, @NonNullableTimestampConverter()  DateTime createdAt,  bool webhookProcessed)?  $default,) {final _that = this;
 switch (_that) {
 case _CheckoutSession() when $default != null:
-return $default(_that.checkoutSessionId,_that.account,_that.bookingId,_that.stripeId,_that.createdAt,_that.webhookProcessed);case _:
+return $default(_that.checkoutSessionId,_that.stripeMode,_that.account,_that.bookingId,_that.stripeId,_that.createdAt,_that.webhookProcessed);case _:
   return null;
 
 }
@@ -468,13 +785,14 @@ return $default(_that.checkoutSessionId,_that.account,_that.bookingId,_that.stri
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(explicitToJson: true)
 class _CheckoutSession implements CheckoutSession {
-  const _CheckoutSession({required this.checkoutSessionId, required this.account, required this.bookingId, required this.stripeId, @NonNullableTimestampConverter() required this.createdAt, required this.webhookProcessed});
+  const _CheckoutSession({required this.checkoutSessionId, this.stripeMode = StripeMode.test, required this.account, required this.bookingId, required this.stripeId, @NonNullableTimestampConverter() required this.createdAt, required this.webhookProcessed});
   factory _CheckoutSession.fromJson(Map<String, dynamic> json) => _$CheckoutSessionFromJson(json);
 
 @override final  String checkoutSessionId;
+@override@JsonKey() final  StripeMode stripeMode;
 /// The name of the account that this payment goes to.
 @override final  String account;
 /// The ID of the booking
@@ -497,16 +815,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CheckoutSession&&(identical(other.checkoutSessionId, checkoutSessionId) || other.checkoutSessionId == checkoutSessionId)&&(identical(other.account, account) || other.account == account)&&(identical(other.bookingId, bookingId) || other.bookingId == bookingId)&&(identical(other.stripeId, stripeId) || other.stripeId == stripeId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.webhookProcessed, webhookProcessed) || other.webhookProcessed == webhookProcessed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CheckoutSession&&(identical(other.checkoutSessionId, checkoutSessionId) || other.checkoutSessionId == checkoutSessionId)&&(identical(other.stripeMode, stripeMode) || other.stripeMode == stripeMode)&&(identical(other.account, account) || other.account == account)&&(identical(other.bookingId, bookingId) || other.bookingId == bookingId)&&(identical(other.stripeId, stripeId) || other.stripeId == stripeId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.webhookProcessed, webhookProcessed) || other.webhookProcessed == webhookProcessed));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,checkoutSessionId,account,bookingId,stripeId,createdAt,webhookProcessed);
+int get hashCode => Object.hash(runtimeType,checkoutSessionId,stripeMode,account,bookingId,stripeId,createdAt,webhookProcessed);
 
 @override
 String toString() {
-  return 'CheckoutSession(checkoutSessionId: $checkoutSessionId, account: $account, bookingId: $bookingId, stripeId: $stripeId, createdAt: $createdAt, webhookProcessed: $webhookProcessed)';
+  return 'CheckoutSession(checkoutSessionId: $checkoutSessionId, stripeMode: $stripeMode, account: $account, bookingId: $bookingId, stripeId: $stripeId, createdAt: $createdAt, webhookProcessed: $webhookProcessed)';
 }
 
 
@@ -517,7 +835,7 @@ abstract mixin class _$CheckoutSessionCopyWith<$Res> implements $CheckoutSession
   factory _$CheckoutSessionCopyWith(_CheckoutSession value, $Res Function(_CheckoutSession) _then) = __$CheckoutSessionCopyWithImpl;
 @override @useResult
 $Res call({
- String checkoutSessionId, String account, String bookingId, String stripeId,@NonNullableTimestampConverter() DateTime createdAt, bool webhookProcessed
+ String checkoutSessionId, StripeMode stripeMode, String account, String bookingId, String stripeId,@NonNullableTimestampConverter() DateTime createdAt, bool webhookProcessed
 });
 
 
@@ -534,15 +852,294 @@ class __$CheckoutSessionCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutSession
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? checkoutSessionId = null,Object? account = null,Object? bookingId = null,Object? stripeId = null,Object? createdAt = null,Object? webhookProcessed = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? checkoutSessionId = null,Object? stripeMode = null,Object? account = null,Object? bookingId = null,Object? stripeId = null,Object? createdAt = null,Object? webhookProcessed = null,}) {
   return _then(_CheckoutSession(
 checkoutSessionId: null == checkoutSessionId ? _self.checkoutSessionId : checkoutSessionId // ignore: cast_nullable_to_non_nullable
-as String,account: null == account ? _self.account : account // ignore: cast_nullable_to_non_nullable
+as String,stripeMode: null == stripeMode ? _self.stripeMode : stripeMode // ignore: cast_nullable_to_non_nullable
+as StripeMode,account: null == account ? _self.account : account // ignore: cast_nullable_to_non_nullable
 as String,bookingId: null == bookingId ? _self.bookingId : bookingId // ignore: cast_nullable_to_non_nullable
 as String,stripeId: null == stripeId ? _self.stripeId : stripeId // ignore: cast_nullable_to_non_nullable
 as String,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime,webhookProcessed: null == webhookProcessed ? _self.webhookProcessed : webhookProcessed // ignore: cast_nullable_to_non_nullable
 as bool,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
+mixin _$StripeConnectionStatus {
+
+ StripeMode get activeMode; bool get hasAccount; bool get isReady; bool get chargesEnabled; bool get payoutsEnabled; bool get detailsSubmitted; String? get disabledReason; String get reason;
+/// Create a copy of StripeConnectionStatus
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StripeConnectionStatusCopyWith<StripeConnectionStatus> get copyWith => _$StripeConnectionStatusCopyWithImpl<StripeConnectionStatus>(this as StripeConnectionStatus, _$identity);
+
+  /// Serializes this StripeConnectionStatus to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StripeConnectionStatus&&(identical(other.activeMode, activeMode) || other.activeMode == activeMode)&&(identical(other.hasAccount, hasAccount) || other.hasAccount == hasAccount)&&(identical(other.isReady, isReady) || other.isReady == isReady)&&(identical(other.chargesEnabled, chargesEnabled) || other.chargesEnabled == chargesEnabled)&&(identical(other.payoutsEnabled, payoutsEnabled) || other.payoutsEnabled == payoutsEnabled)&&(identical(other.detailsSubmitted, detailsSubmitted) || other.detailsSubmitted == detailsSubmitted)&&(identical(other.disabledReason, disabledReason) || other.disabledReason == disabledReason)&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,activeMode,hasAccount,isReady,chargesEnabled,payoutsEnabled,detailsSubmitted,disabledReason,reason);
+
+@override
+String toString() {
+  return 'StripeConnectionStatus(activeMode: $activeMode, hasAccount: $hasAccount, isReady: $isReady, chargesEnabled: $chargesEnabled, payoutsEnabled: $payoutsEnabled, detailsSubmitted: $detailsSubmitted, disabledReason: $disabledReason, reason: $reason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $StripeConnectionStatusCopyWith<$Res>  {
+  factory $StripeConnectionStatusCopyWith(StripeConnectionStatus value, $Res Function(StripeConnectionStatus) _then) = _$StripeConnectionStatusCopyWithImpl;
+@useResult
+$Res call({
+ StripeMode activeMode, bool hasAccount, bool isReady, bool chargesEnabled, bool payoutsEnabled, bool detailsSubmitted, String? disabledReason, String reason
+});
+
+
+
+
+}
+/// @nodoc
+class _$StripeConnectionStatusCopyWithImpl<$Res>
+    implements $StripeConnectionStatusCopyWith<$Res> {
+  _$StripeConnectionStatusCopyWithImpl(this._self, this._then);
+
+  final StripeConnectionStatus _self;
+  final $Res Function(StripeConnectionStatus) _then;
+
+/// Create a copy of StripeConnectionStatus
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? activeMode = null,Object? hasAccount = null,Object? isReady = null,Object? chargesEnabled = null,Object? payoutsEnabled = null,Object? detailsSubmitted = null,Object? disabledReason = freezed,Object? reason = null,}) {
+  return _then(_self.copyWith(
+activeMode: null == activeMode ? _self.activeMode : activeMode // ignore: cast_nullable_to_non_nullable
+as StripeMode,hasAccount: null == hasAccount ? _self.hasAccount : hasAccount // ignore: cast_nullable_to_non_nullable
+as bool,isReady: null == isReady ? _self.isReady : isReady // ignore: cast_nullable_to_non_nullable
+as bool,chargesEnabled: null == chargesEnabled ? _self.chargesEnabled : chargesEnabled // ignore: cast_nullable_to_non_nullable
+as bool,payoutsEnabled: null == payoutsEnabled ? _self.payoutsEnabled : payoutsEnabled // ignore: cast_nullable_to_non_nullable
+as bool,detailsSubmitted: null == detailsSubmitted ? _self.detailsSubmitted : detailsSubmitted // ignore: cast_nullable_to_non_nullable
+as bool,disabledReason: freezed == disabledReason ? _self.disabledReason : disabledReason // ignore: cast_nullable_to_non_nullable
+as String?,reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [StripeConnectionStatus].
+extension StripeConnectionStatusPatterns on StripeConnectionStatus {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _StripeConnectionStatus value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _StripeConnectionStatus() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _StripeConnectionStatus value)  $default,){
+final _that = this;
+switch (_that) {
+case _StripeConnectionStatus():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _StripeConnectionStatus value)?  $default,){
+final _that = this;
+switch (_that) {
+case _StripeConnectionStatus() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( StripeMode activeMode,  bool hasAccount,  bool isReady,  bool chargesEnabled,  bool payoutsEnabled,  bool detailsSubmitted,  String? disabledReason,  String reason)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _StripeConnectionStatus() when $default != null:
+return $default(_that.activeMode,_that.hasAccount,_that.isReady,_that.chargesEnabled,_that.payoutsEnabled,_that.detailsSubmitted,_that.disabledReason,_that.reason);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( StripeMode activeMode,  bool hasAccount,  bool isReady,  bool chargesEnabled,  bool payoutsEnabled,  bool detailsSubmitted,  String? disabledReason,  String reason)  $default,) {final _that = this;
+switch (_that) {
+case _StripeConnectionStatus():
+return $default(_that.activeMode,_that.hasAccount,_that.isReady,_that.chargesEnabled,_that.payoutsEnabled,_that.detailsSubmitted,_that.disabledReason,_that.reason);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( StripeMode activeMode,  bool hasAccount,  bool isReady,  bool chargesEnabled,  bool payoutsEnabled,  bool detailsSubmitted,  String? disabledReason,  String reason)?  $default,) {final _that = this;
+switch (_that) {
+case _StripeConnectionStatus() when $default != null:
+return $default(_that.activeMode,_that.hasAccount,_that.isReady,_that.chargesEnabled,_that.payoutsEnabled,_that.detailsSubmitted,_that.disabledReason,_that.reason);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+@JsonSerializable(explicitToJson: true)
+class _StripeConnectionStatus implements StripeConnectionStatus {
+  const _StripeConnectionStatus({required this.activeMode, required this.hasAccount, required this.isReady, required this.chargesEnabled, required this.payoutsEnabled, required this.detailsSubmitted, required this.disabledReason, required this.reason});
+  factory _StripeConnectionStatus.fromJson(Map<String, dynamic> json) => _$StripeConnectionStatusFromJson(json);
+
+@override final  StripeMode activeMode;
+@override final  bool hasAccount;
+@override final  bool isReady;
+@override final  bool chargesEnabled;
+@override final  bool payoutsEnabled;
+@override final  bool detailsSubmitted;
+@override final  String? disabledReason;
+@override final  String reason;
+
+/// Create a copy of StripeConnectionStatus
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$StripeConnectionStatusCopyWith<_StripeConnectionStatus> get copyWith => __$StripeConnectionStatusCopyWithImpl<_StripeConnectionStatus>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$StripeConnectionStatusToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StripeConnectionStatus&&(identical(other.activeMode, activeMode) || other.activeMode == activeMode)&&(identical(other.hasAccount, hasAccount) || other.hasAccount == hasAccount)&&(identical(other.isReady, isReady) || other.isReady == isReady)&&(identical(other.chargesEnabled, chargesEnabled) || other.chargesEnabled == chargesEnabled)&&(identical(other.payoutsEnabled, payoutsEnabled) || other.payoutsEnabled == payoutsEnabled)&&(identical(other.detailsSubmitted, detailsSubmitted) || other.detailsSubmitted == detailsSubmitted)&&(identical(other.disabledReason, disabledReason) || other.disabledReason == disabledReason)&&(identical(other.reason, reason) || other.reason == reason));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,activeMode,hasAccount,isReady,chargesEnabled,payoutsEnabled,detailsSubmitted,disabledReason,reason);
+
+@override
+String toString() {
+  return 'StripeConnectionStatus(activeMode: $activeMode, hasAccount: $hasAccount, isReady: $isReady, chargesEnabled: $chargesEnabled, payoutsEnabled: $payoutsEnabled, detailsSubmitted: $detailsSubmitted, disabledReason: $disabledReason, reason: $reason)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$StripeConnectionStatusCopyWith<$Res> implements $StripeConnectionStatusCopyWith<$Res> {
+  factory _$StripeConnectionStatusCopyWith(_StripeConnectionStatus value, $Res Function(_StripeConnectionStatus) _then) = __$StripeConnectionStatusCopyWithImpl;
+@override @useResult
+$Res call({
+ StripeMode activeMode, bool hasAccount, bool isReady, bool chargesEnabled, bool payoutsEnabled, bool detailsSubmitted, String? disabledReason, String reason
+});
+
+
+
+
+}
+/// @nodoc
+class __$StripeConnectionStatusCopyWithImpl<$Res>
+    implements _$StripeConnectionStatusCopyWith<$Res> {
+  __$StripeConnectionStatusCopyWithImpl(this._self, this._then);
+
+  final _StripeConnectionStatus _self;
+  final $Res Function(_StripeConnectionStatus) _then;
+
+/// Create a copy of StripeConnectionStatus
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? activeMode = null,Object? hasAccount = null,Object? isReady = null,Object? chargesEnabled = null,Object? payoutsEnabled = null,Object? detailsSubmitted = null,Object? disabledReason = freezed,Object? reason = null,}) {
+  return _then(_StripeConnectionStatus(
+activeMode: null == activeMode ? _self.activeMode : activeMode // ignore: cast_nullable_to_non_nullable
+as StripeMode,hasAccount: null == hasAccount ? _self.hasAccount : hasAccount // ignore: cast_nullable_to_non_nullable
+as bool,isReady: null == isReady ? _self.isReady : isReady // ignore: cast_nullable_to_non_nullable
+as bool,chargesEnabled: null == chargesEnabled ? _self.chargesEnabled : chargesEnabled // ignore: cast_nullable_to_non_nullable
+as bool,payoutsEnabled: null == payoutsEnabled ? _self.payoutsEnabled : payoutsEnabled // ignore: cast_nullable_to_non_nullable
+as bool,detailsSubmitted: null == detailsSubmitted ? _self.detailsSubmitted : detailsSubmitted // ignore: cast_nullable_to_non_nullable
+as bool,disabledReason: freezed == disabledReason ? _self.disabledReason : disabledReason // ignore: cast_nullable_to_non_nullable
+as String?,reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
