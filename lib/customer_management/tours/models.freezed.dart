@@ -319,8 +319,7 @@ mixin _$TourTypePricing {
  String? get notes;/// The description of this tour to show to customers.
  String? get displayDescription;/// The price of this tour. This is VAT included.
  int get priceCents;/// The vat rate of this price.
- double get vatRate;/// The id for the stripe tax rate
- String? get stripeTaxRateId;
+ double get vatRate;
 /// Create a copy of TourTypePricing
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -333,16 +332,16 @@ $TourTypePricingCopyWith<TourTypePricing> get copyWith => _$TourTypePricingCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TourTypePricing&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.isArchived, isArchived) || other.isArchived == isArchived)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.displayDescription, displayDescription) || other.displayDescription == displayDescription)&&(identical(other.priceCents, priceCents) || other.priceCents == priceCents)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate)&&(identical(other.stripeTaxRateId, stripeTaxRateId) || other.stripeTaxRateId == stripeTaxRateId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TourTypePricing&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.isArchived, isArchived) || other.isArchived == isArchived)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.displayDescription, displayDescription) || other.displayDescription == displayDescription)&&(identical(other.priceCents, priceCents) || other.priceCents == priceCents)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,isArchived,displayName,notes,displayDescription,priceCents,vatRate,stripeTaxRateId);
+int get hashCode => Object.hash(runtimeType,id,name,isArchived,displayName,notes,displayDescription,priceCents,vatRate);
 
 @override
 String toString() {
-  return 'TourTypePricing(id: $id, name: $name, isArchived: $isArchived, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents, vatRate: $vatRate, stripeTaxRateId: $stripeTaxRateId)';
+  return 'TourTypePricing(id: $id, name: $name, isArchived: $isArchived, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents, vatRate: $vatRate)';
 }
 
 
@@ -353,7 +352,7 @@ abstract mixin class $TourTypePricingCopyWith<$Res>  {
   factory $TourTypePricingCopyWith(TourTypePricing value, $Res Function(TourTypePricing) _then) = _$TourTypePricingCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, bool isArchived, String displayName, String? notes, String? displayDescription, int priceCents, double vatRate, String? stripeTaxRateId
+ String id, String name, bool isArchived, String displayName, String? notes, String? displayDescription, int priceCents, double vatRate
 });
 
 
@@ -370,7 +369,7 @@ class _$TourTypePricingCopyWithImpl<$Res>
 
 /// Create a copy of TourTypePricing
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? isArchived = null,Object? displayName = null,Object? notes = freezed,Object? displayDescription = freezed,Object? priceCents = null,Object? vatRate = null,Object? stripeTaxRateId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? isArchived = null,Object? displayName = null,Object? notes = freezed,Object? displayDescription = freezed,Object? priceCents = null,Object? vatRate = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -380,8 +379,7 @@ as String,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable
 as String?,displayDescription: freezed == displayDescription ? _self.displayDescription : displayDescription // ignore: cast_nullable_to_non_nullable
 as String?,priceCents: null == priceCents ? _self.priceCents : priceCents // ignore: cast_nullable_to_non_nullable
 as int,vatRate: null == vatRate ? _self.vatRate : vatRate // ignore: cast_nullable_to_non_nullable
-as double,stripeTaxRateId: freezed == stripeTaxRateId ? _self.stripeTaxRateId : stripeTaxRateId // ignore: cast_nullable_to_non_nullable
-as String?,
+as double,
   ));
 }
 
@@ -463,10 +461,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  bool isArchived,  String displayName,  String? notes,  String? displayDescription,  int priceCents,  double vatRate,  String? stripeTaxRateId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  bool isArchived,  String displayName,  String? notes,  String? displayDescription,  int priceCents,  double vatRate)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TourTypePricing() when $default != null:
-return $default(_that.id,_that.name,_that.isArchived,_that.displayName,_that.notes,_that.displayDescription,_that.priceCents,_that.vatRate,_that.stripeTaxRateId);case _:
+return $default(_that.id,_that.name,_that.isArchived,_that.displayName,_that.notes,_that.displayDescription,_that.priceCents,_that.vatRate);case _:
   return orElse();
 
 }
@@ -484,10 +482,10 @@ return $default(_that.id,_that.name,_that.isArchived,_that.displayName,_that.not
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  bool isArchived,  String displayName,  String? notes,  String? displayDescription,  int priceCents,  double vatRate,  String? stripeTaxRateId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  bool isArchived,  String displayName,  String? notes,  String? displayDescription,  int priceCents,  double vatRate)  $default,) {final _that = this;
 switch (_that) {
 case _TourTypePricing():
-return $default(_that.id,_that.name,_that.isArchived,_that.displayName,_that.notes,_that.displayDescription,_that.priceCents,_that.vatRate,_that.stripeTaxRateId);}
+return $default(_that.id,_that.name,_that.isArchived,_that.displayName,_that.notes,_that.displayDescription,_that.priceCents,_that.vatRate);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -501,10 +499,10 @@ return $default(_that.id,_that.name,_that.isArchived,_that.displayName,_that.not
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  bool isArchived,  String displayName,  String? notes,  String? displayDescription,  int priceCents,  double vatRate,  String? stripeTaxRateId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  bool isArchived,  String displayName,  String? notes,  String? displayDescription,  int priceCents,  double vatRate)?  $default,) {final _that = this;
 switch (_that) {
 case _TourTypePricing() when $default != null:
-return $default(_that.id,_that.name,_that.isArchived,_that.displayName,_that.notes,_that.displayDescription,_that.priceCents,_that.vatRate,_that.stripeTaxRateId);case _:
+return $default(_that.id,_that.name,_that.isArchived,_that.displayName,_that.notes,_that.displayDescription,_that.priceCents,_that.vatRate);case _:
   return null;
 
 }
@@ -516,7 +514,7 @@ return $default(_that.id,_that.name,_that.isArchived,_that.displayName,_that.not
 @JsonSerializable()
 
 class _TourTypePricing implements TourTypePricing {
-  const _TourTypePricing({required this.id, this.name = "", this.isArchived = false, this.displayName = "", this.notes, this.displayDescription, this.priceCents = 0, this.vatRate = 0, this.stripeTaxRateId});
+  const _TourTypePricing({required this.id, this.name = "", this.isArchived = false, this.displayName = "", this.notes, this.displayDescription, this.priceCents = 0, this.vatRate = 0});
   factory _TourTypePricing.fromJson(Map<String, dynamic> json) => _$TourTypePricingFromJson(json);
 
 @override final  String id;
@@ -534,8 +532,6 @@ class _TourTypePricing implements TourTypePricing {
 @override@JsonKey() final  int priceCents;
 /// The vat rate of this price.
 @override@JsonKey() final  double vatRate;
-/// The id for the stripe tax rate
-@override final  String? stripeTaxRateId;
 
 /// Create a copy of TourTypePricing
 /// with the given fields replaced by the non-null parameter values.
@@ -550,16 +546,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TourTypePricing&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.isArchived, isArchived) || other.isArchived == isArchived)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.displayDescription, displayDescription) || other.displayDescription == displayDescription)&&(identical(other.priceCents, priceCents) || other.priceCents == priceCents)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate)&&(identical(other.stripeTaxRateId, stripeTaxRateId) || other.stripeTaxRateId == stripeTaxRateId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TourTypePricing&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.isArchived, isArchived) || other.isArchived == isArchived)&&(identical(other.displayName, displayName) || other.displayName == displayName)&&(identical(other.notes, notes) || other.notes == notes)&&(identical(other.displayDescription, displayDescription) || other.displayDescription == displayDescription)&&(identical(other.priceCents, priceCents) || other.priceCents == priceCents)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,isArchived,displayName,notes,displayDescription,priceCents,vatRate,stripeTaxRateId);
+int get hashCode => Object.hash(runtimeType,id,name,isArchived,displayName,notes,displayDescription,priceCents,vatRate);
 
 @override
 String toString() {
-  return 'TourTypePricing(id: $id, name: $name, isArchived: $isArchived, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents, vatRate: $vatRate, stripeTaxRateId: $stripeTaxRateId)';
+  return 'TourTypePricing(id: $id, name: $name, isArchived: $isArchived, displayName: $displayName, notes: $notes, displayDescription: $displayDescription, priceCents: $priceCents, vatRate: $vatRate)';
 }
 
 
@@ -570,7 +566,7 @@ abstract mixin class _$TourTypePricingCopyWith<$Res> implements $TourTypePricing
   factory _$TourTypePricingCopyWith(_TourTypePricing value, $Res Function(_TourTypePricing) _then) = __$TourTypePricingCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, bool isArchived, String displayName, String? notes, String? displayDescription, int priceCents, double vatRate, String? stripeTaxRateId
+ String id, String name, bool isArchived, String displayName, String? notes, String? displayDescription, int priceCents, double vatRate
 });
 
 
@@ -587,7 +583,7 @@ class __$TourTypePricingCopyWithImpl<$Res>
 
 /// Create a copy of TourTypePricing
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? isArchived = null,Object? displayName = null,Object? notes = freezed,Object? displayDescription = freezed,Object? priceCents = null,Object? vatRate = null,Object? stripeTaxRateId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? isArchived = null,Object? displayName = null,Object? notes = freezed,Object? displayDescription = freezed,Object? priceCents = null,Object? vatRate = null,}) {
   return _then(_TourTypePricing(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -597,8 +593,7 @@ as String,notes: freezed == notes ? _self.notes : notes // ignore: cast_nullable
 as String?,displayDescription: freezed == displayDescription ? _self.displayDescription : displayDescription // ignore: cast_nullable_to_non_nullable
 as String?,priceCents: null == priceCents ? _self.priceCents : priceCents // ignore: cast_nullable_to_non_nullable
 as int,vatRate: null == vatRate ? _self.vatRate : vatRate // ignore: cast_nullable_to_non_nullable
-as double,stripeTaxRateId: freezed == stripeTaxRateId ? _self.stripeTaxRateId : stripeTaxRateId // ignore: cast_nullable_to_non_nullable
-as String?,
+as double,
   ));
 }
 

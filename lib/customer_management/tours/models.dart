@@ -72,9 +72,6 @@ sealed class TourTypePricing with _$TourTypePricing {
 
     /// The vat rate of this price.
     @Default(0) double vatRate,
-
-    /// The id for the stripe tax rate
-    String? stripeTaxRateId,
   }) = _TourTypePricing;
 
   factory TourTypePricing.fromJson(Map<String, dynamic> json) =>

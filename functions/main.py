@@ -411,11 +411,118 @@ def _get_active_prices_by_id(db, account: str, tour_id: str) -> dict[str, dict]:
     }
 
 
+def _pricing_vat_percentage(pricing: dict) -> float:
+    vat_rate = _unwrap_int64_wrappers(pricing.get("vatRate", 0))
+    percentage = round(float(vat_rate or 0) * 100, 2)
+    return percentage if percentage > 0 else 0
+
+
+def _tax_rate_cache_ref(
+    db,
+    account: str,
+    stripe_mode: str,
+    stripe_account_id: str,
+    percentage: float,
+):
+    cache_key = hashlib.sha256(
+        "|".join(
+            [
+                account,
+                stripe_mode,
+                stripe_account_id,
+                f"{percentage:.2f}",
+                "inclusive",
+                "vat",
+            ]
+        ).encode("utf-8")
+    ).hexdigest()
+    return db.document(f"stripeTaxRates/{cache_key}")
+
+
+def _create_checkout_tax_rate(stripe_account_id: str, percentage: float):
+    return stripe.TaxRate.create(
+        display_name="VAT",
+        inclusive=True,
+        percentage=percentage,
+        tax_type="vat",
+        stripe_account=stripe_account_id,
+    )
+
+
+def _resolve_stripe_tax_rate_id(
+    db,
+    account: str,
+    stripe_mode: str,
+    stripe_account_id: str,
+    percentage: float,
+) -> str:
+    cache_ref = _tax_rate_cache_ref(
+        db, account, stripe_mode, stripe_account_id, percentage
+    )
+    cached = cache_ref.get().to_dict()
+    if cached and cached.get("taxRateId"):
+        return cached["taxRateId"]
+
+    tax_rate = _create_checkout_tax_rate(stripe_account_id, percentage)
+    cache_ref.set(
+        {
+            "account": account,
+            "stripeMode": stripe_mode,
+            "stripeAccountId": stripe_account_id,
+            "percentage": percentage,
+            "inclusive": True,
+            "displayName": "VAT",
+            "taxType": "vat",
+            "taxRateId": tax_rate.id,
+            "createdAt": datetime.now(timezone.utc),
+            "updatedAt": datetime.now(timezone.utc),
+        }
+    )
+    return tax_rate.id
+
+
+def _clear_cached_stripe_tax_rates(
+    db,
+    account: str,
+    stripe_mode: str,
+    stripe_account_id: str,
+    prices_by_id: dict[str, dict],
+    quantities_by_pricing: dict[str, int],
+) -> None:
+    percentages = {
+        _pricing_vat_percentage(prices_by_id.get(pricing_id) or {})
+        for pricing_id in quantities_by_pricing
+    }
+    for percentage in percentages:
+        if percentage <= 0:
+            continue
+        cache_ref = _tax_rate_cache_ref(
+            db, account, stripe_mode, stripe_account_id, percentage
+        )
+        cache_ref.set(
+            {
+                "account": account,
+                "stripeMode": stripe_mode,
+                "stripeAccountId": stripe_account_id,
+                "percentage": percentage,
+                "inclusive": True,
+                "displayName": "VAT",
+                "taxType": "vat",
+                "taxRateId": None,
+                "invalidatedAt": datetime.now(timezone.utc),
+                "updatedAt": datetime.now(timezone.utc),
+            }
+        )
+
+
 def _build_checkout_line_items(
-    prices_by_id: dict[str, dict], quantities_by_pricing: dict[str, int]
+    prices_by_id: dict[str, dict],
+    quantities_by_pricing: dict[str, int],
+    tax_rate_id_for_percentage=None,
 ) -> tuple[list[dict], int]:
     line_items = []
     total_amount_cents = 0
+    tax_rate_ids_by_percentage: dict[float, str] = {}
     for pricing_id, quantity in quantities_by_pricing.items():
         if quantity <= 0:
             raise ValueError("Pricing quantity must be positive")
@@ -438,8 +545,12 @@ def _build_checkout_line_items(
             },
             "quantity": quantity,
         }
-        tax_rate_id = pricing.get("stripeTaxRateId")
-        if tax_rate_id:
+        percentage = _pricing_vat_percentage(pricing)
+        if percentage > 0 and tax_rate_id_for_percentage is not None:
+            tax_rate_id = tax_rate_ids_by_percentage.get(percentage)
+            if tax_rate_id is None:
+                tax_rate_id = tax_rate_id_for_percentage(percentage)
+                tax_rate_ids_by_percentage[percentage] = tax_rate_id
             line_item["tax_rates"] = [tax_rate_id]
         line_items.append(line_item)
     if not line_items:
@@ -454,7 +565,13 @@ def _calculate_platform_fee(total_amount_cents: int, kennel_info: dict) -> int:
 
 
 def _build_server_checkout_payload(
-    db, account: str, booking_id: str, tour_id: str, customer_group_id: str
+    db,
+    account: str,
+    booking_id: str,
+    tour_id: str,
+    customer_group_id: str,
+    stripe_mode: str,
+    stripe_account_id: str,
 ) -> dict:
     booking = _get_required_document(
         db,
@@ -481,7 +598,11 @@ def _build_server_checkout_payload(
 
     prices_by_id = _get_active_prices_by_id(db, account, tour_id)
     line_items, total_amount_cents = _build_checkout_line_items(
-        prices_by_id, quantities_by_pricing
+        prices_by_id,
+        quantities_by_pricing,
+        lambda percentage: _resolve_stripe_tax_rate_id(
+            db, account, stripe_mode, stripe_account_id, percentage
+        ),
     )
     kennel_info = _get_required_document(
         db, f"accounts/{account}/data/bookingManager", "Booking manager settings"
@@ -491,7 +612,61 @@ def _build_server_checkout_payload(
         "line_items": line_items,
         "total_amount_cents": total_amount_cents,
         "fee_amount": fee_amount,
+        "prices_by_id": prices_by_id,
+        "quantities_by_pricing": quantities_by_pricing,
+        "tour_id": tour_id,
+        "customer_group_id": customer_group_id,
     }
+
+
+def _is_missing_tax_rate_error(error: Exception) -> bool:
+    message = str(error).lower()
+    return "no such tax rate" in message
+
+
+def _create_checkout_session_with_tax_rate_retry(
+    db,
+    account: str,
+    stripe_mode: str,
+    stripe_account_id: str,
+    checkout_payload: dict,
+    booking_id: str,
+):
+    create_args = {
+        "line_items": checkout_payload["line_items"],
+        "client_reference_id": booking_id,
+        "payment_intent_data": {
+            "application_fee_amount": checkout_payload["fee_amount"]
+        },
+        "mode": "payment",
+        "success_url": f"https://mush-on.web.app/booking_success?bookingId={booking_id}&account={account}",
+        "stripe_account": stripe_account_id,
+    }
+    try:
+        return stripe.checkout.Session.create(**create_args)
+    except Exception as e:
+        if not _is_missing_tax_rate_error(e):
+            raise
+        _clear_cached_stripe_tax_rates(
+            db,
+            account,
+            stripe_mode,
+            stripe_account_id,
+            checkout_payload["prices_by_id"],
+            checkout_payload["quantities_by_pricing"],
+        )
+        refreshed_payload = _build_server_checkout_payload(
+            db,
+            account,
+            booking_id,
+            checkout_payload["tour_id"],
+            checkout_payload["customer_group_id"],
+            stripe_mode,
+            stripe_account_id,
+        )
+        checkout_payload.update(refreshed_payload)
+        create_args["line_items"] = refreshed_payload["line_items"]
+        return stripe.checkout.Session.create(**create_args)
 
 
 def _booking_label(booking: dict, customers: list[dict]) -> str:
@@ -1281,19 +1456,24 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
             return {"error": "Stripe integration is not active"}
         _set_stripe_api_key(stripe_mode)
 
+        db = firestore.client()
         checkout_payload = _build_server_checkout_payload(
-            firestore.client(), account, booking_id, tour_id, customer_group_id
+            db,
+            account,
+            booking_id,
+            tour_id,
+            customer_group_id,
+            stripe_mode,
+            stripe_account_id,
         )
 
-        session = stripe.checkout.Session.create(
-            line_items=checkout_payload["line_items"],
-            client_reference_id=booking_id,
-            payment_intent_data={
-                "application_fee_amount": checkout_payload["fee_amount"]
-            },
-            mode="payment",
-            success_url=f"https://mush-on.web.app/booking_success?bookingId={booking_id}&account={account}",
-            stripe_account=stripe_account_id,
+        session = _create_checkout_session_with_tax_rate_retry(
+            db,
+            account,
+            stripe_mode,
+            stripe_account_id,
+            checkout_payload,
+            booking_id,
         )
         checkout_session = session.id
         if checkout_session is None:
@@ -1359,18 +1539,22 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
         customer_group_id = reservation["customerGroupId"]
 
         checkout_payload = _build_server_checkout_payload(
-            db, account, booking_id, tour_id, customer_group_id
+            db,
+            account,
+            booking_id,
+            tour_id,
+            customer_group_id,
+            stripe_mode,
+            stripe_account_id,
         )
 
-        session = stripe.checkout.Session.create(
-            line_items=checkout_payload["line_items"],
-            client_reference_id=booking_id,
-            payment_intent_data={
-                "application_fee_amount": checkout_payload["fee_amount"]
-            },
-            mode="payment",
-            success_url=f"https://mush-on.web.app/booking_success?bookingId={booking_id}&account={account}",
-            stripe_account=stripe_account_id,
+        session = _create_checkout_session_with_tax_rate_retry(
+            db,
+            account,
+            stripe_mode,
+            stripe_account_id,
+            checkout_payload,
+            booking_id,
         )
         checkout_session_id = session.id
         if checkout_session_id is None:
@@ -1401,37 +1585,6 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
         raise
     except Exception as e:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INTERNAL, str(e))
-
-
-@https_fn.on_call()
-def create_stripe_tax_rate(req: https_fn.CallableRequest[dict]) -> dict:
-    try:
-        data = req.data
-        account = data["account"]
-        _assert_account_member(req, account)
-        stripe_data = get_stripe_data(account)
-        stripe_mode, stripe_connection = get_active_mode_connection(stripe_data)
-        stripe_account_id = stripe_connection.get("accountId")
-        if not stripe_account_id:
-            raise https_fn.HttpsError(
-                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
-                "Stripe integration is missing accountId",
-            )
-        _set_stripe_api_key(stripe_mode)
-        percentage = data["percentage"]
-        percentage = round(percentage, 2)
-        response = stripe.TaxRate.create(
-            display_name="VAT",
-            inclusive=True,
-            percentage=percentage,
-            tax_type="vat",
-            stripe_account=stripe_account_id,
-        )
-        return {"tax_id": response.id}
-    except https_fn.HttpsError:
-        raise
-    except Exception as e:
-        return {"error": str(e)}
 
 
 @https_fn.on_request()

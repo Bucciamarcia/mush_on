@@ -316,11 +316,14 @@ class _FakeRefund:
 
 
 class _FakeCheckoutSession:
-    def __init__(self):
+    def __init__(self, failures=None):
         self.calls = []
+        self.failures = list(failures or [])
 
     def create(self, **kwargs):
         self.calls.append(kwargs)
+        if self.failures:
+            raise self.failures.pop(0)
         return types.SimpleNamespace(id="cs_123", url="https://checkout.test/session")
 
 
@@ -368,12 +371,14 @@ class _FakeAccountLink:
 
 
 class _FakeTaxRate:
-    def __init__(self):
+    def __init__(self, ids=None):
         self.calls = []
+        self.ids = list(ids or ["txr_123"])
 
     def create(self, **kwargs):
         self.calls.append(kwargs)
-        return types.SimpleNamespace(id="txr_123")
+        tax_rate_id = self.ids.pop(0) if self.ids else "txr_123"
+        return types.SimpleNamespace(id=tax_rate_id)
 
 
 class _FakeInvitationEmail:
@@ -1186,20 +1191,24 @@ class BackendSecurityTests(unittest.TestCase):
                 "isArchived": False,
                 "displayName": "Adult",
                 "priceCents": 10000,
-                "stripeTaxRateId": "txr_adult",
+                "vatRate": 0.255,
+                "stripeTaxRateId": "txr_stale_adult",
             },
             {
                 "id": "child",
                 "isArchived": False,
                 "displayName": "Child",
                 "priceCents": 5000,
-                "stripeTaxRateId": "txr_child",
+                "vatRate": 0.255,
+                "stripeTaxRateId": "txr_stale_child",
             },
         ]
         checkout = _FakeCheckoutSession()
+        tax_rate = _FakeTaxRate()
         main.firestore.client = lambda: db
         main.stripe.Account = _FakeStripeAccount(charges_enabled=True)
         main.stripe.checkout.Session = checkout
+        main.stripe.TaxRate = tax_rate
         request = types.SimpleNamespace(
             data={
                 "account": "account-1",
@@ -1233,7 +1242,7 @@ class BackendSecurityTests(unittest.TestCase):
                         "unit_amount": 10000,
                     },
                     "quantity": 2,
-                    "tax_rates": ["txr_adult"],
+                    "tax_rates": ["txr_123"],
                 },
                 {
                     "price_data": {
@@ -1246,10 +1255,13 @@ class BackendSecurityTests(unittest.TestCase):
                         "unit_amount": 5000,
                     },
                     "quantity": 1,
-                    "tax_rates": ["txr_child"],
+                    "tax_rates": ["txr_123"],
                 },
             ],
         )
+        self.assertEqual(len(tax_rate.calls), 1)
+        self.assertEqual(tax_rate.calls[0]["percentage"], 25.5)
+        self.assertEqual(tax_rate.calls[0]["stripe_account"], "acct_123")
         self.assertEqual(
             db.documents["checkoutSessions/cs_123"]["total"],
             25000,
@@ -1390,7 +1402,6 @@ class BackendSecurityTests(unittest.TestCase):
             (main.disconnect_stripe_account, {"account": "account-1"}),
             (main.get_stripe_integration_data, {"account": "account-1"}),
             (main.get_stripe_connection_status, {"account": "account-1"}),
-            (main.create_stripe_tax_rate, {"account": "account-1", "percentage": 25.5}),
         ]
 
         for fn, data in cases:
@@ -1825,31 +1836,6 @@ class BackendSecurityTests(unittest.TestCase):
 
         self.assertEqual(result, {"activeMode": "test", "isActive": True})
 
-    def test_create_stripe_tax_rate_requires_membership_and_uses_stored_account_id(self):
-        db = _FakeDb()
-        db.documents["users/user-1"] = {"account": "account-1"}
-        db.documents["accounts/account-1/integrations/stripe"] = {
-            "accountId": "acct_123",
-            "isActive": True,
-        }
-        tax_rate = _FakeTaxRate()
-        main.firestore.client = lambda: db
-        main.stripe.TaxRate = tax_rate
-        request = types.SimpleNamespace(
-            data={
-                "account": "account-1",
-                "percentage": 25.5,
-                "stripeAccountId": "acct_attacker",
-            },
-            auth=types.SimpleNamespace(uid="user-1"),
-        )
-
-        result = main.create_stripe_tax_rate(request)
-
-        self.assertEqual(result, {"tax_id": "txr_123"})
-        self.assertEqual(len(tax_rate.calls), 1)
-        self.assertEqual(tax_rate.calls[0]["stripe_account"], "acct_123")
-
     def test_create_booking_checkout_session_rejects_full_customer_group(self):
         db = _FakeDb()
         db.documents["accounts/account-1/integrations/stripe"] = {
@@ -2069,19 +2055,23 @@ class BackendSecurityTests(unittest.TestCase):
                 "isArchived": False,
                 "displayName": "Adult",
                 "priceCents": 10000,
-                "stripeTaxRateId": "txr_adult",
+                "vatRate": 0.255,
+                "stripeTaxRateId": "txr_stale_adult",
             },
             {
                 "id": "child",
                 "isArchived": False,
                 "displayName": "Child",
                 "priceCents": 5000,
+                "vatRate": 0,
             },
         ]
         checkout = _FakeCheckoutSession()
+        tax_rate = _FakeTaxRate()
         main.firestore.client = lambda: db
         main.stripe.Account = _FakeStripeAccount(charges_enabled=True)
         main.stripe.checkout.Session = checkout
+        main.stripe.TaxRate = tax_rate
         request = types.SimpleNamespace(
             data={
                 "account": "account-1",
@@ -2140,7 +2130,7 @@ class BackendSecurityTests(unittest.TestCase):
                         "unit_amount": 10000,
                     },
                     "quantity": 1,
-                    "tax_rates": ["txr_adult"],
+                    "tax_rates": ["txr_123"],
                 },
                 {
                     "price_data": {
@@ -2156,9 +2146,123 @@ class BackendSecurityTests(unittest.TestCase):
                 },
             ],
         )
+        self.assertEqual(len(tax_rate.calls), 1)
+        self.assertEqual(tax_rate.calls[0]["percentage"], 25.5)
         self.assertEqual(db.documents["checkoutSessions/cs_123"]["stripeId"], "acct_123")
         self.assertEqual(db.documents["checkoutSessions/cs_123"]["total"], 15000)
         self.assertEqual(db.documents["checkoutSessions/cs_123"]["commission"], 658)
+
+    def test_create_booking_checkout_session_reuses_cached_tax_rate(self):
+        db = _FakeDb()
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123",
+            "isActive": True,
+        }
+        db.documents["accounts/account-1/data/bookingManager"] = {
+            "commissionRate": 0.035,
+            "vatRate": 0.255,
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/customerGroups/cg-1"
+        ] = {
+            "id": "cg-1",
+            "tourTypeId": "tour-1",
+            "maxCapacity": 4,
+        }
+        db.collections[
+            "accounts/account-1/data/bookingManager/tours/tour-1/prices"
+        ] = [
+            {
+                "id": "adult",
+                "isArchived": False,
+                "displayName": "Adult",
+                "priceCents": 10000,
+                "vatRate": 0.255,
+            }
+        ]
+        cache_ref = main._tax_rate_cache_ref(
+            db, "account-1", "test", "acct_123", 25.5
+        )
+        db.documents[cache_ref.path] = {"taxRateId": "txr_cached"}
+        checkout = _FakeCheckoutSession()
+        tax_rate = _FakeTaxRate()
+        main.firestore.client = lambda: db
+        main.stripe.Account = _FakeStripeAccount(charges_enabled=True)
+        main.stripe.checkout.Session = checkout
+        main.stripe.TaxRate = tax_rate
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "tourId": "tour-1",
+                "booking": {"id": "booking-1", "customerGroupId": "cg-1"},
+                "customers": [{"id": "customer-1", "pricingId": "adult"}],
+            }
+        )
+
+        main.create_booking_checkout_session(request)
+
+        self.assertEqual(tax_rate.calls, [])
+        self.assertEqual(
+            checkout.calls[0]["line_items"][0]["tax_rates"],
+            ["txr_cached"],
+        )
+
+    def test_create_booking_checkout_session_replaces_stale_cached_tax_rate(self):
+        db = _FakeDb()
+        db.documents["accounts/account-1/integrations/stripe"] = {
+            "accountId": "acct_123",
+            "isActive": True,
+        }
+        db.documents["accounts/account-1/data/bookingManager"] = {
+            "commissionRate": 0.035,
+            "vatRate": 0.255,
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/customerGroups/cg-1"
+        ] = {
+            "id": "cg-1",
+            "tourTypeId": "tour-1",
+            "maxCapacity": 4,
+        }
+        db.collections[
+            "accounts/account-1/data/bookingManager/tours/tour-1/prices"
+        ] = [
+            {
+                "id": "adult",
+                "isArchived": False,
+                "displayName": "Adult",
+                "priceCents": 10000,
+                "vatRate": 0.255,
+            }
+        ]
+        cache_ref = main._tax_rate_cache_ref(
+            db, "account-1", "test", "acct_123", 25.5
+        )
+        db.documents[cache_ref.path] = {"taxRateId": "txr_stale"}
+        checkout = _FakeCheckoutSession(
+            failures=[Exception("No such tax rate: 'txr_stale'")]
+        )
+        tax_rate = _FakeTaxRate(ids=["txr_fresh"])
+        main.firestore.client = lambda: db
+        main.stripe.Account = _FakeStripeAccount(charges_enabled=True)
+        main.stripe.checkout.Session = checkout
+        main.stripe.TaxRate = tax_rate
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "tourId": "tour-1",
+                "booking": {"id": "booking-1", "customerGroupId": "cg-1"},
+                "customers": [{"id": "customer-1", "pricingId": "adult"}],
+            }
+        )
+
+        main.create_booking_checkout_session(request)
+
+        self.assertEqual(len(checkout.calls), 2)
+        self.assertEqual(checkout.calls[0]["line_items"][0]["tax_rates"], ["txr_stale"])
+        self.assertEqual(checkout.calls[1]["line_items"][0]["tax_rates"], ["txr_fresh"])
+        self.assertEqual(len(tax_rate.calls), 1)
+        self.assertEqual(db.documents[cache_ref.path]["taxRateId"], "txr_fresh")
 
     def test_refund_payment_reads_secret_payment_data_server_side_and_updates_booking(self):
         db = _FakeDb()

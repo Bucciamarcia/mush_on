@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'models.dart';
 
@@ -22,21 +21,7 @@ class ToursRepository {
     if (pricing != null) {
       try {
         for (var p in pricing) {
-          final taxStripe =
-              await FirebaseFunctions.instanceFor(region: "europe-north1")
-                  .httpsCallable("create_stripe_tax_rate")
-                  .call({"percentage": p.vatRate * 100, "account": account});
-          final tsData = taxStripe.data as Map<String, dynamic>;
-          final error = tsData["error"];
-          if (error != null) {
-            throw Exception("Error not null: ${error.toString()}");
-          }
-          final String taxRateId = tsData["tax_id"];
-          final pTax = p.copyWith(stripeTaxRateId: taxRateId);
-          batch.set(
-            _db.doc("$path/${tour.id}/prices/${pTax.id}"),
-            pTax.toJson(),
-          );
+          batch.set(_db.doc("$path/${tour.id}/prices/${p.id}"), p.toJson());
         }
       } catch (e, s) {
         logger.error(
