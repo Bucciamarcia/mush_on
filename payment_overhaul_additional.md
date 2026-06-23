@@ -1,0 +1,7 @@
+- Mass refund all bookings in a certain customergroup.
+- Daily manifest.
+- Addons to be put in cart.
+- gift cards / vouchers.
+- Per-person liability waiver.
+- Promo codes.
+- VAT invoice for b2b partner sales.
