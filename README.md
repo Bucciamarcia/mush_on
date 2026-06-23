@@ -158,3 +158,7 @@ A cool and open source CRM for sled dog kennels.
 - Fix various security bugs in user creation and invitation.
 - Can now archive dogs instead of deleting them.
 - Loading teamgroups in stats should now be faster.
+
+### 0.0.19
+
+- Fixes sometimes broken tax rate id for Stripe.
