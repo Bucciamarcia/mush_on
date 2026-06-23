@@ -307,6 +307,7 @@ class TeamViewer extends ConsumerWidget {
                   IconButton(
                     onPressed: () async {
                       var account = await ref.watch(accountProvider.future);
+                      if (!context.mounted) return;
                       showDialog(
                         context: context,
                         barrierDismissible: false,

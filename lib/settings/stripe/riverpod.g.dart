@@ -52,24 +52,62 @@ Map<String, dynamic> _$BookingCustomFieldToJson(_BookingCustomField instance) =>
 // RiverpodGenerator
 // **************************************************************************
 
-String _$stripeConnectionHash() => r'4baf134e47218c68ccac010d58c3eae9c5f4a7d4';
+String _$selectedStripeModeHash() =>
+    r'30c16339007b9acb142efcf44d4e3d9076307c6a';
 
-/// See also [stripeConnection].
-@ProviderFor(stripeConnection)
-final stripeConnectionProvider =
-    AutoDisposeStreamProvider<StripeConnection?>.internal(
-      stripeConnection,
-      name: r'stripeConnectionProvider',
+/// See also [selectedStripeMode].
+@ProviderFor(selectedStripeMode)
+final selectedStripeModeProvider =
+    AutoDisposeStreamProvider<StripeMode>.internal(
+      selectedStripeMode,
+      name: r'selectedStripeModeProvider',
       debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
           ? null
-          : _$stripeConnectionHash,
+          : _$selectedStripeModeHash,
       dependencies: null,
       allTransitiveDependencies: null,
     );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef StripeConnectionRef = AutoDisposeStreamProviderRef<StripeConnection?>;
+typedef SelectedStripeModeRef = AutoDisposeStreamProviderRef<StripeMode>;
+String _$stripeIntegrationActiveHash() =>
+    r'6a75b2756ad3b633e7ace439ea3dada82077786d';
+
+/// See also [stripeIntegrationActive].
+@ProviderFor(stripeIntegrationActive)
+final stripeIntegrationActiveProvider =
+    AutoDisposeStreamProvider<bool>.internal(
+      stripeIntegrationActive,
+      name: r'stripeIntegrationActiveProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$stripeIntegrationActiveHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef StripeIntegrationActiveRef = AutoDisposeStreamProviderRef<bool>;
+String _$stripeAccountsHash() => r'762a915b7e172296a0b0c117b2292d9773f271f7';
+
+/// See also [stripeAccounts].
+@ProviderFor(stripeAccounts)
+final stripeAccountsProvider =
+    AutoDisposeStreamProvider<List<StripeAccount>>.internal(
+      stripeAccounts,
+      name: r'stripeAccountsProvider',
+      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$stripeAccountsHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef StripeAccountsRef = AutoDisposeStreamProviderRef<List<StripeAccount>>;
 String _$bookingManagerKennelInfoHash() =>
     r'3b17ef822d7f273a2e7b773c3ad6982d8ed113e0';
 

@@ -179,6 +179,17 @@ class _DocRef:
         self.db.collections[parent] = without_existing
         self.db.sets.append((self.path, data))
 
+    def delete(self):
+        self.db.documents.pop(self.path, None)
+        parent = self.path.rsplit("/", 1)[0]
+        doc_id = self.path.rsplit("/", 1)[-1]
+        collection = self.db.collections.get(parent)
+        if collection is not None:
+            self.db.collections[parent] = [
+                item for item in collection if (item.get("id") or doc_id) != doc_id
+            ]
+        self.db.deletes.append(self.path)
+
     def collection(self, name):
         return _Query(self.db, f"{self.path}/{name}")
 
@@ -286,6 +297,7 @@ class _FakeDb:
         self.collections = {}
         self.updates = []
         self.sets = []
+        self.deletes = []
         self.batches = []
         self.transactions = []
 
@@ -1295,7 +1307,7 @@ class BackendSecurityTests(unittest.TestCase):
         self.assertEqual(result, {"error": "Stripe integration is not active"})
         self.assertEqual(checkout.calls, [])
         self.assertFalse(
-            db.documents["accounts/account-1/integrations/stripe"]["test"]["isActive"]
+            db.documents["accounts/account-1/integrations/stripe"]["isActive"]
         )
 
     def test_create_checkout_session_rejects_inactive_stripe_integration(self):
@@ -1361,13 +1373,19 @@ class BackendSecurityTests(unittest.TestCase):
         self.assertEqual(result, {"account": "acct_new"})
         self.assertEqual(len(account.calls), 1)
         stripe_doc = db.documents["accounts/account-1/integrations/stripe"]
-        self.assertEqual(stripe_doc["activeMode"], "test")
+        self.assertEqual(stripe_doc["selectedMode"], "test")
+        self.assertFalse(stripe_doc["isActive"])
+        account_doc = db.documents[
+            "accounts/account-1/integrations/stripe/accounts/acct_new"
+        ]
         self.assertEqual(
-            stripe_doc["test"]["accountId"],
+            account_doc["accountId"],
             "acct_new",
         )
-        self.assertFalse(stripe_doc["test"]["isActive"])
-        self.assertIn("connectedAt", stripe_doc["test"])
+        self.assertEqual(account_doc["mode"], "test")
+        self.assertFalse(account_doc["archived"])
+        self.assertNotIn("isActive", account_doc)
+        self.assertIn("connectedAt", account_doc)
 
     def test_stripe_create_account_rejects_wrong_account_user(self):
         db = _FakeDb()
@@ -1505,9 +1523,14 @@ class BackendSecurityTests(unittest.TestCase):
             {"activeMode": "test", "isActive": True, "chargesEnabled": True},
         )
         self.assertEqual(stripe_account.retrieve_calls, ["acct_123"])
-        stripe_doc = db.documents["accounts/account-1/integrations/stripe"]
-        self.assertTrue(stripe_doc["test"]["isActive"])
-        self.assertEqual(stripe_doc["test"]["connectedAt"], "connected-date")
+        self.assertTrue(
+            db.documents["accounts/account-1/integrations/stripe"]["isActive"]
+        )
+        account_doc = db.documents[
+            "accounts/account-1/integrations/stripe/accounts/acct_123"
+        ]
+        self.assertNotIn("isActive", account_doc)
+        self.assertEqual(account_doc["connectedAt"], "connected-date")
         attempt = db.documents[
             f"accounts/account-1/integrations/stripe/onboardingAttempts/{attempt_id}"
         ]
@@ -1544,7 +1567,7 @@ class BackendSecurityTests(unittest.TestCase):
 
         self.assertFalse(result["isActive"])
         self.assertFalse(
-            db.documents["accounts/account-1/integrations/stripe"]["test"]["isActive"]
+            db.documents["accounts/account-1/integrations/stripe"]["isActive"]
         )
 
     def test_finalize_stripe_onboarding_rejects_invalid_token(self):
@@ -1655,9 +1678,16 @@ class BackendSecurityTests(unittest.TestCase):
 
         self.assertEqual(result, {"activeMode": "test"})
         stripe_doc = db.documents["accounts/account-1/integrations/stripe"]
-        self.assertEqual(stripe_doc["activeMode"], "test")
+        self.assertEqual(stripe_doc["selectedMode"], "test")
         self.assertNotIn("test", stripe_doc)
-        self.assertEqual(stripe_doc["live"]["accountId"], "acct_live")
+        test_doc = db.documents[
+            "accounts/account-1/integrations/stripe/accounts/acct_test"
+        ]
+        live_doc = db.documents[
+            "accounts/account-1/integrations/stripe/accounts/acct_live"
+        ]
+        self.assertTrue(test_doc["archived"])
+        self.assertFalse(live_doc["archived"])
 
     def test_disconnect_stripe_account_removes_active_live_mode_only(self):
         db = _FakeDb()
@@ -1677,9 +1707,16 @@ class BackendSecurityTests(unittest.TestCase):
 
         self.assertEqual(result, {"activeMode": "live"})
         stripe_doc = db.documents["accounts/account-1/integrations/stripe"]
-        self.assertEqual(stripe_doc["activeMode"], "live")
+        self.assertEqual(stripe_doc["selectedMode"], "live")
         self.assertNotIn("live", stripe_doc)
-        self.assertEqual(stripe_doc["test"]["accountId"], "acct_test")
+        test_doc = db.documents[
+            "accounts/account-1/integrations/stripe/accounts/acct_test"
+        ]
+        live_doc = db.documents[
+            "accounts/account-1/integrations/stripe/accounts/acct_live"
+        ]
+        self.assertFalse(test_doc["archived"])
+        self.assertTrue(live_doc["archived"])
 
     def test_disconnect_stripe_account_cleans_legacy_flat_test_connection(self):
         db = _FakeDb()
@@ -1698,7 +1735,11 @@ class BackendSecurityTests(unittest.TestCase):
 
         self.assertEqual(result, {"activeMode": "test"})
         stripe_doc = db.documents["accounts/account-1/integrations/stripe"]
-        self.assertEqual(stripe_doc, {"activeMode": "test"})
+        self.assertEqual(stripe_doc, {"selectedMode": "test", "isActive": True})
+        legacy_doc = db.documents[
+            "accounts/account-1/integrations/stripe/accounts/acct_legacy"
+        ]
+        self.assertTrue(legacy_doc["archived"])
 
     def test_disconnect_stripe_account_rejects_wrong_account_user(self):
         db = _FakeDb()
@@ -1820,7 +1861,7 @@ class BackendSecurityTests(unittest.TestCase):
         self.assertEqual(result["disabledReason"], "requirements.past_due")
         self.assertIn("requirements.past_due", result["reason"])
         self.assertFalse(
-            db.documents["accounts/account-1/integrations/stripe"]["test"]["isActive"]
+            db.documents["accounts/account-1/integrations/stripe"]["isActive"]
         )
 
     def test_get_public_stripe_status_does_not_return_account_id(self):

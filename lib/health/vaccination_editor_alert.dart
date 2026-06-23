@@ -353,7 +353,9 @@ class _VaccinationEditorAlertState
                         confirmationSnackbar(context, "Vaccination added"),
                       );
                     }
-                    Navigator.of(context).pop();
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
                   } catch (e, s) {
                     BasicLogger().error(
                       "Couldn't add new vaccination",

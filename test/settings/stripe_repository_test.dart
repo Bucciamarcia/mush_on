@@ -52,27 +52,26 @@ class _FakeFirebaseStorage implements FirebaseStorage {
 
 void main() {
   group('StripeRepository', () {
-    test('changeStripeIntegrationActivation sends the selected mode', () async {
-      final functions = _FakeFirebaseFunctions();
-      final repository = StripeRepository(
-        account: 'account-1',
-        functions: functions,
-        firestore: FakeFirebaseFirestore(),
-        storage: _FakeFirebaseStorage(),
-      );
+    test(
+      'changeStripeIntegrationActivation updates the global active flag',
+      () async {
+        final functions = _FakeFirebaseFunctions();
+        final repository = StripeRepository(
+          account: 'account-1',
+          functions: functions,
+          firestore: FakeFirebaseFirestore(),
+          storage: _FakeFirebaseStorage(),
+        );
 
-      await repository.changeStripeIntegrationActivation(
-        true,
-        stripeMode: StripeMode.live,
-      );
+        await repository.changeStripeIntegrationActivation(true);
 
-      expect(functions.calledName, 'change_stripe_integration_activation');
-      expect(functions.callable.lastPayload, {
-        'account': 'account-1',
-        'isActive': true,
-        'stripeMode': 'live',
-      });
-    });
+        expect(functions.calledName, 'change_stripe_integration_activation');
+        expect(functions.callable.lastPayload, {
+          'account': 'account-1',
+          'isActive': true,
+        });
+      },
+    );
 
     test('disconnectActiveStripeConnection calls backend cleanup', () async {
       final functions = _FakeFirebaseFunctions();

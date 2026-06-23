@@ -71,7 +71,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
     final logger = BasicLogger();
     final imageState = ref.watch(kennelImageProvider(account: null));
     bool isLoading = imageState.isLoading;
-    Uint8List? image = imageState.value;
+    Uint8List? image = imageState.valueOrNull;
     ref.listen(bookingManagerKennelInfoProvider(account: null), (
       previous,
       next,
@@ -317,6 +317,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
         await StripeRepository(
           account: account,
         ).saveBookingManagerKennelInfo(toSubmit);
+        if (!mounted) return;
         ref
             .read(isCustomerCustomFieldsEditedProvider.notifier)
             .setEdited(false);
@@ -325,6 +326,7 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
           context,
         ).showSnackBar(confirmationSnackbar(context, "Data saved correctly"));
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(errorSnackBar(context, "Couldn't save the data"));

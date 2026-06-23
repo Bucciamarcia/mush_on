@@ -26,11 +26,13 @@ from lib.booking_reminders import send_booking_reminders
 from lib.send_invitation_email import SendInvitationEmail
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import (
-    get_active_mode_connection,
+    get_account_doc,
     get_checkout_stripe_api_key,
-    get_mode_connection,
+    get_connected_account_doc,
+    get_selected_stripe_mode,
     get_stripe_api_key,
     get_stripe_data,
+    get_stripe_integration_is_active,
     normalize_stripe_mode,
 )
 from lib.team_groups import rebuild_teamgroup_snapshot
@@ -115,30 +117,56 @@ def _stripe_not_ready_reason(account) -> str:
     return "Stripe is still reviewing this account before payments can start."
 
 
-def _set_mode_connection_active(
-    account: str, stripe_mode: str, connected_account_id: str, is_active: bool
-) -> None:
-    db = firestore.client()
-    ref = db.document(f"accounts/{account}/integrations/stripe")
-    existing = ref.get().to_dict() or {}
-    existing_connection = existing.get(stripe_mode)
-    connected_at = (
-        existing_connection.get("connectedAt")
-        if isinstance(existing_connection, dict)
-        else None
-    )
-    existing[stripe_mode] = {
-        "accountId": connected_account_id,
-        "isActive": is_active,
-        "connectedAt": connected_at,
-    }
-    existing["activeMode"] = stripe_mode
-    ref.set(existing)
-
-
 def _retrieve_connected_account(stripe_mode: str, connected_account_id: str):
     _set_stripe_api_key(stripe_mode)
     return stripe.Account.retrieve(connected_account_id)
+
+
+def _stripe_parent_ref(db, account: str):
+    return db.document(f"accounts/{account}/integrations/stripe")
+
+
+def _account_ref(db, account: str, account_id: str):
+    return db.document(f"accounts/{account}/integrations/stripe/accounts/{account_id}")
+
+
+def _archive_connected_account(db, account: str, stripe_mode: str) -> dict | None:
+    connection = get_connected_account_doc(account, stripe_mode)
+    if connection is None:
+        return None
+    account_id = connection.get("accountId")
+    if not account_id:
+        return None
+    _account_ref(db, account, account_id).update(
+        {"archived": True, "archivedAt": datetime.now(timezone.utc)}
+    )
+    return connection
+
+
+def _write_connected_account(
+    db,
+    account: str,
+    stripe_mode: str,
+    connected_account_id: str,
+) -> None:
+    now = datetime.now(timezone.utc)
+    existing = _account_ref(db, account, connected_account_id).get().to_dict() or {}
+    _account_ref(db, account, connected_account_id).set(
+        {
+            "accountId": connected_account_id,
+            "mode": normalize_stripe_mode(stripe_mode),
+            "archived": False,
+            "connectedAt": existing.get("connectedAt") or now,
+            "archivedAt": None,
+        }
+    )
+
+
+def _set_stripe_integration_active(db, account: str, is_active: bool) -> None:
+    ref = _stripe_parent_ref(db, account)
+    data = ref.get().to_dict() or {}
+    data["isActive"] = bool(is_active)
+    ref.set(data)
 
 
 def _verify_connected_account_can_charge(
@@ -149,14 +177,15 @@ def _verify_connected_account_can_charge(
         return False
     stripe_account = _retrieve_connected_account(stripe_mode, connected_account_id)
     charges_enabled = bool(_stripe_account_value(stripe_account, "charges_enabled"))
-    if not charges_enabled and connection.get("isActive"):
-        _set_mode_connection_active(account, stripe_mode, connected_account_id, False)
+    if not charges_enabled and get_stripe_integration_is_active(account):
+        db = firestore.client()
+        _set_stripe_integration_active(db, account, False)
     return charges_enabled
 
 
 def _stripe_connection_status(account: str) -> dict:
-    stripe_data = get_stripe_data(account)
-    stripe_mode, connection = get_active_mode_connection(stripe_data)
+    stripe_mode = get_selected_stripe_mode(account)
+    connection = get_connected_account_doc(account, stripe_mode) or {}
     connected_account_id = connection.get("accountId")
     if not connected_account_id:
         return {
@@ -178,8 +207,9 @@ def _stripe_connection_status(account: str) -> dict:
     )
     requirements = _stripe_account_requirements(stripe_account)
     disabled_reason = requirements.get("disabled_reason")
-    if not charges_enabled and connection.get("isActive"):
-        _set_mode_connection_active(account, stripe_mode, connected_account_id, False)
+    if not charges_enabled and get_stripe_integration_is_active(account):
+        db = firestore.client()
+        _set_stripe_integration_active(db, account, False)
     return {
         "activeMode": stripe_mode,
         "hasAccount": True,
@@ -192,55 +222,6 @@ def _stripe_connection_status(account: str) -> dict:
         if charges_enabled
         else _stripe_not_ready_reason(stripe_account),
     }
-
-
-def _save_stripe_mode_connection(
-    account_id: str, stripe_mode: str, connected_account_id: str
-) -> None:
-    stripe_mode = normalize_stripe_mode(stripe_mode)
-    db = firestore.client()
-    ref = db.document(f"accounts/{account_id}/integrations/stripe")
-    existing = ref.get().to_dict() or {}
-    existing_connection = existing.get(stripe_mode)
-    connected_at = (
-        existing_connection.get("connectedAt")
-        if isinstance(existing_connection, dict)
-        else None
-    )
-    existing[stripe_mode] = {
-        "accountId": connected_account_id,
-        "isActive": False,
-        "connectedAt": connected_at or datetime.now(timezone.utc),
-    }
-    existing["activeMode"] = (
-        normalize_stripe_mode(existing.get("activeMode"))
-        if existing.get("activeMode") is not None
-        else stripe_mode
-    )
-    ref.set(existing)
-
-
-def _disconnect_active_stripe_connection(account: str) -> str:
-    db = firestore.client()
-    ref = db.document(f"accounts/{account}/integrations/stripe")
-    existing = ref.get().to_dict() or {}
-    stripe_mode = normalize_stripe_mode(existing.get("activeMode"))
-    connection = get_mode_connection(existing, stripe_mode)
-    if not connection.get("accountId"):
-        raise https_fn.HttpsError(
-            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
-            "Stripe integration is missing accountId",
-        )
-
-    if stripe_mode in existing:
-        existing.pop(stripe_mode, None)
-    if stripe_mode == "test":
-        existing.pop("accountId", None)
-        existing.pop("isActive", None)
-
-    existing["activeMode"] = stripe_mode
-    ref.set(existing)
-    return stripe_mode
 
 
 def _webhook_secrets_by_mode() -> list[tuple[str, str]]:
@@ -1047,7 +1028,14 @@ def stripe_create_account(req: https_fn.CallableRequest[dict]) -> dict:
                 "sepa_debit_payments": {"requested": True},
             },
         )
-        _save_stripe_mode_connection(account_id, stripe_mode, account.id)
+        db = firestore.client()
+        _archive_connected_account(db, account_id, stripe_mode)
+        _write_connected_account(db, account_id, stripe_mode, account.id)
+        parent_ref = _stripe_parent_ref(db, account_id)
+        parent = parent_ref.get().to_dict() or {}
+        parent["selectedMode"] = normalize_stripe_mode(parent.get("selectedMode"))
+        parent["isActive"] = False
+        parent_ref.set(parent)
         return {"account": account.id}
     except https_fn.HttpsError:
         raise
@@ -1067,10 +1055,8 @@ def stripe_create_account_link(req: https_fn.CallableRequest[dict]) -> dict:
         _assert_account_member(req, account)
         stripe_mode = _stripe_mode_from_request(req)
         _set_stripe_api_key(stripe_mode)
-        stripe_data = get_stripe_data(account)
-        connected_account_id = get_mode_connection(stripe_data, stripe_mode).get(
-            "accountId"
-        )
+        connection = get_connected_account_doc(account, stripe_mode) or {}
+        connected_account_id = connection.get("accountId")
         if not connected_account_id:
             raise https_fn.HttpsError(
                 https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
@@ -1115,7 +1101,6 @@ def change_stripe_integration_activation(req: https_fn.CallableRequest[dict]) ->
         data = req.data
         account = data["account"]
         is_active = data["isActive"]
-        stripe_mode = normalize_stripe_mode(data.get("stripeMode"))
         if account is None or is_active is None:
             raise https_fn.HttpsError(
                 https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
@@ -1123,29 +1108,11 @@ def change_stripe_integration_activation(req: https_fn.CallableRequest[dict]) ->
             )
         _assert_account_member(req, account)
         db = firestore.client()
-        ref = db.document(f"accounts/{account}/integrations/stripe")
-        existing = ref.get().to_dict() or {}
-        connection = get_mode_connection(existing, stripe_mode)
-        if not connection.get("accountId"):
-            raise https_fn.HttpsError(
-                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
-                "Stripe integration is missing accountId",
-            )
-        existing_connection = existing.get(stripe_mode)
-        connected_at = (
-            existing_connection.get("connectedAt")
-            if isinstance(existing_connection, dict)
-            else None
-        )
-        ref.update(
-            {
-                stripe_mode: {
-                    "accountId": connection["accountId"],
-                    "isActive": is_active,
-                    "connectedAt": connected_at,
-                }
-            }
-        )
+        parent_ref = _stripe_parent_ref(db, account)
+        parent = parent_ref.get().to_dict() or {}
+        parent["selectedMode"] = normalize_stripe_mode(parent.get("selectedMode"))
+        parent["isActive"] = bool(is_active)
+        parent_ref.set(parent)
         return {}
     except https_fn.HttpsError:
         raise
@@ -1217,9 +1184,9 @@ def finalize_stripe_onboarding(req: https_fn.CallableRequest[dict]) -> dict:
 
         stripe_account = _retrieve_connected_account(stripe_mode, connected_account_id)
         charges_enabled = bool(_stripe_account_value(stripe_account, "charges_enabled"))
-        _set_mode_connection_active(
-            account, stripe_mode, connected_account_id, charges_enabled
-        )
+        get_account_doc(account, connected_account_id)
+        _write_connected_account(db, account, stripe_mode, connected_account_id)
+        _set_stripe_integration_active(db, account, charges_enabled)
         attempt_ref.update({"consumedAt": datetime.now(timezone.utc)})
         return {
             "activeMode": stripe_mode,
@@ -1243,8 +1210,107 @@ def disconnect_stripe_account(req: https_fn.CallableRequest[dict]) -> dict:
                 "account is null",
             )
         _assert_account_member(req, account)
-        stripe_mode = _disconnect_active_stripe_connection(account)
+        stripe_mode = normalize_stripe_mode(
+            data.get("stripeMode") or get_selected_stripe_mode(account)
+        )
+        archived = _archive_connected_account(firestore.client(), account, stripe_mode)
+        if archived is None:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "Stripe integration is missing accountId",
+            )
         return {"activeMode": stripe_mode}
+    except https_fn.HttpsError:
+        raise
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@https_fn.on_call()
+def reconnect_stripe_account(req: https_fn.CallableRequest[dict]) -> dict:
+    try:
+        data = req.data or {}
+        account = data.get("account")
+        account_id = data.get("accountId")
+        if not account or not account_id:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                "Missing account or accountId",
+            )
+        _assert_account_member(req, account)
+        stripe_mode = normalize_stripe_mode(data.get("stripeMode"))
+        target = get_account_doc(account, account_id)
+        if target is None:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.NOT_FOUND,
+                "Stripe account not found",
+            )
+        if normalize_stripe_mode(target.get("mode")) != stripe_mode:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "Stripe account belongs to a different mode",
+            )
+        db = firestore.client()
+        _archive_connected_account(db, account, stripe_mode)
+        _account_ref(db, account, account_id).update(
+            {"archived": False, "archivedAt": None}
+        )
+        return {"activeMode": stripe_mode}
+    except https_fn.HttpsError:
+        raise
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@https_fn.on_call()
+def delete_stripe_account(req: https_fn.CallableRequest[dict]) -> dict:
+    try:
+        data = req.data or {}
+        account = data.get("account")
+        account_id = data.get("accountId")
+        if not account or not account_id:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                "Missing account or accountId",
+            )
+        _assert_account_member(req, account)
+        target = get_account_doc(account, account_id)
+        if target is None:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.NOT_FOUND,
+                "Stripe account not found",
+            )
+        if target.get("archived") is False:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "Disconnect Stripe before deleting this account",
+            )
+        _account_ref(firestore.client(), account, account_id).delete()
+        return {}
+    except https_fn.HttpsError:
+        raise
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@https_fn.on_call()
+def set_selected_stripe_mode(req: https_fn.CallableRequest[dict]) -> dict:
+    try:
+        data = req.data or {}
+        account = data.get("account")
+        if not account:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                "Missing account",
+            )
+        _assert_account_member(req, account)
+        stripe_mode = normalize_stripe_mode(data.get("stripeMode"))
+        db = firestore.client()
+        ref = _stripe_parent_ref(db, account)
+        existing = ref.get().to_dict() or {}
+        existing["selectedMode"] = stripe_mode
+        ref.set(existing)
+        return {"selectedMode": stripe_mode}
     except https_fn.HttpsError:
         raise
     except Exception as e:
@@ -1296,14 +1362,10 @@ def get_public_stripe_status(req: https_fn.CallableRequest[dict]) -> dict:
             https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
             "Missing account",
         )
-    stripe_doc = (
-        firestore.client().document(f"accounts/{account}/integrations/stripe").get()
-    )
-    stripe_data = stripe_doc.to_dict() or {}
-    stripe_mode, connection = get_active_mode_connection(stripe_data)
+    stripe_mode = get_selected_stripe_mode(account)
     return {
         "activeMode": stripe_mode,
-        "isActive": bool(connection.get("isActive")),
+        "isActive": get_stripe_integration_is_active(account),
     }
 
 
@@ -1445,10 +1507,10 @@ def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
         if not account or not booking_id or not tour_id or not customer_group_id:
             return {"error": "account, bookingId, tourId or customerGroupId is null"}
 
-        stripe_data = get_stripe_data(account)
-        stripe_mode, stripe_connection = get_active_mode_connection(stripe_data)
+        stripe_mode = get_selected_stripe_mode(account)
+        stripe_connection = get_connected_account_doc(account, stripe_mode) or {}
         stripe_account_id = stripe_connection.get("accountId")
-        if not stripe_connection.get("isActive") or not stripe_account_id:
+        if not get_stripe_integration_is_active(account) or not stripe_account_id:
             return {"error": "Stripe integration is not active"}
         if not _verify_connected_account_can_charge(
             account, stripe_mode, stripe_connection
@@ -1508,10 +1570,10 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
                 "Missing account, tourId, booking or customers",
             )
 
-        stripe_data = get_stripe_data(account)
-        stripe_mode, stripe_connection = get_active_mode_connection(stripe_data)
+        stripe_mode = get_selected_stripe_mode(account)
+        stripe_connection = get_connected_account_doc(account, stripe_mode) or {}
         stripe_account_id = stripe_connection.get("accountId")
-        if not stripe_connection.get("isActive") or not stripe_account_id:
+        if not get_stripe_integration_is_active(account) or not stripe_account_id:
             raise https_fn.HttpsError(
                 https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
                 "Stripe integration is not active",

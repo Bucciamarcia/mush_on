@@ -91,7 +91,7 @@ class VaccinationDisplayCard extends ConsumerWidget {
                           event.title,
                           style: TextStyle(
                             fontSize: 13,
-                            color: textColor.withOpacity(0.8),
+                            color: textColor.withValues(alpha: 0.8),
                           ),
                         ),
                       ],
@@ -143,14 +143,14 @@ class VaccinationDisplayCard extends ConsumerWidget {
                   Icon(
                     Icons.calendar_today,
                     size: 14,
-                    color: textColor.withOpacity(0.6),
+                    color: textColor.withValues(alpha: 0.6),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     "Administered ${DateFormat("MMM d, yyyy").format(event.dateAdministered)}",
                     style: TextStyle(
                       fontSize: 12,
-                      color: textColor.withOpacity(0.6),
+                      color: textColor.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -184,14 +184,14 @@ class VaccinationDisplayCard extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: textColor.withOpacity(0.1),
+                  color: textColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   event.vaccinationType,
                   style: TextStyle(
                     fontSize: 11,
-                    color: textColor.withOpacity(0.8),
+                    color: textColor.withValues(alpha: 0.8),
                   ),
                 ),
               ),

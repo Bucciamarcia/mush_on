@@ -13,6 +13,275 @@ part of 'stripe_models.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
+mixin _$StripeAccount {
+
+ String get accountId; StripeMode get mode; bool get archived;@TimestampConverter() DateTime? get connectedAt;@TimestampConverter() DateTime? get archivedAt;
+/// Create a copy of StripeAccount
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$StripeAccountCopyWith<StripeAccount> get copyWith => _$StripeAccountCopyWithImpl<StripeAccount>(this as StripeAccount, _$identity);
+
+  /// Serializes this StripeAccount to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StripeAccount&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.archived, archived) || other.archived == archived)&&(identical(other.connectedAt, connectedAt) || other.connectedAt == connectedAt)&&(identical(other.archivedAt, archivedAt) || other.archivedAt == archivedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,accountId,mode,archived,connectedAt,archivedAt);
+
+@override
+String toString() {
+  return 'StripeAccount(accountId: $accountId, mode: $mode, archived: $archived, connectedAt: $connectedAt, archivedAt: $archivedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $StripeAccountCopyWith<$Res>  {
+  factory $StripeAccountCopyWith(StripeAccount value, $Res Function(StripeAccount) _then) = _$StripeAccountCopyWithImpl;
+@useResult
+$Res call({
+ String accountId, StripeMode mode, bool archived,@TimestampConverter() DateTime? connectedAt,@TimestampConverter() DateTime? archivedAt
+});
+
+
+
+
+}
+/// @nodoc
+class _$StripeAccountCopyWithImpl<$Res>
+    implements $StripeAccountCopyWith<$Res> {
+  _$StripeAccountCopyWithImpl(this._self, this._then);
+
+  final StripeAccount _self;
+  final $Res Function(StripeAccount) _then;
+
+/// Create a copy of StripeAccount
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? accountId = null,Object? mode = null,Object? archived = null,Object? connectedAt = freezed,Object? archivedAt = freezed,}) {
+  return _then(_self.copyWith(
+accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
+as String,mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
+as StripeMode,archived: null == archived ? _self.archived : archived // ignore: cast_nullable_to_non_nullable
+as bool,connectedAt: freezed == connectedAt ? _self.connectedAt : connectedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,archivedAt: freezed == archivedAt ? _self.archivedAt : archivedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [StripeAccount].
+extension StripeAccountPatterns on StripeAccount {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _StripeAccount value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _StripeAccount() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _StripeAccount value)  $default,){
+final _that = this;
+switch (_that) {
+case _StripeAccount():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _StripeAccount value)?  $default,){
+final _that = this;
+switch (_that) {
+case _StripeAccount() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String accountId,  StripeMode mode,  bool archived, @TimestampConverter()  DateTime? connectedAt, @TimestampConverter()  DateTime? archivedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _StripeAccount() when $default != null:
+return $default(_that.accountId,_that.mode,_that.archived,_that.connectedAt,_that.archivedAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String accountId,  StripeMode mode,  bool archived, @TimestampConverter()  DateTime? connectedAt, @TimestampConverter()  DateTime? archivedAt)  $default,) {final _that = this;
+switch (_that) {
+case _StripeAccount():
+return $default(_that.accountId,_that.mode,_that.archived,_that.connectedAt,_that.archivedAt);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String accountId,  StripeMode mode,  bool archived, @TimestampConverter()  DateTime? connectedAt, @TimestampConverter()  DateTime? archivedAt)?  $default,) {final _that = this;
+switch (_that) {
+case _StripeAccount() when $default != null:
+return $default(_that.accountId,_that.mode,_that.archived,_that.connectedAt,_that.archivedAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _StripeAccount implements StripeAccount {
+  const _StripeAccount({required this.accountId, required this.mode, this.archived = false, @TimestampConverter() this.connectedAt, @TimestampConverter() this.archivedAt});
+  factory _StripeAccount.fromJson(Map<String, dynamic> json) => _$StripeAccountFromJson(json);
+
+@override final  String accountId;
+@override final  StripeMode mode;
+@override@JsonKey() final  bool archived;
+@override@TimestampConverter() final  DateTime? connectedAt;
+@override@TimestampConverter() final  DateTime? archivedAt;
+
+/// Create a copy of StripeAccount
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$StripeAccountCopyWith<_StripeAccount> get copyWith => __$StripeAccountCopyWithImpl<_StripeAccount>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$StripeAccountToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StripeAccount&&(identical(other.accountId, accountId) || other.accountId == accountId)&&(identical(other.mode, mode) || other.mode == mode)&&(identical(other.archived, archived) || other.archived == archived)&&(identical(other.connectedAt, connectedAt) || other.connectedAt == connectedAt)&&(identical(other.archivedAt, archivedAt) || other.archivedAt == archivedAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,accountId,mode,archived,connectedAt,archivedAt);
+
+@override
+String toString() {
+  return 'StripeAccount(accountId: $accountId, mode: $mode, archived: $archived, connectedAt: $connectedAt, archivedAt: $archivedAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$StripeAccountCopyWith<$Res> implements $StripeAccountCopyWith<$Res> {
+  factory _$StripeAccountCopyWith(_StripeAccount value, $Res Function(_StripeAccount) _then) = __$StripeAccountCopyWithImpl;
+@override @useResult
+$Res call({
+ String accountId, StripeMode mode, bool archived,@TimestampConverter() DateTime? connectedAt,@TimestampConverter() DateTime? archivedAt
+});
+
+
+
+
+}
+/// @nodoc
+class __$StripeAccountCopyWithImpl<$Res>
+    implements _$StripeAccountCopyWith<$Res> {
+  __$StripeAccountCopyWithImpl(this._self, this._then);
+
+  final _StripeAccount _self;
+  final $Res Function(_StripeAccount) _then;
+
+/// Create a copy of StripeAccount
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? accountId = null,Object? mode = null,Object? archived = null,Object? connectedAt = freezed,Object? archivedAt = freezed,}) {
+  return _then(_StripeAccount(
+accountId: null == accountId ? _self.accountId : accountId // ignore: cast_nullable_to_non_nullable
+as String,mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_nullable
+as StripeMode,archived: null == archived ? _self.archived : archived // ignore: cast_nullable_to_non_nullable
+as bool,connectedAt: freezed == connectedAt ? _self.connectedAt : connectedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,archivedAt: freezed == archivedAt ? _self.archivedAt : archivedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$StripeConnection {
 
  StripeModeConnection? get live; StripeModeConnection? get test;/// The currently selected payment mode.

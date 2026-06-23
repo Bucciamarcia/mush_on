@@ -6,6 +6,20 @@ part 'stripe_models.freezed.dart';
 part 'stripe_models.g.dart';
 
 @freezed
+sealed class StripeAccount with _$StripeAccount {
+  const factory StripeAccount({
+    required String accountId,
+    required StripeMode mode,
+    @Default(false) bool archived,
+    @TimestampConverter() DateTime? connectedAt,
+    @TimestampConverter() DateTime? archivedAt,
+  }) = _StripeAccount;
+
+  factory StripeAccount.fromJson(Map<String, dynamic> json) =>
+      _$StripeAccountFromJson(json);
+}
+
+@freezed
 sealed class StripeConnection with _$StripeConnection {
   @JsonSerializable(explicitToJson: true)
   const factory StripeConnection({

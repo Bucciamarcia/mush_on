@@ -39,7 +39,7 @@ class _PedigreeCanvasState extends ConsumerState<PedigreeCanvas> {
     final delta = parentCenter - childCenter;
 
     _transformationController.value = Matrix4.identity()
-      ..translate(delta.dx, delta.dy);
+      ..translateByDouble(delta.dx, delta.dy, 0, 1);
     _didCenter = true;
   }
 
@@ -259,7 +259,7 @@ class SingleDogDisplay extends ConsumerWidget {
           child: (bytes == null) ? const Icon(Icons.pets) : null,
         ),
         loading: () => const CircleAvatar(child: CircularProgressIndicator()),
-        error: (_, __) => const CircleAvatar(child: Icon(Icons.pets)),
+        error: (_, _) => const CircleAvatar(child: Icon(Icons.pets)),
       );
     }
 

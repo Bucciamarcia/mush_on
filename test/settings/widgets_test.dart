@@ -129,15 +129,30 @@ List<Override> _settingsPageOverrides({
     bookingManagerKennelInfoProvider(
       account: null,
     ).overrideWith((_) => Stream.value(null)),
-    stripeConnectionProvider.overrideWith(
-      (_) => Stream.value(stripeConnection),
-    ),
   ];
   final activeConnection = stripeConnection == null
       ? null
       : stripeConnection.activeMode == StripeMode.live
       ? stripeConnection.live
       : stripeConnection.test;
+  final selectedMode = stripeConnection?.activeMode ?? StripeMode.test;
+  final stripeAccounts = activeConnection == null
+      ? const <StripeAccount>[]
+      : [
+          StripeAccount(
+            accountId: activeConnection.accountId,
+            mode: selectedMode,
+            archived: false,
+            connectedAt: activeConnection.connectedAt,
+          ),
+        ];
+  overrides.addAll([
+    selectedStripeModeProvider.overrideWith((_) => Stream.value(selectedMode)),
+    stripeIntegrationActiveProvider.overrideWith(
+      (_) => Stream.value(activeConnection?.isActive ?? false),
+    ),
+    stripeAccountsProvider.overrideWith((_) => Stream.value(stripeAccounts)),
+  ]);
   if (activeConnection?.accountId.isNotEmpty == true) {
     overrides.add(
       stripeConnectionStatusProvider('account-1').overrideWith((_) async {
@@ -465,7 +480,12 @@ void main() {
           ).overrideWith(() => _FakeUserProfilePic()),
           accountProvider.overrideWith((_) => Stream.value('account-1')),
           settingsProvider.overrideWith((_) => Stream.value(baseSettings)),
-          stripeConnectionProvider.overrideWith((_) => Stream.value(null)),
+          selectedStripeModeProvider.overrideWith(
+            (_) => Stream.value(StripeMode.test),
+          ),
+          stripeAccountsProvider.overrideWith(
+            (_) => Stream.value(const <StripeAccount>[]),
+          ),
         ],
       );
       await tester.pumpAndSettle();
@@ -512,7 +532,12 @@ void main() {
           ).overrideWith(() => _FakeUserProfilePic()),
           accountProvider.overrideWith((_) => Stream.value('account-1')),
           settingsProvider.overrideWith((_) => Stream.value(baseSettings)),
-          stripeConnectionProvider.overrideWith((_) => Stream.value(null)),
+          selectedStripeModeProvider.overrideWith(
+            (_) => Stream.value(StripeMode.test),
+          ),
+          stripeAccountsProvider.overrideWith(
+            (_) => Stream.value(const <StripeAccount>[]),
+          ),
         ],
       );
       await tester.pumpAndSettle();
@@ -565,7 +590,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("You don't have access to this page."), findsOneWidget);
-      expect(find.text('Connect Stripe'), findsNothing);
+      expect(find.text('Create a Stripe account'), findsNothing);
     });
 
     testWidgets('allows mushers to open billing settings directly', (
@@ -580,7 +605,7 @@ void main() {
 
       expect(find.text("You don't have access to this page."), findsNothing);
       expect(find.text('Billing & Payments'), findsOneWidget);
-      expect(find.text('Connect Stripe'), findsOneWidget);
+      expect(find.text('Create a Stripe account'), findsOneWidget);
     });
 
     testWidgets('shows disconnect action for connected active Stripe mode', (
@@ -602,7 +627,7 @@ void main() {
 
       expect(find.text('Test mode ready'), findsOneWidget);
       expect(find.text('Disconnect Stripe'), findsOneWidget);
-      expect(find.text('Connect Stripe'), findsNothing);
+      expect(find.text('Create a Stripe account'), findsNothing);
     });
 
     testWidgets('hides payment settings while Stripe setup is incomplete', (

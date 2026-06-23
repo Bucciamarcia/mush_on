@@ -6,6 +6,30 @@ part of 'stripe_models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+_StripeAccount _$StripeAccountFromJson(Map<String, dynamic> json) =>
+    _StripeAccount(
+      accountId: json['accountId'] as String,
+      mode: $enumDecode(_$StripeModeEnumMap, json['mode']),
+      archived: json['archived'] as bool? ?? false,
+      connectedAt: const TimestampConverter().fromJson(
+        json['connectedAt'] as Timestamp?,
+      ),
+      archivedAt: const TimestampConverter().fromJson(
+        json['archivedAt'] as Timestamp?,
+      ),
+    );
+
+Map<String, dynamic> _$StripeAccountToJson(_StripeAccount instance) =>
+    <String, dynamic>{
+      'accountId': instance.accountId,
+      'mode': _$StripeModeEnumMap[instance.mode]!,
+      'archived': instance.archived,
+      'connectedAt': const TimestampConverter().toJson(instance.connectedAt),
+      'archivedAt': const TimestampConverter().toJson(instance.archivedAt),
+    };
+
+const _$StripeModeEnumMap = {StripeMode.live: 'live', StripeMode.test: 'test'};
+
 _StripeConnection _$StripeConnectionFromJson(Map<String, dynamic> json) =>
     _StripeConnection(
       live: json['live'] == null
@@ -25,8 +49,6 @@ Map<String, dynamic> _$StripeConnectionToJson(_StripeConnection instance) =>
       'test': instance.test?.toJson(),
       'activeMode': _$StripeModeEnumMap[instance.activeMode]!,
     };
-
-const _$StripeModeEnumMap = {StripeMode.live: 'live', StripeMode.test: 'test'};
 
 _StripeModeConnection _$StripeModeConnectionFromJson(
   Map<String, dynamic> json,

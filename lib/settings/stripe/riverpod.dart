@@ -12,16 +12,21 @@ part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
 
 @riverpod
-Stream<StripeConnection?> stripeConnection(Ref ref) async* {
+Stream<StripeMode> selectedStripeMode(Ref ref) async* {
   final String account = await ref.watch(accountProvider.future);
-  final db = FirebaseFirestore.instance;
-  String path = "accounts/$account/integrations/stripe";
-  final doc = db.doc(path);
-  yield* doc.snapshots().map((snapshot) {
-    final data = snapshot.data();
-    if (data == null) return null;
-    return StripeConnection.fromJson(data);
-  });
+  yield* StripeRepository(account: account).selectedMode();
+}
+
+@riverpod
+Stream<bool> stripeIntegrationActive(Ref ref) async* {
+  final String account = await ref.watch(accountProvider.future);
+  yield* StripeRepository(account: account).stripeIntegrationActive();
+}
+
+@riverpod
+Stream<List<StripeAccount>> stripeAccounts(Ref ref) async* {
+  final String account = await ref.watch(accountProvider.future);
+  yield* StripeRepository(account: account).stripeAccounts();
 }
 
 @riverpod

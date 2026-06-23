@@ -20,14 +20,15 @@ String _customerLabel(
 ) {
   final pricing = pricings.firstWhereOrNull((p) => p.id == customer.pricingId);
   final pricingName = pricing?.name ?? "customer";
-  final sameCategory = allCustomers
-      .where(
-        (c) =>
-            c.bookingId == customer.bookingId &&
-            c.pricingId == customer.pricingId,
-      )
-      .toList()
-    ..sort((a, b) => a.id.compareTo(b.id));
+  final sameCategory =
+      allCustomers
+          .where(
+            (c) =>
+                c.bookingId == customer.bookingId &&
+                c.pricingId == customer.pricingId,
+          )
+          .toList()
+        ..sort((a, b) => a.id.compareTo(b.id));
   final index = sameCategory.indexWhere((c) => c.id == customer.id);
   return "$pricingName - ${index + 1}";
 }
@@ -436,17 +437,14 @@ class CustomerActionChip extends ConsumerWidget {
   }
 
   void _showBookingInfo(BuildContext context, String customerLabel) {
-    final bookingCustomers = allCustomers
-        .where((c) => c.bookingId == booking.id)
-        .toList()
-      ..sort((a, b) => a.id.compareTo(b.id));
+    final bookingCustomers =
+        allCustomers.where((c) => c.bookingId == booking.id).toList()
+          ..sort((a, b) => a.id.compareTo(b.id));
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          booking.name.isNotEmpty ? booking.name : "Booking info",
-        ),
+        title: Text(booking.name.isNotEmpty ? booking.name : "Booking info"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,9 +454,9 @@ class CustomerActionChip extends ConsumerWidget {
             if (booking.phone != null && booking.phone!.isNotEmpty)
               Text("Phone: ${booking.phone}"),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               "Customers in this booking:",
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
             ...bookingCustomers.map((c) {
               final lbl = _customerLabel(c, allCustomers, pricings);

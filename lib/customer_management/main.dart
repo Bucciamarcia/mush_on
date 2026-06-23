@@ -371,13 +371,16 @@ class _BookingCardInGroup extends ConsumerWidget {
           builder: (_) => BookingEditorAlert(
             selectedCustomerGroup: selectedCustomerGroup,
             booking: booking,
-            onBookingDeleted: () async => await customerRepo
-                .deleteBooking(booking.id)
-                .catchError(
-                  (e) => ScaffoldMessenger.of(context).showSnackBar(
-                    errorSnackBar(context, "Failed to delete booking."),
-                  ),
-                ),
+            onBookingDeleted: () async {
+              try {
+                await customerRepo.deleteBooking(booking.id);
+              } catch (e) {
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  errorSnackBar(context, "Failed to delete booking."),
+                );
+              }
+            },
             onBookingEdited: (nb) async {
               await customerRepo.setBooking(nb);
               ref.invalidate(bookingsByCustomerGroupIdProvider);

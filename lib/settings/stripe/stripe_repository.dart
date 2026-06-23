@@ -48,19 +48,84 @@ class StripeRepository {
     }
   }
 
-  /// Flips the `isActive` parameter for stripe integration.
-  Future<bool> changeStripeIntegrationActivation(
-    bool newStatus, {
-    StripeMode stripeMode = StripeMode.test,
+  Future<void> _callStripeCommand(
+    String callableName,
+    Map<String, dynamic> payload,
+  ) async {
+    final result = await functions.httpsCallable(callableName).call(payload);
+    final data = result.data as Map<String, dynamic>;
+    final error = data["error"];
+    if (error != null) {
+      throw Exception("Error not null: ${error.toString()}");
+    }
+  }
+
+  Future<void> setSelectedMode(StripeMode mode) async {
+    try {
+      await _callStripeCommand("set_selected_stripe_mode", {
+        "account": account,
+        "stripeMode": mode.name,
+      });
+    } catch (e, s) {
+      logger.error("Couldn't set Stripe mode", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> reconnectStripeAccount({
+    required String accountId,
+    required StripeMode stripeMode,
   }) async {
+    try {
+      await _callStripeCommand("reconnect_stripe_account", {
+        "account": account,
+        "accountId": accountId,
+        "stripeMode": stripeMode.name,
+      });
+    } catch (e, s) {
+      logger.error(
+        "Couldn't reconnect Stripe account",
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> deleteStripeAccount({required String accountId}) async {
+    try {
+      await _callStripeCommand("delete_stripe_account", {
+        "account": account,
+        "accountId": accountId,
+      });
+    } catch (e, s) {
+      logger.error("Couldn't delete Stripe account", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  Future<void> disconnectStripeAccount({required StripeMode stripeMode}) async {
+    try {
+      await _callStripeCommand("disconnect_stripe_account", {
+        "account": account,
+        "stripeMode": stripeMode.name,
+      });
+    } catch (e, s) {
+      logger.error(
+        "Couldn't disconnect Stripe integration",
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Flips the `isActive` parameter for stripe integration.
+  Future<bool> changeStripeIntegrationActivation(bool newStatus) async {
     try {
       final result = await functions
           .httpsCallable("change_stripe_integration_activation")
-          .call({
-            "account": account,
-            "isActive": newStatus,
-            "stripeMode": stripeMode.name,
-          });
+          .call({"account": account, "isActive": newStatus});
       final data = result.data as Map<String, dynamic>;
       final error = data["error"];
       if (error != null) {
@@ -79,14 +144,9 @@ class StripeRepository {
 
   Future<void> disconnectActiveStripeConnection() async {
     try {
-      final result = await functions
-          .httpsCallable("disconnect_stripe_account")
-          .call({"account": account});
-      final data = result.data as Map<String, dynamic>;
-      final error = data["error"];
-      if (error != null) {
-        throw Exception("Error not null: ${error.toString()}");
-      }
+      await _callStripeCommand("disconnect_stripe_account", {
+        "account": account,
+      });
     } catch (e, s) {
       logger.error(
         "Couldn't disconnect Stripe integration",
@@ -197,6 +257,43 @@ class StripeRepository {
       final data = snapshot.data();
       if (data == null) return null;
       return StripeConnection.fromJson(data);
+    });
+  }
+
+  Stream<StripeMode> selectedMode() async* {
+    String path = "accounts/$account/integrations/stripe";
+    final doc = db.doc(path);
+    yield* doc.snapshots().map((snapshot) {
+      final data = snapshot.data();
+      return data?["selectedMode"] == "live"
+          ? StripeMode.live
+          : StripeMode.test;
+    });
+  }
+
+  Stream<bool> stripeIntegrationActive() async* {
+    String path = "accounts/$account/integrations/stripe";
+    final doc = db.doc(path);
+    yield* doc.snapshots().map((snapshot) {
+      final data = snapshot.data();
+      return data?["isActive"] == true;
+    });
+  }
+
+  Stream<List<StripeAccount>> stripeAccounts({StripeMode? mode}) async* {
+    final path = "accounts/$account/integrations/stripe/accounts";
+    Query<Map<String, dynamic>> query = db.collection(path);
+    if (mode != null) {
+      query = query.where("mode", isEqualTo: mode.name);
+    }
+    yield* query.snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return StripeAccount.fromJson({
+          ...data,
+          "accountId": data["accountId"] ?? doc.id,
+        });
+      }).toList();
     });
   }
 

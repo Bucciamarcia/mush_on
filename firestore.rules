@@ -83,9 +83,28 @@ service cloud.firestore {
 		}
 
 
-    // Restrict account data to the user's assigned account
-    match /accounts/{account}/{document=**} {
-      allow read, write: if isSignedIn() && userAccount() == account;
+    // Restrict account data to the user's assigned account.
+    match /accounts/{account} {
+      allow read, write: if isAccountMember(account);
+    }
+
+    match /accounts/{account}/integrations/{integration}/{document=**} {
+      allow read, write: if isAccountMember(account) && integration != "stripe";
+    }
+
+    match /accounts/{account}/integrations/stripe {
+      allow read: if isAccountMember(account);
+      allow write: if false;
+    }
+
+    match /accounts/{account}/integrations/stripe/accounts/{stripeAccount} {
+      allow read: if isAccountMember(account);
+      allow write: if false;
+    }
+
+    match /accounts/{account}/{collection}/{document=**} {
+      allow read, write: if isAccountMember(account) &&
+        collection != "integrations";
     }
     
     // Checkout sessions contain payment metadata and are server-only.
