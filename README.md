@@ -165,3 +165,4 @@ A cool and open source CRM for sled dog kennels.
 - Adds test | live toggle in stripe connection.
 - Can archive stripe connections without deleting.
 - Adds partner portal.
+- Adds financial dashboard.

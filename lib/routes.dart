@@ -18,6 +18,7 @@ import 'package:mush_on/settings/sections/workspace.dart';
 import 'package:mush_on/settings/settings.dart';
 import 'package:mush_on/tasks/tasks.dart';
 import 'package:mush_on/teams_history/teams_history.dart';
+import 'package:mush_on/stats/financial/financial_dashboard.dart';
 import 'package:mush_on/stats/stats.dart';
 import 'package:mush_on/whiteboard/whiteboard.dart';
 import 'customer_facing/booking_page/booking_page.dart';
@@ -57,6 +58,11 @@ final goRoutes = GoRouter(
       builder: (context, state) => const TeamsHistoryScreen(),
     ),
     GoRoute(path: "/stats", builder: (context, state) => const StatsScreen()),
+    GoRoute(
+      path: "/financial",
+      name: "financialDashboard",
+      builder: (context, state) => const FinancialDashboardScreen(),
+    ),
     GoRoute(
       path: "/settings",
       builder: (context, state) => const SettingsScreen(),

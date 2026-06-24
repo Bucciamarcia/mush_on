@@ -251,6 +251,12 @@ class TemplateScreen extends ConsumerWidget {
                         onTap: () => context.go("/stats"),
                         title: const Text("Stats"),
                       ),
+                      if (userName.userLevel.rank >= UserLevel.musher.rank)
+                        ListTile(
+                          leading: const Icon(Icons.euro),
+                          onTap: () => context.go("/financial"),
+                          title: const Text("Financial"),
+                        ),
                       const Divider(),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(

@@ -212,7 +212,18 @@ You can trigger schedulers manually from Cloud Scheduler to test without waiting
 
 ## 8. Financial dashboard (revenue aggregation)
 
-Using the seeded data above (or `computeFinancialSummary` over real records):
+Open it from the menu under **Data → Financial** (musher only; the entry is
+hidden for handlers), or navigate to `/financial`. It calls the
+`get_financial_records` function (which reads the server-only `checkoutSessions`
+for commission) and renders the summary via `computeFinancialSummary`.
+
+- [ ] A **handler** does not see the **Financial** menu entry, and opening
+      `/financial` directly shows "You don't have access to this page."
+- [ ] As a **musher**, the page loads with the metric cards + two breakdowns.
+- [ ] The **Date range** button filters the figures (start inclusive, picked end
+      day inclusive in the UI); **Clear** returns to "All time".
+
+Numbers to verify against the seeded data:
 
 - [ ] **Gross revenue** = sum of `paid` + `paidOffPlatform` totals.
 - [ ] **Commission** accrues **only** on `paid` (on-platform).

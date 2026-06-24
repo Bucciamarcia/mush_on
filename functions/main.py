@@ -30,6 +30,7 @@ from lib.deferred_payment_reminders import (
     _should_send_deferred_reminder,
     send_deferred_payment_reminders,
 )
+from lib.financial_records import build_financial_records
 from lib.send_invitation_email import SendInvitationEmail
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import (
@@ -1962,6 +1963,30 @@ def mark_booking_paid_off_platform(req: https_fn.CallableRequest[dict]) -> dict:
         f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}"
     ).update({"paymentStatus": "paidOffPlatform"})
     return {"ok": True}
+
+
+@https_fn.on_call()
+def get_financial_records(req: https_fn.CallableRequest[dict]) -> dict:
+    """Return revenue-bearing records for the financial dashboard.
+
+    Musher-only: the commission figures live on the server-only
+    ``checkoutSessions`` collection, so the client cannot assemble these itself.
+    """
+    data = req.data or {}
+    account = data.get("account")
+    if not account:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT, "Missing account"
+        )
+    _assert_account_member(req, account)
+    db = firestore.client()
+    user_data = db.document(f"users/{req.auth.uid}").get().to_dict() or {}
+    if user_data.get("userLevel") != "musher":
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "Financial data is restricted to mushers",
+        )
+    return {"records": build_financial_records(db=db, account=account)}
 
 
 # Run once a day to send payment-due reminders to partners for deferred

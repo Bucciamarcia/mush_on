@@ -436,6 +436,99 @@ class DeferredReminderDateMathTests(unittest.TestCase):
         self.assertFalse(main._should_send_deferred_reminder(due, date(2026, 7, 1)))
 
 
+class FinancialRecordsTests(unittest.TestCase):
+    def _seed(self, db):
+        db.documents["accounts/account-1/data/bookingManager/customerGroups/cg-1"] = {
+            "id": "cg-1",
+            "tourTypeId": "tour-1",
+            "datetime": datetime(2026, 7, 1, 10, 0, tzinfo=timezone.utc),
+        }
+        # On-platform paid: total + commission come from the checkoutSession.
+        db.documents["accounts/account-1/data/bookingManager/bookings/b-paid"] = {
+            "id": "b-paid",
+            "customerGroupId": "cg-1",
+            "paymentStatus": "paid",
+            "partner": "partner-1",
+            "totalCents": 9000,
+        }
+        db.documents["checkoutSessions/cs-1"] = {
+            "checkoutSessionId": "cs-1",
+            "account": "account-1",
+            "bookingId": "b-paid",
+            "total": 9000,
+            "commission": 395,
+            "partner": "partner-1",
+        }
+        # Off-platform: no session, no commission.
+        db.documents["accounts/account-1/data/bookingManager/bookings/b-off"] = {
+            "id": "b-off",
+            "customerGroupId": "cg-1",
+            "paymentStatus": "paidOffPlatform",
+            "totalCents": 5000,
+        }
+        # Deferred: outstanding, no commission.
+        db.documents["accounts/account-1/data/bookingManager/bookings/b-def"] = {
+            "id": "b-def",
+            "customerGroupId": "cg-1",
+            "paymentStatus": "deferredPayment",
+            "totalCents": 8000,
+        }
+        # Waiting: not revenue-bearing, must be skipped.
+        db.documents["accounts/account-1/data/bookingManager/bookings/b-wait"] = {
+            "id": "b-wait",
+            "customerGroupId": "cg-1",
+            "paymentStatus": "waiting",
+            "totalCents": 1000,
+        }
+
+    def _request(self):
+        return types.SimpleNamespace(
+            data={"account": "account-1"},
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+    def test_musher_gets_joined_records_with_commission(self):
+        db = _FakeDb()
+        self._seed(db)
+        db.documents["users/user-1"] = {
+            "account": "account-1",
+            "userLevel": "musher",
+        }
+        main.firestore.client = lambda: db
+
+        result = main.get_financial_records(self._request())
+        records = {r["status"]: r for r in result["records"]}
+
+        # waiting booking is excluded.
+        self.assertEqual(len(result["records"]), 3)
+        self.assertNotIn("waiting", records)
+
+        paid = records["paid"]
+        self.assertEqual(paid["totalCents"], 9000)
+        self.assertEqual(paid["commissionCents"], 395)
+        self.assertEqual(paid["partner"], "partner-1")
+        self.assertEqual(paid["tourTypeId"], "tour-1")
+        self.assertTrue(paid["date"].startswith("2026-07-01"))
+
+        # Off-platform / deferred never carry commission.
+        self.assertEqual(records["paidOffPlatform"]["commissionCents"], 0)
+        self.assertEqual(records["deferredPayment"]["commissionCents"], 0)
+        self.assertEqual(records["deferredPayment"]["totalCents"], 8000)
+
+    def test_non_musher_is_rejected(self):
+        db = _FakeDb()
+        self._seed(db)
+        db.documents["users/user-1"] = {
+            "account": "account-1",
+            "userLevel": "handler",
+        }
+        main.firestore.client = lambda: db
+
+        with self.assertRaises(_HttpsError) as error:
+            main.get_financial_records(self._request())
+        self.assertEqual(error.exception.code, "permission-denied")
+
+
 def main_requests():
     """The `requests` module object used inside main, for patching .post."""
     return main.requests
