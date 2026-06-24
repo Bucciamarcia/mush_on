@@ -374,37 +374,6 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text("Cancel", style: TextStyle(color: colorScheme.error)),
         ),
-        TextButton(
-          onPressed: () async => await showDialog(
-            context: context,
-            builder: (_) => AlertDialog.adaptive(
-              title: const Text("Are you sure?"),
-              content: const Text(
-                "Are you sure you want to delete this booking? It will be gone forever. All customers will be deleted too!",
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(
-                    "Nevermind",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    widget.onBookingDeleted();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("Proceed"),
-                ),
-              ],
-            ),
-          ),
-          child: const Text("Delete this booking"),
-        ),
         FilledButton.icon(
           style: FilledButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

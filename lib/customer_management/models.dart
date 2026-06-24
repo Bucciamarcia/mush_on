@@ -78,6 +78,7 @@ sealed class Booking with _$Booking {
     /// For on-platform paid bookings the authoritative value is on the
     /// CheckoutSession, but we mirror it here for convenience.
     int? totalCents,
+    @TimestampConverter() DateTime? expiresAt,
     @Default(<String, String>{}) Map<String, String> otherBookingData,
   }) = _Booking;
 
@@ -102,6 +103,52 @@ extension PaymentStatusX on PaymentStatus {
   /// True when money actually moved through Stripe (so it can be refunded
   /// and earned us a commission).
   bool get isOnPlatformPaid => this == PaymentStatus.paid;
+}
+
+enum BookingPaymentDisplayStatus {
+  paid,
+  deferredPayment,
+  waiting,
+  paymentCancelled,
+  refunded,
+  paidOffPlatform,
+  unknown,
+}
+
+extension BookingPaymentStatusX on Booking {
+  bool isWaitingPaymentExpired(DateTime now) {
+    return paymentStatus == PaymentStatus.waiting &&
+        expiresAt != null &&
+        !expiresAt!.isAfter(now);
+  }
+
+  /// This status is computed in the frontend for display only; it is not a
+  /// separate value stored in the database.
+  BookingPaymentDisplayStatus displayPaymentStatus(DateTime now) {
+    if (isWaitingPaymentExpired(now)) {
+      return BookingPaymentDisplayStatus.paymentCancelled;
+    }
+    return switch (paymentStatus) {
+      PaymentStatus.paid => BookingPaymentDisplayStatus.paid,
+      PaymentStatus.deferredPayment =>
+        BookingPaymentDisplayStatus.deferredPayment,
+      PaymentStatus.waiting => BookingPaymentDisplayStatus.waiting,
+      PaymentStatus.refunded => BookingPaymentDisplayStatus.refunded,
+      PaymentStatus.paidOffPlatform =>
+        BookingPaymentDisplayStatus.paidOffPlatform,
+      PaymentStatus.unknown => BookingPaymentDisplayStatus.unknown,
+    };
+  }
+
+  bool blocksCustomerGroupDeletion(DateTime now) {
+    return switch (paymentStatus) {
+      PaymentStatus.paid ||
+      PaymentStatus.paidOffPlatform ||
+      PaymentStatus.deferredPayment => true,
+      PaymentStatus.waiting => expiresAt == null || expiresAt!.isAfter(now),
+      PaymentStatus.refunded || PaymentStatus.unknown => false,
+    };
+  }
 }
 
 @JsonEnum()

@@ -166,3 +166,6 @@ A cool and open source CRM for sled dog kennels.
 - Can archive stripe connections without deleting.
 - Adds partner portal.
 - Adds financial dashboard.
+- Adds mass refund customer group bookings.
+- Adds safeguards against deleting a customer group.
+- Removes outdated "delete booking" button.

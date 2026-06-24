@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
+import 'package:mush_on/customer_management/alert_editors/logic.dart';
 import 'package:mush_on/customer_management/alert_editors/repository.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart' as stripe;
 import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:intl/intl.dart';
@@ -75,6 +77,9 @@ class CustomerGroupViewer extends ConsumerWidget {
         final kennelInfo = ref
             .watch(stripe.bookingManagerKennelInfoProvider())
             .valueOrNull;
+        final userName = ref.watch(userNameProvider(null)).valueOrNull;
+        final canRefundAll =
+            (userName?.userLevel.rank ?? 0) >= UserLevel.musher.rank;
         final colorScheme = Theme.of(context).colorScheme;
         final confirmedBookings = bookings.active;
         final unconfirmedBookings = bookings
@@ -106,18 +111,28 @@ class CustomerGroupViewer extends ConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: () => showDialog(
-                          context: context,
-                          builder: (_) =>
-                              CustomerGroupEditor(customerGroup: customerGroup),
-                        ),
-                        icon: const Icon(Icons.edit, size: 18),
-                        label: const Text("Edit"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.secondary,
-                          foregroundColor: colorScheme.onSecondary,
-                        ),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        alignment: WrapAlignment.end,
+                        children: [
+                          if (canRefundAll)
+                            _RefundAllBookingsButton(bookings: bookings),
+                          ElevatedButton.icon(
+                            onPressed: () => showDialog(
+                              context: context,
+                              builder: (_) => CustomerGroupEditor(
+                                customerGroup: customerGroup,
+                              ),
+                            ),
+                            icon: const Icon(Icons.edit, size: 18),
+                            label: const Text("Edit"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: colorScheme.secondary,
+                              foregroundColor: colorScheme.onSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -413,6 +428,140 @@ class CustomerGroupViewer extends ConsumerWidget {
   }
 }
 
+class _RefundAllBookingsButton extends StatelessWidget {
+  final List<Booking> bookings;
+
+  const _RefundAllBookingsButton({required this.bookings});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final paidBookings = bookings
+        .where((booking) => booking.paymentStatus.isOnPlatformPaid)
+        .toList();
+    return Tooltip(
+      message: paidBookings.isEmpty
+          ? "No paid Stripe bookings to refund"
+          : "Refund all paid Stripe bookings",
+      child: OutlinedButton.icon(
+        onPressed: paidBookings.isEmpty
+            ? null
+            : () => showDialog(
+                context: context,
+                builder: (_) => _ConfirmRefundAllBookingsDialog(
+                  bookings: bookings,
+                  paidBookingsCount: paidBookings.length,
+                ),
+              ),
+        icon: const Icon(Icons.replay_circle_filled_outlined, size: 18),
+        label: const Text("Refund all bookings"),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: colorScheme.error,
+          side: BorderSide(color: colorScheme.error),
+        ),
+      ),
+    );
+  }
+}
+
+class _ConfirmRefundAllBookingsDialog extends ConsumerStatefulWidget {
+  final List<Booking> bookings;
+  final int paidBookingsCount;
+
+  const _ConfirmRefundAllBookingsDialog({
+    required this.bookings,
+    required this.paidBookingsCount,
+  });
+
+  @override
+  ConsumerState<_ConfirmRefundAllBookingsDialog> createState() =>
+      _ConfirmRefundAllBookingsDialogState();
+}
+
+class _ConfirmRefundAllBookingsDialogState
+    extends ConsumerState<_ConfirmRefundAllBookingsDialog> {
+  bool _isProcessing = false;
+
+  Future<void> _refundAll() async {
+    setState(() => _isProcessing = true);
+    try {
+      final account = await ref.read(accountProvider.future);
+      final repo = AlertEditorsRepository(account: account);
+      final result = await refundPaidBookingsOneByOne(
+        widget.bookings,
+        repo.refundBooking,
+      );
+      if (!mounted) return;
+      ref.invalidate(bookingsByCustomerGroupIdProvider);
+      if (result.completed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          confirmationSnackbar(
+            context,
+            "${result.refundedCount} bookings refunded",
+          ),
+        );
+        Navigator.of(context).pop();
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        errorSnackBar(
+          context,
+          "Refund stopped after ${result.refundedCount}/${result.attemptedCount} bookings.",
+        ),
+      );
+    } catch (e, s) {
+      BasicLogger().error(
+        "Failed to refund all bookings",
+        error: e,
+        stackTrace: s,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(errorSnackBar(context, "Failed to refund all bookings"));
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return AlertDialog.adaptive(
+      title: const Text("Be careful!"),
+      content: Text(
+        "This will refund ${widget.paidBookingsCount} paid Stripe booking(s) "
+        "one by one and remove those bookings from the group. Refunded, "
+        "waiting, deferred, and paid off-platform bookings will be skipped. "
+        "This CANNOT be reversed!",
+      ),
+      actions: [
+        if (!_isProcessing)
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              "Go back",
+              style: TextStyle(color: colorScheme.primary),
+            ),
+          ),
+        _isProcessing
+            ? const CircularProgressIndicator.adaptive()
+            : ElevatedButton(
+                onPressed: _refundAll,
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(colorScheme.error),
+                ),
+                child: Text(
+                  "Refund payments",
+                  style: TextStyle(color: colorScheme.onError),
+                ),
+              ),
+      ],
+    );
+  }
+}
+
 class _BookingListSection extends ConsumerWidget {
   final String title;
   final String description;
@@ -516,7 +665,10 @@ class BookingCard extends ConsumerWidget {
     final bookingTitle = booking.name.trim().isEmpty
         ? "Booking"
         : booking.name.trim();
-    final statusStyle = _bookingStatusStyle(context, booking.paymentStatus);
+    final statusStyle = _bookingStatusStyle(
+      context,
+      booking.displayPaymentStatus(DateTime.now()),
+    );
     final contactRows = <({IconData icon, String label, String? value})>[
       (icon: Icons.phone_outlined, label: "Phone", value: booking.phone),
       (icon: Icons.email_outlined, label: "Email", value: booking.email),
@@ -674,40 +826,46 @@ class BookingCard extends ConsumerWidget {
 }
 
 ({Color background, Color foreground, IconData icon, String label})
-_bookingStatusStyle(BuildContext context, PaymentStatus status) {
+_bookingStatusStyle(BuildContext context, BookingPaymentDisplayStatus status) {
   final colorScheme = Theme.of(context).colorScheme;
   return switch (status) {
-    PaymentStatus.paid => (
+    BookingPaymentDisplayStatus.paid => (
       background: colorScheme.primaryContainer,
       foreground: colorScheme.onPrimaryContainer,
       icon: Icons.check_circle_outline,
       label: "Paid",
     ),
-    PaymentStatus.deferredPayment => (
+    BookingPaymentDisplayStatus.deferredPayment => (
       background: colorScheme.tertiaryContainer,
       foreground: colorScheme.onTertiaryContainer,
       icon: Icons.schedule_outlined,
       label: "Deferred",
     ),
-    PaymentStatus.paidOffPlatform => (
+    BookingPaymentDisplayStatus.paidOffPlatform => (
       background: colorScheme.primaryContainer,
       foreground: colorScheme.onPrimaryContainer,
       icon: Icons.payments_outlined,
       label: "Paid (off-platform)",
     ),
-    PaymentStatus.waiting => (
+    BookingPaymentDisplayStatus.waiting => (
       background: colorScheme.surfaceContainerHighest,
       foreground: colorScheme.onSurface,
       icon: Icons.hourglass_top_outlined,
       label: "Waiting for payment",
     ),
-    PaymentStatus.refunded => (
+    BookingPaymentDisplayStatus.paymentCancelled => (
+      background: colorScheme.surfaceContainerHighest,
+      foreground: colorScheme.onSurfaceVariant,
+      icon: Icons.event_busy_outlined,
+      label: "Payment cancelled",
+    ),
+    BookingPaymentDisplayStatus.refunded => (
       background: colorScheme.errorContainer,
       foreground: colorScheme.onErrorContainer,
       icon: Icons.replay_circle_filled_outlined,
       label: "Refunded",
     ),
-    PaymentStatus.unknown => (
+    BookingPaymentDisplayStatus.unknown => (
       background: colorScheme.surfaceContainerHighest,
       foreground: colorScheme.onSurface,
       icon: Icons.help_outline,
@@ -793,9 +951,9 @@ class _DeferredBookingActionsState
       final repo = AlertEditorsRepository(account: account);
       await action(repo);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          confirmationSnackbar(context, successMessage),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(confirmationSnackbar(context, successMessage));
       }
       ref.invalidate(bookingsByCustomerGroupIdProvider);
     } catch (e, s) {

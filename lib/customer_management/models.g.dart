@@ -49,6 +49,9 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
       PaymentStatus.unknown,
   partner: json['partner'] as String?,
   totalCents: (json['totalCents'] as num?)?.toInt(),
+  expiresAt: const TimestampConverter().fromJson(
+    json['expiresAt'] as Timestamp?,
+  ),
   otherBookingData:
       (json['otherBookingData'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String),
@@ -69,6 +72,7 @@ Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
   'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
   'partner': instance.partner,
   'totalCents': instance.totalCents,
+  'expiresAt': const TimestampConverter().toJson(instance.expiresAt),
   'otherBookingData': instance.otherBookingData,
 };
 
