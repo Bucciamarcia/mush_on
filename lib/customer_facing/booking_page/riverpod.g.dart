@@ -156,6 +156,26 @@ class _TourTypeProviderElement
   String get tourId => (origin as TourTypeProvider).tourId;
 }
 
+String _$resolvedPartnerHash() => r'2df016838865565e7305500a27c241f2ba1c9bcb';
+
+/// Resolves the [PartnerCode] to a non-archived [Partner] for the current
+/// account, or null when there is no (valid) partner code.
+///
+/// Copied from [resolvedPartner].
+@ProviderFor(resolvedPartner)
+final resolvedPartnerProvider = AutoDisposeFutureProvider<Partner?>.internal(
+  resolvedPartner,
+  name: r'resolvedPartnerProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$resolvedPartnerHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef ResolvedPartnerRef = AutoDisposeFutureProviderRef<Partner?>;
 String _$visibleCustomerGroupsHash() =>
     r'7912d2e6aa53a709f2920041b4d6b1fc56ec6dc4';
 
@@ -379,6 +399,23 @@ final accountPublicProvider = NotifierProvider<AccountPublic, String?>.internal(
 );
 
 typedef _$AccountPublic = Notifier<String?>;
+String _$partnerCodeHash() => r'0898f9137e878f8325b327e3788178111679f50c';
+
+/// The `&partner=<code>` value from the booking page URL, if any.
+///
+/// Copied from [PartnerCode].
+@ProviderFor(PartnerCode)
+final partnerCodeProvider = NotifierProvider<PartnerCode, String?>.internal(
+  PartnerCode.new,
+  name: r'partnerCodeProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$partnerCodeHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$PartnerCode = Notifier<String?>;
 String _$visibleDatesHash() => r'26be57b90483ad3e22700e8275c1ae57d5c7dbcd';
 
 /// See also [VisibleDates].

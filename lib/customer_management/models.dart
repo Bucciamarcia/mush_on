@@ -68,6 +68,16 @@ sealed class Booking with _$Booking {
     String? city,
     String? country,
     @Default(PaymentStatus.unknown) PaymentStatus paymentStatus,
+
+    /// The id of the partner (reseller) this booking belongs to, if any.
+    String? partner,
+
+    /// The total price of the booking in cents, AFTER any partner discount.
+    /// Stored at creation for deferred / off-platform bookings so the financial
+    /// dashboard and the payment email have an amount without re-hitting Stripe.
+    /// For on-platform paid bookings the authoritative value is on the
+    /// CheckoutSession, but we mirror it here for convenience.
+    int? totalCents,
     @Default(<String, String>{}) Map<String, String> otherBookingData,
   }) = _Booking;
 
@@ -76,12 +86,22 @@ sealed class Booking with _$Booking {
 }
 
 extension BookingsExtension on List<Booking> {
-  /// Only returns bookings that either have been already paid or are deferred.
-  List<Booking> get active => where(
-    (b) =>
-        b.paymentStatus == PaymentStatus.paid ||
-        b.paymentStatus == PaymentStatus.deferredPayment,
-  ).toList();
+  /// Only returns bookings that either have been already paid or are deferred,
+  /// or paid off-platform — all of which occupy a seat in the customer group.
+  List<Booking> get active =>
+      where((b) => b.paymentStatus.occupiesSeat).toList();
+}
+
+extension PaymentStatusX on PaymentStatus {
+  /// True when the booking holds a seat in its customer group.
+  bool get occupiesSeat =>
+      this == PaymentStatus.paid ||
+      this == PaymentStatus.deferredPayment ||
+      this == PaymentStatus.paidOffPlatform;
+
+  /// True when money actually moved through Stripe (so it can be refunded
+  /// and earned us a commission).
+  bool get isOnPlatformPaid => this == PaymentStatus.paid;
 }
 
 @JsonEnum()
@@ -101,6 +121,11 @@ enum PaymentStatus {
   /// The payment has been refunded
   @JsonValue("refunded")
   refunded,
+
+  /// Marked paid off-platform (cash / bank transfer). Occupies a seat and is
+  /// active, but earns zero commission (no money moved through Stripe).
+  @JsonValue("paidOffPlatform")
+  paidOffPlatform,
 
   /// Payment status not known. Means there's been an error.
   @JsonValue("unknown")

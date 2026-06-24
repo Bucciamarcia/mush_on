@@ -157,6 +157,7 @@ class _PaymentStatusHeader extends StatelessWidget {
   _PaymentStatusContent _contentFor(PaymentStatus status) {
     switch (status) {
       case PaymentStatus.paid:
+      case PaymentStatus.paidOffPlatform:
         return const _PaymentStatusContent(
           icon: Icons.check_circle,
           color: Colors.green,

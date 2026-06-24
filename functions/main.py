@@ -22,7 +22,14 @@ from firebase_admin import firestore
 from concurrent.futures import ThreadPoolExecutor
 from typing import List, Dict, Any
 from urllib.parse import urlencode
+import requests
 from lib.booking_reminders import send_booking_reminders
+from lib.deferred_payment_email import send_deferred_payment_email_for_booking
+from lib.deferred_payment_reminders import (
+    _deferred_payment_due_date,
+    _should_send_deferred_reminder,
+    send_deferred_payment_reminders,
+)
 from lib.send_invitation_email import SendInvitationEmail
 from lib.stripe.get_payment_receipt_url import get_payment_receipt_url
 from lib.stripe.utils import (
@@ -337,7 +344,7 @@ def _parse_firestore_datetime(value):
 
 def _booking_counts_for_capacity(booking: dict, now: datetime) -> bool:
     status = booking.get("paymentStatus")
-    if status in {"paid", "deferredPayment"}:
+    if status in {"paid", "deferredPayment", "paidOffPlatform"}:
         return True
     if status != "waiting":
         return False
@@ -365,6 +372,29 @@ def _count_reserved_customers_for_group(
         )
         reserved += len(_get_query_snapshots(transaction, customer_query))
     return reserved
+
+
+def _get_partner(db, account: str, partner_id) -> dict | None:
+    if not partner_id:
+        return None
+    return (
+        db.document(
+            f"{_booking_manager_collection_path(account, 'partners')}/{partner_id}"
+        )
+        .get()
+        .to_dict()
+    )
+
+
+def _partner_discount_rate(partner: dict | None) -> float:
+    """0.0 when partner is None, archived, or has no positive discountRate."""
+    if not partner or partner.get("archived"):
+        return 0.0
+    try:
+        rate = float(partner.get("discountRate") or 0)
+    except (TypeError, ValueError):
+        return 0.0
+    return rate if rate > 0 else 0.0
 
 
 def _quantity_by_pricing(customers: list[dict]) -> dict[str, int]:
@@ -500,6 +530,7 @@ def _build_checkout_line_items(
     prices_by_id: dict[str, dict],
     quantities_by_pricing: dict[str, int],
     tax_rate_id_for_percentage=None,
+    discount_rate: float = 0.0,
 ) -> tuple[list[dict], int]:
     line_items = []
     total_amount_cents = 0
@@ -511,6 +542,11 @@ def _build_checkout_line_items(
         if pricing is None:
             raise ValueError(f"Active pricing not found: {pricing_id}")
         unit_amount = int(_unwrap_int64_wrappers(pricing.get("priceCents", 0)))
+        if discount_rate > 0:
+            # Discount each line item's unit amount (round to nearest cent) so
+            # the per-line amounts, the total, and the application fee are all
+            # computed on the discounted total.
+            unit_amount = int(round(unit_amount * (1 - discount_rate)))
         total_amount_cents += unit_amount * quantity
         line_item = {
             "price_data": {
@@ -553,6 +589,7 @@ def _build_server_checkout_payload(
     customer_group_id: str,
     stripe_mode: str,
     stripe_account_id: str,
+    partner: dict | None = None,
 ) -> dict:
     booking = _get_required_document(
         db,
@@ -578,12 +615,14 @@ def _build_server_checkout_payload(
         raise ValueError("Selected quantity exceeds customer group capacity")
 
     prices_by_id = _get_active_prices_by_id(db, account, tour_id)
+    discount_rate = _partner_discount_rate(partner)
     line_items, total_amount_cents = _build_checkout_line_items(
         prices_by_id,
         quantities_by_pricing,
         lambda percentage: _resolve_stripe_tax_rate_id(
             db, account, stripe_mode, stripe_account_id, percentage
         ),
+        discount_rate=discount_rate,
     )
     kennel_info = _get_required_document(
         db, f"accounts/{account}/data/bookingManager", "Booking manager settings"
@@ -597,6 +636,7 @@ def _build_server_checkout_payload(
         "quantities_by_pricing": quantities_by_pricing,
         "tour_id": tour_id,
         "customer_group_id": customer_group_id,
+        "partner": partner,
     }
 
 
@@ -622,6 +662,11 @@ def _create_checkout_session_with_tax_rate_retry(
         "mode": "payment",
         "success_url": f"https://mush-on.web.app/booking_success?bookingId={booking_id}&account={account}",
         "stripe_account": stripe_account_id,
+        # Expire the session before the seat hold frees (37 min) so a late
+        # payment on a stale session can never overbook a reclaimed seat.
+        "expires_at": int(
+            (datetime.now(timezone.utc) + timedelta(minutes=35)).timestamp()
+        ),
     }
     try:
         return stripe.checkout.Session.create(**create_args)
@@ -644,6 +689,7 @@ def _create_checkout_session_with_tax_rate_retry(
             checkout_payload["customer_group_id"],
             stripe_mode,
             stripe_account_id,
+            partner=checkout_payload.get("partner"),
         )
         checkout_payload.update(refreshed_payload)
         create_args["line_items"] = refreshed_payload["line_items"]
@@ -672,6 +718,8 @@ def _reserve_booking_transaction(
     booking: dict,
     customers: list[dict],
     now: datetime,
+    payment_status: str = "waiting",
+    set_expiry: bool = True,
 ) -> dict:
     booking_id = booking.get("id")
     customer_group_id = booking.get("customerGroupId")
@@ -719,17 +767,21 @@ def _reserve_booking_transaction(
                 "This group is now full",
             )
 
-        expires_at = now + timedelta(minutes=30)
+        expires_at = now + timedelta(minutes=37)
         booking_ref = bm_ref.collection("bookings").document(booking_id)
         booking_data = {
             **booking,
             "id": booking_id,
             "customerGroupId": customer_group_id,
             "name": _booking_label(booking, customers),
-            "paymentStatus": "waiting",
+            "paymentStatus": payment_status,
             "createdAt": now,
-            "expiresAt": expires_at,
         }
+        if set_expiry:
+            booking_data["expiresAt"] = expires_at
+        else:
+            # Deferred bookings hold the seat permanently — never expire.
+            booking_data.pop("expiresAt", None)
         transaction.set(booking_ref, booking_data)
         for customer in customers:
             customer_id = customer.get("id")
@@ -744,7 +796,7 @@ def _reserve_booking_transaction(
         return {
             "bookingId": booking_id,
             "customerGroupId": customer_group_id,
-            "expiresAt": expires_at,
+            "expiresAt": expires_at if set_expiry else None,
         }
 
     return reserve(transaction)
@@ -1563,6 +1615,7 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
         tour_id = data.get("tourId")
         booking = _unwrap_int64_wrappers(data.get("booking") or {})
         customers = _unwrap_int64_wrappers(data.get("customers") or [])
+        partner_id = data.get("partner")
 
         if not account or not tour_id or not isinstance(customers, list):
             raise https_fn.HttpsError(
@@ -1600,6 +1653,7 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
         booking_id = reservation["bookingId"]
         customer_group_id = reservation["customerGroupId"]
 
+        partner = _get_partner(db, account, partner_id)
         checkout_payload = _build_server_checkout_payload(
             db,
             account,
@@ -1608,6 +1662,7 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
             customer_group_id,
             stripe_mode,
             stripe_account_id,
+            partner=partner,
         )
 
         session = _create_checkout_session_with_tax_rate_retry(
@@ -1634,9 +1689,19 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
             checkout_payload["total_amount_cents"],
             checkout_payload["fee_amount"],
         )
+        booking_update = {
+            "checkoutSessionId": checkout_session_id,
+            "totalCents": checkout_payload["total_amount_cents"],
+        }
+        if partner_id:
+            booking_update["partner"] = partner_id
         db.document(
             f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}"
-        ).update({"checkoutSessionId": checkout_session_id})
+        ).update(booking_update)
+        if partner_id:
+            db.document(f"checkoutSessions/{checkout_session_id}").update(
+                {"partner": partner_id}
+            )
 
         return {
             "url": session.url,
@@ -1647,6 +1712,265 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
         raise
     except Exception as e:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INTERNAL, str(e))
+
+
+def _resolve_stripe_account(account: str) -> tuple[str, str]:
+    """Return (stripe_mode, stripe_account_id) for an active integration."""
+    stripe_mode = get_selected_stripe_mode(account)
+    stripe_connection = get_connected_account_doc(account, stripe_mode) or {}
+    stripe_account_id = stripe_connection.get("accountId")
+    if not get_stripe_integration_is_active(account) or not stripe_account_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "Stripe integration is not active",
+        )
+    return stripe_mode, stripe_account_id
+
+
+@https_fn.on_call()
+def create_deferred_booking(req: https_fn.CallableRequest[dict]) -> dict:
+    """Customer-facing (no auth): reserve a confirmed-but-unpaid seat for a
+    partner booking, store the discounted total, and email the partner."""
+    try:
+        data = req.data or {}
+        account = data.get("account")
+        tour_id = data.get("tourId")
+        booking = _unwrap_int64_wrappers(data.get("booking") or {})
+        customers = _unwrap_int64_wrappers(data.get("customers") or [])
+        partner_id = data.get("partner")
+
+        if not account or not tour_id or not isinstance(customers, list):
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+                "Missing account, tourId, booking or customers",
+            )
+
+        db = firestore.client()
+        partner = _get_partner(db, account, partner_id)
+        if (
+            partner is None
+            or partner.get("archived")
+            or not partner.get("allowDeferred")
+        ):
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                "This partner may not defer payment",
+            )
+
+        now = datetime.now(timezone.utc)
+        reservation = _reserve_booking_transaction(
+            db=db,
+            account=account,
+            tour_id=tour_id,
+            booking=booking,
+            customers=customers,
+            now=now,
+            payment_status="deferredPayment",
+            set_expiry=False,
+        )
+        booking_id = reservation["bookingId"]
+        customer_group_id = reservation["customerGroupId"]
+
+        # Compute the discounted total via the shared calculator. The stripe
+        # account is only needed for VAT tax-rate resolution; resolve it
+        # best-effort so the total can always be computed.
+        stripe_mode = get_selected_stripe_mode(account)
+        stripe_connection = get_connected_account_doc(account, stripe_mode) or {}
+        stripe_account_id = stripe_connection.get("accountId") or ""
+        checkout_payload = _build_server_checkout_payload(
+            db,
+            account,
+            booking_id,
+            tour_id,
+            customer_group_id,
+            stripe_mode,
+            stripe_account_id,
+            partner=partner,
+        )
+        total_cents = checkout_payload["total_amount_cents"]
+        db.document(
+            f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}"
+        ).update({"partner": partner_id, "totalCents": total_cents})
+
+        send_deferred_payment_email_for_booking(
+            db=db, account=account, booking_id=booking_id
+        )
+
+        return {"bookingId": booking_id}
+    except https_fn.HttpsError:
+        raise
+    except Exception as e:
+        raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INTERNAL, str(e))
+
+
+def _create_deferred_checkout_session(db, account: str, booking_id: str) -> dict:
+    """Lazily mint a Stripe Checkout Session for an existing deferred booking,
+    re-applying the partner discount. Returns {url, checkoutSessionId}."""
+    booking_path = (
+        f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}"
+    )
+    booking = _get_required_document(db, booking_path, "Booking")
+    status = booking.get("paymentStatus")
+    if status in {"paid", "paidOffPlatform", "refunded"}:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "Booking is already paid or refunded",
+        )
+
+    customer_group_id = booking.get("customerGroupId")
+    customer_group = _get_required_document(
+        db,
+        f"{_booking_manager_collection_path(account, 'customerGroups')}/{customer_group_id}",
+        "Customer group",
+    )
+    tour_id = customer_group.get("tourTypeId")
+    partner = _get_partner(db, account, booking.get("partner"))
+
+    stripe_mode, stripe_account_id = _resolve_stripe_account(account)
+    _set_stripe_api_key(stripe_mode)
+
+    checkout_payload = _build_server_checkout_payload(
+        db,
+        account,
+        booking_id,
+        tour_id,
+        customer_group_id,
+        stripe_mode,
+        stripe_account_id,
+        partner=partner,
+    )
+    session = _create_checkout_session_with_tax_rate_retry(
+        db,
+        account,
+        stripe_mode,
+        stripe_account_id,
+        checkout_payload,
+        booking_id,
+    )
+    checkout_session_id = session.id
+    if checkout_session_id is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INTERNAL,
+            f"Checkout session is None. Session: {session}",
+        )
+
+    add_checkout_session.add_checkout_session_to_db(
+        checkout_session_id,
+        account,
+        stripe_account_id,
+        stripe_mode,
+        booking_id,
+        checkout_payload["total_amount_cents"],
+        checkout_payload["fee_amount"],
+    )
+    if booking.get("partner"):
+        db.document(f"checkoutSessions/{checkout_session_id}").update(
+            {"partner": booking.get("partner")}
+        )
+    db.document(booking_path).update({"checkoutSessionId": checkout_session_id})
+
+    return {"url": session.url, "checkoutSessionId": checkout_session_id}
+
+
+@https_fn.on_request()
+def pay_deferred_booking(req: https_fn.Request) -> https_fn.Response:
+    """Public pay link: lazily mint a checkout session and redirect to it."""
+    args = getattr(req, "args", {}) or {}
+    account = args.get("account")
+    booking_id = args.get("bookingId")
+    if not account or not booking_id:
+        return https_fn.Response("Missing account or bookingId", status=400)
+    db = firestore.client()
+    try:
+        result = _create_deferred_checkout_session(db, account, booking_id)
+    except https_fn.HttpsError as e:
+        return https_fn.Response(e.message, status=400)
+    return https_fn.Response(
+        status=303, headers={"Location": result["url"]}
+    )
+
+
+@https_fn.on_call()
+def send_deferred_payment_email(req: https_fn.CallableRequest[dict]) -> dict:
+    """Used by the booking editor / resend button. Sends the payment email
+    (with the pay link) to the PARTNER."""
+    data = req.data or {}
+    account = data.get("account")
+    booking_id = data.get("bookingId")
+    if not account or not booking_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account or bookingId",
+        )
+    _assert_account_member(req, account)
+    db = firestore.client()
+    send_deferred_payment_email_for_booking(
+        db=db, account=account, booking_id=booking_id
+    )
+    return {"ok": True}
+
+
+@https_fn.on_call()
+def cancel_booking(req: https_fn.CallableRequest[dict]) -> dict:
+    """Cancel a non-paid booking: delete it (and its customers), freeing the
+    seat. Paid bookings must go through refund_payment."""
+    data = req.data or {}
+    account = data.get("account")
+    booking_id = data.get("bookingId")
+    if not account or not booking_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account or bookingId",
+        )
+    _assert_account_member(req, account)
+    db = firestore.client()
+    bm_ref = _booking_manager_ref(db, account)
+    booking_ref = bm_ref.collection("bookings").document(booking_id)
+    booking = booking_ref.get().to_dict()
+    if booking is None:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND, "Booking not found"
+        )
+    if booking.get("paymentStatus") == "paid":
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "Use refund for paid bookings",
+        )
+    for customer_doc in (
+        bm_ref.collection("customers").where("bookingId", "==", booking_id).stream()
+    ):
+        customer_doc.reference.delete()
+    booking_ref.delete()
+    return {"ok": True}
+
+
+@https_fn.on_call()
+def mark_booking_paid_off_platform(req: https_fn.CallableRequest[dict]) -> dict:
+    """Mark a booking paid off-platform (cash / bank transfer). No Stripe, no
+    commission."""
+    data = req.data or {}
+    account = data.get("account")
+    booking_id = data.get("bookingId")
+    if not account or not booking_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account or bookingId",
+        )
+    _assert_account_member(req, account)
+    db = firestore.client()
+    db.document(
+        f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}"
+    ).update({"paymentStatus": "paidOffPlatform"})
+    return {"ok": True}
+
+
+# Run once a day to send payment-due reminders to partners for deferred
+# bookings (the day before the balance is due).
+@scheduler_fn.on_schedule(schedule="every day 06:00", region="europe-west1")
+def send_daily_deferred_payment_reminders(
+    event: scheduler_fn.ScheduledEvent,
+) -> None:
+    send_deferred_payment_reminders()
 
 
 @https_fn.on_request()

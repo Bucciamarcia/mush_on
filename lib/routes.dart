@@ -24,6 +24,7 @@ import 'customer_facing/booking_page/booking_page.dart';
 import 'customer_facing/booking_page/success/booking_success.dart';
 import 'customer_management/customer_group_viewer.dart';
 import 'customer_management/customer_management.dart';
+import 'customer_management/partners/partners_management_screen.dart';
 import 'customer_management/tours/editor/editor.dart';
 import 'settings/stripe/stripe_connection_result.dart';
 
@@ -96,6 +97,11 @@ final goRoutes = GoRouter(
             return CustomerGroupViewerScreen(customerGroupId: customerGroupId);
           },
         ),
+        GoRoute(
+          path: "partners",
+          name: "partnersManagement",
+          builder: (context, state) => const PartnersManagementScreen(),
+        ),
       ],
     ),
     GoRoute(path: "/tours", builder: (context, state) => const ToursScreen()),
@@ -124,7 +130,12 @@ final goRoutes = GoRouter(
       builder: (context, state) {
         String? account = state.uri.queryParameters["kennel"];
         String? tourId = state.uri.queryParameters["tourId"];
-        return BookingPage(account: account, tourId: tourId);
+        String? partner = state.uri.queryParameters["partner"];
+        return BookingPage(
+          account: account,
+          tourId: tourId,
+          partnerCode: partner,
+        );
       },
     ),
     GoRoute(

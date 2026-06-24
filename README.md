@@ -164,3 +164,4 @@ A cool and open source CRM for sled dog kennels.
 - Fixes sometimes broken tax rate id for Stripe.
 - Adds test | live toggle in stripe connection.
 - Can archive stripe connections without deleting.
+- Adds partner portal.

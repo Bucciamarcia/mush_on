@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
+import 'package:mush_on/customer_management/alert_editors/repository.dart';
 import 'package:mush_on/customer_management/models.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/services/error_handling.dart';
@@ -644,6 +645,10 @@ class BookingCard extends ConsumerWidget {
                 const SizedBox(height: 8),
                 getPricings(customers, pricings!),
               ],
+              if (booking.paymentStatus == PaymentStatus.deferredPayment) ...[
+                const SizedBox(height: 12),
+                _DeferredBookingActions(booking: booking),
+              ],
               if (contactRows.isNotEmpty || bookingCustomRows.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Wrap(
@@ -683,6 +688,12 @@ _bookingStatusStyle(BuildContext context, PaymentStatus status) {
       foreground: colorScheme.onTertiaryContainer,
       icon: Icons.schedule_outlined,
       label: "Deferred",
+    ),
+    PaymentStatus.paidOffPlatform => (
+      background: colorScheme.primaryContainer,
+      foreground: colorScheme.onPrimaryContainer,
+      icon: Icons.payments_outlined,
+      label: "Paid (off-platform)",
     ),
     PaymentStatus.waiting => (
       background: colorScheme.surfaceContainerHighest,
@@ -752,6 +763,84 @@ class _InfoChip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Actions shown on a deferred booking: (re)send the partner payment email and
+/// mark the booking paid off-platform.
+class _DeferredBookingActions extends ConsumerStatefulWidget {
+  final Booking booking;
+  const _DeferredBookingActions({required this.booking});
+
+  @override
+  ConsumerState<_DeferredBookingActions> createState() =>
+      _DeferredBookingActionsState();
+}
+
+class _DeferredBookingActionsState
+    extends ConsumerState<_DeferredBookingActions> {
+  bool _isProcessing = false;
+
+  Future<void> _run(
+    Future<void> Function(AlertEditorsRepository repo) action,
+    String successMessage,
+    String errorMessage,
+  ) async {
+    setState(() => _isProcessing = true);
+    try {
+      final account = await ref.read(accountProvider.future);
+      final repo = AlertEditorsRepository(account: account);
+      await action(repo);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          confirmationSnackbar(context, successMessage),
+        );
+      }
+      ref.invalidate(bookingsByCustomerGroupIdProvider);
+    } catch (e, s) {
+      BasicLogger().error(errorMessage, error: e, stackTrace: s);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(errorSnackBar(context, errorMessage));
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isProcessing) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Center(child: CircularProgressIndicator.adaptive()),
+      );
+    }
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        OutlinedButton.icon(
+          onPressed: () => _run(
+            (repo) => repo.sendDeferredPaymentEmail(widget.booking),
+            "Payment email sent to partner",
+            "Failed to send payment email",
+          ),
+          icon: const Icon(Icons.mail_outline, size: 18),
+          label: const Text("Send payment email"),
+        ),
+        OutlinedButton.icon(
+          onPressed: () => _run(
+            (repo) => repo.markBookingPaidOffPlatform(widget.booking),
+            "Booking marked paid (off-platform)",
+            "Failed to mark booking paid",
+          ),
+          icon: const Icon(Icons.payments_outlined, size: 18),
+          label: const Text("Mark paid (off-platform)"),
+        ),
+      ],
     );
   }
 }

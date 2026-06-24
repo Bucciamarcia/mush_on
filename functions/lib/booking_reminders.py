@@ -108,7 +108,11 @@ def _process_reminder(
             booking_data = booking_doc.to_dict()
             booking_id = booking_doc.id
 
-            if booking_data.get("paymentStatus") not in ["paid", "deferredPayment"]:
+            if booking_data.get("paymentStatus") not in [
+                "paid",
+                "deferredPayment",
+                "paidOffPlatform",
+            ]:
                 continue
 
             booking_email = booking_data.get("email")

@@ -15,6 +15,11 @@ service cloud.firestore {
       return isSignedIn() && userAccount() == account;
     }
 
+    function isMusher(account) {
+      return isAccountMember(account) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userLevel == "musher";
+    }
+
     function isSelf(uid) {
       return isSignedIn() && uid == request.auth.uid;
     }
@@ -68,6 +73,13 @@ service cloud.firestore {
 		}
     match /accounts/{account}/data/bookingManager/bookings/{bookingId} {
       allow read, write: if isAccountMember(account);
+		}
+    match /accounts/{account}/data/bookingManager/partners/{partnerId} {
+      // Public read: the customer-facing booking page resolves &partner=<code>.
+      allow read: if true;
+      // Only admins (musher) may add / edit / archive partners. Partners are
+      // never deleted — archived instead.
+      allow write: if isMusher(account);
 		}
     match /accounts/{account}/data/bookingManager/tours/{tourId}/prices/{pricing} {
   		allow read: if true;      // public

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
@@ -96,6 +97,17 @@ class ClientManagementMainScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: OutlinedButton.icon(
+                          onPressed: () => context.go(
+                            "/client_management/partners",
+                          ),
+                          icon: const Icon(Icons.handshake_outlined),
+                          label: const Text("Manage partners"),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       // Warnings Section
                       if (warnings.isNotEmpty) ...[
                         Card(

@@ -327,7 +327,13 @@ mixin _$Booking {
  String get customerGroupId;/// The phone left for this booking.
  String? get phone;/// The reference email for this booking.
  String? get email;/// The street address of the customer.
- String? get streetAddress; String? get zipCode; String? get city; String? get country; PaymentStatus get paymentStatus; Map<String, String> get otherBookingData;
+ String? get streetAddress; String? get zipCode; String? get city; String? get country; PaymentStatus get paymentStatus;/// The id of the partner (reseller) this booking belongs to, if any.
+ String? get partner;/// The total price of the booking in cents, AFTER any partner discount.
+/// Stored at creation for deferred / off-platform bookings so the financial
+/// dashboard and the payment email have an amount without re-hitting Stripe.
+/// For on-platform paid bookings the authoritative value is on the
+/// CheckoutSession, but we mirror it here for convenience.
+ int? get totalCents; Map<String, String> get otherBookingData;
 /// Create a copy of Booking
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -340,16 +346,16 @@ $BookingCopyWith<Booking> get copyWith => _$BookingCopyWithImpl<Booking>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.customerGroupId, customerGroupId) || other.customerGroupId == customerGroupId)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.email, email) || other.email == email)&&(identical(other.streetAddress, streetAddress) || other.streetAddress == streetAddress)&&(identical(other.zipCode, zipCode) || other.zipCode == zipCode)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&(identical(other.paymentStatus, paymentStatus) || other.paymentStatus == paymentStatus)&&const DeepCollectionEquality().equals(other.otherBookingData, otherBookingData));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.customerGroupId, customerGroupId) || other.customerGroupId == customerGroupId)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.email, email) || other.email == email)&&(identical(other.streetAddress, streetAddress) || other.streetAddress == streetAddress)&&(identical(other.zipCode, zipCode) || other.zipCode == zipCode)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&(identical(other.paymentStatus, paymentStatus) || other.paymentStatus == paymentStatus)&&(identical(other.partner, partner) || other.partner == partner)&&(identical(other.totalCents, totalCents) || other.totalCents == totalCents)&&const DeepCollectionEquality().equals(other.otherBookingData, otherBookingData));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,customerGroupId,phone,email,streetAddress,zipCode,city,country,paymentStatus,const DeepCollectionEquality().hash(otherBookingData));
+int get hashCode => Object.hash(runtimeType,id,name,customerGroupId,phone,email,streetAddress,zipCode,city,country,paymentStatus,partner,totalCents,const DeepCollectionEquality().hash(otherBookingData));
 
 @override
 String toString() {
-  return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, paymentStatus: $paymentStatus, otherBookingData: $otherBookingData)';
+  return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, paymentStatus: $paymentStatus, partner: $partner, totalCents: $totalCents, otherBookingData: $otherBookingData)';
 }
 
 
@@ -360,7 +366,7 @@ abstract mixin class $BookingCopyWith<$Res>  {
   factory $BookingCopyWith(Booking value, $Res Function(Booking) _then) = _$BookingCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String customerGroupId, String? phone, String? email, String? streetAddress, String? zipCode, String? city, String? country, PaymentStatus paymentStatus, Map<String, String> otherBookingData
+ String id, String name, String customerGroupId, String? phone, String? email, String? streetAddress, String? zipCode, String? city, String? country, PaymentStatus paymentStatus, String? partner, int? totalCents, Map<String, String> otherBookingData
 });
 
 
@@ -377,7 +383,7 @@ class _$BookingCopyWithImpl<$Res>
 
 /// Create a copy of Booking
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? customerGroupId = null,Object? phone = freezed,Object? email = freezed,Object? streetAddress = freezed,Object? zipCode = freezed,Object? city = freezed,Object? country = freezed,Object? paymentStatus = null,Object? otherBookingData = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? customerGroupId = null,Object? phone = freezed,Object? email = freezed,Object? streetAddress = freezed,Object? zipCode = freezed,Object? city = freezed,Object? country = freezed,Object? paymentStatus = null,Object? partner = freezed,Object? totalCents = freezed,Object? otherBookingData = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -389,7 +395,9 @@ as String?,zipCode: freezed == zipCode ? _self.zipCode : zipCode // ignore: cast
 as String?,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String?,country: freezed == country ? _self.country : country // ignore: cast_nullable_to_non_nullable
 as String?,paymentStatus: null == paymentStatus ? _self.paymentStatus : paymentStatus // ignore: cast_nullable_to_non_nullable
-as PaymentStatus,otherBookingData: null == otherBookingData ? _self.otherBookingData : otherBookingData // ignore: cast_nullable_to_non_nullable
+as PaymentStatus,partner: freezed == partner ? _self.partner : partner // ignore: cast_nullable_to_non_nullable
+as String?,totalCents: freezed == totalCents ? _self.totalCents : totalCents // ignore: cast_nullable_to_non_nullable
+as int?,otherBookingData: null == otherBookingData ? _self.otherBookingData : otherBookingData // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,
   ));
 }
@@ -472,10 +480,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String customerGroupId,  String? phone,  String? email,  String? streetAddress,  String? zipCode,  String? city,  String? country,  PaymentStatus paymentStatus,  Map<String, String> otherBookingData)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String customerGroupId,  String? phone,  String? email,  String? streetAddress,  String? zipCode,  String? city,  String? country,  PaymentStatus paymentStatus,  String? partner,  int? totalCents,  Map<String, String> otherBookingData)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Booking() when $default != null:
-return $default(_that.id,_that.name,_that.customerGroupId,_that.phone,_that.email,_that.streetAddress,_that.zipCode,_that.city,_that.country,_that.paymentStatus,_that.otherBookingData);case _:
+return $default(_that.id,_that.name,_that.customerGroupId,_that.phone,_that.email,_that.streetAddress,_that.zipCode,_that.city,_that.country,_that.paymentStatus,_that.partner,_that.totalCents,_that.otherBookingData);case _:
   return orElse();
 
 }
@@ -493,10 +501,10 @@ return $default(_that.id,_that.name,_that.customerGroupId,_that.phone,_that.emai
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String customerGroupId,  String? phone,  String? email,  String? streetAddress,  String? zipCode,  String? city,  String? country,  PaymentStatus paymentStatus,  Map<String, String> otherBookingData)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String customerGroupId,  String? phone,  String? email,  String? streetAddress,  String? zipCode,  String? city,  String? country,  PaymentStatus paymentStatus,  String? partner,  int? totalCents,  Map<String, String> otherBookingData)  $default,) {final _that = this;
 switch (_that) {
 case _Booking():
-return $default(_that.id,_that.name,_that.customerGroupId,_that.phone,_that.email,_that.streetAddress,_that.zipCode,_that.city,_that.country,_that.paymentStatus,_that.otherBookingData);}
+return $default(_that.id,_that.name,_that.customerGroupId,_that.phone,_that.email,_that.streetAddress,_that.zipCode,_that.city,_that.country,_that.paymentStatus,_that.partner,_that.totalCents,_that.otherBookingData);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -510,10 +518,10 @@ return $default(_that.id,_that.name,_that.customerGroupId,_that.phone,_that.emai
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String customerGroupId,  String? phone,  String? email,  String? streetAddress,  String? zipCode,  String? city,  String? country,  PaymentStatus paymentStatus,  Map<String, String> otherBookingData)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String customerGroupId,  String? phone,  String? email,  String? streetAddress,  String? zipCode,  String? city,  String? country,  PaymentStatus paymentStatus,  String? partner,  int? totalCents,  Map<String, String> otherBookingData)?  $default,) {final _that = this;
 switch (_that) {
 case _Booking() when $default != null:
-return $default(_that.id,_that.name,_that.customerGroupId,_that.phone,_that.email,_that.streetAddress,_that.zipCode,_that.city,_that.country,_that.paymentStatus,_that.otherBookingData);case _:
+return $default(_that.id,_that.name,_that.customerGroupId,_that.phone,_that.email,_that.streetAddress,_that.zipCode,_that.city,_that.country,_that.paymentStatus,_that.partner,_that.totalCents,_that.otherBookingData);case _:
   return null;
 
 }
@@ -525,7 +533,7 @@ return $default(_that.id,_that.name,_that.customerGroupId,_that.phone,_that.emai
 
 @JsonSerializable(explicitToJson: true)
 class _Booking implements Booking {
-  const _Booking({required this.id, this.name = "", required this.customerGroupId, this.phone, this.email, this.streetAddress, this.zipCode, this.city, this.country, this.paymentStatus = PaymentStatus.unknown, final  Map<String, String> otherBookingData = const <String, String>{}}): _otherBookingData = otherBookingData;
+  const _Booking({required this.id, this.name = "", required this.customerGroupId, this.phone, this.email, this.streetAddress, this.zipCode, this.city, this.country, this.paymentStatus = PaymentStatus.unknown, this.partner, this.totalCents, final  Map<String, String> otherBookingData = const <String, String>{}}): _otherBookingData = otherBookingData;
   factory _Booking.fromJson(Map<String, dynamic> json) => _$BookingFromJson(json);
 
 @override final  String id;
@@ -545,6 +553,14 @@ class _Booking implements Booking {
 @override final  String? city;
 @override final  String? country;
 @override@JsonKey() final  PaymentStatus paymentStatus;
+/// The id of the partner (reseller) this booking belongs to, if any.
+@override final  String? partner;
+/// The total price of the booking in cents, AFTER any partner discount.
+/// Stored at creation for deferred / off-platform bookings so the financial
+/// dashboard and the payment email have an amount without re-hitting Stripe.
+/// For on-platform paid bookings the authoritative value is on the
+/// CheckoutSession, but we mirror it here for convenience.
+@override final  int? totalCents;
  final  Map<String, String> _otherBookingData;
 @override@JsonKey() Map<String, String> get otherBookingData {
   if (_otherBookingData is EqualUnmodifiableMapView) return _otherBookingData;
@@ -566,16 +582,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.customerGroupId, customerGroupId) || other.customerGroupId == customerGroupId)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.email, email) || other.email == email)&&(identical(other.streetAddress, streetAddress) || other.streetAddress == streetAddress)&&(identical(other.zipCode, zipCode) || other.zipCode == zipCode)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&(identical(other.paymentStatus, paymentStatus) || other.paymentStatus == paymentStatus)&&const DeepCollectionEquality().equals(other._otherBookingData, _otherBookingData));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Booking&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.customerGroupId, customerGroupId) || other.customerGroupId == customerGroupId)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.email, email) || other.email == email)&&(identical(other.streetAddress, streetAddress) || other.streetAddress == streetAddress)&&(identical(other.zipCode, zipCode) || other.zipCode == zipCode)&&(identical(other.city, city) || other.city == city)&&(identical(other.country, country) || other.country == country)&&(identical(other.paymentStatus, paymentStatus) || other.paymentStatus == paymentStatus)&&(identical(other.partner, partner) || other.partner == partner)&&(identical(other.totalCents, totalCents) || other.totalCents == totalCents)&&const DeepCollectionEquality().equals(other._otherBookingData, _otherBookingData));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,customerGroupId,phone,email,streetAddress,zipCode,city,country,paymentStatus,const DeepCollectionEquality().hash(_otherBookingData));
+int get hashCode => Object.hash(runtimeType,id,name,customerGroupId,phone,email,streetAddress,zipCode,city,country,paymentStatus,partner,totalCents,const DeepCollectionEquality().hash(_otherBookingData));
 
 @override
 String toString() {
-  return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, paymentStatus: $paymentStatus, otherBookingData: $otherBookingData)';
+  return 'Booking(id: $id, name: $name, customerGroupId: $customerGroupId, phone: $phone, email: $email, streetAddress: $streetAddress, zipCode: $zipCode, city: $city, country: $country, paymentStatus: $paymentStatus, partner: $partner, totalCents: $totalCents, otherBookingData: $otherBookingData)';
 }
 
 
@@ -586,7 +602,7 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
   factory _$BookingCopyWith(_Booking value, $Res Function(_Booking) _then) = __$BookingCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String customerGroupId, String? phone, String? email, String? streetAddress, String? zipCode, String? city, String? country, PaymentStatus paymentStatus, Map<String, String> otherBookingData
+ String id, String name, String customerGroupId, String? phone, String? email, String? streetAddress, String? zipCode, String? city, String? country, PaymentStatus paymentStatus, String? partner, int? totalCents, Map<String, String> otherBookingData
 });
 
 
@@ -603,7 +619,7 @@ class __$BookingCopyWithImpl<$Res>
 
 /// Create a copy of Booking
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? customerGroupId = null,Object? phone = freezed,Object? email = freezed,Object? streetAddress = freezed,Object? zipCode = freezed,Object? city = freezed,Object? country = freezed,Object? paymentStatus = null,Object? otherBookingData = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? customerGroupId = null,Object? phone = freezed,Object? email = freezed,Object? streetAddress = freezed,Object? zipCode = freezed,Object? city = freezed,Object? country = freezed,Object? paymentStatus = null,Object? partner = freezed,Object? totalCents = freezed,Object? otherBookingData = null,}) {
   return _then(_Booking(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -615,7 +631,9 @@ as String?,zipCode: freezed == zipCode ? _self.zipCode : zipCode // ignore: cast
 as String?,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String?,country: freezed == country ? _self.country : country // ignore: cast_nullable_to_non_nullable
 as String?,paymentStatus: null == paymentStatus ? _self.paymentStatus : paymentStatus // ignore: cast_nullable_to_non_nullable
-as PaymentStatus,otherBookingData: null == otherBookingData ? _self._otherBookingData : otherBookingData // ignore: cast_nullable_to_non_nullable
+as PaymentStatus,partner: freezed == partner ? _self.partner : partner // ignore: cast_nullable_to_non_nullable
+as String?,totalCents: freezed == totalCents ? _self.totalCents : totalCents // ignore: cast_nullable_to_non_nullable
+as int?,otherBookingData: null == otherBookingData ? _self._otherBookingData : otherBookingData // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,
   ));
 }

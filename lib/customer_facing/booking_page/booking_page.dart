@@ -18,7 +18,13 @@ import 'riverpod.dart';
 class BookingPage extends ConsumerStatefulWidget {
   final String? account;
   final String? tourId;
-  const BookingPage({super.key, required this.tourId, required this.account});
+  final String? partnerCode;
+  const BookingPage({
+    super.key,
+    required this.tourId,
+    required this.account,
+    this.partnerCode,
+  });
 
   @override
   ConsumerState<BookingPage> createState() => _BookingPageState();
@@ -33,6 +39,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       ref.read(accountPublicProvider.notifier).change(widget.account!);
       ref.read(selectedTourIdProvider.notifier).change(widget.tourId!);
+      ref.read(partnerCodeProvider.notifier).change(widget.partnerCode);
     });
   }
 
@@ -45,6 +52,7 @@ class _BookingPageState extends ConsumerState<BookingPage> {
         if (!mounted) return;
         ref.read(accountPublicProvider.notifier).change(widget.account!);
         ref.read(selectedTourIdProvider.notifier).change(widget.tourId!);
+        ref.read(partnerCodeProvider.notifier).change(widget.partnerCode);
       });
     }
   }

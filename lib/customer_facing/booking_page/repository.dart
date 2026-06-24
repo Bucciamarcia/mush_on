@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:mush_on/customer_management/partners/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
 import '../../customer_management/models.dart';
@@ -20,6 +21,7 @@ class BookingPageRepository {
   Future<String> getStripePaymentUrl({
     required Booking booking,
     required List<Customer> customers,
+    Partner? partner,
   }) async {
     try {
       logger.debug("Account: $account");
@@ -31,14 +33,20 @@ class BookingPageRepository {
       final customersData = customers
           .map((customer) => customer.copyWith(bookingId: booking.id).toJson())
           .toList();
+      // The discount itself is applied server-side — never trust the client
+      // for the amount; we only forward the partner id.
+      final payload = <String, dynamic>{
+        "account": account,
+        "tourId": tourId,
+        "booking": bookingData.toJson(),
+        "customers": customersData,
+      };
+      if (partner != null) {
+        payload["partner"] = partner.id;
+      }
       final response = await functions
           .httpsCallable("create_booking_checkout_session")
-          .call({
-            "account": account,
-            "tourId": tourId,
-            "booking": bookingData.toJson(),
-            "customers": customersData,
-          });
+          .call(payload);
       final data = response.data as Map<String, dynamic>;
       final error = data["error"];
       if (error != null) {
@@ -52,6 +60,49 @@ class BookingPageRepository {
     } catch (e, s) {
       logger.error(
         "Failed to create checkout session",
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
+
+  /// Creates a confirmed-but-unpaid booking and triggers the partner email.
+  /// Returns the bookingId. Calls "create_deferred_booking" with
+  /// {account, tourId, booking, customers, partner: partner.id}.
+  Future<String> createDeferredBooking({
+    required Booking booking,
+    required List<Customer> customers,
+    required Partner partner,
+  }) async {
+    try {
+      final bookingLabel = _getBookingLabel(booking, customers);
+      final bookingData = booking.copyWith(
+        name: bookingLabel,
+        paymentStatus: PaymentStatus.deferredPayment,
+      );
+      final customersData = customers
+          .map((customer) => customer.copyWith(bookingId: booking.id).toJson())
+          .toList();
+      final response = await functions
+          .httpsCallable("create_deferred_booking")
+          .call({
+            "account": account,
+            "tourId": tourId,
+            "booking": bookingData.toJson(),
+            "customers": customersData,
+            "partner": partner.id,
+          });
+      final data = response.data as Map<String, dynamic>;
+      final error = data["error"];
+      if (error != null) {
+        throw Exception("Error not null: ${error.toString()}");
+      }
+      final String bookingId = data["bookingId"];
+      return bookingId;
+    } catch (e, s) {
+      logger.error(
+        "Failed to create deferred booking",
         error: e,
         stackTrace: s,
       );

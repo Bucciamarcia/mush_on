@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:mush_on/customer_facing/booking_page/repository.dart';
 import 'package:mush_on/customer_facing/booking_page/riverpod.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/partners/logic.dart';
+import 'package:mush_on/customer_management/partners/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
@@ -706,6 +708,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
       selectedCustomerGroupInCalendarProvider,
     );
     final account = ref.watch(accountPublicProvider);
+    final partner = ref.watch(resolvedPartnerProvider).valueOrNull;
 
     final pricings = account == null
         ? <TourTypePricing>[]
@@ -830,7 +833,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
                 Text("Please wait: loading secure payment system"),
               ],
             )
-          else
+          else ...[
             Row(
               children: [
                 Expanded(
@@ -845,58 +848,42 @@ class BookingSummaryImmobile extends ConsumerWidget {
                   child: account == null
                       ? const SizedBox.shrink()
                       : ElevatedButton(
-                          onPressed: () async {
-                            if (!isComplete) {
-                              ref
-                                      .read(
-                                        showValidationErrorsProvider.notifier,
-                                      )
-                                      .state =
-                                  true;
-                              return;
-                            }
-                            ref
-                                .read(isLoadingCartProvider.notifier)
-                                .change(true);
-                            final repo = BookingPageRepository(
-                              account: account,
-                              tourId: tourType.id,
-                            );
-                            try {
-                              final booking = ref.read(bookingInfoProvider);
-                              final customers = ref.read(customersInfoProvider);
-                              if (booking != null) {
-                                final url = await repo.getStripePaymentUrl(
-                                  booking: booking,
-                                  customers: customers,
-                                );
-                                await _launchUrl(url);
-                              }
-                            } catch (e) {
-                              if (context.mounted) {
-                                final message =
-                                    e is FirebaseFunctionsException &&
-                                        e.code == 'failed-precondition'
-                                    ? e.message ?? "This group is now full."
-                                    : "Couldn't add booking: contact support.";
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).showSnackBar(errorSnackBar(context, message));
-                              }
-                            } finally {
-                              ref
-                                  .read(isLoadingCartProvider.notifier)
-                                  .change(false);
-                            }
-                          },
+                          onPressed: () => _payNow(
+                            context,
+                            ref,
+                            account: account,
+                            tourTypeId: tourType.id,
+                            isComplete: isComplete,
+                            partner: partner,
+                          ),
                           style: bookingPrimaryButtonStyle(),
                           child: Text(
-                            isComplete ? "Book now" : "Complete form",
+                            isComplete ? "Pay now" : "Complete form",
                           ),
                         ),
                 ),
               ],
             ),
+            if (account != null && canDeferPayment(partner)) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _payLater(
+                    context,
+                    ref,
+                    account: account,
+                    tourTypeId: tourType.id,
+                    isComplete: isComplete,
+                    partner: partner!,
+                  ),
+                  style: bookingSecondaryButtonStyle(),
+                  icon: const Icon(Icons.schedule),
+                  label: const Text("Pay later (invoice)"),
+                ),
+              ),
+            ],
+          ],
           const SizedBox(height: 18),
           const SafetyIconsWrap(),
         ],
@@ -908,6 +895,104 @@ class BookingSummaryImmobile extends ConsumerWidget {
     final uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
       throw Exception("Could not launch $url");
+    }
+  }
+
+  Future<void> _payNow(
+    BuildContext context,
+    WidgetRef ref, {
+    required String account,
+    required String tourTypeId,
+    required bool isComplete,
+    required Partner? partner,
+  }) async {
+    if (!isComplete) {
+      ref.read(showValidationErrorsProvider.notifier).state = true;
+      return;
+    }
+    ref.read(isLoadingCartProvider.notifier).change(true);
+    final repo = BookingPageRepository(account: account, tourId: tourTypeId);
+    try {
+      final booking = ref.read(bookingInfoProvider);
+      final customers = ref.read(customersInfoProvider);
+      if (booking != null) {
+        final url = await repo.getStripePaymentUrl(
+          booking: booking,
+          customers: customers,
+          partner: partner,
+        );
+        await _launchUrl(url);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        final message = e is FirebaseFunctionsException &&
+                e.code == 'failed-precondition'
+            ? e.message ?? "This group is now full."
+            : "Couldn't add booking: contact support.";
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(errorSnackBar(context, message));
+      }
+    } finally {
+      ref.read(isLoadingCartProvider.notifier).change(false);
+    }
+  }
+
+  Future<void> _payLater(
+    BuildContext context,
+    WidgetRef ref, {
+    required String account,
+    required String tourTypeId,
+    required bool isComplete,
+    required Partner partner,
+  }) async {
+    if (!isComplete) {
+      ref.read(showValidationErrorsProvider.notifier).state = true;
+      return;
+    }
+    ref.read(isLoadingCartProvider.notifier).change(true);
+    final repo = BookingPageRepository(account: account, tourId: tourTypeId);
+    try {
+      final booking = ref.read(bookingInfoProvider);
+      final customers = ref.read(customersInfoProvider);
+      if (booking != null) {
+        await repo.createDeferredBooking(
+          booking: booking,
+          customers: customers,
+          partner: partner,
+        );
+        if (context.mounted) {
+          await showDialog<void>(
+            context: context,
+            builder: (_) => AlertDialog.adaptive(
+              title: const Text("Booking confirmed"),
+              content: const Text(
+                "Your seat is reserved. A payment link has been emailed to the "
+                "partner to settle the balance.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          );
+          if (context.mounted) Navigator.of(context).pop();
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        final message = e is FirebaseFunctionsException &&
+                e.code == 'failed-precondition'
+            ? e.message ?? "This group is now full."
+            : "Couldn't reserve booking: contact support.";
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(errorSnackBar(context, message));
+      }
+    } finally {
+      ref.read(isLoadingCartProvider.notifier).change(false);
     }
   }
 }

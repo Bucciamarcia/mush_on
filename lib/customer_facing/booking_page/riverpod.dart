@@ -3,6 +3,8 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/customer_management/models.dart';
+import 'package:mush_on/customer_management/partners/models.dart';
+import 'package:mush_on/customer_management/partners/repository.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
@@ -48,6 +50,36 @@ class AccountPublic extends _$AccountPublic {
 
   void change(String newAccount) {
     state = newAccount;
+  }
+}
+
+/// The `&partner=<code>` value from the booking page URL, if any.
+@Riverpod(keepAlive: true)
+class PartnerCode extends _$PartnerCode {
+  @override
+  String? build() {
+    ref.keepAlive();
+    return null;
+  }
+
+  void change(String? code) {
+    state = (code == null || code.trim().isEmpty) ? null : code.trim();
+  }
+}
+
+/// Resolves the [PartnerCode] to a non-archived [Partner] for the current
+/// account, or null when there is no (valid) partner code.
+@riverpod
+Future<Partner?> resolvedPartner(Ref ref) async {
+  final account = ref.watch(accountPublicProvider);
+  final code = ref.watch(partnerCodeProvider);
+  if (account == null || code == null || code.trim().isEmpty) return null;
+  try {
+    final partners = await PartnersRepository(account: account).fetchPartners();
+    return partners.fromCode(code);
+  } catch (e, s) {
+    BasicLogger().error("Failed to resolve partner", error: e, stackTrace: s);
+    return null;
   }
 }
 

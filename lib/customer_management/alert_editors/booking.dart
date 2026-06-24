@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/customer_management/alert_editors/customer.dart';
+import 'package:mush_on/customer_management/alert_editors/logic.dart';
 import 'package:mush_on/customer_management/alert_editors/repository.dart';
 import 'package:mush_on/customer_management/alert_editors/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
@@ -354,25 +355,9 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                   ],
                 ),
               ),
-              (widget.booking != null &&
-                      widget.booking!.paymentStatus == PaymentStatus.paid &&
-                      userName.userLevel.rank >= UserLevel.musher.rank)
-                  ? ElevatedButton.icon(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext alertContext) {
-                            return ConfirmRefundDialog(
-                              booking: widget.booking!,
-                              onRefunded: () => Navigator.of(context).pop(),
-                            );
-                          },
-                        );
-                      },
-                      icon: const Icon(Icons.warning),
-                      label: const Text("Refund booking"),
-                    )
-                  : const SizedBox.shrink(),
+              if (widget.booking != null &&
+                  userName.userLevel.rank >= UserLevel.musher.rank)
+                ..._buildBookingActions(context, widget.booking!),
             ],
           ),
         ),
@@ -465,6 +450,51 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
         ),
       ],
     );
+  }
+
+  /// Destructive action(s) for an existing booking, chosen by [bookingActionFor]:
+  /// refund (on-platform paid) / cancel (everything else) / none (refunded).
+  List<Widget> _buildBookingActions(BuildContext context, Booking booking) {
+    switch (bookingActionFor(booking)) {
+      case BookingAction.refund:
+        return [
+          ElevatedButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext alertContext) {
+                  return ConfirmRefundDialog(
+                    booking: booking,
+                    onRefunded: () => Navigator.of(context).pop(),
+                  );
+                },
+              );
+            },
+            icon: const Icon(Icons.warning),
+            label: const Text("Refund booking"),
+          ),
+        ];
+      case BookingAction.cancel:
+        return [
+          ElevatedButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext alertContext) {
+                  return ConfirmCancelBookingDialog(
+                    booking: booking,
+                    onCancelled: () => Navigator.of(context).pop(),
+                  );
+                },
+              );
+            },
+            icon: const Icon(Icons.cancel_outlined),
+            label: const Text("Cancel booking"),
+          ),
+        ];
+      case BookingAction.none:
+        return const [];
+    }
   }
 }
 
@@ -675,6 +705,103 @@ class ConfirmRefundDialog extends ConsumerWidget {
                 ),
                 child: Text(
                   "Refund payment",
+                  style: TextStyle(color: colorScheme.onError),
+                ),
+              ),
+      ],
+    );
+  }
+}
+
+/// Confirms cancellation of a non-paid booking (deferred / off-platform /
+/// waiting / unknown). Frees the seat by deleting the booking and its
+/// customers — no Stripe involved.
+class ConfirmCancelBookingDialog extends ConsumerStatefulWidget {
+  final Booking booking;
+  final Function() onCancelled;
+  const ConfirmCancelBookingDialog({
+    super.key,
+    required this.booking,
+    required this.onCancelled,
+  });
+
+  @override
+  ConsumerState<ConfirmCancelBookingDialog> createState() =>
+      _ConfirmCancelBookingDialogState();
+}
+
+class _ConfirmCancelBookingDialogState
+    extends ConsumerState<ConfirmCancelBookingDialog> {
+  bool _isProcessing = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final account = ref.watch(accountProvider).value;
+    return AlertDialog.adaptive(
+      title: const Text("Cancel this booking?"),
+      content: const Text(
+        "This frees the seat and deletes the booking and all its customers. "
+        "This CANNOT be reversed!",
+      ),
+      actions: [
+        if (!_isProcessing)
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              "Go back",
+              style: TextStyle(color: colorScheme.primary),
+            ),
+          ),
+        _isProcessing
+            ? const CircularProgressIndicator.adaptive()
+            : ElevatedButton(
+                onPressed: () async {
+                  setState(() => _isProcessing = true);
+                  if (account == null) {
+                    BasicLogger().warning("Account is null");
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(
+                          context,
+                          "Error: account is null. This shouldn't happen!",
+                        ),
+                      );
+                    }
+                    setState(() => _isProcessing = false);
+                    return;
+                  }
+                  try {
+                    final repo = AlertEditorsRepository(account: account);
+                    await repo.cancelBooking(widget.booking);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        confirmationSnackbar(context, "Booking cancelled"),
+                      );
+                    }
+                    if (context.mounted) Navigator.of(context).pop();
+                    widget.onCancelled();
+                  } catch (e, s) {
+                    BasicLogger().error(
+                      "Failed to cancel booking",
+                      error: e,
+                      stackTrace: s,
+                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        errorSnackBar(context, "Failed to cancel booking"),
+                      );
+                    }
+                    return;
+                  } finally {
+                    if (mounted) setState(() => _isProcessing = false);
+                  }
+                },
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(colorScheme.error),
+                ),
+                child: Text(
+                  "Cancel booking",
                   style: TextStyle(color: colorScheme.onError),
                 ),
               ),
