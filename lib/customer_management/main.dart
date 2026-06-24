@@ -10,7 +10,6 @@ import 'package:mush_on/customer_management/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/extensions.dart';
-import 'customer_group_viewer.dart';
 import 'models.dart';
 
 class ClientManagementMainScreen extends ConsumerWidget {
@@ -100,9 +99,8 @@ class ClientManagementMainScreen extends ConsumerWidget {
                       Align(
                         alignment: Alignment.centerRight,
                         child: OutlinedButton.icon(
-                          onPressed: () => context.go(
-                            "/client_management/partners",
-                          ),
+                          onPressed: () =>
+                              context.go("/client_management/partners"),
                           icon: const Icon(Icons.handshake_outlined),
                           label: const Text("Manage partners"),
                         ),
@@ -261,12 +259,9 @@ class ListCustomerGroups extends ConsumerWidget {
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    CustomerGroupViewerScreen(customerGroupId: cg.id),
-              ),
+            onTap: () => context.goNamed(
+              "customerGroupViewer",
+              queryParameters: {"customerGroupId": cg.id},
             ),
             child: Padding(
               padding: const EdgeInsets.all(16.0),
