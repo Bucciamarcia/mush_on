@@ -4,6 +4,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
+import 'package:mush_on/shared/dog_filter/date_range_picker/main.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:mush_on/stats/repository.dart';
 import 'package:mush_on/stats/riverpod.dart';
@@ -75,13 +76,13 @@ class StatsMain extends ConsumerWidget {
                               ExpansionTile(
                                 title: const Text("Change date range"),
                                 children: [
-                                  SfDateRangePicker(
+                                  DateRangePicker(
+                                    minDate: null,
+                                    maxDate: null,
                                     initialSelectedRange: PickerDateRange(
                                       selectedDateRange.start,
                                       selectedDateRange.end,
                                     ),
-                                    selectionMode:
-                                        DateRangePickerSelectionMode.range,
                                     onSelectionChanged: (args) {
                                       if (args.value is PickerDateRange) {
                                         final range =

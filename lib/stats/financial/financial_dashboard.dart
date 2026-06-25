@@ -6,8 +6,10 @@ import 'package:mush_on/page_template.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models/user_level.dart';
+import 'package:mush_on/shared/dog_filter/date_range_picker/main.dart';
 import 'package:mush_on/stats/financial/logic.dart';
 import 'package:mush_on/stats/financial/repository.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 /// Musher-only dashboard showing aggregated revenue, commission, outstanding
 /// (deferred) receivables and breakdowns by partner / tour type.
@@ -76,28 +78,25 @@ class _FinancialDashboardMainState
     });
   }
 
-  Future<void> _pickRange() async {
-    final now = DateTime.now();
-    final picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(now.year - 5),
-      lastDate: DateTime(now.year + 1),
-      initialDateRange: _range,
-    );
-    if (picked != null) {
-      // computeFinancialSummary treats `end` as exclusive, so push it to the
-      // start of the day after the picked end to make the chosen day inclusive.
-      setState(() {
-        _range = DateTimeRange(
-          start: DateTime(picked.start.year, picked.start.month, picked.start.day),
-          end: DateTime(
-            picked.end.year,
-            picked.end.month,
-            picked.end.day,
-          ).add(const Duration(days: 1)),
-        );
-      });
+  void _changeRange(PickerDateRange range) {
+    final start = range.startDate;
+    final end = range.endDate;
+    if (start == null || end == null) {
+      return;
     }
+
+    // computeFinancialSummary treats `end` as exclusive, so push it to the
+    // start of the day after the picked end to make the chosen day inclusive.
+    setState(() {
+      _range = DateTimeRange(
+        start: DateTime(start.year, start.month, start.day),
+        end: DateTime(
+          end.year,
+          end.month,
+          end.day,
+        ).add(const Duration(days: 1)),
+      );
+    });
   }
 
   @override
@@ -125,7 +124,11 @@ class _FinancialDashboardMainState
             children: [
               _RangeBar(
                 range: _range,
-                onPick: _pickRange,
+                onSelectionChanged: (args) {
+                  if (args.value is PickerDateRange) {
+                    _changeRange(args.value as PickerDateRange);
+                  }
+                },
                 onClear: _range == null
                     ? null
                     : () => setState(() => _range = null),
@@ -176,10 +179,14 @@ String formatMoney(int cents) => "€${(cents / 100).toStringAsFixed(2)}";
 
 class _RangeBar extends StatelessWidget {
   final DateTimeRange? range;
-  final VoidCallback onPick;
+  final Function(DateRangePickerSelectionChangedArgs) onSelectionChanged;
   final VoidCallback? onClear;
 
-  const _RangeBar({required this.range, required this.onPick, this.onClear});
+  const _RangeBar({
+    required this.range,
+    required this.onSelectionChanged,
+    this.onClear,
+  });
 
   String _format(DateTime d) =>
       "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
@@ -192,23 +199,28 @@ class _RangeBar extends StatelessWidget {
         // inclusive last day to match what the user picked.
         : "${_format(range!.start)} → "
               "${_format(range!.end.subtract(const Duration(days: 1)))}";
-    return Row(
+    final now = DateTime.now();
+    return ExpansionTile(
+      leading: const Icon(Icons.event),
+      title: Text(label, style: Theme.of(context).textTheme.titleMedium),
+      trailing: onClear == null
+          ? null
+          : IconButton(
+              tooltip: "Clear filter",
+              onPressed: onClear,
+              icon: const Icon(Icons.clear),
+            ),
       children: [
-        const Icon(Icons.event),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(label, style: Theme.of(context).textTheme.titleMedium),
-        ),
-        if (onClear != null)
-          IconButton(
-            tooltip: "Clear filter",
-            onPressed: onClear,
-            icon: const Icon(Icons.clear),
-          ),
-        FilledButton.tonalIcon(
-          onPressed: onPick,
-          icon: const Icon(Icons.date_range),
-          label: const Text("Date range"),
+        DateRangePicker(
+          minDate: DateTime(now.year - 5),
+          maxDate: DateTime(now.year + 1),
+          initialSelectedRange: range == null
+              ? null
+              : PickerDateRange(
+                  range!.start,
+                  range!.end.subtract(const Duration(days: 1)),
+                ),
+          onSelectionChanged: onSelectionChanged,
         ),
       ],
     );
@@ -316,9 +328,9 @@ class _MetricCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               value,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mush_on/services/extensions.dart';
+import 'package:mush_on/shared/dog_filter/date_range_picker/main.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class TeamsHistoryDateSelector extends ConsumerWidget {
@@ -18,7 +19,9 @@ class TeamsHistoryDateSelector extends ConsumerWidget {
         style: TextStyle(overflow: TextOverflow.ellipsis),
       ),
       children: [
-        SfDateRangePicker(
+        DateRangePicker(
+          minDate: null,
+          maxDate: null,
           onSelectionChanged: (args) {
             PickerDateRange range = args.value;
             onDateRangeSelected(
@@ -36,7 +39,6 @@ class TeamsHistoryDateSelector extends ConsumerWidget {
                     ),
             );
           },
-          selectionMode: DateRangePickerSelectionMode.range,
         ),
       ],
     );
