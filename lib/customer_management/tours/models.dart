@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mush_on/services/models/dog.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
 part 'models.freezed.dart';
 part 'models.g.dart';
 
@@ -49,6 +50,7 @@ sealed class TourType with _$TourType {
 ///
 /// In the DB this is a subcollection of TourType.
 sealed class TourTypePricing with _$TourTypePricing {
+  @JsonSerializable(explicitToJson: true)
   const factory TourTypePricing({
     required String id,
 
@@ -72,6 +74,9 @@ sealed class TourTypePricing with _$TourTypePricing {
 
     /// The vat rate of this price.
     @Default(0) double vatRate,
+
+    /// Customer fields asked only from passengers using this pricing option.
+    @Default([]) List<CustomerCustomField> customerCustomFields,
   }) = _TourTypePricing;
 
   factory TourTypePricing.fromJson(Map<String, dynamic> json) =>

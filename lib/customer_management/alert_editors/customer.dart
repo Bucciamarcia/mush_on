@@ -120,7 +120,11 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
       return const CircularProgressIndicator.adaptive();
     }
     final kennelInfo = kennelInfoAsync.valueOrNull;
-    for (final field in kennelInfo?.customerCustomFields ?? const []) {
+    final visibleCustomerFields = [
+      ...?kennelInfo?.customerCustomFields,
+      ...?selectedPricing?.customerCustomFields,
+    ];
+    for (final field in visibleCustomerFields) {
       customerCustomFieldControllers.putIfAbsent(
         field.name,
         () => TextEditingController(
@@ -186,7 +190,7 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
             mainAxisSize: MainAxisSize.min,
             spacing: 24,
             children: [
-              if ((kennelInfo?.customerCustomFields ?? []).isEmpty)
+              if (visibleCustomerFields.isEmpty)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
@@ -207,7 +211,7 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
                   ),
                 )
               else
-                ...kennelInfo!.customerCustomFields.map(
+                ...visibleCustomerFields.map(
                   (field) => TextField(
                     controller: customerCustomFieldControllers[field.name],
                     decoration: InputDecoration(

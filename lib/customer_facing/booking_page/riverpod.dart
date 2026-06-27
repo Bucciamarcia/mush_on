@@ -8,6 +8,7 @@ import 'package:mush_on/customer_management/partners/repository.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
+import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 part 'riverpod.g.dart';
@@ -324,7 +325,41 @@ final kennelTimezoneProvider = Provider<String>((ref) {
 final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
   final booking = ref.watch(bookingInfoProvider);
   if (booking == null) return false;
+  final customers = ref.watch(customersInfoProvider);
+  final account = ref.watch(accountPublicProvider);
+  final kennelInfo = account == null
+      ? null
+      : ref
+            .watch(bookingManagerKennelInfoProvider(account: account))
+            .valueOrNull;
 
+  final tourId = ref.watch(selectedTourIdProvider);
+  final prices = account == null || tourId == null
+      ? const <TourTypePricing>[]
+      : ref
+                .watch(
+                  tourTypePricesByTourIdProvider(
+                    tourId: tourId,
+                    account: account,
+                  ),
+                )
+                .valueOrNull ??
+            const <TourTypePricing>[];
+
+  return bookingAllFieldsComplete(
+    booking: booking,
+    customers: customers,
+    kennelInfo: kennelInfo,
+    pricings: prices,
+  );
+});
+
+bool bookingAllFieldsComplete({
+  required Booking booking,
+  required List<Customer> customers,
+  required BookingManagerKennelInfo? kennelInfo,
+  required List<TourTypePricing> pricings,
+}) {
   bool filled(String? v) => (v ?? '').trim().isNotEmpty;
 
   bool isValidEmail(String? email) {
@@ -343,27 +378,27 @@ final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
       filled(booking.city) &&
       filled(booking.country);
 
-  final customers = ref.watch(customersInfoProvider);
-  final account = ref.watch(accountPublicProvider);
-  final kennelInfo = account == null
-      ? null
-      : ref
-            .watch(bookingManagerKennelInfoProvider(account: account))
-            .valueOrNull;
-
   final requiredCustomerFields =
       kennelInfo?.customerCustomFields
           .where((field) => field.isRequired)
           .toList() ??
       const <CustomerCustomField>[];
+  final pricingById = {for (final price in pricings) price.id: price};
 
   final passengersOk =
       customers.isNotEmpty &&
-      customers.every(
-        (customer) => requiredCustomerFields.every(
+      customers.every((customer) {
+        final pricingFields =
+            pricingById[customer.pricingId]?.customerCustomFields ??
+            const <CustomerCustomField>[];
+        final requiredFields = [
+          ...requiredCustomerFields,
+          ...pricingFields.where((field) => field.isRequired),
+        ];
+        return requiredFields.every(
           (field) => filled(customer.customerOtherInfo[field.name]),
-        ),
-      );
+        );
+      });
 
   final requiredOtherInfoOk = kennelInfo == null
       ? true
@@ -372,4 +407,4 @@ final bookingAllFieldsCompleteProvider = Provider<bool>((ref) {
             .every((field) => filled(booking.otherBookingData[field.name]));
 
   return contactOk && passengersOk && requiredOtherInfoOk;
-});
+}

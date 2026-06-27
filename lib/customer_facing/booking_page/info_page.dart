@@ -167,10 +167,7 @@ class CollectInfoWidget extends ConsumerWidget {
                     _PassengerBlock(
                       index: customerMap.key,
                       customer: customerMap.value,
-                      pricingLabel:
-                          pricingById[customerMap.value.pricingId]
-                              ?.displayName ??
-                          '',
+                      pricing: pricingById[customerMap.value.pricingId],
                       itemWidth: itemWidth,
                       customerCustomFields: kennelInfo.customerCustomFields,
                     ),
@@ -243,19 +240,22 @@ class CollectInfoWidget extends ConsumerWidget {
 class _PassengerBlock extends StatelessWidget {
   final int index;
   final Customer customer;
-  final String pricingLabel;
+  final TourTypePricing? pricing;
   final double itemWidth;
   final List<CustomerCustomField> customerCustomFields;
   const _PassengerBlock({
     required this.index,
     required this.customer,
-    required this.pricingLabel,
+    required this.pricing,
     required this.itemWidth,
     required this.customerCustomFields,
   });
 
   @override
   Widget build(BuildContext context) {
+    final pricingLabel = pricing?.displayName ?? "";
+    final fields = [...customerCustomFields, ...?pricing?.customerCustomFields];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -293,7 +293,7 @@ class _PassengerBlock extends StatelessWidget {
         Wrap(
           spacing: 16,
           runSpacing: 14,
-          children: customerCustomFields
+          children: fields
               .map(
                 (field) => SizedBox(
                   width: itemWidth,
@@ -857,9 +857,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
                             partner: partner,
                           ),
                           style: bookingPrimaryButtonStyle(),
-                          child: Text(
-                            isComplete ? "Pay now" : "Complete form",
-                          ),
+                          child: Text(isComplete ? "Pay now" : "Complete form"),
                         ),
                 ),
               ],
@@ -925,8 +923,8 @@ class BookingSummaryImmobile extends ConsumerWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        final message = e is FirebaseFunctionsException &&
-                e.code == 'failed-precondition'
+        final message =
+            e is FirebaseFunctionsException && e.code == 'failed-precondition'
             ? e.message ?? "This group is now full."
             : "Couldn't add booking: contact support.";
         ScaffoldMessenger.of(
@@ -983,8 +981,8 @@ class BookingSummaryImmobile extends ConsumerWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        final message = e is FirebaseFunctionsException &&
-                e.code == 'failed-precondition'
+        final message =
+            e is FirebaseFunctionsException && e.code == 'failed-precondition'
             ? e.message ?? "This group is now full."
             : "Couldn't reserve booking: contact support.";
         ScaffoldMessenger.of(

@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mush_on/customer_management/tours/cart_actions.dart';
 import 'package:mush_on/customer_management/tours/repository.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/settings/stripe/customer_custom_fields.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models.dart';
@@ -117,7 +120,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(confirmationSnackbar(context, "Tour saved"));
-                Navigator.of(context).pop();
+                context.go("/tours");
               }
             },
             onTourDeleted: () async {
@@ -142,7 +145,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(confirmationSnackbar(context, "Tour deleted"));
-                  Navigator.of(context).pop();
+                  context.go("/tours");
                 }
               } catch (e, s) {
                 BasicLogger().error(
@@ -549,6 +552,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
   late TextEditingController notes;
   late TextEditingController displayNameController;
   late TextEditingController displayDescription;
+  late List<CustomerCustomField> pricingCustomerFields;
 
   @override
   void initState() {
@@ -568,6 +572,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
     displayDescription = TextEditingController(
       text: widget.pricing?.displayDescription,
     );
+    pricingCustomerFields = [...?widget.pricing?.customerCustomFields];
   }
 
   @override
@@ -776,6 +781,39 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
                 ),
                 maxLines: 3,
               ),
+              _PricingCustomerFieldsEditor(
+                fields: pricingCustomerFields,
+                onFieldAdded: () {
+                  setState(() {
+                    pricingCustomerFields = [
+                      ...pricingCustomerFields,
+                      CustomerCustomField(
+                        id: const Uuid().v4(),
+                        type: CustomerCustomFieldType.text,
+                        name: "",
+                        description: "",
+                        isRequired: false,
+                      ),
+                    ];
+                  });
+                },
+                onFieldChanged: (index, field) {
+                  setState(() {
+                    pricingCustomerFields = [
+                      for (var i = 0; i < pricingCustomerFields.length; i++)
+                        if (i == index) field else pricingCustomerFields[i],
+                    ];
+                  });
+                },
+                onFieldDeleted: (index) {
+                  setState(() {
+                    pricingCustomerFields = [
+                      for (var i = 0; i < pricingCustomerFields.length; i++)
+                        if (i != index) pricingCustomerFields[i],
+                    ];
+                  });
+                },
+              ),
             ],
           ),
         ),
@@ -800,6 +838,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
                   vatRate: (double.tryParse(vatController.text) ?? 0.0) / 100,
                   notes: notes.text,
                   displayDescription: displayDescription.text,
+                  customerCustomFields: pricingCustomerFields,
                 ),
               );
               Navigator.of(context).pop();
@@ -812,7 +851,105 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
           ),
+        if (isViewOnly)
+          ElevatedButton.icon(
+            onPressed: () {
+              widget.onPricingSaved(
+                widget.pricing!.copyWith(
+                  customerCustomFields: pricingCustomerFields,
+                ),
+              );
+              Navigator.of(context).pop();
+            },
+            icon: const Icon(Icons.save),
+            label: const Text("Save fields"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+          ),
       ],
+    );
+  }
+}
+
+class _PricingCustomerFieldsEditor extends StatelessWidget {
+  final List<CustomerCustomField> fields;
+  final VoidCallback onFieldAdded;
+  final void Function(int index, CustomerCustomField field) onFieldChanged;
+  final void Function(int index) onFieldDeleted;
+
+  const _PricingCustomerFieldsEditor({
+    required this.fields,
+    required this.onFieldAdded,
+    required this.onFieldChanged,
+    required this.onFieldDeleted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.dynamic_form, color: colorScheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  "Customer fields for this pricing",
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            "Shown only to passengers booked on this pricing option.",
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          if (fields.isEmpty)
+            Text(
+              "No pricing-specific fields configured.",
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            )
+          else
+            ...fields.asMap().entries.map(
+              (entry) => FieldDisplayWidget(
+                key: ValueKey(entry.value.id),
+                field: entry.value,
+                onChanged: (field) => onFieldChanged(entry.key, field),
+                onDeleted: () => onFieldDeleted(entry.key),
+              ),
+            ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: OutlinedButton.icon(
+              onPressed: onFieldAdded,
+              icon: const Icon(Icons.add),
+              label: const Text("Add field"),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
