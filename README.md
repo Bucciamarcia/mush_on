@@ -171,3 +171,4 @@ A cool and open source CRM for sled dog kennels.
 - Removes outdated "delete booking" button.
 - Adds go to cart button.
 - Adds pricing tier custom fields.
+- Improves data display in customers' create team.

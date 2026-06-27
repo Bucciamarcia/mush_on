@@ -10,6 +10,8 @@ import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/services/models.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
+import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:mush_on/shared/text_title.dart';
 import 'package:uuid/uuid.dart';
 
@@ -35,16 +37,37 @@ String _customerLabel(
 
 String _categorySummary(
   List<Customer> customers,
+  List<Booking> bookings,
   List<TourTypePricing> pricings,
 ) {
-  final counts = <String, int>{};
+  final counts = <({String pricingName, String bookingId}), int>{};
   for (final c in customers) {
     final pricing = pricings.firstWhereOrNull((p) => p.id == c.pricingId);
     final name = pricing?.name ?? "?";
-    counts[name] = (counts[name] ?? 0) + 1;
+    final key = (pricingName: name, bookingId: c.bookingId);
+    counts[key] = (counts[key] ?? 0) + 1;
   }
   if (counts.isEmpty) return "";
-  return counts.entries.map((e) => "${e.value} ${e.key}").join(" · ");
+  return counts.entries
+      .map((e) {
+        final booking = bookings.firstWhereOrNull(
+          (b) => b.id == e.key.bookingId,
+        );
+        return "${e.value} ${e.key.pricingName} (${_bookingLabel(booking)})";
+      })
+      .join(" · ");
+}
+
+String _bookingLabel(Booking? booking) {
+  if (booking == null) return "Booking";
+  if (booking.name.trim().isNotEmpty) return booking.name.trim();
+  if (booking.email != null && booking.email!.trim().isNotEmpty) {
+    return booking.email!.trim();
+  }
+  if (booking.phone != null && booking.phone!.trim().isNotEmpty) {
+    return booking.phone!.trim();
+  }
+  return "Booking";
 }
 
 class CustomersCreateTeam extends ConsumerWidget {
@@ -144,7 +167,13 @@ class SingleTeamAssign extends ConsumerWidget {
               style: TextStyle(color: _buildTeamColor(customerGroup, team)),
             ),
             if (assignedCustomers.isNotEmpty)
-              Text(_categorySummary(assignedCustomers, pricings)),
+              Text(
+                _categorySummary(
+                  assignedCustomers,
+                  customerGroup.bookings,
+                  pricings,
+                ),
+              ),
             ElevatedButton(
               onPressed: () {
                 showDialog(
@@ -287,6 +316,9 @@ class BookingDisplay extends ConsumerWidget {
             datetime: DateTime.now(),
           ),
         );
+    final kennelInfo = ref
+        .watch(bookingManagerKennelInfoProvider())
+        .valueOrNull;
     var customers = _sortCustomers(customerGroup.customers, teamId);
     return SizedBox(
       width: double.infinity,
@@ -307,6 +339,7 @@ class BookingDisplay extends ConsumerWidget {
                         teamId: teamId,
                         booking: booking,
                         pricings: pricings,
+                        kennelInfo: kennelInfo,
                         allCustomers: allCustomers,
                         onCustomerSelected: () => onCustomerSelected(c),
                         onCustomerDeselected: () => onCustomerDeselected(c),
@@ -351,6 +384,7 @@ class CustomerActionChip extends ConsumerWidget {
   final String teamId;
   final Booking booking;
   final List<TourTypePricing> pricings;
+  final BookingManagerKennelInfo? kennelInfo;
   final List<Customer> allCustomers;
   final Function() onCustomerSelected;
   final Function() onCustomerDeselected;
@@ -360,6 +394,7 @@ class CustomerActionChip extends ConsumerWidget {
     required this.teamId,
     required this.booking,
     required this.pricings,
+    required this.kennelInfo,
     required this.allCustomers,
     required this.onCustomerSelected,
     required this.onCustomerDeselected,
@@ -437,36 +472,34 @@ class CustomerActionChip extends ConsumerWidget {
   }
 
   void _showBookingInfo(BuildContext context, String customerLabel) {
-    final bookingCustomers =
-        allCustomers.where((c) => c.bookingId == booking.id).toList()
-          ..sort((a, b) => a.id.compareTo(b.id));
+    final pricing = pricings.firstWhereOrNull(
+      (p) => p.id == customer.pricingId,
+    );
+    final generalFields = kennelInfo?.customerCustomFields ?? [];
+    final pricingFields = pricing?.customerCustomFields ?? [];
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(booking.name.isNotEmpty ? booking.name : "Booking info"),
+        title: Text(customerLabel),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (booking.email != null && booking.email!.isNotEmpty)
-              Text("Email: ${booking.email}"),
-            if (booking.phone != null && booking.phone!.isNotEmpty)
-              Text("Phone: ${booking.phone}"),
-            const SizedBox(height: 8),
-            const Text(
-              "Customers in this booking:",
-              style: TextStyle(fontWeight: FontWeight.w600),
+            Text("Booking: ${_bookingLabel(booking)}"),
+            if (pricing != null) Text("Pricing tier: ${pricing.name}"),
+            const SizedBox(height: 12),
+            _CustomFieldsSection(
+              title: "Customer fields",
+              fields: generalFields,
+              values: customer.customerOtherInfo,
             ),
-            ...bookingCustomers.map((c) {
-              final lbl = _customerLabel(c, allCustomers, pricings);
-              final status = c.teamId == null
-                  ? "unassigned"
-                  : c.teamId == teamId
-                  ? "this sled"
-                  : "another sled";
-              return Text("$lbl — $status");
-            }),
+            const SizedBox(height: 12),
+            _CustomFieldsSection(
+              title: "Pricing tier fields",
+              fields: pricingFields,
+              values: customer.customerOtherInfo,
+            ),
           ],
         ),
         actions: [
@@ -520,5 +553,37 @@ class CustomerActionChip extends ConsumerWidget {
     } else {
       return Colors.green;
     }
+  }
+}
+
+class _CustomFieldsSection extends StatelessWidget {
+  final String title;
+  final List<CustomerCustomField> fields;
+  final Map<String, String> values;
+  const _CustomFieldsSection({
+    required this.title,
+    required this.fields,
+    required this.values,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        if (fields.isEmpty)
+          Text("No fields configured", style: theme.textTheme.bodySmall)
+        else
+          ...fields.map((field) {
+            final value = values[field.name]?.trim();
+            return Text(
+              "${field.name}: ${value == null || value.isEmpty ? "Not provided" : value}",
+            );
+          }),
+      ],
+    );
   }
 }

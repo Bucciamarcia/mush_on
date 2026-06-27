@@ -14,6 +14,8 @@ import 'package:mush_on/riverpod.dart' as app_riverpod;
 import 'package:mush_on/services/models.dart';
 import 'package:mush_on/services/models/settings/settings.dart';
 import 'package:mush_on/services/models/tasks.dart';
+import 'package:mush_on/settings/stripe/riverpod.dart';
+import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:mush_on/shared/distance_warning_widget/riverpod.dart';
 import 'package:mush_on/shared/dog_filter/main.dart';
 import 'package:searchfield/searchfield.dart';
@@ -799,6 +801,81 @@ void main() {
       expect(selectedCount, 1);
       expect(deselectedCount, 0);
     });
+
+    testWidgets('info dialog shows customer and pricing custom fields', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _customerChipHarness(
+          customer: const Customer(
+            id: 'customer-1',
+            bookingId: 'booking-1',
+            pricingId: 'adult',
+            customerOtherInfo: {
+              'Dog name': 'Floki',
+              'Pickup point': 'Hotel',
+              'Helmet size': 'M',
+            },
+          ),
+          booking: const Booking(
+            id: 'booking-1',
+            customerGroupId: 'group-1',
+            name: 'Smith',
+          ),
+          pricings: const [
+            TourTypePricing(
+              id: 'adult',
+              name: 'Adult',
+              customerCustomFields: [
+                CustomerCustomField(
+                  id: 'tier-field-1',
+                  type: CustomerCustomFieldType.text,
+                  name: 'Helmet size',
+                  description: '',
+                  isRequired: false,
+                ),
+              ],
+            ),
+          ],
+          kennelInfo: const BookingManagerKennelInfo(
+            name: 'Kennel',
+            url: 'kennel',
+            email: 'hello@example.com',
+            cancellationPolicy: '',
+            vatRate: 0,
+            customerCustomFields: [
+              CustomerCustomField(
+                id: 'field-1',
+                type: CustomerCustomFieldType.text,
+                name: 'Dog name',
+                description: '',
+                isRequired: false,
+              ),
+              CustomerCustomField(
+                id: 'field-2',
+                type: CustomerCustomFieldType.text,
+                name: 'Pickup point',
+                description: '',
+                isRequired: false,
+              ),
+            ],
+          ),
+          teamId: 'team-a',
+          onCustomerSelected: () {},
+          onCustomerDeselected: () {},
+        ),
+      );
+
+      await tester.tap(find.byIcon(Icons.info_outline));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Customer fields'), findsOneWidget);
+      expect(find.text('Dog name: Floki'), findsOneWidget);
+      expect(find.text('Pickup point: Hotel'), findsOneWidget);
+      expect(find.text('Pricing tier fields'), findsOneWidget);
+      expect(find.text('Helmet size: M'), findsOneWidget);
+      expect(find.text('Customers in this booking:'), findsNothing);
+    });
   });
 }
 
@@ -832,6 +909,9 @@ Widget _customerChipHarness({
   required String teamId,
   required VoidCallback onCustomerSelected,
   required VoidCallback onCustomerDeselected,
+  Booking? booking,
+  List<TourTypePricing> pricings = const <TourTypePricing>[],
+  BookingManagerKennelInfo? kennelInfo,
 }) {
   return ProviderScope(
     child: MaterialApp(
@@ -839,8 +919,11 @@ Widget _customerChipHarness({
         body: CustomerActionChip(
           customer: customer,
           teamId: teamId,
-          booking: Booking(id: customer.bookingId, customerGroupId: 'group-1'),
-          pricings: const <TourTypePricing>[],
+          booking:
+              booking ??
+              Booking(id: customer.bookingId, customerGroupId: 'group-1'),
+          pricings: pricings,
+          kennelInfo: kennelInfo,
           allCustomers: [customer],
           onCustomerSelected: onCustomerSelected,
           onCustomerDeselected: onCustomerDeselected,
