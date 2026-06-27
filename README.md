@@ -169,3 +169,4 @@ A cool and open source CRM for sled dog kennels.
 - Adds mass refund customer group bookings.
 - Adds safeguards against deleting a customer group.
 - Removes outdated "delete booking" button.
+- Adds go to cart button.
