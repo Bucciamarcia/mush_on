@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mush_on/customer_management/tours/cart_actions.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
 
 import 'models.dart';
@@ -79,6 +80,10 @@ class TourTypeCard extends ConsumerWidget {
               if (prices.isNotEmpty) _buildPricingInfo(colorScheme, prices),
               if (tour.notes?.isNotEmpty == true)
                 _buildInternalNotes(colorScheme),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TourCartActions(tourId: tour.id),
+              ),
             ],
           ),
         ),

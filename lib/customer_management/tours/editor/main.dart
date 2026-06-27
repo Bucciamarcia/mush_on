@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mush_on/customer_management/tours/cart_actions.dart';
 import 'package:mush_on/customer_management/tours/repository.dart';
 import 'package:mush_on/customer_management/tours/riverpod.dart';
 import 'package:mush_on/riverpod.dart';
@@ -80,6 +81,7 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
           _buildPricingSection(colorScheme, prices, priceNotifier),
           _buildSaveSection(
             colorScheme,
+            showCartActions: widget.tour != null,
             onTourSaved: () async {
               var repo = ToursRepository(
                 account: await ref.watch(accountProvider.future),
@@ -459,47 +461,66 @@ class _TourEditorMainState extends ConsumerState<TourEditorMain> {
 
   Widget _buildSaveSection(
     ColorScheme colorScheme, {
+    required bool showCartActions,
     required Function() onTourSaved,
     required Function() onTourDeleted,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
         spacing: 12,
         children: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text("Cancel", style: TextStyle(color: colorScheme.error)),
-          ),
-          ElevatedButton.icon(
-            onPressed: () => showDialog(
-              context: context,
-              builder: (_) => ConfirmDeleteAlert(
-                onConfirmed: () {
-                  onTourDeleted();
-                },
+          if (showCartActions)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TourCartActions(tourId: id),
+            ),
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(color: colorScheme.error),
+                ),
               ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.error,
-              foregroundColor: colorScheme.onError,
-            ),
-            icon: const Icon(Icons.delete),
-            label: Text(
-              "Archive",
-              style: TextStyle(color: colorScheme.onError),
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () => onTourSaved(),
-            icon: const Icon(Icons.save),
-            label: const Text("Save Tour"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
+              ElevatedButton.icon(
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (_) => ConfirmDeleteAlert(
+                    onConfirmed: () {
+                      onTourDeleted();
+                    },
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.error,
+                  foregroundColor: colorScheme.onError,
+                ),
+                icon: const Icon(Icons.delete),
+                label: Text(
+                  "Archive",
+                  style: TextStyle(color: colorScheme.onError),
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () => onTourSaved(),
+                icon: const Icon(Icons.save),
+                label: const Text("Save Tour"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
