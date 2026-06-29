@@ -146,6 +146,12 @@ _BookingManagerKennelInfo _$BookingManagerKennelInfoFromJson(
   timezone: json['timezone'] as String? ?? "Europe/Helsinki",
   vatRate: (json['vatRate'] as num).toDouble(),
   commissionRate: (json['commissionRate'] as num?)?.toDouble() ?? 0.035,
+  invoicingEnabled: json['invoicingEnabled'] as bool? ?? false,
+  invoiceLegalName: json['invoiceLegalName'] as String? ?? "",
+  invoiceAddress: json['invoiceAddress'] as String? ?? "",
+  invoiceBusinessId: json['invoiceBusinessId'] as String? ?? "",
+  invoiceNumberPrefix: json['invoiceNumberPrefix'] as String? ?? "",
+  nextInvoiceNumber: (json['nextInvoiceNumber'] as num?)?.toInt() ?? 1,
 );
 
 Map<String, dynamic> _$BookingManagerKennelInfoToJson(
@@ -165,6 +171,12 @@ Map<String, dynamic> _$BookingManagerKennelInfoToJson(
   'timezone': instance.timezone,
   'vatRate': instance.vatRate,
   'commissionRate': instance.commissionRate,
+  'invoicingEnabled': instance.invoicingEnabled,
+  'invoiceLegalName': instance.invoiceLegalName,
+  'invoiceAddress': instance.invoiceAddress,
+  'invoiceBusinessId': instance.invoiceBusinessId,
+  'invoiceNumberPrefix': instance.invoiceNumberPrefix,
+  'nextInvoiceNumber': instance.nextInvoiceNumber,
 };
 
 _BookingReminder _$BookingReminderFromJson(Map<String, dynamic> json) =>

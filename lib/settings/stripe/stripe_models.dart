@@ -117,6 +117,20 @@ sealed class BookingManagerKennelInfo with _$BookingManagerKennelInfo {
 
     /// The commission rate of the platform on payments. Defaults to 3.5%.
     @Default(0.035) double commissionRate,
+
+    /// Whether this kennel can generate invoices for bookings.
+    @Default(false) bool invoicingEnabled,
+
+    /// Legal billing identity used as the invoice issuer.
+    @Default("") String invoiceLegalName,
+    @Default("") String invoiceAddress,
+    @Default("") String invoiceBusinessId,
+
+    /// Optional prefix shown before the numeric invoice sequence.
+    @Default("") String invoiceNumberPrefix,
+
+    /// The next number to allocate when an invoice is generated.
+    @Default(1) int nextInvoiceNumber,
   }) = _BookingManagerKennelInfo;
 
   factory BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) =>

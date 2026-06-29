@@ -27,4 +27,11 @@ class PartnersRepository {
     final snap = await _col.get();
     return snap.docs.map((d) => Partner.fromJson(d.data())).toList();
   }
+
+  Future<Partner?> fetchPartner(String partnerId) async {
+    final snap = await _col.doc(partnerId).get();
+    final data = snap.data();
+    if (data == null) return null;
+    return Partner.fromJson(data);
+  }
 }

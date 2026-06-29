@@ -23,6 +23,7 @@ import 'package:mush_on/stats/stats.dart';
 import 'package:mush_on/whiteboard/whiteboard.dart';
 import 'customer_facing/booking_page/booking_page.dart';
 import 'customer_facing/booking_page/success/booking_success.dart';
+import 'customer_management/bookings/invoice_detail_screen.dart';
 import 'customer_management/customer_group_viewer.dart';
 import 'customer_management/customer_management.dart';
 import 'customer_management/partners/partners_management_screen.dart';
@@ -62,6 +63,17 @@ final goRoutes = GoRouter(
       path: "/financial",
       name: "financialDashboard",
       builder: (context, state) => const FinancialDashboardScreen(),
+    ),
+    GoRoute(
+      path: "/invoice",
+      name: "publicInvoice",
+      builder: (context, state) => PublicInvoiceScreen(
+        link: PublicInvoiceLink(
+          account: state.uri.queryParameters["account"] ?? "",
+          bookingId: state.uri.queryParameters["bookingId"] ?? "",
+          token: state.uri.queryParameters["token"] ?? "",
+        ),
+      ),
     ),
     GoRoute(
       path: "/settings",
@@ -104,9 +116,25 @@ final goRoutes = GoRouter(
           },
         ),
         GoRoute(
+          path: "invoice",
+          name: "invoiceDetail",
+          builder: (context, state) => InvoiceDetailScreen(
+            bookingId: state.uri.queryParameters["bookingId"],
+          ),
+        ),
+        GoRoute(
           path: "partners",
           name: "partnersManagement",
           builder: (context, state) => const PartnersManagementScreen(),
+          routes: [
+            GoRoute(
+              path: "editor",
+              name: "partnerEditor",
+              builder: (context, state) => PartnerEditorScreen(
+                partnerId: state.uri.queryParameters["partnerId"],
+              ),
+            ),
+          ],
         ),
       ],
     ),

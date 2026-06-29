@@ -184,5 +184,62 @@ void main() {
       expect(status.disabledReason, 'requirements.past_due');
       expect(status.reason, 'Stripe needs more account information.');
     });
+
+    test(
+      'saveBookingManagerInvoicingSettings preserves custom fields',
+      () async {
+        final firestore = FakeFirebaseFirestore();
+        final repository = StripeRepository(
+          account: 'account-1',
+          functions: _FakeFirebaseFunctions(),
+          firestore: firestore,
+          storage: _FakeFirebaseStorage(),
+        );
+        final ref = firestore.doc('accounts/account-1/data/bookingManager');
+        await ref.set({
+          'name': 'Kennel',
+          'url': 'https://kennel.example',
+          'email': 'hello@kennel.example',
+          'cancellationPolicy': 'No refunds',
+          'vatRate': 0,
+          'customerCustomFields': [
+            {
+              'id': 'customer-field-1',
+              'type': 'text',
+              'name': 'Hotel',
+              'description': '',
+              'isRequired': false,
+            },
+          ],
+          'bookingCustomFields': [
+            {
+              'id': 'booking-field-1',
+              'type': 'text',
+              'name': 'Pickup',
+              'description': '',
+              'isRequired': true,
+            },
+          ],
+        });
+
+        await repository.saveBookingManagerInvoicingSettings(
+          invoicingEnabled: true,
+          invoiceLegalName: 'Legal Kennel Oy',
+          invoiceAddress: 'Trail 1',
+          invoiceBusinessId: 'FI123',
+          invoiceNumberPrefix: '2026-',
+          nextInvoiceNumber: 42,
+        );
+
+        final saved = (await ref.get()).data()!;
+        expect(saved['customerCustomFields'], hasLength(1));
+        expect(saved['customerCustomFields'].first['name'], 'Hotel');
+        expect(saved['bookingCustomFields'], hasLength(1));
+        expect(saved['bookingCustomFields'].first['name'], 'Pickup');
+        expect(saved['invoicingEnabled'], isTrue);
+        expect(saved['invoiceBusinessId'], 'FI123');
+        expect(saved['nextInvoiceNumber'], 42);
+      },
+    );
   });
 }

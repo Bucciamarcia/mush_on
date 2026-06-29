@@ -78,6 +78,12 @@ sealed class Booking with _$Booking {
     /// For on-platform paid bookings the authoritative value is on the
     /// CheckoutSession, but we mirror it here for convenience.
     int? totalCents,
+
+    /// When this booking was created.
+    ///
+    /// Nullable for compatibility with bookings created before this field
+    /// existed.
+    @TimestampConverter() DateTime? createdOn,
     @TimestampConverter() DateTime? expiresAt,
     @Default(<String, String>{}) Map<String, String> otherBookingData,
   }) = _Booking;

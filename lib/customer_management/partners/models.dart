@@ -3,7 +3,6 @@ part 'models.g.dart';
 part 'models.freezed.dart';
 
 @freezed
-
 /// A B2B reseller who books on behalf of their own customers.
 /// Identified by a `&partner=<code>` URL param on the booking page.
 sealed class Partner with _$Partner {
@@ -28,6 +27,14 @@ sealed class Partner with _$Partner {
 
     /// Balance due this many days BEFORE the tour date.
     @Default(0) int deferredDays,
+
+    /// Whether bookings from this partner should be invoiced automatically.
+    @Default(false) bool invoiceEnabled,
+
+    /// Legal billing identity used as the invoice recipient.
+    @Default("") String invoiceLegalName,
+    @Default("") String invoiceAddress,
+    @Default("") String invoiceBusinessId,
 
     /// Never delete partners — archive for stats/recovery.
     @Default(false) bool archived,

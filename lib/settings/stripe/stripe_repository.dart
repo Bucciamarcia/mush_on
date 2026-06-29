@@ -312,10 +312,39 @@ class StripeRepository {
     String path = "accounts/$account/data/bookingManager";
     final doc = db.doc(path);
     try {
-      await doc.set(data.toJson());
+      await doc.set(data.toJson(), SetOptions(merge: true));
     } catch (e, s) {
       logger.error(
         "Couldn't save Booking Manager kennel info",
+        error: e,
+        stackTrace: s,
+      );
+      rethrow;
+    }
+  }
+
+  Future<void> saveBookingManagerInvoicingSettings({
+    required bool invoicingEnabled,
+    required String invoiceLegalName,
+    required String invoiceAddress,
+    required String invoiceBusinessId,
+    required String invoiceNumberPrefix,
+    required int nextInvoiceNumber,
+  }) async {
+    String path = "accounts/$account/data/bookingManager";
+    final doc = db.doc(path);
+    try {
+      await doc.set({
+        "invoicingEnabled": invoicingEnabled,
+        "invoiceLegalName": invoiceLegalName,
+        "invoiceAddress": invoiceAddress,
+        "invoiceBusinessId": invoiceBusinessId,
+        "invoiceNumberPrefix": invoiceNumberPrefix,
+        "nextInvoiceNumber": nextInvoiceNumber,
+      }, SetOptions(merge: true));
+    } catch (e, s) {
+      logger.error(
+        "Couldn't save Booking Manager invoicing settings",
         error: e,
         stackTrace: s,
       );

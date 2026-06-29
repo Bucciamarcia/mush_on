@@ -2066,9 +2066,13 @@ class BackendSecurityTests(unittest.TestCase):
         created_at = db.documents[
             "accounts/account-1/data/bookingManager/bookings/booking-1"
         ]["createdAt"]
+        created_on = db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ]["createdOn"]
         expires_at = db.documents[
             "accounts/account-1/data/bookingManager/bookings/booking-1"
         ]["expiresAt"]
+        self.assertEqual(created_on, created_at)
         self.assertEqual(expires_at - created_at, main.timedelta(minutes=37))
 
     def test_create_booking_checkout_session_calculates_payment_data_server_side(self):

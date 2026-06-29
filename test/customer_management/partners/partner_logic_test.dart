@@ -13,6 +13,10 @@ void main() {
         discountRate: 0.1,
         allowDeferred: true,
         deferredDays: 7,
+        invoiceEnabled: true,
+        invoiceLegalName: 'Acme Tours Ltd',
+        invoiceAddress: 'Market Street 1',
+        invoiceBusinessId: 'VAT123',
       );
 
       final json = partner.toJson();
@@ -21,6 +25,10 @@ void main() {
       expect(json['discountRate'], 0.1);
       expect(json['allowDeferred'], true);
       expect(json['deferredDays'], 7);
+      expect(json['invoiceEnabled'], true);
+      expect(json['invoiceLegalName'], 'Acme Tours Ltd');
+      expect(json['invoiceAddress'], 'Market Street 1');
+      expect(json['invoiceBusinessId'], 'VAT123');
 
       expect(Partner.fromJson(json), partner);
     });
@@ -31,6 +39,10 @@ void main() {
       expect(partner.allowDeferred, false);
       expect(partner.deferredDays, 0);
       expect(partner.discountRate, isNull);
+      expect(partner.invoiceEnabled, false);
+      expect(partner.invoiceLegalName, "");
+      expect(partner.invoiceAddress, "");
+      expect(partner.invoiceBusinessId, "");
     });
   });
 

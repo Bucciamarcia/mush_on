@@ -14,6 +14,10 @@ _Partner _$PartnerFromJson(Map<String, dynamic> json) => _Partner(
   discountRate: (json['discountRate'] as num?)?.toDouble(),
   allowDeferred: json['allowDeferred'] as bool? ?? false,
   deferredDays: (json['deferredDays'] as num?)?.toInt() ?? 0,
+  invoiceEnabled: json['invoiceEnabled'] as bool? ?? false,
+  invoiceLegalName: json['invoiceLegalName'] as String? ?? "",
+  invoiceAddress: json['invoiceAddress'] as String? ?? "",
+  invoiceBusinessId: json['invoiceBusinessId'] as String? ?? "",
   archived: json['archived'] as bool? ?? false,
 );
 
@@ -25,5 +29,9 @@ Map<String, dynamic> _$PartnerToJson(_Partner instance) => <String, dynamic>{
   'discountRate': instance.discountRate,
   'allowDeferred': instance.allowDeferred,
   'deferredDays': instance.deferredDays,
+  'invoiceEnabled': instance.invoiceEnabled,
+  'invoiceLegalName': instance.invoiceLegalName,
+  'invoiceAddress': instance.invoiceAddress,
+  'invoiceBusinessId': instance.invoiceBusinessId,
   'archived': instance.archived,
 };

@@ -16,7 +16,7 @@ import re
 import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from firebase_functions import https_fn
 from firebase_admin import firestore
 from concurrent.futures import ThreadPoolExecutor
@@ -582,6 +582,543 @@ def _calculate_platform_fee(total_amount_cents: int, kennel_info: dict) -> int:
     return int(Decimal(total_amount_cents) * commission_rate * vat_multiplier)
 
 
+def _required_invoice_text(data: dict, field: str, label: str) -> str:
+    value = data.get(field)
+    if not isinstance(value, str) or not value.strip():
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            f"{label} is required",
+        )
+    return value.strip()
+
+
+def _validate_invoice_recipient(data) -> dict:
+    if not isinstance(data, dict):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Recipient invoice details are required",
+        )
+    return {
+        "legalName": _required_invoice_text(data, "legalName", "Recipient legal name"),
+        "address": _required_invoice_text(data, "address", "Recipient address"),
+        "businessId": _required_invoice_text(
+            data, "businessId", "Recipient business ID"
+        ),
+    }
+
+
+def _validate_invoice_issuer(kennel_info: dict) -> dict:
+    if not kennel_info.get("invoicingEnabled"):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "Activate invoicing in Billing settings before generating invoices.",
+        )
+    return {
+        "legalName": _required_invoice_text(
+            kennel_info,
+            "invoiceLegalName",
+            "Your invoicing legal name in Billing settings",
+        ),
+        "address": _required_invoice_text(
+            kennel_info, "invoiceAddress", "Your invoicing address in Billing settings"
+        ),
+        "businessId": _required_invoice_text(
+            kennel_info,
+            "invoiceBusinessId",
+            "Your business ID or VAT number in Billing settings",
+        ),
+        "displayName": kennel_info.get("name") or "",
+        "email": kennel_info.get("email") or "",
+        "url": kennel_info.get("url") or "",
+    }
+
+
+def _invoice_number_from_settings(kennel_info: dict) -> int:
+    raw_number = _unwrap_int64_wrappers(kennel_info.get("nextInvoiceNumber", 1))
+    try:
+        invoice_number = int(raw_number)
+    except (TypeError, ValueError):
+        invoice_number = 1
+    return max(invoice_number, 1)
+
+
+def _round_decimal_to_cents(value: Decimal) -> int:
+    return int(value.quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+
+def _split_inclusive_vat(gross_cents: int, vat_rate: float) -> tuple[int, int]:
+    if vat_rate <= 0:
+        return gross_cents, 0
+    gross = Decimal(gross_cents)
+    multiplier = Decimal("1") + Decimal(str(vat_rate))
+    net_cents = _round_decimal_to_cents(gross / multiplier)
+    return net_cents, gross_cents - net_cents
+
+
+def _allocate_invoice_discount(
+    undiscounted_gross_cents: list[int], target_total_cents: int | None
+) -> list[int]:
+    undiscounted_total = sum(undiscounted_gross_cents)
+    if target_total_cents is None or target_total_cents <= 0:
+        return undiscounted_gross_cents
+    if undiscounted_total <= 0 or target_total_cents == undiscounted_total:
+        return undiscounted_gross_cents
+    if target_total_cents > undiscounted_total:
+        return undiscounted_gross_cents
+
+    ratio = Decimal(target_total_cents) / Decimal(undiscounted_total)
+    allocated = [
+        _round_decimal_to_cents(Decimal(line_total) * ratio)
+        for line_total in undiscounted_gross_cents
+    ]
+    difference = target_total_cents - sum(allocated)
+    index = 0
+    while difference != 0 and allocated:
+        step = 1 if difference > 0 else -1
+        if allocated[index] + step >= 0:
+            allocated[index] += step
+            difference -= step
+        index = (index + 1) % len(allocated)
+    return allocated
+
+
+def _build_invoice_line_items(
+    prices_by_id: dict[str, dict], customers: list[dict], booking: dict
+) -> tuple[list[dict], dict]:
+    quantities_by_pricing = _quantity_by_pricing(customers)
+    sorted_pricing_ids = sorted(quantities_by_pricing.keys())
+    undiscounted_line_totals = []
+    line_context = []
+    for pricing_id in sorted_pricing_ids:
+        pricing = prices_by_id.get(pricing_id)
+        if pricing is None:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+                f"This booking uses a price that is no longer active: {pricing_id}",
+            )
+        quantity = quantities_by_pricing[pricing_id]
+        unit_gross_cents = int(_unwrap_int64_wrappers(pricing.get("priceCents", 0)))
+        gross_cents = unit_gross_cents * quantity
+        undiscounted_line_totals.append(gross_cents)
+        line_context.append(
+            {
+                "pricingId": pricing_id,
+                "description": pricing.get("displayName")
+                or pricing.get("name")
+                or "Ticket",
+                "quantity": quantity,
+                "undiscountedUnitGrossCents": unit_gross_cents,
+                "vatRate": float(_unwrap_int64_wrappers(pricing.get("vatRate", 0)) or 0),
+            }
+        )
+
+    target_total = booking.get("totalCents")
+    try:
+        target_total_cents = (
+            int(_unwrap_int64_wrappers(target_total)) if target_total is not None else None
+        )
+    except (TypeError, ValueError):
+        target_total_cents = None
+    discounted_totals = _allocate_invoice_discount(
+        undiscounted_line_totals, target_total_cents
+    )
+
+    line_items = []
+    vat_breakdown_by_rate: dict[str, dict] = {}
+    total_gross = total_net = total_vat = 0
+    for context, gross_cents in zip(line_context, discounted_totals):
+        quantity = context["quantity"]
+        unit_gross_cents = (
+            _round_decimal_to_cents(Decimal(gross_cents) / Decimal(quantity))
+            if quantity > 0
+            else 0
+        )
+        net_cents, vat_cents = _split_inclusive_vat(
+            gross_cents, context["vatRate"]
+        )
+        total_gross += gross_cents
+        total_net += net_cents
+        total_vat += vat_cents
+        rate_key = str(context["vatRate"])
+        vat_bucket = vat_breakdown_by_rate.setdefault(
+            rate_key,
+            {
+                "vatRate": context["vatRate"],
+                "grossCents": 0,
+                "netCents": 0,
+                "vatCents": 0,
+            },
+        )
+        vat_bucket["grossCents"] += gross_cents
+        vat_bucket["netCents"] += net_cents
+        vat_bucket["vatCents"] += vat_cents
+        line_items.append(
+            {
+                "pricingId": context["pricingId"],
+                "description": context["description"],
+                "quantity": quantity,
+                "unitGrossCents": unit_gross_cents,
+                "grossCents": gross_cents,
+                "netCents": net_cents,
+                "vatCents": vat_cents,
+                "vatRate": context["vatRate"],
+                "undiscountedUnitGrossCents": context[
+                    "undiscountedUnitGrossCents"
+                ],
+            }
+        )
+
+    if not line_items:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "This booking has no customers to invoice.",
+        )
+    return line_items, {
+        "currency": "EUR",
+        "grossCents": total_gross,
+        "netCents": total_net,
+        "vatCents": total_vat,
+        "vatBreakdown": list(vat_breakdown_by_rate.values()),
+    }
+
+
+def _compact_snapshot(data: dict, fields: list[str]) -> dict:
+    return {field: data[field] for field in fields if field in data}
+
+
+def _build_invoice_body(
+    db,
+    account: str,
+    booking_id: str,
+    recipient: dict,
+) -> dict:
+    booking = _get_required_document(
+        db,
+        f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}",
+        "Booking",
+    )
+    customer_group_id = booking.get("customerGroupId")
+    if not customer_group_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "This booking is missing its customer group.",
+        )
+    customer_group = _get_required_document(
+        db,
+        f"{_booking_manager_collection_path(account, 'customerGroups')}/{customer_group_id}",
+        "Customer group",
+    )
+    tour_id = customer_group.get("tourTypeId")
+    if not tour_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "This booking's customer group is missing its tour.",
+        )
+    tour = _get_required_document(
+        db,
+        f"{_booking_manager_collection_path(account, 'tours')}/{tour_id}",
+        "Tour",
+    )
+    customers = _get_booking_customers(db, account, booking_id)
+    prices_by_id = _get_active_prices_by_id(db, account, tour_id)
+    line_items, totals = _build_invoice_line_items(prices_by_id, customers, booking)
+    return {
+        "id": booking_id,
+        "bookingId": booking_id,
+        "account": account,
+        "currency": "EUR",
+        "recipient": recipient,
+        "booking": _compact_snapshot(
+            booking,
+            [
+                "id",
+                "name",
+                "email",
+                "phoneNumber",
+                "customerGroupId",
+                "paymentStatus",
+                "partner",
+                "totalCents",
+                "createdOn",
+                "customerOtherInfo",
+            ],
+        ),
+        "customerGroup": _compact_snapshot(
+            customer_group, ["id", "tourTypeId", "datetime", "maxCapacity"]
+        ),
+        "tour": _compact_snapshot(tour, ["id", "name", "displayName"]),
+        "customers": [
+            _compact_snapshot(
+                {**customer, "id": customer.get("id")},
+                ["id", "name", "pricingId", "customerOtherInfo"],
+            )
+            for customer in customers
+        ],
+        "lineItems": line_items,
+        "totals": totals,
+    }
+
+
+def _create_invoice_snapshot(
+    db,
+    account: str,
+    booking_id: str,
+    recipient: dict,
+    now: datetime | None = None,
+) -> dict:
+    now = now or datetime.now(timezone.utc)
+    bm_ref = _booking_manager_ref(db, account)
+    invoice_ref = bm_ref.collection("invoices").document(booking_id)
+    existing_invoice = invoice_ref.get()
+    if existing_invoice.exists:
+        return {
+            "invoice": existing_invoice.to_dict() or {},
+            "created": False,
+        }
+
+    invoice_body = _build_invoice_body(db, account, booking_id, recipient)
+    transaction = db.transaction()
+
+    @firestore.transactional
+    def create(transaction):
+        current_invoice = _get_document_snapshot(transaction, invoice_ref)
+        if current_invoice is not None and current_invoice.exists:
+            return {
+                "invoice": current_invoice.to_dict() or {},
+                "created": False,
+            }
+
+        kennel_snapshot = _get_document_snapshot(transaction, bm_ref)
+        if kennel_snapshot is None or not kennel_snapshot.exists:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.NOT_FOUND,
+                "Invoicing settings were not found for this account.",
+            )
+        kennel_info = kennel_snapshot.to_dict() or {}
+        issuer = _validate_invoice_issuer(kennel_info)
+        invoice_number = _invoice_number_from_settings(kennel_info)
+        prefix = (kennel_info.get("invoiceNumberPrefix") or "").strip()
+        invoice = {
+            **invoice_body,
+            "issuer": issuer,
+            "invoiceNumber": invoice_number,
+            "invoiceNumberPrefix": prefix,
+            "displayInvoiceNumber": f"{prefix}{invoice_number}",
+            "invoiceAccessToken": secrets.token_urlsafe(24),
+            "createdAt": now,
+            "status": "generated",
+        }
+        transaction.set(invoice_ref, invoice)
+        transaction.update(bm_ref, {"nextInvoiceNumber": invoice_number + 1})
+        return {"invoice": invoice, "created": True}
+
+    return create(transaction)
+
+
+_DEFAULT_INVOICE_BASE_URL = "https://mush-on.web.app/invoice"
+
+
+def _validate_email_for_invoice(data) -> str:
+    email = data.get("email") if isinstance(data, dict) else None
+    if not isinstance(email, str) or not email.strip():
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Recipient email is required to send the invoice.",
+        )
+    email = email.strip()
+    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Enter a valid recipient email address.",
+        )
+    return email
+
+
+def _format_invoice_amount(total_cents) -> str:
+    try:
+        amount = int(_unwrap_int64_wrappers(total_cents) or 0) / 100.0
+    except (TypeError, ValueError):
+        amount = 0.0
+    return f"€{amount:.2f}"
+
+
+def _invoice_email_template_key() -> str:
+    template_key = os.getenv("ZEPTOMAIL_INVOICE_TEMPLATE")
+    if not template_key:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "Invoice email template is not configured.",
+        )
+    return template_key
+
+
+def _invoice_public_url(account: str, booking_id: str, token: str) -> str:
+    base_url = os.getenv("INVOICE_BASE_URL", _DEFAULT_INVOICE_BASE_URL)
+    return f"{base_url}?{urlencode({'account': account, 'bookingId': booking_id, 'token': token})}"
+
+
+def _ensure_invoice_access_token(invoice_ref, invoice: dict) -> str:
+    token = invoice.get("invoiceAccessToken")
+    if isinstance(token, str) and token.strip():
+        return token.strip()
+    token = secrets.token_urlsafe(24)
+    invoice_ref.update({"invoiceAccessToken": token})
+    invoice["invoiceAccessToken"] = token
+    return token
+
+
+def _send_invoice_email_for_snapshot(
+    *, db, account: str, booking_id: str, email: str, now: datetime | None = None
+) -> dict:
+    invoice_ref = db.document(
+        f"{_booking_manager_collection_path(account, 'invoices')}/{booking_id}"
+    )
+    invoice = invoice_ref.get().to_dict() or {}
+    if not invoice:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND,
+            "Generate the invoice before sending it.",
+        )
+    token = _ensure_invoice_access_token(invoice_ref, invoice)
+
+    issuer = invoice.get("issuer") or {}
+    recipient = invoice.get("recipient") or {}
+    booking = invoice.get("booking") or {}
+    customer_group = invoice.get("customerGroup") or {}
+    tour = invoice.get("tour") or {}
+    totals = invoice.get("totals") or {}
+
+    template_key = _invoice_email_template_key()
+    authorization = os.getenv("ZEPTOMAIL_AUTHORIZATION")
+    payload = {
+        "template_key": template_key,
+        "from": {
+            "address": "noreply@mush-on.com",
+            "name": issuer.get("displayName") or issuer.get("legalName") or "",
+        },
+        "to": [
+            {
+                "email_address": {
+                    "address": email,
+                    "name": recipient.get("legalName") or booking.get("name") or "",
+                }
+            }
+        ],
+        "merge_info": {
+            "invoice_number": invoice.get("displayInvoiceNumber", ""),
+            "invoice_url": _invoice_public_url(account, booking_id, token),
+            "kennel_name": issuer.get("displayName") or issuer.get("legalName") or "",
+            "recipient_name": recipient.get("legalName", ""),
+            "booking_name": booking.get("name", ""),
+            "tour_name": tour.get("displayName") or tour.get("name") or "",
+            "tour_date": str(customer_group.get("datetime") or ""),
+            "amount": _format_invoice_amount(totals.get("grossCents")),
+        },
+    }
+    headers = {
+        "accept": "application/json",
+        "content-type": "application/json",
+        "authorization": authorization,
+    }
+    response = requests.post(
+        "https://api.zeptomail.eu/v1.1/email/template",
+        json=payload,
+        headers=headers,
+    )
+    response.raise_for_status()
+    sent_at = now or datetime.now(timezone.utc)
+    invoice_ref.update(
+        {
+            "lastSentAt": sent_at,
+            "lastSentTo": email,
+            "status": "sent",
+        }
+    )
+    return {
+        "ok": True,
+        "email": email,
+        "invoiceUrl": payload["merge_info"]["invoice_url"],
+    }
+
+
+def _get_public_invoice_snapshot(account: str, booking_id: str, token: str) -> dict:
+    invoice = _get_required_document(
+        firestore.client(),
+        f"{_booking_manager_collection_path(account, 'invoices')}/{booking_id}",
+        "Invoice",
+    )
+    invoice_token = invoice.get("invoiceAccessToken")
+    if not isinstance(invoice_token, str) or not secrets.compare_digest(
+        invoice_token, token
+    ):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.PERMISSION_DENIED,
+            "This invoice link is invalid.",
+        )
+    return invoice
+
+
+def _partner_invoice_recipient(partner: dict | None) -> dict | None:
+    if not partner or partner.get("archived") or not partner.get("invoiceEnabled"):
+        return None
+    return _validate_invoice_recipient(
+        {
+            "legalName": partner.get("invoiceLegalName"),
+            "address": partner.get("invoiceAddress"),
+            "businessId": partner.get("invoiceBusinessId"),
+        }
+    )
+
+
+def _record_invoice_auto_send_error(db, account: str, booking_id: str, error: str):
+    db.document(
+        f"{_booking_manager_collection_path(account, 'invoices')}/{booking_id}"
+    ).update({"lastSendError": error, "status": "generated"})
+
+
+def _auto_generate_partner_invoice(db, account: str, booking_id: str) -> dict:
+    booking = _get_required_document(
+        db,
+        f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}",
+        "Booking",
+    )
+    partner = _get_partner(db, account, booking.get("partner"))
+    recipient = _partner_invoice_recipient(partner)
+    if recipient is None:
+        return {"generated": False, "sent": False}
+
+    result = _create_invoice_snapshot(
+        db=db,
+        account=account,
+        booking_id=booking_id,
+        recipient=recipient,
+    )
+    partner_email = (partner.get("email") or "").strip()
+    if not partner_email:
+        _record_invoice_auto_send_error(
+            db, account, booking_id, "Partner has no email address."
+        )
+        return {"generated": True, "sent": False}
+
+    try:
+        _send_invoice_email_for_snapshot(
+            db=db, account=account, booking_id=booking_id, email=partner_email
+        )
+    except Exception as e:
+        _record_invoice_auto_send_error(db, account, booking_id, str(e))
+        return {"generated": True, "sent": False}
+    return {"generated": True, "sent": True, "created": result["created"]}
+
+
+def _auto_generate_partner_invoice_best_effort(
+    db, account: str, booking_id: str
+) -> dict:
+    try:
+        return _auto_generate_partner_invoice(db, account, booking_id)
+    except Exception as e:
+        return {"generated": False, "sent": False, "error": str(e)}
+
+
 def _build_server_checkout_payload(
     db,
     account: str,
@@ -777,6 +1314,7 @@ def _reserve_booking_transaction(
             "name": _booking_label(booking, customers),
             "paymentStatus": payment_status,
             "createdAt": now,
+            "createdOn": now,
         }
         if set_expiry:
             booking_data["expiresAt"] = expires_at
@@ -1796,6 +2334,9 @@ def create_deferred_booking(req: https_fn.CallableRequest[dict]) -> dict:
         send_deferred_payment_email_for_booking(
             db=db, account=account, booking_id=booking_id
         )
+        _auto_generate_partner_invoice_best_effort(
+            db=db, account=account, booking_id=booking_id
+        )
 
         return {"bookingId": booking_id}
     except https_fn.HttpsError:
@@ -1909,6 +2450,88 @@ def send_deferred_payment_email(req: https_fn.CallableRequest[dict]) -> dict:
         db=db, account=account, booking_id=booking_id
     )
     return {"ok": True}
+
+
+@https_fn.on_call()
+def generate_invoice_for_booking(req: https_fn.CallableRequest[dict]) -> dict:
+    data = req.data or {}
+    account = data.get("account")
+    booking_id = data.get("bookingId")
+    if not account or not booking_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account or bookingId",
+        )
+    recipient = _validate_invoice_recipient(data.get("recipient"))
+    _assert_account_member(req, account)
+    db = firestore.client()
+    try:
+        result = _create_invoice_snapshot(
+            db=db,
+            account=account,
+            booking_id=booking_id,
+            recipient=recipient,
+        )
+    except ValueError as e:
+        message = str(e) or "Could not generate invoice."
+        code = (
+            https_fn.FunctionsErrorCode.NOT_FOUND
+            if "not found" in message.lower()
+            else https_fn.FunctionsErrorCode.FAILED_PRECONDITION
+        )
+        raise https_fn.HttpsError(code, message)
+    return {
+        "invoice": _callable_safe_firestore_data(result["invoice"]),
+        "created": result["created"],
+    }
+
+
+@https_fn.on_call()
+def send_invoice_email(req: https_fn.CallableRequest[dict]) -> dict:
+    data = req.data or {}
+    account = data.get("account")
+    booking_id = data.get("bookingId")
+    if not account or not booking_id:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing account or bookingId",
+        )
+    email = _validate_email_for_invoice(data)
+    _assert_account_member(req, account)
+    db = firestore.client()
+    try:
+        return _send_invoice_email_for_snapshot(
+            db=db, account=account, booking_id=booking_id, email=email
+        )
+    except https_fn.HttpsError:
+        raise
+    except requests.HTTPError:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INTERNAL,
+            "Could not send the invoice email. Check the invoice email template configuration.",
+        )
+    except Exception as e:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INTERNAL,
+            str(e) or "Could not send the invoice email.",
+        )
+
+
+@https_fn.on_call()
+def get_public_invoice(req: https_fn.CallableRequest[dict]) -> dict:
+    data = req.data or {}
+    account = data.get("account")
+    booking_id = data.get("bookingId")
+    token = data.get("token")
+    if not account or not booking_id or not token:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing invoice link details.",
+        )
+    invoice = _get_public_invoice_snapshot(
+        str(account), str(booking_id), str(token)
+    )
+    return {"invoice": _callable_safe_firestore_data(invoice)}
 
 
 @https_fn.on_call()
@@ -2026,6 +2649,7 @@ def stirpe_webhook_checkout_session_succeeded(
             stripe_api_key=stripe_api,
             payment_intent_id=event.data.object["payment_intent"],
             stripe_email=event.data.object["customer_details"]["email"],
+            post_payment_callback=_auto_generate_partner_invoice_best_effort,
         )
 
     return https_fn.Response("ok for event")

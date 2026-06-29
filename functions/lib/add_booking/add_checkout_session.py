@@ -98,6 +98,7 @@ def payment_processed(
     stripe_api_key: str,
     payment_intent_id: str,
     stripe_email: str,
+    post_payment_callback=None,
 ) -> None:
     """Sets webook processed in checkout sessions and changes payment
     status in booking"""
@@ -150,6 +151,12 @@ def payment_processed(
         },
     )
     batch.commit()
+    if post_payment_callback is not None:
+        post_payment_callback(
+            db=firestore.client(),
+            account=account,
+            booking_id=booking.id,
+        )
     send_postmark_email(
         account=account,
         kennel_name=booking_info.name,

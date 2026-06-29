@@ -436,6 +436,407 @@ class DeferredReminderDateMathTests(unittest.TestCase):
         self.assertFalse(main._should_send_deferred_reminder(due, date(2026, 7, 1)))
 
 
+class InvoiceGenerationTests(unittest.TestCase):
+    def _seed_invoice_booking(self, db):
+        db.documents["users/user-1"] = {"account": "account-1"}
+        db.documents["accounts/account-1/data/bookingManager"] = {
+            "name": "Northern Trails",
+            "email": "info@northern.example",
+            "url": "https://northern.example",
+            "invoicingEnabled": True,
+            "invoiceLegalName": "Northern Trails Oy",
+            "invoiceAddress": "Snow Road 1, 99999 Rovaniemi, Finland",
+            "invoiceBusinessId": "FI12345678",
+            "invoiceNumberPrefix": "NT-",
+            "nextInvoiceNumber": 42,
+        }
+        db.documents["accounts/account-1/data/bookingManager/tours/tour-1"] = {
+            "id": "tour-1",
+            "displayName": "Aurora Husky Safari",
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/customerGroups/cg-1"
+        ] = {
+            "id": "cg-1",
+            "tourTypeId": "tour-1",
+            "datetime": datetime(2026, 7, 1, 10, 0, tzinfo=timezone.utc),
+            "maxCapacity": 8,
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ] = {
+            "id": "booking-1",
+            "customerGroupId": "cg-1",
+            "name": "Acme Tours",
+            "email": "ops@acme.example",
+            "paymentStatus": "deferredPayment",
+            "partner": "partner-1",
+            "totalCents": 13500,
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/customers/customer-1"
+        ] = {
+            "id": "customer-1",
+            "bookingId": "booking-1",
+            "name": "Adult Guest",
+            "pricingId": "adult",
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/customers/customer-2"
+        ] = {
+            "id": "customer-2",
+            "bookingId": "booking-1",
+            "name": "Child Guest",
+            "pricingId": "child",
+        }
+        db.collections[
+            "accounts/account-1/data/bookingManager/tours/tour-1/prices"
+        ] = [
+            {
+                "id": "adult",
+                "isArchived": False,
+                "displayName": "Adult",
+                "priceCents": 10000,
+                "vatRate": 0.255,
+            },
+            {
+                "id": "child",
+                "isArchived": False,
+                "displayName": "Child",
+                "priceCents": 5000,
+                "vatRate": 0,
+            },
+        ]
+        db.documents[
+            "accounts/account-1/data/bookingManager/partners/partner-1"
+        ] = {
+            "id": "partner-1",
+            "name": "Acme Tours",
+            "email": "ops@acme.example",
+            "invoiceEnabled": True,
+            "invoiceLegalName": "Acme Tours GmbH",
+            "invoiceAddress": "Client Street 5, 10115 Berlin, Germany",
+            "invoiceBusinessId": "DE123456789",
+            "archived": False,
+        }
+
+    def _request(self, recipient=None):
+        return types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "bookingId": "booking-1",
+                "recipient": recipient
+                or {
+                    "legalName": "Acme Tours GmbH",
+                    "address": "Client Street 5, 10115 Berlin, Germany",
+                    "businessId": "DE123456789",
+                },
+            },
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+    def test_generate_invoice_snapshots_required_data_and_advances_number(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        main.firestore.client = lambda: db
+
+        result = main.generate_invoice_for_booking(self._request())
+
+        self.assertTrue(result["created"])
+        invoice = db.documents[
+            "accounts/account-1/data/bookingManager/invoices/booking-1"
+        ]
+        self.assertEqual(result["invoice"]["displayInvoiceNumber"], "NT-42")
+        self.assertEqual(invoice["invoiceNumber"], 42)
+        self.assertEqual(invoice["issuer"]["businessId"], "FI12345678")
+        self.assertEqual(invoice["recipient"]["businessId"], "DE123456789")
+        self.assertEqual(invoice["booking"]["partner"], "partner-1")
+        self.assertEqual(invoice["tour"]["displayName"], "Aurora Husky Safari")
+        self.assertEqual(invoice["totals"]["grossCents"], 13500)
+        self.assertEqual(invoice["totals"]["netCents"], 11671)
+        self.assertEqual(invoice["totals"]["vatCents"], 1829)
+        self.assertCountEqual(
+            [
+                (line["pricingId"], line["grossCents"], line["vatCents"])
+                for line in invoice["lineItems"]
+            ],
+            [("adult", 9000, 1829), ("child", 4500, 0)],
+        )
+        self.assertEqual(
+            db.documents["accounts/account-1/data/bookingManager"][
+                "nextInvoiceNumber"
+            ],
+            43,
+        )
+
+    def test_generate_invoice_is_idempotent_for_booking(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        main.firestore.client = lambda: db
+
+        first = main.generate_invoice_for_booking(self._request())
+        del db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ]
+        second = main.generate_invoice_for_booking(self._request())
+
+        self.assertTrue(first["created"])
+        self.assertFalse(second["created"])
+        self.assertEqual(second["invoice"]["displayInvoiceNumber"], "NT-42")
+        self.assertEqual(
+            db.documents["accounts/account-1/data/bookingManager"][
+                "nextInvoiceNumber"
+            ],
+            43,
+        )
+
+    def test_generate_invoice_requires_recipient_business_info(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        main.firestore.client = lambda: db
+
+        with self.assertRaises(_HttpsError) as error:
+            main.generate_invoice_for_booking(
+                self._request(
+                    {
+                        "legalName": "Acme Tours GmbH",
+                        "address": "Client Street 5, 10115 Berlin, Germany",
+                    }
+                )
+            )
+
+        self.assertEqual(error.exception.code, "invalid-argument")
+        self.assertNotIn(
+            "accounts/account-1/data/bookingManager/invoices/booking-1",
+            db.documents,
+        )
+
+    def test_send_invoice_email_uses_snapshot_link_and_records_send_metadata(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        main.firestore.client = lambda: db
+        main.generate_invoice_for_booking(self._request())
+
+        calls = []
+
+        def fake_post(url, json, headers):
+            calls.append({"url": url, "json": json, "headers": headers})
+            return types.SimpleNamespace(
+                status_code=200, raise_for_status=lambda: None
+            )
+
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "bookingId": "booking-1",
+                "email": "invoice@acme.example",
+            },
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+        env = {
+            "ZEPTOMAIL_AUTHORIZATION": "Zoho-token",
+            "ZEPTOMAIL_INVOICE_TEMPLATE": "invoice-template",
+            "INVOICE_BASE_URL": "https://app.example/invoice",
+        }
+
+        with patch.dict(os.environ, env, clear=False):
+            with patch.object(main_requests(), "post", fake_post):
+                result = main.send_invoice_email(request)
+
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["email"], "invoice@acme.example")
+        self.assertEqual(len(calls), 1)
+        payload = calls[0]["json"]
+        self.assertEqual(payload["template_key"], "invoice-template")
+        self.assertEqual(
+            payload["to"][0]["email_address"]["address"],
+            "invoice@acme.example",
+        )
+        merge = payload["merge_info"]
+        self.assertEqual(merge["invoice_number"], "NT-42")
+        self.assertIn("bookingId=booking-1", merge["invoice_url"])
+        self.assertIn("account=account-1", merge["invoice_url"])
+        self.assertIn("token=", merge["invoice_url"])
+        invoice = db.documents[
+            "accounts/account-1/data/bookingManager/invoices/booking-1"
+        ]
+        self.assertEqual(invoice["status"], "sent")
+        self.assertEqual(invoice["lastSentTo"], "invoice@acme.example")
+        self.assertIn("lastSentAt", invoice)
+        self.assertIn("invoiceAccessToken", invoice)
+
+    def test_send_invoice_email_default_link_uses_public_invoice_route(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        main.firestore.client = lambda: db
+        main.generate_invoice_for_booking(self._request())
+        calls = []
+
+        def fake_post(url, json, headers):
+            calls.append({"url": url, "json": json, "headers": headers})
+            return types.SimpleNamespace(
+                status_code=200, raise_for_status=lambda: None
+            )
+
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "bookingId": "booking-1",
+                "email": "invoice@acme.example",
+            },
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+        env = {
+            "ZEPTOMAIL_AUTHORIZATION": "Zoho-token",
+            "ZEPTOMAIL_INVOICE_TEMPLATE": "invoice-template",
+        }
+
+        with patch.dict(os.environ, env, clear=False):
+            os.environ.pop("INVOICE_BASE_URL", None)
+            with patch.object(main_requests(), "post", fake_post):
+                main.send_invoice_email(request)
+
+        invoice_url = calls[0]["json"]["merge_info"]["invoice_url"]
+        self.assertTrue(invoice_url.startswith("https://mush-on.web.app/invoice?"))
+        self.assertNotIn("/client_management/invoice", invoice_url)
+
+    def test_send_invoice_email_requires_invoice_template_configuration(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        main.firestore.client = lambda: db
+        main.generate_invoice_for_booking(self._request())
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "bookingId": "booking-1",
+                "email": "invoice@acme.example",
+            },
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+
+        with patch.dict(os.environ, {}, clear=True):
+            with self.assertRaises(_HttpsError) as error:
+                main.send_invoice_email(request)
+
+        self.assertEqual(error.exception.code, "failed-precondition")
+        self.assertEqual(
+            error.exception.message,
+            "Invoice email template is not configured.",
+        )
+
+    def test_send_invoice_email_requires_existing_invoice_and_valid_email(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        main.firestore.client = lambda: db
+
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "bookingId": "booking-1",
+                "email": "bad-email",
+            },
+            auth=types.SimpleNamespace(uid="user-1"),
+        )
+        with self.assertRaises(_HttpsError) as error:
+            main.send_invoice_email(request)
+        self.assertEqual(error.exception.code, "invalid-argument")
+
+        request.data["email"] = "invoice@acme.example"
+        with self.assertRaises(_HttpsError) as error:
+            main.send_invoice_email(request)
+        self.assertEqual(error.exception.code, "not-found")
+        self.assertEqual(error.exception.message, "Generate the invoice before sending it.")
+
+    def test_public_invoice_requires_matching_access_token(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        main.firestore.client = lambda: db
+        main.generate_invoice_for_booking(self._request())
+        invoice = db.documents[
+            "accounts/account-1/data/bookingManager/invoices/booking-1"
+        ]
+        token = invoice["invoiceAccessToken"]
+
+        result = main.get_public_invoice(
+            types.SimpleNamespace(
+                data={
+                    "account": "account-1",
+                    "bookingId": "booking-1",
+                    "token": token,
+                }
+            )
+        )
+
+        self.assertEqual(result["invoice"]["displayInvoiceNumber"], "NT-42")
+
+        with self.assertRaises(_HttpsError) as error:
+            main.get_public_invoice(
+                types.SimpleNamespace(
+                    data={
+                        "account": "account-1",
+                        "bookingId": "booking-1",
+                        "token": "wrong",
+                    }
+                )
+            )
+        self.assertEqual(error.exception.code, "permission-denied")
+
+    def test_auto_partner_invoice_generates_snapshot_and_sends_to_partner(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        main.firestore.client = lambda: db
+        calls = []
+
+        def fake_post(url, json, headers):
+            calls.append({"url": url, "json": json, "headers": headers})
+            return types.SimpleNamespace(
+                status_code=200, raise_for_status=lambda: None
+            )
+
+        with patch.dict(
+            os.environ,
+            {
+                "ZEPTOMAIL_AUTHORIZATION": "Zoho-token",
+                "ZEPTOMAIL_INVOICE_TEMPLATE": "invoice-template",
+            },
+            clear=False,
+        ):
+            with patch.object(main_requests(), "post", fake_post):
+                result = main._auto_generate_partner_invoice(
+                    db, "account-1", "booking-1"
+                )
+
+        self.assertEqual(result["generated"], True)
+        self.assertEqual(result["sent"], True)
+        invoice = db.documents[
+            "accounts/account-1/data/bookingManager/invoices/booking-1"
+        ]
+        self.assertEqual(invoice["displayInvoiceNumber"], "NT-42")
+        self.assertEqual(invoice["recipient"]["businessId"], "DE123456789")
+        self.assertEqual(invoice["lastSentTo"], "ops@acme.example")
+        self.assertEqual(len(calls), 1)
+
+    def test_auto_partner_invoice_keeps_snapshot_when_partner_email_is_missing(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        db.documents[
+            "accounts/account-1/data/bookingManager/partners/partner-1"
+        ]["email"] = ""
+        main.firestore.client = lambda: db
+
+        result = main._auto_generate_partner_invoice(
+            db, "account-1", "booking-1"
+        )
+
+        self.assertEqual(result["generated"], True)
+        self.assertEqual(result["sent"], False)
+        invoice = db.documents[
+            "accounts/account-1/data/bookingManager/invoices/booking-1"
+        ]
+        self.assertEqual(invoice["displayInvoiceNumber"], "NT-42")
+        self.assertEqual(invoice["lastSendError"], "Partner has no email address.")
+
+
 class FinancialRecordsTests(unittest.TestCase):
     def _seed(self, db):
         db.documents["accounts/account-1/data/bookingManager/customerGroups/cg-1"] = {

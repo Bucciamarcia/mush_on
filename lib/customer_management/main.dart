@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 import 'package:mush_on/customer_management/alert_editors/booking.dart';
+import 'package:mush_on/customer_management/bookings/bookings_tab.dart';
 import 'package:mush_on/customer_management/calendar/main.dart';
 import 'package:mush_on/customer_management/repository.dart';
 import 'package:mush_on/customer_management/riverpod.dart';
@@ -80,13 +81,14 @@ class ClientManagementMainScreen extends ConsumerWidget {
         ),
     ];
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Column(
         children: [
           const TabBar(
             tabs: [
               Tab(child: Text("Overview")),
               Tab(child: Text("Calendar")),
+              Tab(child: Text("Bookings")),
             ],
           ),
           Expanded(
@@ -170,6 +172,7 @@ class ClientManagementMainScreen extends ConsumerWidget {
                   ),
                 ),
                 const BookingCalendar(),
+                const BookingsInvoiceTab(),
               ],
             ),
           ),

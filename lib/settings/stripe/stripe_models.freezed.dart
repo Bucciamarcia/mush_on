@@ -1424,7 +1424,11 @@ mixin _$BookingManagerKennelInfo {
 /// booking times correctly in emails (e.g. "Europe/Helsinki").
  String get timezone;/// The vat rate to apply to the platform commission. 0 (reverse charged) unless in Finland, then 0.255.
  double get vatRate;/// The commission rate of the platform on payments. Defaults to 3.5%.
- double get commissionRate;
+ double get commissionRate;/// Whether this kennel can generate invoices for bookings.
+ bool get invoicingEnabled;/// Legal billing identity used as the invoice issuer.
+ String get invoiceLegalName; String get invoiceAddress; String get invoiceBusinessId;/// Optional prefix shown before the numeric invoice sequence.
+ String get invoiceNumberPrefix;/// The next number to allocate when an invoice is generated.
+ int get nextInvoiceNumber;
 /// Create a copy of BookingManagerKennelInfo
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1437,16 +1441,16 @@ $BookingManagerKennelInfoCopyWith<BookingManagerKennelInfo> get copyWith => _$Bo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookingManagerKennelInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.email, email) || other.email == email)&&(identical(other.cancellationPolicy, cancellationPolicy) || other.cancellationPolicy == cancellationPolicy)&&const DeepCollectionEquality().equals(other.customerCustomFields, customerCustomFields)&&const DeepCollectionEquality().equals(other.bookingCustomFields, bookingCustomFields)&&const DeepCollectionEquality().equals(other.bookingReminders, bookingReminders)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate)&&(identical(other.commissionRate, commissionRate) || other.commissionRate == commissionRate));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BookingManagerKennelInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.email, email) || other.email == email)&&(identical(other.cancellationPolicy, cancellationPolicy) || other.cancellationPolicy == cancellationPolicy)&&const DeepCollectionEquality().equals(other.customerCustomFields, customerCustomFields)&&const DeepCollectionEquality().equals(other.bookingCustomFields, bookingCustomFields)&&const DeepCollectionEquality().equals(other.bookingReminders, bookingReminders)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate)&&(identical(other.commissionRate, commissionRate) || other.commissionRate == commissionRate)&&(identical(other.invoicingEnabled, invoicingEnabled) || other.invoicingEnabled == invoicingEnabled)&&(identical(other.invoiceLegalName, invoiceLegalName) || other.invoiceLegalName == invoiceLegalName)&&(identical(other.invoiceAddress, invoiceAddress) || other.invoiceAddress == invoiceAddress)&&(identical(other.invoiceBusinessId, invoiceBusinessId) || other.invoiceBusinessId == invoiceBusinessId)&&(identical(other.invoiceNumberPrefix, invoiceNumberPrefix) || other.invoiceNumberPrefix == invoiceNumberPrefix)&&(identical(other.nextInvoiceNumber, nextInvoiceNumber) || other.nextInvoiceNumber == nextInvoiceNumber));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,url,email,cancellationPolicy,const DeepCollectionEquality().hash(customerCustomFields),const DeepCollectionEquality().hash(bookingCustomFields),const DeepCollectionEquality().hash(bookingReminders),timezone,vatRate,commissionRate);
+int get hashCode => Object.hash(runtimeType,name,url,email,cancellationPolicy,const DeepCollectionEquality().hash(customerCustomFields),const DeepCollectionEquality().hash(bookingCustomFields),const DeepCollectionEquality().hash(bookingReminders),timezone,vatRate,commissionRate,invoicingEnabled,invoiceLegalName,invoiceAddress,invoiceBusinessId,invoiceNumberPrefix,nextInvoiceNumber);
 
 @override
 String toString() {
-  return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, bookingCustomFields: $bookingCustomFields, bookingReminders: $bookingReminders, timezone: $timezone, vatRate: $vatRate, commissionRate: $commissionRate)';
+  return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, bookingCustomFields: $bookingCustomFields, bookingReminders: $bookingReminders, timezone: $timezone, vatRate: $vatRate, commissionRate: $commissionRate, invoicingEnabled: $invoicingEnabled, invoiceLegalName: $invoiceLegalName, invoiceAddress: $invoiceAddress, invoiceBusinessId: $invoiceBusinessId, invoiceNumberPrefix: $invoiceNumberPrefix, nextInvoiceNumber: $nextInvoiceNumber)';
 }
 
 
@@ -1457,7 +1461,7 @@ abstract mixin class $BookingManagerKennelInfoCopyWith<$Res>  {
   factory $BookingManagerKennelInfoCopyWith(BookingManagerKennelInfo value, $Res Function(BookingManagerKennelInfo) _then) = _$BookingManagerKennelInfoCopyWithImpl;
 @useResult
 $Res call({
- String name, String url, String email, String cancellationPolicy, List<CustomerCustomField> customerCustomFields, List<BookingCustomField> bookingCustomFields, List<BookingReminder> bookingReminders, String timezone, double vatRate, double commissionRate
+ String name, String url, String email, String cancellationPolicy, List<CustomerCustomField> customerCustomFields, List<BookingCustomField> bookingCustomFields, List<BookingReminder> bookingReminders, String timezone, double vatRate, double commissionRate, bool invoicingEnabled, String invoiceLegalName, String invoiceAddress, String invoiceBusinessId, String invoiceNumberPrefix, int nextInvoiceNumber
 });
 
 
@@ -1474,7 +1478,7 @@ class _$BookingManagerKennelInfoCopyWithImpl<$Res>
 
 /// Create a copy of BookingManagerKennelInfo
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? url = null,Object? email = null,Object? cancellationPolicy = null,Object? customerCustomFields = null,Object? bookingCustomFields = null,Object? bookingReminders = null,Object? timezone = null,Object? vatRate = null,Object? commissionRate = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? url = null,Object? email = null,Object? cancellationPolicy = null,Object? customerCustomFields = null,Object? bookingCustomFields = null,Object? bookingReminders = null,Object? timezone = null,Object? vatRate = null,Object? commissionRate = null,Object? invoicingEnabled = null,Object? invoiceLegalName = null,Object? invoiceAddress = null,Object? invoiceBusinessId = null,Object? invoiceNumberPrefix = null,Object? nextInvoiceNumber = null,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
@@ -1486,7 +1490,13 @@ as List<BookingCustomField>,bookingReminders: null == bookingReminders ? _self.b
 as List<BookingReminder>,timezone: null == timezone ? _self.timezone : timezone // ignore: cast_nullable_to_non_nullable
 as String,vatRate: null == vatRate ? _self.vatRate : vatRate // ignore: cast_nullable_to_non_nullable
 as double,commissionRate: null == commissionRate ? _self.commissionRate : commissionRate // ignore: cast_nullable_to_non_nullable
-as double,
+as double,invoicingEnabled: null == invoicingEnabled ? _self.invoicingEnabled : invoicingEnabled // ignore: cast_nullable_to_non_nullable
+as bool,invoiceLegalName: null == invoiceLegalName ? _self.invoiceLegalName : invoiceLegalName // ignore: cast_nullable_to_non_nullable
+as String,invoiceAddress: null == invoiceAddress ? _self.invoiceAddress : invoiceAddress // ignore: cast_nullable_to_non_nullable
+as String,invoiceBusinessId: null == invoiceBusinessId ? _self.invoiceBusinessId : invoiceBusinessId // ignore: cast_nullable_to_non_nullable
+as String,invoiceNumberPrefix: null == invoiceNumberPrefix ? _self.invoiceNumberPrefix : invoiceNumberPrefix // ignore: cast_nullable_to_non_nullable
+as String,nextInvoiceNumber: null == nextInvoiceNumber ? _self.nextInvoiceNumber : nextInvoiceNumber // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -1568,10 +1578,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  List<BookingReminder> bookingReminders,  String timezone,  double vatRate,  double commissionRate)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  List<BookingReminder> bookingReminders,  String timezone,  double vatRate,  double commissionRate,  bool invoicingEnabled,  String invoiceLegalName,  String invoiceAddress,  String invoiceBusinessId,  String invoiceNumberPrefix,  int nextInvoiceNumber)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BookingManagerKennelInfo() when $default != null:
-return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.bookingReminders,_that.timezone,_that.vatRate,_that.commissionRate);case _:
+return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.bookingReminders,_that.timezone,_that.vatRate,_that.commissionRate,_that.invoicingEnabled,_that.invoiceLegalName,_that.invoiceAddress,_that.invoiceBusinessId,_that.invoiceNumberPrefix,_that.nextInvoiceNumber);case _:
   return orElse();
 
 }
@@ -1589,10 +1599,10 @@ return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  List<BookingReminder> bookingReminders,  String timezone,  double vatRate,  double commissionRate)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  List<BookingReminder> bookingReminders,  String timezone,  double vatRate,  double commissionRate,  bool invoicingEnabled,  String invoiceLegalName,  String invoiceAddress,  String invoiceBusinessId,  String invoiceNumberPrefix,  int nextInvoiceNumber)  $default,) {final _that = this;
 switch (_that) {
 case _BookingManagerKennelInfo():
-return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.bookingReminders,_that.timezone,_that.vatRate,_that.commissionRate);}
+return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.bookingReminders,_that.timezone,_that.vatRate,_that.commissionRate,_that.invoicingEnabled,_that.invoiceLegalName,_that.invoiceAddress,_that.invoiceBusinessId,_that.invoiceNumberPrefix,_that.nextInvoiceNumber);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -1606,10 +1616,10 @@ return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  List<BookingReminder> bookingReminders,  String timezone,  double vatRate,  double commissionRate)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String url,  String email,  String cancellationPolicy,  List<CustomerCustomField> customerCustomFields,  List<BookingCustomField> bookingCustomFields,  List<BookingReminder> bookingReminders,  String timezone,  double vatRate,  double commissionRate,  bool invoicingEnabled,  String invoiceLegalName,  String invoiceAddress,  String invoiceBusinessId,  String invoiceNumberPrefix,  int nextInvoiceNumber)?  $default,) {final _that = this;
 switch (_that) {
 case _BookingManagerKennelInfo() when $default != null:
-return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.bookingReminders,_that.timezone,_that.vatRate,_that.commissionRate);case _:
+return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.customerCustomFields,_that.bookingCustomFields,_that.bookingReminders,_that.timezone,_that.vatRate,_that.commissionRate,_that.invoicingEnabled,_that.invoiceLegalName,_that.invoiceAddress,_that.invoiceBusinessId,_that.invoiceNumberPrefix,_that.nextInvoiceNumber);case _:
   return null;
 
 }
@@ -1621,7 +1631,7 @@ return $default(_that.name,_that.url,_that.email,_that.cancellationPolicy,_that.
 
 @JsonSerializable(explicitToJson: true)
 class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
-  const _BookingManagerKennelInfo({required this.name, required this.url, required this.email, required this.cancellationPolicy, final  List<CustomerCustomField> customerCustomFields = const [], final  List<BookingCustomField> bookingCustomFields = const [], final  List<BookingReminder> bookingReminders = const [], this.timezone = "Europe/Helsinki", required this.vatRate, this.commissionRate = 0.035}): _customerCustomFields = customerCustomFields,_bookingCustomFields = bookingCustomFields,_bookingReminders = bookingReminders;
+  const _BookingManagerKennelInfo({required this.name, required this.url, required this.email, required this.cancellationPolicy, final  List<CustomerCustomField> customerCustomFields = const [], final  List<BookingCustomField> bookingCustomFields = const [], final  List<BookingReminder> bookingReminders = const [], this.timezone = "Europe/Helsinki", required this.vatRate, this.commissionRate = 0.035, this.invoicingEnabled = false, this.invoiceLegalName = "", this.invoiceAddress = "", this.invoiceBusinessId = "", this.invoiceNumberPrefix = "", this.nextInvoiceNumber = 1}): _customerCustomFields = customerCustomFields,_bookingCustomFields = bookingCustomFields,_bookingReminders = bookingReminders;
   factory _BookingManagerKennelInfo.fromJson(Map<String, dynamic> json) => _$BookingManagerKennelInfoFromJson(json);
 
 @override final  String name;
@@ -1658,6 +1668,16 @@ class _BookingManagerKennelInfo implements BookingManagerKennelInfo {
 @override final  double vatRate;
 /// The commission rate of the platform on payments. Defaults to 3.5%.
 @override@JsonKey() final  double commissionRate;
+/// Whether this kennel can generate invoices for bookings.
+@override@JsonKey() final  bool invoicingEnabled;
+/// Legal billing identity used as the invoice issuer.
+@override@JsonKey() final  String invoiceLegalName;
+@override@JsonKey() final  String invoiceAddress;
+@override@JsonKey() final  String invoiceBusinessId;
+/// Optional prefix shown before the numeric invoice sequence.
+@override@JsonKey() final  String invoiceNumberPrefix;
+/// The next number to allocate when an invoice is generated.
+@override@JsonKey() final  int nextInvoiceNumber;
 
 /// Create a copy of BookingManagerKennelInfo
 /// with the given fields replaced by the non-null parameter values.
@@ -1672,16 +1692,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookingManagerKennelInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.email, email) || other.email == email)&&(identical(other.cancellationPolicy, cancellationPolicy) || other.cancellationPolicy == cancellationPolicy)&&const DeepCollectionEquality().equals(other._customerCustomFields, _customerCustomFields)&&const DeepCollectionEquality().equals(other._bookingCustomFields, _bookingCustomFields)&&const DeepCollectionEquality().equals(other._bookingReminders, _bookingReminders)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate)&&(identical(other.commissionRate, commissionRate) || other.commissionRate == commissionRate));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BookingManagerKennelInfo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.email, email) || other.email == email)&&(identical(other.cancellationPolicy, cancellationPolicy) || other.cancellationPolicy == cancellationPolicy)&&const DeepCollectionEquality().equals(other._customerCustomFields, _customerCustomFields)&&const DeepCollectionEquality().equals(other._bookingCustomFields, _bookingCustomFields)&&const DeepCollectionEquality().equals(other._bookingReminders, _bookingReminders)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.vatRate, vatRate) || other.vatRate == vatRate)&&(identical(other.commissionRate, commissionRate) || other.commissionRate == commissionRate)&&(identical(other.invoicingEnabled, invoicingEnabled) || other.invoicingEnabled == invoicingEnabled)&&(identical(other.invoiceLegalName, invoiceLegalName) || other.invoiceLegalName == invoiceLegalName)&&(identical(other.invoiceAddress, invoiceAddress) || other.invoiceAddress == invoiceAddress)&&(identical(other.invoiceBusinessId, invoiceBusinessId) || other.invoiceBusinessId == invoiceBusinessId)&&(identical(other.invoiceNumberPrefix, invoiceNumberPrefix) || other.invoiceNumberPrefix == invoiceNumberPrefix)&&(identical(other.nextInvoiceNumber, nextInvoiceNumber) || other.nextInvoiceNumber == nextInvoiceNumber));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,url,email,cancellationPolicy,const DeepCollectionEquality().hash(_customerCustomFields),const DeepCollectionEquality().hash(_bookingCustomFields),const DeepCollectionEquality().hash(_bookingReminders),timezone,vatRate,commissionRate);
+int get hashCode => Object.hash(runtimeType,name,url,email,cancellationPolicy,const DeepCollectionEquality().hash(_customerCustomFields),const DeepCollectionEquality().hash(_bookingCustomFields),const DeepCollectionEquality().hash(_bookingReminders),timezone,vatRate,commissionRate,invoicingEnabled,invoiceLegalName,invoiceAddress,invoiceBusinessId,invoiceNumberPrefix,nextInvoiceNumber);
 
 @override
 String toString() {
-  return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, bookingCustomFields: $bookingCustomFields, bookingReminders: $bookingReminders, timezone: $timezone, vatRate: $vatRate, commissionRate: $commissionRate)';
+  return 'BookingManagerKennelInfo(name: $name, url: $url, email: $email, cancellationPolicy: $cancellationPolicy, customerCustomFields: $customerCustomFields, bookingCustomFields: $bookingCustomFields, bookingReminders: $bookingReminders, timezone: $timezone, vatRate: $vatRate, commissionRate: $commissionRate, invoicingEnabled: $invoicingEnabled, invoiceLegalName: $invoiceLegalName, invoiceAddress: $invoiceAddress, invoiceBusinessId: $invoiceBusinessId, invoiceNumberPrefix: $invoiceNumberPrefix, nextInvoiceNumber: $nextInvoiceNumber)';
 }
 
 
@@ -1692,7 +1712,7 @@ abstract mixin class _$BookingManagerKennelInfoCopyWith<$Res> implements $Bookin
   factory _$BookingManagerKennelInfoCopyWith(_BookingManagerKennelInfo value, $Res Function(_BookingManagerKennelInfo) _then) = __$BookingManagerKennelInfoCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String url, String email, String cancellationPolicy, List<CustomerCustomField> customerCustomFields, List<BookingCustomField> bookingCustomFields, List<BookingReminder> bookingReminders, String timezone, double vatRate, double commissionRate
+ String name, String url, String email, String cancellationPolicy, List<CustomerCustomField> customerCustomFields, List<BookingCustomField> bookingCustomFields, List<BookingReminder> bookingReminders, String timezone, double vatRate, double commissionRate, bool invoicingEnabled, String invoiceLegalName, String invoiceAddress, String invoiceBusinessId, String invoiceNumberPrefix, int nextInvoiceNumber
 });
 
 
@@ -1709,7 +1729,7 @@ class __$BookingManagerKennelInfoCopyWithImpl<$Res>
 
 /// Create a copy of BookingManagerKennelInfo
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? url = null,Object? email = null,Object? cancellationPolicy = null,Object? customerCustomFields = null,Object? bookingCustomFields = null,Object? bookingReminders = null,Object? timezone = null,Object? vatRate = null,Object? commissionRate = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? url = null,Object? email = null,Object? cancellationPolicy = null,Object? customerCustomFields = null,Object? bookingCustomFields = null,Object? bookingReminders = null,Object? timezone = null,Object? vatRate = null,Object? commissionRate = null,Object? invoicingEnabled = null,Object? invoiceLegalName = null,Object? invoiceAddress = null,Object? invoiceBusinessId = null,Object? invoiceNumberPrefix = null,Object? nextInvoiceNumber = null,}) {
   return _then(_BookingManagerKennelInfo(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
@@ -1721,7 +1741,13 @@ as List<BookingCustomField>,bookingReminders: null == bookingReminders ? _self._
 as List<BookingReminder>,timezone: null == timezone ? _self.timezone : timezone // ignore: cast_nullable_to_non_nullable
 as String,vatRate: null == vatRate ? _self.vatRate : vatRate // ignore: cast_nullable_to_non_nullable
 as double,commissionRate: null == commissionRate ? _self.commissionRate : commissionRate // ignore: cast_nullable_to_non_nullable
-as double,
+as double,invoicingEnabled: null == invoicingEnabled ? _self.invoicingEnabled : invoicingEnabled // ignore: cast_nullable_to_non_nullable
+as bool,invoiceLegalName: null == invoiceLegalName ? _self.invoiceLegalName : invoiceLegalName // ignore: cast_nullable_to_non_nullable
+as String,invoiceAddress: null == invoiceAddress ? _self.invoiceAddress : invoiceAddress // ignore: cast_nullable_to_non_nullable
+as String,invoiceBusinessId: null == invoiceBusinessId ? _self.invoiceBusinessId : invoiceBusinessId // ignore: cast_nullable_to_non_nullable
+as String,invoiceNumberPrefix: null == invoiceNumberPrefix ? _self.invoiceNumberPrefix : invoiceNumberPrefix // ignore: cast_nullable_to_non_nullable
+as String,nextInvoiceNumber: null == nextInvoiceNumber ? _self.nextInvoiceNumber : nextInvoiceNumber // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

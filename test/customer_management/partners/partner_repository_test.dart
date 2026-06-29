@@ -33,6 +33,10 @@ void main() {
         discountRate: 0.1,
         allowDeferred: true,
         deferredDays: 7,
+        invoiceEnabled: true,
+        invoiceLegalName: 'Acme Tours Ltd',
+        invoiceAddress: 'Market Street 1',
+        invoiceBusinessId: 'VAT123',
       );
 
       await repository.savePartner(partner);
@@ -42,10 +46,16 @@ void main() {
       expect(data!['id'], 'partner-1');
       expect(data['code'], 'acme');
       expect(data['allowDeferred'], true);
+      expect(data['invoiceEnabled'], true);
+      expect(data['invoiceLegalName'], 'Acme Tours Ltd');
+      expect(data['invoiceAddress'], 'Market Street 1');
+      expect(data['invoiceBusinessId'], 'VAT123');
     });
 
     test('archivePartner sets archived without deleting the doc', () async {
-      await repository.savePartner(const Partner(id: 'partner-1', code: 'acme'));
+      await repository.savePartner(
+        const Partner(id: 'partner-1', code: 'acme'),
+      );
 
       await repository.archivePartner('partner-1');
 

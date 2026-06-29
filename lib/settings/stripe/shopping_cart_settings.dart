@@ -301,19 +301,31 @@ class _ShoppingCartSettingsState extends ConsumerState<ShoppingCartSettings> {
         );
         return;
       }
-      final toSubmit = BookingManagerKennelInfo(
-        name: _nameController.text,
-        url: _urlController.text,
-        email: _emailController.text,
-        cancellationPolicy: _cancellationPolicyController.text,
-        customerCustomFields: ref.read(tempCustomerFieldsProvider),
-        bookingCustomFields: ref.read(tempBookingFieldsProvider),
-        bookingReminders: ref.read(tempBookingRemindersProvider),
-        timezone: _selectedTimezone ?? "Europe/Helsinki",
-        vatRate: applyVat == false ? 0 : 0.255,
-      );
       try {
         final account = await ref.read(accountProvider.future);
+        final current = await StripeRepository(
+          account: account,
+        ).getBookingManagerKennelInfo();
+        final toSubmit =
+            (current ??
+                    const BookingManagerKennelInfo(
+                      name: "",
+                      url: "",
+                      email: "",
+                      cancellationPolicy: "",
+                      vatRate: 0,
+                    ))
+                .copyWith(
+                  name: _nameController.text,
+                  url: _urlController.text,
+                  email: _emailController.text,
+                  cancellationPolicy: _cancellationPolicyController.text,
+                  customerCustomFields: ref.read(tempCustomerFieldsProvider),
+                  bookingCustomFields: ref.read(tempBookingFieldsProvider),
+                  bookingReminders: ref.read(tempBookingRemindersProvider),
+                  timezone: _selectedTimezone ?? "Europe/Helsinki",
+                  vatRate: applyVat == false ? 0 : 0.255,
+                );
         await StripeRepository(
           account: account,
         ).saveBookingManagerKennelInfo(toSubmit);
