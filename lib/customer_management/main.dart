@@ -98,16 +98,6 @@ class ClientManagementMainScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: OutlinedButton.icon(
-                          onPressed: () =>
-                              context.go("/client_management/partners"),
-                          icon: const Icon(Icons.handshake_outlined),
-                          label: const Text("Manage partners"),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
                       // Warnings Section
                       if (warnings.isNotEmpty) ...[
                         Card(

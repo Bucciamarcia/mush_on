@@ -229,6 +229,13 @@ class TemplateScreen extends ConsumerWidget {
                         onTap: () => context.go("/tours"),
                         title: const Text("Tours"),
                       ),
+                      if (userName.userLevel.rank >= UserLevel.musher.rank)
+                        ListTile(
+                          leading: const Icon(Icons.handshake_outlined),
+                          onTap: () =>
+                              context.go("/client_management/partners"),
+                          title: const Text("Partners portal"),
+                        ),
                       const Divider(),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(
