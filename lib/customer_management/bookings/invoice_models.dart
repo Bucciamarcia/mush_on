@@ -175,6 +175,7 @@ class InvoiceDetails {
   final List<Map<String, dynamic>> customers;
   final List<InvoiceLineItem> lineItems;
   final InvoiceTotals totals;
+  final bool reverseChargeVat;
 
   const InvoiceDetails({
     required this.id,
@@ -191,6 +192,7 @@ class InvoiceDetails {
     required this.customers,
     required this.lineItems,
     required this.totals,
+    this.reverseChargeVat = false,
   });
 
   factory InvoiceDetails.fromJson(Map<String, dynamic> json, {String? id}) {
@@ -213,6 +215,7 @@ class InvoiceDetails {
         json['lineItems'],
       ).map(InvoiceLineItem.fromJson).toList(),
       totals: InvoiceTotals.fromJson(_readMap(json['totals'])),
+      reverseChargeVat: json['reverseChargeVat'] == true,
     );
   }
 }

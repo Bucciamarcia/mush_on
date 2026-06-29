@@ -48,6 +48,7 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
       $enumDecodeNullable(_$PaymentStatusEnumMap, json['paymentStatus']) ??
       PaymentStatus.unknown,
   partner: json['partner'] as String?,
+  reverseChargeVat: json['reverseChargeVat'] as bool? ?? false,
   totalCents: (json['totalCents'] as num?)?.toInt(),
   createdOn: const TimestampConverter().fromJson(
     json['createdOn'] as Timestamp?,
@@ -74,6 +75,7 @@ Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
   'country': instance.country,
   'paymentStatus': _$PaymentStatusEnumMap[instance.paymentStatus]!,
   'partner': instance.partner,
+  'reverseChargeVat': instance.reverseChargeVat,
   'totalCents': instance.totalCents,
   'createdOn': const TimestampConverter().toJson(instance.createdOn),
   'expiresAt': const TimestampConverter().toJson(instance.expiresAt),

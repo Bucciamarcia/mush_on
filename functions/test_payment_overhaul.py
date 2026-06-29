@@ -142,6 +142,43 @@ class PartnerDiscountCheckoutTests(unittest.TestCase):
             db.documents["checkoutSessions/cs_123"]["partner"], "partner-1"
         )
 
+    def test_reverse_charge_partner_removes_vat_from_checkout(self):
+        db = _FakeDb()
+        _stripe_ready(db)
+        _with_two_adult_prices(db)
+        db.collections["accounts/account-1/data/bookingManager/tours/tour-1/prices"][
+            0
+        ].update({"priceCents": 12550, "vatRate": 0.255})
+        _partner(db, discountRate=0.0, reverseChargeVat=True)
+        checkout = _FakeCheckoutSession()
+        tax_rate = _FakeTaxRate()
+        main.firestore.client = lambda: db
+        main.stripe.Account = _FakeStripeAccount(charges_enabled=True)
+        main.stripe.checkout.Session = checkout
+        main.stripe.TaxRate = tax_rate
+        request = types.SimpleNamespace(
+            data={
+                "account": "account-1",
+                "tourId": "tour-1",
+                "partner": "partner-1",
+                "booking": {"id": "booking-1", "customerGroupId": "cg-1"},
+                "customers": [{"id": "customer-1", "pricingId": "adult"}],
+            }
+        )
+
+        main.create_booking_checkout_session(request)
+
+        line_item = checkout.calls[0]["line_items"][0]
+        self.assertEqual(line_item["price_data"]["unit_amount"], 10000)
+        self.assertNotIn("tax_rates", line_item)
+        self.assertEqual(tax_rate.calls, [])
+        booking = db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ]
+        self.assertEqual(booking["totalCents"], 10000)
+        self.assertTrue(booking["reverseChargeVat"])
+        self.assertTrue(db.documents["checkoutSessions/cs_123"]["reverseChargeVat"])
+
 
 class CreateDeferredBookingTests(unittest.TestCase):
     def _request(self):
@@ -178,6 +215,25 @@ class CreateDeferredBookingTests(unittest.TestCase):
         self.assertNotIn("expiresAt", booking)
         # partner confirmation email triggered exactly once.
         self.assertEqual(len(sent), 1)
+
+    def test_reverse_charge_deferred_booking_uses_net_total(self):
+        db = _FakeDb()
+        _stripe_ready(db)
+        _with_two_adult_prices(db)
+        db.collections["accounts/account-1/data/bookingManager/tours/tour-1/prices"][
+            0
+        ].update({"priceCents": 12550, "vatRate": 0.255})
+        _partner(db, discountRate=0.0, allowDeferred=True, reverseChargeVat=True)
+        main.firestore.client = lambda: db
+        with patch.object(main, "send_deferred_payment_email_for_booking", lambda **k: None):
+            result = main.create_deferred_booking(self._request())
+
+        self.assertEqual(result, {"bookingId": "booking-1"})
+        booking = db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ]
+        self.assertEqual(booking["totalCents"], 10000)
+        self.assertTrue(booking["reverseChargeVat"])
 
     def test_rejects_partner_without_deferred_permission(self):
         db = _FakeDb()
@@ -250,6 +306,41 @@ class DeferredPayLinkTests(unittest.TestCase):
             checkout.calls[0]["line_items"][0]["price_data"]["unit_amount"], 9000
         )
         self.assertEqual(db.documents["checkoutSessions/cs_123"]["total"], 9000)
+
+    def test_pay_link_preserves_booking_reverse_charge_snapshot(self):
+        db = _FakeDb()
+        _stripe_ready(db)
+        _with_two_adult_prices(db)
+        db.collections["accounts/account-1/data/bookingManager/tours/tour-1/prices"][
+            0
+        ].update({"priceCents": 12550, "vatRate": 0.255})
+        _partner(db, discountRate=0.0, reverseChargeVat=False, archived=True)
+        db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ] = {
+            "id": "booking-1",
+            "customerGroupId": "cg-1",
+            "paymentStatus": "deferredPayment",
+            "partner": "partner-1",
+            "totalCents": 10000,
+            "reverseChargeVat": True,
+        }
+        db.documents[
+            "accounts/account-1/data/bookingManager/customers/customer-1"
+        ] = {"id": "customer-1", "bookingId": "booking-1", "pricingId": "adult"}
+        checkout = _FakeCheckoutSession()
+        tax_rate = _FakeTaxRate()
+        main.firestore.client = lambda: db
+        main.stripe.Account = _FakeStripeAccount(charges_enabled=True)
+        main.stripe.checkout.Session = checkout
+        main.stripe.TaxRate = tax_rate
+
+        main._create_deferred_checkout_session(db, "account-1", "booking-1")
+
+        line_item = checkout.calls[0]["line_items"][0]
+        self.assertEqual(line_item["price_data"]["unit_amount"], 10000)
+        self.assertNotIn("tax_rates", line_item)
+        self.assertEqual(tax_rate.calls, [])
 
     def test_pay_link_rejects_already_paid_booking(self):
         db = _FakeDb()
@@ -567,6 +658,43 @@ class InvoiceGenerationTests(unittest.TestCase):
                 "nextInvoiceNumber"
             ],
             43,
+        )
+
+    def test_generate_reverse_charge_invoice_removes_vat(self):
+        db = _FakeDb()
+        self._seed_invoice_booking(db)
+        booking = db.documents[
+            "accounts/account-1/data/bookingManager/bookings/booking-1"
+        ]
+        booking["reverseChargeVat"] = True
+        booking["totalCents"] = 12968
+        main.firestore.client = lambda: db
+
+        result = main.generate_invoice_for_booking(self._request())
+
+        invoice = db.documents[
+            "accounts/account-1/data/bookingManager/invoices/booking-1"
+        ]
+        self.assertTrue(result["invoice"]["reverseChargeVat"])
+        self.assertTrue(invoice["reverseChargeVat"])
+        self.assertEqual(invoice["totals"]["grossCents"], 12968)
+        self.assertEqual(invoice["totals"]["netCents"], 12968)
+        self.assertEqual(invoice["totals"]["vatCents"], 0)
+        self.assertCountEqual(
+            [
+                (
+                    line["pricingId"],
+                    line["grossCents"],
+                    line["netCents"],
+                    line["vatCents"],
+                    line["vatRate"],
+                )
+                for line in invoice["lineItems"]
+            ],
+            [
+                ("adult", 7968, 7968, 0, 0.0),
+                ("child", 5000, 5000, 0, 0.0),
+            ],
         )
 
     def test_generate_invoice_is_idempotent_for_booking(self):

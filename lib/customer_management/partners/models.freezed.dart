@@ -24,7 +24,8 @@ mixin _$Partner {
  bool get allowDeferred;/// Balance due this many days BEFORE the tour date.
  int get deferredDays;/// Whether bookings from this partner should be invoiced automatically.
  bool get invoiceEnabled;/// Legal billing identity used as the invoice recipient.
- String get invoiceLegalName; String get invoiceAddress; String get invoiceBusinessId;/// Never delete partners — archive for stats/recovery.
+ String get invoiceLegalName; String get invoiceAddress; String get invoiceBusinessId;/// Remove VAT and mark invoices as reverse charged for this partner.
+ bool get reverseChargeVat;/// Never delete partners — archive for stats/recovery.
  bool get archived;
 /// Create a copy of Partner
 /// with the given fields replaced by the non-null parameter values.
@@ -38,16 +39,16 @@ $PartnerCopyWith<Partner> get copyWith => _$PartnerCopyWithImpl<Partner>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Partner&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.email, email) || other.email == email)&&(identical(other.discountRate, discountRate) || other.discountRate == discountRate)&&(identical(other.allowDeferred, allowDeferred) || other.allowDeferred == allowDeferred)&&(identical(other.deferredDays, deferredDays) || other.deferredDays == deferredDays)&&(identical(other.invoiceEnabled, invoiceEnabled) || other.invoiceEnabled == invoiceEnabled)&&(identical(other.invoiceLegalName, invoiceLegalName) || other.invoiceLegalName == invoiceLegalName)&&(identical(other.invoiceAddress, invoiceAddress) || other.invoiceAddress == invoiceAddress)&&(identical(other.invoiceBusinessId, invoiceBusinessId) || other.invoiceBusinessId == invoiceBusinessId)&&(identical(other.archived, archived) || other.archived == archived));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Partner&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.email, email) || other.email == email)&&(identical(other.discountRate, discountRate) || other.discountRate == discountRate)&&(identical(other.allowDeferred, allowDeferred) || other.allowDeferred == allowDeferred)&&(identical(other.deferredDays, deferredDays) || other.deferredDays == deferredDays)&&(identical(other.invoiceEnabled, invoiceEnabled) || other.invoiceEnabled == invoiceEnabled)&&(identical(other.invoiceLegalName, invoiceLegalName) || other.invoiceLegalName == invoiceLegalName)&&(identical(other.invoiceAddress, invoiceAddress) || other.invoiceAddress == invoiceAddress)&&(identical(other.invoiceBusinessId, invoiceBusinessId) || other.invoiceBusinessId == invoiceBusinessId)&&(identical(other.reverseChargeVat, reverseChargeVat) || other.reverseChargeVat == reverseChargeVat)&&(identical(other.archived, archived) || other.archived == archived));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,code,email,discountRate,allowDeferred,deferredDays,invoiceEnabled,invoiceLegalName,invoiceAddress,invoiceBusinessId,archived);
+int get hashCode => Object.hash(runtimeType,id,name,code,email,discountRate,allowDeferred,deferredDays,invoiceEnabled,invoiceLegalName,invoiceAddress,invoiceBusinessId,reverseChargeVat,archived);
 
 @override
 String toString() {
-  return 'Partner(id: $id, name: $name, code: $code, email: $email, discountRate: $discountRate, allowDeferred: $allowDeferred, deferredDays: $deferredDays, invoiceEnabled: $invoiceEnabled, invoiceLegalName: $invoiceLegalName, invoiceAddress: $invoiceAddress, invoiceBusinessId: $invoiceBusinessId, archived: $archived)';
+  return 'Partner(id: $id, name: $name, code: $code, email: $email, discountRate: $discountRate, allowDeferred: $allowDeferred, deferredDays: $deferredDays, invoiceEnabled: $invoiceEnabled, invoiceLegalName: $invoiceLegalName, invoiceAddress: $invoiceAddress, invoiceBusinessId: $invoiceBusinessId, reverseChargeVat: $reverseChargeVat, archived: $archived)';
 }
 
 
@@ -58,7 +59,7 @@ abstract mixin class $PartnerCopyWith<$Res>  {
   factory $PartnerCopyWith(Partner value, $Res Function(Partner) _then) = _$PartnerCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String code, String? email, double? discountRate, bool allowDeferred, int deferredDays, bool invoiceEnabled, String invoiceLegalName, String invoiceAddress, String invoiceBusinessId, bool archived
+ String id, String name, String code, String? email, double? discountRate, bool allowDeferred, int deferredDays, bool invoiceEnabled, String invoiceLegalName, String invoiceAddress, String invoiceBusinessId, bool reverseChargeVat, bool archived
 });
 
 
@@ -75,7 +76,7 @@ class _$PartnerCopyWithImpl<$Res>
 
 /// Create a copy of Partner
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? code = null,Object? email = freezed,Object? discountRate = freezed,Object? allowDeferred = null,Object? deferredDays = null,Object? invoiceEnabled = null,Object? invoiceLegalName = null,Object? invoiceAddress = null,Object? invoiceBusinessId = null,Object? archived = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? code = null,Object? email = freezed,Object? discountRate = freezed,Object? allowDeferred = null,Object? deferredDays = null,Object? invoiceEnabled = null,Object? invoiceLegalName = null,Object? invoiceAddress = null,Object? invoiceBusinessId = null,Object? reverseChargeVat = null,Object? archived = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -88,7 +89,8 @@ as int,invoiceEnabled: null == invoiceEnabled ? _self.invoiceEnabled : invoiceEn
 as bool,invoiceLegalName: null == invoiceLegalName ? _self.invoiceLegalName : invoiceLegalName // ignore: cast_nullable_to_non_nullable
 as String,invoiceAddress: null == invoiceAddress ? _self.invoiceAddress : invoiceAddress // ignore: cast_nullable_to_non_nullable
 as String,invoiceBusinessId: null == invoiceBusinessId ? _self.invoiceBusinessId : invoiceBusinessId // ignore: cast_nullable_to_non_nullable
-as String,archived: null == archived ? _self.archived : archived // ignore: cast_nullable_to_non_nullable
+as String,reverseChargeVat: null == reverseChargeVat ? _self.reverseChargeVat : reverseChargeVat // ignore: cast_nullable_to_non_nullable
+as bool,archived: null == archived ? _self.archived : archived // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -171,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String code,  String? email,  double? discountRate,  bool allowDeferred,  int deferredDays,  bool invoiceEnabled,  String invoiceLegalName,  String invoiceAddress,  String invoiceBusinessId,  bool archived)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String code,  String? email,  double? discountRate,  bool allowDeferred,  int deferredDays,  bool invoiceEnabled,  String invoiceLegalName,  String invoiceAddress,  String invoiceBusinessId,  bool reverseChargeVat,  bool archived)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Partner() when $default != null:
-return $default(_that.id,_that.name,_that.code,_that.email,_that.discountRate,_that.allowDeferred,_that.deferredDays,_that.invoiceEnabled,_that.invoiceLegalName,_that.invoiceAddress,_that.invoiceBusinessId,_that.archived);case _:
+return $default(_that.id,_that.name,_that.code,_that.email,_that.discountRate,_that.allowDeferred,_that.deferredDays,_that.invoiceEnabled,_that.invoiceLegalName,_that.invoiceAddress,_that.invoiceBusinessId,_that.reverseChargeVat,_that.archived);case _:
   return orElse();
 
 }
@@ -192,10 +194,10 @@ return $default(_that.id,_that.name,_that.code,_that.email,_that.discountRate,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String code,  String? email,  double? discountRate,  bool allowDeferred,  int deferredDays,  bool invoiceEnabled,  String invoiceLegalName,  String invoiceAddress,  String invoiceBusinessId,  bool archived)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String code,  String? email,  double? discountRate,  bool allowDeferred,  int deferredDays,  bool invoiceEnabled,  String invoiceLegalName,  String invoiceAddress,  String invoiceBusinessId,  bool reverseChargeVat,  bool archived)  $default,) {final _that = this;
 switch (_that) {
 case _Partner():
-return $default(_that.id,_that.name,_that.code,_that.email,_that.discountRate,_that.allowDeferred,_that.deferredDays,_that.invoiceEnabled,_that.invoiceLegalName,_that.invoiceAddress,_that.invoiceBusinessId,_that.archived);}
+return $default(_that.id,_that.name,_that.code,_that.email,_that.discountRate,_that.allowDeferred,_that.deferredDays,_that.invoiceEnabled,_that.invoiceLegalName,_that.invoiceAddress,_that.invoiceBusinessId,_that.reverseChargeVat,_that.archived);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -209,10 +211,10 @@ return $default(_that.id,_that.name,_that.code,_that.email,_that.discountRate,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String code,  String? email,  double? discountRate,  bool allowDeferred,  int deferredDays,  bool invoiceEnabled,  String invoiceLegalName,  String invoiceAddress,  String invoiceBusinessId,  bool archived)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String code,  String? email,  double? discountRate,  bool allowDeferred,  int deferredDays,  bool invoiceEnabled,  String invoiceLegalName,  String invoiceAddress,  String invoiceBusinessId,  bool reverseChargeVat,  bool archived)?  $default,) {final _that = this;
 switch (_that) {
 case _Partner() when $default != null:
-return $default(_that.id,_that.name,_that.code,_that.email,_that.discountRate,_that.allowDeferred,_that.deferredDays,_that.invoiceEnabled,_that.invoiceLegalName,_that.invoiceAddress,_that.invoiceBusinessId,_that.archived);case _:
+return $default(_that.id,_that.name,_that.code,_that.email,_that.discountRate,_that.allowDeferred,_that.deferredDays,_that.invoiceEnabled,_that.invoiceLegalName,_that.invoiceAddress,_that.invoiceBusinessId,_that.reverseChargeVat,_that.archived);case _:
   return null;
 
 }
@@ -224,7 +226,7 @@ return $default(_that.id,_that.name,_that.code,_that.email,_that.discountRate,_t
 @JsonSerializable()
 
 class _Partner implements Partner {
-  const _Partner({required this.id, this.name = "", this.code = "", this.email, this.discountRate, this.allowDeferred = false, this.deferredDays = 0, this.invoiceEnabled = false, this.invoiceLegalName = "", this.invoiceAddress = "", this.invoiceBusinessId = "", this.archived = false});
+  const _Partner({required this.id, this.name = "", this.code = "", this.email, this.discountRate, this.allowDeferred = false, this.deferredDays = 0, this.invoiceEnabled = false, this.invoiceLegalName = "", this.invoiceAddress = "", this.invoiceBusinessId = "", this.reverseChargeVat = false, this.archived = false});
   factory _Partner.fromJson(Map<String, dynamic> json) => _$PartnerFromJson(json);
 
 /// ALSO stored as a field in the doc (never rely on doc.id alone).
@@ -247,6 +249,8 @@ class _Partner implements Partner {
 @override@JsonKey() final  String invoiceLegalName;
 @override@JsonKey() final  String invoiceAddress;
 @override@JsonKey() final  String invoiceBusinessId;
+/// Remove VAT and mark invoices as reverse charged for this partner.
+@override@JsonKey() final  bool reverseChargeVat;
 /// Never delete partners — archive for stats/recovery.
 @override@JsonKey() final  bool archived;
 
@@ -263,16 +267,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Partner&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.email, email) || other.email == email)&&(identical(other.discountRate, discountRate) || other.discountRate == discountRate)&&(identical(other.allowDeferred, allowDeferred) || other.allowDeferred == allowDeferred)&&(identical(other.deferredDays, deferredDays) || other.deferredDays == deferredDays)&&(identical(other.invoiceEnabled, invoiceEnabled) || other.invoiceEnabled == invoiceEnabled)&&(identical(other.invoiceLegalName, invoiceLegalName) || other.invoiceLegalName == invoiceLegalName)&&(identical(other.invoiceAddress, invoiceAddress) || other.invoiceAddress == invoiceAddress)&&(identical(other.invoiceBusinessId, invoiceBusinessId) || other.invoiceBusinessId == invoiceBusinessId)&&(identical(other.archived, archived) || other.archived == archived));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Partner&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.code, code) || other.code == code)&&(identical(other.email, email) || other.email == email)&&(identical(other.discountRate, discountRate) || other.discountRate == discountRate)&&(identical(other.allowDeferred, allowDeferred) || other.allowDeferred == allowDeferred)&&(identical(other.deferredDays, deferredDays) || other.deferredDays == deferredDays)&&(identical(other.invoiceEnabled, invoiceEnabled) || other.invoiceEnabled == invoiceEnabled)&&(identical(other.invoiceLegalName, invoiceLegalName) || other.invoiceLegalName == invoiceLegalName)&&(identical(other.invoiceAddress, invoiceAddress) || other.invoiceAddress == invoiceAddress)&&(identical(other.invoiceBusinessId, invoiceBusinessId) || other.invoiceBusinessId == invoiceBusinessId)&&(identical(other.reverseChargeVat, reverseChargeVat) || other.reverseChargeVat == reverseChargeVat)&&(identical(other.archived, archived) || other.archived == archived));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,code,email,discountRate,allowDeferred,deferredDays,invoiceEnabled,invoiceLegalName,invoiceAddress,invoiceBusinessId,archived);
+int get hashCode => Object.hash(runtimeType,id,name,code,email,discountRate,allowDeferred,deferredDays,invoiceEnabled,invoiceLegalName,invoiceAddress,invoiceBusinessId,reverseChargeVat,archived);
 
 @override
 String toString() {
-  return 'Partner(id: $id, name: $name, code: $code, email: $email, discountRate: $discountRate, allowDeferred: $allowDeferred, deferredDays: $deferredDays, invoiceEnabled: $invoiceEnabled, invoiceLegalName: $invoiceLegalName, invoiceAddress: $invoiceAddress, invoiceBusinessId: $invoiceBusinessId, archived: $archived)';
+  return 'Partner(id: $id, name: $name, code: $code, email: $email, discountRate: $discountRate, allowDeferred: $allowDeferred, deferredDays: $deferredDays, invoiceEnabled: $invoiceEnabled, invoiceLegalName: $invoiceLegalName, invoiceAddress: $invoiceAddress, invoiceBusinessId: $invoiceBusinessId, reverseChargeVat: $reverseChargeVat, archived: $archived)';
 }
 
 
@@ -283,7 +287,7 @@ abstract mixin class _$PartnerCopyWith<$Res> implements $PartnerCopyWith<$Res> {
   factory _$PartnerCopyWith(_Partner value, $Res Function(_Partner) _then) = __$PartnerCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String code, String? email, double? discountRate, bool allowDeferred, int deferredDays, bool invoiceEnabled, String invoiceLegalName, String invoiceAddress, String invoiceBusinessId, bool archived
+ String id, String name, String code, String? email, double? discountRate, bool allowDeferred, int deferredDays, bool invoiceEnabled, String invoiceLegalName, String invoiceAddress, String invoiceBusinessId, bool reverseChargeVat, bool archived
 });
 
 
@@ -300,7 +304,7 @@ class __$PartnerCopyWithImpl<$Res>
 
 /// Create a copy of Partner
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? code = null,Object? email = freezed,Object? discountRate = freezed,Object? allowDeferred = null,Object? deferredDays = null,Object? invoiceEnabled = null,Object? invoiceLegalName = null,Object? invoiceAddress = null,Object? invoiceBusinessId = null,Object? archived = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? code = null,Object? email = freezed,Object? discountRate = freezed,Object? allowDeferred = null,Object? deferredDays = null,Object? invoiceEnabled = null,Object? invoiceLegalName = null,Object? invoiceAddress = null,Object? invoiceBusinessId = null,Object? reverseChargeVat = null,Object? archived = null,}) {
   return _then(_Partner(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -313,7 +317,8 @@ as int,invoiceEnabled: null == invoiceEnabled ? _self.invoiceEnabled : invoiceEn
 as bool,invoiceLegalName: null == invoiceLegalName ? _self.invoiceLegalName : invoiceLegalName // ignore: cast_nullable_to_non_nullable
 as String,invoiceAddress: null == invoiceAddress ? _self.invoiceAddress : invoiceAddress // ignore: cast_nullable_to_non_nullable
 as String,invoiceBusinessId: null == invoiceBusinessId ? _self.invoiceBusinessId : invoiceBusinessId // ignore: cast_nullable_to_non_nullable
-as String,archived: null == archived ? _self.archived : archived // ignore: cast_nullable_to_non_nullable
+as String,reverseChargeVat: null == reverseChargeVat ? _self.reverseChargeVat : reverseChargeVat // ignore: cast_nullable_to_non_nullable
+as bool,archived: null == archived ? _self.archived : archived // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

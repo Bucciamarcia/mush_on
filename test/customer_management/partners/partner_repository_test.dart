@@ -37,6 +37,7 @@ void main() {
         invoiceLegalName: 'Acme Tours Ltd',
         invoiceAddress: 'Market Street 1',
         invoiceBusinessId: 'VAT123',
+        reverseChargeVat: true,
       );
 
       await repository.savePartner(partner);
@@ -50,6 +51,7 @@ void main() {
       expect(data['invoiceLegalName'], 'Acme Tours Ltd');
       expect(data['invoiceAddress'], 'Market Street 1');
       expect(data['invoiceBusinessId'], 'VAT123');
+      expect(data['reverseChargeVat'], true);
     });
 
     test('archivePartner sets archived without deleting the doc', () async {

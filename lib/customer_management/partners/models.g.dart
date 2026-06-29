@@ -18,6 +18,7 @@ _Partner _$PartnerFromJson(Map<String, dynamic> json) => _Partner(
   invoiceLegalName: json['invoiceLegalName'] as String? ?? "",
   invoiceAddress: json['invoiceAddress'] as String? ?? "",
   invoiceBusinessId: json['invoiceBusinessId'] as String? ?? "",
+  reverseChargeVat: json['reverseChargeVat'] as bool? ?? false,
   archived: json['archived'] as bool? ?? false,
 );
 
@@ -33,5 +34,6 @@ Map<String, dynamic> _$PartnerToJson(_Partner instance) => <String, dynamic>{
   'invoiceLegalName': instance.invoiceLegalName,
   'invoiceAddress': instance.invoiceAddress,
   'invoiceBusinessId': instance.invoiceBusinessId,
+  'reverseChargeVat': instance.reverseChargeVat,
   'archived': instance.archived,
 };

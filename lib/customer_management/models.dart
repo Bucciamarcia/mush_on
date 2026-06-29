@@ -72,6 +72,9 @@ sealed class Booking with _$Booking {
     /// The id of the partner (reseller) this booking belongs to, if any.
     String? partner,
 
+    /// Whether VAT was reverse charged for this booking at creation time.
+    @Default(false) bool reverseChargeVat,
+
     /// The total price of the booking in cents, AFTER any partner discount.
     /// Stored at creation for deferred / off-platform bookings so the financial
     /// dashboard and the payment email have an amount without re-hitting Stripe.

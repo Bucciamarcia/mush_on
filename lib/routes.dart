@@ -128,10 +128,15 @@ final goRoutes = GoRouter(
           builder: (context, state) => const PartnersManagementScreen(),
           routes: [
             GoRoute(
-              path: "editor",
-              name: "partnerEditor",
+              path: "add",
+              name: "partnerAdd",
+              builder: (context, state) => const PartnerEditorScreen(),
+            ),
+            GoRoute(
+              path: ":partnerId/edit",
+              name: "partnerEdit",
               builder: (context, state) => PartnerEditorScreen(
-                partnerId: state.uri.queryParameters["partnerId"],
+                partnerId: state.pathParameters["partnerId"],
               ),
             ),
           ],

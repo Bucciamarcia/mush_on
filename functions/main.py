@@ -429,6 +429,25 @@ def _pricing_vat_percentage(pricing: dict) -> float:
     return percentage if percentage > 0 else 0
 
 
+def _pricing_vat_rate(pricing: dict) -> float:
+    try:
+        return float(_unwrap_int64_wrappers(pricing.get("vatRate", 0)) or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _remove_inclusive_vat_cents(gross_cents: int, vat_rate: float) -> int:
+    if vat_rate <= 0:
+        return gross_cents
+    return _round_decimal_to_cents(
+        Decimal(gross_cents) / (Decimal("1") + Decimal(str(vat_rate)))
+    )
+
+
+def _partner_reverse_charge_vat(partner: dict | None) -> bool:
+    return bool(partner and not partner.get("archived") and partner.get("reverseChargeVat"))
+
+
 def _tax_rate_cache_ref(
     db,
     account: str,
@@ -532,6 +551,7 @@ def _build_checkout_line_items(
     quantities_by_pricing: dict[str, int],
     tax_rate_id_for_percentage=None,
     discount_rate: float = 0.0,
+    reverse_charge_vat: bool = False,
 ) -> tuple[list[dict], int]:
     line_items = []
     total_amount_cents = 0
@@ -543,6 +563,10 @@ def _build_checkout_line_items(
         if pricing is None:
             raise ValueError(f"Active pricing not found: {pricing_id}")
         unit_amount = int(_unwrap_int64_wrappers(pricing.get("priceCents", 0)))
+        if reverse_charge_vat:
+            unit_amount = _remove_inclusive_vat_cents(
+                unit_amount, _pricing_vat_rate(pricing)
+            )
         if discount_rate > 0:
             # Discount each line item's unit amount (round to nearest cent) so
             # the per-line amounts, the total, and the application fee are all
@@ -564,7 +588,11 @@ def _build_checkout_line_items(
             "quantity": quantity,
         }
         percentage = _pricing_vat_percentage(pricing)
-        if percentage > 0 and tax_rate_id_for_percentage is not None:
+        if (
+            not reverse_charge_vat
+            and percentage > 0
+            and tax_rate_id_for_percentage is not None
+        ):
             tax_rate_id = tax_rate_ids_by_percentage.get(percentage)
             if tax_rate_id is None:
                 tax_rate_id = tax_rate_id_for_percentage(percentage)
@@ -683,7 +711,10 @@ def _allocate_invoice_discount(
 
 
 def _build_invoice_line_items(
-    prices_by_id: dict[str, dict], customers: list[dict], booking: dict
+    prices_by_id: dict[str, dict],
+    customers: list[dict],
+    booking: dict,
+    reverse_charge_vat: bool = False,
 ) -> tuple[list[dict], dict]:
     quantities_by_pricing = _quantity_by_pricing(customers)
     sorted_pricing_ids = sorted(quantities_by_pricing.keys())
@@ -698,6 +729,11 @@ def _build_invoice_line_items(
             )
         quantity = quantities_by_pricing[pricing_id]
         unit_gross_cents = int(_unwrap_int64_wrappers(pricing.get("priceCents", 0)))
+        source_vat_rate = _pricing_vat_rate(pricing)
+        if reverse_charge_vat:
+            unit_gross_cents = _remove_inclusive_vat_cents(
+                unit_gross_cents, source_vat_rate
+            )
         gross_cents = unit_gross_cents * quantity
         undiscounted_line_totals.append(gross_cents)
         line_context.append(
@@ -708,7 +744,7 @@ def _build_invoice_line_items(
                 or "Ticket",
                 "quantity": quantity,
                 "undiscountedUnitGrossCents": unit_gross_cents,
-                "vatRate": float(_unwrap_int64_wrappers(pricing.get("vatRate", 0)) or 0),
+                "vatRate": 0.0 if reverse_charge_vat else source_vat_rate,
             }
         )
 
@@ -821,7 +857,10 @@ def _build_invoice_body(
     )
     customers = _get_booking_customers(db, account, booking_id)
     prices_by_id = _get_active_prices_by_id(db, account, tour_id)
-    line_items, totals = _build_invoice_line_items(prices_by_id, customers, booking)
+    reverse_charge_vat = booking.get("reverseChargeVat") is True
+    line_items, totals = _build_invoice_line_items(
+        prices_by_id, customers, booking, reverse_charge_vat=reverse_charge_vat
+    )
     return {
         "id": booking_id,
         "bookingId": booking_id,
@@ -838,6 +877,7 @@ def _build_invoice_body(
                 "customerGroupId",
                 "paymentStatus",
                 "partner",
+                "reverseChargeVat",
                 "totalCents",
                 "createdOn",
                 "customerOtherInfo",
@@ -856,6 +896,7 @@ def _build_invoice_body(
         ],
         "lineItems": line_items,
         "totals": totals,
+        "reverseChargeVat": reverse_charge_vat,
     }
 
 
@@ -1128,6 +1169,7 @@ def _build_server_checkout_payload(
     stripe_mode: str,
     stripe_account_id: str,
     partner: dict | None = None,
+    reverse_charge_vat_override: bool | None = None,
 ) -> dict:
     booking = _get_required_document(
         db,
@@ -1154,6 +1196,11 @@ def _build_server_checkout_payload(
 
     prices_by_id = _get_active_prices_by_id(db, account, tour_id)
     discount_rate = _partner_discount_rate(partner)
+    reverse_charge_vat = (
+        reverse_charge_vat_override
+        if reverse_charge_vat_override is not None
+        else _partner_reverse_charge_vat(partner)
+    )
     line_items, total_amount_cents = _build_checkout_line_items(
         prices_by_id,
         quantities_by_pricing,
@@ -1161,6 +1208,7 @@ def _build_server_checkout_payload(
             db, account, stripe_mode, stripe_account_id, percentage
         ),
         discount_rate=discount_rate,
+        reverse_charge_vat=reverse_charge_vat,
     )
     kennel_info = _get_required_document(
         db, f"accounts/{account}/data/bookingManager", "Booking manager settings"
@@ -1175,6 +1223,7 @@ def _build_server_checkout_payload(
         "tour_id": tour_id,
         "customer_group_id": customer_group_id,
         "partner": partner,
+        "reverse_charge_vat": reverse_charge_vat,
     }
 
 
@@ -2231,6 +2280,7 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
         booking_update = {
             "checkoutSessionId": checkout_session_id,
             "totalCents": checkout_payload["total_amount_cents"],
+            "reverseChargeVat": checkout_payload["reverse_charge_vat"],
         }
         if partner_id:
             booking_update["partner"] = partner_id
@@ -2239,7 +2289,10 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
         ).update(booking_update)
         if partner_id:
             db.document(f"checkoutSessions/{checkout_session_id}").update(
-                {"partner": partner_id}
+                {
+                    "partner": partner_id,
+                    "reverseChargeVat": checkout_payload["reverse_charge_vat"],
+                }
             )
 
         return {
@@ -2329,7 +2382,13 @@ def create_deferred_booking(req: https_fn.CallableRequest[dict]) -> dict:
         total_cents = checkout_payload["total_amount_cents"]
         db.document(
             f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}"
-        ).update({"partner": partner_id, "totalCents": total_cents})
+        ).update(
+            {
+                "partner": partner_id,
+                "totalCents": total_cents,
+                "reverseChargeVat": checkout_payload["reverse_charge_vat"],
+            }
+        )
 
         send_deferred_payment_email_for_booking(
             db=db, account=account, booking_id=booking_id
@@ -2367,6 +2426,11 @@ def _create_deferred_checkout_session(db, account: str, booking_id: str) -> dict
     )
     tour_id = customer_group.get("tourTypeId")
     partner = _get_partner(db, account, booking.get("partner"))
+    reverse_charge_vat_override = (
+        booking.get("reverseChargeVat") is True
+        if "reverseChargeVat" in booking
+        else None
+    )
 
     stripe_mode, stripe_account_id = _resolve_stripe_account(account)
     _set_stripe_api_key(stripe_mode)
@@ -2380,6 +2444,7 @@ def _create_deferred_checkout_session(db, account: str, booking_id: str) -> dict
         stripe_mode,
         stripe_account_id,
         partner=partner,
+        reverse_charge_vat_override=reverse_charge_vat_override,
     )
     session = _create_checkout_session_with_tax_rate_retry(
         db,
@@ -2407,9 +2472,18 @@ def _create_deferred_checkout_session(db, account: str, booking_id: str) -> dict
     )
     if booking.get("partner"):
         db.document(f"checkoutSessions/{checkout_session_id}").update(
-            {"partner": booking.get("partner")}
+            {
+                "partner": booking.get("partner"),
+                "reverseChargeVat": checkout_payload["reverse_charge_vat"],
+            }
         )
-    db.document(booking_path).update({"checkoutSessionId": checkout_session_id})
+    db.document(booking_path).update(
+        {
+            "checkoutSessionId": checkout_session_id,
+            "totalCents": checkout_payload["total_amount_cents"],
+            "reverseChargeVat": checkout_payload["reverse_charge_vat"],
+        }
+    )
 
     return {"url": session.url, "checkoutSessionId": checkout_session_id}
 

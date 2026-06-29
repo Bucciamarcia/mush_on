@@ -17,6 +17,7 @@ void main() {
         invoiceLegalName: 'Acme Tours Ltd',
         invoiceAddress: 'Market Street 1',
         invoiceBusinessId: 'VAT123',
+        reverseChargeVat: true,
       );
 
       final json = partner.toJson();
@@ -29,6 +30,7 @@ void main() {
       expect(json['invoiceLegalName'], 'Acme Tours Ltd');
       expect(json['invoiceAddress'], 'Market Street 1');
       expect(json['invoiceBusinessId'], 'VAT123');
+      expect(json['reverseChargeVat'], true);
 
       expect(Partner.fromJson(json), partner);
     });
@@ -43,6 +45,7 @@ void main() {
       expect(partner.invoiceLegalName, "");
       expect(partner.invoiceAddress, "");
       expect(partner.invoiceBusinessId, "");
+      expect(partner.reverseChargeVat, false);
     });
   });
 
@@ -95,6 +98,39 @@ void main() {
         10000,
       );
     });
+
+    test('partnerCheckoutPriceCents removes VAT before discount', () {
+      const partner = Partner(
+        id: 'p',
+        discountRate: 0.1,
+        reverseChargeVat: true,
+      );
+
+      expect(
+        partnerCheckoutPriceCents(
+          grossPriceCents: 12550,
+          vatRate: 0.255,
+          partner: partner,
+        ),
+        9000,
+      );
+    });
+
+    test(
+      'partnerCheckoutPriceCents keeps gross price without reverse charge',
+      () {
+        const partner = Partner(id: 'p', discountRate: 0.1);
+
+        expect(
+          partnerCheckoutPriceCents(
+            grossPriceCents: 12550,
+            vatRate: 0.255,
+            partner: partner,
+          ),
+          11295,
+        );
+      },
+    );
 
     test('paymentDueDate is tour date minus deferredDays', () {
       const partner = Partner(id: 'p', deferredDays: 7);

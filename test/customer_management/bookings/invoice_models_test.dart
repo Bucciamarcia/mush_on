@@ -29,6 +29,7 @@ void main() {
         'customers': [
           {'name': 'Ada'},
         ],
+        'reverseChargeVat': true,
         'lineItems': [
           {
             'pricingId': 'adult',
@@ -65,6 +66,7 @@ void main() {
       expect(invoice.lineItems.single.quantity, 2);
       expect(invoice.totals.grossCents, 20000);
       expect(invoice.totals.vatBreakdown.single.vatRate, 0.255);
+      expect(invoice.reverseChargeVat, true);
     });
 
     test('parses callable-safe datetime maps', () {

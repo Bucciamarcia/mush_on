@@ -12,6 +12,26 @@ int discountedPriceCents(int priceCents, Partner? partner) {
   return (priceCents * (1 - rate)).round();
 }
 
+/// Removes inclusive VAT from a gross price. Returns the original price when
+/// the VAT rate is zero or invalid.
+int vatExclusivePriceCents(int grossPriceCents, double vatRate) {
+  if (vatRate <= 0) return grossPriceCents;
+  return (grossPriceCents / (1 + vatRate)).round();
+}
+
+/// Applies partner tax and discount rules in the same order as checkout:
+/// reverse-charge VAT first, then partner discount.
+int partnerCheckoutPriceCents({
+  required int grossPriceCents,
+  required double vatRate,
+  required Partner? partner,
+}) {
+  final taxablePrice = partner?.reverseChargeVat == true
+      ? vatExclusivePriceCents(grossPriceCents, vatRate)
+      : grossPriceCents;
+  return discountedPriceCents(taxablePrice, partner);
+}
+
 /// The date the deferred balance is due: the tour date minus the partner's
 /// `deferredDays`. (NOTE: it is measured from the tour date, NOT from now.)
 DateTime paymentDueDate(DateTime tourDate, Partner partner) =>

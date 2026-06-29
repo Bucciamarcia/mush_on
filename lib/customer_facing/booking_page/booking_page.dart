@@ -5,6 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_facing/booking_page/repository.dart';
+import 'package:mush_on/customer_management/partners/logic.dart';
+import 'package:mush_on/customer_management/partners/models.dart';
 import 'package:mush_on/customer_management/tours/models.dart';
 import 'package:mush_on/services/error_handling.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
@@ -282,6 +284,7 @@ class BookingSummaryColumn extends ConsumerWidget {
       selectedCustomerGroupInCalendarProvider,
     );
     final account = ref.watch(accountPublicProvider);
+    final partner = ref.watch(resolvedPartnerProvider).valueOrNull;
     final timezoneStr = ref.watch(kennelTimezoneProvider);
     final tzLocation = tz.getLocation(timezoneStr);
 
@@ -323,7 +326,12 @@ class BookingSummaryColumn extends ConsumerWidget {
         final pricing = pricings.firstWhere(
           (p) => p.id == sp.tourTypePricingId,
         );
-        amount += (pricing.priceCents.toDouble() / 100) * sp.numberBooked;
+        final priceCents = partnerCheckoutPriceCents(
+          grossPriceCents: pricing.priceCents,
+          vatRate: pricing.vatRate,
+          partner: partner,
+        );
+        amount += (priceCents.toDouble() / 100) * sp.numberBooked;
       }
       return amount;
     }
@@ -396,6 +404,7 @@ class BookingSummaryColumn extends ConsumerWidget {
                   (sp) => sp.tourTypePricingId == pricing.id,
                 ),
                 pricing: pricing,
+                partner: partner,
               ),
               const SizedBox(height: 10),
             ],
@@ -404,6 +413,7 @@ class BookingSummaryColumn extends ConsumerWidget {
               selectedPricings: selectedPricings,
               pricings: pricings,
               grandTotalToPay: grandTotalToPay,
+              partner: partner,
             ),
             const SizedBox(height: 24),
             ConfirmBookingButton(
@@ -528,11 +538,13 @@ class GrandTotalSummaryRow extends StatelessWidget {
   final List<BookingPricingNumberBooked> selectedPricings;
   final List<TourTypePricing> pricings;
   final double grandTotalToPay;
+  final Partner? partner;
   const GrandTotalSummaryRow({
     super.key,
     required this.selectedPricings,
     required this.pricings,
     required this.grandTotalToPay,
+    this.partner,
   });
 
   @override
@@ -557,7 +569,9 @@ class GrandTotalSummaryRow extends StatelessWidget {
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
-                "VAT included",
+                partner?.reverseChargeVat == true
+                    ? "VAT reverse charged"
+                    : "VAT included",
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: BookingPageColors.textMuted.color,
                 ),
@@ -580,16 +594,24 @@ class GrandTotalSummaryRow extends StatelessWidget {
 class PricingOptionTotalPrice extends StatelessWidget {
   final BookingPricingNumberBooked bookingInfo;
   final TourTypePricing pricing;
+  final Partner? partner;
   const PricingOptionTotalPrice({
     super.key,
     required this.bookingInfo,
     required this.pricing,
+    this.partner,
   });
 
   @override
   Widget build(BuildContext context) {
     if (bookingInfo.numberBooked == 0) return const SizedBox.shrink();
-    final unitPrice = pricing.priceCents.toDouble() / 100;
+    final unitPrice =
+        partnerCheckoutPriceCents(
+          grossPriceCents: pricing.priceCents,
+          vatRate: pricing.vatRate,
+          partner: partner,
+        ).toDouble() /
+        100;
     final totalPrice = unitPrice * bookingInfo.numberBooked;
 
     return Row(
@@ -638,6 +660,12 @@ class PricingOptionCounter extends ConsumerWidget {
     final selectedPricing = selectedPricings.firstWhere(
       (sp) => sp.tourTypePricingId == pricing.id,
     );
+    final partner = ref.watch(resolvedPartnerProvider).valueOrNull;
+    final displayPriceCents = partnerCheckoutPriceCents(
+      grossPriceCents: pricing.priceCents,
+      vatRate: pricing.vatRate,
+      partner: partner,
+    );
     final notifier = ref.watch(
       bookingDetailsSelectedPricingsProvider(pricings).notifier,
     );
@@ -666,7 +694,7 @@ class PricingOptionCounter extends ConsumerWidget {
                 Text(
                   pricing.displayDescription?.trim().isNotEmpty == true
                       ? pricing.displayDescription!
-                      : "${formatEuro(pricing.priceCents / 100)} per guest",
+                      : "${formatEuro(displayPriceCents / 100)} per guest",
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: BookingPageColors.textMuted.color,
                   ),

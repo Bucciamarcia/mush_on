@@ -80,15 +80,13 @@ class _PartnersManagementScreenState
             return PartnersManagementView(
               partners: partners,
               onAdd: () async {
-                await context.pushNamed("partnerEditor");
-                if (mounted) _reload();
+                context.goNamed("partnerAdd");
               },
               onEdit: (p) async {
-                await context.pushNamed(
-                  "partnerEditor",
-                  queryParameters: {"partnerId": p.id},
+                context.goNamed(
+                  "partnerEdit",
+                  pathParameters: {"partnerId": p.id},
                 );
-                if (mounted) _reload();
               },
               onArchive: _archive,
             );
@@ -120,6 +118,7 @@ class _PartnerEditorScreenState extends ConsumerState<PartnerEditorScreen> {
   late final TextEditingController _invoiceBusinessId;
   late bool _allowDeferred;
   late bool _invoiceEnabled;
+  late bool _reverseChargeVat;
   Future<Partner?>? _partnerFuture;
   String? _account;
   bool _initialized = false;
@@ -140,6 +139,7 @@ class _PartnerEditorScreenState extends ConsumerState<PartnerEditorScreen> {
     _invoiceBusinessId = TextEditingController();
     _allowDeferred = false;
     _invoiceEnabled = false;
+    _reverseChargeVat = false;
   }
 
   @override
@@ -171,6 +171,7 @@ class _PartnerEditorScreenState extends ConsumerState<PartnerEditorScreen> {
     _invoiceBusinessId.text = p?.invoiceBusinessId ?? "";
     _allowDeferred = p?.allowDeferred ?? false;
     _invoiceEnabled = p?.invoiceEnabled ?? false;
+    _reverseChargeVat = p?.reverseChargeVat ?? false;
   }
 
   Partner _buildPartner(Partner? current) {
@@ -188,6 +189,7 @@ class _PartnerEditorScreenState extends ConsumerState<PartnerEditorScreen> {
       invoiceLegalName: _invoiceLegalName.text.trim(),
       invoiceAddress: _invoiceAddress.text.trim(),
       invoiceBusinessId: _invoiceBusinessId.text.trim(),
+      reverseChargeVat: _reverseChargeVat,
       archived: current?.archived ?? false,
     );
   }
@@ -353,6 +355,22 @@ class _PartnerEditorScreenState extends ConsumerState<PartnerEditorScreen> {
                                   addressController: _invoiceAddress,
                                   businessIdController: _invoiceBusinessId,
                                 ),
+                              CheckboxListTile(
+                                contentPadding: EdgeInsets.zero,
+                                secondary: const Icon(
+                                  Icons.public_off_outlined,
+                                ),
+                                title: const Text("Reverse charge VAT"),
+                                subtitle: const Text(
+                                  "If checked, VAT will be removed from this partner's invoice under EU's reverse charge regulations",
+                                ),
+                                value: _reverseChargeVat,
+                                onChanged: _isSaving
+                                    ? null
+                                    : (v) => setState(
+                                        () => _reverseChargeVat = v ?? false,
+                                      ),
+                              ),
                             ],
                           ),
                         ),

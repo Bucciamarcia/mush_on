@@ -748,7 +748,12 @@ class BookingSummaryImmobile extends ConsumerWidget {
         final pricing = pricings.firstWhere(
           (p) => p.id == sp.tourTypePricingId,
         );
-        amount += (pricing.priceCents.toDouble() / 100) * sp.numberBooked;
+        final priceCents = partnerCheckoutPriceCents(
+          grossPriceCents: pricing.priceCents,
+          vatRate: pricing.vatRate,
+          partner: partner,
+        );
+        amount += (priceCents.toDouble() / 100) * sp.numberBooked;
       }
       return amount;
     }
@@ -813,6 +818,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
                 (sp) => sp.tourTypePricingId == pricing.id,
               ),
               pricing: pricing,
+              partner: partner,
             ),
             const SizedBox(height: 10),
           ],
@@ -821,6 +827,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
             selectedPricings: selectedPricings,
             pricings: pricings,
             grandTotalToPay: grandTotalToPay,
+            partner: partner,
           ),
           const SizedBox(height: 14),
           const CancellationPolicySection(),

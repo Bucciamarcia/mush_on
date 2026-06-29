@@ -36,6 +36,9 @@ sealed class Partner with _$Partner {
     @Default("") String invoiceAddress,
     @Default("") String invoiceBusinessId,
 
+    /// Remove VAT and mark invoices as reverse charged for this partner.
+    @Default(false) bool reverseChargeVat,
+
     /// Never delete partners — archive for stats/recovery.
     @Default(false) bool archived,
   }) = _Partner;

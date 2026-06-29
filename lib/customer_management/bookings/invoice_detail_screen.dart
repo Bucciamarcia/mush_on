@@ -252,8 +252,37 @@ class _InvoiceDocument extends StatelessWidget {
         const SizedBox(height: 32),
         _LineItemsTable(invoice: invoice),
         const SizedBox(height: 28),
+        if (invoice.reverseChargeVat) ...[
+          const _InvoiceNote(text: 'VAT reverse charged'),
+          const SizedBox(height: 20),
+        ],
         _TotalsBlock(totals: invoice.totals),
       ],
+    );
+  }
+}
+
+class _InvoiceNote extends StatelessWidget {
+  final String text;
+
+  const _InvoiceNote({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Text(
+          text,
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
+      ),
     );
   }
 }
