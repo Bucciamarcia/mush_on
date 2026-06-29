@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/customer_management/bookings/invoice_models.dart';
+import 'package:mush_on/customer_management/bookings/invoice_pdf.dart';
 import 'package:mush_on/customer_management/bookings/invoice_repository.dart';
-import 'package:mush_on/customer_management/bookings/invoice_print_stub.dart'
-    if (dart.library.html) 'package:mush_on/customer_management/bookings/invoice_print_web.dart';
 import 'package:mush_on/page_template.dart';
 import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/error_handling.dart';
+import 'package:mush_on/shared/save_file/save_file.dart';
 
 final invoiceDetailsProvider = StreamProvider.autoDispose
     .family<InvoiceDetails?, String>((ref, bookingId) async* {
@@ -130,19 +130,34 @@ class _InvoicePage extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: FilledButton.icon(
             onPressed: () async {
-              final didPrint = await printInvoicePage();
-              if (!context.mounted) return;
-              if (!didPrint) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  errorSnackBar(
-                    context,
-                    'Printing is available from the web app.',
-                  ),
+              try {
+                final didSave = await saveFileIfSupported(
+                  filename: invoicePdfFilename(invoice),
+                  bytes: buildInvoicePdf(invoice),
+                  fileExtension: 'pdf',
+                  mimeType: 'application/pdf',
                 );
+                if (!context.mounted) return;
+                if (!didSave) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    errorSnackBar(context, "Couldn't save the invoice PDF"),
+                  );
+                }
+              } catch (e, s) {
+                BasicLogger().error(
+                  "Couldn't save invoice PDF",
+                  error: e,
+                  stackTrace: s,
+                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    errorSnackBar(context, "Couldn't save the invoice PDF"),
+                  );
+                }
               }
             },
-            icon: const Icon(Icons.print_outlined),
-            label: const Text('Print / save PDF'),
+            icon: const Icon(Icons.download_outlined),
+            label: const Text('Save invoice PDF'),
           ),
         ),
         const SizedBox(height: 16),

@@ -172,3 +172,4 @@ A cool and open source CRM for sled dog kennels.
 - Adds go to cart button.
 - Adds pricing tier custom fields.
 - Improves data display in customers' create team.
+- Adds invoices.
