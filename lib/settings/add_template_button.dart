@@ -86,7 +86,7 @@ class _AddTemplateDialogState extends State<AddTemplateDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Add a custom field"),
       content: SingleChildScrollView(
         child: Column(

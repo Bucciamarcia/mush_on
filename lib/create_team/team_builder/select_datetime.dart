@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mush_on/create_team/riverpod.dart';
 
-class DateTimeDistancePicker extends ConsumerStatefulWidget {
+class DateTimeDistancePicker extends StatefulWidget {
   final TeamGroupWorkspace teamGroup;
   final bool isReadOnly;
   final Function(DateTime) onDateChanged;
@@ -18,12 +17,26 @@ class DateTimeDistancePicker extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<DateTimeDistancePicker> createState() =>
-      _DateTimeDistancePickerState();
+  State<DateTimeDistancePicker> createState() => _DateTimeDistancePickerState();
 }
 
-class _DateTimeDistancePickerState
-    extends ConsumerState<DateTimeDistancePicker> {
+class _DateTimeDistancePickerState extends State<DateTimeDistancePicker> {
+  late final TextEditingController _distanceController;
+
+  @override
+  void initState() {
+    super.initState();
+    _distanceController = TextEditingController(
+      text: _formatDistance(widget.teamGroup.distance),
+    );
+  }
+
+  @override
+  void dispose() {
+    _distanceController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -107,7 +120,7 @@ class _DateTimeDistancePickerState
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
             ],
             onChanged: (v) => widget.onDistanceChanged(double.tryParse(v) ?? 0),
-            controller: ref.watch(distanceControllerProvider),
+            controller: _distanceController,
           ),
         ),
       ],
@@ -120,5 +133,14 @@ class _DateTimeDistancePickerState
 
   String _formatTime(DateTime date) {
     return DateFormat("HH:mm").format(date);
+  }
+
+  /// Empty for 0, no trailing ".0" for whole numbers.
+  String _formatDistance(double distance) {
+    if (distance == 0) return "";
+    if (distance == distance.truncateToDouble()) {
+      return distance.toInt().toString();
+    }
+    return distance.toString();
   }
 }

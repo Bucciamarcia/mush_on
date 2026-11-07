@@ -560,7 +560,7 @@ class _WhiteboardElementEditorState
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
+    return AlertDialog(
       scrollable: true,
       title: Text(
         widget.element == null ? "Add note" : "Edit note",

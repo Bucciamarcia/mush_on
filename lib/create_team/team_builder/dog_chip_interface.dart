@@ -86,7 +86,7 @@ class TeamBuilderDogDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: Text(dog.name),
       content: SizedBox(
         width: size.width < 900 ? size.width * 0.9 : 900,

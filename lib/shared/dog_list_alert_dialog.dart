@@ -14,7 +14,7 @@ class DogListAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: Text(title),
       content: Wrap(
         spacing: 5,

@@ -48,7 +48,7 @@ class _AddDistanceWarningAlertDialogState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: Row(
         spacing: 5,
         children: [

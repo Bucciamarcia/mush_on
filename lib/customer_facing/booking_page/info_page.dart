@@ -969,7 +969,7 @@ class BookingSummaryImmobile extends ConsumerWidget {
         if (context.mounted) {
           await showDialog<void>(
             context: context,
-            builder: (_) => AlertDialog.adaptive(
+            builder: (_) => AlertDialog(
               title: const Text("Booking confirmed"),
               content: const Text(
                 "Your seat is reserved. A payment link has been emailed to the "

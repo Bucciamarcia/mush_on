@@ -528,7 +528,7 @@ class _ConfirmRefundAllBookingsDialogState
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Be careful!"),
       content: Text(
         "This will refund ${widget.paidBookingsCount} paid Stripe booking(s) "

@@ -548,7 +548,7 @@ class ReconnectStripeAccountButton extends StatelessWidget {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog.adaptive(
+        return AlertDialog(
           title: const Text("Reconnect Stripe account"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -593,7 +593,7 @@ Future<void> _confirmDeleteArchivedAccount(
     context: context,
     builder: (dialogContext) {
       final colorScheme = Theme.of(dialogContext).colorScheme;
-      return AlertDialog.adaptive(
+      return AlertDialog(
         title: const Text("Delete Stripe account?"),
         content: const Text(
           "WARNING: This Stripe account cannot be retrieved after deletion!",
@@ -711,7 +711,7 @@ void _showStripeSetupOverlay(BuildContext context, String message) {
     builder: (dialogContext) {
       return PopScope(
         canPop: false,
-        child: AlertDialog.adaptive(
+        child: AlertDialog(
           content: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -816,7 +816,7 @@ class DisconnectStripeDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final modeLabel = _stripeModeLabel(stripeMode);
     final colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Disconnect Stripe?"),
       content: Text(
         "Checkout will stop for $modeLabel mode. Existing bookings, receipts, and payment records will stay in Mush On. Your Stripe account will not be deleted.",

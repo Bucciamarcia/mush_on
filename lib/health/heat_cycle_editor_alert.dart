@@ -59,7 +59,7 @@ class _HeatCycleEditorAlertState extends ConsumerState<HeatCycleEditorAlert> {
     dogs = dogs.where((dog) => dog.sex != DogSex.male).toList();
     var colorScheme = Theme.of(context).colorScheme;
 
-    return AlertDialog.adaptive(
+    return AlertDialog(
       scrollable: true,
       title: const Text("Add Heat Cycle"),
       content: Column(

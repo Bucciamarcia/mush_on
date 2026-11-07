@@ -115,7 +115,7 @@ class PartnersHelpDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("How partners work"),
       content: SingleChildScrollView(
         child: Column(

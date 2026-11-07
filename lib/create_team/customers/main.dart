@@ -241,7 +241,7 @@ class AssignCustomersAlert extends ConsumerWidget {
             datetime: DateTime.now(),
           ),
         );
-    return AlertDialog.adaptive(
+    return AlertDialog(
       insetPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
       contentPadding: const EdgeInsets.all(10),
       scrollable: true,

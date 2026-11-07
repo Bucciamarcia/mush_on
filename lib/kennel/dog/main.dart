@@ -687,7 +687,7 @@ class DeleteDogConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Delete"),
       content: IntrinsicHeight(
         child: Column(
@@ -737,7 +737,7 @@ class ArchiveDogConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Delete"),
       content: Text(
         "Are you sure you want to retire ${dog.name}? The dog can be recovered later.",

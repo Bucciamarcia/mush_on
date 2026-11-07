@@ -174,7 +174,7 @@ class _AddTaskDialogState extends State<TaskEditorDialog> {
   @override
   Widget build(BuildContext context) {
     var colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog.adaptive(
+    return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [

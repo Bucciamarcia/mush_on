@@ -60,7 +60,7 @@ class _DogNameEditorState extends State<DogNameEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Change dog name"),
       content: TextField(controller: _controller),
       actions: [

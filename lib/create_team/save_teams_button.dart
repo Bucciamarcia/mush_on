@@ -106,7 +106,6 @@ class _SaveTeamsButtonState extends ConsumerState<SaveTeamsButton> {
               ? null
               : () {
                   ref.invalidate(createTeamGroupProvider);
-                  ref.invalidate(distanceControllerProvider);
                   context.pushReplacement("/createteam");
                 },
           child: const Text("Create a new team group"),

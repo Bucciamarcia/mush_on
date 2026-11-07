@@ -123,7 +123,7 @@ class _TagEditorState extends State<TagEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Add a new tag"),
       content: SingleChildScrollView(
         child: Column(
@@ -154,12 +154,12 @@ class _TagEditorState extends State<TagEditor> {
                     height: 25,
                     width: 25,
                   ),
-                  const Text("Pick a color"),
+                  const Flexible(child: Text("Pick a color")),
                 ],
               ),
               children: [
                 MaterialPicker(
-                  pickerColor: Theme.of(context).colorScheme.primary,
+                  pickerColor: color,
                   onColorChanged: (Color newColor) {
                     setState(() {
                       color = newColor;

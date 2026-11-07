@@ -579,7 +579,7 @@ class _PricingEditorAlertState extends State<PricingEditorAlert> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final bool isViewOnly = widget.pricing != null;
-    return AlertDialog.adaptive(
+    return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [
@@ -960,7 +960,7 @@ class ConfirmDeleteAlert extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Confirm archive"),
       content: const Text(
         "Tours can't be deleted, only archived for safety. Are you sure?",

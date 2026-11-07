@@ -59,7 +59,7 @@ class EditPositionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     DogPositions newPositions = positions;
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Edit positions"),
       content: PositionToggleWidget(
         positions: positions,

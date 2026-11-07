@@ -159,7 +159,7 @@ class _SexChangeWidgetState extends State<SexChangeWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Change sex"),
       content: Column(
         children: [

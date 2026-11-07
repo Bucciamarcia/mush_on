@@ -442,7 +442,7 @@ class TeamViewer extends ConsumerWidget {
 
   AlertDialog buildAlertDialog(BuildContext context, String account) {
     final colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog.adaptive(
+    return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Row(
         children: [

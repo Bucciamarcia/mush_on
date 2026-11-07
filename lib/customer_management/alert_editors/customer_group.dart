@@ -72,7 +72,7 @@ class _CustomerGroupEditorAlertState
     }
     showDialog(
       context: context,
-      builder: (_) => AlertDialog.adaptive(
+      builder: (_) => AlertDialog(
         title: const Text("Are you sure?"),
         content: const Text(
           "Are you sure you want to delete this customer group?",
@@ -165,7 +165,7 @@ class _CustomerGroupEditorAlertState
     });
     var colorScheme = Theme.of(context).colorScheme;
     if (MediaQuery.sizeOf(context).width >= 0) {
-      return AlertDialog.adaptive(
+      return AlertDialog(
         title: const Text("Customer Group Editor"),
         scrollable: true,
         content: Column(
@@ -1458,7 +1458,7 @@ class _AddTeamGroupInCgState extends State<AddTeamGroupInCg> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog.adaptive(
+    return AlertDialog(
       scrollable: true,
       title: const Text("Add Team Group"),
       content: Column(

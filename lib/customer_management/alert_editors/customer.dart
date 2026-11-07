@@ -173,7 +173,7 @@ class _CustomerEditorAlertState extends ConsumerState<CustomerEditorAlert> {
     }
 
     var colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog.adaptive(
+    return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       scrollable: true,
       title: Row(

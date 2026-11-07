@@ -70,7 +70,7 @@ class _VaccinationEditorAlertState
   Widget build(BuildContext context) {
     var dogs = ref.watch(dogsProvider).valueOrNull ?? [];
     var colorScheme = Theme.of(context).colorScheme;
-    return AlertDialog.adaptive(
+    return AlertDialog(
       scrollable: true,
       title: const Text("Add Vaccination"),
       content: Column(

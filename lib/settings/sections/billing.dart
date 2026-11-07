@@ -201,7 +201,7 @@ class _InvoicingSettingsWidgetState
     final formKey = GlobalKey<FormState>();
     final result = await showDialog<int>(
       context: context,
-      builder: (context) => AlertDialog.adaptive(
+      builder: (context) => AlertDialog(
         title: const Text("Set invoice number"),
         content: Form(
           key: formKey,

@@ -68,12 +68,12 @@ class HealtheventEditorAlertState
     List<Dog>? dogs = ref.watch(dogsProvider).valueOrNull;
     final colorScheme = Theme.of(context).colorScheme;
     if (dogs == null) {
-      return const AlertDialog.adaptive(
+      return const AlertDialog(
         title: Text("Add health event"),
         content: CircularProgressIndicator(),
       );
     }
-    return AlertDialog.adaptive(
+    return AlertDialog(
       scrollable: true,
       title: const Text("Add health event"),
       content: Column(

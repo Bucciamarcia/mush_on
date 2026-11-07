@@ -125,7 +125,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                   .valueOrNull ??
               const <TourTypePricing>[];
     final customerLabels = _customerLabels(customers, pricings);
-    return AlertDialog.adaptive(
+    return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       scrollable: true,
       title: Row(
@@ -612,7 +612,7 @@ class ConfirmRefundDialog extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final account = ref.watch(accountProvider).value;
     final isProcessing = ref.watch(isRefundProcessingProvider);
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Be careful!"),
       content: const Text(
         "This will refund the entire booking and remove the booking from the group. This CANNOT be reversed!",
@@ -707,7 +707,7 @@ class _ConfirmCancelBookingDialogState
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final account = ref.watch(accountProvider).value;
-    return AlertDialog.adaptive(
+    return AlertDialog(
       title: const Text("Cancel this booking?"),
       content: const Text(
         "This frees the seat and deletes the booking and all its customers. "
