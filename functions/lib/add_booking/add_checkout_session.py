@@ -92,45 +92,94 @@ def add_checkout_session_to_db(
     )
 
 
+def _transaction_snapshot(transaction, doc_ref):
+    result = transaction.get(doc_ref)
+    if hasattr(result, "exists"):
+        return result
+    return next(iter(result), None)
+
+
+def _claim_payment(session_ref, booking_ref, session_updates: dict) -> bool:
+    """Atomically mark the session processed and the booking paid.
+
+    Returns False if another webhook delivery already did it, so concurrent
+    duplicate deliveries can't both send emails / generate invoices."""
+    db = firestore.client()
+    transaction = db.transaction()
+
+    @firestore.transactional
+    def claim(transaction) -> bool:
+        snapshot = _transaction_snapshot(transaction, session_ref)
+        data = (snapshot.to_dict() if snapshot is not None else None) or {}
+        if data.get("webhookProcessed"):
+            return False
+        transaction.update(
+            session_ref,
+            {
+                **session_updates,
+                "webhookProcessed": True,
+                "confirmationEmail": "pending",
+            },
+        )
+        transaction.update(booking_ref, {"paymentStatus": "paid"})
+        return True
+
+    return claim(transaction)
+
+
+def _claim_confirmation_email(session_ref) -> bool:
+    """Atomically move confirmationEmail from "pending" to "sending".
+
+    Sessions processed before this flag existed have no value: treat them as
+    already emailed."""
+    db = firestore.client()
+    transaction = db.transaction()
+
+    @firestore.transactional
+    def claim(transaction) -> bool:
+        snapshot = _transaction_snapshot(transaction, session_ref)
+        data = (snapshot.to_dict() if snapshot is not None else None) or {}
+        if data.get("confirmationEmail") != "pending":
+            return False
+        transaction.update(session_ref, {"confirmationEmail": "sending"})
+        return True
+
+    return claim(transaction)
+
+
 def payment_processed(
     checkout_session_id: str,
     stripe_account: str,
     stripe_api_key: str,
     payment_intent_id: str,
-    stripe_email: str,
+    stripe_email: str | None,
     post_payment_callback=None,
 ) -> None:
-    """Sets webook processed in checkout sessions and changes payment
-    status in booking"""
-    path = f"checkoutSessions/{checkout_session_id}"
-    doc_ref = firestore.client().document(path)
-    snapshot = doc_ref.get()
-    data = snapshot.to_dict()
+    """Mark the booking paid and send the customer confirmation email.
+
+    Safe under Stripe's at-least-once delivery: the payment and the email are
+    each claimed in a transaction. If the email fails, the claim is released
+    and the error re-raised so Stripe retries the webhook and only the email
+    is attempted again."""
+    db = firestore.client()
+    doc_ref = db.document(f"checkoutSessions/{checkout_session_id}")
+    data = doc_ref.get().to_dict()
     if data is None:
         raise Exception("Couldn't find db")
     checkout_session = CheckoutSession.model_validate(data)
     account = checkout_session.account
-    # Skip if already processed (idempotency)
-    if checkout_session.webhookProcessed:
+    if checkout_session.webhookProcessed and data.get("confirmationEmail") != "pending":
         print(f"Payment {checkout_session_id} already processed, skipping")
         return
-    batch = firestore.client().batch()
-    booking_path = f"accounts/{checkout_session.account}/data/bookingManager/bookings/{checkout_session.bookingId}"
-    booking_ref = firestore.client().document(booking_path)
-    booking_obj = booking_ref.get()
-    data = booking_obj.to_dict()
-    booking = Booking.model_validate(data)
+    booking_path = f"accounts/{account}/data/bookingManager/bookings/{checkout_session.bookingId}"
+    booking_ref = db.document(booking_path)
+    data = booking_ref.get().to_dict()
     if data is None:
         raise Exception("Couldn't find booking")
-    batch.update(booking_ref, {"paymentStatus": "paid"})
-    cg_obj = (
-        firestore.client()
-        .document(
-            f"accounts/{checkout_session.account}/data/bookingManager/customerGroups/{booking.customerGroupId}"
-        )
-        .get()
-    )
-    cg_data = cg_obj.to_dict()
+    booking = Booking.model_validate(data)
+    cg_data = db.document(
+        f"accounts/{account}/data/bookingManager/customerGroups/{booking.customerGroupId}"
+    ).get().to_dict()
     cg = CustomerGroup.model_validate(cg_data)
     payment_receipt_url = get_payment_receipt_url(
         stripe_id=stripe_account,
@@ -141,43 +190,83 @@ def payment_processed(
     total = payment_receipt_url["total"]
     booking_info = get_booking_info(account=account)
     customers = get_customers(account=account, booking_id=booking.id)
-    batch.update(
-        doc_ref,
-        {
-            "webhookProcessed": True,
-            "paymentIntentId": payment_intent_id,
-            "stripeEmail": stripe_email,
-            "total": total,
-        },
-    )
-    batch.commit()
-    if post_payment_callback is not None:
-        post_payment_callback(
-            db=firestore.client(),
-            account=account,
-            booking_id=booking.id,
+
+    if not checkout_session.webhookProcessed:
+        claimed = _claim_payment(
+            doc_ref,
+            booking_ref,
+            {
+                "paymentIntentId": payment_intent_id,
+                "stripeEmail": stripe_email,
+                "total": total,
+            },
         )
-    send_postmark_email(
-        account=account,
-        kennel_name=booking_info.name,
-        booking_date=cg.datetime,
-        timezone=booking_info.timezone,
-        total_amount=total,
-        currency="€",
-        receipt_url=receipt_url,
-        kennel_url=booking_info.url,
-        receiver_email=booking.email,
-        sender_email=booking_info.email,
-        cancellation_policy=booking_info.cancellationPolicy,
-        booking_other_info=build_booking_other_info_html(
-            booking.model_dump(),
-            booking_info.bookingCustomFields,
-        ),
-        customers_other_info=build_customers_other_info_html(
-            [customer.model_dump() for customer in customers],
-            booking_info.customerCustomFields,
-        ),
+        if claimed and post_payment_callback is not None:
+            post_payment_callback(
+                db=firestore.client(),
+                account=account,
+                booking_id=booking.id,
+            )
+
+    if not _claim_confirmation_email(doc_ref):
+        return
+    try:
+        send_postmark_email(
+            account=account,
+            kennel_name=booking_info.name,
+            booking_date=cg.datetime,
+            timezone=booking_info.timezone,
+            total_amount=total,
+            currency="€",
+            receipt_url=receipt_url,
+            kennel_url=booking_info.url,
+            receiver_email=booking.email,
+            sender_email=booking_info.email,
+            cancellation_policy=booking_info.cancellationPolicy,
+            booking_other_info=build_booking_other_info_html(
+                booking.model_dump(),
+                booking_info.bookingCustomFields,
+            ),
+            customers_other_info=build_customers_other_info_html(
+                [customer.model_dump() for customer in customers],
+                booking_info.customerCustomFields,
+            ),
+        )
+    except Exception:
+        doc_ref.update({"confirmationEmail": "pending"})
+        raise
+    doc_ref.update({"confirmationEmail": "sent"})
+
+
+def _waiting_booking_ref_for_session(checkout_session_id: str):
+    """Booking ref for a checkout session, or None if it isn't waiting anymore."""
+    db = firestore.client()
+    session = db.document(f"checkoutSessions/{checkout_session_id}").get().to_dict()
+    if not session:
+        return None
+    booking_ref = db.document(
+        f"accounts/{session['account']}/data/bookingManager/bookings/{session['bookingId']}"
     )
+    booking = booking_ref.get().to_dict()
+    if not booking or booking.get("paymentStatus") != "waiting":
+        return None
+    return booking_ref
+
+
+def payment_pending(checkout_session_id: str) -> None:
+    """Checkout completed with a delayed method (e.g. SEPA debit): no money
+    yet. Keep the booking "waiting" but hold the seat until Stripe reports
+    async_payment_succeeded / async_payment_failed."""
+    booking_ref = _waiting_booking_ref_for_session(checkout_session_id)
+    if booking_ref is not None:
+        booking_ref.update({"expiresAt": None})
+
+
+def payment_failed(checkout_session_id: str) -> None:
+    """Delayed payment failed: expire the waiting booking to free the seat."""
+    booking_ref = _waiting_booking_ref_for_session(checkout_session_id)
+    if booking_ref is not None:
+        booking_ref.update({"expiresAt": datetime.now(ZoneInfo("UTC"))})
 
 
 def send_postmark_email(

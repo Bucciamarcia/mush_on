@@ -7,7 +7,7 @@ part of 'riverpod.dart';
 // **************************************************************************
 
 String _$bookingDataSuccessHash() =>
-    r'f62dadc25bb5b3d456d509d55926ced0980a9f90';
+    r'd88bc7b2fe4e3fa5aeb69895e7fa3e4521df56a8';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,22 +30,32 @@ class _SystemHash {
   }
 }
 
-/// See also [bookingDataSuccess].
+/// Stripe redirects to the success page right after payment, usually before
+/// its webhook has marked the booking paid: keep re-checking while it's still
+/// "waiting" so the page flips to "confirmed" on its own.
+///
+/// Copied from [bookingDataSuccess].
 @ProviderFor(bookingDataSuccess)
 const bookingDataSuccessProvider = BookingDataSuccessFamily();
 
-/// See also [bookingDataSuccess].
-class BookingDataSuccessFamily
-    extends
-        Family<
-          AsyncValue<
-            (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)
-          >
-        > {
-  /// See also [bookingDataSuccess].
+/// Stripe redirects to the success page right after payment, usually before
+/// its webhook has marked the booking paid: keep re-checking while it's still
+/// "waiting" so the page flips to "confirmed" on its own.
+///
+/// Copied from [bookingDataSuccess].
+class BookingDataSuccessFamily extends Family<AsyncValue<BookingSuccessData>> {
+  /// Stripe redirects to the success page right after payment, usually before
+  /// its webhook has marked the booking paid: keep re-checking while it's still
+  /// "waiting" so the page flips to "confirmed" on its own.
+  ///
+  /// Copied from [bookingDataSuccess].
   const BookingDataSuccessFamily();
 
-  /// See also [bookingDataSuccess].
+  /// Stripe redirects to the success page right after payment, usually before
+  /// its webhook has marked the booking paid: keep re-checking while it's still
+  /// "waiting" so the page flips to "confirmed" on its own.
+  ///
+  /// Copied from [bookingDataSuccess].
   BookingDataSuccessProvider call({
     required String bookingId,
     required String account,
@@ -75,13 +85,18 @@ class BookingDataSuccessFamily
   String? get name => r'bookingDataSuccessProvider';
 }
 
-/// See also [bookingDataSuccess].
+/// Stripe redirects to the success page right after payment, usually before
+/// its webhook has marked the booking paid: keep re-checking while it's still
+/// "waiting" so the page flips to "confirmed" on its own.
+///
+/// Copied from [bookingDataSuccess].
 class BookingDataSuccessProvider
-    extends
-        AutoDisposeFutureProvider<
-          (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)
-        > {
-  /// See also [bookingDataSuccess].
+    extends AutoDisposeStreamProvider<BookingSuccessData> {
+  /// Stripe redirects to the success page right after payment, usually before
+  /// its webhook has marked the booking paid: keep re-checking while it's still
+  /// "waiting" so the page flips to "confirmed" on its own.
+  ///
+  /// Copied from [bookingDataSuccess].
   BookingDataSuccessProvider({
     required String bookingId,
     required String account,
@@ -119,9 +134,7 @@ class BookingDataSuccessProvider
 
   @override
   Override overrideWith(
-    FutureOr<(Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>
-    Function(BookingDataSuccessRef provider)
-    create,
+    Stream<BookingSuccessData> Function(BookingDataSuccessRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -139,10 +152,7 @@ class BookingDataSuccessProvider
   }
 
   @override
-  AutoDisposeFutureProviderElement<
-    (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)
-  >
-  createElement() {
+  AutoDisposeStreamProviderElement<BookingSuccessData> createElement() {
     return _BookingDataSuccessProviderElement(this);
   }
 
@@ -166,10 +176,7 @@ class BookingDataSuccessProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin BookingDataSuccessRef
-    on
-        AutoDisposeFutureProviderRef<
-          (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)
-        > {
+    on AutoDisposeStreamProviderRef<BookingSuccessData> {
   /// The parameter `bookingId` of this provider.
   String get bookingId;
 
@@ -178,10 +185,7 @@ mixin BookingDataSuccessRef
 }
 
 class _BookingDataSuccessProviderElement
-    extends
-        AutoDisposeFutureProviderElement<
-          (Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)
-        >
+    extends AutoDisposeStreamProviderElement<BookingSuccessData>
     with BookingDataSuccessRef {
   _BookingDataSuccessProviderElement(super.provider);
 

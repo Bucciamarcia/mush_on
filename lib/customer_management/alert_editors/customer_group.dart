@@ -624,8 +624,24 @@ class _CustomerGroupEditorAlertState
                                                 cs,
                                                 booking.id,
                                               ),
-                                          onBookingDeleted: () {
-                                            repo.deleteBooking(booking.id);
+                                          onBookingDeleted: () async {
+                                            try {
+                                              await repo.deleteBooking(
+                                                booking.id,
+                                              );
+                                            } catch (e) {
+                                              if (!context.mounted) return;
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                errorSnackBar(
+                                                  context,
+                                                  "Failed to delete booking.",
+                                                ),
+                                              );
+                                              return;
+                                            }
+                                            if (!mounted) return;
                                             setState(() {
                                               bookings.removeWhere(
                                                 (bb) => bb.id == booking.id,
@@ -1254,8 +1270,24 @@ class _CustomerGroupEditorAlertState
                                                   cs,
                                                   booking.id,
                                                 ),
-                                            onBookingDeleted: () {
-                                              repo.deleteBooking(booking.id);
+                                            onBookingDeleted: () async {
+                                              try {
+                                                await repo.deleteBooking(
+                                                  booking.id,
+                                                );
+                                              } catch (e) {
+                                                if (!context.mounted) return;
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  errorSnackBar(
+                                                    context,
+                                                    "Failed to delete booking.",
+                                                  ),
+                                                );
+                                                return;
+                                              }
+                                              if (!mounted) return;
                                               setState(() {
                                                 bookings.removeWhere(
                                                   (bb) => bb.id == booking.id,

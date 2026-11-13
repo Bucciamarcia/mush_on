@@ -33,7 +33,14 @@ def build_financial_records(*, db, account: str) -> list[dict]:
     ):
         data = snap.to_dict() or {}
         booking_id = data.get("bookingId")
-        if booking_id:
+        if not booking_id:
+            continue
+        # A booking can have several sessions (retries, repeated pay-link
+        # clicks); only the paid one (it has a paymentIntentId) is authoritative.
+        existing = sessions_by_booking.get(booking_id)
+        if existing is None or (
+            data.get("paymentIntentId") and not existing.get("paymentIntentId")
+        ):
             sessions_by_booking[booking_id] = data
 
     records: list[dict] = []

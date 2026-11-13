@@ -62,6 +62,7 @@ def _install_stubs():
             PERMISSION_DENIED="permission-denied",
             NOT_FOUND="not-found",
             FAILED_PRECONDITION="failed-precondition",
+            ALREADY_EXISTS="already-exists",
             INTERNAL="internal",
         ),
         on_call=_identity_decorator,
@@ -276,6 +277,9 @@ class _FakeTransaction:
     def update(self, ref, data):
         self.updates.append((ref.path, data))
         ref.update(data)
+
+    def delete(self, ref):
+        ref.delete()
 
 
 class _FakeBatch:
@@ -1377,7 +1381,7 @@ class BackendSecurityTests(unittest.TestCase):
 
         self.assertEqual(error.exception.code, "failed-precondition")
 
-    def test_create_checkout_session_calculates_price_and_fee_server_side(self):
+    def test_booking_checkout_calculates_price_and_fee_server_side(self):
         db = _FakeDb()
         db.documents["accounts/account-1/integrations/stripe"] = {
             "accountId": "acct_123",
@@ -1388,23 +1392,12 @@ class BackendSecurityTests(unittest.TestCase):
             "vatRate": 0.255,
         }
         db.documents[
-            "accounts/account-1/data/bookingManager/bookings/booking-1"
-        ] = {
-            "id": "booking-1",
-            "customerGroupId": "cg-1",
-        }
-        db.documents[
             "accounts/account-1/data/bookingManager/customerGroups/cg-1"
         ] = {
             "id": "cg-1",
             "tourTypeId": "tour-1",
             "maxCapacity": 10,
         }
-        db.collections["accounts/account-1/data/bookingManager/customers"] = [
-            {"id": "customer-1", "bookingId": "booking-1", "pricingId": "adult"},
-            {"id": "customer-2", "bookingId": "booking-1", "pricingId": "adult"},
-            {"id": "customer-3", "bookingId": "booking-1", "pricingId": "child"},
-        ]
         db.collections[
             "accounts/account-1/data/bookingManager/tours/tour-1/prices"
         ] = [
@@ -1434,18 +1427,22 @@ class BackendSecurityTests(unittest.TestCase):
         request = types.SimpleNamespace(
             data={
                 "account": "account-1",
-                "bookingId": "booking-1",
                 "tourId": "tour-1",
-                "customerGroupId": "cg-1",
+                "booking": {"id": "booking-1", "customerGroupId": "cg-1"},
+                "customers": [
+                    {"id": "customer-1", "pricingId": "adult"},
+                    {"id": "customer-2", "pricingId": "adult"},
+                    {"id": "customer-3", "pricingId": "child"},
+                ],
                 "lineItems": [{"price_data": {"unit_amount": 1}, "quantity": 1}],
                 "feeAmount": 1,
                 "totalAmount": 1,
             }
         )
 
-        result = main.create_checkout_session(request)
+        result = main.create_booking_checkout_session(request)
 
-        self.assertEqual(result, {"url": "https://checkout.test/session"})
+        self.assertEqual(result["url"], "https://checkout.test/session")
         self.assertEqual(len(checkout.calls), 1)
         call = checkout.calls[0]
         self.assertEqual(call["stripe_account"], "acct_123")
@@ -1493,7 +1490,7 @@ class BackendSecurityTests(unittest.TestCase):
             1098,
         )
 
-    def test_create_checkout_session_deactivates_stale_stripe_connection(self):
+    def test_booking_checkout_deactivates_stale_stripe_connection(self):
         db = _FakeDb()
         db.documents["accounts/account-1/integrations/stripe"] = {
             "activeMode": "test",
@@ -1506,21 +1503,22 @@ class BackendSecurityTests(unittest.TestCase):
         request = types.SimpleNamespace(
             data={
                 "account": "account-1",
-                "bookingId": "booking-1",
                 "tourId": "tour-1",
-                "customerGroupId": "cg-1",
+                "booking": {"id": "booking-1", "customerGroupId": "cg-1"},
+                "customers": [{"id": "customer-1", "pricingId": "adult"}],
             }
         )
 
-        result = main.create_checkout_session(request)
+        with self.assertRaises(_HttpsError) as error:
+            main.create_booking_checkout_session(request)
 
-        self.assertEqual(result, {"error": "Stripe integration is not active"})
+        self.assertEqual(error.exception.message, "Stripe integration is not active")
         self.assertEqual(checkout.calls, [])
         self.assertFalse(
             db.documents["accounts/account-1/integrations/stripe"]["isActive"]
         )
 
-    def test_create_checkout_session_rejects_inactive_stripe_integration(self):
+    def test_booking_checkout_rejects_inactive_stripe_integration(self):
         db = _FakeDb()
         db.documents["accounts/account-1/integrations/stripe"] = {
             "accountId": "acct_123",
@@ -1533,15 +1531,16 @@ class BackendSecurityTests(unittest.TestCase):
         request = types.SimpleNamespace(
             data={
                 "account": "account-1",
-                "bookingId": "booking-1",
                 "tourId": "tour-1",
-                "customerGroupId": "cg-1",
+                "booking": {"id": "booking-1", "customerGroupId": "cg-1"},
+                "customers": [{"id": "customer-1", "pricingId": "adult"}],
             }
         )
 
-        result = main.create_checkout_session(request)
+        with self.assertRaises(_HttpsError) as error:
+            main.create_booking_checkout_session(request)
 
-        self.assertEqual(result, {"error": "Stripe integration is not active"})
+        self.assertEqual(error.exception.message, "Stripe integration is not active")
         self.assertEqual(checkout.calls, [])
 
     def test_add_booking_rejects_legacy_public_write_path(self):

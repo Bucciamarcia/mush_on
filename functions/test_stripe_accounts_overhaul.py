@@ -416,19 +416,20 @@ class CheckoutResolverTests(_Base):
         # Only an archived (previously used) account exists for the selected mode.
         self.seed_account("acct_old", mode="test", archived=True)
 
-        result = main.create_checkout_session(
-            _request(
-                {
-                    "account": "account-1",
-                    "bookingId": "booking-1",
-                    "tourId": "tour-1",
-                    "customerGroupId": "cg-1",
-                },
-                uid=None,
+        with self.assertRaises(main.https_fn.HttpsError) as error:
+            main.create_booking_checkout_session(
+                _request(
+                    {
+                        "account": "account-1",
+                        "tourId": "tour-1",
+                        "booking": {"id": "booking-1", "customerGroupId": "cg-1"},
+                        "customers": [{"id": "customer-1", "pricingId": "adult"}],
+                    },
+                    uid=None,
+                )
             )
-        )
 
-        self.assertIn("error", result)
+        self.assertEqual(error.exception.code, "failed-precondition")
 
 
 if __name__ == "__main__":

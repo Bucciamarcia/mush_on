@@ -70,7 +70,7 @@ class CustomerManagementRepository {
       batch.delete(_db.doc("$cusPath/${c.id}"));
     }
     try {
-      batch.commit();
+      await batch.commit();
     } catch (e, s) {
       logger.error("Couldn't delete booking.", error: e, stackTrace: s);
       rethrow;

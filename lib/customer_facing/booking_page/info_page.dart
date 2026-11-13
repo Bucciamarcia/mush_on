@@ -929,9 +929,11 @@ class BookingSummaryImmobile extends ConsumerWidget {
         await _launchUrl(url);
       }
     } catch (e) {
+      if (_isAlreadySubmitted(e)) _startNewBookingId(ref);
       if (context.mounted) {
-        final message =
-            e is FirebaseFunctionsException && e.code == 'failed-precondition'
+        final message = _isAlreadySubmitted(e)
+            ? _alreadySubmittedMessage
+            : e is FirebaseFunctionsException && e.code == 'failed-precondition'
             ? e.message ?? "This group is now full."
             : "Couldn't add booking: contact support.";
         ScaffoldMessenger.of(
@@ -966,6 +968,9 @@ class BookingSummaryImmobile extends ConsumerWidget {
           customers: customers,
           partner: partner,
         );
+        // The server refuses to overwrite a submitted booking, so a further
+        // booking in this session needs a fresh id.
+        _startNewBookingId(ref);
         if (context.mounted) {
           await showDialog<void>(
             context: context,
@@ -987,9 +992,11 @@ class BookingSummaryImmobile extends ConsumerWidget {
         }
       }
     } catch (e) {
+      if (_isAlreadySubmitted(e)) _startNewBookingId(ref);
       if (context.mounted) {
-        final message =
-            e is FirebaseFunctionsException && e.code == 'failed-precondition'
+        final message = _isAlreadySubmitted(e)
+            ? _alreadySubmittedMessage
+            : e is FirebaseFunctionsException && e.code == 'failed-precondition'
             ? e.message ?? "This group is now full."
             : "Couldn't reserve booking: contact support.";
         ScaffoldMessenger.of(
@@ -1000,6 +1007,32 @@ class BookingSummaryImmobile extends ConsumerWidget {
       ref.read(isLoadingCartProvider.notifier).change(false);
     }
   }
+}
+
+const _alreadySubmittedMessage =
+    "This booking was already submitted. Tap again to make a new booking.";
+
+/// The server answers "already-exists" when the booking id belongs to a
+/// booking that was already paid or reserved (e.g. the customer came back
+/// after paying).
+bool _isAlreadySubmitted(Object e) =>
+    e is FirebaseFunctionsException && e.code == 'already-exists';
+
+void _startNewBookingId(WidgetRef ref) {
+  final booking = ref.read(bookingInfoProvider);
+  if (booking == null) return;
+  final newId = const Uuid().v4();
+  ref.read(bookingInfoProvider.notifier).change(booking.copyWith(id: newId));
+  // Customer docs are keyed by id too: reusing them would move the previous
+  // booking's guests onto the new one.
+  final customers = ref.read(customersInfoProvider);
+  ref
+      .read(customersInfoProvider.notifier)
+      .changeAll(
+        customers
+            .map((c) => c.copyWith(id: const Uuid().v4(), bookingId: newId))
+            .toList(),
+      );
 }
 
 class PricingOptionCounterImmobile extends ConsumerWidget {

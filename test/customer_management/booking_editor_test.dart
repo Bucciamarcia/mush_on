@@ -25,9 +25,27 @@ void main() {
       expect(
         savedPaymentStatusForBooking(
           booking: booking,
+          selectedManualPaymentStatus: PaymentStatus.paidOffPlatform,
+        ),
+        PaymentStatus.paidOffPlatform,
+      );
+    });
+
+    test('manual bookings are never saved as Stripe-paid', () {
+      expect(
+        savedPaymentStatusForBooking(
+          booking: null,
           selectedManualPaymentStatus: PaymentStatus.paid,
         ),
-        PaymentStatus.paid,
+        PaymentStatus.paidOffPlatform,
+      );
+      const unknownBooking = Booking(id: 'booking-1', customerGroupId: 'cg-1');
+      expect(
+        savedPaymentStatusForBooking(
+          booking: unknownBooking,
+          selectedManualPaymentStatus: PaymentStatus.paid,
+        ),
+        PaymentStatus.paidOffPlatform,
       );
     });
 

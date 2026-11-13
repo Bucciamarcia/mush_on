@@ -10,10 +10,52 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'riverpod.g.dart';
 part 'riverpod.freezed.dart';
 
+typedef BookingSuccessData = (
+  Booking,
+  List<Customer>,
+  CustomerGroup,
+  List<TourTypePricing>,
+);
+
 @riverpod
-Future<(Booking, List<Customer>, CustomerGroup, List<TourTypePricing>)>
-bookingDataSuccess(
+/// Stripe redirects to the success page right after payment, usually before
+/// its webhook has marked the booking paid: keep re-checking while it's still
+/// "waiting" so the page flips to "confirmed" on its own.
+Stream<BookingSuccessData> bookingDataSuccess(
   Ref ref, {
+  required String bookingId,
+  required String account,
+}) {
+  return pollWhileWaiting(
+    () => _fetchBookingSuccessData(account: account, bookingId: bookingId),
+    (data) => data.$1.paymentStatus == PaymentStatus.waiting,
+  );
+}
+
+/// Emits [fetch]'s result, then fetches again every [interval] while
+/// [isWaiting] holds, at most [maxAttempts] times. Errors after the first
+/// result just stop the polling (the page already shows something useful).
+Stream<T> pollWhileWaiting<T>(
+  Future<T> Function() fetch,
+  bool Function(T) isWaiting, {
+  int maxAttempts = 20,
+  Duration interval = const Duration(seconds: 3),
+}) async* {
+  var result = await fetch();
+  yield result;
+  for (var attempt = 1; attempt < maxAttempts && isWaiting(result); attempt++) {
+    await Future<void>.delayed(interval);
+    try {
+      result = await fetch();
+    } catch (e, s) {
+      BasicLogger().error("Couldn't refresh booking", error: e, stackTrace: s);
+      return;
+    }
+    yield result;
+  }
+}
+
+Future<BookingSuccessData> _fetchBookingSuccessData({
   required String bookingId,
   required String account,
 }) async {

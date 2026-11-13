@@ -354,7 +354,12 @@ def _booking_counts_for_capacity(booking: dict, now: datetime) -> bool:
 
 
 def _count_reserved_customers_for_group(
-    db, account: str, customer_group_id: str, now: datetime, transaction=None
+    db,
+    account: str,
+    customer_group_id: str,
+    now: datetime,
+    transaction=None,
+    exclude_booking_id: str | None = None,
 ) -> int:
     bm_ref = _booking_manager_ref(db, account)
     booking_query = bm_ref.collection("bookings").where(
@@ -366,13 +371,51 @@ def _count_reserved_customers_for_group(
         if not _booking_counts_for_capacity(booking, now):
             continue
         booking_id = booking.get("id") or getattr(booking_doc, "id", None)
-        if not booking_id:
+        if not booking_id or booking_id == exclude_booking_id:
             continue
         customer_query = bm_ref.collection("customers").where(
             "bookingId", "==", booking_id
         )
         reserved += len(_get_query_snapshots(transaction, customer_query))
     return reserved
+
+
+def _find_checkout_session_doc(db, booking_id: str, account: str | None = None):
+    """Return the checkoutSessions snapshot that best represents a booking.
+
+    A booking can have several sessions (abandoned retries, multiple clicks on
+    the deferred pay link). Prefer the one that was actually paid (it carries
+    ``paymentIntentId``, set by the webhook); otherwise any session.
+    """
+    query = db.collection("checkoutSessions").where("bookingId", "==", booking_id)
+    if account is not None:
+        query = query.where("account", "==", account)
+    docs = list(query.stream())
+    for doc in docs:
+        if (doc.to_dict() or {}).get("paymentIntentId"):
+            return doc
+    return docs[0] if docs else None
+
+
+def _expire_unpaid_checkout_sessions(db, account: str, booking_id: str) -> None:
+    """Best effort: expire the still-open Stripe sessions of a booking."""
+    query = (
+        db.collection("checkoutSessions")
+        .where("bookingId", "==", booking_id)
+        .where("account", "==", account)
+    )
+    for doc in query.stream():
+        data = doc.to_dict() or {}
+        if data.get("paymentIntentId") or data.get("webhookProcessed"):
+            continue
+        try:
+            stripe.checkout.Session.expire(
+                data.get("checkoutSessionId") or doc.id,
+                stripe_account=data.get("stripeId"),
+            )
+        except Exception as e:
+            # Already expired/completed sessions raise: nothing to do.
+            print(f"Could not expire checkout session {doc.id}: {e}")
 
 
 def _get_partner(db, account: str, partner_id) -> dict | None:
@@ -1277,9 +1320,15 @@ def _create_checkout_session_with_tax_rate_retry(
             stripe_mode,
             stripe_account_id,
             partner=checkout_payload.get("partner"),
+            # Keep the VAT treatment the first attempt priced with (deferred
+            # bookings store it); only the tax rate ids should change.
+            reverse_charge_vat_override=checkout_payload.get("reverse_charge_vat"),
         )
         checkout_payload.update(refreshed_payload)
         create_args["line_items"] = refreshed_payload["line_items"]
+        create_args["payment_intent_data"] = {
+            "application_fee_amount": refreshed_payload["fee_amount"]
+        }
         return stripe.checkout.Session.create(**create_args)
 
 
@@ -1343,10 +1392,64 @@ def _reserve_booking_transaction(
                 "Customer group does not belong to the requested tour",
             )
 
+        # The client keeps the same booking id across retries (e.g. the
+        # customer goes back from Stripe and changes the number of guests).
+        # Only an unpaid "waiting" attempt in the same group may be replaced;
+        # anything else (paid, deferred, ...) must never be overwritten.
+        booking_ref = bm_ref.collection("bookings").document(booking_id)
+        existing_snapshot = _get_document_snapshot(transaction, booking_ref)
+        stale_customer_snapshots = []
+        if existing_snapshot is not None and existing_snapshot.exists:
+            existing = existing_snapshot.to_dict() or {}
+            if (
+                existing.get("paymentStatus") != "waiting"
+                or existing.get("customerGroupId") != customer_group_id
+            ):
+                raise https_fn.HttpsError(
+                    https_fn.FunctionsErrorCode.ALREADY_EXISTS,
+                    "This booking has already been submitted",
+                )
+            new_customer_ids = {customer.get("id") for customer in customers}
+            stale_customer_snapshots = [
+                snapshot
+                for snapshot in _get_query_snapshots(
+                    transaction,
+                    bm_ref.collection("customers").where(
+                        "bookingId", "==", booking_id
+                    ),
+                )
+                if snapshot.id not in new_customer_ids
+            ]
+
+        # Customer docs are keyed by client-supplied ids: never let a booking
+        # take over customers that belong to a different booking.
+        for customer in customers:
+            customer_id = customer.get("id")
+            if not customer_id:
+                continue
+            customer_snapshot = _get_document_snapshot(
+                transaction, bm_ref.collection("customers").document(customer_id)
+            )
+            if (
+                customer_snapshot is not None
+                and customer_snapshot.exists
+                and (customer_snapshot.to_dict() or {}).get("bookingId")
+                != booking_id
+            ):
+                raise https_fn.HttpsError(
+                    https_fn.FunctionsErrorCode.ALREADY_EXISTS,
+                    "This booking has already been submitted",
+                )
+
         requested_capacity = len(customers)
         max_capacity = int(_unwrap_int64_wrappers(customer_group.get("maxCapacity", 0)))
         reserved_capacity = _count_reserved_customers_for_group(
-            db, account, customer_group_id, now, transaction
+            db,
+            account,
+            customer_group_id,
+            now,
+            transaction,
+            exclude_booking_id=booking_id,
         )
         if max_capacity > 0 and reserved_capacity + requested_capacity > max_capacity:
             raise https_fn.HttpsError(
@@ -1355,7 +1458,6 @@ def _reserve_booking_transaction(
             )
 
         expires_at = now + timedelta(minutes=37)
-        booking_ref = bm_ref.collection("bookings").document(booking_id)
         booking_data = {
             **booking,
             "id": booking_id,
@@ -1371,6 +1473,8 @@ def _reserve_booking_transaction(
             # Deferred bookings hold the seat permanently — never expire.
             booking_data.pop("expiresAt", None)
         transaction.set(booking_ref, booking_data)
+        for snapshot in stale_customer_snapshots:
+            transaction.delete(snapshot.reference)
         for customer in customers:
             customer_id = customer.get("id")
             pricing_id = customer.get("pricingId")
@@ -1385,6 +1489,8 @@ def _reserve_booking_transaction(
             "bookingId": booking_id,
             "customerGroupId": customer_group_id,
             "expiresAt": expires_at if set_expiry else None,
+            "replacedExisting": existing_snapshot is not None
+            and existing_snapshot.exists,
         }
 
     return reserve(transaction)
@@ -2068,13 +2174,7 @@ def get_booking_success_data(req: https_fn.CallableRequest[dict]) -> dict:
         )
 
     db = firestore.client()
-    checkout_docs = (
-        db.collection("checkoutSessions")
-        .where("bookingId", "==", booking_id)
-        .limit(1)
-        .stream()
-    )
-    checkout_doc = next(checkout_docs, None)
+    checkout_doc = _find_checkout_session_doc(db, booking_id)
     if (
         checkout_doc is not None
         and (checkout_doc.to_dict() or {}).get("account") != account
@@ -2136,66 +2236,6 @@ def get_booking_success_data(req: https_fn.CallableRequest[dict]) -> dict:
 
 
 @https_fn.on_call()
-def create_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
-    try:
-        data = req.data or {}
-        account = data.get("account")
-        booking_id = data.get("bookingId")
-        tour_id = data.get("tourId")
-        customer_group_id = data.get("customerGroupId")
-
-        if not account or not booking_id or not tour_id or not customer_group_id:
-            return {"error": "account, bookingId, tourId or customerGroupId is null"}
-
-        stripe_mode = get_selected_stripe_mode(account)
-        stripe_connection = get_connected_account_doc(account, stripe_mode) or {}
-        stripe_account_id = stripe_connection.get("accountId")
-        if not get_stripe_integration_is_active(account) or not stripe_account_id:
-            return {"error": "Stripe integration is not active"}
-        if not _verify_connected_account_can_charge(
-            account, stripe_mode, stripe_connection
-        ):
-            return {"error": "Stripe integration is not active"}
-        _set_stripe_api_key(stripe_mode)
-
-        db = firestore.client()
-        checkout_payload = _build_server_checkout_payload(
-            db,
-            account,
-            booking_id,
-            tour_id,
-            customer_group_id,
-            stripe_mode,
-            stripe_account_id,
-        )
-
-        session = _create_checkout_session_with_tax_rate_retry(
-            db,
-            account,
-            stripe_mode,
-            stripe_account_id,
-            checkout_payload,
-            booking_id,
-        )
-        checkout_session = session.id
-        if checkout_session is None:
-            return {"error": f"Checkout session is None. Session: {session}"}
-        add_checkout_session.add_checkout_session_to_db(
-            checkout_session,
-            account,
-            stripe_account_id,
-            stripe_mode,
-            booking_id,
-            checkout_payload["total_amount_cents"],
-            checkout_payload["fee_amount"],
-        )
-
-        return {"url": session.url}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-@https_fn.on_call()
 def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict:
     try:
         data = req.data or {}
@@ -2240,6 +2280,10 @@ def create_booking_checkout_session(req: https_fn.CallableRequest[dict]) -> dict
         )
         booking_id = reservation["bookingId"]
         customer_group_id = reservation["customerGroupId"]
+        if reservation.get("replacedExisting"):
+            # The customer changed the booking after opening Stripe: close the
+            # old checkout so it can't be paid at the old price/guest count.
+            _expire_unpaid_checkout_sessions(db, account, booking_id)
 
         partner = _get_partner(db, account, partner_id)
         checkout_payload = _build_server_checkout_payload(
@@ -2362,46 +2406,66 @@ def create_deferred_booking(req: https_fn.CallableRequest[dict]) -> dict:
         )
         booking_id = reservation["bookingId"]
         customer_group_id = reservation["customerGroupId"]
-
-        # Compute the discounted total via the shared calculator. The stripe
-        # account is only needed for VAT tax-rate resolution; resolve it
-        # best-effort so the total can always be computed.
-        stripe_mode = get_selected_stripe_mode(account)
-        stripe_connection = get_connected_account_doc(account, stripe_mode) or {}
-        stripe_account_id = stripe_connection.get("accountId") or ""
-        checkout_payload = _build_server_checkout_payload(
-            db,
-            account,
-            booking_id,
-            tour_id,
-            customer_group_id,
-            stripe_mode,
-            stripe_account_id,
-            partner=partner,
-        )
-        total_cents = checkout_payload["total_amount_cents"]
-        db.document(
-            f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}"
-        ).update(
-            {
-                "partner": partner_id,
-                "totalCents": total_cents,
-                "reverseChargeVat": checkout_payload["reverse_charge_vat"],
-            }
-        )
-
-        send_deferred_payment_email_for_booking(
-            db=db, account=account, booking_id=booking_id
-        )
+        try:
+            _finish_deferred_booking(
+                db, account, tour_id, booking_id, customer_group_id, partner, partner_id
+            )
+        except Exception:
+            # The deferred hold never expires: if pricing or the partner email
+            # fails, release the seat so it matches the error the client sees.
+            _delete_booking_and_customers(db, account, booking_id)
+            raise
         _auto_generate_partner_invoice_best_effort(
             db=db, account=account, booking_id=booking_id
         )
-
         return {"bookingId": booking_id}
     except https_fn.HttpsError:
         raise
     except Exception as e:
         raise https_fn.HttpsError(https_fn.FunctionsErrorCode.INTERNAL, str(e))
+
+
+def _finish_deferred_booking(
+    db, account, tour_id, booking_id, customer_group_id, partner, partner_id
+) -> None:
+    """Price a freshly reserved deferred booking and email the partner."""
+    # Compute the discounted total via the shared calculator. The stripe
+    # account is only needed for VAT tax-rate resolution; resolve it
+    # best-effort so the total can always be computed.
+    stripe_mode = get_selected_stripe_mode(account)
+    stripe_connection = get_connected_account_doc(account, stripe_mode) or {}
+    stripe_account_id = stripe_connection.get("accountId") or ""
+    checkout_payload = _build_server_checkout_payload(
+        db,
+        account,
+        booking_id,
+        tour_id,
+        customer_group_id,
+        stripe_mode,
+        stripe_account_id,
+        partner=partner,
+    )
+    db.document(
+        f"{_booking_manager_collection_path(account, 'bookings')}/{booking_id}"
+    ).update(
+        {
+            "partner": partner_id,
+            "totalCents": checkout_payload["total_amount_cents"],
+            "reverseChargeVat": checkout_payload["reverse_charge_vat"],
+        }
+    )
+    send_deferred_payment_email_for_booking(
+        db=db, account=account, booking_id=booking_id
+    )
+
+
+def _delete_booking_and_customers(db, account: str, booking_id: str) -> None:
+    bm_ref = _booking_manager_ref(db, account)
+    for customer_doc in (
+        bm_ref.collection("customers").where("bookingId", "==", booking_id).stream()
+    ):
+        customer_doc.reference.delete()
+    bm_ref.collection("bookings").document(booking_id).delete()
 
 
 def _create_deferred_checkout_session(db, account: str, booking_id: str) -> dict:
@@ -2634,11 +2698,7 @@ def cancel_booking(req: https_fn.CallableRequest[dict]) -> dict:
             https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
             "Use refund for paid bookings",
         )
-    for customer_doc in (
-        bm_ref.collection("customers").where("bookingId", "==", booking_id).stream()
-    ):
-        customer_doc.reference.delete()
-    booking_ref.delete()
+    _delete_booking_and_customers(db, account, booking_id)
     return {"ok": True}
 
 
@@ -2711,22 +2771,44 @@ def stirpe_webhook_checkout_session_succeeded(
     except Exception as e:
         print("Webhook signature verification failed." + str(e))
         return https_fn.Response(f"Unauthenticated: {str(e)}", status=400)
-    if event and event.type == "checkout.session.completed":
-        checkout_session_id = event.data.object["id"]
-        account = event.account
-        stripe_api = get_stripe_api_key(stripe_mode)
-        if account is None or stripe_api is None:
-            raise Exception("Account is None in webhook")
-        add_checkout_session.payment_processed(
-            checkout_session_id=checkout_session_id,
-            stripe_account=account,
-            stripe_api_key=stripe_api,
-            payment_intent_id=event.data.object["payment_intent"],
-            stripe_email=event.data.object["customer_details"]["email"],
-            post_payment_callback=_auto_generate_partner_invoice_best_effort,
-        )
+    if event:
+        _handle_checkout_webhook_event(event, stripe_mode)
 
     return https_fn.Response("ok for event")
+
+
+# Methods like SEPA debit complete the checkout before the money arrives
+# (payment_status "unpaid"); Stripe then sends async_payment_succeeded/failed.
+# The Stripe webhook endpoint must be subscribed to those two events as well.
+_PAID_CHECKOUT_STATUSES = ("paid", "no_payment_required")
+
+
+def _handle_checkout_webhook_event(event, stripe_mode) -> None:
+    session = event.data.object
+    checkout_session_id = session["id"]
+    if event.type == "checkout.session.async_payment_failed":
+        add_checkout_session.payment_failed(checkout_session_id)
+        return
+    if event.type not in (
+        "checkout.session.completed",
+        "checkout.session.async_payment_succeeded",
+    ):
+        return
+    if session.get("payment_status") not in _PAID_CHECKOUT_STATUSES:
+        add_checkout_session.payment_pending(checkout_session_id)
+        return
+    account = event.account
+    stripe_api = get_stripe_api_key(stripe_mode)
+    if account is None or stripe_api is None:
+        raise Exception("Account is None in webhook")
+    add_checkout_session.payment_processed(
+        checkout_session_id=checkout_session_id,
+        stripe_account=account,
+        stripe_api_key=stripe_api,
+        payment_intent_id=session["payment_intent"],
+        stripe_email=(session.get("customer_details") or {}).get("email"),
+        post_payment_callback=_auto_generate_partner_invoice_best_effort,
+    )
 
 
 @https_fn.on_call()
@@ -2735,9 +2817,7 @@ def stripe_get_payment_receipt_url(req: https_fn.CallableRequest[dict]) -> dict:
     booking_id = data["bookingId"]
     account = data.get("account")
     db = firestore.client()
-    ref = db.collection("checkoutSessions").where("bookingId", "==", booking_id)
-    docs = ref.stream()
-    first_doc = next(docs, None)
+    first_doc = _find_checkout_session_doc(db, booking_id)
     if first_doc is None:
         raise https_fn.HttpsError(
             https_fn.FunctionsErrorCode.NOT_FOUND, "No checkout session found"
@@ -2766,20 +2846,24 @@ def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
     _assert_account_member(req, account)
 
     db = firestore.client()
-    checkout_docs = (
-        db.collection("checkoutSessions")
-        .where("bookingId", "==", booking_id)
-        .where("account", "==", account)
-        .limit(1)
-        .stream()
+    booking_ref = db.document(
+        f"accounts/{account}/data/bookingManager/bookings/{booking_id}"
     )
-    checkout_doc = next(checkout_docs, None)
-    if checkout_doc is None:
-        raise https_fn.HttpsError(
-            https_fn.FunctionsErrorCode.NOT_FOUND,
-            "No checkout session found for this booking",
-        )
-    checkout_data = checkout_doc.to_dict() or {}
+    checkout_doc = _find_checkout_session_doc(db, booking_id, account)
+    checkout_data = (checkout_doc.to_dict() or {}) if checkout_doc else {}
+    if not checkout_data.get("paymentIntentId"):
+        # No Stripe payment behind this booking. Older manual bookings were
+        # saved as "paid" without going through Stripe: there is nothing to
+        # refund on Stripe, so just mark them refunded to free the seat.
+        booking_data = booking_ref.get().to_dict() or {}
+        if booking_data.get("paymentStatus") == "paid":
+            booking_ref.update({"paymentStatus": "refunded"})
+            return {"refundId": None, "refundStatus": "offPlatform"}
+        if checkout_doc is None:
+            raise https_fn.HttpsError(
+                https_fn.FunctionsErrorCode.NOT_FOUND,
+                "No checkout session found for this booking",
+            )
     existing_refund_id = checkout_data.get("refundId")
     if existing_refund_id:
         return {
@@ -2787,9 +2871,6 @@ def refund_payment(req: https_fn.CallableRequest[dict]) -> dict:
             "refundStatus": checkout_data.get("refundStatus"),
         }
 
-    booking_ref = db.document(
-        f"accounts/{account}/data/bookingManager/bookings/{booking_id}"
-    )
     booking_data = booking_ref.get().to_dict() or {}
     if booking_data.get("paymentStatus") == "refunded":
         return {

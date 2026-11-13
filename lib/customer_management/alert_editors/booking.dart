@@ -231,7 +231,7 @@ class _BookingEditorAlertState extends ConsumerState<BookingEditorAlert> {
                           label: Text("Deferred"),
                         ),
                         ButtonSegment(
-                          value: PaymentStatus.paid,
+                          value: PaymentStatus.paidOffPlatform,
                           icon: Icon(Icons.check_circle_outline),
                           label: Text("Paid"),
                         ),
@@ -473,7 +473,6 @@ String? _emptyToNull(String value) {
 }
 
 PaymentStatus initialManualBookingPaymentStatus(Booking? booking) {
-  if (booking?.paymentStatus == PaymentStatus.paid) return PaymentStatus.paid;
   return PaymentStatus.deferredPayment;
 }
 
@@ -485,6 +484,11 @@ PaymentStatus savedPaymentStatusForBooking({
   if (currentStatus != null && currentStatus != PaymentStatus.unknown) {
     return currentStatus;
   }
+  // Manually entered bookings never went through Stripe, so "paid" here means
+  // paid off-platform: there is no Stripe payment to refund later.
+  if (selectedManualPaymentStatus == PaymentStatus.paid) {
+    return PaymentStatus.paidOffPlatform;
+  }
   return selectedManualPaymentStatus;
 }
 
@@ -493,8 +497,8 @@ bool _showsManualPaymentStatusPicker(Booking? booking) =>
 
 String _manualPaymentStatusDescription(PaymentStatus status) {
   return switch (status) {
-    PaymentStatus.paid =>
-      "Use this when the booking has already been paid. It counts as an active booking.",
+    PaymentStatus.paidOffPlatform =>
+      "Use this when the booking has already been paid (cash, bank transfer...). It counts as an active booking.",
     PaymentStatus.deferredPayment =>
       "Use this for pay-later or invoice bookings. It counts as an active booking.",
     _ => "",
