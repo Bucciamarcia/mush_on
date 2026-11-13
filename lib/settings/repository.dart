@@ -148,6 +148,33 @@ class SettingsRepository {
       rethrow;
     }
   }
+
+  /// Lists the users that belong to this account. Admin only (server-checked).
+  Future<List<UserName>> listUsers() async {
+    try {
+      final result = await functions
+          .httpsCallable("list_account_users")
+          .call<Map<String, dynamic>>();
+      final users = (result.data["users"] as List?) ?? [];
+      return users
+          .map((u) => UserName.fromJson(Map<String, dynamic>.from(u as Map)))
+          .toList();
+    } catch (e, s) {
+      logger.error("Couldn't list account users", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
+
+  /// Removes a user from this account. They keep their login but lose access
+  /// to the kennel. Admin only (server-checked).
+  Future<void> removeUser(String uid) async {
+    try {
+      await functions.httpsCallable("remove_account_user").call({"uid": uid});
+    } catch (e, s) {
+      logger.error("Couldn't remove user", error: e, stackTrace: s);
+      rethrow;
+    }
+  }
 }
 
 @freezed

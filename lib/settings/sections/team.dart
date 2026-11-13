@@ -5,6 +5,7 @@ import 'package:mush_on/riverpod.dart';
 import 'package:mush_on/services/models/user_level.dart';
 import 'package:mush_on/settings/add_users.dart';
 import 'package:mush_on/settings/repository.dart';
+import 'package:mush_on/settings/team_members.dart';
 
 class TeamSettingsPage extends ConsumerWidget {
   const TeamSettingsPage({super.key});
@@ -32,7 +33,13 @@ class TeamSettingsPage extends ConsumerWidget {
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1080),
-            child: AddUsers(account: account, repository: settingsRepo),
+            child: Column(
+              children: [
+                AddUsers(account: account, repository: settingsRepo),
+                const SizedBox(height: 20),
+                TeamMembers(account: account, repository: settingsRepo),
+              ],
+            ),
           ),
         ),
       ),

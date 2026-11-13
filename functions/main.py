@@ -2858,6 +2858,90 @@ def invite_user(req: https_fn.CallableRequest[dict]) -> dict:
 
 
 @https_fn.on_call()
+def list_account_users(req: https_fn.CallableRequest[dict]) -> dict:
+    """Lists the members of the caller's account. Admin (musher) only."""
+    uid = _require_auth_uid(req)
+    db = firestore.client()
+    caller = _require_musher_user(db, uid)
+    account = _validate_account_id(caller.get("account"))
+
+    users = []
+    for snapshot in db.collection("users").where("account", "==", account).stream():
+        data = snapshot.to_dict() or {}
+        user_level = data.get("userLevel")
+        if user_level not in ["musher", "handler", "guest"]:
+            user_level = "handler"
+        users.append(
+            {
+                # The doc id is what remove_account_user looks up.
+                "uid": snapshot.id,
+                "email": data.get("email") or "",
+                "name": data.get("name") or "",
+                "userLevel": user_level,
+            }
+        )
+    users.sort(key=lambda u: u["email"].lower())
+    return {"users": users}
+
+
+@https_fn.on_call()
+def remove_account_user(req: https_fn.CallableRequest[dict]) -> dict:
+    """Detaches a user from the caller's account. Admin (musher) only.
+
+    The auth user and the profile doc are kept: the user simply loses access
+    to the kennel and can be invited again later.
+    """
+    uid = _require_auth_uid(req)
+    data = req.data or {}
+    target_uid = data.get("uid")
+    if (
+        not isinstance(target_uid, str)
+        or not target_uid.strip()
+        or "/" in target_uid
+    ):
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.INVALID_ARGUMENT,
+            "Missing or invalid uid",
+        )
+    target_uid = target_uid.strip()
+
+    db = firestore.client()
+    caller = _require_musher_user(db, uid)
+    account = _validate_account_id(caller.get("account"))
+    if target_uid == uid:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.FAILED_PRECONDITION,
+            "You can't remove yourself",
+        )
+
+    target_ref = db.document(f"users/{target_uid}")
+    target = target_ref.get().to_dict()
+    if target is None or target.get("account") != account:
+        raise https_fn.HttpsError(
+            https_fn.FunctionsErrorCode.NOT_FOUND,
+            "User not found in this account",
+        )
+
+    target_ref.update({"account": None, "userLevel": "handler"})
+
+    # Revoke any pending invitation to this kennel, so the removed user can't
+    # rejoin through an old invite link.
+    target_email = target.get("email")
+    if isinstance(target_email, str) and target_email.strip():
+        invitation_ref = db.document(
+            f"userInvitations/{target_email.strip().lower()}"
+        )
+        invitation = invitation_ref.get().to_dict()
+        if (
+            invitation is not None
+            and invitation.get("account") == account
+            and invitation.get("accepted") is not True
+        ):
+            invitation_ref.delete()
+    return {"result": "ok"}
+
+
+@https_fn.on_call()
 def get_user_invitation_db(req: https_fn.CallableRequest[dict]) -> dict:
     data = req.data or {}
     email = _normalize_invitation_email(data.get("email"))

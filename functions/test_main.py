@@ -217,6 +217,7 @@ class _Query:
     def stream(self):
         docs = []
         collection_data = list(self.db.collections.get(self.collection_name, []))
+        path_ids = {}
         prefix = f"{self.collection_name}/"
         for path, data in self.db.documents.items():
             if not path.startswith(prefix):
@@ -224,6 +225,7 @@ class _Query:
             remainder = path[len(prefix) :]
             if "/" not in remainder and data not in collection_data:
                 collection_data.append(data)
+                path_ids[id(data)] = remainder
         for data in collection_data:
             matches = all(
                 data.get(field) == value
@@ -238,7 +240,7 @@ class _Query:
                 for field, op, value in self.filters
             )
             if matches:
-                doc_id = data.get("id")
+                doc_id = data.get("id") or path_ids.get(id(data))
                 reference = _DocRef(self.db, f"{self.collection_name}/{doc_id}")
                 docs.append(_Snapshot(data, doc_id=doc_id, reference=reference))
         if self.order_field is not None:
@@ -1074,6 +1076,214 @@ class BackendSecurityTests(unittest.TestCase):
                 }
             ],
         )
+
+    def _seed_team(self):
+        db = _FakeDb()
+        db.documents["users/admin-1"] = {
+            "uid": "admin-1",
+            "email": "admin@example.com",
+            "name": "Admin",
+            "account": "account-1",
+            "userLevel": "musher",
+            "lastLogin": datetime(2026, 1, 1, tzinfo=timezone.utc),
+        }
+        db.documents["users/handler-1"] = {
+            "uid": "handler-1",
+            "email": "handler@example.com",
+            "account": "account-1",
+            "userLevel": "handler",
+        }
+        db.documents["users/other-1"] = {
+            "uid": "other-1",
+            "email": "other@example.com",
+            "account": "account-2",
+            "userLevel": "handler",
+        }
+        main.firestore.client = lambda: db
+        return db
+
+    def test_list_account_users_requires_authentication(self):
+        self._seed_team()
+        request = types.SimpleNamespace(data={}, auth=None)
+
+        with self.assertRaises(_HttpsError) as error:
+            main.list_account_users(request)
+
+        self.assertEqual(error.exception.code, "unauthenticated")
+
+    def test_list_account_users_rejects_non_musher(self):
+        self._seed_team()
+        request = types.SimpleNamespace(
+            data={}, auth=types.SimpleNamespace(uid="handler-1")
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.list_account_users(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+
+    def test_list_account_users_returns_only_same_account_plain_fields(self):
+        self._seed_team()
+        request = types.SimpleNamespace(
+            data={"account": "account-2"},
+            auth=types.SimpleNamespace(uid="admin-1"),
+        )
+
+        result = main.list_account_users(request)
+
+        self.assertEqual(
+            result,
+            {
+                "users": [
+                    {
+                        "uid": "admin-1",
+                        "email": "admin@example.com",
+                        "name": "Admin",
+                        "userLevel": "musher",
+                    },
+                    {
+                        "uid": "handler-1",
+                        "email": "handler@example.com",
+                        "name": "",
+                        "userLevel": "handler",
+                    },
+                ]
+            },
+        )
+
+    def test_remove_account_user_rejects_non_musher(self):
+        db = self._seed_team()
+        request = types.SimpleNamespace(
+            data={"uid": "admin-1"},
+            auth=types.SimpleNamespace(uid="handler-1"),
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.remove_account_user(request)
+
+        self.assertEqual(error.exception.code, "permission-denied")
+        self.assertEqual(db.documents["users/admin-1"]["account"], "account-1")
+
+    def test_remove_account_user_rejects_missing_uid(self):
+        self._seed_team()
+        request = types.SimpleNamespace(
+            data={"uid": "  "}, auth=types.SimpleNamespace(uid="admin-1")
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.remove_account_user(request)
+
+        self.assertEqual(error.exception.code, "invalid-argument")
+
+    def test_remove_account_user_rejects_self(self):
+        db = self._seed_team()
+        request = types.SimpleNamespace(
+            data={"uid": "admin-1"}, auth=types.SimpleNamespace(uid="admin-1")
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.remove_account_user(request)
+
+        self.assertEqual(error.exception.code, "failed-precondition")
+        self.assertEqual(db.documents["users/admin-1"]["account"], "account-1")
+
+    def test_remove_account_user_rejects_user_from_other_account(self):
+        db = self._seed_team()
+        request = types.SimpleNamespace(
+            data={"uid": "other-1"}, auth=types.SimpleNamespace(uid="admin-1")
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.remove_account_user(request)
+
+        self.assertEqual(error.exception.code, "not-found")
+        self.assertEqual(db.documents["users/other-1"]["account"], "account-2")
+
+    def test_remove_account_user_rejects_unknown_user(self):
+        db = self._seed_team()
+        request = types.SimpleNamespace(
+            data={"uid": "ghost"}, auth=types.SimpleNamespace(uid="admin-1")
+        )
+
+        with self.assertRaises(_HttpsError) as error:
+            main.remove_account_user(request)
+
+        self.assertEqual(error.exception.code, "not-found")
+        self.assertNotIn("users/ghost", db.documents)
+
+    def test_remove_account_user_clears_membership(self):
+        db = self._seed_team()
+        request = types.SimpleNamespace(
+            data={"uid": "handler-1"}, auth=types.SimpleNamespace(uid="admin-1")
+        )
+
+        result = main.remove_account_user(request)
+
+        self.assertEqual(result, {"result": "ok"})
+        user = db.documents["users/handler-1"]
+        self.assertIsNone(user["account"])
+        self.assertEqual(user["userLevel"], "handler")
+        self.assertEqual(user["email"], "handler@example.com")
+
+    def test_list_account_users_uses_document_id_as_uid(self):
+        db = self._seed_team()
+        db.documents["users/handler-1"]["uid"] = "legacy-uid"
+        request = types.SimpleNamespace(
+            data={}, auth=types.SimpleNamespace(uid="admin-1")
+        )
+
+        result = main.list_account_users(request)
+
+        uids = [u["uid"] for u in result["users"]]
+        self.assertEqual(uids, ["admin-1", "handler-1"])
+
+    def test_list_account_users_maps_unknown_user_level_to_handler(self):
+        db = self._seed_team()
+        db.documents["users/handler-1"]["userLevel"] = "admin"
+        request = types.SimpleNamespace(
+            data={}, auth=types.SimpleNamespace(uid="admin-1")
+        )
+
+        result = main.list_account_users(request)
+
+        levels = {u["uid"]: u["userLevel"] for u in result["users"]}
+        self.assertEqual(levels, {"admin-1": "musher", "handler-1": "handler"})
+
+    def test_remove_account_user_deletes_pending_invitation_for_account(self):
+        db = self._seed_team()
+        db.documents["userInvitations/handler@example.com"] = {
+            "email": "handler@example.com",
+            "account": "account-1",
+            "userLevel": "musher",
+            "securityCode": "code",
+            "accepted": False,
+            "senderUid": "admin-1",
+        }
+        request = types.SimpleNamespace(
+            data={"uid": "handler-1"}, auth=types.SimpleNamespace(uid="admin-1")
+        )
+
+        main.remove_account_user(request)
+
+        self.assertNotIn("userInvitations/handler@example.com", db.documents)
+
+    def test_remove_account_user_keeps_invitation_from_other_account(self):
+        db = self._seed_team()
+        db.documents["userInvitations/handler@example.com"] = {
+            "email": "handler@example.com",
+            "account": "account-2",
+            "userLevel": "handler",
+            "securityCode": "code",
+            "accepted": False,
+            "senderUid": "other-1",
+        }
+        request = types.SimpleNamespace(
+            data={"uid": "handler-1"}, auth=types.SimpleNamespace(uid="admin-1")
+        )
+
+        main.remove_account_user(request)
+
+        self.assertIn("userInvitations/handler@example.com", db.documents)
 
     def test_get_user_invitation_db_requires_security_code(self):
         db = _FakeDb()

@@ -25,14 +25,17 @@ class _FakeFirebaseFunctions implements FirebaseFunctions {
 class _FakeHttpsCallable implements HttpsCallable {
   Map<String, dynamic>? lastPayload;
   Object? exception;
+  Object? resultData;
 
   @override
   Future<HttpsCallableResult<T>> call<T>([dynamic parameters]) async {
     if (exception != null) {
       throw exception!;
     }
-    lastPayload = Map<String, dynamic>.from(parameters as Map);
-    return _FakeHttpsCallableResult<T>();
+    lastPayload = parameters == null
+        ? null
+        : Map<String, dynamic>.from(parameters as Map);
+    return _FakeHttpsCallableResult<T>(resultData);
   }
 
   @override
@@ -40,8 +43,11 @@ class _FakeHttpsCallable implements HttpsCallable {
 }
 
 class _FakeHttpsCallableResult<T> implements HttpsCallableResult<T> {
+  final Object? _data;
+  _FakeHttpsCallableResult(this._data);
+
   @override
-  T get data => null as dynamic;
+  T get data => _data as dynamic;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -245,6 +251,74 @@ void main() {
         ),
         throwsException,
       );
+    });
+
+    test('listUsers calls list_account_users and maps users', () async {
+      final functions = _FakeFirebaseFunctions();
+      functions.callable.resultData = {
+        'users': [
+          {
+            'uid': 'user-1',
+            'email': 'admin@example.com',
+            'name': 'Admin',
+            'userLevel': 'musher',
+          },
+          {
+            'uid': 'user-2',
+            'email': 'handler@example.com',
+            'name': '',
+            'userLevel': 'handler',
+          },
+        ],
+      };
+      final repository = SettingsRepository(
+        account: 'account-1',
+        firestore: firestore,
+        functions: functions,
+      );
+
+      final users = await repository.listUsers();
+
+      expect(functions.calledName, 'list_account_users');
+      expect(users, const [
+        UserName(
+          uid: 'user-1',
+          email: 'admin@example.com',
+          name: 'Admin',
+          userLevel: UserLevel.musher,
+        ),
+        UserName(
+          uid: 'user-2',
+          email: 'handler@example.com',
+          userLevel: UserLevel.handler,
+        ),
+      ]);
+    });
+
+    test('removeUser calls remove_account_user with the uid', () async {
+      final functions = _FakeFirebaseFunctions();
+      final repository = SettingsRepository(
+        account: 'account-1',
+        firestore: firestore,
+        functions: functions,
+      );
+
+      await repository.removeUser('user-2');
+
+      expect(functions.calledName, 'remove_account_user');
+      expect(functions.callable.lastPayload, {'uid': 'user-2'});
+    });
+
+    test('removeUser rethrows cloud function failures', () async {
+      final functions = _FakeFirebaseFunctions();
+      functions.callable.exception = Exception('Exception triggered');
+      final repository = SettingsRepository(
+        account: 'account-1',
+        firestore: firestore,
+        functions: functions,
+      );
+
+      expect(() => repository.removeUser('user-2'), throwsException);
     });
   });
 }

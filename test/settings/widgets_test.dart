@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:typed_data';
+
+import 'package:cloud_functions/cloud_functions.dart';
 
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,6 +26,7 @@ import 'package:mush_on/settings/sections/team.dart';
 import 'package:mush_on/settings/stripe/riverpod.dart';
 import 'package:mush_on/settings/stripe/stripe_models.dart';
 import 'package:mush_on/settings/stripe/stripe_payment_settings.dart';
+import 'package:mush_on/settings/team_members.dart';
 import 'package:mush_on/settings/user_settings.dart';
 
 class _FakeUser implements User {
@@ -45,6 +49,23 @@ class _RecordingSettingsRepository extends SettingsRepository {
   CustomFieldTemplate? addedCustomField;
   String? deletedCustomFieldId;
   DistanceWarning? addedWarning;
+  List<UserName> teamMembers = const [];
+  String? removedUid;
+  Exception? removeError;
+  int listCalls = 0;
+
+  @override
+  Future<List<UserName>> listUsers() async {
+    listCalls++;
+    return teamMembers;
+  }
+
+  @override
+  Future<void> removeUser(String uid) async {
+    if (removeError != null) throw removeError!;
+    removedUid = uid;
+    teamMembers = teamMembers.where((u) => u.uid != uid).toList();
+  }
 
   @override
   Future<void> addUser({
@@ -254,6 +275,135 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(deletedId, 'template-1');
+    });
+  });
+
+  group('TeamMembers', () {
+    final user = _FakeUser('user-1');
+    const self = UserName(
+      uid: 'user-1',
+      email: 'admin@example.com',
+      name: 'Admin',
+      account: 'account-1',
+      userLevel: UserLevel.musher,
+    );
+    const handler = UserName(
+      uid: 'user-2',
+      email: 'handler@example.com',
+      account: 'account-1',
+      userLevel: UserLevel.handler,
+    );
+
+    testWidgets('lists members and hides remove button for self', (
+      tester,
+    ) async {
+      final repository = _RecordingSettingsRepository()
+        ..teamMembers = const [self, handler];
+
+      await _pumpApp(
+        tester,
+        TeamMembers(account: 'account-1', repository: repository),
+        overrides: [userProvider.overrideWith((_) => Stream.value(user))],
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Admin'), findsOneWidget);
+      expect(find.text('handler@example.com'), findsWidgets);
+      expect(find.byIcon(Icons.person_remove), findsOneWidget);
+    });
+
+    testWidgets('confirming removal calls removeUser and refreshes list', (
+      tester,
+    ) async {
+      final repository = _RecordingSettingsRepository()
+        ..teamMembers = const [self, handler];
+
+      await _pumpApp(
+        tester,
+        TeamMembers(account: 'account-1', repository: repository),
+        overrides: [userProvider.overrideWith((_) => Stream.value(user))],
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.person_remove));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+
+      expect(repository.removedUid, 'user-2');
+      expect(find.byIcon(Icons.person_remove), findsNothing);
+      expect(find.text('User removed from the kennel'), findsOneWidget);
+    });
+
+    testWidgets('cancelling removal does nothing', (tester) async {
+      final repository = _RecordingSettingsRepository()
+        ..teamMembers = const [self, handler];
+
+      await _pumpApp(
+        tester,
+        TeamMembers(account: 'account-1', repository: repository),
+        overrides: [userProvider.overrideWith((_) => Stream.value(user))],
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.person_remove));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(repository.removedUid, isNull);
+      expect(find.byIcon(Icons.person_remove), findsOneWidget);
+    });
+
+    testWidgets('hides remove buttons while current user is loading', (
+      tester,
+    ) async {
+      final repository = _RecordingSettingsRepository()
+        ..teamMembers = const [self, handler];
+      final neverEmits = StreamController<User?>();
+      addTearDown(neverEmits.close);
+
+      await _pumpApp(
+        tester,
+        TeamMembers(account: 'account-1', repository: repository),
+        overrides: [userProvider.overrideWith((_) => neverEmits.stream)],
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('Admin'), findsOneWidget);
+      expect(find.byIcon(Icons.person_remove), findsNothing);
+    });
+
+    testWidgets('failed removal shows server message and refreshes list', (
+      tester,
+    ) async {
+      final repository = _RecordingSettingsRepository()
+        ..teamMembers = const [self, handler]
+        ..removeError = FirebaseFunctionsException(
+          code: 'not-found',
+          message: 'User not found in this account',
+        );
+
+      await _pumpApp(
+        tester,
+        TeamMembers(account: 'account-1', repository: repository),
+        overrides: [userProvider.overrideWith((_) => Stream.value(user))],
+      );
+      await tester.pumpAndSettle();
+      final callsBefore = repository.listCalls;
+
+      await tester.tap(find.byIcon(Icons.person_remove));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remove'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.textContaining('User not found in this account'),
+        findsOneWidget,
+      );
+      expect(repository.listCalls, callsBefore + 1);
     });
   });
 
